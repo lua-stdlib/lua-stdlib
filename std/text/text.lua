@@ -127,19 +127,21 @@ end
 --     f: function
 --       x: object of tag t
 --     returns
---       s: string representation of t
+--       (s: string representation of t
+--       ( or
+--       (t: table of stringify (i) = stringify (v)
+local _tostring = tostring
 stringifier =
   defaultTable (function (x)
                   if type (x) == "table" then
-                    local s, sep = "{", ""
+                    local t = {}
                     for i, v in x do
-                      s = s .. sep .. tostring (i) .. "=" ..
-                        tostring (v)
-                      sep = ","
+                      t[stringifier[tag (i)] (i)] =
+                        stringifier[tag (v)] (v)
                     end
-                    return s .. "}"
+                    return t
                   else
-                    return nil
+                    return %_tostring (x)
                   end
                 end,
                 {})
@@ -150,9 +152,21 @@ stringifier =
 --   x: object to convert to string
 -- returns
 --   s: string representation
-local _tostring = tostring
 function tostring (x)
-  return stringifier[tag (x)] (x) or %_tostring (x)
+  local s = ""
+  local rep = stringifier[tag (x)] (x)
+  if type (rep) == "table" then
+    local sep = ""
+    s = s .. "{"
+    for i, v in rep do
+      s = s .. sep .. tostring (i) .. "=" .. tostring (v)
+      sep = ","
+    end
+    s = s .. "}"
+  else
+    s = rep
+  end
+  return s
 end
 
 -- ordinalSuffix: return the English suffix for an ordinal
