@@ -206,14 +206,15 @@ settagmethod (_TableTag, "add", merge) -- table + table = merge
 
 -- defaultTable: make a table with a different default value
 --   x: default value
---   t: initial table
+--   [t]: initial table
 -- returns
 --   u: table for which u[i] is x if u[i] does not exist
 function defaultTable (x, t)
-  local t = Table (newtag ())
-  settagmethod (tag (t), "index",
+  t = t or {}
+  local tTag = newtag ()
+  settagmethod (tTag, "index",
                 function (t, i)
                   return %x
                 end)
-  return t
+  return settag (t, tTag)
 end
