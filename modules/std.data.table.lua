@@ -69,9 +69,9 @@ function values (t)
 end
 
 -- @func tinvert: Invert a table
---   @param t: table
+--   @param t: table {i=v ...}
 -- returns
---   @param u: inverted table
+--   @param u: inverted table {v=i ...}
 function tinvert (t)
   return foreach (t,
                   function (i, v, u)
