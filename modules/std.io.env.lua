@@ -6,13 +6,14 @@ require "std.data.list"
 -- shell: Perform a shell command and return its output
 --   c: command
 -- returns
---   o: output
+--   o: output, or nil if error
 function shell (c)
-  local i = io.input ()
-  io.popen (c)
-  local o = io.read ("*a")
-  io.input():close ()
-  io.input (i)
+  local h = io.popen (c)
+  local o
+  if h then
+    o = h:read ("*a")
+    h:close ()
+  end
   return o
 end
 

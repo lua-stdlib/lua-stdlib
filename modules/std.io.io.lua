@@ -39,17 +39,16 @@ function writeLine (h, ...)
 end
 
 -- @func changeSuffix: Change the suffix of a filename
---   @param from: suffix to change [.-]
+--   @param from: suffix to change (".-" for any suffix)
 --   @param to: suffix to replace with
 --   @param name: file name to change
 -- returns
 --   @param name_: file name with new suffix
 function changeSuffix (from, to, name)
-  local from = from or ".-"
   return string.gsub (name, "%." .. from .. "$", "") .. "." .. to
 end
 
--- @func addSuffix: Add a suffix to a filename
+-- @func addSuffix: Add a suffix to a filename if not already present
 --   @param suff: suffix to add
 --   @param name: file name to change
 -- returns

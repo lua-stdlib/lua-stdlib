@@ -35,7 +35,7 @@ end
 --   g: composition of f1 ... fn
 --     args: arguments
 --   returns
---     f1(...fn (args)...)
+--     f1 (...fn (args)...)
 function compose (...)
   local fns, n = arg, table.getn (arg)
   if n == 0 then

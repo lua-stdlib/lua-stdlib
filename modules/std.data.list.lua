@@ -38,10 +38,10 @@ end
 --   @param f: function
 --   @param ls: list of lists
 -- returns
---   @param m: result list {call (f, ls[1]) ...
---     call (f, ls[table.getn (ls)])}
+--   @param m: result list {f (unpack (ls[1]))) ...
+--     f (unpack (ls[table.getn (ls)]))}
 function mapWith (f, l)
-  return map (curry (call, f), l)
+  return map (compose (f, unpack), l)
 end
 
 -- @func filter: Filter a list according to a predicate
