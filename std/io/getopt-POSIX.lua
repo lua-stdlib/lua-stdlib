@@ -153,7 +153,7 @@ function Options (t)
   for i = 1, getn (t) do
     for j, s in t[i].short do
       if short[s] then
-        warn ("duplicate short option '" .. s .. "'")
+        warn ("duplicate short option '%s'", s)
       end
       short[s] = t[i]
     end

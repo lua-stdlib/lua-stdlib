@@ -108,7 +108,7 @@ function Options (t)
   for i = 1, getn (t) do
     for j, s in t[i].name do
       if name[s] then
-        warn ("duplicate option '" .. s .. "'")
+        warn ("duplicate option '%s'", s)
       end
       name[s] = t[i]
     end
