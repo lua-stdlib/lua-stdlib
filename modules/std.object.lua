@@ -11,11 +11,14 @@ import "std.table"
 --   In the initialiser, unnamed values are assigned to the fields
 --   given by _init (assuming the default _clone).
 --   Private fields and methods start with "_"
+
 -- Access an object field: object.field
 -- Call an object method: object:method (...)
+-- Call a class method: class.method (self, ...)
+
 -- Add a field: object.field = x
 -- Add a method: function object:method (...) ... end
--- Call a class method: class.method (self, ...)
+
 
 -- Root object
 Object = {
