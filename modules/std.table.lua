@@ -1,7 +1,5 @@
 -- Tables
 
-require "std.base"
-
 
 -- @func table.sort: Make table.sort return its result
 --   @param t: table

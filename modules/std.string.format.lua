@@ -1,5 +1,8 @@
 -- Formatting text
 
+require "std.assert"
+
+
 -- TODO: Pretty printing
 --
 --   Use in getopt
