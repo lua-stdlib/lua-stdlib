@@ -3,11 +3,11 @@
 require "std.data.list"
 
 
--- shell: Perform a shell command and return its output
---   c: command
+-- @func io.shell: Perform a shell command and return its output
+--   @param c: command
 -- returns
---   o: output, or nil if error
-function shell (c)
+--   @param o: output, or nil if error
+function io.shell (c)
   local h = io.popen (c)
   local o
   if h then
@@ -17,12 +17,12 @@ function shell (c)
   return o
 end
 
--- processFiles: Process files specified on the command-line
+-- @func io.processFiles: Process files specified on the command-line
 -- file name "-" means io.stdin
---   f: function to process files with
---     name: the name of the file being read
---     i: the number of the argument
-function processFiles (f)
+--   @param f: function to process files with
+--     @param name: the name of the file being read
+--     @param i: the number of the argument
+function io.processFiles (f)
   for i = 1, table.getn (arg) do
     if arg[i] == "-" then
       io.input (io.stdin)
@@ -34,17 +34,11 @@ function processFiles (f)
   end
 end
 
--- shift: Remove elements from the start of arg
---   [n]: number of elements to remove [1]
-function shift (n)
-  behead (arg, n)
-end
-
--- readDir: Make a list of a directory's contents
---   d: directory
+-- @func readDir: Make a list of a directory's contents
+--   @param d: directory
 -- returns
---   l: list of files
-function readDir (d)
+--   @param l: list of files
+function io.readDir (d)
   local l = split ("\n", string.chomp (shell ("ls -aU " .. d ..
                                        " 2>/dev/null")))
   table.remove (l, 1) -- remove . and ..

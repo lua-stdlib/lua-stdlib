@@ -3,11 +3,11 @@
 require "std.data.code"
 
 
--- @func readLines: Read a file into a list of lines and close the file
+-- @func io.readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
 -- returns
 --   @param l: list of lines
-function readLines (h)
+function io.readLines (h)
   if h == nil then
     h = io.input ()
   elseif type (h) == "string" then
@@ -21,17 +21,16 @@ function readLines (h)
   return l
 end
 
--- @func writeLine: Write values adding a newline after each
---   @param [h]: file handle [current output file]
+-- @func io.writeLine: Write values adding a newline after each
+--   @param [h]: file handle [io.output ()]
 --   @param ...: values to write (as for write)
-function writeLine (h, ...)
-  if io.type (h) == "file" then
-    io.output (h)
-  else
+function io.writeLine (h, ...)
+  if io.type (h) ~= "file" then
+    h = io.output ()
     table.insert (arg, 1, h)
   end
   for i = 1, table.getn (arg) do
-    io.write (arg[i], "\n")
+    h:write (arg[i], "\n")
   end
 end
 

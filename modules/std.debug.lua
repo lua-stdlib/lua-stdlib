@@ -3,7 +3,6 @@
 
 require "std.io.io"
 require "std.string.string"
-require "std.assert" -- so that debug can be overridden
 
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
@@ -14,7 +13,7 @@ require "std.assert" -- so that debug can be overridden
 -- std: do standard library debugging (run examples & test code)
 
 
--- debug: Print a debugging message
+-- @func debug.say: Print a debugging message
 --   @param [n]: debugging level [1]
 --   ...: objects to print (as for print)
 function debug.say (...)
@@ -31,10 +30,10 @@ function debug.say (...)
   end
 end
 
--- Make a debug function for quick use (use call metamethod of debug table)
+-- Expose debug.say as debug
 setmetatable (debug, {__call = debug.say})
 
--- traceCall: Trace function calls
+-- @func debug.traceCall: Trace function calls
 --   @param event: event causing the call
 -- Use: debug.sethook (traceCall, "cr"), as below
 -- based on test/trace-calls.lua from the Lua 5.0 distribution

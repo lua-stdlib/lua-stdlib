@@ -26,8 +26,6 @@
 --               -> Doc                     The document
 --               -> a                       Result
 
-require "std.assert"
-
 
 -- @func string.format: Format, but only if more than one argument
 --   @param (s: string

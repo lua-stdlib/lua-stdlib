@@ -1,7 +1,7 @@
 -- getopt
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
-require "std.assert"
+require "std.base"
 require "std.string"
 require "std.data.object"
 require "std.io.env"

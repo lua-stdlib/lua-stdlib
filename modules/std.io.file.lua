@@ -1,13 +1,13 @@
 -- File
 
-require "std.assert"
+require "std.base"
 
 
--- lenFile: Find the length of a file
---   f: file name
+-- @func io.length: Find the length of a file
+--   @param f: file name
 -- returns
---   len: length of file
-function lenFile (f)
+--   @param len: length of file
+function io.length (f)
   local h, len
   h = io.open (f, "rb")
   len = h:seek ("end")
@@ -18,15 +18,14 @@ function lenFile (f)
   return len
 end
 
--- existsFile: Finds whether a file exists
---   f: file name
+-- @func io.exists: Finds whether a file exists
+--   @param f: file name
 -- returns
---   r: non-nil if f exists, nil otherwise
-function existsFile (f)
+--   @param r: non-nil if f exists, nil otherwise
+function io.exists (f)
   local h = io.open (f, "r")
   if h then
     h:close ()
-    return 1
   end
-  return nil
+  return h ~= nil
 end
