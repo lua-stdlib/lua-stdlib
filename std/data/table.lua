@@ -185,7 +185,7 @@ function methodify (tTag)
                     if type (t._getset[i]) == "table" then
                       return t._getset[i].get (t, i)
                     else
-                      return t[t._getset[i]]
+                      return pathSubscript (t, t._getset[i])
                     end
                   end
                   if %gettm then
