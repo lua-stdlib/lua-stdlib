@@ -17,7 +17,7 @@ math._INTEGER_BITS = b
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: max value
-math.max = listable (math.max)
+math.max = list.listable (math.max)
 
 -- @func math.min: Extend to work on lists
 --   @param (l: list
@@ -25,4 +25,4 @@ math.max = listable (math.max)
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: min value
-math.min = listable (math.min)
+math.min = list.listable (math.min)

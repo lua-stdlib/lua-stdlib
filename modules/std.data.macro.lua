@@ -10,7 +10,7 @@ require "std.string.regex"
 -- returns
 --   u: t[l1]...[ln]
 function lookup (t, l)
-  return foldl (subscript, t, l)
+  return list.foldl (table.subscript, t, l)
 end
 
 -- pathSubscript: Subscript a table with a string containing dots

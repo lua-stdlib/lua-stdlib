@@ -26,7 +26,7 @@ function debug.say (...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    writeLine (io.stderr, string.join ("\t", map (tostring, arg)))
+    writeLine (io.stderr, string.join ("\t", list.map (tostring, arg)))
   end
 end
 

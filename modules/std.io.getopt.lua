@@ -7,6 +7,8 @@ require "std.object"
 require "std.io.env"
 
 
+-- TODO: Sort out the packaging. getopt.Option is tedious to type, but
+-- surely Option shouldn't be in the root namespace?
 -- TODO: Wrap all messages; do all wrapping in processArgs, not
 -- usageInfo; use sdoc-like library
 
@@ -14,7 +16,7 @@ require "std.io.env"
 -- Usage:
 
 -- options = Options {Option {...} ...}
--- processArgs ()
+-- getopt.processArgs ()
 
 -- Assumes prog = {name[, banner] [, purpose] [, notes] [, usage]}
 
@@ -28,21 +30,24 @@ require "std.io.env"
 -- value to run the example.
 
 
--- getOpt: perform argument processing
---   argIn: list of command-line args
---   options: options table
+getopt = {}
+
+
+-- @func getopt.getOpt: perform argument processing
+--   @param argIn: list of command-line args
+--   @param options: options table
 -- returns
---   argOut: table of remaining non-options
---   optOut: table of option key-value list pairs
---   errors: table of error messages
-function getOpt (argIn, options)
+--   @param argOut: table of remaining non-options
+--   @param optOut: table of option key-value list pairs
+--   @param errors: table of error messages
+function getopt.getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
   local function getArg (o, opt, arg, oldarg)
     if o.type == nil then
       if arg ~= nil then
-        table.insert (errors, errNoArg (opt))
+        table.insert (errors, getopt.errNoArg (opt))
       end
     else
       if arg == nil and argIn[1] and
@@ -51,7 +56,7 @@ function getOpt (argIn, options)
         table.remove (argIn, 1)
       end
       if arg == nil and o.type == "Req" then
-        table.insert (errors, errReqArg (opt, o.var))
+        table.insert (errors, getopt.errReqArg (opt, o.var))
         return nil
       end
     end
@@ -66,7 +71,7 @@ function getOpt (argIn, options)
     if o ~= nil then
       optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
     else
-      table.insert (errors, errUnrec (opt))
+      table.insert (errors, getopt.errUnrec (opt))
     end
   end
   while argIn[1] do
@@ -117,40 +122,40 @@ end
 
 -- Error and usage information formatting
 
--- errNoArg: argument when there shouldn't be one
---  optStr: option string
+-- @func getopt.errNoArg: argument when there shouldn't be one
+--   @paramoptStr: option string
 -- returns
---  err: option error
-function errNoArg (optStr)
+--   @param err: option error
+function getopt.errNoArg (optStr)
   return "option `" .. optStr .. "' doesn't take an argument"
 end
 
--- errReqArg: required argument missing
---  optStr: option string
---  desc: argument description
+-- @func getopt.errReqArg: required argument missing
+--   @param optStr: option string
+--   @param desc: argument description
 -- returns
---  err: option error
-function errReqArg (optStr, desc)
+--   @param err: option error
+function getopt.errReqArg (optStr, desc)
   return "option `" .. optStr .. "' requires an argument `" .. desc ..
     "'"
 end
 
--- errUnrec: unrecognized option
---  optStr: option string
+-- @func getopt.errUnrec: unrecognized option
+--   @param optStr: option string
 -- returns
---  err: option error
-function errUnrec (optStr)
+--   @param err: option error
+function getopt.errUnrec (optStr)
   return "unrecognized option `-" .. optStr .. "'"
 end
 
 
--- usageInfo: produce usage info for the given options
---   header: header string
---   optDesc: option descriptors
---   pageWidth: width to format to [78]
+-- @func getopt.usageInfo: produce usage info for the given options
+--   @param.header: header string
+--   @param.optDesc: option descriptors
+--   @param.pageWidth: width to format to [78]
 -- returns
---   mess: formatted string
-function usageInfo (header, optDesc, pageWidth)
+--   @param.mess: formatted string
+function getopt.usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- format the usage info for a single option
   -- returns {opts, desc}: options, description
@@ -167,13 +172,13 @@ function usageInfo (header, optDesc, pageWidth)
         return "[=" .. opt.var .. "]"
       end
     end
-    local textName = map (fmtName, opt.name)
+    local textName = list.map (fmtName, opt.name)
     textName[1] = textName[1] .. fmtArg ()
     return {string.join (", ",
                   {string.join (", ", textName)}), opt.desc}
   end
   local function sameLen (xs)
-    local n = math.max (map (string.len, xs))
+    local n = math.max (list.map (string.len, xs))
     for i, v in pairs (xs) do
       xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
     end
@@ -189,19 +194,21 @@ function usageInfo (header, optDesc, pageWidth)
   end
   local optText = ""
   if table.getn (optDesc) > 0 then
-    local cols = unzip (map (fmtOpt, optDesc))
+    local cols = list.unzip (list.map (fmtOpt, optDesc))
     local width
     cols[1], width = sameLen (cols[1])
-    cols[2] = map (wrapper (pageWidth, width + 4), cols[2])
+    cols[2] = list.map (wrapper (pageWidth, width + 4), cols[2])
     optText = "\n\n" ..
       string.join ("\n",
-                   mapWith (paste, unzip ({sameLen (cols[1]), cols[2]})))
+                   list.mapWith (paste, list.unzip ({sameLen
+                                                      (cols[1]),
+                                                      cols[2]})))
   end
   return header .. optText
 end
 
--- dieWithUsage: die emitting a usage message
-function dieWithUsage ()
+-- @func getopt.dieWithUsage: die emitting a usage message
+function getopt.dieWithUsage ()
   local name = prog.name
   prog.name = nil
   local usage, purpose, notes = "[OPTION...] FILE...", "", ""
@@ -219,16 +226,16 @@ function dieWithUsage ()
       notes = notes .. prog.notes
     end
   end
-  die (usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
-                  options)
+  die (getopt.usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
+                         options)
          .. notes)
 end
 
 
--- processArgs: simple getOpt wrapper
+-- @func getopt.processArgs: simple getOpt wrapper
 -- adds -version/-v and -help/-h/-? automatically; stops program
 -- if there was an error or -help was used
-function processArgs ()
+function getopt.processArgs ()
   local totArgs = table.getn (arg)
   options = Options (concat (options or {},
                              {Option {{"version", "v"},
@@ -237,7 +244,7 @@ function processArgs ()
                                  "show this help"}}
                          ))
   local errors
-  arg, opt, errors = getOpt (arg, options)
+  arg, opt, errors = getopt.getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
     io.stderr:write (prog.banner .. "\n")
   end
@@ -248,7 +255,7 @@ function processArgs ()
       warn (string.join ("\n", errors) .. "\n")
     end
     prog.name = name
-    dieWithUsage ()
+    getopt.dieWithUsage ()
   end
 end
 
@@ -268,13 +275,14 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   }
 
   function test (cmdLine)
-    local nonOpts, opts, errors = getOpt (cmdLine, options)
+    local nonOpts, opts, errors = getopt.getOpt (cmdLine, options)
     if table.getn (errors) == 0 then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. "\n")
     else
       print (string.join ("\n", errors) .. "\n" ..
-             usageInfo ("Usage: foobar [OPTION...] FILE...", options))
+             getopt.usageInfo ("Usage: foobar [OPTION...] FILE...",
+                               options))
     end
   end
 
