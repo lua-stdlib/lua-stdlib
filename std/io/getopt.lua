@@ -219,7 +219,7 @@ function dieWithUsage ()
                     ((prog.purpose and prog.purpose .. endOfLine)
                      or ""),
                   options) ..
-         ((prog.notes and endOfLine .. endOfLine .. prog.notes) or ""))
+         ((prog.notes and endofLine .. endOfLine .. prog.notes) or ""))
 end
 
 
@@ -237,10 +237,10 @@ function processArgs ()
                       ))
   local errors
   arg, opt, errors = getOpt (arg, options)
-  if (opt.version or totArgs == 0) and prog.banner then
+  if (opt.version or opt.help) and prog.banner then
     write (_STDERR, prog.banner .. endOfLine)
   end
-  if getn (errors) > 0 or totArgs == 0 or opt.help then
+  if getn (errors) > 0 or opt.help then
     local name = prog.name
     prog.name = nil
     if getn (errors) > 0 then
