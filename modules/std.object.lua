@@ -33,7 +33,7 @@ Object = {
   _clone =
     function (self, values)
       local object =
-        merge (self, permute (self._init, values))
+        table.merge (self, table.permute (self._init, values))
       return setmetatable (object, object)
     end,
   

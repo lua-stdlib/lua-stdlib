@@ -14,53 +14,55 @@ function table.sort (t, c)
   return t
 end
 
--- @func subscript: Expose [] as a function
+-- @func table.subscript: Expose [] as a function
 --   @param t: table
 --   @param s: subscript
 -- returns
 --   @param v: t[s]
-function subscript (t, s)
+function table.subscript (t, s)
   return t[s]
 end
 
--- @func empty: Say whether table is empty
+-- @func table.empty: Say whether table is empty
 --   @param t: table
 -- returns
 --   @param f: true if empty or false otherwise
-function empty (t)
+function table.empty (t)
   for _, _ in pairs (t) do
     return false
   end
   return true
 end
 
--- @func indices: Make the list of indices of a table
+-- @func table.indices: Make the list of indices of a table
 --   @param t: table
 -- returns
 --   @param u: list of indices
-function indices (t)
-  return table.foreach (t,
-                        function (i, _, u)
-                          table.insert (u, i)
-                        end)
+function table.indices (t)
+  local u = {}
+  for i, v in t do
+    table.insert (u, i)
+  end
+  return u
 end
 
--- @func values: Make the list of values of a table
+-- @func table.values: Make the list of values of a table
 --   @param t: table
 -- returns
 --   @param u: list of values
-function values (t)
-  return table.foreach (t,
-                        function (_, v, u)
-                          table.insert (u, v)
-                        end)
+function table.values (t)
+  local u = {}
+  for i, v in t do
+    table.insert (u, v)
+  end
+  return u
 end
 
--- @func tinvert: Invert a table
+-- @func table.invert: Invert a table
 --   @param t: table {i=v ...}
 -- returns
 --   @param u: inverted table {v=i ...}
-function tinvert (t)
+function table.invert (t)
   local u = {}
   for i, v in pairs (t) do
     u[v] = i
@@ -68,12 +70,12 @@ function tinvert (t)
   return u
 end
 
--- @func permute: Permute some indices of a table
+-- @func table.permute: Permute some indices of a table
 --   @param p: table {oldindex=newindex ...}
 --   @param t: table to permute
 -- returns
 --   @param u: permuted table
-function permute (p, t)
+function table.permute (p, t)
   local u = {}
   for i, v in pairs (t) do
     if p[i] ~= nil then
@@ -85,11 +87,12 @@ function permute (p, t)
   return u
 end
 
--- @func clone: Make a shallow copy of a table, including any metatable
+-- @func table.clone: Make a shallow copy of a table, including any
+-- metatable
 --   @param t: table
 -- returns
 --   @param u: copy of table
-function clone (t)
+function table.clone (t)
   local u = setmetatable ({}, getmetatable (t))
   for i, v in pairs (t) do
     u[i] = v
@@ -97,27 +100,28 @@ function clone (t)
   return u
 end
 
--- @func merge: Merge two tables
+-- @func table.merge: Merge two tables
 -- If there are duplicate fields, u's will be used. The metatable of
 -- the returned table is that of t
 --   @param t, u: tables
 -- returns
 --   @param r: the merged table
-function merge (t, u)
-  local r = clone (t)
+function table.merge (t, u)
+  local r = table.clone (t)
   for i, v in pairs (u) do
     r[i] = v
   end
   return r
 end
 
--- @func defaultTable: Make a table with a different default value
+-- @func table.newDefault: Make a table with a default value
 --   @param x: default value
---   @param [t]: initial table
+--   @param [t]: initial table [{}]
 -- returns
 --   @param u: table for which u[i] is x if u[i] does not exist
-function defaultTable (x, t)
-  return setmetatable (t or {}, {index = function (t, i)
-                                           return x
-                                         end})
+function table.newDefault (x, t)
+  return setmetatable (t or {},
+                       {index = function (t, i)
+                                  return x
+                                end})
 end

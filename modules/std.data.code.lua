@@ -25,7 +25,7 @@ end
 function curry (f, ...)
   local fix = arg
   return function (...)
-           return f (unpack (fix), unpack (arg))
+           return f (table.merge (unpack (fix), unpack (arg)))
          end
 end
 
@@ -38,16 +38,12 @@ end
 --     f1 (...fn (args)...)
 function compose (...)
   local fns, n = arg, table.getn (arg)
-  if n == 0 then
-    return id
-  else
-    return function (...)
-             for i = n, 1, -1 do
-               arg = pack (fns[i](unpack (arg)))
-             end
-             return unpack (arg)
+  return function (...)
+           for i = n, 1, -1 do
+             arg = pack (fns[i](unpack (arg)))
            end
-  end
+           return unpack (arg)
+         end
 end
 
 -- listable: Make a function which can take its arguments as a list

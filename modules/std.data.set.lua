@@ -55,7 +55,7 @@ end
 --   s, t: sets
 -- returns
 --   r: set union of s and t
-setunion = merge
+setunion = table.merge
 
 -- subset: Find whether one set is a subset of another
 --   s, t: sets
@@ -95,7 +95,7 @@ function setequal (s, t)
 end
 
 -- Metamethods for sets
-Meta.__add = merge -- set + table = union
+Meta.__add = table.merge -- set + table = union
 Meta.__sub = setminus -- set - table = set difference
 Meta.__div = setintersect -- set / table = intersection
 Meta.__le = subset -- set <= table = subset
