@@ -23,7 +23,7 @@ pickler =
                     end
                     return t
                   else
-                    return tostring (rep)
+                    return tostring (x)
                   end
                 end,
                 {
