@@ -1,53 +1,55 @@
--- Lists
+-- @module List
 
 require "std/data/code.lua"
 require "std/data/table.lua"
 
 
--- max: Extend to work on lists
---   (l: list
+-- @func max: Extend to work on lists
+--   @param (l: list
 --   ( or
---   (v1 ... vn: values
+--   @param (v1 ... @param vn: values
 -- returns
---   m: max value
+--   @param m: max value
 max = listable (max)
 
--- min: Extend to work on lists
---   (l: list
+-- @func min: Extend to work on lists
+--   @param (l: list
 --   ( or
---   (v1 ... vn: values
+--   @param (v1 ... @param vn: values
 -- returns
---   m: min value
+--   @param m: min value
 min = listable (min)
 
--- map: Map a function over a list
---   f: function
---   l: list
+-- @func map: Map a function over a list
+--   @param f: function
+--   @param l: list
 -- returns
---   m: result list {f (l[1]) ... f (l[getn (l)])}
+--   @param m: result list {f (l[1]) ... f (l[getn (l)])}
 function map (f, l)
   local m = mapIter (foreachi, f, l)
   m.n = getn (m)
   return m
 end
 
--- mapWith: Map a function over a list of lists
---   f: function
---   ls: list of lists
+-- @func mapWith: Map a function over a list of lists
+--   @param f: function
+--   @param ls: list of lists
 -- returns
---   m: result list {call (f, ls[1]) ... call (f, ls[getn (ls)])}
+--   @param m: result list {call (f, ls[1]) ... call (f, ls[getn
+--     (ls)])}
 function mapWith (f, l)
   return map (curry (call, f), l)
 end
 
--- filter: Filter a list according to a predicate
---   p: predicate
---     a: argument
+-- @func filter: Filter a list according to a predicate
+--   @param p: predicate
+--     @param a: argument
 --   returns
---     f: flag (nil for false, non-nil for true)
---   l: list
+--     @param f: flag (nil for false, non-nil for true)
+--   @param l: list
 -- returns
---   m: result list containing elements e of l for which p (e) is true
+--   @param m: result list containing elements e of l for which p (e)
+--     is true
 function filter (p, l)
   local m = {}
   for i = 1, getn (l) do
@@ -58,11 +60,11 @@ function filter (p, l)
   return m
 end
 
--- mapjoin: Map a function over a list and concatenate the results
---   f: function returning a list
---   l: list
+-- @func mapjoin: Map a function over a list and concatenate the results
+--   @param f: function returning a list
+--   @param l: list
 -- returns
---   m: result list {f (l[1]) .. f (l[getn (l)])}
+--   @param m: result list {f (l[1]) .. f (l[getn (l)])}
 function mapjoin (f, l)
   local m = {}
   for i = 1, getn (l) do
@@ -74,11 +76,11 @@ function mapjoin (f, l)
   return m
 end
 
--- slice: Slice a list
---   l: list
---   p, q: start and end of slice
+-- @func slice: Slice a list
+--   @param l: list
+--   @param p, @param q: start and end of slice
 -- returns
---   m: {l[p] ... l[q]}
+--   @param m: {l[p] ... l[q]}
 function slice (l, p, q)
   local m = {}
   local len = getn (l)
@@ -94,12 +96,12 @@ function slice (l, p, q)
   return m
 end
 
--- foldl: Fold a binary function through a list left associatively
---   f: function
---   e: element to place in left-most position
---   l: list
+-- @func foldl: Fold a binary function through a list left associatively
+--   @param f: function
+--   @param e: element to place in left-most position
+--   @param l: list
 -- returns
---   r: result
+--   @param r: result
 function foldl (f, e, l)
   local r = e
   for i = 1, getn (l) do
@@ -108,12 +110,12 @@ function foldl (f, e, l)
   return r
 end
 
--- foldr: Fold a binary function through a list right associatively
---   f: function
---   e: element to place in right-most position
---   l: list
+-- @func foldr: Fold a binary function through a list right associatively
+--   @param f: function
+--   @param e: element to place in right-most position
+--   @param l: list
 -- returns
---   r: result
+--   @param r: result
 function foldr (f, e, l)
   local r = e
   for i = getn (l), 1, -1 do
@@ -122,9 +124,9 @@ function foldr (f, e, l)
   return r
 end
 
--- behead: Remove elements from the front of a list
---   l: list
---   [n]: number of elements to remove [1]
+-- @func behead: Remove elements from the front of a list
+--   @param l: list
+--   @param [n]: number of elements to remove [1]
 function behead (l, n)
   n = n or 1
   for i = 1, getn (l) do
@@ -132,11 +134,11 @@ function behead (l, n)
   end
 end
 
--- concat: Concatenate two lists
---   l: list
---   m: list
+-- @func concat: Concatenate two lists
+--   @param l: list
+--   @param m: list
 -- returns
---   n: result {l[1] ... l[getn (l)], m[1] ... m[getn (m)]}
+--   @param n: result {l[1] ... l[getn (l)], m[1] ... m[getn (m)]}
 function concat (l, m)
   local n = {}
   for i = 1, getn (l) do
@@ -148,10 +150,10 @@ function concat (l, m)
   return n
 end
 
--- reverse: Reverse a list
---   l: list
+-- @func reverse: Reverse a list
+--   @param l: list
 -- returns
---   m: list {l[getn (l)] ... l[1]}
+--   @param m: list {l[getn (l)] ... l[1]}
 function reverse (l)
   local m = {}
   for i = getn (l), 1, -1 do
@@ -160,21 +162,21 @@ function reverse (l)
   return m
 end
 
--- rep: Repeat a list
+-- @func rep: Repeat a list
 -- The argument order is designed to make rep usable as a tag method,
 -- and to be compatible with strrep
---   l: list
---   n: number of repetitions
+--   @param l: list
+--   @param n: number of repetitions
 -- returns
---   m: list {l[1] ... l[getn (l)] ... (n times)}
+--   @param m: list {l[1] ... l[getn (l)] ... (n times)}
 function rep (l, n)
   return mapjoin (function () return %l end, {n=n})
 end
 
--- transpose: Transpose a list of lists
---   ls: {{l11 ... l1c} ... {lr1 ... lrc}}
+-- @func transpose: Transpose a list of lists
+--   @param ls: {{l11 ... l1c} ... {lr1 ... lrc}}
 -- returns
---   ms: {{l11 ... lr1} ... {l1c ... lrc}}
+--   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
 -- Also give aliases zip and unzip
 function transpose (ls)
   local ms, len = {}, getn (ls)
@@ -190,30 +192,30 @@ end
 zip = transpose
 unzip = transpose
 
--- zipWith: Zip lists together with a function
---   f: function
---   ls: list of lists
+-- @func zipWith: Zip lists together with a function
+--   @param f: function
+--   @param ls: list of lists
 -- returns
---   m: {f (ls[1][1] ... ls[getn (ls)][1]) ...
---         f (ls[1][N] ... ls[getn (ls)][N])
---   where N = max {map (getn, ls)}
+--   @param m: {f (ls[1][1] ... ls[getn (ls)][1]) ...
+--              f (ls[1][N] ... ls[getn (ls)][N])
+--     where N = max {map (getn, ls)}
 function zipWith (f, ls)
   return mapWith (f, zip (ls))
 end
 
--- project: Project a list of fields from a list of tables
---   f: field to project
---   l: list of tables
+-- @func project: Project a list of fields from a list of tables
+--   @param f: field to project
+--   @param l: list of tables
 -- returns
---   m: list of f fields
+--   @param m: list of f fields
 function project (f, l)
   return map (function (t) return t[%f] end, l)
 end
 
--- enpair: Turn a table into a list of pairs
---   t: table {i1=v1 ... in=vn}
+-- @func enpair: Turn a table into a list of pairs
+--   @param t: table {i1=v1 ... in=vn}
 -- returns
---   ls: list {{i1, v1} ... {in, vn}}
+--   @param ls: list {{i1, v1} ... {in, vn}}
 function enpair (t)
   local ls = {}
   for i, v in t do
@@ -222,10 +224,10 @@ function enpair (t)
   return ls
 end
 
--- depair: Turn a list of pairs into a table
---   ls: list {{i1, v1} ... {in, vn}}
+-- @func depair: Turn a list of pairs into a table
+--   @param ls: list {{i1, v1} ... {in, vn}}
 -- returns
---   t: table {i1=v1 ... in=vn}
+--   @param t: table {i1=v1 ... in=vn}
 function depair (ls)
   local t = {}
   for i = 1, getn (ls) do
@@ -234,10 +236,10 @@ function depair (ls)
   return t
 end
 
--- flatten: Turn a list of lists into a list
---   ls: list {{...} ... {...}}
+-- @func flatten: Turn a list of lists into a list
+--   @param ls: list {{...} ... {...}}
 -- returns
---   l: list {...}
+--   @param l: list {...}
 function flatten (ls)
   return foldr (concat, {},
                 filter (function (x)
@@ -246,22 +248,25 @@ function flatten (ls)
                         ls))
 end
 
--- indexKey: Make an index of a list of tables on a given field
---   f: field
---   l: list of tables {t1 ... tn}
+-- @func indexKey: Make an index of a list of tables on a given field
+--   @param f: field
+--   @param l: list of tables {t1 ... tn}
 -- returns
---   ind: index {t1[f]=1 ... tn[f]=n}
+--   @param ind: index {t1[f]=1 ... tn[f]=n}
 indexKey = curry (indexKeyIter, foreachi)
 
--- indexValue: Copy a list of tables, indexed on a given field
---   f: field whose value should be used as key
---   l: list of tables {i1=t1 ... in=tn}
+-- @func indexValue: Copy a list of tables, indexed on a given field
+--   @param f: field whose value should be used as key
+--   @param l: list of tables {i1=t1 ... in=tn}
 -- returns
---   m: index {t1[f]=t1 ... tn[f]=tn}
+--   @param m: index {t1[f]=t1 ... tn[f]=tn}
 indexValue = curry (indexValueIter, foreachi)
 permuteOn = indexValue
 
--- Tag methods for lists
-settagmethod (_TableTag, "unm", reverse) -- - list = reverse
-settagmethod (_TableTag, "mul", rep) -- list * number = rep
-settagmethod (_TableTag, "concat", concat) -- list .. list = concat
+-- @head Tag methods for lists
+-- - list = reverse
+settagmethod (_TableTag, "unm", reverse)
+-- list * number = rep
+settagmethod (_TableTag, "mul", rep)
+-- list .. list = concat
+settagmethod (_TableTag, "concat", concat)
