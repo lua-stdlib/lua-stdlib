@@ -45,7 +45,7 @@ end
 -- returns
 --   l: list of files
 function readDir (d)
-  local l = split ("\n", chomp (shell ("ls -aU " .. d ..
+  local l = split ("\n", string.chomp (shell ("ls -aU " .. d ..
                                        " 2>/dev/null")))
   table.remove (l, 1) -- remove . and ..
   table.remove (l, 1)

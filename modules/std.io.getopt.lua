@@ -169,8 +169,8 @@ function usageInfo (header, optDesc, pageWidth)
     end
     local textName = map (fmtName, opt.name)
     textName[1] = textName[1] .. fmtArg ()
-    return {join (", ",
-                  {join (", ", textName)}), opt.desc}
+    return {string.join (", ",
+                  {string.join (", ", textName)}), opt.desc}
   end
   local function sameLen (xs)
     local n = math.max (map (string.len, xs))
@@ -194,7 +194,7 @@ function usageInfo (header, optDesc, pageWidth)
     cols[1], width = sameLen (cols[1])
     cols[2] = map (wrapper (pageWidth, width + 4), cols[2])
     optText = endOfLine .. endOfLine ..
-      join (endOfLine,
+      string.join (endOfLine,
             mapWith (paste, unzip ({sameLen (cols[1]), cols[2]})))
   end
   return header .. optText
@@ -233,7 +233,7 @@ function processArgs ()
     local name = prog.name
     prog.name = nil
     if table.getn (errors) > 0 then
-      warn (join (endOfLine, errors) .. endOfLine)
+      warn (string.join (endOfLine, errors) .. endOfLine)
     end
     prog.name = name
     dieWithUsage ()
@@ -261,7 +261,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. endOfLine)
     else
-      print (join (endOfLine, errors) .. endOfLine ..
+      print (string.join (endOfLine, errors) .. endOfLine ..
              usageInfo ("Usage: foobar [OPTION...] FILE...", options))
     end
   end

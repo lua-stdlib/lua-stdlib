@@ -15,7 +15,7 @@ require "std.assert" -- so that debug can be overridden
 
 
 -- print: Extend print to work better on tables
---   arg: objects to print
+--   @param arg: objects to print
 local _print = print
 function print (...)
   for i = 1, table.getn (arg) do
@@ -25,7 +25,7 @@ function print (...)
 end
 
 -- debug: Print a debugging message
---   [n]: debugging level [1]
+--   @param [n]: debugging level [1]
 --   ...: objects to print (as for print)
 function debug (...)
   local level = 1
@@ -37,38 +37,44 @@ function debug (...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    writeLine (io.stderr, join ("\t", map (tostring, arg)))
+    writeLine (io.stderr, string.join ("\t", map (tostring, arg)))
   end
 end
 
 -- traceCall: Trace function calls
--- Use: setcallhook (traceCall), as below
--- based on test/trace-calls.lua from the 4.0 distribution
-function traceCall (func)
-  local t = getinfo (2)
-  local name = t.name or "?"
-  local s = ">>> "
-  if t.what == "main" then
-    if func == "call" then
-      s = s .. "begin " .. t.source
-    else
-      s = s .. "end " .. t.source
-    end
-  else
-    s = s .. func .. " " .. name
-    if t.what == "Lua" then
-      s = s .. " <" .. t.linedefined .. ":" .. t.source .. ">"
-    else
-      s = s .. " [" .. t.what .. "]"
-    end
+--   @param event: event causing the call
+-- Use: debug.sethook (traceCall, "cr"), as below
+-- based on test/trace-calls.lua from the Lua 5.0 distribution
+local level = 0
+
+function traceCall (event)
+  local t = debug.getinfo (3)
+  local s = " >>> " .. string.rep(" ",level)
+  if t ~= nil and t.currentline >= 0 then
+    s = s .. t.short_src .. ":" .. t.currentline .. " "
   end
-  if t.currentline >= 0 then
-    s = ":" .. t.currentline
+  t = debug.getinfo (2)
+  if event == "call" then
+    level = level + 1
+  else
+    level = max (level - 1, 0)
+  end
+  if t.what == "main" then
+    if event == "call" then
+      s = s .. "begin " .. t.short_src
+    else
+      s = s .. "end " .. t.short_src
+    end
+  elseif t.what == "Lua" then
+    s = s .. event .. " " .. (t.name or "(Lua)") .. " <" ..
+      t.linedefined .. ":" .. t.short_src .. ">"
+  else
+    s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
   writeLine (io.stderr, s)
 end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  setcallhook (traceCall)
+  debug.sethook (traceCall, "cr")
 end

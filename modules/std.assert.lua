@@ -33,10 +33,13 @@ end
 -- Redefine assert to allow formatted arguments
 --   @param v: value
 --   @param ...: arguments for format
+-- returns
+--   @param v: value
 function assert (v, ...)
   if not v then
     error (string.format (unpack (arg or {""})))
   end
+  return v
 end
 
 -- @func debug: Ignore a debugging message
