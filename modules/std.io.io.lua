@@ -1,6 +1,6 @@
 -- I/O
 
-require "std.base"
+import "std.base"
 
 
 -- @func io.readLines: Read a file into a list of lines and close it

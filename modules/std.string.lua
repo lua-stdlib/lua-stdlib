@@ -1,5 +1,5 @@
 -- Lua string library
 
-require "std.string.string"
-require "std.string.format"
-require "std.string.regex"
+import "std.string.string"
+import "std.string.format"
+import "std.string.regex"

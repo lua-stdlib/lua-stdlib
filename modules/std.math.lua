@@ -1,6 +1,6 @@
 -- Math
 
-require "std.list"
+import "std.list"
 
 
 -- Calculate bits in an integer

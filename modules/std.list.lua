@@ -1,11 +1,10 @@
 -- @module List
 
-if list then return end
+import "std.base"
+import "std.table"
+
+
 list = {}
-
-require "std.base"
-require "std.table"
-
 
 -- @func list.listable: Make a function which can take its arguments
 -- as a list

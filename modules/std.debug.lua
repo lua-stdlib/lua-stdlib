@@ -1,8 +1,8 @@
 -- Debugging
 -- Requires that the Lua debug library be available
 
-require "std.io.io"
-require "std.string.string"
+import "std.io.io"
+import "std.string.string"
 
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a

@@ -1,10 +1,10 @@
 -- getopt
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
-require "std.base"
-require "std.string"
-require "std.object"
-require "std.io.env"
+import "std.base"
+import "std.string"
+import "std.object"
+import "std.io.env"
 
 
 -- TODO: Sort out the packaging. getopt.Option is tedious to type, but

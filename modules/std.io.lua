@@ -1,6 +1,6 @@
 -- Lua I/O library
 
-require "std.io.env"
-require "std.io.file"
-require "std.io.getopt"
-require "std.io.io"
+import "std.io.env"
+import "std.io.file"
+import "std.io.getopt"
+import "std.io.io"

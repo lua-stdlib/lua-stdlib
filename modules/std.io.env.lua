@@ -1,6 +1,6 @@
 -- Environment
 
-require "std.list"
+import "std.list"
 
 
 -- @func io.shell: Perform a shell command and return its output

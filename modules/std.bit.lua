@@ -1,6 +1,6 @@
 -- Logic
 
-require "std.base"
+import "std.base"
 
 
 local n, b = 1, 0
