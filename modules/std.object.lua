@@ -24,23 +24,20 @@ Object = {
   -- numbered values in an object constructor are
   -- assigned to the fields given in _init
   _init = {},
-  
-  -- @func _clone: Object constructor
-  --   @param values: initial values for fields in
-  --   _init
-  -- returns
-  --   @param object: new object
-  _clone =
-    function (self, values)
-      local object =
-        table.merge (self, table.permute (self._init, values))
-      return setmetatable (object, object)
-    end,
-  
-  -- Sugar instance creation
-  __call = function (...)
-             return arg[1]._clone (unpack (arg))
-           end,
 }
-
 setmetatable (Object, Object)
+  
+-- @func Object:_clone: Object constructor
+--   @param values: initial values for fields in
+--   _init
+-- returns
+--   @param object: new object
+function Object:_clone (values)
+  local object = table.merge (self, table.permute (self._init, values))
+  return setmetatable (object, object)
+end
+  
+-- @func Object:__call: Sugar instance creation
+function Object.__call (...)
+  return arg[1]._clone (unpack (arg))
+end
