@@ -39,17 +39,26 @@ end
 -- @returns
 --   @param s: string representation
 local _tostring = tostring
-function tostring (x)
+function tostring (x, roots)
+  local function stopRoots (x)
+    if roots[x] then
+      return roots[x]
+    else
+      return tostring (x, table.clone (roots))
+    end
+  end
   if type (x) == "table" and (not metamethod (x, "__tostring")) then
     local s, sep = "{", ""
+    roots = roots or {}
+    roots[x] = _tostring (x)
     for i, v in pairs (x) do
-      s = s .. sep .. tostring (i) .. "=" .. tostring (v)
+      s = s .. sep .. stopRoots (i) .. "=" .. stopRoots (v)
       sep = ","
     end
     s = s .. "}"
     return s
   else
-    return _tostring (x)
+    return _tostring (x, roots)
   end
 end
 
