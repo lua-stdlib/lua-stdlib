@@ -1,4 +1,4 @@
--- Logic
+-- Bitwise logic
 
 import "std.base"
 
