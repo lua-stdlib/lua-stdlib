@@ -79,9 +79,9 @@ function tinvert (t)
                   end)
 end
 
--- @func permuteIter: Permute some keys of a table
+-- @func permuteIter: Permute some indices of a table
 --   @param it: iterator
---   @param p: table of oldkey=newkey
+--   @param p: table {oldindex=newindex ...}
 --   @param t: table to permute
 -- returns
 --   @param u: permuted table
@@ -92,8 +92,8 @@ function permuteIter (it, p, t)
              end)
 end
 
--- @func permute: Permute some keys of a table
---   @param p: table of oldkey=newkey
+-- @func permute: Permute some indices of a table
+--   @param p: table {oldindex=newindex ...}
 --   @param t: table to permute
 -- returns
 --   @param u: permuted table
@@ -145,7 +145,7 @@ function mapIter (it, f, t)
 end
 
 -- @func assign: Execute the elements of a table as global assignments
--- Assumes the keys are strings
+-- Assumes the indices are strings
 --   @param t: table
 function assign (t)
   foreach (t, setglobal)

@@ -256,7 +256,7 @@ end
 indexKey = curry (indexKeyIter, foreachi)
 
 -- @func indexValue: Copy a list of tables, indexed on a given field
---   @param f: field whose value should be used as key
+--   @param f: field whose value should be used as index
 --   @param l: list of tables {i1=t1 ... in=tn}
 -- returns
 --   @param m: index {t1[f]=t1 ... tn[f]=tn}

@@ -8,7 +8,7 @@ require "std.assert" -- so that debug can be overridden
 
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
--- table with the following keys:
+-- table with the following members:
 
 -- level: debugging level [1]
 -- call: do call trace debugging
