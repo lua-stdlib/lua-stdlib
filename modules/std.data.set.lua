@@ -97,7 +97,4 @@ end
 settagmethod (_SetTag, "add", merge) -- set + table = union
 settagmethod (_SetTag, "sub", setminus) -- set - table = set difference
 settagmethod (_SetTag, "div", setintersect) -- set / table = intersection
--- The next tag method looks nice, but doesn't work because subset is
--- not a total order (and "lt" is the only tag method; need "le" tag
--- method); TODO: fix in Lua 5.0
--- settagmethod (_SetTag, "lt", propersubset) -- set < table = subset
+settagmethod (_SetTag, "le", subset) -- set <= table = subset

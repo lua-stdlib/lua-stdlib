@@ -29,26 +29,22 @@ function strconcat (s, t)
 end
 
 -- @func strcaps: Capitalise each word in a string
--- TODO: rewrite for 5.0 using bracket notation
 --   @param s: string
 -- returns
 --   @param s_: capitalised string
 function strcaps (s)
-  s = gsub (s, "(%w)([%w]*)",
-            function (l, ls)
-              return strupper (l) .. ls
-            end)
-  return s
+  return (gsub (s, "(%w)([%w]*)",
+                function (l, ls)
+                  return strupper (l) .. ls
+                end))
 end
 
 -- @func chomp: Remove any final line ending from a string
--- TODO: rewrite for 5.0 using bracket notation
 --   @param s: string to process
 -- returns
 --   @param s_: processed string
 function chomp (s)
-  s = gsub (s, endOfLine .. "$", "")
-  return s
+  return (gsub (s, endOfLine .. "$", ""))
 end
 
 -- @func join: Turn a list of strings into a sep-separated string
@@ -65,24 +61,20 @@ function join (sep, l)
 end
 
 -- @func escapePattern: Escape a string to be used as a pattern
--- TODO: rewrite for 5.0 using bracket notation
 --   @param s: string to process
 -- returns
 --   @param s_: processed string
 function escapePattern (s)
-  s = gsub (s, "(%W)", "%%%1")
-  return s
+  return (gsub (s, "(%W)", "%%%1"))
 end
 
 -- @param escapeShell: Escape a string to be used as a shell token
 -- Quotes spaces, parentheses and \s
--- TODO: rewrite for 5.0 using bracket notation
 --   @param s: string to process
 -- returns
 --   @param s_: processed string
 function escapeShell (s)
-  s = gsub (s, "([ %(%)%\\])", "\\%1")
-  return s
+  return (gsub (s, "([ %(%)%\\])", "\\%1"))
 end
 
 -- @func stringifier: Table of tostring methods
