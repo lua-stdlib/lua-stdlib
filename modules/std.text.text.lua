@@ -97,8 +97,8 @@ function tostring (x)
   local tTag = tag (x)
   if stringifier[tTag] then
     x = stringifier[tTag] (x)
-  elseif tabulator[tTag] then
-    x = tabulator[tTag] (x)
+  else
+    x = tabulate (x) or x
   end
   if type (x) == "table" then
     local s, sep = "{", ""

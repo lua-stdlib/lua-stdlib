@@ -18,9 +18,7 @@ function pickle (x)
   elseif type (x) == "string" then
     return format ("%q", x)
   else
-    if tabulator[tag (x)] then
-      x = tabulator[tag (x)] (x)
-    end
+    x = tabulate (x) or x
     if type (x) == "table" then
       local s, sep = "{", ""
       for i, v in x do

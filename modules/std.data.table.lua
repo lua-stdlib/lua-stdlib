@@ -244,4 +244,21 @@ end
 -- Table of methods to make arbitrary objects (typically userdata)
 -- into tables; used by tostring and pickle
 -- Table entries are tag = function from object to table
-tabulator = {}
+tabulator = {
+  [tag ({})] =
+    function (t)
+      return t
+    end,
+}
+
+-- @func tabulate: Turn an object into a table according to tabulator
+--   @param x: object to turn into a table
+-- returns
+--   @param t: table or nil
+function tabulate (x)
+  local m = tabulator[tag (x)]
+  if m then
+    return m (x)
+  end
+  return nil
+end
