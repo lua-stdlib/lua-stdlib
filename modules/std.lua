@@ -13,7 +13,6 @@
 
 require "std.patch40"
 require "std.data"
-require "std.logic"
 require "std.text"
 require "std.io"
 require "std.debug"
