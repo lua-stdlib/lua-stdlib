@@ -2,6 +2,8 @@
 
 -- TODO: Pretty printing
 --
+--   Use in getopt
+--
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
 --   
 --   Based on The Design of a Pretty-printing Library in Advanced
