@@ -94,6 +94,7 @@ import "std.io.io"
 Parser = Object {_init = {"grammar"}}
 
 
+-- Parser constructor (deals with abstract syntax rules)
 function Parser:_clone (values)
   local init = table.permute (self._init, values)
   -- Reformat the abstract syntax rules
