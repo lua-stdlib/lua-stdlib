@@ -283,8 +283,22 @@ function indexValue (f, t)
 end
 permuteOn = indexValue
 
+-- @func listLcs: Find the longest common subsequence of two lists
+-- TODO: Rename list.lcs
+--   @param a, b: lists
+-- returns
+--   @param l: LCS of a and b
+function listLcs (a, b)
+  return lcs.leastCommonSeq (a, b, subscript, table.getn,
+                             function (t, e)
+                               table.insert (t, e)
+                               return t
+                             end,
+                             {})
+end
+
 -- @head Metamethods for lists
 -- TODO: Have a List type that uses these
--- Table.unm = reverse -- - list = reverse
--- Table.mul = rep -- list * number = rep
--- Table.concat = concat -- list .. list = concat
+-- List.unm = reverse -- - list = reverse
+-- List.mul = rep -- list * number = rep
+-- List.concat = concat -- list .. list = concat

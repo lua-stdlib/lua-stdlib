@@ -91,14 +91,3 @@ function string.lcs (a, b)
                              end,
                              string.len, string.concat, "")
 end
-
-print (string.lcs ("nematode knowledge", "empty bottle"))
-
-function list.lcs (a, b)
-  return lcs.leastCommonSeq (a, b, subscript, table.getn,
-                             function (t, e)
-                               table.insert (t, e)
-                               return t
-                             end,
-                             {})
-end
