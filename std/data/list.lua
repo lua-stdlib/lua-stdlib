@@ -6,7 +6,7 @@ require "std/data/table.lua"
 
 -- @func max: Extend to work on lists
 --   @param (l: list
---   ( or
+--          ( or
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: max value
@@ -14,7 +14,7 @@ max = listable (max)
 
 -- @func min: Extend to work on lists
 --   @param (l: list
---   ( or
+--          ( or
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: min value
