@@ -40,7 +40,7 @@ end
 --   @param u: list of indices
 function table.indices (t)
   local u = {}
-  for i, v in t do
+  for i, v in pairs (t) do
     table.insert (u, i)
   end
   return u
@@ -52,7 +52,7 @@ end
 --   @param u: list of values
 function table.values (t)
   local u = {}
-  for i, v in t do
+  for i, v in pairs (t) do
     table.insert (u, v)
   end
   return u

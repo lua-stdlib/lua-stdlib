@@ -222,7 +222,7 @@ end
 --   @param ls: list {{i1, v1} ... {in, vn}}
 function enpair (t)
   local ls = {}
-  for i, v in t do
+  for i, v in pairs (t) do
     table.insert (ls, {i, v})
   end
   return ls
@@ -289,7 +289,7 @@ permuteOn = indexValue
 -- returns
 --   @param l: LCS of a and b
 function listLcs (a, b)
-  return lcs.leastCommonSeq (a, b, subscript, table.getn,
+  return lcs.leastCommonSeq (a, b, table.subscript, table.getn,
                              function (t, e)
                                table.insert (t, e)
                                return t

@@ -41,7 +41,7 @@ local _tostring = tostring
 function tostring (x)
   if type (x) == "table" and (not metamethod (x, "__tostring")) then
     local s, sep = "{", ""
-    for i, v in x do
+    for i, v in pairs (x) do
       s = s .. sep .. tostring (i) .. "=" .. tostring (v)
       sep = ","
     end
@@ -85,7 +85,7 @@ function pickle (x)
     x = totable (x) or x
     if type (x) == "table" then
       local s, sep = "{", ""
-      for i, v in x do
+      for i, v in pairs (x) do
         s = s .. sep .. "[" .. pickle (i) .. "]=" .. pickle (v)
         sep = ","
       end

@@ -103,7 +103,7 @@ Option = Object {_init = {
 function Options (t)
   local name = {}
   for i = 1, table.getn (t) do
-    for j, s in t[i].name do
+    for j, s in pairs (t[i].name) do
       if name[s] then
         warn ("duplicate option '%s'", s)
       end
@@ -174,7 +174,7 @@ function usageInfo (header, optDesc, pageWidth)
   end
   local function sameLen (xs)
     local n = math.max (map (string.len, xs))
-    for i, v in xs do
+    for i, v in pairs (xs) do
       xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
     end
     return xs, n

@@ -47,7 +47,7 @@ end
 --   @param r: number of replacements made
 function string.gsubs (s, sub, n)
   local r = 0
-  for i, v in sub do
+  for i, v in pairs (sub) do
     local rep
     if n ~= nil then
       s, rep = string.gsub (s, i, v, n)

@@ -29,7 +29,7 @@ end
 --   r: s with elements of t removed
 function setminus (s, t)
   local r = setmetatable ({}, Meta)
-  for i, v in s do
+  for i, v in pairs (s) do
     if t[i] == nil then
       r[i] = 1
     end
@@ -43,7 +43,7 @@ end
 --   r: set intersection of s and t
 function setintersect (s, t)
   local r = setmetatable ({}, Meta)
-  for i, _ in s do
+  for i, _ in pairs (s) do
     if t[i] ~= nil then
       r[i] = 1
     end
@@ -62,7 +62,7 @@ setunion = table.merge
 -- returns
 --   r: non-nil if s is a subset of t, nil otherwise
 function subset (s, t)
-  for i, _ in s do
+  for i, _ in pairs (s) do
     if t[i] == nil then
       return nil
     end
