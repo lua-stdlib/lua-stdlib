@@ -119,7 +119,7 @@ end
 --   @param u: table for which u[i] is x if u[i] does not exist
 function table.newDefault (x, t)
   return setmetatable (t or {},
-                       {index = function (t, i)
-                                  return x
-                                end})
+                       {__index = function (t, i)
+                                    return x
+                                  end})
 end
