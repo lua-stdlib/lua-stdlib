@@ -1,0 +1,115 @@
+#! /usr/local/bin/lua -f
+prog = {
+  name = "ldoc",
+  banner = "ldoc 0.2 (25 Jul 2002) by Reuben Thomas (rrt@sc3d.org)",
+  purpose = "Extract and process the comments from Lua source files",
+}
+
+
+require "std.lua"
+
+-- TODO: Add HTK into standard library, and rewrite output part of
+--   ldoc to use it
+-- TODO: Wrap paragraphs, stopping at in/outdents
+
+
+-- Default comment processing rules
+-- A list of pattern=replacement for gsub
+rule = {
+  replace = {
+    {"  ", "&nbsp;&nbsp;"},
+    {"@module (.*)", "<h1>%1</h1>"},
+    {"@head (.*)", "<h2>%1</h2>"},
+    {"@class (.*)", "<h2>%1</h2>"},
+    {"@method (%S+)%s(.*)", "<strong>%1</strong> <em>%2</em>"},
+    {"@func (%S+)%s(.*)", "<strong>%1</strong> <em>%2</em>"},
+    {"@param (%S+)", "<strong>%1</strong>"},
+    {"^returns$", "<strong>returns</strong>"},
+    {"$", "<br>"},
+  },
+  header = "",
+  footer = "",
+  prePara = "",
+  postPara = "<br>",
+}
+
+
+-- Read comment blocks from a source file
+function readBlocks ()
+  local patt = "^%s*%-%-+%s?"
+  local block, lines = {n = 0}, 0
+  local line, to
+  repeat
+    repeat
+      line = read ("*l")
+      if line == nil then
+        return block
+      end
+      _, to = strfind (line, patt)
+    until to
+    local para = {}
+    repeat
+      lines = lines + 1
+      line = strsub (line, to + 1)
+      tinsert (para, line)
+      line = read ("*l")
+      if line == nil then
+        tinsert (block, para)
+        return block
+      end
+      _, to = strfind (line, patt)
+    until not to
+    tinsert (block, para)
+  until nil
+end
+
+-- Process a file
+function ldoc (name, _)
+  local block = readBlocks ()
+  local out = changeSuffix (nil, suffix, name)
+  for i = 1, getn (block) do
+    for j = 1, getn (block[i]) do
+      for k = 1, getn (rule.replace) do
+        block[i][j] = gsub (block[i][j], rule.replace[k][1],
+                            rule.replace[k][2])
+      end
+    end
+  end
+  local h = openfile (out, "w")
+  writeLine (h, rule.header)
+  for i = 1, getn (block) do
+    writeLine (h, rule.prePara)
+    map (curry (writeLine, h), block[i])
+    writeLine (h, rule.postPara)
+  end
+  writeLine (h, rule.footer)
+  closefile (h)
+end
+
+-- Command-line options
+options = {
+  Option{{"rules", "r"},
+    "comment processing rules [built-in rules]",
+    "Req", "FILE"},
+  Option{{"output", "o"},
+    "output file suffix [.html]",
+    "Req", "FILE"},
+}
+
+-- Main routine
+if getn (arg) == 0 then
+  tinsert (arg, "-h")
+end
+processArgs ()
+suffix = opt.output or "html"
+if opt.rules then
+  rule = evalFile (opt.rules)
+end
+processFiles (ldoc)
+
+
+-- Changelog
+
+-- 01feb02  0.1  Program first written
+-- 25jul02  0.2  Basic patterns added and paragraphs treated as a
+--               series of lines
