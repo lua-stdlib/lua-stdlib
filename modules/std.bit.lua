@@ -3,13 +3,6 @@
 import "std.base"
 
 
-local n, b = 1, 0
-while n < n + 1 do
-  n = n * 2
-  b = b + 1
-end
-bit._INTEGER_BITS = b
-
 -- @func band: Extend to work on lists
 --   @param (l: list
 --   ( or
