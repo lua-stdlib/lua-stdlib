@@ -26,3 +26,24 @@ math.max = listable (math.max)
 -- @returns
 --   @param m: min value
 math.min = listable (math.min)
+
+-- @func math.floor: Extend to take the number of decimal places
+--   @param n: number
+--   @param [p]: number of decimal places to truncate to [0]
+-- @returns
+--   @param r: n truncated to p decimal places
+local floor = math.floor
+function math.floor (n, p)
+  local e = 10 ^ (p or 0)
+  return floor (n * e) / e
+end
+
+-- @func math.round: Round a number to p decimal places
+--   @param n: number
+--   @param [p]: number of decimal places to truncate to [0]
+-- @returns
+--   @param r: n to p decimal places
+function math.round (n, p)
+  local e = 10 ^ (p or 0)
+  return floor (n * e + 0.5) / e
+end
