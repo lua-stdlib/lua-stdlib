@@ -1,6 +1,14 @@
 -- Code
 
 
+-- id: Identity
+--   x: object
+-- returns
+--   x: same object
+function id (x)
+  return x
+end
+
 -- pack: Turn a tuple into a list
 --   ...: tuple
 -- returns
@@ -17,7 +25,7 @@ end
 function curry (f, ...)
   local fix = arg
   return function (...)
-           return call (%f, %fix .. arg)
+           return f (unpack (fix), unpack (arg))
          end
 end
 
@@ -29,16 +37,17 @@ end
 --   returns
 --     f1(...fn (args)...)
 function compose (...)
-  local fns, n = arg, getn (arg)
-  if getn (fns) == 0 then
+  local fns, n = arg, table.getn (arg)
+  if n == 0 then
     return id
-  end
-  return function (...)
-           for i = %n, 1, -1 do
-             arg = pack (call (%fns[i], arg))
+  else
+    return function (...)
+             for i = n, 1, -1 do
+               arg = pack (fns[i](unpack (arg)))
+             end
+             return unpack (arg)
            end
-           return unpack (arg)
-         end
+  end
 end
 
 -- listable: Make a function which can take its arguments as a list
@@ -49,10 +58,10 @@ end
 --     list
 function listable (f)
   return function (...)
-           if getn (arg) == 1 and type (arg[1]) == "table" then
-             return call (%f, arg[1])
+           if table.getn (arg) == 1 and type (arg[1]) == "table" then
+             return f (unpack (arg[1]))
            else
-             return call (%f, arg)
+             return f (unpack (arg))
            end
          end
 end
@@ -62,7 +71,7 @@ end
 -- returns
 --   v: value of string
 function eval (s)
-  return dostring ("return " .. s)
+  return loadstring ("return " .. s)()
 end
 
 -- constant: Return a constant value
@@ -73,16 +82,8 @@ end
 --     x: same object
 function constant (x)
   return function ()
-           return %x
+           return x
          end
-end
-
--- id: Identity
---   x: object
--- returns
---   x: same object
-function id (x)
-  return x
 end
 
 -- loop: Call a function with values 1..n, returning a list of results
@@ -93,7 +94,7 @@ end
 function loop (n, f)
   local l = {}
   for i = 1, n do
-    tinsert (l, f (i))
+    table.insert (l, f (i))
   end
   return l
 end
@@ -127,16 +128,18 @@ end
 --   it_: index-value-output-input iterator
 function Iterator (it)
   return function (t, f, u)
-           u = u or {}
-           %it (t,
-                function (i, v) -- (this is g)
-                  %f (i, v, %u, %t)
-                end)
+           if u == nil then
+             u = {}
+           end
+           it (t,
+               function (i, v) -- (this is g)
+                 f (i, v, u, t)
+               end)
            return u
          end
 end
 
 -- Generalise foreach and foreachi (backwards compatibly, with the
 -- caveat that the function is now passed four arguments, as above)
-foreach = Iterator (foreach)
-foreachi = Iterator (foreachi)
+table.foreach = Iterator (table.foreach)
+table.foreachi = Iterator (table.foreachi)
