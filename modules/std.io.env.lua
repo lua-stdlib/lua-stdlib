@@ -44,7 +44,7 @@ end
 -- returns
 --   l: list of files
 function readDir (d)
-  local l = split ("\n", chomp (shell ("ls -a " .. d ..
+  local l = split ("\n", chomp (shell ("ls -aU " .. d ..
                                        " 2>/dev/null")))
   tremove (l, 1) -- remove . and ..
   tremove (l, 1)
