@@ -19,7 +19,7 @@ function pickle (x)
   else
     local rep = stringifier[tag (x)] (x)
     if type (rep) == "table" then
-      s = s .. "{"
+      s = "{"
       for i, v in rep do
         s = s .. "[" .. pickle (i) .. "]=" .. pickle (v) .. ","
       end
