@@ -26,8 +26,8 @@ end
 --   @param ...: values to write (as for write)
 function io.writeLine (h, ...)
   if io.type (h) ~= "file" then
-    h = io.output ()
     table.insert (arg, 1, h)
+    h = io.output ()
   end
   for _, v in ipairs (arg) do
     h:write (v, "\n")
