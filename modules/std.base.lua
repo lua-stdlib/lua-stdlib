@@ -120,7 +120,7 @@ end
 function curry (f, ...)
   local fix = arg
   return function (...)
-           return f (table.merge (unpack (fix), unpack (arg)))
+           return f (unpack (table.merge (fix, arg)))
          end
 end
 
