@@ -21,7 +21,7 @@ function print (...)
   for i = 1, getn (arg) do
     arg[i] = tostring (arg[i])
   end
-  call (%_print, arg)
+  _print (unpack (arg))
 end
 
 -- debug: Print a debugging message
@@ -37,7 +37,7 @@ function debug (...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    writeLine (_STDERR, join ("\t", map (tostring, arg)))
+    writeLine (io.stderr, join ("\t", map (tostring, arg)))
   end
 end
 
@@ -65,7 +65,7 @@ function traceCall (func)
   if t.currentline >= 0 then
     s = ":" .. t.currentline
   end
-  writeLine (_STDERR, s)
+  writeLine (io.stderr, s)
 end
 
 -- Set hooks according to _DEBUG

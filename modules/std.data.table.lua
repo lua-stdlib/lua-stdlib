@@ -1,17 +1,7 @@
 -- Tables
 
--- TODO: Make more combinators take iterators (e.g. indices, values)
--- TODO: Write filterIter, mapWithIter
--- TODO: Write listify which passes foreachi as the first argument of
---   an iterator combinator, and nify which makes a function that adds
---   an n field to the result of another function. Use these to make
---   list versions of combinators more easily.
-
 require "std.data.code"
 
-
--- Vanilla table tag
-_TableTag = tag ({})
 
 -- @func subscript: Expose [] as a function
 --   @param t: table
@@ -22,27 +12,15 @@ function subscript (t, s)
   return t[s]
 end
 
--- @func Table: Make a new table of the given tag type
---   @param tTag: tag
--- returns
---   @param t: table with tag tTag
-function Table (tTag)
-  local t = {}
-  if tTag ~= _TableTag then
-    settag (t, tTag)
-  end
-  return t
-end
-
--- @func empty: say whether table is empty
+-- @func empty: Say whether table is empty
 --   @param t: table
 -- returns
---   @param f: 1 if empty or nil otherwise
+--   @param f: true if empty or false otherwise
 function empty (t)
-  for _, _ in t do
-    return nil
+  for _, _ in pairs (t) do
+    return false
   end
-  return 1
+  return true
 end
 
 -- @func indices: Make the list of indices of a table
@@ -50,10 +28,10 @@ end
 -- returns
 --   @param u: list of indices
 function indices (t)
-  return foreach (t,
-                  function (i, _, u)
-                    tinsert (u, i)
-                  end)
+  return table.foreach (t,
+                        function (i, _, u)
+                          tinsert (u, i)
+                        end)
 end
 
 -- @func values: Make the list of values of a table
@@ -61,10 +39,10 @@ end
 -- returns
 --   @param u: list of values
 function values (t)
-  return foreach (t,
-                  function (_, v, u)
-                    tinsert (u, v)
-                  end)
+  return table.foreach (t,
+                        function (_, v, u)
+                          table.insert (u, v)
+                        end)
 end
 
 -- @func tinvert: Invert a table
@@ -72,23 +50,11 @@ end
 -- returns
 --   @param u: inverted table {v=i ...}
 function tinvert (t)
-  return foreach (t,
-                  function (i, v, u)
-                    u[v] = i
-                  end)
-end
-
--- @func permuteIter: Permute some indices of a table
---   @param it: iterator
---   @param p: table {oldindex=newindex ...}
---   @param t: table to permute
--- returns
---   @param u: permuted table
-function permuteIter (it, p, t)
-  return it (t,
-             function (i, v, u)
-               u[%p[i] or i] = v
-             end)
+  local u = {}
+  for i, v in pairs (t) do
+    u[v] = i
+  end
+  return u
 end
 
 -- @func permute: Permute some indices of a table
@@ -96,67 +62,25 @@ end
 --   @param t: table to permute
 -- returns
 --   @param u: permuted table
-permute = curry (permuteIter, foreach)
-
--- @func indexKeyIter: Make an index of a table of tables on a given field
---   @param it: iterator
---   @param f: field
---   @param t: table of tables {i1=t1 ... in=tn}
--- returns
---   @param ind: index {t1[f]=i1 ... tn[f]=in}
-function indexKeyIter (it, f, t)
-  return it (t,
-             function (i, v, u)
-               local k = v[%f]
-               if k then
-                 u[k] = i
-               end
-             end)
+function permute (p, t)
+  local u = {}
+  for i, v in pairs (t) do
+    if p[i] ~= nil then
+      u[p[i]] = v
+    else
+      u[i] = v
+    end
+  end
+  return u
 end
 
--- @func indexValueIter: Copy a table of tables, reindexed on a given field
---   @param it: iterator
---   @param f: field
---   @param t: table of tables {i1=t1 ... in=tn}
--- returns
---   @param ind: index {t1[f]=t1 ... tn[f]=tn}
-function indexValueIter (it, f, t)
-  return it (t,
-             function (_, v, u)
-               local k = v[%f]
-               if k then
-                 u[k] = v
-               end
-             end)
-end
-
--- @func mapIter: Map a function over a table according to an iterator
---   @param it: iterator
---   @param f: function
---   @param t: table {i1=v1 ... in=vn}
--- returns
---   @param u: result table {i1=f (v1) ... in=f (vn)}
-function mapIter (it, f, t)
-  return it (t,
-             function (i, v, u)
-               u[i] = %f (v)
-             end)
-end
-
--- @func assign: Execute the elements of a table as global assignments
--- Assumes the indices are strings
---   @param t: table
-function assign (t)
-  foreach (t, setglobal)
-end
-
--- @func clone: Make a shallow copy of a table, including any tag
+-- @func clone: Make a shallow copy of a table, including any metatable
 --   @param t: table
 -- returns
 --   @param u: copy of table
 function clone (t)
-  local u = Table (tag (t))
-  for i, v in t do
+  local u = setmetatable ({}, getmetatable (t))
+  for i, v in pairs (t) do
     u[i] = v
   end
   return u
@@ -170,7 +94,7 @@ end
 --   @param r: the merged table
 function merge (t, u)
   local r = clone (t)
-  for i, v in u do
+  for i, v in pairs (u) do
     r[i] = v
   end
   return r
@@ -198,8 +122,8 @@ function methodify (tTag)
                       return pathSubscript (t, t._getset[i])
                     end
                   end
-                  if %gettm then
-                    return %gettm (t, i)
+                  if gettm then
+                    return gettm (t, i)
                   else
                     return t[i]
                   end
@@ -214,16 +138,13 @@ function methodify (tTag)
                       t[t._getset[i]] = v
                     end
                   end
-                  if %settm then
-                    %settm (t, i, v)
+                  if settm then
+                    settm (t, i, v)
                   else
                     t[i] = v
                   end
                 end)
 end
-
--- Tag methods for tables
-settagmethod (_TableTag, "add", merge) -- table + table = merge
 
 -- @func defaultTable: Make a table with a different default value
 --   @param x: default value
@@ -231,33 +152,27 @@ settagmethod (_TableTag, "add", merge) -- table + table = merge
 -- returns
 --   @param u: table for which u[i] is x if u[i] does not exist
 function defaultTable (x, t)
-  t = t or {}
-  local tTag = newtag ()
-  settagmethod (tTag, "index",
-                function (t, i)
-                  return %x
-                end)
-  return settag (t, tTag)
+  return setmetatable (t or {}, {index = function (t, i)
+                                           return x
+                                         end})
 end
 
 -- Table of methods to make arbitrary objects (typically userdata)
 -- into tables; used by tostring and pickle
 -- Table entries are tag = function from object to table
-tabulator = {
-  [tag ({})] =
-    function (t)
-      return t
-    end,
-}
+tabulator = {}
 
 -- @func tabulate: Turn an object into a table according to tabulator
 --   @param x: object to turn into a table
 -- returns
 --   @param t: table or nil
 function tabulate (x)
-  local m = tabulator[tag (x)]
+  local m = tabulator[getmetatable (x)]
   if m then
     return m (x)
+  elseif type (x) == "table" then
+    return x
+  else
+    return nil
   end
-  return nil
 end

@@ -8,7 +8,7 @@ require "std.data.table"
 -- To add an element to a set, s[e] = 1
 -- To find whether e is in s, evaluate s[e] ~= nil
 
-_SetTag = newtag () -- tag for sets
+local Meta = {} -- metatable for sets
 
 -- Set: Make a list into a set
 --   l: list
@@ -19,7 +19,7 @@ function Set (l)
   for i = 1, getn (l) do
     s[l[i]] = 1
   end
-  return settag (s, _SetTag)
+  return setmetatable (s, Meta)
 end
 
 -- setminus: Find the difference of two sets
@@ -27,7 +27,7 @@ end
 -- returns
 --   r: s with elements of t removed
 function setminus (s, t)
-  local r = Table (tag (s))
+  local r = setmetatable ({}, Meta)
   for i, v in s do
     if t[i] == nil then
       r[i] = 1
@@ -41,7 +41,7 @@ end
 -- returns
 --   r: set intersection of s and t
 function setintersect (s, t)
-  local r = Table (tag (s))
+  local r = setmetatable ({}, Meta)
   for i, _ in s do
     if t[i] ~= nil then
       r[i] = 1
@@ -93,8 +93,9 @@ function setequal (s, t)
   return subset (s, t) and subset (t, s)
 end
 
--- Tag methods for sets
-settagmethod (_SetTag, "add", merge) -- set + table = union
-settagmethod (_SetTag, "sub", setminus) -- set - table = set difference
-settagmethod (_SetTag, "div", setintersect) -- set / table = intersection
-settagmethod (_SetTag, "le", subset) -- set <= table = subset
+-- Metamethods for sets
+Meta.__add = merge -- set + table = union
+Meta.__sub = setminus -- set - table = set difference
+Meta.__div = setintersect -- set / table = intersection
+Meta.__le = subset -- set <= table = subset
+Meta.__lt = propersubset -- set < table = proper subset

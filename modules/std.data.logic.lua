@@ -1,7 +1,6 @@
 -- Logic
 
 require "std.data.code"
-require "std.data.global"
 
 
 local n, b = 1, 0
@@ -9,7 +8,7 @@ while n < n + 1 do
   n = n * 2
   b = b + 1
 end
-_INTEGER_BITS = newConstant (b)
+_INTEGER_BITS = b
 
 
 -- Don't overwrite bitlib routines if they exist

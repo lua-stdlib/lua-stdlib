@@ -8,24 +8,24 @@ require "std.text.text"
 --   @param ...: arguments for format
 function warn (...)
   if prog.name then
-    write (_STDERR, prog.name .. ":")
+    io.stderr:write (prog.name .. ":")
   end
   if prog.file then
-    write (_STDERR, prog.file .. ":")
+    io.stderr:write (prog.file .. ":")
   end
   if prog.line then
-    write (_STDERR, tostring (prog.line) .. ":")
+    io.stderr:write (tostring (prog.line) .. ":")
   end
   if prog.name or prog.file or prog.line then
-    write (_STDERR, " ")
+    io.stderr:write (" ")
   end
-  writeLine (_STDERR, call (format, arg))
+  writeLine (io.stderr, format (unpack (arg)))
 end
 
 -- @func die: Die with error
 --   @param ...: arguments for format
 function die (...)
-  call (warn, arg)
+  warn (unpack (arg))
   error ()
 end
 
@@ -35,7 +35,7 @@ end
 --   @param ...: arguments for format
 function assert (v, ...)
   if not v then
-    error (call (format, arg or {""}))
+    error (format (unpack (arg or {""})))
   end
 end
 

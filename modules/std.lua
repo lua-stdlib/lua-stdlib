@@ -8,7 +8,7 @@
 --   using raw tables wherever possible)
 -- TODO: Add tests for each function immediately after the function;
 --   this also helps to check module dependencies
--- TODO: precompile and make require check for a .luc [sic] version of
+-- TODO: precompile and make require check for a .luac version of
 --   each file, and load it if it's newer than the .lua version
 
 require "std.data"

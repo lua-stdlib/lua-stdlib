@@ -1,19 +1,32 @@
--- Patches for buggy standard library functions and implementations of
--- missing functions in Lua 5.0
-
-require "std.data.global"
+-- Patches for standard library functions
 
 
-if strsub (_VERSION, 1, 7) == "Lua 5.0" then
+if string.sub (_VERSION, 1, 7) == "Lua 5.0" then
 
-  -- Make sort return its result
+  -- @func table.sort: Make table.sort return its result
+  --   @param t: table
+  --   @param c: comparator function
+  -- returns
+  --   @param t: sorted table
   local _sort = table.sort
   function table.sort (t, c)
     _sort (t, c)
     return t
   end
-  
-  -- Make PI unassignable
-  PI = newConstant (PI)
+
+  -- @func string.format: Format, but only if more than one argument
+  --   @param (s: string
+  --   ( or
+  --   @param (...: arguments for format
+  -- returns
+  --   @param r: formatted string, or s if only one argument
+  local _format = string.format
+  function string.format (...)
+    if getn (arg) == 1 then
+      return arg[1]
+    else
+      return _format (unpack (arg))
+    end
+  end
 
 end

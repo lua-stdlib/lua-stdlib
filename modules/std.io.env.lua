@@ -8,25 +8,25 @@ require "std.data.list"
 -- returns
 --   o: output
 function shell (c)
-  local i = _INPUT
-  readfrom ("|" .. c)
-  local o = read ("*a")
-  closefile (_INPUT)
-  _INPUT = i
+  local i = io.stdin
+  io.popen (c)
+  local o = io.read ("*a")
+  io.close (io.stdin)
+  io.input (i)
   return o
 end
 
 -- processFiles: Process files specified on the command-line
--- file name "-" means _STDIN
+-- file name "-" means io.stdin
 --   f: function to process files with
 --     name: the name of the file being read
 --     i: the number of the argument
 function processFiles (f)
-  for i = 1, getn (arg) do
+  for i = 1, table.getn (arg) do
     if arg[i] == "-" then
-      readfrom ()
+      io.input (io.stdin)
     else
-      readfrom (arg[i])
+      io.input (arg[i])
     end
     prog.file = arg[i]
     f (arg[i], i)
@@ -46,7 +46,7 @@ end
 function readDir (d)
   local l = split ("\n", chomp (shell ("ls -aU " .. d ..
                                        " 2>/dev/null")))
-  tremove (l, 1) -- remove . and ..
-  tremove (l, 1)
+  table.remove (l, 1) -- remove . and ..
+  table.remove (l, 1)
   return l
 end

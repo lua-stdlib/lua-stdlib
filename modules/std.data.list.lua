@@ -26,8 +26,11 @@ min = listable (min)
 -- returns
 --   @param m: result list {f (l[1]) ... f (l[getn (l)])}
 function map (f, l)
-  local m = mapIter (foreachi, f, l)
-  m.n = getn (m)
+  local m = {}
+  for i, v in ipairs (l) do
+    m[i] = f (v)
+  end
+  table.setn (m, table.getn (l))
   return m
 end
 
@@ -170,7 +173,7 @@ end
 -- returns
 --   @param m: list {l[1] ... l[getn (l)] ... (n times)}
 function rep (l, n)
-  return mapjoin (function () return %l end, {n=n})
+  return mapjoin (function () return l end, {n=n})
 end
 
 -- @func transpose: Transpose a list of lists
@@ -209,7 +212,7 @@ end
 -- returns
 --   @param m: list of f fields
 function project (f, l)
-  return map (function (t) return t[%f] end, l)
+  return map (function (t) return t[f] end, l)
 end
 
 -- @func enpair: Turn a table into a list of pairs
@@ -253,20 +256,37 @@ end
 --   @param l: list of tables {t1 ... tn}
 -- returns
 --   @param ind: index {t1[f]=1 ... tn[f]=n}
-indexKey = curry (indexKeyIter, foreachi)
+function indexKey (f, t)
+  return table.foreachi (t,
+                         function (i, v, u)
+                           local k = v[f]
+                           if k then
+                             u[k] = i
+                           end
+                         end)
+end
 
 -- @func indexValue: Copy a list of tables, indexed on a given field
 --   @param f: field whose value should be used as index
 --   @param l: list of tables {i1=t1 ... in=tn}
 -- returns
 --   @param m: index {t1[f]=t1 ... tn[f]=tn}
-indexValue = curry (indexValueIter, foreachi)
+function indexValue (f, t)
+  return table.foreachi (t,
+                         function (_, v, u)
+                           local k = v[f]
+                           if k then
+                             u[k] = v
+                           end
+                         end)
+end
 permuteOn = indexValue
 
 -- @head Tag methods for lists
+-- TODO: Have a List type that uses these
 -- - list = reverse
-settagmethod (_TableTag, "unm", reverse)
+-- settagmethod (_TableTag, "unm", reverse)
 -- list * number = rep
-settagmethod (_TableTag, "mul", rep)
+-- settagmethod (_TableTag, "mul", rep)
 -- list .. list = concat
-settagmethod (_TableTag, "concat", concat)
+-- settagmethod (_TableTag, "concat", concat)

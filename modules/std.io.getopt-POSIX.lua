@@ -314,12 +314,12 @@ function processArgs ()
   local errors
   arg, opt, errors = getOpt (arg, options)
   if (opt.version or totArgs == 0) and prog.banner then
-    write (_STDERR, prog.banner .. endOfLine)
+    io.stderr:write (prog.banner .. endOfLine)
   end
-  if getn (errors) > 0 or totArgs == 0 or opt.help then
+  if table.getn (errors) > 0 or totArgs == 0 or opt.help then
     local name = prog.name
     prog.name = nil
-    if getn (errors) > 0 then
+    if table.getn (errors) > 0 then
       warn (join (endOfLine, errors) .. endOfLine)
     end
     prog.name = name
@@ -343,13 +343,13 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   }
 
   function out (o)
-    return o or _STDOUT
+    return o or io.stdout
   end
 
   function test (cmdLine, optsFirst, inOrder)
     local opts, nonOpts, errors = getOpt (cmdLine, options, optsFirst,
                                           inOrder)
-    if getn (errors) == 0 then
+    if table.getn (errors) == 0 then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. endOfLine)
     else

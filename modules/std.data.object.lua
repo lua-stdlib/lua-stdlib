@@ -20,19 +20,18 @@ require "std.data.table"
 
 -- Root object
 Object = {_init = {}}
-settag (Object, newtag ())
-copytagmethods (tag (Object), _TableTag)
 
 -- Object constructor
 --   values: initial values for fields in _init
 -- returns
 --   o: new object
 function Object:_clone (values)
-  return self + permute (self._init, values)
+  return merge (self, permute (self._init, values))
 end
 
 -- Sugar instance creation
-settagmethod (tag (Object), "function",
-              function (...)
-                return call (arg[1]._clone, arg)
-              end)
+setmetatable (Object,
+              {__call = function (...)
+                          return arg[1]._clone (unpack (arg))
+                        end
+              })

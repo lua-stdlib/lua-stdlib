@@ -1,6 +1,6 @@
 -- Regular expressions
 
-require "std.patch40"
+require "std.patch50"
 
 
 -- strfindt: Do strfind, returning captures as a list

@@ -43,16 +43,16 @@ function getOpt (argIn, options)
     function (o, opt, arg, oldarg)
       if o.type == nil then
         if arg ~= nil then
-          tinsert (%errors, errNoArg (opt))
+          tinsert (errors, errNoArg (opt))
         end
       else
-        if arg == nil and %argIn[1] and
-          strsub (%argIn[1], 1, 1) ~= "-" then
-          arg = %argIn[1]
-          tremove (%argIn, 1)
+        if arg == nil and argIn[1] and
+          strsub (argIn[1], 1, 1) ~= "-" then
+          arg = argIn[1]
+          tremove (argIn, 1)
         end
         if arg == nil and o.type == "Req" then
-          tinsert (%errors, errReqArg (opt, o.var))
+          tinsert (errors, errReqArg (opt, o.var))
           return nil
         end
       end
@@ -64,11 +64,11 @@ function getOpt (argIn, options)
   -- parse an option
   local parseOpt =
     function (opt, arg)
-      local o = %options.name[opt]
+      local o = options.name[opt]
       if o ~= nil then
-        %optOut[o.name[1]] = %getArg (o, opt, arg, %optOut[o.name[1]])
+        optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
       else
-        tinsert (%errors, errUnrec (opt))
+        tinsert (errors, errUnrec (opt))
       end
     end
   while argIn[1] do
@@ -164,12 +164,12 @@ function usageInfo (header, optDesc, pageWidth)
         end
       local fmtArg =
         function ()
-          if %opt.type == nil then
+          if opt.type == nil then
             return ""
-          elseif %opt.type == "Req" then
-            return "=" .. %opt.var
+          elseif opt.type == "Req" then
+            return "=" .. opt.var
           else
-            return "[=" .. %opt.var .. "]"
+            return "[=" .. opt.var .. "]"
           end
         end
       local textName = map (fmtName, opt.name)
@@ -192,7 +192,7 @@ function usageInfo (header, optDesc, pageWidth)
   local wrapper =
     function (w, i)
       return function (s)
-               return wrap (s, %w, %i, 0)
+               return wrap (s, w, i, 0)
              end
     end
   local optText = ""
@@ -226,17 +226,16 @@ end
 -- if there was an error or -help was used
 function processArgs ()
   local totArgs = getn (arg)
-  options = Options (concat
-                     (options or {},
-                      {Option {{"version", "v"},
-                          "show program version"},
-                        Option {{"help", "h", "?"},
-                          "show this help"}}
-                      ))
+  options = Options (concat (options or {},
+                             {Option {{"version", "v"},
+                                 "show program version"},
+                               Option {{"help", "h", "?"},
+                                 "show this help"}}
+                         ))
   local errors
   arg, opt, errors = getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
-    write (_STDERR, prog.banner .. endOfLine)
+    io.stderr:write (prog.banner .. endOfLine)
   end
   if getn (errors) > 0 or opt.help then
     local name = prog.name
@@ -254,7 +253,7 @@ end
 if type (_DEBUG) == "table" and _DEBUG.std then
   
   function out (o)
-    return o or _STDOUT
+    return o or io.stdout
   end
 
   options = Options {

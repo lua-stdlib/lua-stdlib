@@ -1,34 +1,8 @@
 -- Macros
 
 require "std.data.list"
-require "std.data.global"
 require "std.text.regex"
 
-
--- newMacro: Make a global to get and set an lvalue
---   e: the expression to evaluate for the lvalue
--- returns
---   t: value of new global
-function newMacro (e)
-  return newGlobal (function (n, v)
-                      return dostring ("return " .. %e)
-                    end,
-                    dostring ("return function (n, o, v) " .. e ..
-                              " = v end"))
-end
-
--- newReadOnlyMacro: Make a read-only global expression
---   e: the expression to evaluate for the lvalue
--- returns
---   t: value of new global
-function newReadOnlyMacro (e)
-  return newGlobal (function (n, v)
-                      return dostring ("return " .. %e)
-                    end,
-                    function (n, o, v)
-                      error ("read-only value")
-                    end)
-end
 
 -- lookup: Do a late-bound table lookup
 --   t: table to look up in

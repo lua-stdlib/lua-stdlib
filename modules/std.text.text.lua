@@ -5,21 +5,6 @@ require "std.data.table"
 require "std.io.io"
 
 
--- @func format: Format, but only if more than one argument
---   @param (s: string
---   ( or
---   @param (...: arguments for format
--- returns
---   @param r: formatted string, or s if only one argument
-local _format = format
-function format (...)
-  if getn (arg) == 1 then
-    return arg[1]
-  else
-    return call (%_format, arg)
-  end
-end
-
 -- @func strconcat: Give a name to .. for strings
 --   @param s, t: strings
 -- returns
@@ -102,7 +87,7 @@ function tostring (x)
     s = s .. "}"
     return s
   else
-    return %_tostring (x)
+    return _tostring (x)
   end
 end
 
