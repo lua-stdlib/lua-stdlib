@@ -1,11 +1,6 @@
 -- Debugging
 -- Requires that the Lua debug library be available
 
--- TODO: Expand print to register printers for arbitrary tags: these
---   can either be a function from objects to strings, or a list of
---   fields to print. It would be good if luaswig could generate these
---   automatically
-
 require "std/patch40.lua"
 require "std/io/io.lua"
 require "std/text/text.lua"
