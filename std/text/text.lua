@@ -1,9 +1,23 @@
 -- Text processing
 
-require "std/assert.lua"
 require "std/text/regex.lua"
 require "std/data/table.lua"
 
+
+-- @func format: Format, but only if more than one argument
+--   @param (s: string
+--   ( or
+--   @param (...: arguments for format
+-- returns
+--   @param r: formatted string, or s if only one argument
+local _format = format
+function format (...)
+  if getn (arg) == 1 then
+    return arg[1]
+  else
+    return call (%_format, arg)
+  end
+end
 
 -- strconcat: Give a name to .. for strings
 --   s, t: strings
@@ -45,56 +59,6 @@ function join (sep, l)
   local s = l[1] or ""
   for i = 2, getn (l) do
     s = s .. sep .. l[i]
-  end
-  return s
-end
-
--- pad: Justify a string
--- When the string is longer than w, it is truncated (left or right
--- according to the sign of w)
---   s: string to justify
---   w: width to justify to (-ve means right-justify; +ve means
---     left-justify)
---   [p]: string to pad with [" "]
--- returns
---   s_: justified string
-function pad (s, w, p)
-  p = strrep (p or " ", abs (w))
-  if w < 0 then
-    return strsub (p .. s, -w)
-  end
-  return strsub (s .. p, 1, w)
-end
-
--- wrap: Wrap a string into a paragraph
---   s: string to wrap
---   w: width to wrap to [78]
---   ind: indent [0]
---   ind1: indent of first line [ind]
--- returns
---   s_: wrapped paragraph
-function wrap (s, w, ind, ind1)
-  w = w or 78
-  ind = ind or 0
-  ind1 = ind1 or ind
-  affirm (ind1 < w and ind < w,
-          "the indents must be less than the line width")
-  s = strrep (" ", ind1) .. s
-  local lstart, len = 1, strlen (s)
-  while len - lstart > w - ind do
-    local i = lstart + w - ind
-    while i > lstart and strsub (s, i, i) ~= " " do
-      i = i - 1
-    end
-    local j = i
-    while j > lstart and strsub (s, j, j) == " " do
-      j = j - 1
-    end
-    s = strsub (s, 1, j) .. "\n" .. strrep (" ", ind) ..
-      strsub (s, i + 1, -1)
-    local change = ind + 1 - (i - j)
-    lstart = j + change
-    len = len + change
   end
   return s
 end
