@@ -1,102 +1,119 @@
 -- Sets
--- TODO: Reimplement as objects
 
+require "std.object"
 require "std.table"
 
 
--- Sets are tables whose indices are the members of the set; the
--- values are ignored (and the functions below set them to 1)
--- To add an element to a set, s[e] = 1
--- To find whether e is in s, evaluate s[e] ~= nil
+-- Prototype
+Set = Object {
+  set = {}
+}
 
-local Meta = {} -- metatable for sets
-
--- Set: Make a list into a set
+-- Set:_clone: Make a list into a set
 --   l: list
 -- returns
 --   s: set
-function Set (l)
-  local s = {}
+function Set:_clone (l)
+  local set = table.clone (self)
+  setmetatable (set, set)
   for _, v in ipairs (l) do
-    s[v] = 1
+    set:add (v)
   end
-  return setmetatable (s, Meta)
+  return set
 end
 
--- setminus: Find the difference of two sets
---   s, t: sets
+-- @func Set:add: Add an element to a set
+--   @param e: element
+function Set:add (e)
+  self.set[e] = true
+end
+
+-- @func Set:member: Test for membership of a set
+--   @param e: element
 -- returns
---   r: s with elements of t removed
-function setminus (s, t)
-  local r = setmetatable ({}, Meta)
-  for i, v in pairs (s) do
-    if t[i] == nil then
-      r[i] = 1
+--   @param f: flag indicating whether e is in set
+function Set:member (e)
+  return self.set[e] ~= nil
+end
+
+-- @func Set:minus: Find the difference of two sets
+--   @param t: set
+-- returns
+--   @param r: self with elements of t removed
+function Set:minus (t)
+  local r = Set {}
+  for i, _ in pairs (self.set) do
+    if not t:member (i) then
+      r:add (i)
     end
   end
   return r
 end
 
--- setintersect: Find the intersection of two sets
---   s, t: sets
+-- @func Set:intersect: Find the intersection of two sets
+--   @param t: set
 -- returns
---   r: set intersection of s and t
-function setintersect (s, t)
-  local r = setmetatable ({}, Meta)
-  for i, _ in pairs (s) do
-    if t[i] ~= nil then
-      r[i] = 1
+--   @param r: set intersection of self and t
+function Set:intersect (t)
+  local r = Set {}
+  for i, _ in pairs (self.set) do
+    if t:member (i) then
+      r:add (i)
     end
   end
   return r
 end
 
--- setunion: Find the union of two sets
---   s, t: sets
+-- @func Set:union: Find the union of two sets
+--   @param t: set
 -- returns
---   r: set union of s and t
-setunion = table.merge
+--   @param r: set union of self and t
+function Set:union (t)
+  local r = Set {}
+  r.set = table.merge (self.set, t.set)
+  return r
+end
 
--- subset: Find whether one set is a subset of another
---   s, t: sets
+-- @func Set:subset: Find whether one set is a subset of another
+--   @param t: set
 -- returns
---   r: non-nil if s is a subset of t, nil otherwise
-function subset (s, t)
+--   @param r: true if self is a subset of t, false otherwise
+function Set:subset (t)
   for i, _ in pairs (s) do
-    if t[i] == nil then
-      return nil
+    if not t:member (i) then
+      return false
     end
   end
-  return 1
+  return true
 end
 
--- propersubset: Find whether one set is a proper subset of another
---   s, t: sets
+-- @func Set:propersubset: Find whether one set is a proper subset of
+-- another
+--   @param t: set
 -- returns
---   r: non-nil if s is a proper subset of t, nil otherwise
-function propersubset (s, t)
-  return subset (s, t) and not subset (t, s)
+--   @param r: true if s is a proper subset of t, false otherwise
+function Set:propersubset (t)
+  return self:subset (t) and not t:subset (self)
 end
 
--- setempty: Find whether a set is empty
---   s: set
+-- @func Set:empty: Find whether a set is empty
 -- returns
---   r: nil if s is empty, non-nil otherwise
-function setempty (s)
-  return subset (s, {})
+--   r: false if s is empty, true otherwise
+function Set:empty ()
+  return self:subset ({})
 end
 
--- setequal: Find whether two sets are equal
---   s, t: sets
+-- @func Set:equal: Find whether two sets are equal
+--   @param t: set
 -- returns
---   r: nil if sets are not equal, non-nil otherwise
-function setequal (s, t)
-  return subset (s, t) and subset (t, s)
+--   @param r: true if sets are equal, false otherwise
+function Set:equal (t)
+  return self:subset (t) and t:subset (self)
 end
 
 -- Metamethods for sets
-Meta.__add = table.merge -- set + table = union
-Meta.__sub = setminus -- set - table = set difference
-Meta.__div = setintersect -- set / table = intersection
-Meta.__le = subset -- set <= table = subset
-Meta.__lt = propersubset -- set < table = proper subset
+Set.__add = Set.union -- set + table = union
+Set.__sub = Set.minus -- set - table = set difference
+Set.__div = Set.intersect -- set / table = intersection
+Set.__le = Set.subset -- set <= table = subset
+Set.__lt = Set.propersubset -- set < table = proper subset
