@@ -1,7 +1,7 @@
 -- Lua Standard library
 
 -- TODO: LuaDocify (use Nick Trout's selfdoc)
--- TODO: Lua 5-ify data, io, list
+-- TODO: Lua 5-ify data, io.getopt --> getopt, list
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; philosophy of renaming (and hence weak typing,

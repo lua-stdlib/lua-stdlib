@@ -34,21 +34,21 @@ function io.writeLine (h, ...)
   end
 end
 
--- @func changeSuffix: Change the suffix of a filename
+-- @func io.changeSuffix: Change the suffix of a filename
 --   @param from: suffix to change (".-" for any suffix)
 --   @param to: suffix to replace with
 --   @param name: file name to change
 -- returns
 --   @param name_: file name with new suffix
-function changeSuffix (from, to, name)
+function io.changeSuffix (from, to, name)
   return string.gsub (name, "%." .. from .. "$", "") .. "." .. to
 end
 
--- @func addSuffix: Add a suffix to a filename if not already present
+-- @func io.addSuffix: Add a suffix to a filename if not already present
 --   @param suff: suffix to add
 --   @param name: file name to change
 -- returns
 --   @param name_: file name with new suffix
-function addSuffix (suff, name)
-  return changeSuffix (suff, suff, name)
+function io.addSuffix (suff, name)
+  return io.changeSuffix (suff, suff, name)
 end
