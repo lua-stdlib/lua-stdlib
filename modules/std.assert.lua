@@ -10,7 +10,10 @@ import "std.io.io"
 --   @param v: value
 function assert (v, ...)
   if not v then
-    error (string.format (unpack (arg or {""})))
+    if arg.n == 0 then
+      table.insert (arg, "")
+    end
+    error (string.format (unpack (arg)))
   end
   return v
 end
