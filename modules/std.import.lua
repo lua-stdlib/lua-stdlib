@@ -30,7 +30,7 @@ local function locate (name)
     local chunk, err = loadfile (path)
     if chunk then
       return chunk, path
-    elseif err then
+    elseif err and not string.find (err, "^cannot read") then
       error (err)
     end
   end
