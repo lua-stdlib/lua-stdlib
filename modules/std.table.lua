@@ -26,10 +26,22 @@ end
 -- @returns
 --   @param f: true if empty or false otherwise
 function table.empty (t)
-  for _, _ in pairs (t) do
+  for _ in pairs (t) do
     return false
   end
   return true
+end
+
+-- @func table.size: Find the number of elements in a table
+--   @param t: table
+-- @returns
+--   @param n: number of elements in t
+function table.size (t)
+  local n = 0
+  for _ in pairs (t) do
+    n = n + 1
+  end
+  return n
 end
 
 -- @func table.indices: Make the list of indices of a table

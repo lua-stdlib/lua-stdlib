@@ -6,6 +6,24 @@ import "std.table"
 
 list = {}
 
+-- @func list.cons: Prepend an item to a list
+--   @param x: item
+--   @param l: list
+-- @returns
+--   @param r: {x, unpack (l)}
+function list.cons (x, l)
+  return {x, unpack (l)}
+end
+
+-- @func list.append: Append an item to a list
+--   @param x: item
+--   @param l: list
+-- @returns
+--   @param r: {unpack (l), x}
+function list.append (x, l)
+  return {unpack (l), x}
+end
+
 -- @func list.map: Map a function over a list
 --   @param f: function
 --   @param l: list
@@ -34,7 +52,7 @@ end
 --   @param p: predicate
 --     @param a: argument
 --   @returns
---     @param f: flag (nil for false, non-nil for true)
+--     @param f: flag
 --   @param l: list
 -- @returns
 --   @param m: result list containing elements e of l for which p (e)
@@ -44,22 +62,6 @@ function list.filter (p, l)
   for _, v in ipairs (l) do
     if p (v) then
       table.insert (m, v)
-    end
-  end
-  return m
-end
-
--- @func list.mapjoin: Map a function over a list and concatenate the results
---   @param f: function returning a list
---   @param l: list
--- @returns
---   @param m: result list {f (l[1]) .. f (l[table.getn (l)])}
-function list.mapjoin (f, l)
-  local m = {}
-  for _, v in ipairs (l) do
-    local r = f (v)
-    for _, w in ipairs (r) do
-      table.insert (m, w)
     end
   end
   return m
@@ -87,6 +89,14 @@ function list.slice (l, from, to)
     table.insert (m, l[i])
   end
   return m
+end
+
+-- @func list.tail: Return a list with its first element removed
+--   @param l: list
+-- @returns
+--   @param m: {l[2] ... l[table.getn (l)]}
+function list.tail (l)
+  return list.slice (l, 2)
 end
 
 -- @func list.foldl: Fold a binary function through a list left
@@ -119,32 +129,21 @@ function list.foldr (f, e, l)
   return r
 end
 
--- @func list.behead: Remove elements from the front of a list
---   @param l: list
---   @param [n]: number of elements to remove [1]
-function list.behead (l, n)
-  n = n or 1
-  for i = 1, table.getn (l) do
-    l[i] = l[i + n]
-  end
-end
-
--- @func list.concat: Concatenate two lists
---   @param l: list
---   @param m: list
+-- @func list.concat: Concatenate lists
+--   @param l1, l2, ... ln: lists
 -- @returns
---   @param n: result {l[1] ... l[table.getn (l)], m[1] ...
---     m[table.getn (m)]}
-function list.concat (l, m)
-  local n = {}
-  for _, v in ipairs (l) do
-    table.insert (n, v)
+--   @param r: result {l1[1] ... l1[table.getn (l1)], ... ,
+--                     ln[1] ... ln[table.getn (ln)]}
+function list.concat (...)
+  local r = {}
+  for _, l in ipairs (arg) do
+    for _, v in ipairs (l) do
+      table.insert (r, v)
+    end
   end
-  for _, v in ipairs (m) do
-    table.insert (n, v)
-  end
-  return n
+  return r
 end
+list.flatten = list.concat
 
 -- @func list.reverse: Reverse a list
 --   @param l: list
@@ -156,17 +155,6 @@ function list.reverse (l)
     table.insert (m, l[i])
   end
   return m
-end
-
--- @func list.rep: Repeat a list
--- The argument order is designed to make rep usable as a metamethod,
--- and to be compatible with string.rep
---   @param l: list
---   @param n: number of repetitions
--- @returns
---   @param m: list {l[1] ... l[table.getn (l)] ... (n times)}
-function list.rep (l, n)
-  return list.mapjoin (function () return l end, {n=n})
 end
 
 -- @func list.transpose: Transpose a list of lists
@@ -230,18 +218,6 @@ function list.depair (ls)
     t[v[1]] = v[2]
   end
   return t
-end
-
--- @func list.flatten: Turn a list of lists into a list
---   @param ls: list {{...} ... {...}}
--- @returns
---   @param l: list {...}
-function list.flatten (ls)
-  return list.foldr (list.concat, {},
-                     list.filter (function (x)
-                                    return x ~= nil
-                                  end,
-                                  ls))
 end
 
 -- @func list.indexKey: Make an index of a list of tables on a given

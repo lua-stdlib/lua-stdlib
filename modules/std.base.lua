@@ -85,12 +85,11 @@ end
 -- @returns
 --   @param s: string such that eval (s) is the same value as x
 function pickle (x)
-  if type (x) == "nil" then
-    return "nil"
-  elseif type (x) == "number" then
-    return tostring (x)
-  elseif type (x) == "string" then
+  if type (x) == "string" then
     return string.format ("%q", x)
+  elseif type (x) == "number" or type (x) == "boolean" or
+    type (x) == "nil" then
+    return tostring (x)
   else
     x = totable (x) or x
     if type (x) == "table" then
@@ -102,17 +101,17 @@ function pickle (x)
       s = s .. "}"
       return s
     else
-      die ("can't pickle " .. tostring (x))
+      die ("cannot pickle " .. tostring (x))
     end
   end
 end
 
 -- @func id: Identity
---   @param x: object
+--   @param ...
 -- @returns
---   @param x: same object
-function id (x)
-  return x
+--   @param ...: the arguments passed to the function
+function id (...)
+  return unpack (arg)
 end
 
 -- @func pack: Turn a tuple into a list
@@ -123,19 +122,34 @@ function pack (...)
   return arg
 end
 
--- @func curry: Partially apply a function
+-- @func bind: Partially apply a function
 --   @param f: function to apply partially
---   @param a1 ... an: arguments to fix
+--   @param a1 ... an: arguments to bind
 -- @returns
---   @param g: function with ai fixed
-function curry (f, ...)
+--   @param g: function with ai already bound
+function bind (f, ...)
   local fix = arg
   return function (...)
            return f (unpack (list.concat (fix, arg)))
          end
 end
 
--- @func compose: Compose some functions
+-- @func curry: Curry a function
+--   @param f: function to curry
+--   @param n: number of arguments
+-- @returns
+--   @param g: curried version of f
+function curry (f, n)
+  if n <= 1 then
+    return f
+  else
+    return function (x)
+             return curry (bind (f, x), n - 1)
+           end
+  end
+end
+
+-- @func compose: Compose functions
 --   @param f1 ... fn: functions to compose
 -- @returns
 --   @param g: composition of f1 ... fn
@@ -146,7 +160,7 @@ function compose (...)
   local fns, n = arg, table.getn (arg)
   return function (...)
            for i = n, 1, -1 do
-             arg = pack (fns[i] (unpack (arg)))
+             arg = {fns[i] (unpack (arg))}
            end
            return unpack (arg)
          end

@@ -1,7 +1,7 @@
 -- @module Regular expressions
 
 
--- @function string.findt: Do string.find, returning captures as a list
+-- @function string.findl: Do string.find, returning captures as a list
 --   @param s: target string
 --   @param p: pattern
 --   @param [init]: start position [1]
@@ -9,11 +9,10 @@
 -- @returns
 --   @param from, to: start and finish of match
 --   @param capt: table of captures
-function string.findt (s, p, init, plain)
-  local pack =
-    function (from, to, ...)
-      return from, to, arg
-    end
+function string.findl (s, p, init, plain)
+  local function pack (from, to, ...)
+    return from, to, arg
+  end
   return pack (string.find (s, p, init, plain))
 end
 
@@ -29,7 +28,7 @@ function string.finds (s, p, init, plain)
   local t = {}
   local from, to, r
   repeat
-    from, to, r = string.findt (s, p, init, plain)
+    from, to, r = string.findl (s, p, init, plain)
     if from ~= nil then
       table.insert (t, {from = from, to = to, capt = r})
       init = to + 1
@@ -64,8 +63,7 @@ function string.gsubs (s, sub, n)
   return s, r
 end
 
--- @function string.split: Turn a string into a list of strings,
--- breaking at sep
+-- @function string.split: Split a string at a given separator
 --   @param [sep]: separator regex ["%s+"]
 --   @param s: string to split
 -- @returns
@@ -74,23 +72,50 @@ function string.split (sep, s)
   if s == nil then
     s, sep = sep, "%s+"
   end
-  local t, len = {n = 0}, string.len (s)
-  local init, oldto, from = 1, 0, 0
-  local to
-  while init <= len and from do
-    from, to = string.find (s, sep, init)
-    if from ~= nil then
-      if oldto > 0 or to > 0 then
-        table.insert (t, string.sub (s, oldto, from - 1))
-      end
-      init = math.max (from + 1, to + 1)
-      oldto = to + 1
-    end
+  local l, n = {}, 0
+  for m, _, p in string.gfind (s, "(.-)(" .. sep .. ")()") do
+    n = p
+    table.insert (l, m)
   end
-  if (oldto <= len or to == len) and len > 0 then
-    table.insert (t, string.sub (s, oldto))
+  table.insert (l, string.sub (s, n))
+  return l
+end
+
+-- @function string.ltrim: Remove leading matter from a string
+--   @param [r]: leading regex ["%s+"]
+--   @param s: string
+-- @returns
+--   @param s_: string without leading r
+function string.ltrim (r, s)
+  if s == nil then
+    s, r = r, "%s+"
   end
-  return t
+  return string.gsub (s, "^" .. r, "")
+end
+
+-- @function string.rtrim: Remove trailing matter from a string
+--   @param [r]: trailing regex ["%s+"]
+--   @param s: string
+-- @returns
+--   @param s_: string without trailing r
+function string.rtrim (r, s)
+  if s == nil then
+    s, r = r, "%s+"
+  end
+  return string.gsub (s, r .. "$", "")
+end
+
+-- @function string.trim: Remove leading and trailing matter from a
+-- string
+--   @param [r]: leading/trailing regex ["%s+"]
+--   @param s: string
+-- @returns
+--   @param s_: string without leading/trailing r
+function string.trim (r, s)
+  if s == nil then
+    s, r = r, "%s+"
+  end
+  return string.gsub (s, "^" .. r .. "$", "")
 end
 
 -- TODO: @function string.rgsub: string.gsub-like wrapper for match

@@ -5,11 +5,11 @@ import "std.algorithm.lcs"
 
 
 -- @func string.concat: Give a name to .. for strings
---   @param s, t: strings
+--   @param s1, s2, ..., sn: strings
 -- @returns
---   @param s_: s .. t
-function string.concat (s, t)
-  return s .. t
+--   @param s_: s1 .. s2 .. ... .. sn
+function string.concat (...)
+  return table.concat (arg)
 end
 
 -- @func string.caps: Capitalise each word in a string
@@ -72,9 +72,9 @@ end
 -- @returns
 --   @param: s: longest common subsequence
 function string.lcs (a, b)
-  return lcs.leastCommonSeq (a, b,
-                             function (s, i)
-                               return string.sub (s, i, i)
-                             end,
-                             string.len, string.concat, "")
+  return lcs.longestCommonSubseq (a, b,
+                                  function (s, i)
+                                    return string.sub (s, i, i)
+                                  end,
+                                  string.len, string.concat, "")
 end
