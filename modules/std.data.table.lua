@@ -35,6 +35,17 @@ function Table (tTag)
   return t
 end
 
+-- @func empty: say whether table is empty
+--   @param t: table
+-- returns
+--   @param f: 1 if empty or nil otherwise
+function empty (t)
+  for _, _ in t do
+    return nil
+  end
+  return 1
+end
+
 -- indices: Make the list of indices of a table
 --   t: table
 -- returns
