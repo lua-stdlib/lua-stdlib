@@ -14,6 +14,15 @@ require "std/data/code.lua"
 -- Vanilla table tag
 _TableTag = tag ({})
 
+-- subscript: expose [] as a function
+--   t: table
+--   s: subscript
+-- returns
+--   v: t[s]
+function subscript (t, s)
+  return t[s]
+end
+
 -- Table: Make a new table of the given tag type
 --   tTag: tag
 -- returns
