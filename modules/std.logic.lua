@@ -39,11 +39,27 @@ if band == nil then
   end
 
   function bxor (a, b)
-    return a + b - 2 * band (a, b)
+    local r = 0
+    for i = 0, _INTEGER_BITS - 1 do
+      local x, y = a / 2, b / 2
+      a, b = floor (x), floor (y)
+      if a + b == x + y then
+        r = r + 2 ^ i
+      end
+    end
+    return r
   end
 
   function bnot (a)
-    return bxor (a, -1)
+    local r = 0
+    for i = 0, _INTEGER_BITS - 1 do
+      local x = a / 2
+      a = floor (x)
+      if x == a then
+        r = r + 2 ^ i
+      end
+    end
+    return r
   end
-
+  
 end
