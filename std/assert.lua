@@ -19,7 +19,7 @@ function warn (...)
   if prog.name or prog.file or prog.line then
     write (_STDERR, " ")
   end
-  writeLine (_STDERR, format (arg))
+  writeLine (_STDERR, call (format, arg))
 end
 
 -- @func die: Die with error
