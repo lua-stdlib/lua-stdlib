@@ -23,7 +23,7 @@ import "std.io.io"
 -- The output of the parser is a tree, each of whose
 -- nodes is of the form:
 --
---     {ty = symbol, node_1 = tree_1, node_2 = tree_2, ...[list]}
+--     {ty = symbol, node_1 = tree_1, node_2 = tree_2, ... [list]}
 --
 -- where each node_i is a symbolic name, and list is the list of
 -- subtrees returned if the corresponding token was a list token.
@@ -40,8 +40,7 @@ import "std.io.io"
 -- production has the form
 --
 --     production = {"token_1", "token_2", ...,
---                   [_action = action_function;]
---                   [abstract_1, abstract_2, ...]}
+--                   [action][,abstract]}
 --
 -- A production
 --
@@ -55,15 +54,22 @@ import "std.io.io"
 --   * a non-terminal, i.e. a token defined by the grammar
 --      * an optional symbol is indicated by the suffix "_opt"
 --      * a list is indicated by the suffix "_list", and may be
---        followed by "_<separator-symbol>" (default is
---        whitespace-separated)
+--        followed by "_<separator-symbol>" (default is no separator)
 --   * a lexeme class
 --   * something else, which is taken as a literal string to match
 --
--- action_function is an optional action that is performed before the
--- abstract syntax rules, of the form
+-- The parse tree for a literal string or lexeme class is the string
+-- that was matched. The parse tree for a non-terminal is a table of
+-- the form
 --
---     function (tree, token, pos)
+--    {ty = "non_terminal_name", tree_1, tree_2, ...}
+--
+-- where the tree_i are the parse trees for the corresponding
+-- terminals and non-terminals.
+--
+-- An action is of the form
+--
+--     action = function (tree, token, pos)
 --       ...
 --       return tree_
 --     end
@@ -72,36 +78,51 @@ import "std.io.io"
 -- and the current position in the token list, and returns a new parse
 -- tree.
 --
--- Each abstract syntax rule is of the form
+-- An abstract syntax rule is of the form
 --
---     name = result
+--     name = {i_1, i_2, ...}
 --
--- where result can be
+-- where i_1, i_2, ... are numbers. This results in a parse tree of
+-- the form
 --
---   * a number i, which is replaced by the parse tree for the ith
---     token in the production
---   * a function, which is passed the list of parse trees for the
---     entire production and the token list, and returns a parse tree
+--     {ty = "name", subtree_i_1, subtree_i_2, ...}
 --
--- If a production has no abstract syntax rules, the result is just
--- a list of subtrees.
+-- If a production has no abstract syntax rule, the result is the
+-- parse node for the current node.
 
 
 Parser = Object {_init = {"grammar"}}
 
 
 function Parser:_clone (values)
-  local grammar = table.permute (self._init, values)
-  -- Collect up the abstract syntax rules
-  for _, rule in ipairs (grammar) do
-    rule._abstract = {}
-    for i, v in pairs (rule) do
-      if type (i) == "string" then
-        rule._abstract[i] = v
+  local init = table.permute (self._init, values)
+  -- Reformat the abstract syntax rules
+  for rname, rule in pairs (init.grammar) do
+    if name ~= "lexemes" then
+      for pnum, prod in ipairs (rule) do
+        local abstract
+        for i, v in pairs (prod) do
+          if type (i) == "string" and i ~= "action" then
+            if abstract then
+              print (prod)
+              die ("more than one abstract rule for " .. rname .. "."
+                   .. tostring (pnum))
+            else
+              if type (v) ~= "table" then
+                die ("bad abstract syntax rule of type " .. type (v))
+              end
+              abstract = {ty = i, template = v}
+              prod[i] = nil
+            end
+          end
+        end
+        if abstract then
+          prod.abstract = abstract
+        end
       end
     end
   end
-  local object = table.merge (self, grammar)
+  local object = table.merge (self, init)
   return setmetatable (object, object)
 end
 
@@ -119,7 +140,7 @@ function Parser:parse (start, token, from)
   --   @param sym: the symbol being tried
   --   @param from: the index of the token to start from
   -- @returns
-  --   @param tree: the resulting parse tree, or nil if empty
+  --   @param tree: the resulting parse tree, or false if empty
   --   @param to: the index of the first unused token, or false to
   --     indicate failure
   local function optional (sym, from)
@@ -127,7 +148,7 @@ function Parser:parse (start, token, from)
     if to then
       return tree, to
     else
-      return nil, from
+      return false, from
     end
   end
 
@@ -136,17 +157,13 @@ function Parser:parse (start, token, from)
   --   @param sep: the list separator
   --   @param from: the index of the token to start from
   -- @returns
-  --   @param tree: the resulting parse tree, or nil if empty
+  --   @param tree: the resulting parse tree, or false if empty
   --   @param to: the index of the first unused token, or false to
   --     indicate failure
   local function list (sym, sep, from)
     local tree, to
     tree, from = symbol (sym, from)
-    local ty = sym .. "_list"
-    if sep ~= "" then
-      ty = ty .. "_" .. sep
-    end
-    local list = {ty = ty, tree}
+    local list = {tree}
     if from == false then
       return list, false
     end
@@ -170,7 +187,7 @@ function Parser:parse (start, token, from)
   --   @param sym: the symbol being tried
   --   @param from: the index of the token to start from
   -- @returns
-  --   @param tree: the resulting parse tree, or nil if empty
+  --   @param tree: the resulting parse tree, or false if empty
   --   @param to: the index of the first unused token, or false to
   --     indicate failure
   symbol = function (sym, from) -- declared at the top
@@ -186,9 +203,9 @@ function Parser:parse (start, token, from)
        -- lexeme
        sym == token[from].tok) -- literal terminal
     then
-      return token[from], from + 1 -- advance to next token
+      return token[from].tok, from + 1 -- advance to next token
     else
-      return nil, false
+      return false, false
     end
   end
 
@@ -203,22 +220,6 @@ function Parser:parse (start, token, from)
   local function production (name, prod, from)
     local tree = {ty = name}
     local to = from
-
-    -- Convert concrete to abstract syntax
-    local function abstract ()
-      local ntree = {}
-      for i, v in pairs (prod._abstract) do
-        if type (v) == "number" then
-          ntree[i] = tree[v]
-        elseif type (v) == "function" then
-          ntree[i] = v (tree, token)
-        else
-          die ("bad abstract syntax rule of type " .. type (v))
-        end
-      end
-      return ntree
-    end
-
     for _, prod in ipairs (prod) do
       local sym
       sym, to = symbol (prod, to)
@@ -228,11 +229,16 @@ function Parser:parse (start, token, from)
         return tree, false
       end
     end
-    if prod._action then
-      tree = prod._action (tree, token, to)
+    if prod.action then
+      tree = prod.action (tree, token, to)
     end
-    if prod._abstract then
-      tree = abstract ()
+    if prod.abstract then
+      local ntree = {}
+      ntree.ty = prod.abstract.ty
+      for i, n in prod.abstract.template do
+        ntree[i] = tree[n]
+      end
+      tree = ntree
     end
     return tree, to
   end
