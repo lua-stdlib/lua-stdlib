@@ -1,6 +1,5 @@
 -- Lua Standard library
 
--- TODO: Docify
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; OO vs non-OO (a thorny problem)

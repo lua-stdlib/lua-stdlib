@@ -1,4 +1,4 @@
--- Base
+-- @module Base
 
 import "std.table"
 import "std.list"
@@ -9,7 +9,7 @@ import "std.string.regex"
 -- @func metamethod: Return given metamethod, if any, or nil
 --   @param x: object to get metamethod of
 --   @param n: name of metamethod to get
--- returns
+-- @returns
 --   @param m: metamethod function or nil if no metamethod or not a
 --     function
 function metamethod (x, n)
@@ -23,7 +23,7 @@ function metamethod (x, n)
   return m
 end
 
--- print: Make print use tostring, so that improvements to tostring
+-- @func print: Make print use tostring, so that improvements to tostring
 -- are picked up
 --   @param arg: objects to print
 local _print = print
@@ -36,7 +36,7 @@ end
 
 -- @func tostring: Extend tostring to work better on tables
 --   @param x: object to convert to string
--- returns
+-- @returns
 --   @param s: string representation
 local _tostring = tostring
 function tostring (x)
@@ -56,7 +56,7 @@ end
 -- @func totable: Turn an object into a table according to __totable
 -- metamethod
 --   @param x: object to turn into a table
--- returns
+-- @returns
 --   @param t: table or nil
 function totable (x)
   local m = metamethod (x, "__totable")
@@ -73,7 +73,7 @@ end
 -- The string can be passed to dostring to retrieve the value
 -- Does not work for recursive tables
 --   @param x: object to pickle
--- returns
+-- @returns
 --   @param s: string such that eval (s) is the same value as x
 function pickle (x)
   if type (x) == "nil" then
@@ -100,7 +100,7 @@ end
 
 -- @func id: Identity
 --   @param x: object
--- returns
+-- @returns
 --   @param x: same object
 function id (x)
   return x
@@ -108,7 +108,7 @@ end
 
 -- @func pack: Turn a tuple into a list
 --   @param ...: tuple
--- returns
+-- @returns
 --   @param l: list
 function pack (...)
   return arg
@@ -117,7 +117,7 @@ end
 -- @func curry: Partially apply a function
 --   @param f: function to apply partially
 --   @param a1 ... an: arguments to fix
--- returns
+-- @returns
 --   @param g: function with ai fixed
 function curry (f, ...)
   local fix = arg
@@ -128,10 +128,10 @@ end
 
 -- @func compose: Compose some functions
 --   @param f1 ... fn: functions to compose
--- returns
+-- @returns
 --   @param g: composition of f1 ... fn
 --     @param args: arguments
---   returns
+--   @returns
 --     @param f1 (...fn (args)...)
 function compose (...)
   local fns, n = arg, table.getn (arg)
@@ -145,17 +145,34 @@ end
 
 -- @func eval: Evaluate a string
 --   @param s: string
--- returns
+-- @returns
 --   @param v: value of string
 function eval (s)
   return loadstring ("return " .. s)()
+end
+
+-- @func listable: Make a function which can take its arguments
+-- as a list
+--   @param f: function (if it only takes one argument, it must not be
+--     a table)
+-- @returns
+--   @param g: function that can take its arguments either as normal
+--     or in a list
+function listable (f)
+  return function (...)
+           if table.getn (arg) == 1 and type (arg[1]) == "table" then
+             return f (unpack (arg[1]))
+           else
+             return f (unpack (arg))
+           end
+         end
 end
 
 -- @func pathSubscript: Subscript a table with a string containing
 -- dots
 --   @param t: table
 --   @param s: subscript of the form s1.s2. ... .sn
--- returns
+-- @returns
 --   @param v: t.s1.s2. ... .sn
 function pathSubscript (t, s)
   return lookup (t, string.split ("%.", s))
@@ -164,7 +181,7 @@ end
 -- @func lookup: Do a late-bound table lookup
 --   @param t: table to look up in
 --   @param l: list of indices {l1 ... ln}
--- returns
+-- @returns
 --   @param u: t[l1] ... [ln]
 function lookup (t, l)
   return list.foldl (table.subscript, t, l)

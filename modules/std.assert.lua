@@ -6,7 +6,7 @@ import "std.io.io"
 -- @func assert: Extend to allow formatted arguments
 --   @param v: value
 --   @param ...: arguments for format
--- returns
+-- @returns
 --   @param v: value
 function assert (v, ...)
   if not v then

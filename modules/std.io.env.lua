@@ -1,11 +1,11 @@
--- Environment
+-- @module Environment
 
 import "std.list"
 
 
 -- @func io.shell: Perform a shell command and return its output
 --   @param c: command
--- returns
+-- @returns
 --   @param o: output, or nil if error
 function io.shell (c)
   local h = io.popen (c)
@@ -18,11 +18,15 @@ function io.shell (c)
 end
 
 -- @func io.processFiles: Process files specified on the command-line
--- file name "-" means io.stdin
+-- If no files given, process io.stdin; in list of files, "-" means
+-- io.stdin
 --   @param f: function to process files with
 --     @param name: the name of the file being read
 --     @param i: the number of the argument
 function io.processFiles (f)
+  if table.getn (arg) == 0 then
+    table.insert (arg, "-")
+  end
   for i, v in ipairs (arg) do
     if v == "-" then
       io.input (io.stdin)
@@ -36,7 +40,7 @@ end
 
 -- @func readDir: Make a list of a directory's contents
 --   @param d: directory
--- returns
+-- @returns
 --   @param l: list of files
 function io.readDir (d)
   local l = split ("\n", string.chomp (shell ("ls -aU " .. d ..

@@ -30,7 +30,7 @@ setmetatable (Object, Object)
 -- @func Object:_clone: Object constructor
 --   @param values: initial values for fields in
 --   _init
--- returns
+-- @returns
 --   @param object: new object
 function Object:_clone (values)
   local object = table.merge (self, table.permute (self._init, values))

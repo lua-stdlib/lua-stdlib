@@ -1,4 +1,4 @@
--- Regular expressions
+-- @module Regular expressions
 
 
 -- @function string.findt: Do string.find, returning captures as a list
@@ -6,7 +6,7 @@
 --   @param p: pattern
 --   @param [init]: start position [1]
 --   @param [plain]: inhibit magic characters [nil]
--- returns
+-- @returns
 --   @param from, to: start and finish of match
 --   @param capt: table of captures
 function string.findt (s, p, init, plain)
@@ -22,7 +22,7 @@ end
 --   @param p: pattern
 --   @param [init]: start position [1]
 --   @param [plain]: inhibit magic characters [nil]
--- returns
+-- @returns
 --   @param t: table of {from=from, to=to; capt = {captures}}
 function string.finds (s, p, init, plain)
   init = init or 1
@@ -42,7 +42,7 @@ end
 --   @param s: string to call string.gsub on
 --   @param sub: {pattern1=replacement1 ...}
 --   @param [n]: upper limit on replacements [infinite]
--- returns
+-- @returns
 --   @param s_: result string
 --   @param r: number of replacements made
 function string.gsubs (s, sub, n)
@@ -68,7 +68,7 @@ end
 -- breaking at sep
 --   @param [sep]: separator regex ["%s+"]
 --   @param s: string to split
--- returns
+-- @returns
 --   @param l: list of strings
 function string.split (sep, s)
   if s == nil then
@@ -100,17 +100,17 @@ end
 --   @param r: function
 --     @param t: table of captures
 --   @param [n]: maximum number of substutions [infinite]
---   returns
+--   @returns
 --     @param rep: replacement
--- returns
+-- @returns
 --   @param n: number of substitutions made
 
 -- TODO: @function string.checkRegex: check regex is valid
 --   @param p: regex pattern
--- returns
+-- @returns
 --   @param f: true if regex is valid, or nil otherwise
 
 -- TODO: @function rex.check{Posix,PCRE}Regex: check POSIX regex is valid
 --   @param p: POSIX regex pattern
--- returns
+-- @returns
 --   @param f: true if regex is valid, or nil otherwise

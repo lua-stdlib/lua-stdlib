@@ -5,7 +5,7 @@ import "std.base"
 
 -- @func io.length: Find the length of a file
 --   @param f: file name
--- returns
+-- @returns
 --   @param len: length of file
 function io.length (f)
   local h, len
@@ -20,7 +20,7 @@ end
 
 -- @func io.exists: Finds whether a file exists
 --   @param f: file name
--- returns
+-- @returns
 --   @param r: non-nil if f exists, nil otherwise
 function io.exists (f)
   local h = io.open (f, "r")

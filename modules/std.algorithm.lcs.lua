@@ -1,4 +1,4 @@
--- LCS algorithm
+-- @module LCS algorithm
 
 -- After pseudo-code in
 -- http://www.ics.uci.edu/~eppstein/161/960229.html

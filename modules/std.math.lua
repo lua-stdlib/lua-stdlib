@@ -1,6 +1,6 @@
 -- Math
 
-import "std.list"
+import "std.base"
 
 
 -- Calculate bits in an integer
@@ -15,14 +15,14 @@ math._INTEGER_BITS = b
 --   @param (l: list
 --          ( or
 --   @param (v1 ... @param vn: values
--- returns
+-- @returns
 --   @param m: max value
-math.max = list.listable (math.max)
+math.max = listable (math.max)
 
 -- @func math.min: Extend to work on lists
 --   @param (l: list
 --          ( or
 --   @param (v1 ... @param vn: values
--- returns
+-- @returns
 --   @param m: min value
-math.min = list.listable (math.min)
+math.min = listable (math.min)

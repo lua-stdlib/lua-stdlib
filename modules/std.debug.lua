@@ -1,5 +1,4 @@
--- Debugging
--- Requires that the Lua debug library be available
+-- @module Debugging
 
 import "std.io.io"
 import "std.string.string"
@@ -26,7 +25,7 @@ function debug.say (...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    writeLine (io.stderr, string.join ("\t", list.map (tostring, arg)))
+    writeLine (io.stderr, table.concat (list.map (tostring, arg), "\t"))
   end
 end
 

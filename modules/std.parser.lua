@@ -44,7 +44,7 @@ Parser = Object {_init = {"grammar", "token"}}
 -- @func Parser:parseOpt: Try to parse an optional symbol
 --   @param sym: the symbol being tried
 --   @param from: the index of the token to start from
--- returns
+-- @returns
 --   @param tree: the resulting parse tree, or false if empty
 --   @param to: the index of the first unused token, or false to
 --     indicate failure
@@ -61,7 +61,7 @@ end
 --   @param sym: the symbol being tried
 --   @param sep: the list separator
 --   @param from: the index of the token to start from
--- returns
+-- @returns
 --   @param tree: the resulting parse tree, or false if empty
 --   @param to: the index of the first unused token, or false to
 --     indicate failure
@@ -95,7 +95,7 @@ end
 -- @func parseSym: Try to parse a given symbol
 --   @param sym: the symbol being tried
 --   @param from: the index of the token to start from
--- returns
+-- @returns
 --   @param tree: the resulting parse tree, or false if empty
 --   @param to: the index of the first unused token, or false to
 --     indicate failure
@@ -122,7 +122,7 @@ end
 --   @param name: the name of the current rule
 --   @param prod: the production (list of symbols) being tried
 --   @param from: the index of the token to start from
--- returns
+-- @returns
 --   @param tree: the parse tree (incomplete if to is false)
 --   @param to: the index of the first unused token, or false to
 --     indicate failure
@@ -147,7 +147,7 @@ end
 -- @func parseRule: Parse according to a particular rule
 --   @param name: the name of the rule to try
 --   @param from: the index of the token to start from
--- returns
+-- @returns
 --   @param tree: parse tree
 --   @param to: the index of the first unused token, or false to
 --     indicate failure

@@ -5,7 +5,7 @@ import "std.assert"
 
 -- TODO: Pretty printing
 --
---   Use in getopt
+--   (Use in getopt)
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
 --   
@@ -30,29 +30,14 @@ import "std.assert"
 --               -> a                       Result
 
 
--- @func string.format: Format, but only if more than one argument
---   @param (s: string
---   ( or
---   @param (...: arguments for format
--- returns
---   @param r: formatted string, or s if only one argument
-local format = string.format
-function string.format (...)
-  if table.getn (arg) == 1 then
-    return arg[1]
-  else
-    return format (unpack (arg))
-  end
-end
-
--- string.pad: Justify a string
+-- @func string.pad: Justify a string
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w)
---   s: string to justify
---   w: width to justify to (-ve means right-justify; +ve means
+--   @param s: string to justify
+--   @param w: width to justify to (-ve means right-justify; +ve means
 --     left-justify)
---   [p]: string to pad with [" "]
--- returns
+--   @param [p]: string to pad with [" "]
+-- @returns
 --   s_: justified string
 function string.pad (s, w, p)
   p = string.rep (p or " ", abs (w))
@@ -62,13 +47,13 @@ function string.pad (s, w, p)
   return string.sub (s .. p, 1, w)
 end
 
--- string.wrap: Wrap a string into a paragraph
---   s: string to wrap
---   w: width to wrap to [78]
---   ind: indent [0]
---   ind1: indent of first line [ind]
--- returns
---   s_: wrapped paragraph
+-- @func string.wrap: Wrap a string into a paragraph
+--   @param s: string to wrap
+--   @param w: width to wrap to [78]
+--   @param ind: indent [0]
+--   @param ind1: indent of first line [ind]
+-- @returns
+--   @param s_: wrapped paragraph
 function string.wrap (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
@@ -93,4 +78,27 @@ function string.wrap (s, w, ind, ind1)
     len = len + change
   end
   return s
+end
+
+-- @func string.numbertosi: Write a number using SI suffixes
+-- The number is always written to 3 s.f.
+--   @param n: number
+-- @returns
+--   @param n_: string
+function string.numbertosi (n)
+  local SIprefix = {
+    [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
+    [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
+    [0] = "", [1] = "k", [2] = "M", [3] = "G",
+    [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
+    [8] = "Y"
+  }
+  local t = string.format("% #.2e", n)
+  local _, _, m, e = string.find(t, ".(.%...)e(.+)")
+  local man, exp = tonumber (m), tonumber (e)
+  local siexp = math.floor (exp / 3)
+  local shift = exp - siexp * 3
+  local s = SIprefix[siexp] or tostring (siexp)
+  man = man * (10 ^ shift)
+  return tostring (man) .. s
 end

@@ -10,7 +10,7 @@ import "std.io.env"
 -- TODO: Sort out the packaging. getopt.Option is tedious to type, but
 -- surely Option shouldn't be in the root namespace?
 -- TODO: Wrap all messages; do all wrapping in processArgs, not
--- usageInfo; use sdoc-like library
+-- usageInfo; use sdoc-like library (see string.format todos)
 
 
 -- Usage:
@@ -36,7 +36,7 @@ getopt = {}
 -- @func getopt.getOpt: perform argument processing
 --   @param argIn: list of command-line args
 --   @param options: options table
--- returns
+-- @returns
 --   @param argOut: table of remaining non-options
 --   @param optOut: table of option key-value list pairs
 --   @param errors: table of error messages
@@ -124,7 +124,7 @@ end
 
 -- @func getopt.errNoArg: argument when there shouldn't be one
 --   @paramoptStr: option string
--- returns
+-- @returns
 --   @param err: option error
 function getopt.errNoArg (optStr)
   return "option `" .. optStr .. "' doesn't take an argument"
@@ -133,7 +133,7 @@ end
 -- @func getopt.errReqArg: required argument missing
 --   @param optStr: option string
 --   @param desc: argument description
--- returns
+-- @returns
 --   @param err: option error
 function getopt.errReqArg (optStr, desc)
   return "option `" .. optStr .. "' requires an argument `" .. desc ..
@@ -142,7 +142,7 @@ end
 
 -- @func getopt.errUnrec: unrecognized option
 --   @param optStr: option string
--- returns
+-- @returns
 --   @param err: option error
 function getopt.errUnrec (optStr)
   return "unrecognized option `-" .. optStr .. "'"
@@ -153,12 +153,12 @@ end
 --   @param.header: header string
 --   @param.optDesc: option descriptors
 --   @param.pageWidth: width to format to [78]
--- returns
+-- @returns
 --   @param.mess: formatted string
 function getopt.usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- format the usage info for a single option
-  -- returns {opts, desc}: options, description
+  -- @returns {opts, desc}: options, description
   local function fmtOpt (opt)
     local function fmtName (o)
       return "-" .. o
@@ -174,8 +174,8 @@ function getopt.usageInfo (header, optDesc, pageWidth)
     end
     local textName = list.map (fmtName, opt.name)
     textName[1] = textName[1] .. fmtArg ()
-    return {string.join (", ",
-                  {string.join (", ", textName)}), opt.desc}
+    return {table.concat ({table.concat (textName, ", ")}, ", "),
+      opt.desc}
   end
   local function sameLen (xs)
     local n = math.max (list.map (string.len, xs))
@@ -199,10 +199,10 @@ function getopt.usageInfo (header, optDesc, pageWidth)
     cols[1], width = sameLen (cols[1])
     cols[2] = list.map (wrapper (pageWidth, width + 4), cols[2])
     optText = "\n\n" ..
-      string.join ("\n",
-                   list.mapWith (paste, list.unzip ({sameLen
-                                                      (cols[1]),
-                                                      cols[2]})))
+      table.concat (list.mapWith (paste, list.unzip ({sameLen
+                                                       (cols[1]),
+                                                       cols[2]})),
+                    "\n")
   end
   return header .. optText
 end
@@ -252,7 +252,7 @@ function getopt.processArgs ()
     local name = prog.name
     prog.name = nil
     if table.getn (errors) > 0 then
-      warn (string.join ("\n", errors) .. "\n")
+      warn (table.concat (errors, "\n") .. "\n")
     end
     prog.name = name
     getopt.dieWithUsage ()
@@ -280,7 +280,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. "\n")
     else
-      print (string.join ("\n", errors) .. "\n" ..
+      print (table.concat (errors, "\n") .. "\n" ..
              getopt.usageInfo ("Usage: foobar [OPTION...] FILE...",
                                options))
     end

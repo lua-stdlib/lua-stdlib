@@ -6,27 +6,10 @@ import "std.table"
 
 list = {}
 
--- @func list.listable: Make a function which can take its arguments
--- as a list
---   @param f: function (if it only takes one argument, it must not be
---     a table)
--- returns
---   @param g: function that can take its arguments either as normal
---     or in a list
-function list.listable (f)
-  return function (...)
-           if table.getn (arg) == 1 and type (arg[1]) == "table" then
-             return f (unpack (arg[1]))
-           else
-             return f (unpack (arg))
-           end
-         end
-end
-
 -- @func list.map: Map a function over a list
 --   @param f: function
 --   @param l: list
--- returns
+-- @returns
 --   @param m: result list {f (l[1]) ... f (l[table.getn (l)])}
 function list.map (f, l)
   local m = {}
@@ -40,7 +23,7 @@ end
 -- @func list.mapWith: Map a function over a list of lists
 --   @param f: function
 --   @param ls: list of lists
--- returns
+-- @returns
 --   @param m: result list {f (unpack (ls[1]))) ...
 --     f (unpack (ls[table.getn (ls)]))}
 function list.mapWith (f, l)
@@ -50,10 +33,10 @@ end
 -- @func list.filter: Filter a list according to a predicate
 --   @param p: predicate
 --     @param a: argument
---   returns
+--   @returns
 --     @param f: flag (nil for false, non-nil for true)
 --   @param l: list
--- returns
+-- @returns
 --   @param m: result list containing elements e of l for which p (e)
 --     is true
 function list.filter (p, l)
@@ -69,7 +52,7 @@ end
 -- @func list.mapjoin: Map a function over a list and concatenate the results
 --   @param f: function returning a list
 --   @param l: list
--- returns
+-- @returns
 --   @param m: result list {f (l[1]) .. f (l[table.getn (l)])}
 function list.mapjoin (f, l)
   local m = {}
@@ -85,7 +68,7 @@ end
 -- @func list.slice: Slice a list
 --   @param l: list
 --   @param p, @param q: start and end of slice
--- returns
+-- @returns
 --   @param m: {l[p] ... l[q]}
 function list.slice (l, p, q)
   local m = {}
@@ -107,7 +90,7 @@ end
 --   @param f: function
 --   @param e: element to place in left-most position
 --   @param l: list
--- returns
+-- @returns
 --   @param r: result
 function list.foldl (f, e, l)
   local r = e
@@ -122,7 +105,7 @@ end
 --   @param f: function
 --   @param e: element to place in right-most position
 --   @param l: list
--- returns
+-- @returns
 --   @param r: result
 function list.foldr (f, e, l)
   local r = e
@@ -145,7 +128,7 @@ end
 -- @func list.concat: Concatenate two lists
 --   @param l: list
 --   @param m: list
--- returns
+-- @returns
 --   @param n: result {l[1] ... l[table.getn (l)], m[1] ...
 --     m[table.getn (m)]}
 function list.concat (l, m)
@@ -161,7 +144,7 @@ end
 
 -- @func list.reverse: Reverse a list
 --   @param l: list
--- returns
+-- @returns
 --   @param m: list {l[table.getn (l)] ... l[1]}
 function list.reverse (l)
   local m = {}
@@ -176,7 +159,7 @@ end
 -- and to be compatible with string.rep
 --   @param l: list
 --   @param n: number of repetitions
--- returns
+-- @returns
 --   @param m: list {l[1] ... l[table.getn (l)] ... (n times)}
 function list.rep (l, n)
   return list.mapjoin (function () return l end, {n=n})
@@ -184,7 +167,7 @@ end
 
 -- @func list.transpose: Transpose a list of lists
 --   @param ls: {{l11 ... l1c} ... {lr1 ... lrc}}
--- returns
+-- @returns
 --   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
 -- Also give aliases list.zip and list.unzip
 function list.transpose (ls)
@@ -204,7 +187,7 @@ list.unzip = list.transpose
 -- @func list.zipWith: Zip lists together with a function
 --   @param f: function
 --   @param ls: list of lists
--- returns
+-- @returns
 --   @param m: {f (ls[1][1] ... ls[table.getn (ls)][1]) ...
 --              f (ls[1][N] ... ls[table.getn (ls)][N])
 --     where N = max {list.map (table.getn, ls)}
@@ -215,7 +198,7 @@ end
 -- @func list.project: Project a list of fields from a list of tables
 --   @param f: field to project
 --   @param l: list of tables
--- returns
+-- @returns
 --   @param m: list of f fields
 function list.project (f, l)
   return list.map (function (t) return t[f] end, l)
@@ -223,7 +206,7 @@ end
 
 -- @func list.enpair: Turn a table into a list of pairs
 --   @param t: table {i1=v1 ... in=vn}
--- returns
+-- @returns
 --   @param ls: list {{i1, v1} ... {in, vn}}
 function list.enpair (t)
   local ls = {}
@@ -235,7 +218,7 @@ end
 
 -- @func list.depair: Turn a list of pairs into a table
 --   @param ls: list {{i1, v1} ... {in, vn}}
--- returns
+-- @returns
 --   @param t: table {i1=v1 ... in=vn}
 function list.depair (ls)
   local t = {}
@@ -247,7 +230,7 @@ end
 
 -- @func list.flatten: Turn a list of lists into a list
 --   @param ls: list {{...} ... {...}}
--- returns
+-- @returns
 --   @param l: list {...}
 function list.flatten (ls)
   return list.foldr (list.concat, {},
@@ -261,7 +244,7 @@ end
 -- field
 --   @param f: field
 --   @param l: list of tables {t1 ... tn}
--- returns
+-- @returns
 --   @param ind: index {t1[f]=1 ... tn[f]=n}
 function list.indexKey (f, t)
   return table.foreachi (t,
@@ -277,7 +260,7 @@ end
 -- field
 --   @param f: field whose value should be used as index
 --   @param l: list of tables {i1=t1 ... in=tn}
--- returns
+-- @returns
 --   @param m: index {t1[f]=t1 ... tn[f]=tn}
 function list.indexValue (f, t)
   return table.foreachi (t,
@@ -292,7 +275,7 @@ permuteOn = list.indexValue
 
 -- @func list.lcs: Find the longest common subsequence of two lists
 --   @param a, b: lists
--- returns
+-- @returns
 --   @param l: LCS of a and b
 function list.lcs (a, b)
   return lcs.leastCommonSeq (a, b, table.subscript, table.getn,
@@ -304,7 +287,7 @@ function list.lcs (a, b)
 end
 
 -- @head Metamethods for lists
--- TODO: Have a List type that uses these
--- List.unm = list.reverse -- - list = list.reverse
--- List.mul = rep -- list * number = rep
--- List.concat = list.concat -- list .. list = list.concat
+-- TODO: Set default metamethods:
+-- __unm = list.reverse
+-- __mul = list.rep
+-- __concat = list.concat

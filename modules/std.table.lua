@@ -4,7 +4,7 @@
 -- @func table.sort: Make table.sort return its result
 --   @param t: table
 --   @param c: comparator function
--- returns
+-- @returns
 --   @param t: sorted table
 local sort = table.sort
 function table.sort (t, c)
@@ -15,7 +15,7 @@ end
 -- @func table.subscript: Expose [] as a function
 --   @param t: table
 --   @param s: subscript
--- returns
+-- @returns
 --   @param v: t[s]
 function table.subscript (t, s)
   return t[s]
@@ -23,7 +23,7 @@ end
 
 -- @func table.empty: Say whether table is empty
 --   @param t: table
--- returns
+-- @returns
 --   @param f: true if empty or false otherwise
 function table.empty (t)
   for _, _ in pairs (t) do
@@ -34,7 +34,7 @@ end
 
 -- @func table.indices: Make the list of indices of a table
 --   @param t: table
--- returns
+-- @returns
 --   @param u: list of indices
 function table.indices (t)
   local u = {}
@@ -46,7 +46,7 @@ end
 
 -- @func table.values: Make the list of values of a table
 --   @param t: table
--- returns
+-- @returns
 --   @param u: list of values
 function table.values (t)
   local u = {}
@@ -58,7 +58,7 @@ end
 
 -- @func table.invert: Invert a table
 --   @param t: table {i=v ...}
--- returns
+-- @returns
 --   @param u: inverted table {v=i ...}
 function table.invert (t)
   local u = {}
@@ -71,7 +71,7 @@ end
 -- @func table.permute: Permute some indices of a table
 --   @param p: table {oldindex=newindex ...}
 --   @param t: table to permute
--- returns
+-- @returns
 --   @param u: permuted table
 function table.permute (p, t)
   local u = {}
@@ -88,7 +88,7 @@ end
 -- @func table.clone: Make a shallow copy of a table, including any
 -- metatable
 --   @param t: table
--- returns
+-- @returns
 --   @param u: copy of table
 function table.clone (t)
   local u = setmetatable ({}, getmetatable (t))
@@ -102,7 +102,7 @@ end
 -- If there are duplicate fields, u's will be used. The metatable of
 -- the returned table is that of t
 --   @param t, u: tables
--- returns
+-- @returns
 --   @param r: the merged table
 function table.merge (t, u)
   local r = table.clone (t)
@@ -115,7 +115,7 @@ end
 -- @func table.newDefault: Make a table with a default value
 --   @param x: default value
 --   @param [t]: initial table [{}]
--- returns
+-- @returns
 --   @param u: table for which u[i] is x if u[i] does not exist
 function table.newDefault (x, t)
   return setmetatable (t or {},
