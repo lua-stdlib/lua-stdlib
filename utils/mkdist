@@ -1,8 +1,0 @@
-#! /bin/sh
-# Make a zip of the Lua standard libraries
-# Run from the top directory (not this one)
-# (c) Reuben Thomas
-
-arc=stdlua.zip
-rm -f $arc
-zip -r $arc README std.cfg modules
