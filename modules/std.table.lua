@@ -1,6 +1,6 @@
 -- Tables
 
-require "std.data.code"
+require "std.base"
 
 
 -- @func table.sort: Make table.sort return its result

@@ -1,6 +1,6 @@
 -- @module List
 
-require "std.data.code"
+require "std.base"
 require "std.table"
 
 
@@ -295,6 +295,22 @@ function listLcs (a, b)
                                return t
                              end,
                              {})
+end
+
+-- listable: Make a function which can take its arguments as a list
+--   f: function (if it only takes one argument, it must not be a
+--     table)
+-- returns
+--   g: function that can take its arguments either as normal or in a
+--     list
+function listable (f)
+  return function (...)
+           if table.getn (arg) == 1 and type (arg[1]) == "table" then
+             return f (unpack (arg[1]))
+           else
+             return f (unpack (arg))
+           end
+         end
 end
 
 -- @head Metamethods for lists
