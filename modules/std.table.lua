@@ -6,9 +6,9 @@
 --   @param c: comparator function
 -- returns
 --   @param t: sorted table
-local _sort = table.sort
+local sort = table.sort
 function table.sort (t, c)
-  _sort (t, c)
+  sort (t, c)
   return t
 end
 

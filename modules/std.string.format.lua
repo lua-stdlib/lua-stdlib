@@ -36,12 +36,12 @@ import "std.assert"
 --   @param (...: arguments for format
 -- returns
 --   @param r: formatted string, or s if only one argument
-local _format = string.format
+local format = string.format
 function string.format (...)
   if table.getn (arg) == 1 then
     return arg[1]
   else
-    return _format (unpack (arg) or "")
+    return format (unpack (arg))
   end
 end
 

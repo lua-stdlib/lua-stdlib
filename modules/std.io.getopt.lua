@@ -237,12 +237,12 @@ end
 -- if there was an error or -help was used
 function getopt.processArgs ()
   local totArgs = table.getn (arg)
-  options = Options (concat (options or {},
-                             {Option {{"version", "v"},
-                                 "show program version"},
-                               Option {{"help", "h", "?"},
-                                 "show this help"}}
-                         ))
+  options = Options (list.concat (options or {},
+                                  {Option {{"version", "v"},
+                                      "show program version"},
+                                    Option {{"help", "h", "?"},
+                                      "show this help"}}
+                              ))
   local errors
   arg, opt, errors = getopt.getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
