@@ -169,9 +169,9 @@ end
 function Parser.prettyPrint (tree, indent)
   if tree then
     if tree.tok then
-      writeLine (indent .. tree.ty .. "=" .. tree.tok)
+      io.writeLine (indent .. tree.ty .. "=" .. tree.tok)
     else
-      writeLine (indent .. tree.ty)
+      io.writeLine (indent .. tree.ty)
       for _, v in ipairs (tree) do
         Parser.prettyPrint (v, indent .. "  ")
       end
