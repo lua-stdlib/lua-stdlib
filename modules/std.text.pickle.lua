@@ -23,7 +23,7 @@ pickler =
                     end
                     return t
                   else
-                    return stringify[tag (x)] (self, x)
+                    return stringifier[tag (x)] (self, x)
                   end
                 end,
                 {
