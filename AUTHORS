@@ -27,3 +27,5 @@ private standard library.
 
 Johann Hibschman supplied the code on which math.floor and math.round
 were based.
+
+Diego Nahab wrote the original version of the mbox parser module.
