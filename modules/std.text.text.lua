@@ -2,6 +2,7 @@
 
 require "std.text.regex"
 require "std.data.table"
+require "std.io.io"
 
 
 -- @func format: Format, but only if more than one argument
@@ -40,13 +41,13 @@ function strcaps (s)
   return s
 end
 
--- @func chomp: Remove any final \n from a string
+-- @func chomp: Remove any final line ending from a string
 -- TODO: rewrite for 5.0 using bracket notation
 --   @param s: string to process
 -- returns
 --   @param s_: processed string
 function chomp (s)
-  s = gsub (s, "\n$", "")
+  s = gsub (s, endOfLine .. "$", "")
   return s
 end
 

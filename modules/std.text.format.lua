@@ -27,6 +27,7 @@
 --               -> a                       Result
 
 require "std.assert"
+require "std.io.io"
 
 
 -- pad: Justify a string
@@ -70,7 +71,7 @@ function wrap (s, w, ind, ind1)
     while j > lstart and strsub (s, j, j) == " " do
       j = j - 1
     end
-    s = strsub (s, 1, j) .. "\n" .. strrep (" ", ind) ..
+    s = strsub (s, 1, j) .. endOfLine .. strrep (" ", ind) ..
       strsub (s, i + 1, -1)
     local change = ind + 1 - (i - j)
     lstart = j + change
