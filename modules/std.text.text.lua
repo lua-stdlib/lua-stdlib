@@ -96,8 +96,8 @@ end
 -- returns
 --   @param s: suffix
 function ordinalSuffix (n)
-  n = bit.mod (n, 100)
-  local d = bit.mod (n, 10)
+  n = math.mod (n, 100)
+  local d = math.mod (n, 10)
   if d == 1 and n ~= 11 then
     return "st"
   elseif d == 2 and n ~= 12 then
