@@ -1,10 +1,10 @@
 -- @module List
 
+if list then return end
+list = {}
+
 require "std.base"
 require "std.table"
-
-
-list = {}
 
 
 -- @func list.listable: Make a function which can take its arguments

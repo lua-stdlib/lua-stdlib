@@ -1,7 +1,7 @@
 -- Lua Standard library
 
+-- TODO: Fix require not to have problems with cycles
 -- TODO: LuaDocify (use Nick Trout's selfdoc)
--- TODO: Lua 5-ify data
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; philosophy of renaming (and hence weak typing,
@@ -16,7 +16,6 @@ require "std.assert"
 require "std.debug"
 require "std.table"
 require "std.list"
-require "std.data"
 require "std.object"
 require "std.algorithm"
 require "std.string"
@@ -24,3 +23,5 @@ require "std.math"
 require "std.io"
 require "std.bit"
 require "std.rex"
+require "std.set"
+require "std.parser"

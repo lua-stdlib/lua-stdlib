@@ -1,7 +1,9 @@
 -- Base
 
 require "std.table"
+require "std.list"
 require "std.string.string"
+require "std.string.regex"
 
 
 -- @func metamethod: Return given metamethod, if any, or nil
@@ -9,7 +11,7 @@ require "std.string.string"
 --   @param n: name of metamethod to get
 -- returns
 --   @param m: metamethod function or nil if no metamethod or not a
---   function
+--     function
 function metamethod (x, n)
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
@@ -96,55 +98,74 @@ function pickle (x)
   end
 end
 
--- id: Identity
---   x: object
+-- @func id: Identity
+--   @param x: object
 -- returns
---   x: same object
+--   @param x: same object
 function id (x)
   return x
 end
 
--- pack: Turn a tuple into a list
---   ...: tuple
+-- @func pack: Turn a tuple into a list
+--   @param ...: tuple
 -- returns
---   l: list
+--   @param l: list
 function pack (...)
   return arg
 end
 
--- curry: Partially apply a function
---   f: function to apply partially
---   a1 ... an: arguments to fix
+-- @func curry: Partially apply a function
+--   @param f: function to apply partially
+--   @param a1 ... an: arguments to fix
 -- returns
---   g: function with ai fixed
+--   @param g: function with ai fixed
 function curry (f, ...)
   local fix = arg
   return function (...)
-           return f (unpack (table.merge (fix, arg)))
+           return f (unpack (list.concat (fix, arg)))
          end
 end
 
--- compose: Compose some functions
---   f1 ... fn: functions to compose
+-- @func compose: Compose some functions
+--   @param f1 ... fn: functions to compose
 -- returns
---   g: composition of f1 ... fn
---     args: arguments
+--   @param g: composition of f1 ... fn
+--     @param args: arguments
 --   returns
---     f1 (...fn (args)...)
+--     @param f1 (...fn (args)...)
 function compose (...)
   local fns, n = arg, table.getn (arg)
   return function (...)
            for i = n, 1, -1 do
-             arg = pack (fns[i](unpack (arg)))
+             arg = pack (fns[i] (unpack (arg)))
            end
            return unpack (arg)
          end
 end
 
--- eval: Evaluate a string
---   s: string
+-- @func eval: Evaluate a string
+--   @param s: string
 -- returns
---   v: value of string
+--   @param v: value of string
 function eval (s)
   return loadstring ("return " .. s)()
+end
+
+-- @func pathSubscript: Subscript a table with a string containing
+-- dots
+--   @param t: table
+--   @param s: subscript of the form s1.s2. ... .sn
+-- returns
+--   @param v: t.s1.s2. ... .sn
+function pathSubscript (t, s)
+  return lookup (t, string.split ("%.", s))
+end
+
+-- @func lookup: Do a late-bound table lookup
+--   @param t: table to look up in
+--   @param l: list of indices {l1 ... ln}
+-- returns
+--   @param u: t[l1] ... [ln]
+function lookup (t, l)
+  return list.foldl (table.subscript, t, l)
 end
