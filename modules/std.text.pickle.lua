@@ -23,7 +23,7 @@ pickler =
                     end
                     return t
                   else
-                    return stringifier[tag (x)] (self, x)
+                    return stringifier[tag (x)] (stringifier, x)
                   end
                 end,
                 {
@@ -49,7 +49,7 @@ function pickle (x)
   if type (rep) == "table" then
     local s = "{"
     for i, v in rep do
-      s = s .. "[" .. pickle (i) .. "]=" .. pickle (v) .. ","
+      s = s .. "[" .. tostring (i) .. "]=" .. tostring (v) .. ","
     end
     s = s .. "}"
     return s
