@@ -1,5 +1,9 @@
 -- Lua standard library
 
+-- N.B. Although the libraries use import internally, you should use
+-- require to load them (in particular, you have to use require to get
+-- at least std.import).
+
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; OO vs non-OO (a thorny problem)
