@@ -25,7 +25,7 @@ function debug.say (...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    writeLine (io.stderr, table.concat (list.map (tostring, arg), "\t"))
+    io.writeLine (io.stderr, table.concat (list.map (tostring, arg), "\t"))
   end
 end
 
@@ -62,7 +62,7 @@ function debug.traceCall (event)
   else
     s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
-  writeLine (io.stderr, s)
+  io.writeLine (io.stderr, s)
 end
 
 -- Set hooks according to _DEBUG
