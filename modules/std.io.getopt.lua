@@ -1,7 +1,6 @@
 -- getopt
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
-require "std.patch40"
 require "std.assert"
 require "std.text"
 require "std.data.object"

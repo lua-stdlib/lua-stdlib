@@ -11,7 +11,6 @@
 -- TODO: precompile and make require check for a .luc [sic] version of
 --   each file, and load it if it's newer than the .lua version
 
-require "std.patch40"
 require "std.data"
 require "std.text"
 require "std.io"

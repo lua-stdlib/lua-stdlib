@@ -1,7 +1,5 @@
 -- Code
 
-require "std.patch40"
-
 
 -- pack: Turn a tuple into a list
 --   ...: tuple

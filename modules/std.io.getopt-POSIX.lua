@@ -1,7 +1,6 @@
 -- (nearly)-POSIX getopt
 -- Translated from Svenne Panne's Haskell GetOpt, as used in GHC
 
-require "std.patch40"
 require "std.assert"
 require "std.text"
 require "std.io.env"

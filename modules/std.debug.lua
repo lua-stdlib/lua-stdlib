@@ -1,7 +1,6 @@
 -- Debugging
 -- Requires that the Lua debug library be available
 
-require "std.patch40"
 require "std.io.io"
 require "std.text.text"
 require "std.assert" -- so that debug can be overridden

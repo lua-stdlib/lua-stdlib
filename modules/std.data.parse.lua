@@ -1,6 +1,5 @@
 -- Parser generator
 
-require "std.patch40"
 require "std.data.object"
 require "std.io.io"
 
