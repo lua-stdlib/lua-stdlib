@@ -40,11 +40,11 @@ require "std.io.io"
 -- returns
 --   s_: justified string
 function pad (s, w, p)
-  p = strrep (p or " ", abs (w))
+  p = string.rep (p or " ", abs (w))
   if w < 0 then
-    return strsub (p .. s, -w)
+    return string.sub (p .. s, -w)
   end
-  return strsub (s .. p, 1, w)
+  return string.sub (s .. p, 1, w)
 end
 
 -- wrap: Wrap a string into a paragraph
@@ -60,19 +60,19 @@ function wrap (s, w, ind, ind1)
   ind1 = ind1 or ind
   assert (ind1 < w and ind < w,
           "the indents must be less than the line width")
-  s = strrep (" ", ind1) .. s
-  local lstart, len = 1, strlen (s)
+  s = string.rep (" ", ind1) .. s
+  local lstart, len = 1, string.len (s)
   while len - lstart > w - ind do
     local i = lstart + w - ind
-    while i > lstart and strsub (s, i, i) ~= " " do
+    while i > lstart and string.sub (s, i, i) ~= " " do
       i = i - 1
     end
     local j = i
-    while j > lstart and strsub (s, j, j) == " " do
+    while j > lstart and string.sub (s, j, j) == " " do
       j = j - 1
     end
-    s = strsub (s, 1, j) .. endOfLine .. strrep (" ", ind) ..
-      strsub (s, i + 1, -1)
+    s = string.sub (s, 1, j) .. endOfLine .. string.rep (" ", ind) ..
+      string.sub (s, i + 1, -1)
     local change = ind + 1 - (i - j)
     lstart = j + change
     len = len + change

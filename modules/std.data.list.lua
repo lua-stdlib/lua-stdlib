@@ -168,7 +168,7 @@ end
 
 -- @func rep: Repeat a list
 -- The argument order is designed to make rep usable as a metamethod,
--- and to be compatible with strrep
+-- and to be compatible with string.rep
 --   @param l: list
 --   @param n: number of repetitions
 -- returns

@@ -39,38 +39,36 @@ function getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
-  local getArg =
-    function (o, opt, arg, oldarg)
-      if o.type == nil then
-        if arg ~= nil then
-          table.insert (errors, errNoArg (opt))
-        end
-      else
-        if arg == nil and argIn[1] and
-          strsub (argIn[1], 1, 1) ~= "-" then
-          arg = argIn[1]
-          table.remove (argIn, 1)
-        end
-        if arg == nil and o.type == "Req" then
-          table.insert (errors, errReqArg (opt, o.var))
-          return nil
-        end
+  local function getArg (o, opt, arg, oldarg)
+    if o.type == nil then
+      if arg ~= nil then
+        table.insert (errors, errNoArg (opt))
       end
-      if o.func then
-        return o.func (arg, oldarg)
+    else
+      if arg == nil and argIn[1] and
+        string.sub (argIn[1], 1, 1) ~= "-" then
+        arg = argIn[1]
+        table.remove (argIn, 1)
       end
-      return arg or 1 -- make sure arg has a value
+      if arg == nil and o.type == "Req" then
+        table.insert (errors, errReqArg (opt, o.var))
+        return nil
+      end
     end
+    if o.func then
+      return o.func (arg, oldarg)
+    end
+    return arg or 1 -- make sure arg has a value
+  end
   -- parse an option
-  local parseOpt =
-    function (opt, arg)
-      local o = options.name[opt]
-      if o ~= nil then
-        optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
-      else
-        table.insert (errors, errUnrec (opt))
-      end
+  local function parseOpt (opt, arg)
+    local o = options.name[opt]
+    if o ~= nil then
+      optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
+    else
+      table.insert (errors, errUnrec (opt))
     end
+  end
   while argIn[1] do
     local v = argIn[1]
     table.remove (argIn, 1)
@@ -156,45 +154,39 @@ function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- format the usage info for a single option
   -- returns {opts, desc}: options, description
-  local fmtOpt =
-    function (opt)
-      local fmtName =
-        function (o)
-          return "-" .. o
-        end
-      local fmtArg =
-        function ()
-          if opt.type == nil then
-            return ""
-          elseif opt.type == "Req" then
-            return "=" .. opt.var
-          else
-            return "[=" .. opt.var .. "]"
-          end
-        end
-      local textName = map (fmtName, opt.name)
-      textName[1] = textName[1] .. fmtArg ()
-      return {join (", ",
-                    {join (", ", textName)}), opt.desc}
+  local function fmtOpt (opt)
+    local function fmtName (o)
+      return "-" .. o
     end
-  local sameLen =
-    function (xs)
-      local n = math.max (map (strlen, xs))
-      for i, v in xs do
-        xs[i] = strsub (v .. strrep (" ", n), 1, n)
+    local function fmtArg ()
+      if opt.type == nil then
+        return ""
+      elseif opt.type == "Req" then
+        return "=" .. opt.var
+      else
+        return "[=" .. opt.var .. "]"
       end
-      return xs, n
     end
-  local paste =
-    function (x, y)
-      return "  " .. x .. "  " .. y
+    local textName = map (fmtName, opt.name)
+    textName[1] = textName[1] .. fmtArg ()
+    return {join (", ",
+                  {join (", ", textName)}), opt.desc}
+  end
+  local function sameLen (xs)
+    local n = math.max (map (string.len, xs))
+    for i, v in xs do
+      xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
     end
-  local wrapper =
-    function (w, i)
-      return function (s)
-               return wrap (s, w, i, 0)
-             end
-    end
+    return xs, n
+  end
+  local function paste (x, y)
+    return "  " .. x .. "  " .. y
+  end
+  local function wrapper (w, i)
+    return function (s)
+             return wrap (s, w, i, 0)
+           end
+  end
   local optText = ""
   if table.getn (optDesc) > 0 then
     local cols = unzip (map (fmtOpt, optDesc))

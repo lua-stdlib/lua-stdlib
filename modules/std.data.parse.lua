@@ -101,8 +101,8 @@ end
 --   to: the index of the first unused token, or nil to indicate
 --     failure
 function Parser:parseSym (sym, from)
-  if strsub (sym, -4, -1) == "_opt" then -- optional symbol
-    return self:parseOpt (strsub (sym, 1, -5), from)
+  if string.sub (sym, -4, -1) == "_opt" then -- optional symbol
+    return self:parseOpt (string.sub (sym, 1, -5), from)
   elseif string.find (sym, "_list.-$") then -- list
     local _, _, subsym, sep = string.find (sym, "^(.*)_list_?(.-)$")
     return self:parseList (subsym, sep, from)

@@ -100,21 +100,21 @@ function split (sep, s)
   if s == nil then
     s, sep = sep, "%s+"
   end
-  local t, len = {n = 0}, strlen (s)
+  local t, len = {n = 0}, string.len (s)
   local init, oldto, from = 1, 0, 0
   local to
   while init <= len and from do
     from, to = string.find (s, sep, init)
     if from ~= nil then
       if oldto > 0 or to > 0 then
-        table.insert (t, strsub (s, oldto, from - 1))
+        table.insert (t, string.sub (s, oldto, from - 1))
       end
       init = math.max (from + 1, to + 1)
       oldto = to + 1
     end
   end
   if (oldto <= len or to == len) and len > 0 then
-    table.insert (t, strsub (s, oldto))
+    table.insert (t, string.sub (s, oldto))
   end
   return t
 end
