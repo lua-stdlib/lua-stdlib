@@ -101,7 +101,7 @@ function warn (...)
   if prog.name or prog.file or prog.line then
     io.stderr:write (" ")
   end
-  writeLine (io.stderr, string.format (unpack (arg)))
+  io.writeLine (io.stderr, string.format (unpack (arg)))
 end
 
 -- @func die: Die with error
