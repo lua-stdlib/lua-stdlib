@@ -29,6 +29,7 @@ import "std.math"
 import "std.io"
 import "std.set"
 import "std.parser"
+import "std.mbox"
 
 
 -- Modules that require non-standard libraries
