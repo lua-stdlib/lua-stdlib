@@ -121,7 +121,7 @@ function tostring (x)
   if type (rep) == "table" then
     local s, sep = "{", ""
     for i, v in rep do
-      s = s .. sep .. i .. "=" .. v
+      s = s .. sep .. tostring (i) .. "=" .. tostring (v)
       sep = ","
     end
     s = s .. "}"

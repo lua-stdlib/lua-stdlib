@@ -49,7 +49,7 @@ function pickle (x)
   if type (rep) == "table" then
     local s = "{"
     for i, v in rep do
-      s = s .. "[" .. i .. "]=" .. v .. ","
+      s = s .. "[" .. pickle (i) .. "]=" .. pickle (v) .. ","
     end
     s = s .. "}"
     return s
