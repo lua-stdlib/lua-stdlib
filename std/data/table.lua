@@ -120,7 +120,7 @@ function indexValueIter (it, f, t)
              end)
 end
 
--- mapIter: Map a function over a table
+-- mapIter: Map a function over a table according to an iterator
 --   it: iterator
 --   f: function
 --   t: table {i1=v1 ... in=vn}
