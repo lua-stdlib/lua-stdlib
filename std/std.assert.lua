@@ -1,7 +1,7 @@
 -- Assertions, warnings and errors
 
-require "std/io/io.lua"
-require "std/text/text.lua"
+require "std.io.io"
+require "std.text.text"
 
 
 -- @func warn: Give warning with the name of program and file (if any)

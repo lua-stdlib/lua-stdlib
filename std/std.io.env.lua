@@ -1,6 +1,6 @@
 -- Environment
 
-require "std/data/list.lua"
+require "std.data.list"
 
 
 -- shell: Perform a shell command and return its output

@@ -1,6 +1,6 @@
 -- Sets
 
-require "std/data/table.lua"
+require "std.data.table"
 
 
 -- Sets are tables whose indices are the members of the set; the

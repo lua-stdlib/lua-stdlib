@@ -1,6 +1,6 @@
 -- File
 
-require "std/assert.lua"
+require "std.assert"
 
 
 -- lenFile: Find the length of a file

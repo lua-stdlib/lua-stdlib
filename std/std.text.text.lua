@@ -1,7 +1,7 @@
 -- Text processing
 
-require "std/text/regex.lua"
-require "std/data/table.lua"
+require "std.text.regex"
+require "std.data.table"
 
 
 -- @func format: Format, but only if more than one argument

@@ -1,7 +1,7 @@
 -- @module List
 
-require "std/data/code.lua"
-require "std/data/table.lua"
+require "std.data.code"
+require "std.data.table"
 
 
 -- @func max: Extend to work on lists

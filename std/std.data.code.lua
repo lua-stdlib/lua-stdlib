@@ -1,6 +1,6 @@
 -- Code
 
-require "std/patch40.lua"
+require "std.patch40"
 
 
 -- pack: Turn a tuple into a list

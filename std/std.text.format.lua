@@ -24,7 +24,7 @@
 --               -> Doc                     The document
 --               -> a                       Result
 
-require "std/assert.lua"
+require "std.assert"
 
 
 -- pad: Justify a string

@@ -1,6 +1,6 @@
 -- I/O
 
-require "std/data/code.lua"
+require "std.data.code"
 
 
 -- EOL string

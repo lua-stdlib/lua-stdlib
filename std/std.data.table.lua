@@ -7,8 +7,8 @@
 --   an n field to the result of another function. Use these to make
 --   list versions of combinators more easily.
 
-require "std/patch40.lua"
-require "std/data/code.lua"
+require "std.patch40"
+require "std.data.code"
 
 
 -- Vanilla table tag

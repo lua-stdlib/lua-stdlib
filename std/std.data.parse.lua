@@ -1,8 +1,8 @@
 -- Parser generator
 
-require "std/patch40.lua"
-require "std/data/object.lua"
-require "std/io/io.lua"
+require "std.patch40"
+require "std.data.object"
+require "std.io.io"
 
 
 -- A grammar is a list of rules:

@@ -1,6 +1,6 @@
 -- Prototype-based objects
 
-require "std/data/table.lua"
+require "std.data.table"
 
 
 -- Usage:

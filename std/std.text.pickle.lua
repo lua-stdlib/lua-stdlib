@@ -1,6 +1,6 @@
 -- Pickling
 
-require "std/text/text.lua"
+require "std.text.text"
 
 
 -- @func pickle: Convert an object to a string

@@ -1,7 +1,7 @@
 -- Patches for buggy standard library functions and implementations of
 -- missing functions in Lua 4.0
 
-require "std/data/global.lua"
+require "std.data.global"
 
 
 if _VERSION == "Lua 4.0" then

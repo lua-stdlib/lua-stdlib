@@ -1,8 +1,8 @@
 -- Macros
 
-require "std/data/list.lua"
-require "std/data/global.lua"
-require "std/text/regex.lua"
+require "std.data.list"
+require "std.data.global"
+require "std.text.regex"
 
 
 -- newMacro: Make a global to get and set an lvalue

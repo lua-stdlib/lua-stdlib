@@ -1,10 +1,10 @@
 -- (nearly)-POSIX getopt
 -- Translated from Svenne Panne's Haskell GetOpt, as used in GHC
 
-require "std/patch40.lua"
-require "std/assert.lua"
-require "std/text.lua"
-require "std/io/env.lua"
+require "std.patch40"
+require "std.assert"
+require "std.text"
+require "std.io.env"
 
 
 -- TODO: See getopt.lua

@@ -1,10 +1,10 @@
 -- Debugging
 -- Requires that the Lua debug library be available
 
-require "std/patch40.lua"
-require "std/io/io.lua"
-require "std/text/text.lua"
-require "std/assert.lua" -- so that debug can be overridden
+require "std.patch40"
+require "std.io.io"
+require "std.text.text"
+require "std.assert" -- so that debug can be overridden
 
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a

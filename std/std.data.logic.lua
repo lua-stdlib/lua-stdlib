@@ -1,6 +1,6 @@
 -- Logic
 
-require "std/data/code.lua"
+require "std.data.code"
 
 
 -- @func band: Extend to work on lists
