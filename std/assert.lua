@@ -1,11 +1,12 @@
 -- Assertions, warnings and errors
 
 require "std/io/io.lua"
+require "std/text/text.lua"
 
 
--- warn: Give warning with the name of program and file (if any)
---   s: string
-function warn (s)
+-- @func warn: Give warning with the name of program and file (if any)
+--   @param ...: arguments for format
+function warn (...)
   if prog.name then
     write (_STDERR, prog.name .. ":")
   end
@@ -18,55 +19,27 @@ function warn (s)
   if prog.name or prog.file or prog.line then
     write (_STDERR, " ")
   end
-  writeLine (_STDERR, s)
+  writeLine (_STDERR, format (arg))
 end
 
--- die: Die with error
---   s: string
-function die (s)
-  warn (s)
+-- @func die: Die with error
+--   @param ...: arguments for format
+function die (...)
+  warn (arg)
   error ()
 end
 
--- affirm: Die with error if value is false
---   v: value
---   s: string
-function affirm (v, s)
+-- @func assert: Die with error if value is false
+-- Redefine assert to allow formatted arguments
+--   @param v: value
+--   @param ...: arguments for format
+function assert (v, ...)
   if not v then
-    error (s)
+    error (call (format, arg or {""}))
   end
 end
 
--- debug: Ignore a debugging message
+-- @func debug: Ignore a debugging message
 -- (Loading debug overrides this)
 function debug ()
-end
-
--- warnf: Give formatted warning
---   f: format
---   ...: format argument
-function warnf (...)
-  warn (call (format, arg))
-end
-
--- dief: Die with formatted error
---   f: format
---   ...: format argument
-function dief (...)
-  die (call (format, arg))
-end
-
--- affirmf: Die with formatted error if value is false
---   v: value
---   f: format
---   ...: format argument
-function affirmf (v, ...)
-  affirm (v, call (format, arg))
-end
-
--- debugf: Print a formatted debugging message
---   f: format
---   ...: format argument
-function debugf (...)
-  debug (call (format, arg))
 end

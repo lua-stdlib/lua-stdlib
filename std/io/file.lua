@@ -40,8 +40,7 @@ function readfrom (f)
   else
     h, err = %_readfrom ()
   end
-  affirm (h, "can't read from " .. (f or "stdin") .. ": " ..
-          (err or ""))
+  assert (h, "can't read from %s: %s", f or "stdin", err or "")
   return h
 end
 
@@ -57,8 +56,7 @@ function writeto (f)
   else
     h, err = %_writeto ()
   end
-  affirm (h, "can't write to " .. (f or "stdout") .. ": " ..
-          (err or ""))
+  assert (h, "can't write to %s: %s", f or "stdout", err or "")
   return h
 end
 
@@ -69,7 +67,7 @@ end
 local _dofile = dofile
 function dofile (f)
   local r = %_dofile (f)
-  affirm (r, "error while executing " .. f)
+  assert (r, "error while executing %s", f)
   return r
 end
 
@@ -87,6 +85,6 @@ function seek (f, w, o)
   else
     ok, err = %_seek (f)
   end
-  affirm (ok, "can't seek on " .. tostring (f) .. ": " .. (err or ""))
+  assert (ok, "can't seek on %s: %s", tostring (f), err or "")
   return ok
 end
