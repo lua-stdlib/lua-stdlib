@@ -36,11 +36,11 @@ function setminus (s, t)
   return r
 end
 
--- intersect: Find the intersection of two sets
+-- setintersect: Find the intersection of two sets
 --   s, t: sets
 -- returns
 --   r: set intersection of s and t
-function intersect (s, t)
+function setintersect (s, t)
   local r = Table (tag (s))
   for i, _ in s do
     if t[i] ~= nil then
@@ -49,6 +49,12 @@ function intersect (s, t)
   end
   return r
 end
+
+-- setunion: Find the union of two sets
+--   s, t: sets
+-- returns
+--   r: set union of s and t
+setunion = merge
 
 -- subset: Find whether one set is a subset of another
 --   s, t: sets
