@@ -219,7 +219,7 @@ function dieWithUsage ()
                     ((prog.purpose and prog.purpose .. endOfLine)
                      or ""),
                   options) ..
-         ((prog.notes and endofLine .. endOfLine .. prog.notes) or ""))
+         ((prog.notes and endOfLine .. endOfLine .. prog.notes) or ""))
 end
 
 
