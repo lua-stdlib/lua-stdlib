@@ -29,31 +29,6 @@ function newGlobal (get, set)
   return settag (t, tTag)
 end
 
--- newMacro: Make a global to get and set an lvalue
---   e: the expression to evaluate for the lvalue
--- returns
---   t: value of new global
-function newMacro (e)
-  return newGlobal (function (n, v)
-                      return dostring ("return " .. %e)
-                    end,
-                    dostring ("return function (n, o, v) " .. e ..
-                              " = v end"))
-end
-
--- newReadOnlyMacro: Make a read-only global expression
---   e: the expression to evaluate for the lvalue
--- returns
---   t: value of new global
-function newReadOnlyMacro (e)
-  return newGlobal (function (n, v)
-                      return dostring ("return " .. %e)
-                    end,
-                    function (n, o, v)
-                      error ("read-only value")
-                    end)
-end
-
 -- newConstant: Make a global constant
 --   c: value of the constant
 -- returns

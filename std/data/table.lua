@@ -9,8 +9,6 @@
 
 require "std/patch40.lua"
 require "std/data/code.lua"
-require "std/data/list.lua"
-require "std/text/regex.lua"
 
 
 -- Vanilla table tag
@@ -23,15 +21,6 @@ _TableTag = tag ({})
 --   v: t[s]
 function subscript (t, s)
   return t[s]
-end
-
--- pathSubscript: subscript a table with a string containing dots
---   t: table
---   s: subscript of the form s1.s2. ... .sn
--- returns
---   v: t.s1.s2. ... .sn
-function pathSubscript (t, s)
-  return foldl (subscript, t, split ("%.", s))
 end
 
 -- Table: Make a new table of the given tag type
