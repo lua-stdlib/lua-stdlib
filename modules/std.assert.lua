@@ -25,7 +25,7 @@ end
 -- @func die: Die with error
 --   @param ...: arguments for format
 function die (...)
-  warn (arg)
+  call (warn, arg)
   error ()
 end
 
