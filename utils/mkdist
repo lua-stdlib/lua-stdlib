@@ -5,4 +5,4 @@
 
 arc=stdlua.zip
 rm -f $arc
-zip -r $arc README std.cfg std
+zip -r $arc README std.cfg modules
