@@ -14,10 +14,10 @@ function strconcat (s, t)
 end
 
 -- strcaps: Capitalise each word in a string
+-- TODO: rewrite for 4.1 using bracket notation
 --   s: string
 -- returns
 --   s_: capitalised string
--- TODO: rewrite for 4.1 using bracket notation
 function strcaps (s)
   s = gsub (s, "(%w)([%w]*)",
             function (l, ls)
@@ -120,6 +120,30 @@ function escapeShell (s)
   return s
 end
 
+-- stringifier: table of functions to stringify objects
+-- Default method for otherwise unhandled table types
+--   {[t] = f, ...} where
+--     t: tag
+--     f: function
+--       x: object of tag t
+--     returns
+--       s: string representation of t
+stringifier =
+  defaultTable (function (x)
+                  if type (x) == "table" then
+                    local s, sep = "{", ""
+                    for i, v in x do
+                      s = s .. sep .. tostring (i) .. "=" ..
+                        tostring (v)
+                      sep = ","
+                    end
+                    return s .. "}"
+                  else
+                    return nil
+                  end
+                end,
+                {})
+
 -- tostring: Extend tostring to work better on tables
 -- TODO: make it output in {v1, v2 ..; x1=y1, x2=y2 ..} format; use
 -- nexti; show the n field (if any) on the RHS
@@ -128,15 +152,7 @@ end
 --   s: string representation
 local _tostring = tostring
 function tostring (x)
-  if type (x) == "table" then
-    local s, sep = "{", ""
-    for i, v in x do
-      s = s .. sep .. tostring (i) .. "=" .. tostring (v)
-      sep = ","
-    end
-    return s .. "}"
-  end
-  return %_tostring (x)
+  return stringifier[tag (x)] (x) or %_tostring (x)
 end
 
 -- ordinalSuffix: return the English suffix for an ordinal
