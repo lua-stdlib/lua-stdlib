@@ -1,6 +1,10 @@
--- Function call tracing
-
+-- Debugging
 -- Requires that the Lua debug library be available
+
+-- TODO: Expand print to register printers for arbitrary tags: these
+--   can either be a function from objects to strings, or a list of
+--   fields to print. It would be good if luaswig could generate these
+--   automatically
 
 require "std/patch40.lua"
 require "std/io/io.lua"
@@ -14,6 +18,17 @@ require "std/assert.lua" -- so that debug can be overridden
 -- level: debugging level [1]
 -- call: do call trace debugging
 -- std: do standard library debugging (run examples & test code)
+
+
+-- print: Extend print to work better on tables
+--   arg: objects to print
+local _print = print
+function print (...)
+  for i = 1, getn (arg) do
+    arg[i] = tostring (arg[i])
+  end
+  call (%_print, arg)
+end
 
 -- debug: Print a debugging message
 --   [n]: debugging level [1]

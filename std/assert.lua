@@ -1,11 +1,5 @@
 -- Assertions, warnings and errors
 
--- TODO: Expand print to register printers for arbitrary tags: these
---   can either be a function from objects to strings, or a list of
---   fields to print. It would be good if luaswig could generate these
---   automatically
-
-require "std/text/text.lua"
 require "std/io/io.lua"
 
 
@@ -44,6 +38,7 @@ function affirm (v, s)
 end
 
 -- debug: Ignore a debugging message
+-- (Loading debug overrides this)
 function debug ()
 end
 
@@ -74,14 +69,4 @@ end
 --   ...: format argument
 function debugf (...)
   debug (call (format, arg))
-end
-
--- print: Extend print to work better on tables
---   arg: objects to print
-local _print = print
-function print (...)
-  for i = 1, getn (arg) do
-    arg[i] = tostring (arg[i])
-  end
-  call (%_print, arg)
 end
