@@ -1,5 +1,6 @@
 -- Pickling
 
+require "std.data.table"
 require "std.text.text"
 
 
@@ -15,6 +16,9 @@ require "std.text.text"
 --       s: pickle of t
 pickler =
   defaultTable (function (self, x)
+                  if tabulator[tag (x)] then
+                    x = tabulator[tag (x)] (x)
+                  end
                   if type (x) == "table" then
                     local t = {}
                     for i, v in x do
@@ -23,7 +27,7 @@ pickler =
                     end
                     return t
                   else
-                    return stringifier[tag (x)] (self, x)
+                    return x
                   end
                 end,
                 {

@@ -14,19 +14,19 @@ require "std.data.code"
 -- Vanilla table tag
 _TableTag = tag ({})
 
--- subscript: Expose [] as a function
---   t: table
---   s: subscript
+-- @func subscript: Expose [] as a function
+--   @param t: table
+--   @param s: subscript
 -- returns
---   v: t[s]
+--   @param v: t[s]
 function subscript (t, s)
   return t[s]
 end
 
--- Table: Make a new table of the given tag type
---   tTag: tag
+-- @func Table: Make a new table of the given tag type
+--   @param tTag: tag
 -- returns
---   t: table with tag tTag
+--   @param t: table with tag tTag
 function Table (tTag)
   local t = {}
   if tTag ~= _TableTag then
@@ -79,12 +79,12 @@ function tinvert (t)
                   end)
 end
 
--- permuteIter: Permute some keys of a table
---   it: iterator
---   p: table of oldkey=newkey
---   t: table to permute
+-- @func permuteIter: Permute some keys of a table
+--   @param it: iterator
+--   @param p: table of oldkey=newkey
+--   @param t: table to permute
 -- returns
---   u: permuted table
+--   @param u: permuted table
 function permuteIter (it, p, t)
   return it (t,
              function (i, v, u)
@@ -92,19 +92,19 @@ function permuteIter (it, p, t)
              end)
 end
 
--- permute: Permute some keys of a table
---   p: table of oldkey=newkey
---   t: table to permute
+-- @func permute: Permute some keys of a table
+--   @param p: table of oldkey=newkey
+--   @param t: table to permute
 -- returns
---   u: permuted table
+--   @param u: permuted table
 permute = curry (permuteIter, foreach)
 
--- indexKeyIter: Make an index of a table of tables on a given field
---   it: iterator
---   f: field
---   t: table of tables {i1=t1 ... in=tn}
+-- @func indexKeyIter: Make an index of a table of tables on a given field
+--   @param it: iterator
+--   @param f: field
+--   @param t: table of tables {i1=t1 ... in=tn}
 -- returns
---   ind: index {t1[f]=i1 ... tn[f]=in}
+--   @param ind: index {t1[f]=i1 ... tn[f]=in}
 function indexKeyIter (it, f, t)
   return it (t,
              function (i, v, u)
@@ -115,12 +115,12 @@ function indexKeyIter (it, f, t)
              end)
 end
 
--- indexValueIter: Copy a table of tables, reindexed on a given field
---   it: iterator
---   f: field
---   t: table of tables {i1=t1 ... in=tn}
+-- @func indexValueIter: Copy a table of tables, reindexed on a given field
+--   @param it: iterator
+--   @param f: field
+--   @param t: table of tables {i1=t1 ... in=tn}
 -- returns
---   ind: index {t1[f]=t1 ... tn[f]=tn}
+--   @param ind: index {t1[f]=t1 ... tn[f]=tn}
 function indexValueIter (it, f, t)
   return it (t,
              function (_, v, u)
@@ -131,12 +131,12 @@ function indexValueIter (it, f, t)
              end)
 end
 
--- mapIter: Map a function over a table according to an iterator
---   it: iterator
---   f: function
---   t: table {i1=v1 ... in=vn}
+-- @func mapIter: Map a function over a table according to an iterator
+--   @param it: iterator
+--   @param f: function
+--   @param t: table {i1=v1 ... in=vn}
 -- returns
---   u: result table {i1=f (v1) ... in=f (vn)}
+--   @param u: result table {i1=f (v1) ... in=f (vn)}
 function mapIter (it, f, t)
   return it (t,
              function (i, v, u)
@@ -144,17 +144,17 @@ function mapIter (it, f, t)
              end)
 end
 
--- assign: Execute the elements of a table as global assignments
+-- @func assign: Execute the elements of a table as global assignments
 -- Assumes the keys are strings
---   t: table
+--   @param t: table
 function assign (t)
   foreach (t, setglobal)
 end
 
--- clone: Make a shallow copy of a table, including any tag
---   t: table
+-- @func clone: Make a shallow copy of a table, including any tag
+--   @param t: table
 -- returns
---   u: copy of table
+--   @param u: copy of table
 function clone (t)
   local u = Table (tag (t))
   for i, v in t do
@@ -163,12 +163,12 @@ function clone (t)
   return u
 end
 
--- merge: Merge two tables
+-- @func merge: Merge two tables
 -- If there are duplicate fields, u's will be used. The tag of the
 -- returned table is that of t
---   t, u: tables
+--   @param t, u: tables
 -- returns
---   r: the merged table
+--   @param r: the merged table
 function merge (t, u)
   local r = clone (t)
   for i, v in u do
@@ -177,7 +177,7 @@ function merge (t, u)
   return r
 end
 
--- methodify: Make a table type use custom per-field get/set methods
+-- @func methodify: Make a table type use custom per-field get/set methods
 -- The settable and gettable methods of the given tag are modified so
 -- that fields can have get and set methods added by putting an entry
 -- in the _getset member of a table of that type. If the entry is a
@@ -187,7 +187,7 @@ end
 -- the table; in this way, one table member can easily be made an
 -- alias for another, allowing shorter names to be used. If there is
 -- no entry, the previous tag method is used.
---   tTag: tag to methodify
+--   @param tTag: tag to methodify
 function methodify (tTag)
   local gettm = gettagmethod (tTag, "gettable")
   settagmethod (tTag, "gettable",
@@ -226,11 +226,11 @@ end
 -- Tag methods for tables
 settagmethod (_TableTag, "add", merge) -- table + table = merge
 
--- defaultTable: Make a table with a different default value
---   x: default value
---   [t]: initial table
+-- @func defaultTable: Make a table with a different default value
+--   @param x: default value
+--   @param [t]: initial table
 -- returns
---   u: table for which u[i] is x if u[i] does not exist
+--   @param u: table for which u[i] is x if u[i] does not exist
 function defaultTable (x, t)
   t = t or {}
   local tTag = newtag ()
@@ -240,3 +240,7 @@ function defaultTable (x, t)
                 end)
   return settag (t, tTag)
 end
+
+-- Table of methods to make arbitrary objects (typically userdata)
+-- into tables; used by tostring and pickle
+tabulator = {}

@@ -28,7 +28,7 @@ function strconcat (s, t)
 end
 
 -- strcaps: Capitalise each word in a string
--- TODO: rewrite for 4.1 using bracket notation
+-- TODO: rewrite for 5.0 using bracket notation
 --   s: string
 -- returns
 --   s_: capitalised string
@@ -41,7 +41,7 @@ function strcaps (s)
 end
 
 -- chomp: Remove any final \n from a string
--- TODO: rewrite for 4.1 using bracket notation
+-- TODO: rewrite for 5.0 using bracket notation
 --   s: string to process
 -- returns
 --   s_: processed string
@@ -64,7 +64,7 @@ function join (sep, l)
 end
 
 -- escapePattern: Escape a string to be used as a pattern
--- TODO: rewrite for 4.1 using bracket notation
+-- TODO: rewrite for 5.0 using bracket notation
 --   s: string to process
 -- returns
 --   s_: processed string
@@ -75,7 +75,7 @@ end
 
 -- escapeShell: Escape a string to be used as a shell token
 -- Quotes spaces, parentheses and \s
--- TODO: rewrite for 4.1 using bracket notation
+-- TODO: rewrite for 5.0 using bracket notation
 --   s: string to process
 -- returns
 --   s_: processed string
@@ -99,6 +99,9 @@ end
 local _tostring = tostring
 stringifier =
   defaultTable (function (self, x)
+                  if tabulator[tag (x)] then
+                    x = tabulator[tag (x)] (x)
+                  end
                   if type (x) == "table" then
                     local t = {}
                     for i, v in x do
