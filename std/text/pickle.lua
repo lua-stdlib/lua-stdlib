@@ -18,7 +18,7 @@ function pickle (x)
     end
     s = s .. "}"
   elseif type (rep) == "string" then
-    s = "\"" .. rep .. "\""
+    s = format ("%q", rep)
   else
     s = tostring (rep)
   end
