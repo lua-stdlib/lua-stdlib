@@ -30,6 +30,21 @@ import "std.assert"
 --               -> a                       Result
 
 
+-- @func string.format: Extend to work better with one argument
+-- If only one argument is passed, no formatting is attempted
+--   @param f: format
+--   @param ...: arguments to format
+-- @returns
+--   @param s: formatted string
+local _format = string.format
+function string.format (f, ...)
+  if table.getn (arg) == 0 then
+    return f
+  else
+    return _format (f, unpack (arg))
+  end
+end
+
 -- @func string.pad: Justify a string
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w)
