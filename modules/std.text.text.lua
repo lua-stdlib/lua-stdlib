@@ -86,24 +86,27 @@ end
 
 -- stringifier: table of functions to stringify objects
 -- Default method for otherwise unhandled table types
+-- TODO: make it output in {v1, v2 ..; x1=y1, x2=y2 ..} format; use
+-- nexti; show the n field (if any) on the RHS
 --   {[t] = f, ...} where
 --     t: tag
 --     f: function
+--       self: stringifier table
 --       x: object of tag t
 --     returns
---       (s: string representation of t
---       ( or
---       (t: table of stringify (i) = stringify (v)
+--       s: string representation of t
 local _tostring = tostring
 stringifier =
-  defaultTable (function (x)
-                  if type (x) == "table" then
-                    local t = {}
+  defaultTable (function (self, x)
+                  if type (x) == "table" then 
+                    local s, sep = "{", ""
                     for i, v in x do
-                      t[stringifier[tag (i)] (i)] =
-                        stringifier[tag (v)] (v)
+                      s = s .. sep .. self[tag (i)] (self, i) .. "="
+                        .. self[tag (v)] (self, v)
+                      sep = ","
                     end
-                    return t
+                    s = s .. "}"
+                    return s
                   else
                     return %_tostring (x)
                   end
@@ -111,26 +114,11 @@ stringifier =
                 {})
 
 -- tostring: Extend tostring to work better on tables
--- TODO: make it output in {v1, v2 ..; x1=y1, x2=y2 ..} format; use
--- nexti; show the n field (if any) on the RHS
 --   x: object to convert to string
 -- returns
 --   s: string representation
 function tostring (x)
-  local s = ""
-  local rep = stringifier[tag (x)] (x)
-  if type (rep) == "table" then
-    local sep = ""
-    s = s .. "{"
-    for i, v in rep do
-      s = s .. sep .. tostring (i) .. "=" .. tostring (v)
-      sep = ","
-    end
-    s = s .. "}"
-  else
-    s = rep
-  end
-  return s
+  return stringifier[tag (x)] (stringifier, x)
 end
 
 -- ordinalSuffix: return the English suffix for an ordinal
