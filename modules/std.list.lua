@@ -67,19 +67,23 @@ end
 
 -- @func list.slice: Slice a list
 --   @param l: list
---   @param p, @param q: start and end of slice
+--   @param [from], @param [to]: start and end of slice
+--     from defaults to 1 and to to table.getn (l);
+--     negative values count from the end
 -- @returns
---   @param m: {l[p] ... l[q]}
-function list.slice (l, p, q)
+--   @param m: {l[from] ... l[to]}
+function list.slice (l, from, to)
   local m = {}
   local len = table.getn (l)
-  if p < 0 then
-    p = p + len + 1
+  from = from or 1
+  to = to or len
+  if from < 0 then
+    from = from + len + 1
   end
-  if q < 0 then
-    q = q + len + 1
+  if to < 0 then
+    to = to + len + 1
   end
-  for i = p, q do
+  for i = from, to do
     table.insert (m, l[i])
   end
   return m
