@@ -202,10 +202,9 @@ function usageInfo (header, optDesc, pageWidth)
     local width
     cols[1], width = sameLen (cols[1])
     cols[2] = map (wrapper (pageWidth, width + 4), cols[2])
-    optText = endOfLine .. join (endOfLine,
-                                 mapWith (paste,
-                                          unzip ({sameLen (cols[1]),
-                                                   cols[2]})))
+    optText = endOfLine .. endOfLine ..
+      join (endOfLine,
+            mapWith (paste, unzip ({sameLen (cols[1]), cols[2]})))
   end
   return header .. optText
 end
@@ -215,8 +214,8 @@ function dieWithUsage ()
   local name = prog.name
   prog.name = nil
   die (usageInfo ("Usage: " .. name .. " " ..
-                  (prog.usage or "[OPTION...] FILE...") .. endOfLine ..
-                    ((prog.purpose and prog.purpose .. endOfLine)
+                  (prog.usage or "[OPTION...] FILE...") ..
+                    ((prog.purpose and endOfLine .. prog.purpose)
                      or ""),
                   options) ..
          ((prog.notes and endOfLine .. endOfLine .. prog.notes) or ""))
