@@ -30,7 +30,10 @@ function debug.say (...)
 end
 
 -- Expose debug.say as debug
-setmetatable (debug, {__call = debug.say})
+setmetatable (debug,
+              {__call = function (self, ...)
+                          debug.say (unpack (arg))
+                        end})
 
 -- @func debug.traceCall: Trace function calls
 --   @param event: event causing the call
