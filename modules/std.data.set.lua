@@ -16,7 +16,7 @@ local Meta = {} -- metatable for sets
 --   s: set
 function Set (l)
   local s = {}
-  for i = 1, getn (l) do
+  for i = 1, table.getn (l) do
     s[l[i]] = 1
   end
   return setmetatable (s, Meta)

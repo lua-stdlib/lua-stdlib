@@ -85,7 +85,7 @@ function Parser:parseList (sym, sep, from)
     if from then
       tree, from = self:parseSym (sym, from)
       if from then
-        tinsert (list, tree)
+        table.insert (list, tree)
         to = from
       end
     end
@@ -103,8 +103,8 @@ end
 function Parser:parseSym (sym, from)
   if strsub (sym, -4, -1) == "_opt" then -- optional symbol
     return self:parseOpt (strsub (sym, 1, -5), from)
-  elseif strfind (sym, "_list.-$") then -- list
-    local _, _, subsym, sep = strfind (sym, "^(.*)_list_?(.-)$")
+  elseif string.find (sym, "_list.-$") then -- list
+    local _, _, subsym, sep = string.find (sym, "^(.*)_list_?(.-)$")
     return self:parseList (subsym, sep, from)
   elseif self.grammar[sym] then -- non-terminal
     return self:parseRule (sym, from)
@@ -130,11 +130,11 @@ end
 function Parser:parseProd (name, prod, from)
   local tree = {ty = name}
   local to = from
-  for i = 1, getn (prod) do
+  for i = 1, table.getn (prod) do
     local sym
     sym, to = self:parseSym (prod[i], to)
     if to then
-      tinsert (tree, sym)
+      table.insert (tree, sym)
     else
       return tree, nil
     end
@@ -155,7 +155,7 @@ end
 function Parser:parseRule (name, from)
   local alt = self.grammar[name]
   local tree, to
-  for i = 1, getn (alt) do
+  for i = 1, table.getn (alt) do
     tree, to = self:parseProd (name, alt[i], from)
     if to then
       return tree, to
@@ -173,7 +173,7 @@ function Parser.prettyPrint (tree, indent)
       writeLine (indent .. tree.ty .. "=" .. tree.tok)
     else
       writeLine (indent .. tree.ty)
-      for i = 1, getn (tree) do
+      for i = 1, table.getn (tree) do
         Parser.prettyPrint (tree[i], indent .. "  ")
       end
     end

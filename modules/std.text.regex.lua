@@ -16,7 +16,7 @@ function strfindt (s, p, init, plain)
     function (from, to, ...)
       return from, to, arg
     end
-  return pack (strfind (s, p, init, plain))
+  return pack (string.find (s, p, init, plain))
 end
 
 -- nextstr: iterator for strings
@@ -58,15 +58,15 @@ function strfinds (s, p, init, plain)
   repeat
     from, to, r = strfindt (s, p, init, plain)
     if from ~= nil then
-      tinsert (t, {from = from, to = to, capt = r})
+      table.insert (t, {from = from, to = to, capt = r})
       init = to + 1
     end
   until not from
   return t
 end
 
--- gsubs: Perform multiple calls to gsub
---   s: string to call gsub on
+-- gsubs: Perform multiple calls to string.gsub
+--   s: string to call string.gsub on
 --   sub: {pattern1=replacement1 ...}
 --   [n]: upper limit on replacements [infinite]
 -- returns
@@ -77,14 +77,14 @@ function gsubs (s, sub, n)
   for i, v in sub do
     local rep
     if n ~= nil then
-      s, rep = gsub (s, i, v, n)
+      s, rep = string.gsub (s, i, v, n)
       r = r + rep
       n = n - rep
       if n == 0 then
         break
       end
     else
-      s, rep = gsub (s, i, v)
+      s, rep = string.gsub (s, i, v)
       r = r + rep
     end
   end
@@ -104,46 +104,22 @@ function split (sep, s)
   local init, oldto, from = 1, 0, 0
   local to
   while init <= len and from do
-    from, to = strfind (s, sep, init)
+    from, to = string.find (s, sep, init)
     if from ~= nil then
       if oldto > 0 or to > 0 then
-        tinsert (t, strsub (s, oldto, from - 1))
+        table.insert (t, strsub (s, oldto, from - 1))
       end
-      init = max (from + 1, to + 1)
+      init = math.max (from + 1, to + 1)
       oldto = to + 1
     end
   end
   if (oldto <= len or to == len) and len > 0 then
-    tinsert (t, strsub (s, oldto))
+    table.insert (t, strsub (s, oldto))
   end
   return t
 end
 
--- rstrfind: strfind-like wrapper for match
--- TODO: make a function tag method for compiled regexes so that
--- match (s, r) is written r (s)
---   s: target string
---   p: pattern
--- returns
---   m: first match of p in s
-function rstrfind (s, p)
-  return match (s, regex (p))
-end
-
--- rgmatch: Wrapper for gmatch
---   s: target string
---   p: pattern
---   r: function
---     m: matched string
---     t: table of captures
---   [n]: maximum number of matches [infinite]
--- returns
---   n: number of matches made
-function rgmatch (s, p, r, n)
-  return gmatch (s, regex (p), r, n)
-end
-
--- TODO: rgsub: gsub-like wrapper for match
+-- TODO: rgsub: string.gsub-like wrapper for match
 -- really needs to be in C for speed (replace gmatch)
 --   s: target string
 --   p: pattern

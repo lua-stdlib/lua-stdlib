@@ -31,7 +31,7 @@ function debug (...)
   local level = 1
   if type (arg[1]) == "number" then
     level = arg[1]
-    tremove (arg, 1)
+    table.remove (arg, 1)
   end
   if _DEBUG and
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and

@@ -4,27 +4,27 @@ require "std.data.code"
 require "std.data.table"
 
 
--- @func max: Extend to work on lists
+-- @func math.max: Extend to work on lists
 --   @param (l: list
 --          ( or
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: max value
-max = listable (max)
+math.max = listable (math.max)
 
--- @func min: Extend to work on lists
+-- @func math.min: Extend to work on lists
 --   @param (l: list
 --          ( or
 --   @param (v1 ... @param vn: values
 -- returns
 --   @param m: min value
-min = listable (min)
+math.min = listable (math.min)
 
 -- @func map: Map a function over a list
 --   @param f: function
 --   @param l: list
 -- returns
---   @param m: result list {f (l[1]) ... f (l[getn (l)])}
+--   @param m: result list {f (l[1]) ... f (l[table.getn (l)])}
 function map (f, l)
   local m = {}
   for i, v in ipairs (l) do
@@ -38,8 +38,8 @@ end
 --   @param f: function
 --   @param ls: list of lists
 -- returns
---   @param m: result list {call (f, ls[1]) ... call (f, ls[getn
---     (ls)])}
+--   @param m: result list {call (f, ls[1]) ...
+--     call (f, ls[table.getn (ls)])}
 function mapWith (f, l)
   return map (curry (call, f), l)
 end
@@ -55,9 +55,9 @@ end
 --     is true
 function filter (p, l)
   local m = {}
-  for i = 1, getn (l) do
+  for i = 1, table.getn (l) do
     if p (l[i]) then
-      tinsert (m, l[i])
+      table.insert (m, l[i])
     end
   end
   return m
@@ -67,13 +67,13 @@ end
 --   @param f: function returning a list
 --   @param l: list
 -- returns
---   @param m: result list {f (l[1]) .. f (l[getn (l)])}
+--   @param m: result list {f (l[1]) .. f (l[table.getn (l)])}
 function mapjoin (f, l)
   local m = {}
-  for i = 1, getn (l) do
+  for i = 1, table.getn (l) do
     local r = f (l[i])
-    for j = 1, getn (r) do
-      tinsert (m, r[j])
+    for j = 1, table.getn (r) do
+      table.insert (m, r[j])
     end
   end
   return m
@@ -86,7 +86,7 @@ end
 --   @param m: {l[p] ... l[q]}
 function slice (l, p, q)
   local m = {}
-  local len = getn (l)
+  local len = table.getn (l)
   if p < 0 then
     p = p + len + 1
   end
@@ -94,7 +94,7 @@ function slice (l, p, q)
     q = q + len + 1
   end
   for i = p, q do
-    tinsert (m, l[i])
+    table.insert (m, l[i])
   end
   return m
 end
@@ -107,7 +107,7 @@ end
 --   @param r: result
 function foldl (f, e, l)
   local r = e
-  for i = 1, getn (l) do
+  for i = 1, table.getn (l) do
     r = f (r, l[i])
   end
   return r
@@ -121,7 +121,7 @@ end
 --   @param r: result
 function foldr (f, e, l)
   local r = e
-  for i = getn (l), 1, -1 do
+  for i = table.getn (l), 1, -1 do
     r = f (l[i], r)
   end
   return r
@@ -132,7 +132,7 @@ end
 --   @param [n]: number of elements to remove [1]
 function behead (l, n)
   n = n or 1
-  for i = 1, getn (l) do
+  for i = 1, table.getn (l) do
     l[i] = l[i + n]
   end
 end
@@ -141,14 +141,15 @@ end
 --   @param l: list
 --   @param m: list
 -- returns
---   @param n: result {l[1] ... l[getn (l)], m[1] ... m[getn (m)]}
+--   @param n: result {l[1] ... l[table.getn (l)], m[1] ...
+--     m[table.getn (m)]}
 function concat (l, m)
   local n = {}
-  for i = 1, getn (l) do
-    tinsert (n, l[i])
+  for i = 1, table.getn (l) do
+    table.insert (n, l[i])
   end
-  for i = 1, getn (m) do
-    tinsert (n, m[i])
+  for i = 1, table.getn (m) do
+    table.insert (n, m[i])
   end
   return n
 end
@@ -156,22 +157,22 @@ end
 -- @func reverse: Reverse a list
 --   @param l: list
 -- returns
---   @param m: list {l[getn (l)] ... l[1]}
+--   @param m: list {l[table.getn (l)] ... l[1]}
 function reverse (l)
   local m = {}
-  for i = getn (l), 1, -1 do
-    tinsert (m, l[i])
+  for i = table.getn (l), 1, -1 do
+    table.insert (m, l[i])
   end
   return m
 end
 
 -- @func rep: Repeat a list
--- The argument order is designed to make rep usable as a tag method,
+-- The argument order is designed to make rep usable as a metamethod,
 -- and to be compatible with strrep
 --   @param l: list
 --   @param n: number of repetitions
 -- returns
---   @param m: list {l[1] ... l[getn (l)] ... (n times)}
+--   @param m: list {l[1] ... l[table.getn (l)] ... (n times)}
 function rep (l, n)
   return mapjoin (function () return l end, {n=n})
 end
@@ -182,13 +183,13 @@ end
 --   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
 -- Also give aliases zip and unzip
 function transpose (ls)
-  local ms, len = {}, getn (ls)
-  for i = 1, max (map (getn, ls)) do
+  local ms, len = {}, table.getn (ls)
+  for i = 1, math.max (map (table.getn, ls)) do
     ms[i] = {}
     for j = 1, len do
       ms[i][j] = ls[j][i]
     end
-    ms[i].n = getn (ms[i])
+    ms[i].n = table.getn (ms[i])
   end
   return ms
 end
@@ -199,9 +200,9 @@ unzip = transpose
 --   @param f: function
 --   @param ls: list of lists
 -- returns
---   @param m: {f (ls[1][1] ... ls[getn (ls)][1]) ...
---              f (ls[1][N] ... ls[getn (ls)][N])
---     where N = max {map (getn, ls)}
+--   @param m: {f (ls[1][1] ... ls[table.getn (ls)][1]) ...
+--              f (ls[1][N] ... ls[table.getn (ls)][N])
+--     where N = max {map (table.getn, ls)}
 function zipWith (f, ls)
   return mapWith (f, zip (ls))
 end
@@ -222,7 +223,7 @@ end
 function enpair (t)
   local ls = {}
   for i, v in t do
-    tinsert (ls, {i, v})
+    table.insert (ls, {i, v})
   end
   return ls
 end
@@ -233,7 +234,7 @@ end
 --   @param t: table {i1=v1 ... in=vn}
 function depair (ls)
   local t = {}
-  for i = 1, getn (ls) do
+  for i = 1, table.getn (ls) do
     t[ls[i][1]] = ls[i][2]
   end
   return t
@@ -282,11 +283,8 @@ function indexValue (f, t)
 end
 permuteOn = indexValue
 
--- @head Tag methods for lists
+-- @head Metamethods for lists
 -- TODO: Have a List type that uses these
--- - list = reverse
--- settagmethod (_TableTag, "unm", reverse)
--- list * number = rep
--- settagmethod (_TableTag, "mul", rep)
--- list .. list = concat
--- settagmethod (_TableTag, "concat", concat)
+-- Table.unm = reverse -- - list = reverse
+-- Table.mul = rep -- list * number = rep
+-- Table.concat = concat -- list .. list = concat

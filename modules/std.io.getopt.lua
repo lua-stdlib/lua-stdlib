@@ -43,16 +43,16 @@ function getOpt (argIn, options)
     function (o, opt, arg, oldarg)
       if o.type == nil then
         if arg ~= nil then
-          tinsert (errors, errNoArg (opt))
+          table.insert (errors, errNoArg (opt))
         end
       else
         if arg == nil and argIn[1] and
           strsub (argIn[1], 1, 1) ~= "-" then
           arg = argIn[1]
-          tremove (argIn, 1)
+          table.remove (argIn, 1)
         end
         if arg == nil and o.type == "Req" then
-          tinsert (errors, errReqArg (opt, o.var))
+          table.insert (errors, errReqArg (opt, o.var))
           return nil
         end
       end
@@ -68,18 +68,18 @@ function getOpt (argIn, options)
       if o ~= nil then
         optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
       else
-        tinsert (errors, errUnrec (opt))
+        table.insert (errors, errUnrec (opt))
       end
     end
   while argIn[1] do
     local v = argIn[1]
-    tremove (argIn, 1)
-    local _, _, dash, opt = strfind (v, "^(%-%-?)([^=-][^=]*)")
-    local _, _, arg = strfind (v, "=(.*)$")
+    table.remove (argIn, 1)
+    local _, _, dash, opt = string.find (v, "^(%-%-?)([^=-][^=]*)")
+    local _, _, arg = string.find (v, "=(.*)$")
     if v == "--" then
       noProcess = 1
     elseif dash == nil or noProcess then -- non-option
-      tinsert (argOut, v)
+      table.insert (argOut, v)
     else -- option
       parseOpt (opt, arg)
     end
@@ -179,7 +179,7 @@ function usageInfo (header, optDesc, pageWidth)
     end
   local sameLen =
     function (xs)
-      local n = max (map (strlen, xs))
+      local n = math.max (map (strlen, xs))
       for i, v in xs do
         xs[i] = strsub (v .. strrep (" ", n), 1, n)
       end

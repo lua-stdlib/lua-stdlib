@@ -18,10 +18,10 @@ end
 -- returns
 --   @param s_: capitalised string
 function strcaps (s)
-  return (gsub (s, "(%w)([%w]*)",
-                function (l, ls)
-                  return strupper (l) .. ls
-                end))
+  return (string.gsub (s, "(%w)([%w]*)",
+                       function (l, ls)
+                         return strupper (l) .. ls
+                       end))
 end
 
 -- @func chomp: Remove any final line ending from a string
@@ -29,7 +29,7 @@ end
 -- returns
 --   @param s_: processed string
 function chomp (s)
-  return (gsub (s, endOfLine .. "$", ""))
+  return (string.gsub (s, endOfLine .. "$", ""))
 end
 
 -- @func join: Turn a list of strings into a sep-separated string
@@ -39,7 +39,7 @@ end
 --   @param s: joined up string
 function join (sep, l)
   local s = l[1] or ""
-  for i = 2, getn (l) do
+  for i = 2, table.getn (l) do
     s = s .. sep .. l[i]
   end
   return s
@@ -50,7 +50,7 @@ end
 -- returns
 --   @param s_: processed string
 function escapePattern (s)
-  return (gsub (s, "(%W)", "%%%1"))
+  return (string.gsub (s, "(%W)", "%%%1"))
 end
 
 -- @param escapeShell: Escape a string to be used as a shell token
@@ -59,7 +59,7 @@ end
 -- returns
 --   @param s_: processed string
 function escapeShell (s)
-  return (gsub (s, "([ %(%)%\\])", "\\%1"))
+  return (string.gsub (s, "([ %(%)%\\])", "\\%1"))
 end
 
 -- @func stringifier: Table of tostring methods
