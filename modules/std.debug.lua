@@ -18,7 +18,7 @@ require "std.assert" -- so that debug can be overridden
 --   arg: objects to print
 local _print = print
 function print (...)
-  for i = 1, getn (arg) do
+  for i = 1, table.getn (arg) do
     arg[i] = tostring (arg[i])
   end
   _print (unpack (arg))

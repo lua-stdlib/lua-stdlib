@@ -63,7 +63,7 @@ function escapeShell (s)
 end
 
 -- @func stringifier: Table of tostring methods
--- Table entries are tag = function from object to string
+-- Table entries are metatable = function from object to string
 stringifier = {}
 
 -- @func tostring: Extend tostring to work better on tables
@@ -72,9 +72,9 @@ stringifier = {}
 --   @param s: string representation
 local _tostring = tostring
 function tostring (x)
-  local tTag = tag (x)
-  if stringifier[tTag] then
-    x = stringifier[tTag] (x)
+  local meta = getmetatable (x)
+  if stringifier[meta] then
+    x = stringifier[meta] (x)
   else
     x = tabulate (x) or x
   end

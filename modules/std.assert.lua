@@ -19,14 +19,14 @@ function warn (...)
   if prog.name or prog.file or prog.line then
     io.stderr:write (" ")
   end
-  writeLine (io.stderr, format (unpack (arg)))
+  writeLine (io.stderr, string.format (unpack (arg)))
 end
 
 -- @func die: Die with error
 --   @param ...: arguments for format
 function die (...)
   warn (unpack (arg))
-  error ()
+  error (false)
 end
 
 -- @func assert: Die with error if value is false
@@ -35,7 +35,7 @@ end
 --   @param ...: arguments for format
 function assert (v, ...)
   if not v then
-    error (format (unpack (arg or {""})))
+    error (string.format (unpack (arg or {""})))
   end
 end
 

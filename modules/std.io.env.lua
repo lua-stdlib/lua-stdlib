@@ -8,10 +8,10 @@ require "std.data.list"
 -- returns
 --   o: output
 function shell (c)
-  local i = io.stdin
+  local i = io.input ()
   io.popen (c)
   local o = io.read ("*a")
-  io.close (io.stdin)
+  io.input():close ()
   io.input (i)
   return o
 end

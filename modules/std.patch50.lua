@@ -22,10 +22,10 @@ if string.sub (_VERSION, 1, 7) == "Lua 5.0" then
   --   @param r: formatted string, or s if only one argument
   local _format = string.format
   function string.format (...)
-    if getn (arg) == 1 then
+    if table.getn (arg) == 1 then
       return arg[1]
     else
-      return _format (unpack (arg))
+      return _format (unpack (arg) or "")
     end
   end
 

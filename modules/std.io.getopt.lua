@@ -84,7 +84,7 @@ function getOpt (argIn, options)
       parseOpt (opt, arg)
     end
   end
-  argOut.n = getn (argOut)
+  argOut.n = table.getn (argOut)
   return argOut, optOut, errors
 end
 
@@ -104,7 +104,7 @@ Option = Object {_init = {
 -- Options table constructor: adds lookup tables for the option names
 function Options (t)
   local name = {}
-  for i = 1, getn (t) do
+  for i = 1, table.getn (t) do
     for j, s in t[i].name do
       if name[s] then
         warn ("duplicate option '%s'", s)
@@ -196,7 +196,7 @@ function usageInfo (header, optDesc, pageWidth)
              end
     end
   local optText = ""
-  if getn (optDesc) > 0 then
+  if table.getn (optDesc) > 0 then
     local cols = unzip (map (fmtOpt, optDesc))
     local width
     cols[1], width = sameLen (cols[1])
@@ -225,7 +225,7 @@ end
 -- adds -version/-v and -help/-h/-? automatically; stops program
 -- if there was an error or -help was used
 function processArgs ()
-  local totArgs = getn (arg)
+  local totArgs = table.getn (arg)
   options = Options (concat (options or {},
                              {Option {{"version", "v"},
                                  "show program version"},
@@ -237,10 +237,10 @@ function processArgs ()
   if (opt.version or opt.help) and prog.banner then
     io.stderr:write (prog.banner .. endOfLine)
   end
-  if getn (errors) > 0 or opt.help then
+  if table.getn (errors) > 0 or opt.help then
     local name = prog.name
     prog.name = nil
-    if getn (errors) > 0 then
+    if table.getn (errors) > 0 then
       warn (join (endOfLine, errors) .. endOfLine)
     end
     prog.name = name
@@ -265,7 +265,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
   function test (cmdLine)
     local nonOpts, opts, errors = getOpt (cmdLine, options)
-    if getn (errors) == 0 then
+    if table.getn (errors) == 0 then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. endOfLine)
     else
