@@ -14,7 +14,7 @@ require "std/data/code.lua"
 -- Vanilla table tag
 _TableTag = tag ({})
 
--- subscript: expose [] as a function
+-- subscript: Expose [] as a function
 --   t: table
 --   s: subscript
 -- returns
@@ -204,7 +204,7 @@ end
 -- Tag methods for tables
 settagmethod (_TableTag, "add", merge) -- table + table = merge
 
--- defaultTable: make a table with a different default value
+-- defaultTable: Make a table with a different default value
 --   x: default value
 --   [t]: initial table
 -- returns

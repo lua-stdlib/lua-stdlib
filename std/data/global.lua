@@ -1,5 +1,6 @@
 -- Globals
 
+
 -- newGlobalType: Make a new global variable type
 --   get: getglobal tag method
 --   set: setglobal tag method

@@ -3,7 +3,7 @@
 require "std/text/text.lua"
 
 
--- @func pickle: convert an object to a string
+-- @func pickle: Convert an object to a string
 -- Does not work for functions, userdata or recursive tables
 --   @param x: object to pickle
 -- returns

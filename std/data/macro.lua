@@ -39,7 +39,7 @@ function lookup (t, l)
   return foldl (subscript, t, l)
 end
 
--- pathSubscript: subscript a table with a string containing dots
+-- pathSubscript: Subscript a table with a string containing dots
 --   t: table
 --   s: subscript of the form s1.s2. ... .sn
 -- returns
