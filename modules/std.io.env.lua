@@ -23,14 +23,14 @@ end
 --     @param name: the name of the file being read
 --     @param i: the number of the argument
 function io.processFiles (f)
-  for i = 1, table.getn (arg) do
-    if arg[i] == "-" then
+  for i, v in ipairs (arg) do
+    if v == "-" then
       io.input (io.stdin)
     else
-      io.input (arg[i])
+      io.input (v)
     end
-    prog.file = arg[i]
-    f (arg[i], i)
+    prog.file = v
+    f (v, i)
   end
 end
 

@@ -29,8 +29,8 @@ function io.writeLine (h, ...)
     h = io.output ()
     table.insert (arg, 1, h)
   end
-  for i = 1, table.getn (arg) do
-    h:write (arg[i], "\n")
+  for _, v in ipairs (arg) do
+    h:write (v, "\n")
   end
 end
 

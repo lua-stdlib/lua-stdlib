@@ -129,9 +129,9 @@ end
 function Parser:parseProd (name, prod, from)
   local tree = {ty = name}
   local to = from
-  for i = 1, table.getn (prod) do
+  for _, prod in ipairs (prod) do
     local sym
-    sym, to = self:parseSym (prod[i], to)
+    sym, to = self:parseSym (prod, to)
     if to then
       table.insert (tree, sym)
     else
@@ -154,8 +154,8 @@ end
 function Parser:parseRule (name, from)
   local alt = self.grammar[name]
   local tree, to
-  for i = 1, table.getn (alt) do
-    tree, to = self:parseProd (name, alt[i], from)
+  for _, alt in ipairs (alt) do
+    tree, to = self:parseProd (name, alt, from)
     if to then
       return tree, to
     end
@@ -172,8 +172,8 @@ function Parser.prettyPrint (tree, indent)
       writeLine (indent .. tree.ty .. "=" .. tree.tok)
     else
       writeLine (indent .. tree.ty)
-      for i = 1, table.getn (tree) do
-        Parser.prettyPrint (tree[i], indent .. "  ")
+      for _, v in ipairs (tree) do
+        Parser.prettyPrint (v, indent .. "  ")
       end
     end
   end

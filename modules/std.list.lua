@@ -55,9 +55,9 @@ end
 --     is true
 function filter (p, l)
   local m = {}
-  for i = 1, table.getn (l) do
-    if p (l[i]) then
-      table.insert (m, l[i])
+  for _, v in ipairs (l) do
+    if p (v) then
+      table.insert (m, v)
     end
   end
   return m
@@ -70,10 +70,10 @@ end
 --   @param m: result list {f (l[1]) .. f (l[table.getn (l)])}
 function mapjoin (f, l)
   local m = {}
-  for i = 1, table.getn (l) do
-    local r = f (l[i])
-    for j = 1, table.getn (r) do
-      table.insert (m, r[j])
+  for _, v in ipairs (l) do
+    local r = f (v)
+    for _, w in ipairs (r) do
+      table.insert (m, w)
     end
   end
   return m
@@ -107,8 +107,8 @@ end
 --   @param r: result
 function foldl (f, e, l)
   local r = e
-  for i = 1, table.getn (l) do
-    r = f (r, l[i])
+  for _, v = in ipairs (l) do
+    r = f (r, v)
   end
   return r
 end
@@ -145,11 +145,11 @@ end
 --     m[table.getn (m)]}
 function concat (l, m)
   local n = {}
-  for i = 1, table.getn (l) do
-    table.insert (n, l[i])
+  for _, v in ipairs (l) do
+    table.insert (n, v)
   end
-  for i = 1, table.getn (m) do
-    table.insert (n, m[i])
+  for _, v in ipairs (m) do
+    table.insert (n, v)
   end
   return n
 end
@@ -234,8 +234,8 @@ end
 --   @param t: table {i1=v1 ... in=vn}
 function depair (ls)
   local t = {}
-  for i = 1, table.getn (ls) do
-    t[ls[i][1]] = ls[i][2]
+  for _, v in ipairs (ls) do
+    t[v[1]] = v[2]
   end
   return t
 end

@@ -102,12 +102,12 @@ Option = Object {_init = {
 -- Options table constructor: adds lookup tables for the option names
 function Options (t)
   local name = {}
-  for i = 1, table.getn (t) do
-    for j, s in pairs (t[i].name) do
+  for _, v in ipairs (t) do
+    for j, s in pairs (v.name) do
       if name[s] then
         warn ("duplicate option '%s'", s)
       end
-      name[s] = t[i]
+      name[s] = v
     end
   end
   t.name = name

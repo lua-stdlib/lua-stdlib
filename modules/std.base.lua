@@ -27,8 +27,8 @@ end
 --   @param arg: objects to print
 local _print = print
 function print (...)
-  for i = 1, table.getn (arg) do
-    arg[i] = tostring (arg[i])
+  for i, v in ipairs (arg) do
+    arg[i] = tostring (v)
   end
   _print (unpack (arg))
 end
