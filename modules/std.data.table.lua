@@ -3,6 +3,17 @@
 require "std.data.code"
 
 
+-- @func table.sort: Make table.sort return its result
+--   @param t: table
+--   @param c: comparator function
+-- returns
+--   @param t: sorted table
+local _sort = table.sort
+function table.sort (t, c)
+  _sort (t, c)
+  return t
+end
+
 -- @func subscript: Expose [] as a function
 --   @param t: table
 --   @param s: subscript

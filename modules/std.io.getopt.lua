@@ -2,7 +2,7 @@
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
 require "std.assert"
-require "std.text"
+require "std.string"
 require "std.data.object"
 require "std.io.env"
 
@@ -184,7 +184,7 @@ function usageInfo (header, optDesc, pageWidth)
   end
   local function wrapper (w, i)
     return function (s)
-             return wrap (s, w, i, 0)
+             return string.wrap (s, w, i, 0)
            end
   end
   local optText = ""
@@ -193,9 +193,9 @@ function usageInfo (header, optDesc, pageWidth)
     local width
     cols[1], width = sameLen (cols[1])
     cols[2] = map (wrapper (pageWidth, width + 4), cols[2])
-    optText = endOfLine .. endOfLine ..
-      string.join (endOfLine,
-            mapWith (paste, unzip ({sameLen (cols[1]), cols[2]})))
+    optText = "\n\n" ..
+      string.join ("\n",
+                   mapWith (paste, unzip ({sameLen (cols[1]), cols[2]})))
   end
   return header .. optText
 end
@@ -204,12 +204,24 @@ end
 function dieWithUsage ()
   local name = prog.name
   prog.name = nil
-  die (usageInfo ("Usage: " .. name .. " " ..
-                  (prog.usage or "[OPTION...] FILE...") ..
-                    ((prog.purpose and endOfLine .. prog.purpose)
-                     or ""),
-                  options) ..
-         ((prog.notes and endOfLine .. endOfLine .. wrap (prog.notes)) or ""))
+  local usage, purpose, notes = "[OPTION...] FILE...", "", ""
+  if prog.usage then
+    usage = prog.usage
+  end
+  if prog.purpose then
+    purpose = "\n" .. prog.purpose
+  end
+  if prog.notes then
+    notes = "\n\n"
+    if not string.find (prog.notes, "\n") then
+      notes = notes .. string.wrap (prog.notes)
+    else
+      notes = notes .. prog.notes
+    end
+  end
+  die (usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
+                  options)
+         .. notes)
 end
 
 
@@ -227,13 +239,13 @@ function processArgs ()
   local errors
   arg, opt, errors = getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
-    io.stderr:write (prog.banner .. endOfLine)
+    io.stderr:write (prog.banner .. "\n")
   end
   if table.getn (errors) > 0 or opt.help then
     local name = prog.name
     prog.name = nil
     if table.getn (errors) > 0 then
-      warn (string.join (endOfLine, errors) .. endOfLine)
+      warn (string.join ("\n", errors) .. "\n")
     end
     prog.name = name
     dieWithUsage ()
@@ -259,9 +271,9 @@ if type (_DEBUG) == "table" and _DEBUG.std then
     local nonOpts, opts, errors = getOpt (cmdLine, options)
     if table.getn (errors) == 0 then
       print ("options=" .. tostring (opts) ..
-             "  args=" .. tostring (nonOpts) .. endOfLine)
+             "  args=" .. tostring (nonOpts) .. "\n")
     else
-      print (string.join (endOfLine, errors) .. endOfLine ..
+      print (string.join ("\n", errors) .. "\n" ..
              usageInfo ("Usage: foobar [OPTION...] FILE...", options))
     end
   end

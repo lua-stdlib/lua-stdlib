@@ -1,7 +1,7 @@
 -- Assertions, warnings and errors
 
 require "std.io.io"
-require "std.text.text"
+require "std.string.string"
 
 
 -- @func warn: Give warning with the name of program and file (if any)

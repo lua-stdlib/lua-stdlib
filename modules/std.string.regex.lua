@@ -1,17 +1,15 @@
 -- Regular expressions
 
-require "std.patch50"
 
-
--- strfindt: Do strfind, returning captures as a list
---   s: target string
---   p: pattern
---   [init]: start position [1]
---   [plain]: inhibit magic characters [nil]
+-- @function string.findt: Do string.find, returning captures as a list
+--   @param s: target string
+--   @param p: pattern
+--   @param [init]: start position [1]
+--   @param [plain]: inhibit magic characters [nil]
 -- returns
---   from, to: start and finish of match
---   capt: table of captures
-function strfindt (s, p, init, plain)
+--   @param from, to: start and finish of match
+--   @param capt: table of captures
+function string.findt (s, p, init, plain)
   local pack =
     function (from, to, ...)
       return from, to, arg
@@ -19,44 +17,19 @@ function strfindt (s, p, init, plain)
   return pack (string.find (s, p, init, plain))
 end
 
--- nextstr: iterator for strings
---   s: string being iterated over
---   p: pattern being iterated with
---   f: function to be iterated
---     from, to: start and end points of substring
---     capt: table of captures
---     t: result accumulator (initialised to t below)
---     s: string being iterated over (same as s above)
---   returns
---     cont: point at which to continue iteration, or nil to stop
---   t: result accumulator (usually result table)
+-- @function string.finds: Do multiple string.find's on a string
+--   @param s: target string
+--   @param p: pattern
+--   @param [init]: start position [1]
+--   @param [plain]: inhibit magic characters [nil]
 -- returns
---   u: result accumulator (same as u argument)
-function nextstr (s, p, f, t)
-  t = t or {}
-  local from, to, capt
-  repeat
-    from, to, capt = strfindt (s, p, from)
-    if from and to then
-      from = f (from, to, capt, t, s)
-    end
-  until not (from and to)
-  return t
-end
-
--- strfinds: Do multiple strfinds on a string
---   s: target string
---   p: pattern
---   [init]: start position [1]
---   [plain]: inhibit magic characters [nil]
--- returns
---   t: table of {from=from, to=to; capt = {captures}}
-function strfinds (s, p, init, plain)
+--   @param t: table of {from=from, to=to; capt = {captures}}
+function string.finds (s, p, init, plain)
   init = init or 1
   local t = {}
   local from, to, r
   repeat
-    from, to, r = strfindt (s, p, init, plain)
+    from, to, r = string.findt (s, p, init, plain)
     if from ~= nil then
       table.insert (t, {from = from, to = to, capt = r})
       init = to + 1
@@ -65,14 +38,14 @@ function strfinds (s, p, init, plain)
   return t
 end
 
--- gsubs: Perform multiple calls to string.gsub
---   s: string to call string.gsub on
---   sub: {pattern1=replacement1 ...}
---   [n]: upper limit on replacements [infinite]
+-- @function string.gsubs: Perform multiple calls to string.gsub
+--   @param s: string to call string.gsub on
+--   @param sub: {pattern1=replacement1 ...}
+--   @param [n]: upper limit on replacements [infinite]
 -- returns
---   s_: result string
---   r: number of replacements made
-function gsubs (s, sub, n)
+--   @param s_: result string
+--   @param r: number of replacements made
+function string.gsubs (s, sub, n)
   local r = 0
   for i, v in sub do
     local rep
@@ -91,12 +64,13 @@ function gsubs (s, sub, n)
   return s, r
 end
 
--- split: Turn a string into a list of strings, breaking at sep
---   [sep]: separator regex ["%s+"]
---   s: string to split
+-- @function string.split: Turn a string into a list of strings,
+-- breaking at sep
+--   @param [sep]: separator regex ["%s+"]
+--   @param s: string to split
 -- returns
---   l: list of strings
-function split (sep, s)
+--   @param l: list of strings
+function string.split (sep, s)
   if s == nil then
     s, sep = sep, "%s+"
   end
@@ -119,24 +93,50 @@ function split (sep, s)
   return t
 end
 
--- TODO: rgsub: string.gsub-like wrapper for match
+-- TODO: @function string.rgsub: string.gsub-like wrapper for match
 -- really needs to be in C for speed (replace gmatch)
---   s: target string
---   p: pattern
---   r: function
---     t: table of captures
---   [n]: maximum number of substutions [infinite]
+--   @param s: target string
+--   @param p: pattern
+--   @param r: function
+--     @param t: table of captures
+--   @param [n]: maximum number of substutions [infinite]
 --   returns
---     rep: replacement
+--     @param rep: replacement
 -- returns
---   n: number of substitutions made
+--   @param n: number of substitutions made
 
--- TODO: checkRegex: check regex is valid
---   r: regex
+-- TODO: @function string.checkRegex: check regex is valid
+--   @param p: regex pattern
 -- returns
---   f: true if regex is valid, or nil otherwise
+--   @param f: true if regex is valid, or nil otherwise
 
--- TODO: checkPosixRegex: check POSIX regex is valid
---   r: POSIX regex
+-- TODO: @function rex.check{Posix,PCRE}Regex: check POSIX regex is valid
+--   @param p: POSIX regex pattern
 -- returns
---   f: true if regex is valid, or nil otherwise
+--   @param f: true if regex is valid, or nil otherwise
+
+-- @function string.next: iterator for strings
+-- TODO: Update for new for
+--   @param s: string being iterated over
+--   @param p: pattern being iterated with
+--   @param f: function to be iterated
+--     @param from, to: start and end points of substring
+--     @param capt: table of captures
+--     @param t: result accumulator (initialised to t below)
+--     @param s: string being iterated over (same as s above)
+--   returns
+--     @param cont: point at which to continue, or false to stop
+--   @param t: result accumulator (usually result table)
+-- returns
+--   @param u: result accumulator (same as u argument)
+function string.next (s, p, f, t)
+  t = t or {}
+  local from, to, capt
+  repeat
+    from, to, capt = string.findt (s, p, from)
+    if from and to then
+      from = f (from, to, capt, t, s)
+    end
+  until not (from and to)
+  return t
+end

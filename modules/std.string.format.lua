@@ -27,10 +27,24 @@
 --               -> a                       Result
 
 require "std.assert"
-require "std.io.io"
 
 
--- pad: Justify a string
+-- @func string.format: Format, but only if more than one argument
+--   @param (s: string
+--   ( or
+--   @param (...: arguments for format
+-- returns
+--   @param r: formatted string, or s if only one argument
+local _format = string.format
+function string.format (...)
+  if table.getn (arg) == 1 then
+    return arg[1]
+  else
+    return _format (unpack (arg) or "")
+  end
+end
+
+-- string.pad: Justify a string
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w)
 --   s: string to justify
@@ -39,7 +53,7 @@ require "std.io.io"
 --   [p]: string to pad with [" "]
 -- returns
 --   s_: justified string
-function pad (s, w, p)
+function string.pad (s, w, p)
   p = string.rep (p or " ", abs (w))
   if w < 0 then
     return string.sub (p .. s, -w)
@@ -47,14 +61,14 @@ function pad (s, w, p)
   return string.sub (s .. p, 1, w)
 end
 
--- wrap: Wrap a string into a paragraph
+-- string.wrap: Wrap a string into a paragraph
 --   s: string to wrap
 --   w: width to wrap to [78]
 --   ind: indent [0]
 --   ind1: indent of first line [ind]
 -- returns
 --   s_: wrapped paragraph
-function wrap (s, w, ind, ind1)
+function string.wrap (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
   ind1 = ind1 or ind
@@ -71,7 +85,7 @@ function wrap (s, w, ind, ind1)
     while j > lstart and string.sub (s, j, j) == " " do
       j = j - 1
     end
-    s = string.sub (s, 1, j) .. endOfLine .. string.rep (" ", ind) ..
+    s = string.sub (s, 1, j) .. "\n" .. string.rep (" ", ind) ..
       string.sub (s, i + 1, -1)
     local change = ind + 1 - (i - j)
     lstart = j + change

@@ -3,9 +3,6 @@
 require "std.data.code"
 
 
--- EOL string
-endOfLine = "\n"
-
 -- @func readLines: Read a file into a list of lines and close the file
 --   @param [h]: file handle or name [io.input ()]
 -- returns
@@ -34,7 +31,7 @@ function writeLine (h, ...)
     table.insert (arg, 1, h)
   end
   for i = 1, table.getn (arg) do
-    io.write (arg[i], endOfLine)
+    io.write (arg[i], "\n")
   end
 end
 

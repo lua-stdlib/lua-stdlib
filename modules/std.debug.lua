@@ -2,7 +2,7 @@
 -- Requires that the Lua debug library be available
 
 require "std.io.io"
-require "std.text.text"
+require "std.string.string"
 require "std.assert" -- so that debug can be overridden
 
 
@@ -14,20 +14,10 @@ require "std.assert" -- so that debug can be overridden
 -- std: do standard library debugging (run examples & test code)
 
 
--- print: Extend print to work better on tables
---   @param arg: objects to print
-local _print = print
-function print (...)
-  for i = 1, table.getn (arg) do
-    arg[i] = tostring (arg[i])
-  end
-  _print (unpack (arg))
-end
-
 -- debug: Print a debugging message
 --   @param [n]: debugging level [1]
 --   ...: objects to print (as for print)
-function debug (...)
+function debug.say (...)
   local level = 1
   if type (arg[1]) == "number" then
     level = arg[1]
@@ -41,13 +31,16 @@ function debug (...)
   end
 end
 
+-- Make a debug function for quick use (use call metamethod of debug table)
+setmetatable (debug, {__call = debug.say})
+
 -- traceCall: Trace function calls
 --   @param event: event causing the call
 -- Use: debug.sethook (traceCall, "cr"), as below
 -- based on test/trace-calls.lua from the Lua 5.0 distribution
 local level = 0
 
-function traceCall (event)
+function debug.traceCall (event)
   local t = debug.getinfo (3)
   local s = " >>> " .. string.rep(" ",level)
   if t ~= nil and t.currentline >= 0 then
@@ -76,5 +69,5 @@ end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  debug.sethook (traceCall, "cr")
+  debug.sethook (debug.traceCall, "cr")
 end

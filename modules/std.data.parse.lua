@@ -38,7 +38,6 @@ require "std.io.io"
 -- tree = p:parseRule (symbol, from). The resulting tree may be passed
 -- to Parser.prettyPrint.
 
-
 Parser = Object {_init = {"grammar", "token"}}
 
 

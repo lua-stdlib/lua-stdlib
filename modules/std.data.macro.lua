@@ -1,7 +1,7 @@
 -- Macros
 
 require "std.data.list"
-require "std.text.regex"
+require "std.string.regex"
 
 
 -- lookup: Do a late-bound table lookup
@@ -19,5 +19,5 @@ end
 -- returns
 --   v: t.s1.s2. ... .sn
 function pathSubscript (t, s)
-  return lookup (t, split ("%.", s))
+  return lookup (t, string.split ("%.", s))
 end

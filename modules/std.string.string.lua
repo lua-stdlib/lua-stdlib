@@ -1,7 +1,6 @@
 -- String
 
 require "std.string.regex"
-require "std.string.table"
 
 
 -- @func string.concat: Give a name to .. for strings
@@ -23,12 +22,12 @@ function string.caps (s)
                        end))
 end
 
--- @func string.chomp: Remove any final line ending from a string
+-- @func string.chomp: Remove any final newline from a string
 --   @param s: string to process
 -- returns
 --   @param s_: processed string
 function string.chomp (s)
-  return (string.gsub (s, endOfLine .. "$", ""))
+  return (string.gsub (s, "\n$", ""))
 end
 
 -- @func string.join: Turn a list of strings into a sep-separated string
