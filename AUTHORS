@@ -1,0 +1,22 @@
+                            Stdlib's authors
+                            ----------------
+
+this file lists the authors of stdlib. If your name has been omitted,
+please complain to the mailing list (see README for the address).
+
+This file doesn't include numerous people who contributed bug fixes,
+suggestions and support. Thanks to all of them for making stdlib
+better.
+
+
+Reuben Thomas (rrt@sc3d.org) started the standard libraries project,
+wrote the code on which the libraries are based, and integrated code
+from other authors.
+
+The call trace debugging code is based on test/trace-calls.lua from
+the Lua 5.0 distribution.
+
+Wim Couwenberg wrote the code on which import is based.
+
+Jamie Webb (j@jmawebb.cjb.net) contributed several miscellaneous
+functions from his private standard library.
