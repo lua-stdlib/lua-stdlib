@@ -46,10 +46,10 @@ function empty (t)
   return 1
 end
 
--- indices: Make the list of indices of a table
---   t: table
+-- @func indices: Make the list of indices of a table
+--   @param t: table
 -- returns
---   u: table of indices
+--   @param u: list of indices
 function indices (t)
   return foreach (t,
                   function (i, _, u)
@@ -57,14 +57,25 @@ function indices (t)
                   end)
 end
 
--- values: Make the list of values of a table
---   t: table
+-- @func values: Make the list of values of a table
+--   @param t: table
 -- returns
---   u: table of values
+--   @param u: list of values
 function values (t)
   return foreach (t,
                   function (_, v, u)
                     tinsert (u, v)
+                  end)
+end
+
+-- @func tinvert: Invert a table
+--   @param t: table
+-- returns
+--   @param u: inverted table
+function tinvert (t)
+  return foreach (t,
+                  function (i, v, u)
+                    u[v] = i
                   end)
 end
 
