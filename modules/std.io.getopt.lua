@@ -256,6 +256,8 @@ function getopt.processArgs ()
     end
     prog.name = name
     getopt.dieWithUsage ()
+  elseif opt.version and table.getn (arg) == 0 then
+    os.exit ()
   end
 end
 
