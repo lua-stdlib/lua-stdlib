@@ -4,26 +4,24 @@ require "std.data.table"
 require "std.text.text"
 
 
--- pickler: table of functions to pickle objects
+-- @func pickler: table of functions to pickle objects
 -- Default method for otherwise unhandled table types
 --   {[t] = f, ...} where
---     t: tag
---     f: function
---       self: stringifier table
---       x: object of tag t
---       [p]: parent object
+--     @param t: tag
+--     @param f: function
+--       @param x: object of tag t
+--       @param [p]: parent object
 --     returns
---       s: pickle of t
+--       @param s: pickle of t
 pickler =
-  defaultTable (function (self, x)
+  defaultTable (function (x)
                   if tabulator[tag (x)] then
                     x = tabulator[tag (x)] (x)
                   end
                   if type (x) == "table" then
                     local t = {}
                     for i, v in x do
-                      t[self[tag (i)] (self, i)] =
-                        self[tag (v)] (self, v)
+                      t[pickler[tag (i)] (i)] = pickler[tag (v)] (v)
                     end
                     return t
                   else
@@ -31,13 +29,13 @@ pickler =
                   end
                 end,
                 {
-                  [tag (nil)] = function (self, x)
+                  [tag (nil)] = function (x)
                                   return "nil"
                                 end,
-                  [tag (0)]   = function (self, x)
+                  [tag (0)]   = function (x)
                                   return tostring (x)
                                 end,
-                  [tag ("")]  = function (self, x)
+                  [tag ("")]  = function (x)
                                   return format ("%q", x)
                                 end,
                 })
@@ -49,7 +47,7 @@ pickler =
 -- returns
 --   @param s: string that eval (s) is the same value as x
 function pickle (x)
-  local rep = pickler[tag (x)] (pickler, x)
+  local rep = pickler[tag (x)] (x)
   if type (rep) == "table" then
     local s = "{"
     for i, v in rep do

@@ -91,22 +91,21 @@ end
 --   {[t] = f, ...} where
 --     t: tag
 --     f: function
---       self: stringifier table
 --       x: object of tag t
 --       [p]: parent object
 --     returns
 --       s: string representation of t
 local _tostring = tostring
 stringifier =
-  defaultTable (function (self, x)
+  defaultTable (function (x)
                   if tabulator[tag (x)] then
                     x = tabulator[tag (x)] (x)
                   end
                   if type (x) == "table" then
                     local t = {}
                     for i, v in x do
-                      t[self[tag (i)] (self, i)] =
-                        self[tag (v)] (self, v)
+                      t[stringifier[tag (i)] (i)] =
+                        stringifier[tag (v)] (v)
                     end
                     return t
                   else
@@ -120,7 +119,7 @@ stringifier =
 -- returns
 --   s: string representation
 function tostring (x)
-  local rep = stringifier[tag (x)] (stringifier, x)
+  local rep = stringifier[tag (x)] (x)
   if type (rep) == "table" then
     local s, sep = "{", ""
     for i, v in rep do
