@@ -121,23 +121,3 @@ function defaultTable (x, t)
                                            return x
                                          end})
 end
-
--- Table of methods to make arbitrary objects (typically userdata)
--- into tables; used by tostring and pickle
--- Table entries are tag = function from object to table
-tabulator = {}
-
--- @func tabulate: Turn an object into a table according to tabulator
---   @param x: object to turn into a table
--- returns
---   @param t: table or nil
-function tabulate (x)
-  local m = tabulator[getmetatable (x)]
-  if m then
-    return m (x)
-  elseif type (x) == "table" then
-    return x
-  else
-    return nil
-  end
-end

@@ -1,6 +1,7 @@
 -- String
 
 require "std.string.regex"
+require "std.algorithm.lcs"
 
 
 -- @func string.concat: Give a name to .. for strings
@@ -60,7 +61,7 @@ function string.escapeShell (s)
   return (string.gsub (s, "([ %(%)%\\])", "\\%1"))
 end
 
--- @func string.ordinalSuffix: return the English suffix for an ordinal
+-- @func string.ordinalSuffix: Return the English suffix for an ordinal
 --   @param n: number of the day
 -- returns
 --   @param s: suffix
@@ -76,4 +77,28 @@ function string.ordinalSuffix (n)
   else
     return "th"
   end
+end
+
+-- @func string.lcs: Find the longest common subsequence of two
+-- strings
+--   @param: a, b: strings
+-- returns
+--   @param: s: longest common subsequence
+function string.lcs (a, b)
+  return lcs.leastCommonSeq (a, b,
+                             function (s, i)
+                               return string.sub (s, i, i)
+                             end,
+                             string.len, string.concat, "")
+end
+
+print (string.lcs ("nematode knowledge", "empty bottle"))
+
+function list.lcs (a, b)
+  return lcs.leastCommonSeq (a, b, subscript, table.getn,
+                             function (t, e)
+                               table.insert (t, e)
+                               return t
+                             end,
+                             {})
 end

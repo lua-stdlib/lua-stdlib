@@ -14,6 +14,7 @@
 require "std.base"
 require "std.debug"
 require "std.data"
+require "std.algorithm"
 require "std.string"
 require "std.io"
 require "std.rex"

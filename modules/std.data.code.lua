@@ -74,18 +74,6 @@ function eval (s)
   return loadstring ("return " .. s)()
 end
 
--- constant: Return a constant value
---   x: object
--- returns
---   f: constant function returning x
---   returns
---     x: same object
-function constant (x)
-  return function ()
-           return x
-         end
-end
-
 -- loop: Call a function with values 1..n, returning a list of results
 --   n: upper limit of parameter to function
 --   f: function
