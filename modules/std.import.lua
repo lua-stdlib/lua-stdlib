@@ -27,9 +27,11 @@ local function locate (name)
   end
   for path in string.gfind (path, "[^;]+") do
     path = string.gsub (path, "?", name)
-    local chunk = loadfile (path)
+    local chunk, err = loadfile (path)
     if chunk then
       return chunk, path
+    elseif err then
+      error (err)
     end
   end
   return false, path
