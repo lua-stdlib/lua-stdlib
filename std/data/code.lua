@@ -67,6 +67,18 @@ function eval (s)
   return dostring ("return " .. s)
 end
 
+-- constant: Return a constant value
+--   x: object
+-- returns
+--   f: constant function returning x
+--   returns
+--     x: same object
+function constant (x)
+  return function ()
+           return %x
+         end
+end
+
 -- id: Identity
 --   x: object
 -- returns
