@@ -1,6 +1,7 @@
 -- Lua Data library
 
 require "std/data/code.lua"
+require "std/data/logic.lua"
 require "std/data/global.lua"
 require "std/data/macro.lua"
 require "std/data/list.lua"
