@@ -31,10 +31,9 @@ end
 --   @param m: result list {f (l[1]) ... f (l[table.getn (l)])}
 function list.map (f, l)
   local m = {}
-  for i, v in ipairs (l) do
-    m[i] = f (v)
+  for i = 1, table.getn (l) do
+    table.insert (m, f (l[i]))
   end
-  table.setn (m, table.getn (l))
   return m
 end
 
@@ -59,7 +58,8 @@ end
 --     is true
 function list.filter (p, l)
   local m = {}
-  for _, v in ipairs (l) do
+  for i = 1, table.getn (l) do
+    local v = l[i]
     if p (v) then
       table.insert (m, v)
     end
