@@ -122,7 +122,7 @@ function mapIter (it, f, t)
              end)
 end
 
--- assign: Execute the elements of a table as assignments
+-- assign: Execute the elements of a table as global assignments
 -- Assumes the keys are strings
 --   t: table
 function assign (t)
@@ -204,14 +204,16 @@ end
 -- Tag methods for tables
 settagmethod (_TableTag, "add", merge) -- table + table = merge
 
--- lookup: Do a late-bound table lookup
---   t: table to look up in
---   l: list of indices {l1 ... ln}
+-- defaultTable: make a table with a different default value
+--   x: default value
+--   t: initial table
 -- returns
---   u: t[l1]...[ln]
-function lookup (t, l)
-  for i = 1, getn (l) do
-    t = t[l[i]]
-  end
+--   u: table for which u[i] is x if u[i] does not exist
+function defaultTable (x, t)
+  local t = Table (newtag ())
+  settagmethod (tag (t), "index",
+                function (t, i)
+                  return %x
+                end)
   return t
 end
