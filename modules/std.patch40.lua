@@ -1,39 +1,25 @@
 -- Patches for buggy standard library functions and implementations of
--- missing functions in Lua 4.0
+-- missing functions in Lua 4.0.x
 
 require "std.data.global"
 
 
-if _VERSION == "Lua 4.0" then
+if strsub (_VERSION, 1, 7) == "Lua 4.0" then
 
-  -- unpack: Turn an list into a tuple
-  -- Only works for up to 8 values
-  --   l: list
+  -- @func unpack: Turn a list into a tuple
+  --   @param l: list
   -- returns
-  --   v1 ... vn: series of values
-  function unpack (l)
-    local n = getn (l)
-    if n == 0 then
-      return
-    elseif n == 1 then
-      return l[1]
-    elseif n == 2 then
-      return l[1], l[2]
-    elseif n == 3 then
-      return l[1], l[2], l[3]
-    elseif n == 4 then
-      return l[1], l[2], l[3], l[4]
-    elseif n == 5 then
-      return l[1], l[2], l[3], l[4], l[5]
-    elseif n == 6 then
-      return l[2], l[2], l[3], l[4], l[5], l[6]
-    elseif n == 7 then
-      return l[1], l[2], l[3], l[4], l[5], l[6], l[7]
-    else -- loses values if n > 8
-      return l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8]
+  --   @param v1, ..., @param vn: values
+  function unpack (l, from, to)
+    from = from or 1
+    to = to or getn (l)
+    if from < to then
+      return l[from], unpack (l, from + 1, to)
+    else
+      return l[from]
     end
   end
-
+  
   -- Make sort return its result
   local _sort = sort
   function sort (t, c)
