@@ -1,0 +1,80 @@
+                        Standard Lua libraries
+                        ----------------------
+
+                    by Reuben Thomas (rrt@sc3d.org)
+
+
+This archive contains a collection of Lua libraries for Lua 4.0. They
+are loaded using require, so for use with 4.0, an implementation of
+require is provided, based on Jay Carlson's version posted to the Lua
+mailing list. When Lua 5.0 is released, the libraries will probably be
+ported.
+
+The libraries are copyright Reuben Thomas 2000-2002 (except for some
+code adapted from the Lua distribution, which is acknowledged, and
+require.lua, which is based on code from Jay Carlson), and released
+under the same license as Lua (basically, free for all uses, but must
+be acknowledged; see http://www.tecgraf.puc-rio.br/lua/copyright.html
+for the full license). There is no warranty.
+
+
+Help and bug reports
+--------------------
+
+I want to make these libraries into a set of standard libraries that
+everyone can use. To this end, I've added them to the lua-users
+project on SourceForge. Feel free to pitch in and help! (For a
+rationale, see http://lua-users.org/wiki/StandardLibraryProposal).
+
+
+Installation
+------------
+
+The archive should be unpacked in /usr/local/share/lua or equivalent.
+
+
+Use
+---
+
+The libraries are divided into categories. Individual libraries may be
+loaded with e.g.
+
+require "std/text/regex.lua"
+
+alternatively a whole category of routines may be loaded with
+
+require "std/text.lua"
+
+or the whole library with
+
+require "std.lua"
+
+Each library will automatically load any other libraries it needs.
+
+The libraries are documented in a LuaDoc-like style, and I hope to
+convert this to LuaDoc in the near future.
+
+
+Installing require
+------------------
+
+Ideally you should add require.lua to your lua.c. Do this by
+performing the following steps, which assume that you have already
+built and/or installed Lua:
+
+  cd lua-4.0 # a Lua 4.0 source tree
+  cc -o bin/bin2c etc/bin2c.c # compile up bin2c
+  cd src/lua
+  luac -o require.luac /usr/local/share/lua/require.lua
+  ../../bin/bin2c < require.luac > require.c
+
+Add the line
+
+#include "require.c"
+
+after the lua_xxxlibopen calls. Where this is will depend on which
+version of lua.c you are using: in the original 4.0 lua.c, it's in
+userinit, in the 4.1 lua.c patched to work under 4.0 (which I
+thoroughly recommend), it's in openstdlibs.
+
+Rebuild and install the lua binary.
