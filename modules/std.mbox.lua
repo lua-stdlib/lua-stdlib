@@ -3,25 +3,24 @@
 
 mbox = {}
 
-local function headers (header_s)
+local function headers (s)
   local header = {}
-  header_s = "\n" .. header_s .. "$$$:\n"
+  s = "\n" .. s .. "$$$:\n"
   local i, j = 1, 1
   while true do
-    j = string.find (header_s, "\n%S-:", i + 1)
+    j = string.find (s, "\n%S-:", i + 1)
     if not j then
       break
     end
-    local _, _, name, value = string.find (string.sub (header_s,
-                                                       i + 1, j - 1),
-                                           "(%S-):(.*)")
-    value = string.gsub (value or "", "\r\n", "\n")
-    value = string.gsub (value, "\n%s*", " ")
+    local _, _, name, val = string.find (string.sub (s, i + 1, j - 1),
+                                         "(%S-):(.*)")
+    val = string.gsub (val or "", "\r\n", "\n")
+    val = string.gsub (val, "\n%s*", " ")
     name = string.lower (name)
     if header[name] then
-      header[name] = header[name] .. ", " ..  value
+      header[name] = header[name] .. ", " ..  val
     else
-      header[name] = value
+      header[name] = val
     end
     i, j = j, i
   end
@@ -29,23 +28,23 @@ local function headers (header_s)
   return header
 end
 
-local function message (message_s)
-  message_s = string.gsub (message_s, "^.-\n", "")
-  local _, header_s, body
-  _, _, header_s, body = string.find(message_s, "^(.-\n)\n(.*)")
-  return {header = headers (header_s or ""), body = body or ""}
+local function message (s)
+  s = string.gsub (s, "^.-\n", "")
+  local _, s, body
+  _, _, s, body = string.find(s, "^(.-\n)\n(.*)")
+  return {header = headers (s or ""), body = body or ""}
 end
 
-function mbox.parse (mbox_s)
+function mbox.parse (s)
   local mbox = {}
-  mbox_s = "\n" .. mbox_s .. "\nFrom "
+  s = "\n" .. s .. "\nFrom "
   local i, j = 1, 1
   while true do
-    j = string.find (mbox_s, "\nFrom ", i + 1)
+    j = string.find (s, "\nFrom ", i + 1)
     if not j then
       break
     end
-    table.insert (mbox, message (string.sub (mbox_s, i + 1, j - 1)))
+    table.insert (mbox, message (string.sub (s, i + 1, j - 1)))
     i, j = j, i
   end
   return mbox
