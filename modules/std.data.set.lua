@@ -4,22 +4,18 @@ require "std.object"
 require "std.table"
 
 
--- Prototype
-Set = Object {
-  set = {}
-}
+-- Define class
+Set = Object {}
 
--- Set:_clone: Make a list into a set
---   l: list
--- returns
---   s: set
-function Set:_clone (l)
-  local set = table.clone (self)
-  setmetatable (set, set)
-  for _, v in ipairs (l) do
-    set:add (v)
-  end
-  return set
+
+-- Primitive methods (access the underlying representation)
+
+-- The representation is a table whose tags are the elements, and
+-- whose values are true.
+
+-- @func Set:pairs: Iterator for sets
+function Set:pairs ()
+  return pairs (self.set)
 end
 
 -- @func Set:add: Add an element to a set
@@ -31,10 +27,27 @@ end
 -- @func Set:member: Test for membership of a set
 --   @param e: element
 -- returns
---   @param f: flag indicating whether e is in set
+--   @param f: true if e is in set, false otherwise
 function Set:member (e)
   return self.set[e] ~= nil
 end
+
+-- Set:_clone: Make a list into a set
+--   l: list
+-- returns
+--   s: set
+function Set:_clone (l)
+  local set = table.clone (self)
+  setmetatable (set, set)
+  set.set = {}
+  for _, v in ipairs (l) do
+    set:add (v)
+  end
+  return set
+end
+
+
+-- High level methods (no knowledge of representation)
 
 -- @func Set:minus: Find the difference of two sets
 --   @param t: set
@@ -42,9 +55,9 @@ end
 --   @param r: self with elements of t removed
 function Set:minus (t)
   local r = Set {}
-  for i, _ in pairs (self.set) do
-    if not t:member (i) then
-      r:add (i)
+  for e in self:pairs () do
+    if not t:member (e) then
+      r:add (e)
     end
   end
   return r
@@ -56,9 +69,9 @@ end
 --   @param r: set intersection of self and t
 function Set:intersect (t)
   local r = Set {}
-  for i, _ in pairs (self.set) do
-    if t:member (i) then
-      r:add (i)
+  for e in self:pairs () do
+    if t:member (e) then
+      r:add (e)
     end
   end
   return r
@@ -79,8 +92,8 @@ end
 -- returns
 --   @param r: true if self is a subset of t, false otherwise
 function Set:subset (t)
-  for i, _ in pairs (s) do
-    if not t:member (i) then
+  for e in self:pairs () do
+    if not t:member (e) then
       return false
     end
   end
@@ -111,7 +124,7 @@ function Set:equal (t)
   return self:subset (t) and t:subset (self)
 end
 
--- Metamethods for sets
+-- Metamethods
 Set.__add = Set.union -- set + table = union
 Set.__sub = Set.minus -- set - table = set difference
 Set.__div = Set.intersect -- set / table = intersection
