@@ -243,4 +243,5 @@ end
 
 -- Table of methods to make arbitrary objects (typically userdata)
 -- into tables; used by tostring and pickle
+-- Table entries are tag = function from object to table
 tabulator = {}

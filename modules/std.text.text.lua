@@ -84,14 +84,21 @@ function escapeShell (s)
   return s
 end
 
+-- @func stringifier: Table of tostring methods
+-- Table entries are tag = function from object to string
+stringifier = {}
+
 -- @func tostring: Extend tostring to work better on tables
 --   @param x: object to convert to string
 -- returns
 --   @param s: string representation
 local _tostring = tostring
 function tostring (x)
-  if tabulator[tag (x)] then
-    x = tabulator[tag (x)] (x)
+  local tTag = tag (x)
+  if stringifier[tTag] then
+    x = stringifier[tTag] (x)
+  elseif tabulator[tTag] then
+    x = tabulator[tTag] (x)
   end
   if type (x) == "table" then
     local s, sep = "{", ""
