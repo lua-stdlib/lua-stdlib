@@ -90,7 +90,7 @@ function pickle (x)
   elseif type (x) == "number" then
     return tostring (x)
   elseif type (x) == "string" then
-    return format ("%q", x)
+    return string.format ("%q", x)
   else
     x = totable (x) or x
     if type (x) == "table" then
