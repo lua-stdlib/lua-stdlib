@@ -93,20 +93,19 @@ end
 --     f: function
 --       self: stringifier table
 --       x: object of tag t
+--       [p]: parent object
 --     returns
 --       s: string representation of t
 local _tostring = tostring
 stringifier =
   defaultTable (function (self, x)
-                  if type (x) == "table" then 
-                    local s, sep = "{", ""
+                  if type (x) == "table" then
+                    local t = {}
                     for i, v in x do
-                      s = s .. sep .. self[tag (i)] (self, i) .. "="
-                        .. self[tag (v)] (self, v)
-                      sep = ","
+                      t[self[tag (i)] (self, i)] =
+                        self[tag (v)] (self, v)
                     end
-                    s = s .. "}"
-                    return s
+                    return t
                   else
                     return %_tostring (x)
                   end
@@ -118,7 +117,18 @@ stringifier =
 -- returns
 --   s: string representation
 function tostring (x)
-  return stringifier[tag (x)] (stringifier, x)
+  local rep = stringifier[tag (x)] (stringifier, x)
+  if type (rep) == "table" then
+    local s, sep = "{", ""
+    for i, v in rep do
+      s = s .. sep .. i .. "=" .. v
+      sep = ","
+    end
+    s = s .. "}"
+    return s
+  else
+    return rep
+  end
 end
 
 -- ordinalSuffix: return the English suffix for an ordinal

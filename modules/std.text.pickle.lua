@@ -10,22 +10,21 @@ require "std.text.text"
 --     f: function
 --       self: stringifier table
 --       x: object of tag t
+--       [p]: parent object
 --     returns
 --       s: pickle of t
 pickler =
   defaultTable (function (self, x)
-                  local s
                   if type (x) == "table" then
-                    s = "{"
+                    local t = {}
                     for i, v in x do
-                      s = s .. "[" .. pickler[tag (i)] (self, i) ..
-                        "]=" .. pickler[tag (v)] (self, v) .. ","
+                      t[self[tag (i)] (self, i)] =
+                        self[tag (v)] (self, v)
                     end
-                    s = s .. "}"
+                    return t
                   else
-                    s = format ("%q", tostring (rep))
+                    return tostring (rep)
                   end
-                  return s
                 end,
                 {
                   [tag (nil)] = function (self, x)
@@ -46,5 +45,15 @@ pickler =
 -- returns
 --   @param s: string that eval (s) is the same value as x
 function pickle (x)
-  return pickler[tag (x)] (pickler, x)
+  local rep = pickler[tag (x)] (pickler, x)
+  if type (rep) == "table" then
+    local s = "{"
+    for i, v in rep do
+      s = s .. "[" .. i .. "]=" .. v .. ","
+    end
+    s = s .. "}"
+    return s
+  else
+    return format ("%q", tostring (rep))
+  end
 end
