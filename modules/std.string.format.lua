@@ -98,7 +98,7 @@ function string.numbertosi (n)
   local man, exp = tonumber (m), tonumber (e)
   local siexp = math.floor (exp / 3)
   local shift = exp - siexp * 3
-  local s = SIprefix[siexp] or tostring (siexp)
+  local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
   return tostring (man) .. s
 end
