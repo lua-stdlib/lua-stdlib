@@ -1,9 +1,10 @@
 -- Lua standard library
 
 -- N.B. Although the libraries use import internally, you should use
--- require to load them (in particular, you have to use require to get
--- at least std.import).
+-- require to load them.
 
+-- TODO: Add @class and @meth tags; introduce @meth by replacing
+--   @func Foo:bar with @meth bar
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; OO vs non-OO (a thorny problem)
