@@ -9,6 +9,8 @@
 
 require "std/patch40.lua"
 require "std/data/code.lua"
+require "std/data/list.lua"
+require "std/text/regex.lua"
 
 
 -- Vanilla table tag
@@ -21,6 +23,15 @@ _TableTag = tag ({})
 --   v: t[s]
 function subscript (t, s)
   return t[s]
+end
+
+-- pathSubscript: subscript a table with a string containing dots
+--   t: table
+--   s: subscript of the form s1.s2. ... .sn
+-- returns
+--   v: t.s1.s2. ... .sn
+function pathSubscript (t, s)
+  return foldl (subscript, t, split ("%.", s))
 end
 
 -- Table: Make a new table of the given tag type
@@ -153,6 +164,52 @@ function merge (t, u)
     r[i] = v
   end
   return r
+end
+
+-- methodify: Make a table type use custom per-field get/set methods
+-- The settable and gettable methods of the given tag are modified so
+-- that fields can have get and set methods added by putting an entry
+-- in the _getset member of a table of that type. If the entry is a
+-- table, it is assumed to be a table of the form {get = get tag method,
+-- set = set tag method}, and the relevant method is called, just like
+-- an ordinary tag method. Otherwise, the entry is used as an index to
+-- the table; in this way, one table member can easily be made an
+-- alias for another, allowing shorter names to be used. If there is
+-- no entry, the previous tag method is used.
+--   tTag: tag to methodify
+function methodify (tTag)
+  local gettm = gettagmethod (tTag, "gettable")
+  settagmethod (tTag, "gettable",
+                function (t, i)
+                  if t._getset[i] then
+                    if type (t._getset[i]) == "table" then
+                      return t._getset[i].get (t, i)
+                    else
+                      return t[t._getset[i]]
+                    end
+                  end
+                  if %gettm then
+                    return %gettm (t, i)
+                  else
+                    return t[i]
+                  end
+                end)
+  local settm = gettagmethod (tTag, "settable")
+  settagmethod (tTag, "settable",
+                function (t, i, v)
+                  if t._getset[i] then
+                    if type (t._getset[i]) == "table" then
+                      t._getset[i].set (t, i, v)
+                    else
+                      t[t._getset[i]] = v
+                    end
+                  end
+                  if %settm then
+                    %settm (t, i, v)
+                  else
+                    t[i] = v
+                  end
+                end)
 end
 
 -- Tag methods for tables
