@@ -1,6 +1,6 @@
 -- Parser generator
 
-require "std.data.object"
+require "std.object"
 require "std.io.io"
 
 

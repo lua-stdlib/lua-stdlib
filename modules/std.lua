@@ -13,7 +13,10 @@
 
 require "std.base"
 require "std.debug"
+require "std.table"
+require "std.list"
 require "std.data"
+require "std.object"
 require "std.algorithm"
 require "std.string"
 require "std.io"

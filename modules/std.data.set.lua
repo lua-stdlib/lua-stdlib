@@ -1,6 +1,7 @@
 -- Sets
+-- TODO: Reimplement as objects
 
-require "std.data.table"
+require "std.table"
 
 
 -- Sets are tables whose indices are the members of the set; the

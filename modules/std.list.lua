@@ -1,7 +1,7 @@
 -- @module List
 
 require "std.data.code"
-require "std.data.table"
+require "std.table"
 
 
 -- @func math.max: Extend to work on lists

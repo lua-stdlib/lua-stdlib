@@ -1,6 +1,6 @@
 -- Macros
 
-require "std.data.list"
+require "std.list"
 require "std.string.regex"
 
 

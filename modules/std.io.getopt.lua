@@ -3,7 +3,7 @@
 
 require "std.base"
 require "std.string"
-require "std.data.object"
+require "std.object"
 require "std.io.env"
 
 

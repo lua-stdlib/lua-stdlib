@@ -1,6 +1,6 @@
 -- Base
 
-require "std.data.table"
+require "std.table"
 require "std.io.io"
 require "std.string.string"
 
