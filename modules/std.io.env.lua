@@ -43,8 +43,9 @@ end
 -- @returns
 --   @param l: list of files
 function io.readDir (d)
-  local l = string.split ("\n", string.chomp (shell ("ls -aU " .. d ..
-                                                     " 2>/dev/null")))
+  local l = string.split ("\n",
+                          string.chomp (shell ("ls -aU " .. d ..
+                                               " 2>/dev/null")))
   table.remove (l, 1) -- remove . and ..
   table.remove (l, 1)
   return l
