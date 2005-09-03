@@ -90,7 +90,7 @@ function string.ltrim (r, s)
   if s == nil then
     s, r = r, "%s+"
   end
-  return string.gsub (s, "^" .. r, "")
+  return (string.gsub (s, "^" .. r, ""))
 end
 
 -- @function string.rtrim: Remove trailing matter from a string
@@ -102,7 +102,7 @@ function string.rtrim (r, s)
   if s == nil then
     s, r = r, "%s+"
   end
-  return string.gsub (s, r .. "$", "")
+  return (string.gsub (s, r .. "$", ""))
 end
 
 -- @function string.trim: Remove leading and trailing matter from a
@@ -112,10 +112,7 @@ end
 -- @returns
 --   @param s_: string without leading/trailing r
 function string.trim (r, s)
-  if s == nil then
-    s, r = r, "%s+"
-  end
-  return string.gsub (s, "^" .. r .. "$", "")
+  return string.ltrim (string.rtrim (r, s))
 end
 
 -- TODO: @function string.rgsub: string.gsub-like wrapper for match
