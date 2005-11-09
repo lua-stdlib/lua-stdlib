@@ -1,7 +1,7 @@
 -- Sets
 
-import "std.object"
-import "std.table"
+require "std.object"
+require "std.table"
 
 
 -- Primitive methods (access the underlying representation)

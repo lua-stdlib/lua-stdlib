@@ -17,27 +17,27 @@
 require "std.import"
 
 -- Modules that require the standard libraries
-import "std.base"
-import "std.assert"
-import "std.debug"
-import "std.table"
-import "std.list"
-import "std.object"
-import "std.algorithm"
-import "std.string"
-import "std.math"
-import "std.io"
-import "std.set"
-import "std.parser"
-import "std.mbox"
+require "std.base"
+require "std.assert"
+require "std.debug"
+require "std.table"
+require "std.list"
+require "std.object"
+require "std.algorithm"
+require "std.string"
+require "std.math"
+require "std.io"
+require "std.set"
+require "std.parser"
+require "std.mbox"
 
 
 -- Modules that require non-standard libraries
 
 if type (bit) == "table" then
-  import "std.bit"
+  require "std.bit"
 end
 
 if type (rex) == "table" then
-  import "std.rex"
+  require "std.rex"
 end

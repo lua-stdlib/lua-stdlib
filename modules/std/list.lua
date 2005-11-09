@@ -1,7 +1,7 @@
 -- @module List
 
-import "std.base"
-import "std.table"
+require "std.base"
+require "std.table"
 
 
 list = {}

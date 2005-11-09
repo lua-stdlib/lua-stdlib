@@ -1,7 +1,7 @@
 -- @module Debugging
 
-import "std.io.io"
-import "std.string.string"
+require "std.io.io"
+require "std.string.string"
 
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a

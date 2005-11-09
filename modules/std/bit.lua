@@ -1,6 +1,6 @@
 -- Bitwise logic
 
-import "std.base"
+require "std.base"
 
 
 -- @func band: Extend to work on lists

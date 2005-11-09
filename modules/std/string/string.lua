@@ -1,7 +1,7 @@
 -- String
 
-import "std.string.regex"
-import "std.algorithm.lcs"
+require "std.string.regex"
+require "std.algorithm.lcs"
 
 
 -- @func string.concat: Give a name to .. for strings

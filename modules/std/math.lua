@@ -1,6 +1,6 @@
 -- Math
 
-import "std.base"
+require "std.base"
 
 
 -- Calculate bits in an integer

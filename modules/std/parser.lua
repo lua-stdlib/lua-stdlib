@@ -1,7 +1,7 @@
 -- Parser generator
 
-import "std.object"
-import "std.io.io"
+require "std.object"
+require "std.io.io"
 
 
 -- A parser is created by

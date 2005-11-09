@@ -1,6 +1,6 @@
 -- Prototype-based objects
 
-import "std.table"
+require "std.table"
 
 
 -- Usage:

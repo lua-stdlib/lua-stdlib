@@ -1,3 +1,3 @@
 -- @module Lua algorithm library
 
-import "std.algorithm.lcs"
+require "std.algorithm.lcs"

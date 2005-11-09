@@ -1,9 +1,9 @@
 -- @module Base
 
-import "std.table"
-import "std.list"
-import "std.string.string"
-import "std.string.regex"
+require "std.table"
+require "std.list"
+require "std.string.string"
+require "std.string.regex"
 
 
 -- @func metamethod: Return given metamethod, if any, or nil
