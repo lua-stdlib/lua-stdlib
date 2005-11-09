@@ -1,8 +1,5 @@
 -- Lua standard library
 
--- N.B. Although the libraries use import internally, you should use
--- require to load them.
-
 -- TODO: Add @class and @meth tags; introduce @meth by replacing
 --   @func Foo:bar with @meth bar
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
@@ -13,8 +10,6 @@
 -- TODO: Sort out how to deal with dependencies on C modules
 -- TODO: precompile and make import check for a .luac version of
 --   each file, and load it if it's newer than the .lua version.
-
-require "std.import"
 
 -- Modules that require the standard libraries
 require "std.base"
