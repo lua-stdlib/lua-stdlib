@@ -113,5 +113,5 @@ io.processFiles (ldoc)
 -- 01feb02  0.1  Program first written
 -- 25jul02  0.2  Basic patterns added and paragraphs treated as a
 --               series of lines
--- 22oct03  0.22 Updated to Lua 5 and new stdlib
+-- 22oct03  0.21 Updated to Lua 5 and new stdlib
 --               Don't output blank lines
