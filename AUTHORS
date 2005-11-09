@@ -20,8 +20,6 @@ used in the Lua 4 version of the libraries.
 The call trace debugging code is based on test/trace-calls.lua from
 the Lua 5.0 distribution.
 
-Wim Couwenberg wrote the code on which import is based.
-
 Jamie Webb contributed several miscellaneous functions from his
 private standard library.
 
