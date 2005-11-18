@@ -30,11 +30,7 @@ end
 -- @returns
 --   @param m: result list {f (l[1]) ... f (l[table.getn (l)])}
 function list.map (f, l)
-  local m = {}
-  for i = 1, table.getn (l) do
-    table.insert (m, f (l[i]))
-  end
-  return m
+  return table.process (ipairs, table.mapItem (f), {}, l)
 end
 
 -- @func list.mapWith: Map a function over a list of lists
@@ -52,19 +48,12 @@ end
 --     @param a: argument
 --   @returns
 --     @param f: flag
---   @param l: list
+--   @param l: list of lists
 -- @returns
 --   @param m: result list containing elements e of l for which p (e)
 --     is true
 function list.filter (p, l)
-  local m = {}
-  for i = 1, table.getn (l) do
-    local v = l[i]
-    if p (v) then
-      table.insert (m, v)
-    end
-  end
-  return m
+  return table.process (ipairs, table.filterItem (p), {}, l)
 end
 
 -- @func list.slice: Slice a list
@@ -107,11 +96,7 @@ end
 -- @returns
 --   @param r: result
 function list.foldl (f, e, l)
-  local r = e
-  for _, v in ipairs (l) do
-    r = f (r, v)
-  end
-  return r
+  return table.process (ipairs, table.foldlItem (f), e, l)
 end
 
 -- @func list.foldr: Fold a binary function through a list right
@@ -122,11 +107,7 @@ end
 -- @returns
 --   @param r: result
 function list.foldr (f, e, l)
-  local r = e
-  for i = table.getn (l), 1, -1 do
-    r = f (l[i], r)
-  end
-  return r
+  return table.process (ripairs, table.foldrItem (f), e, l)
 end
 
 -- @func list.concat: Concatenate lists
@@ -226,14 +207,15 @@ end
 --   @param l: list of tables {t1 ... tn}
 -- @returns
 --   @param ind: index {t1[f]=1 ... tn[f]=n}
-function list.indexKey (f, t)
-  return table.foreachi (t,
-                         function (i, v, u)
-                           local k = v[f]
-                           if k then
-                             u[k] = i
-                           end
-                         end)
+function list.indexKey (f, l)
+  return table.process (ipairs,
+                        function (a, i, v)
+                          local k = v[f]
+                          if k then
+                            a[k] = i
+                          end
+                        end,
+                        {}, l)
 end
 
 -- @func list.indexValue: Copy a list of tables, indexed on a given
@@ -242,16 +224,17 @@ end
 --   @param l: list of tables {i1=t1 ... in=tn}
 -- @returns
 --   @param m: index {t1[f]=t1 ... tn[f]=tn}
-function list.indexValue (f, t)
-  return table.foreachi (t,
-                         function (_, v, u)
-                           local k = v[f]
-                           if k then
-                             u[k] = v
-                           end
-                         end)
+function list.indexValue (f, l)
+  return table.process (ipairs,
+                        function (a, _, v)
+                          local k = v[f]
+                          if k then
+                            a[k] = v
+                          end
+                        end,
+                        {}, l)
 end
-permuteOn = list.indexValue
+list.permuteOn = list.indexValue
 
 -- @func list.lcs: Find the longest common subsequence of two lists
 --   @param a, b: lists
@@ -269,5 +252,5 @@ end
 -- @head Metamethods for lists
 -- TODO: Set default metamethods:
 -- __unm = list.reverse
--- __mul = list.rep
+-- __mul = list.repeat
 -- __concat = list.concat
