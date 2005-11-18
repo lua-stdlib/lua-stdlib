@@ -174,6 +174,56 @@ function eval (s)
   return loadstring ("return " .. s)()
 end
 
+-- @func ripairs: An iterator like ipairs, but in reverse
+--   @param t: table to iterate over
+-- @returns
+--   @param f: iterator function
+--     @param t: table
+--     @param n: index
+--   @returns
+--     @param i: index (n - 1)
+--     @param v: value (t[n - 1))
+--   @param t: the table, as above
+--   @param n: table.getn (t) + 1
+function ripairs (t)
+  return function (t, n)
+           n = n - 1
+           if n == 0 then
+             n = nil
+           else
+             return n, t[n]
+           end
+         end,
+  t, table.getn (t) + 1
+end
+
+-- TODO: Fix this to allow rebuilding the table (currently flattens
+-- it)
+-- @func deepipairs: Like ipairs, but recurse into nested tables
+--   @param t: table to iterate over
+-- @returns
+--   @param f: iterator function
+--     @param t: table
+--     @param n: index
+--   @returns
+--     @param i: index (n - 1)
+--     @param v: value (t[n - 1))
+--   @param t: the table, as above
+--   @param n: table.getn (t) + 1
+function deepipairs (t)
+  return coroutine.wrap (function ()
+                           for i, v in ipairs (t) do
+                             if type (v) ~= "table" then
+                               coroutine.yield (i, v)
+                             else
+                               for j, w in deepipairs (v) do
+                                 coroutine.yield (j, w)
+                               end
+                             end
+                           end
+                         end)
+end
+
 -- @func listable: Make a function which can take its arguments
 -- as a list
 --   @param f: function (if it only takes one argument, it must not be
