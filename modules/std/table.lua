@@ -97,6 +97,69 @@ function table.permute (p, t)
   return u
 end
 
+-- @func table.process: map a function over a table using an iterator
+--   @param it: iterator
+--   @param f: function
+--     @param a: accumulator
+--     @param i: index
+--     @param v: value
+--   @returns
+--     @param b: updated accumulator
+--   @param a: initial value of the accumulator
+--   @param t: table to iterate over
+-- @returns
+--   @param a: final value of the accumulator
+function table.process (it, f, a, t)
+  for i, v in it (t) do
+    a = f (a, i, v)
+  end
+  return a
+end
+
+-- @func table.mapItem: map primitive for table.process
+--   @f: function
+-- @returns
+--   @g: function to pass to process to map a single item
+function table.mapItem (f)
+  return function (a, i, v)
+           a[i] = f (v)
+           return a
+         end
+end
+
+-- @func table.filterItem: filter primitive for table.process
+--   @f: function
+-- @returns
+--   @g: function to pass to process to filter a single item
+function table.filterItem (p)
+  return function (a, i, v)
+           if p (v) then
+             table.insert (a, v)
+           end
+           return a
+         end
+end
+
+-- @func table.foldlItem: foldl primitive for table.process
+--   @f: function
+-- @returns
+--   @g: function to pass to process to foldl a single item
+function table.foldlItem (f)
+  return function (a, i, v)
+           return f (a, v)
+         end
+end
+
+-- @func table.foldrItem: foldr primitive for table.process
+--   @f: function
+-- @returns
+--   @g: function to pass to process to foldr a single item
+function table.foldrItem (f)
+  return function (a, i, v)
+           return f (v, a)
+         end
+end
+
 -- @func table.clone: Make a shallow copy of a table, including any
 -- metatable
 --   @param t: table
