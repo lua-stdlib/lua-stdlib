@@ -23,6 +23,88 @@ function metamethod (x, n)
   return m
 end
 
+-- @func render: Turn tables into strings with recursion detection
+-- N.B. Functions calling render should not recurse, or recursion
+-- detection will not work
+--   @param x: object to convert to string
+--   @param open: open table renderer
+--     @t: table
+--   @returns
+--     @s: open table string
+--   @param close: close table renderer
+--     @t: table
+--   @returns
+--     @s: close table string
+--   @param elem: element renderer
+--     @e: element
+--   @returns
+--     @s: element string
+--   @param pair: pair renderer
+--     N.B. this function should not try to render i and v, or treat
+--     them recursively
+--     @t: table
+--     @i: index
+--     @v: value
+--     @is: index string
+--     @vs: value string
+--   @returns
+--     @s: element string
+--   @param sep: separator renderer
+--     @t: table
+--     @i: preceding index (nil on first call)
+--     @v: preceding value (nil on first call)
+--     @j: following index (nil on last call)
+--     @w: following value (nil on last call)
+--   @returns
+--     @s: separator string
+-- @returns
+--   @param s: string representation
+function render (x, open, close, elem, pair, sep, roots)
+  local function stopRoots (x)
+    if roots[x] then
+      return roots[x]
+    else
+      return render (x, open, close, elem, pair, sep, table.clone (roots))
+    end
+  end
+  roots = roots or {}
+  local s
+  if type (x) ~= "table" or metamethod (x, "__tostring") then
+    s = elem (x)
+  else
+    s = open (x)
+    roots[x] = elem (x)
+    local i, v = nil, nil
+    for j, w in pairs (x) do
+      s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stopRoots (j), stopRoots (w))
+      i, v = j, w
+    end
+    s = s .. sep(x, i, v, nil, nil) .. close (x)
+  end
+  return s
+end
+
+-- @func tostring: Extend tostring to work better on tables
+--   @param x: object to convert to string
+-- @returns
+--   @param s: string representation
+local _tostring = tostring
+function tostring (x)
+  return render (x,
+                 function () return "{" end,
+                 function () return "}" end,
+                 _tostring,
+                 function (t, _, _, i, v)
+                   return i .. "=" .. v
+                 end,
+                 function (_, i, _, j)
+                   if i and j then
+                     return ","
+                   end
+                   return ""
+                 end)
+end
+
 -- @func print: Make print use tostring, so that improvements to tostring
 -- are picked up
 --   @param arg: objects to print
@@ -34,32 +116,57 @@ function print (...)
   _print (unpack (arg))
 end
 
--- @func tostring: Extend tostring to work better on tables
---   @param x: object to convert to string
+-- @func prettytostring: pretty-print a table
+--   @t: table to print
+--   @indent: indent between levels ["\t"]
+--   @spacing: space before every line
 -- @returns
---   @param s: string representation
-local _tostring = tostring
-function tostring (x, roots)
-  local function stopRoots (x)
-    if roots[x] then
-      return roots[x]
-    else
-      return tostring (x, table.clone (roots))
-    end
-  end
-  if type (x) == "table" and (not metamethod (x, "__tostring")) then
-    local s, sep = "{", ""
-    roots = roots or {}
-    roots[x] = _tostring (x)
-    for i, v in pairs (x) do
-      s = s .. sep .. stopRoots (i) .. "=" .. stopRoots (v)
-      sep = ","
-    end
-    s = s .. "}"
-    return s
-  else
-    return _tostring (x, roots)
-  end
+--   @s: pretty-printed string
+function prettytostring (t, indent, spacing)
+  indent = indent or "\t"
+  spacing = spacing or ""
+  return render (t,
+                 function ()
+                   local s = spacing .. "{"
+                   spacing = spacing .. indent
+                   return s
+                 end,
+                 function ()
+                   spacing = string.gsub (spacing, indent .. "$", "")
+                   return spacing .. "}"
+                 end,
+                 function (x)
+                   if type (x) == "string" then
+                     return string.format ("%q", x)
+                   else
+                     return tostring (x)
+                   end
+                 end,
+                 function (x, i, v, is, vs)
+                   local s = spacing .. "["
+                   if type (i) == "table" then
+                     s = s .. "\n"
+                   end
+                   s = s .. is
+                   if type (i) == "table" then
+                     s = s .. "\n"
+                   end
+                   s = s .. "] ="
+                   if type (v) == "table" then
+                     s = s .. "\n"
+                   else
+                     s = s .. " "
+                   end
+                   s = s .. vs
+                   return s
+                 end,
+                 function (_, i)
+                   local s = "\n"
+                   if i then
+                     s = "," .. s
+                   end
+                   return s
+                 end)
 end
 
 -- @func totable: Turn an object into a table according to __totable
@@ -80,7 +187,7 @@ end
 
 -- @func pickle: Convert a value to a string
 -- The string can be passed to dostring to retrieve the value
--- Does not work for recursive tables
+-- FIXME: Make it work for recursive tables
 --   @param x: object to pickle
 -- @returns
 --   @param s: string such that eval (s) is the same value as x
