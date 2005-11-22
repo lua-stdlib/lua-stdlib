@@ -127,19 +127,6 @@ function table.mapItem (f)
          end
 end
 
--- @func table.filterItem: filter primitive for table.process
---   @f: function
--- @returns
---   @g: function to pass to process to filter a single item
-function table.filterItem (p)
-  return function (a, i, v)
-           if p (v) then
-             table.insert (a, v)
-           end
-           return a
-         end
-end
-
 -- @func table.foldlItem: foldl primitive for table.process
 --   @f: function
 -- @returns
@@ -158,6 +145,15 @@ function table.foldrItem (f)
   return function (a, i, v)
            return f (v, a)
          end
+end
+
+-- @func table.map: Map a function over a table
+--   @param f: function
+--   @param t: table
+-- @returns
+--   @param m: result table {f (t[i1])...}
+function table.map (f, t)
+  return table.process (pairs, table.mapItem (f), {}, t)
 end
 
 -- @func table.clone: Make a shallow copy of a table, including any

@@ -53,7 +53,17 @@ end
 --   @param m: result list containing elements e of l for which p (e)
 --     is true
 function list.filter (p, l)
-  return table.process (ipairs, table.filterItem (p), {}, l)
+  return table.process (ipairs,
+                        function (p)
+                          return function (a, i, v)
+                                   if p (v) then
+                                     table.insert (a, v)
+                                   end
+                                   return a
+                                 end
+                        end,
+                        {},
+                        l)
 end
 
 -- @func list.slice: Slice a list
