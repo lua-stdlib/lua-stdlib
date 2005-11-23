@@ -187,7 +187,7 @@ end
 
 -- @func pickle: Convert a value to a string
 -- The string can be passed to dostring to retrieve the value
--- FIXME: Make it work for recursive tables
+-- TODO: Make it work for recursive tables
 --   @param x: object to pickle
 -- @returns
 --   @param s: string such that eval (s) is the same value as x
@@ -304,29 +304,30 @@ function ripairs (t)
   t, table.getn (t) + 1
 end
 
--- TODO: Fix this to allow rebuilding the table (currently flattens
--- it)
--- @func deepipairs: Like ipairs, but recurse into nested tables
---   @param t: table to iterate over
+-- @func treeIter: tree iterator
+--   @param t: tree to iterate over
 -- @returns
 --   @param f: iterator function
---     @param t: table
---     @param n: index
 --   @returns
---     @param i: index (n - 1)
---     @param v: value (t[n - 1))
---   @param t: the table, as above
---   @param n: table.getn (t) + 1
-function deepipairs (t)
+--     @param e: event
+--     @param t: table of values
+function treeIter (t)
   return coroutine.wrap (function ()
-                           for i, v in ipairs (t) do
-                             if type (v) ~= "table" then
-                               coroutine.yield (i, v)
-                             else
-                               for j, w in deepipairs (v) do
-                                 coroutine.yield (j, w)
+                           if not coroutine.yield ("branch", t) then
+                             for i, v in ipairs (t) do
+                               if type (v) ~= "table" then
+                                 if coroutine.yield ("leaf", {i, v}) then
+                                   break
+                                 end
+                               else
+                                 for e, u in treeIter (v) do
+                                   if coroutine.yield (e, u) then
+                                     break
+                                   end
+                                 end
                                end
                              end
+                             coroutine.yield ("join", t)
                            end
                          end)
 end
