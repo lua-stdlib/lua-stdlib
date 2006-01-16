@@ -43,7 +43,13 @@ function string.writeXML (t, indent, spacing)
                    end
                    return ""
                  end,
-                 tostring,
+                 function (s)
+                   s = tostring (s)
+                   s = string.gsub (s, "<", "&lt;")
+                   s = string.gsub (s, ">", "&gt;")
+                   s = string.gsub (s, "&", "&amp;")
+                   return s
+                 end,
                  function (x, i, v, is, vs)
                    local s = ""
                    if type (i) == "number" then
