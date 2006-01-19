@@ -1,6 +1,7 @@
 -- String
 
 require "std.base"
+require "std.rex"
 
 
 -- @func string.writeXML: write a table as XML
@@ -47,7 +48,7 @@ function string.writeXML (t, indent, spacing)
                    s = tostring (s)
                    s = string.gsub (s, "<", "&lt;")
                    s = string.gsub (s, ">", "&gt;")
-                   s = string.gsub (s, "&", "&amp;")
+                   s = rex.gsub (s, "&(?!#?\\w+;)", "&amp;")
                    return s
                  end,
                  function (x, i, v, is, vs)
