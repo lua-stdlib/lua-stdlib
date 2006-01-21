@@ -31,20 +31,27 @@ end
 --   @param r: string with replacements
 --   @param reps: number of replacements made
 function rex.gsub (s, p, f, n, cf, lo, ef)
-  local reg = rex (p, cf, lo)
-  local st = 1
-  local r, reps = {}, 0
-  local from, to, sub
   if type (f) == "string" then
     local rep = f
     f = function (...)
           local ret = rep
-          for i = 1, table.getn (arg) do
-            ret = string.gsub (ret, "%%" .. tostring (i), arg[i])
+          local function repfun (pre, d)
+            if pre == "%" then
+              return "%" .. d
+            end
+            d = arg[tonumber (d)]
+            assert (d, "invalid capture index")
+            return pre .. d
           end
+          ret = string.gsub (ret, "(.?)%%([1-9])", repfun)
+          ret = string.gsub (ret, "%%%%", "%%")
           return ret
         end
   end
+  local reg = rex (p, cf, lo)
+  local st = 1
+  local r, reps = {}, 0
+  local from, to, sub
   repeat
     from, to, sub = reg:match (s, st, ef)
     if from then
