@@ -35,16 +35,16 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
     local rep = f
     f = function (...)
           local ret = rep
-          local function repfun (pre, d)
-            if pre == "%" then
-              return "%" .. d
+          local function repfun (percent, d)
+            if math.mod (string.len (percent), 2) == 1 then
+              d = arg[tonumber (d)]
+              assert (d, "invalid capture index")
+              percent = string.sub (percent, 2)
             end
-            d = arg[tonumber (d)]
-            assert (d, "invalid capture index")
-            return pre .. d
+            return percent .. d
           end
-          ret = string.gsub (ret, "(.?)%%([1-9])", repfun)
-          ret = string.gsub (ret, "%%%%", "%%")
+          ret = string.gsub (ret, "(%%+)([1-9])", repfun)
+          ret = string.gsub (ret, "%%(.)", "%1")
           return ret
         end
   end
