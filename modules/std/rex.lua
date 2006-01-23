@@ -56,6 +56,9 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
     from, to, sub = reg:match (s, st, ef)
     if from then
       table.insert (r, string.sub (s, st, from - 1))
+      if table.getn(sub) == 0 then
+        sub[1] = string.sub (s, from, to)
+      end
       table.insert (r, f (unpack (sub)) or "")
       st = to + 1
       reps = reps + 1
