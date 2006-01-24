@@ -38,7 +38,8 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           local function repfun (percent, d)
             if math.mod (string.len (percent), 2) == 1 then
               d = arg[tonumber (d)]
-              assert (d, "invalid capture index")
+              assert (d ~= nil, "invalid capture index")
+              d = d or "" -- capture can be false
               percent = string.sub (percent, 2)
             end
             return percent .. d
