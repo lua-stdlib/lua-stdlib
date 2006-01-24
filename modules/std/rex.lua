@@ -51,22 +51,17 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
   local reg = rex (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
-  local from, to, sub
-  repeat
-    from, to, sub = reg:match (s, st, ef)
-    if from then
-      table.insert (r, string.sub (s, st, from - 1))
-      if table.getn(sub) == 0 then
-        sub[1] = string.sub (s, from, to)
-      end
-      table.insert (r, f (unpack (sub)) or "")
-      st = to + 1
-      reps = reps + 1
-      if n and reps == n then
-        break
-      end
+  local from, to, sub = reg:match (s, st, ef)
+  while from and ((not n) or reps < n) do
+    table.insert (r, string.sub (s, st, from - 1))
+    if table.getn(sub) == 0 then
+      sub[1] = string.sub (s, from, to)
     end
-  until not from
+    table.insert (r, f (unpack (sub)) or "")
+    st = to + 1
+    reps = reps + 1
+    from, to, sub = reg:match (s, st, ef)
+  end
   table.insert (r, string.sub (s, st))
   return table.concat (r), reps
 end
