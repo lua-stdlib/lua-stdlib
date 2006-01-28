@@ -54,7 +54,9 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
   local r, reps = {}, 0
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, ef)
-    if not from then break; end
+    if not from then
+      break
+    end
     table.insert (r, string.sub (s, st, from - 1))
     if table.getn (cap) == 0 then
       cap[1] = string.sub (s, from, to)
@@ -73,3 +75,50 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
   table.insert (r, string.sub (s, st))
   return table.concat (r), reps
 end
+
+
+-- Tests
+
+local function test ()
+  local subj, pat = "abcdef", "[abef]+"
+  local tests = {
+--  {s,    p,   f,   n,       res1, res2},
+    {subj, pat, "",  0,       subj, 0}, -- test "n" + empty_replace
+    {subj, pat, "",  1,     "cdef", 1},
+    {subj, pat, "",  2,       "cd", 2},
+    {subj, pat, "",  3,       "cd", 2},
+    {subj, pat, "",  false,   "cd", 2},
+    {subj, pat, "#", 0,       subj, 0}, -- test "n" + non-empty_replace
+    {subj, pat, "#", 1,    "#cdef", 1},
+    {subj, pat, "#", 2,     "#cd#", 2},
+    {subj, pat, "#", 3,     "#cd#", 2},
+    {subj, pat, "#", false, "#cd#", 2},
+  }
+  local function err (k, lib, test, res)
+    print ("Test " .. k .. " of " .. lib)
+    print ("Test:", unpack (test))
+    print ("Results:", unpack (res))
+  end
+  local function lua2PCRE (pat)
+    local function repfun (percent)
+      local d = (fmod (string.len (percent), 2) == 1) and "-" or "*?"
+      return percent .. d
+    end
+    pat = string.gsub (pat, "(%%*)%-", repfun) -- replace unescaped dashes
+    pat = string.gsub (pat, "%%(.)", "\\%1")
+    return pat
+  end
+  for k, v in ipairs (tests) do
+    local num = v[4] or nil
+    local r1, r2 = string.gsub (v[1], v[2], v[3], num)
+    if r1 ~= v[5] or r2 ~= v[6] then
+      err (k, "string.gsub")
+    end
+    r1, r2 = rex.gsub (v[1], lua2PCRE (v[2]), v[3], num)
+    if r1 ~= v[5] or r2 ~= v[6] then
+      err (k, "rex.gsub", tests[k], {r1, r2})
+    end
+  end
+end
+
+test ()
