@@ -1,7 +1,7 @@
 -- String
 
-require "std.base"
-require "std.rex"
+require "base-ext"
+require "rex-ext"
 
 
 -- @func string.writeXML: write a table as XML

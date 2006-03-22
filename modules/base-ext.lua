@@ -1,9 +1,16 @@
 -- @module Base
 
-require "std.table"
-require "std.list"
-require "std.string.string"
-require "std.string.regex"
+-- Adds to the existing global functions
+
+local _G = _G
+module ("base-ext", package.seeall)
+-- base functions go in the global environment
+_G.setfenv (1, _G.getfenv (0))
+
+require "table-ext"
+require "list"
+require "string.string"
+require "string.regex"
 
 
 -- @func metamethod: Return given metamethod, if any, or nil
@@ -330,6 +337,28 @@ function treeIter (t)
                              coroutine.yield ("join", t)
                            end
                          end)
+end
+
+-- @func treeIter: tree iterator
+--   @param t: tree to iterate over
+-- @returns
+--   @param f: iterator function
+--   @returns
+--     @param e: event
+--     @param t: table of values
+function foo (t)
+  if not coroutine.yield ("branch", t) then
+    for i, v in ipairs (t) do
+      if type (v) ~= "table" then
+        if coroutine.yield ("leaf", {i, v}) then
+          break
+        end
+      else
+        f (v)
+      end
+    end
+    coroutine.yield ("join", t)
+  end
 end
 
 -- @func listable: Make a function which can take its arguments

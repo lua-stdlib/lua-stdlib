@@ -1,6 +1,6 @@
 -- Assertions and warnings
 
-require "std.io.io"
+require "io.io"
 
 
 -- @func assert: Extend to allow formatted arguments

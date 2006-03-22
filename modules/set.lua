@@ -1,7 +1,7 @@
 -- Sets
 
-require "std.object"
-require "std.table"
+require "object"
+require "table-ext"
 
 
 -- Primitive methods (access the underlying representation)

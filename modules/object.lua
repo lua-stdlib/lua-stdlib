@@ -1,6 +1,6 @@
 -- Prototype-based objects
 
-require "std.table"
+require "table-ext"
 
 
 -- Usage:

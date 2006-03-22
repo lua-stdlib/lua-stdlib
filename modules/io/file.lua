@@ -1,6 +1,6 @@
 -- File
 
-require "std.base"
+require "base-ext"
 
 
 -- @func io.length: Find the length of a file

@@ -1,6 +1,10 @@
 -- Math
 
-require "std.base"
+-- Adds to the existing math module
+
+module ("math", package.seeall)
+
+require "base-ext"
 
 
 -- Calculate bits in an integer

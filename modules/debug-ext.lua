@@ -1,8 +1,9 @@
 -- @module Debugging
 
-require "std.io.io"
-require "std.string.string"
+-- Adds to the existing debug module
 
+require "io.io"
+require "string.string"
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
 -- table with the following members:

@@ -1,3 +1,4 @@
+-- @module std
 -- Lua standard library
 
 -- TODO: Add @class and @meth tags; introduce @meth by replacing
@@ -11,28 +12,30 @@
 -- TODO: precompile and make import check for a .luac version of
 --   each file, and load it if it's newer than the .lua version.
 
+--module ("std", package.seeall)
+
 -- Modules that require the standard libraries
-require "std.base"
-require "std.assert"
-require "std.debug"
-require "std.table"
-require "std.list"
-require "std.object"
-require "std.algorithm"
-require "std.string"
-require "std.math"
-require "std.io"
-require "std.set"
-require "std.parser"
-require "std.mbox"
+require "base-ext"
+require "assert"
+require "debug-ext"
+require "table-ext"
+require "list"
+require "object"
+require "algorithm"
+require "string-ext"
+require "math-ext"
+require "io-ext"
+require "set"
+require "parser"
+require "mbox"
 
 
 -- Modules that require non-standard libraries
 
 if type (bit) == "table" then
-  require "std.bit"
+  require "bit-ext"
 end
 
 if type (rex) == "table" then
-  require "std.rex"
+  require "rex-ext"
 end

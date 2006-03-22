@@ -1,6 +1,6 @@
 -- Formatting text
 
-require "std.assert"
+require "assert"
 
 
 -- TODO: Pretty printing
