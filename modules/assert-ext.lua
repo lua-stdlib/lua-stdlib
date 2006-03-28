@@ -1,10 +1,7 @@
 -- @module assert
 -- Assertions and warnings
 
---local _G = _G
 --module ("assert-ext", package.seeall)
--- module's functions go in the global environment
---_G.setfenv (1, _G.getfenv (0))
 
 require "io.io"
 
@@ -14,7 +11,7 @@ require "io.io"
 --   @param ...: arguments for format
 -- @returns
 --   @param v: value
-function assert (v, ...)
+function _G.assert (v, ...)
   if not v then
     if arg.n == 0 then
       table.insert (arg, "")
@@ -26,7 +23,7 @@ end
 
 -- @func warn: Give warning with the name of program and file (if any)
 --   @param ...: arguments for format
-function warn (...)
+function _G.warn (...)
   if prog.name then
     io.stderr:write (prog.name .. ":")
   end
@@ -44,7 +41,7 @@ end
 
 -- @func die: Die with error
 --   @param ...: arguments for format
-function die (...)
+function _G.die (...)
   warn (unpack (arg))
   error (false)
 end

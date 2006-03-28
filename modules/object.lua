@@ -1,9 +1,6 @@
 -- Prototype-based objects
 
-local _G = _G
 module ("object", package.seeall)
--- module's functions go in the global environment
-_G.setfenv (1, _G.getfenv (0))
 
 require "table-ext"
 
@@ -26,7 +23,7 @@ require "table-ext"
 
 
 -- Root object
-Object = {
+_G.Object = {
   -- List of fields to be initialised by the
   -- constructor: assuming the default _clone, the
   -- numbered values in an object constructor are

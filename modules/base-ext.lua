@@ -1,11 +1,7 @@
 -- @module Base
-
 -- Adds to the existing global functions
 
-local _G = _G
 module ("base-ext", package.seeall)
--- module's functions go in the global environment
-_G.setfenv (1, _G.getfenv (0))
 
 require "table-ext"
 require "list"
@@ -19,7 +15,7 @@ require "string.regex"
 -- @returns
 --   @param m: metamethod function or nil if no metamethod or not a
 --     function
-function metamethod (x, n)
+function _G.metamethod (x, n)
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
                       end,
@@ -66,7 +62,7 @@ end
 --     @s: separator string
 -- @returns
 --   @param s: string representation
-function render (x, open, close, elem, pair, sep, roots)
+function _G.render (x, open, close, elem, pair, sep, roots)
   local function stopRoots (x)
     if roots[x] then
       return roots[x]
@@ -96,7 +92,7 @@ end
 -- @returns
 --   @param s: string representation
 local _tostring = tostring
-function tostring (x)
+function _G.tostring (x)
   return render (x,
                  function () return "{" end,
                  function () return "}" end,
@@ -116,7 +112,7 @@ end
 -- are picked up
 --   @param arg: objects to print
 local _print = print
-function print (...)
+function _G.print (...)
   for i, v in ipairs (arg) do
     arg[i] = tostring (v)
   end
@@ -129,7 +125,7 @@ end
 --   @spacing: space before every line
 -- @returns
 --   @s: pretty-printed string
-function prettytostring (t, indent, spacing)
+function _G.prettytostring (t, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
   return render (t,
@@ -181,7 +177,7 @@ end
 --   @param x: object to turn into a table
 -- @returns
 --   @param t: table or nil
-function totable (x)
+function _G.totable (x)
   local m = metamethod (x, "__totable")
   if m then
     return m (x)
@@ -198,7 +194,7 @@ end
 --   @param x: object to pickle
 -- @returns
 --   @param s: string such that eval (s) is the same value as x
-function pickle (x)
+function _G.pickle (x)
   if type (x) == "string" then
     return string.format ("%q", x)
   elseif type (x) == "number" or type (x) == "boolean" or
@@ -224,7 +220,7 @@ end
 --   @param ...
 -- @returns
 --   @param ...: the arguments passed to the function
-function id (...)
+function _G.id (...)
   return unpack (arg)
 end
 
@@ -232,7 +228,7 @@ end
 --   @param ...: tuple
 -- @returns
 --   @param l: list
-function pack (...)
+function _G.pack (...)
   return arg
 end
 
@@ -241,7 +237,7 @@ end
 --   @param a1 ... an: arguments to bind
 -- @returns
 --   @param g: function with ai already bound
-function bind (f, ...)
+function _G.bind (f, ...)
   local fix = arg
   return function (...)
            return f (unpack (list.concat (fix, arg)))
@@ -253,7 +249,7 @@ end
 --   @param n: number of arguments
 -- @returns
 --   @param g: curried version of f
-function curry (f, n)
+function _G.curry (f, n)
   if n <= 1 then
     return f
   else
@@ -270,7 +266,7 @@ end
 --     @param args: arguments
 --   @returns
 --     @param f1 (...fn (args)...)
-function compose (...)
+function _G.compose (...)
   local fns, n = arg, table.getn (arg)
   return function (...)
            for i = n, 1, -1 do
@@ -284,7 +280,7 @@ end
 --   @param s: string
 -- @returns
 --   @param v: value of string
-function eval (s)
+function _G.eval (s)
   return loadstring ("return " .. s)()
 end
 
@@ -299,7 +295,7 @@ end
 --     @param v: value (t[n - 1))
 --   @param t: the table, as above
 --   @param n: table.getn (t) + 1
-function ripairs (t)
+function _G.ripairs (t)
   return function (t, n)
            n = n - 1
            if n == 0 then
@@ -318,7 +314,7 @@ end
 --   @returns
 --     @param e: event
 --     @param t: table of values
-function treeIter (t)
+function _G.treeIter (t)
   return coroutine.wrap (function ()
                            if not coroutine.yield ("branch", t) then
                              for i, v in ipairs (t) do
@@ -346,20 +342,20 @@ end
 --   @returns
 --     @param e: event
 --     @param t: table of values
-function foo (t)
-  if not coroutine.yield ("branch", t) then
-    for i, v in ipairs (t) do
-      if type (v) ~= "table" then
-        if coroutine.yield ("leaf", {i, v}) then
-          break
-        end
-      else
-        f (v)
-      end
-    end
-    coroutine.yield ("join", t)
-  end
-end
+-- function foo (t)
+--   if not coroutine.yield ("branch", t) then
+--     for i, v in ipairs (t) do
+--       if type (v) ~= "table" then
+--         if coroutine.yield ("leaf", {i, v}) then
+--           break
+--         end
+--       else
+--         f (v)
+--       end
+--     end
+--     coroutine.yield ("join", t)
+--   end
+-- end
 
 -- @func listable: Make a function which can take its arguments
 -- as a list
@@ -368,7 +364,7 @@ end
 -- @returns
 --   @param g: function that can take its arguments either as normal
 --     or in a list
-function listable (f)
+function _G.listable (f)
   return function (...)
            if table.getn (arg) == 1 and type (arg[1]) == "table" then
              return f (unpack (arg[1]))
@@ -384,7 +380,7 @@ end
 --   @param s: subscript of the form s1.s2. ... .sn
 -- @returns
 --   @param v: t.s1.s2. ... .sn
-function pathSubscript (t, s)
+function _G.pathSubscript (t, s)
   return lookup (t, string.split ("%.", s))
 end
 
@@ -393,6 +389,6 @@ end
 --   @param l: list of indices {l1 ... ln}
 -- @returns
 --   @param u: t[l1] ... [ln]
-function lookup (t, l)
+function _G.lookup (t, l)
   return list.foldl (table.subscript, t, l)
 end
