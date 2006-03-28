@@ -2,7 +2,7 @@
 
 -- Adds to the existing math module
 
-module ("math", package.seeall)
+module ("math-ext", package.seeall)
 
 require "base-ext"
 

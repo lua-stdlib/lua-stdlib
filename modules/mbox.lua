@@ -1,7 +1,8 @@
+-- @module mbox
 -- mbox parser
 -- based on code by Diego Nahab
 
-mbox = {}
+module ("mbox", package.seeall)
 
 local function headers (s)
   local header = {}
@@ -35,7 +36,7 @@ local function message (s)
   return {header = headers (s or ""), body = body or ""}
 end
 
-function mbox.parse (s)
+function parse (s)
   local mbox = {}
   s = "\n" .. s .. "\nFrom "
   local i, j = 1, 1

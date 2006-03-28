@@ -1,4 +1,7 @@
+-- @module set
 -- Sets
+
+module ("set", package.seeall)
 
 require "object"
 require "table-ext"

@@ -4,7 +4,7 @@
 
 local _G = _G
 module ("base-ext", package.seeall)
--- base functions go in the global environment
+-- module's functions go in the global environment
 _G.setfenv (1, _G.getfenv (0))
 
 require "table-ext"

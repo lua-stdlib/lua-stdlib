@@ -1,5 +1,7 @@
 -- @module Environment
 
+module ("io.env", package.seeall)
+
 require "list"
 
 

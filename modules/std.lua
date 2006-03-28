@@ -16,7 +16,7 @@
 
 -- Modules that require the standard libraries
 require "base-ext"
-require "assert"
+require "assert-ext"
 require "debug-ext"
 require "table-ext"
 require "list"

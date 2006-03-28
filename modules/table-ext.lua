@@ -1,5 +1,6 @@
 -- Tables
 
+module ("table-ext", package.seeall)
 
 -- @func table.sort: Make table.sort return its result
 --   @param t: table

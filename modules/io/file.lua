@@ -1,5 +1,7 @@
 -- File
 
+module ("io.file", package.seeall)
+
 require "base-ext"
 
 

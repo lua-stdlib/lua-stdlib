@@ -1,5 +1,7 @@
 -- String
 
+module ("string.string", package.seeall)
+
 require "string.regex"
 require "algorithm.lcs"
 

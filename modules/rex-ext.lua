@@ -1,5 +1,6 @@
 -- Regular expressions
 
+module ("rex-ext", package.seeall)
 -- rex = require "rex_pcre" -- global
 
 -- Default constructor (use PCREs)

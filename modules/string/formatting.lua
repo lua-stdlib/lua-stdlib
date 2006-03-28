@@ -1,6 +1,8 @@
 -- Formatting text
 
-require "assert"
+module ("string.formatting", package.seeall)
+
+require "assert-ext"
 
 
 -- TODO: Pretty printing

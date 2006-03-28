@@ -1,4 +1,7 @@
+-- @module parser
 -- Parser generator
+
+module ("parser", package.seeall)
 
 require "object"
 require "io.io"

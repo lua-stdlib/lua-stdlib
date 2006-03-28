@@ -1,13 +1,15 @@
 -- getopt
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
+module ("getopt", package.seeall)
+
 require "base-ext"
 require "string-ext"
 require "object"
 require "io.env"
 
 
--- TODO: Sort out the packaging. getopt.Option is tedious to type, but
+-- TODO: Sort out the packaging. Option is tedious to type, but
 -- surely Option shouldn't be in the root namespace?
 -- TODO: Wrap all messages; do all wrapping in processArgs, not
 -- usageInfo; use sdoc-like library (see string.format todos)
@@ -30,17 +32,14 @@ require "io.env"
 -- value to run the example.
 
 
-getopt = {}
-
-
--- @func getopt.getOpt: perform argument processing
+-- @func getOpt: perform argument processing
 --   @param argIn: list of command-line args
 --   @param options: options table
 -- @returns
 --   @param argOut: table of remaining non-options
 --   @param optOut: table of option key-value list pairs
 --   @param errors: table of error messages
-function getopt.getOpt (argIn, options)
+function getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -94,7 +93,7 @@ end
 
 -- Options table type
 
-Option = Object {_init = {
+_G.Option = Object {_init = {
     "name", -- list of names
     "desc", -- description of this option
     "type", -- type of argument (if any): Req (uired), Opt (ional)
@@ -105,7 +104,7 @@ Option = Object {_init = {
 }}
 
 -- Options table constructor: adds lookup tables for the option names
-function Options (t)
+function _G.Options (t)
   local name = {}
   for _, v in ipairs (t) do
     for j, s in pairs (v.name) do
@@ -122,40 +121,40 @@ end
 
 -- Error and usage information formatting
 
--- @func getopt.errNoArg: argument when there shouldn't be one
+-- @func errNoArg: argument when there shouldn't be one
 --   @paramoptStr: option string
 -- @returns
 --   @param err: option error
-function getopt.errNoArg (optStr)
+function errNoArg (optStr)
   return "option `" .. optStr .. "' doesn't take an argument"
 end
 
--- @func getopt.errReqArg: required argument missing
+-- @func errReqArg: required argument missing
 --   @param optStr: option string
 --   @param desc: argument description
 -- @returns
 --   @param err: option error
-function getopt.errReqArg (optStr, desc)
+function errReqArg (optStr, desc)
   return "option `" .. optStr .. "' requires an argument `" .. desc ..
     "'"
 end
 
--- @func getopt.errUnrec: unrecognized option
+-- @func errUnrec: unrecognized option
 --   @param optStr: option string
 -- @returns
 --   @param err: option error
-function getopt.errUnrec (optStr)
+function errUnrec (optStr)
   return "unrecognized option `-" .. optStr .. "'"
 end
 
 
--- @func getopt.usageInfo: produce usage info for the given options
+-- @func usageInfo: produce usage info for the given options
 --   @param.header: header string
 --   @param.optDesc: option descriptors
 --   @param.pageWidth: width to format to [78]
 -- @returns
 --   @param.mess: formatted string
-function getopt.usageInfo (header, optDesc, pageWidth)
+function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- format the usage info for a single option
   -- @returns {opts, desc}: options, description
@@ -207,8 +206,8 @@ function getopt.usageInfo (header, optDesc, pageWidth)
   return header .. optText
 end
 
--- @func getopt.dieWithUsage: die emitting a usage message
-function getopt.dieWithUsage ()
+-- @func dieWithUsage: die emitting a usage message
+function dieWithUsage ()
   local name = prog.name
   prog.name = nil
   local usage, purpose, notes = "[OPTION...] FILE...", "", ""
@@ -232,10 +231,10 @@ function getopt.dieWithUsage ()
 end
 
 
--- @func getopt.processArgs: simple getOpt wrapper
+-- @func processArgs: simple getOpt wrapper
 -- adds -version/-v and -help/-h/-? automatically; stops program
 -- if there was an error or -help was used
-function getopt.processArgs ()
+function processArgs ()
   local totArgs = table.getn (arg)
   options = Options (list.concat (options or {},
                                   {Option {{"version", "v"},

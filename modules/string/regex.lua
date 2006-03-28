@@ -1,5 +1,7 @@
 -- @module Regular expressions
 
+module ("string.regex", package.seeall)
+
 
 -- @function string.findl: Do string.find, returning captures as a list
 --   @param s: target string

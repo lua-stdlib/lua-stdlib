@@ -1,5 +1,10 @@
 -- Prototype-based objects
 
+local _G = _G
+module ("object", package.seeall)
+-- module's functions go in the global environment
+_G.setfenv (1, _G.getfenv (0))
+
 require "table-ext"
 
 

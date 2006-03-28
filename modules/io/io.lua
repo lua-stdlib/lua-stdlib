@@ -1,5 +1,7 @@
 -- I/O
 
+module ("io.io", package.seeall)
+
 require "base-ext"
 
 

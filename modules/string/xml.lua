@@ -1,5 +1,7 @@
 -- String
 
+module ("string.xml", package.seeall)
+
 require "base-ext"
 require "rex-ext"
 
