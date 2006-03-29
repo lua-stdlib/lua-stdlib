@@ -243,7 +243,7 @@ function processArgs ()
                                       "show this help"}}
                               ))
   local errors
-  arg, opt, errors = getopt.getOpt (arg, options)
+  _G.arg, opt, errors = getopt.getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
     io.stderr:write (prog.banner .. "\n")
   end
