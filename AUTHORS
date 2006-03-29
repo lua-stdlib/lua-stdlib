@@ -14,9 +14,6 @@ authors.
 John Belmonte helped set the project up on lua-users, and contributed
 to the early organisation of the libraries.
 
-Jay Carlson wrote an implementation of require for Lua 4, which was
-used in the Lua 4 version of the libraries.
-
 The call trace debugging code is based on test/trace-calls.lua from
 the Lua 5.0 distribution.
 
