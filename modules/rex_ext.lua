@@ -1,7 +1,8 @@
 -- Regular expressions
 
 module ("rex_ext", package.seeall)
--- rex = require "rex_pcre" -- global
+
+require "rex" -- global
 
 -- Default constructor (use PCREs)
 setmetatable (rex, {__call =

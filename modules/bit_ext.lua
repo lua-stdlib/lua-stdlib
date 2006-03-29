@@ -4,6 +4,7 @@
 
 module ("bit_ext", package.seeall)
 
+require "bit"
 require "base_ext"
 
 
