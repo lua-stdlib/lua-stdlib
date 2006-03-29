@@ -43,5 +43,5 @@ end
 --   @param ...: arguments for format
 function _G.die (...)
   warn (unpack (arg))
-  error (false)
+  error ()
 end
