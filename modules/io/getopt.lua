@@ -3,8 +3,8 @@
 
 module ("getopt", package.seeall)
 
-require "base-ext"
-require "string-ext"
+require "base_ext"
+require "string_ext"
 require "object"
 require "io.env"
 

@@ -2,7 +2,7 @@
 
 -- Adds to the existing debug module
 
-module ("debug-ext", package.seeall)
+module ("debug_ext", package.seeall)
 
 require "io.io"
 require "string.string"

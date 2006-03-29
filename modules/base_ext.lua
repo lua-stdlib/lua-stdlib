@@ -1,9 +1,9 @@
 -- @module Base
 -- Adds to the existing global functions
 
-module ("base-ext", package.seeall)
+module ("base_ext", package.seeall)
 
-require "table-ext"
+require "table_ext"
 require "list"
 require "string.string"
 require "string.regex"

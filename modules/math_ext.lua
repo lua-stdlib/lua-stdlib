@@ -2,9 +2,9 @@
 
 -- Adds to the existing math module
 
-module ("math-ext", package.seeall)
+module ("math_ext", package.seeall)
 
-require "base-ext"
+require "base_ext"
 
 
 -- Calculate bits in an integer

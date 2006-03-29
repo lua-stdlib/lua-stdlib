@@ -2,7 +2,7 @@
 
 module ("string.formatting", package.seeall)
 
-require "assert-ext"
+require "assert_ext"
 
 
 -- TODO: Pretty printing

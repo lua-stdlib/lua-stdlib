@@ -2,8 +2,8 @@
 
 module ("list", package.seeall)
 
-require "base-ext"
-require "table-ext"
+require "base_ext"
+require "table_ext"
 
 
 -- @func cons: Prepend an item to a list

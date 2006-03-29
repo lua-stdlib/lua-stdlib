@@ -1,6 +1,6 @@
 -- Lua string library
 
-module ("string-ext", package.seeall)
+module ("string_ext", package.seeall)
 
 require "string.string"
 require "string.formatting"

@@ -2,7 +2,7 @@
 
 module ("io.file", package.seeall)
 
-require "base-ext"
+require "base_ext"
 
 
 -- @func io.length: Find the length of a file

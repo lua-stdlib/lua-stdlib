@@ -1,7 +1,7 @@
 -- @module assert
 -- Assertions and warnings
 
---module ("assert-ext", package.seeall)
+module ("assert_ext", package.seeall)
 
 require "io.io"
 

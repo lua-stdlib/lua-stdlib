@@ -2,7 +2,7 @@
 
 module ("object", package.seeall)
 
-require "table-ext"
+require "table_ext"
 
 
 -- Usage:

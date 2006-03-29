@@ -15,16 +15,16 @@
 --module ("std", package.seeall)
 
 -- Modules that require the standard libraries
-require "base-ext"
-require "assert-ext"
-require "debug-ext"
-require "table-ext"
+require "base_ext"
+require "assert_ext"
+require "debug_ext"
+require "table_ext"
 require "list"
 require "object"
 require "algorithm"
-require "string-ext"
-require "math-ext"
-require "io-ext"
+require "string_ext"
+require "math_ext"
+require "io_ext"
 require "set"
 require "parser"
 require "mbox"
@@ -33,9 +33,9 @@ require "mbox"
 -- Modules that require non-standard libraries
 
 if type (bit) == "table" then
-  require "bit-ext"
+  require "bit_ext"
 end
 
 if type (rex) == "table" then
-  require "rex-ext"
+  require "rex_ext"
 end

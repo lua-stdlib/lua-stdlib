@@ -4,7 +4,7 @@
 module ("set", package.seeall)
 
 require "object"
-require "table-ext"
+require "table_ext"
 
 
 -- Primitive methods (access the underlying representation)

@@ -2,9 +2,9 @@
 
 -- Modifies the existing bit module
 
-module ("bit-ext", package.seeall)
+module ("bit_ext", package.seeall)
 
-require "base-ext"
+require "base_ext"
 
 
 -- @func band: Extend to work on lists

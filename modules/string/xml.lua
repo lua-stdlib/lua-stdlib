@@ -2,8 +2,8 @@
 
 module ("string.xml", package.seeall)
 
-require "base-ext"
-require "rex-ext"
+require "base_ext"
+require "rex_ext"
 
 
 -- @func string.writeXML: write a table as XML

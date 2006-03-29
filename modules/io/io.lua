@@ -2,7 +2,7 @@
 
 module ("io.io", package.seeall)
 
-require "base-ext"
+require "base_ext"
 
 
 -- @func io.readLines: Read a file into a list of lines and close it
