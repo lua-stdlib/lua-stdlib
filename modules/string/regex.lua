@@ -75,7 +75,7 @@ function string.split (sep, s)
     s, sep = sep, "%s+"
   end
   local l, n = {}, 0
-  for m, _, p in string.gfind (s, "(.-)(" .. sep .. ")()") do
+  for m, _, p in string.gmatch (s, "(.-)(" .. sep .. ")()") do
     n = p
     table.insert (l, m)
   end
