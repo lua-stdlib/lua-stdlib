@@ -45,7 +45,8 @@ Bug reports and code contributions
 Please make bug reports on LuaForge (see URL at top of file).
 
 There is also a mailing list for discussing the libraries,
-stdlib@lists.luaforge.net. You can subscribe on the project page.
+stdlib-users@lists.luaforge.net. You can subscribe on the project
+page.
 
 These libraries are maintained and extended by their users. If you
 have some code you think would be useful in the libraries, please
