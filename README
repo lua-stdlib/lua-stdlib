@@ -13,7 +13,8 @@ itself). There is no warranty.
 Installation
 ------------
 
-The archive should be unpacked somewhere on LUA_PATH.
+Copy the contents of the modules directory into a location on your
+LUA_PATH.
 
 
 Use
