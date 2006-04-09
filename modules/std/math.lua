@@ -2,9 +2,9 @@
 
 -- Adds to the existing math module
 
-module ("math_ext", package.seeall)
+module ("std.math", package.seeall)
 
-require "base_ext"
+require "std.base"
 
 
 -- Calculate bits in an integer

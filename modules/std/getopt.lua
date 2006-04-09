@@ -1,12 +1,12 @@
 -- getopt
 -- Simplified getopt, based on Svenne Panne's Haskell GetOpt
 
-module ("getopt", package.seeall)
+module ("std.getopt", package.seeall)
 
-require "base_ext"
-require "string_ext"
-require "object"
-require "io_ext"
+require "std.base"
+require "std.string"
+require "std.object"
+require "std.io"
 
 
 -- TODO: Sort out the packaging. Option is tedious to type, but

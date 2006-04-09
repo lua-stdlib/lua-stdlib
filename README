@@ -23,13 +23,17 @@ Use
 The libraries are divided into categories. Individual libraries may be
 loaded with e.g.
 
-require "std.io.getopt"
+  require "std.getopt"
 
-or the entire library with
+and each library will automatically load any other libraries it needs.
+You can also load the entire library with
 
-require "std"
+  require "std"
 
-Each library will automatically load any other libraries it needs.
+In this case, all the std libraries will be injected into the global
+environment, so that for example std.getopt functions will also be
+available under getopt. This does not affect std libraries that
+already extend others (e.g. std.string and std.io).
 
 The libraries are documented in a LuaDoc-like style, and HTML
 documentation is produced by the included ldoc script. (There's

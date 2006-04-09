@@ -13,21 +13,21 @@
 
 cat \
   std.lua \
-  base_ext.lua \
-  assert_ext.lua \
-  debug_ext.lua \
-  table_ext.lua \
-  list.lua \
-  object.lua \
-  lcs.lua \
-  string_ext.lua \
-  xml.lua \
-  rex_ext.lua \
-  math_ext.lua \
-  bit_ext.lua \
-  io_ext.lua \
-  file.lua \
-  getopt.lua \
-  set.lua \
-  parser.lua \
-  mbox.lua
+  std/base.lua \
+  std/assert.lua \
+  std/debug.lua \
+  std/table.lua \
+  std/list.lua \
+  std/object.lua \
+  std/lcs.lua \
+  std/string.lua \
+  std/xml.lua \
+  std/rex.lua \
+  std/math.lua \
+  std/bit.lua \
+  std/io.lua \
+  std/file.lua \
+  std/getopt.lua \
+  std/set.lua \
+  std/parser.lua \
+  std/mbox.lua

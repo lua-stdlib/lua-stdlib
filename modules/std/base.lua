@@ -1,11 +1,11 @@
 -- @module Base
 -- Adds to the existing global functions
 
-module ("base_ext", package.seeall)
+module ("std.base", package.seeall)
 
-require "table_ext"
-require "list"
-require "string_ext"
+require "std.table"
+require "std.list"
+require "std.string"
 
 
 -- @func metamethod: Return given metamethod, if any, or nil

@@ -1,9 +1,9 @@
 -- @module assert
 -- Assertions and warnings
 
-module ("assert_ext", package.seeall)
+module ("std.assert", package.seeall)
 
-require "io_ext"
+require "std.io"
 
 
 -- @func assert: Extend to allow formatted arguments

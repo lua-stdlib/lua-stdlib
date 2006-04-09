@@ -1,9 +1,9 @@
 -- @module List
 
-module ("list", package.seeall)
+module ("std.list", package.seeall)
 
-require "base_ext"
-require "table_ext"
+require "std.base"
+require "std.table"
 
 
 -- @func cons: Prepend an item to a list

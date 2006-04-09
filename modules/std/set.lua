@@ -1,10 +1,10 @@
 -- @module set
 -- Sets
 
-module ("set", package.seeall)
+module ("std.set", package.seeall)
 
-require "object"
-require "table_ext"
+require "std.object"
+require "std.table"
 
 
 -- Primitive methods (access the underlying representation)

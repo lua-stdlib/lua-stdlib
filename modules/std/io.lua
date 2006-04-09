@@ -1,8 +1,8 @@
 -- I/O
 
-module ("io_ext", package.seeall)
+module ("std.io", package.seeall)
 
-require "base_ext"
+require "std.base"
 
 
 -- @func io.readLines: Read a file into a list of lines and close it

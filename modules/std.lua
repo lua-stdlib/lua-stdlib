@@ -11,23 +11,30 @@
 -- TODO: precompile and make import check for a .lc version of
 --   each file, and load it if it's newer than the .lua version.
 
---module ("std", package.seeall)
+module ("std", package.seeall)
 
-require "base_ext"
-require "assert_ext"
-require "debug_ext"
-require "table_ext"
-require "list"
-require "object"
-require "lcs"
-require "string_ext"
-require "xml"
-require "rex_ext"
-require "math_ext"
-require "bit_ext"
-require "io_ext"
-require "file"
-require "getopt"
-require "set"
-require "parser"
-require "mbox"
+require "std.base"
+require "std.assert"
+require "std.debug"
+require "std.table"
+require "std.list"
+require "std.object"
+require "std.lcs"
+require "std.string"
+require "std.xml"
+require "std.rex"
+require "std.math"
+require "std.bit"
+require "std.io"
+require "std.file"
+require "std.getopt"
+require "std.set"
+require "std.parser"
+require "std.mbox"
+
+-- Lift std libraries into the global environment
+for i, v in pairs (std) do
+  if _G[i] == nil then
+    _G[i] = v
+  end
+end

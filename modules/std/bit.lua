@@ -2,10 +2,10 @@
 
 -- Modifies the existing bit module
 
-module ("bit_ext", package.seeall)
+module ("std.bit", package.seeall)
 
 require "bit"
-require "base_ext"
+require "std.base"
 
 
 -- @func band: Extend to work on lists

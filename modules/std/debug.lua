@@ -2,10 +2,10 @@
 
 -- Adds to the existing debug module
 
-module ("debug_ext", package.seeall)
+module ("std.debug", package.seeall)
 
-require "io_ext"
-require "string_ext"
+require "std.io"
+require "std.string"
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
 -- table with the following members:

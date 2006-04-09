@@ -1,9 +1,9 @@
 -- @module parser
 -- Parser generator
 
-module ("parser", package.seeall)
+module ("std.parser", package.seeall)
 
-require "object"
+require "std.object"
 
 
 -- A parser is created by

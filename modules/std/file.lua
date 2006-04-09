@@ -1,6 +1,6 @@
 -- File
 
-module ("file", package.seeall)
+module ("std.file", package.seeall)
 
 
 -- @func io.length: Find the length of a file

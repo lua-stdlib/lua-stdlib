@@ -4,7 +4,7 @@
 -- http://www.ics.uci.edu/~eppstein/161/960229.html
 -- Lecture notes by David Eppstein, eppstein@ics.uci.edu
 
-module ("algorithm.lcs", package.seeall)
+module ("std.lcs", package.seeall)
 
 -- The interface provided by this module is a little unwieldy at first
 -- glance, but is quite easy to use: the best way is probably to

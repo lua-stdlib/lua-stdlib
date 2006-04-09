@@ -1,6 +1,6 @@
 -- Regular expressions
 
-module ("rex_ext", package.seeall)
+module ("std.rex", package.seeall)
 
 -- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
 require "rex_pcre" -- global

@@ -1,8 +1,8 @@
 -- String
 
-module ("string_ext", package.seeall)
+module ("std.string", package.seeall)
 
-require "lcs"
+require "std.lcs"
 
 
 -- TODO: Pretty printing
