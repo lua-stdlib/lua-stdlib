@@ -3,7 +3,7 @@
 module ("string.string", package.seeall)
 
 require "string.regex"
-require "algorithm.lcs"
+require "lcs"
 
 
 -- @func string.concat: Give a name to .. for strings
