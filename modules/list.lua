@@ -127,14 +127,13 @@ end
 --                     ln[1] ... ln[table.getn (ln)]}
 function concat (...)
   local r = {}
-  for _, l in ipairs (arg) do
+  for _, l in ipairs ({...}) do
     for _, v in ipairs (l) do
       table.insert (r, v)
     end
   end
   return r
 end
-flatten = concat
 
 -- @func reverse: Reverse a list
 --   @param l: list
