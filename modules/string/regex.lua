@@ -13,7 +13,7 @@ module ("string.regex", package.seeall)
 --   @param capt: table of captures
 function string.findl (s, p, init, plain)
   local function pack (from, to, ...)
-    return from, to, arg
+    return from, to, {...}
   end
   return pack (string.find (s, p, init, plain))
 end
@@ -24,7 +24,7 @@ end
 --   @param [init]: start position [1]
 --   @param [plain]: inhibit magic characters [nil]
 -- @returns
---   @param t: table of {from=from, to=to; capt = {captures}}
+--   @param t: table of {from, to; capt = {captures}}
 function string.finds (s, p, init, plain)
   init = init or 1
   local t = {}
@@ -32,7 +32,7 @@ function string.finds (s, p, init, plain)
   repeat
     from, to, r = string.findl (s, p, init, plain)
     if from ~= nil then
-      table.insert (t, {from = from, to = to, capt = r})
+      table.insert (t, {from, to, capt = r})
       init = to + 1
     end
   until not from
@@ -72,14 +72,17 @@ end
 --   @param l: list of strings
 function string.split (sep, s)
   if s == nil then
-    s, sep = sep, "%s+"
+    s, sep = sep, "%s+" -- TODO: make the default pattern configurable by the regex library
   end
-  local l, n = {}, 0
-  for m, _, p in string.gmatch (s, "(.-)(" .. sep .. ")()") do
-    n = p
-    table.insert (l, m)
+  -- string.finds gets a list of {from, to, capt = {}} lists; we then
+  -- flatten the result, discarding the captures, add 0 (1 before the
+  -- first character) to the start and 0 (1 after the last character)
+  -- to the end, and flatten the result again.
+  local pairs = list.concat ({0}, list.concat (unpack (string.finds(s, sep))), {0})
+  local l = {}
+  for i = 1, table.getn (pairs), 2 do
+    table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
   end
-  table.insert (l, string.sub (s, n))
   return l
 end
 
