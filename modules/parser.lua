@@ -4,7 +4,6 @@
 module ("parser", package.seeall)
 
 require "object"
-require "io.io"
 
 
 -- A parser is created by

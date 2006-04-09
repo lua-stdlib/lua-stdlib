@@ -1,6 +1,6 @@
 -- File
 
-module ("io.file", package.seeall)
+module ("file", package.seeall)
 
 
 -- @func io.length: Find the length of a file
@@ -47,4 +47,17 @@ function io.dirname (p)
     end
     return q
   end
+end
+
+-- @func readDir: Make a list of a directory's contents
+--   @param d: directory
+-- @returns
+--   @param l: list of files
+function io.readDir (d)
+  local l = string.split ("\n",
+                          string.chomp (shell ("ls -aU " .. d ..
+                                               " 2>/dev/null")))
+  table.remove (l, 1) -- remove . and ..
+  table.remove (l, 1)
+  return l
 end

@@ -29,9 +29,7 @@ cat \
   math_ext.lua \
   bit_ext.lua \
   io_ext.lua \
-    io/io.lua \
-    io/env.lua \
-    io/file.lua \
+  file.lua \
   getopt.lua \
   set.lua \
   parser.lua \

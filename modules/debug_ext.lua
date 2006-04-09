@@ -4,7 +4,7 @@
 
 module ("debug_ext", package.seeall)
 
-require "io.io"
+require "io_ext"
 require "string.string"
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a

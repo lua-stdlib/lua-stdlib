@@ -6,7 +6,7 @@ module ("getopt", package.seeall)
 require "base_ext"
 require "string_ext"
 require "object"
-require "io.env"
+require "io_ext"
 
 
 -- TODO: Sort out the packaging. Option is tedious to type, but

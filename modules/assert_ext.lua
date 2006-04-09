@@ -3,7 +3,7 @@
 
 module ("assert_ext", package.seeall)
 
-require "io.io"
+require "io_ext"
 
 
 -- @func assert: Extend to allow formatted arguments
