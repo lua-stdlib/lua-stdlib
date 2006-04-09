@@ -113,8 +113,9 @@ end
 --   @param arg: objects to print
 local _print = print
 function _G.print (...)
-  for i, v in ipairs (arg) do
-    arg[i] = tostring (v)
+  local arg = {...}
+  for i = 1, select ("#", ...) do
+    arg[i] = tostring (arg[i])
   end
   _print (unpack (arg))
 end
@@ -229,7 +230,7 @@ end
 -- @returns
 --   @param l: list
 function _G.pack (...)
-  return arg
+  return {...}
 end
 
 -- @func bind: Partially apply a function
@@ -238,9 +239,9 @@ end
 -- @returns
 --   @param g: function with ai already bound
 function _G.bind (f, ...)
-  local fix = arg
+  local fix = {...}
   return function (...)
-           return f (unpack (list.concat (fix, arg)))
+           return f (unpack (list.concat (fix, {...})))
          end
 end
 
