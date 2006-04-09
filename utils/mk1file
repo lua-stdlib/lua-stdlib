@@ -32,7 +32,7 @@ cat \
     io/io.lua \
     io/env.lua \
     io/file.lua \
-    io/getopt.lua \
+  getopt.lua \
   set.lua \
   parser.lua \
   mbox.lua
