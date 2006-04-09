@@ -25,10 +25,6 @@ loaded with e.g.
 
 require "std.io.getopt"
 
-alternatively a whole category may be loaded with
-
-require "std.string"
-
 or the entire library with
 
 require "std"
