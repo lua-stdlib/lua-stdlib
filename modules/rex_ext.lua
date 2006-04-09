@@ -2,7 +2,9 @@
 
 module ("rex_ext", package.seeall)
 
-require "rex" -- global
+-- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
+require "rex_pcre" -- global
+_G.rex = rex_pcre
 
 -- Default constructor (use PCREs)
 setmetatable (rex, {__call =
@@ -17,7 +19,7 @@ setmetatable (rex, {__call =
 --   @param [cf]: compile-time flags for the regex
 --   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
--- returns
+-- @returns
 --   @param from, to: start and end points of match, or nil
 --   @param [match, ...]: substring matches
 function rex.find (s, p, st, cf, lo, ef)
@@ -28,6 +30,37 @@ function rex.find (s, p, st, cf, lo, ef)
   return from, to
 end
 
+-- @function gmatch: rex:gmatch in Lua
+--   @param self: compiled regex
+--   @param s: string to search
+--   @param f: function to call for each match
+--     @param m: matched string
+--     @param t: table of captures
+--   @returns
+--     @param quit: true to stop gmatch immediately
+--   @param [n]: maximum number of replacements [all]
+--   @param [ef]: execution flags for the regex
+-- @returns
+--   @param reps: number of replacements made
+getmetatable (rex ("")).gmatch =
+  function (self, s, f, n, ef)
+    local reps, st = 0, 0
+    local from, to, cap
+    while (not n) or reps < n do
+      local from, to, cap = self:match (s, st, ef)
+      if from then
+        reps = reps + 1
+        if f (string.sub (s, from, to), cap) then
+          break
+        end
+        st = to + 1
+      else
+        break
+      end
+    end
+    return reps
+  end
+
 -- @function rex.gsub: string.gsub for rex
 --   @param s: string to search
 --   @param p: pattern to find
@@ -36,20 +69,21 @@ end
 --   @param [cf]: compile-time flags for the regex
 --   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
--- returns
+-- @returns
 --   @param r: string with replacements
 --   @param reps: number of replacements made
 function rex.gsub (s, p, f, n, cf, lo, ef)
-  local ncap -- number of captures; used as an upvalue for repfun
   if type (f) == "string" then
     local rep = f
     f = function (...)
+          local arg = {...}
           local ret = rep
           local function repfun (percent, d)
-            if math.mod (string.len (percent), 2) == 1 then
+            if #percent % 2 == 1 then
               d = tonumber(d)
-              assert (d > 0 and d <= ncap, "invalid capture index")
-              d = arg[d] or "" -- capture can be false
+              d = arg [d == 0 and 1 or d]
+              assert (d ~= nil, "invalid capture index")
+              d = d or "" -- capture can be false
               percent = string.sub (percent, 2)
             end
             return percent .. d
@@ -58,25 +92,38 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           ret = string.gsub (ret, "%%(.)", "%1")
           return ret
         end
+  elseif type (f) == "table" then
+    local rep = f
+    f = function (s)
+          return rep[s]
+        end
   end
   local reg = rex (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, ef)
-    if not from then break; end
+    if not from then
+      break
+    end
     table.insert (r, string.sub (s, st, from - 1))
-    ncap = table.getn (cap)
-    if ncap == 0 then
+    if #cap == 0 then
       cap[1] = string.sub (s, from, to)
     end
-    local rep = f (unpack (cap))
-    rep = (type(rep)=="string" or type(rep)=="number") and rep or ""
+    local rep = f (unpack (cap)) or string.sub (s, from, to)
+    local reptype = type (rep)
+    if reptype ~= "string" and reptype ~= "number" then
+      error ("invalid replacement value (a " .. reptype .. ")")
+    end
     table.insert (r, rep)
     reps = reps + 1
     if st <= to then
       st = to + 1
-    elseif st <= string.len (s) then -- advance by 1 char (not replaced)
+      if from > to then -- empty string matched
+        st = from + 1
+        table.insert (r, string.sub (s, from, from))
+      end
+    elseif st <= #s then -- advance by 1 char (not replaced)
       table.insert (r, string.sub (s, st, st))
       st = st + 1
     else
@@ -93,7 +140,7 @@ end
 if type (_DEBUG) == "table" and _DEBUG.std then
   
   local function gsubPCRE(str, pat, repl, n)
-    return generic_gsub(rex.newPCRE, str, pat, repl, n)
+    return generic_gsub(rex_pcre.newPCRE, str, pat, repl, n)
   end
 
   local t_esc = {
@@ -135,15 +182,15 @@ if type (_DEBUG) == "table" and _DEBUG.std then
     end
 
     local function getnum ()
-      local _, _, num = string.find (s, "^\\(%d%d?%d?)", ind)
+      local num = string.match (s, "^\\(%d%d?%d?)", ind)
       if num then
-        ind = ind + string.len (num)
+        ind = ind + #num
         return string.format ("\\x%02X", num)
       end
     end
 
     local out, state = "", "normal"
-    while ind < string.len (s) do
+    while ind < #s do
       local ch = getc ()
       if state == "normal" then
         if ch == "%" then
@@ -208,9 +255,9 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local set3 = {
     name = "Set3",
     --  { s,     p,      f,    n,     res1,  res2 },
-    { "abc", "a",    "%0", false, false, 0 }, -- test invalid capture number
-    { "abc", "a",    "%1", false, false, 0 },
-    { "abc", "[ac]", "%1", false, false, 0 },
+    { "abc", "a",    "%0", false, "abc", 1 }, -- test (in)valid capture number
+    { "abc", "a",    "%1", false, "abc", 1 },
+    { "abc", "[ac]", "%1", false, "abc", 2 },
     { "abc", "(a)",  "%1", false, "abc", 1 },
     { "abc", "(a)",  "%2", false, false, 0 },
   }
@@ -233,21 +280,34 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
   local function frep1(...) end                             -- returns nothing
   local function frep2(...) return "#" end                  -- ignores arguments
-  local function frep3(...) return table.concat(arg, ",") end -- "normal"
-  local function frep4(...) return {} end                   -- non-string return
+  local function frep3(...) return table.concat({...}, ",") end -- "normal"
+  local function frep4(...) return {} end                   -- invalid return type
 
   subj = "a2c3"
   local set5 = {
     name = "Set5",
     --  { s,      p,          f,     n,     res1,        res2 },
-    { subj, "a(.)c(.)", frep1, false, "",          1 },
+    { subj, "a(.)c(.)", frep1, false, subj,        1 },
     { subj, "a(.)c(.)", frep2, false, "#",         1 },
     { subj, "a(.)c(.)", frep3, false, "2,3",       1 },
     { subj, "a.c.",     frep3, false, subj,        1 },
     { subj, "",         frep1, false, subj,        5 },
     { subj, "",         frep2, false, "#a#2#c#3#", 5 },
     { subj, "",         frep3, false, subj,        5 },
-    { subj, subj,       frep4, false, "",          1 },
+    { subj, subj,       frep4, false, false,       0 },
+  }
+
+  local tab1, tab2, tab3 = {}, { ["2"] = 56 }, { ["2"] = {} }
+  subj = "a2c3"
+  local set6 = {
+    name = "Set6",
+    --  { s,      p,        f,     n,     res1,  res2 },
+    { subj, "a(.)c(.)", tab1,  false, subj,  1 },
+    { subj, "a(.)c(.)", tab2,  false, "56",  1 },
+    { subj, "a(.)c(.)", tab3,  false, false, 0 },
+    { subj, "a.c.",     tab1,  false, subj,  1 },
+    { subj, "a.c.",     tab2,  false, subj,  1 },
+    { subj, "a.c.",     tab3,  false, subj,  1 },
   }
 
   subj = ""
@@ -414,6 +474,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
       run_test (string.gsub, "string.gsub", function (p) return p end)
       run_test (rex.gsub,    "rex.gsub",    PatternLua2Pcre)
+      run_test (gsubPCRE,    "gsubPCRE",    PatternLua2Pcre)
     end
   end
 
@@ -422,6 +483,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   gsub_test (set3)
   gsub_test (set4)
   gsub_test (set5)
+  gsub_test (set6)
 
   prepare_set (set7)
   gsub_test (set7)
