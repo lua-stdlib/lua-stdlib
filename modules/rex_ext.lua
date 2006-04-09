@@ -489,3 +489,14 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   gsub_test (set7)
 
 end
+
+
+-- TODO: @function string.checkRegex: check regex is valid
+--   @param p: regex pattern
+-- @returns
+--   @param f: true if regex is valid, or nil otherwise
+
+-- TODO: @function rex.check{Posix,PCRE}Regex: check POSIX regex is valid
+--   @param p: POSIX regex pattern
+-- @returns
+--   @param f: true if regex is valid, or nil otherwise

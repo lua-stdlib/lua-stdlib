@@ -5,7 +5,7 @@
 module ("debug_ext", package.seeall)
 
 require "io_ext"
-require "string.string"
+require "string_ext"
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
 -- table with the following members:

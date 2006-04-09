@@ -5,8 +5,7 @@ module ("base_ext", package.seeall)
 
 require "table_ext"
 require "list"
-require "string.string"
-require "string.regex"
+require "string_ext"
 
 
 -- @func metamethod: Return given metamethod, if any, or nil

@@ -21,9 +21,6 @@ cat \
   object.lua \
   lcs.lua \
   string_ext.lua \
-    string/string.lua \
-    string/formatting.lua \
-    string/regex.lua \
   xml.lua \
   rex_ext.lua \
   math_ext.lua \
