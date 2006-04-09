@@ -1,0 +1,38 @@
+#! /bin/sh
+
+# Make a single file that can be used with dofile and a redefinition
+# of require such as:
+
+# function require (f)
+#   package.loaded (f) = true
+# end
+
+# FIXME: This list should be generated automatically from inspection
+# of the sources, by grepping for "^require" and following the
+# dependency tree, starting at std.lua.
+
+cat \
+  std.lua \
+  base_ext.lua \
+  assert_ext.lua \
+  debug_ext.lua \
+  table_ext.lua \
+  list.lua \
+  object.lua \
+  lcs.lua \
+  string_ext.lua \
+    string/string.lua \
+    string/formatting.lua \
+    string/regex.lua \
+  xml.lua \
+  rex_ext.lua \
+  math_ext.lua \
+  bit_ext.lua \
+  io_ext.lua \
+    io/io.lua \
+    io/env.lua \
+    io/file.lua \
+    io/getopt.lua \
+  set.lua \
+  parser.lua \
+  mbox.lua
