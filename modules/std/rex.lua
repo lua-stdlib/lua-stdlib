@@ -44,8 +44,7 @@ end
 --   @param reps: number of replacements made
 getmetatable (rex ("")).gmatch =
   function (self, s, f, n, ef)
-    local reps, st = 0, 0
-    local from, to, cap
+    local reps, st = 0, 1
     while (not n) or reps < n do
       local from, to, cap = self:match (s, st, ef)
       if from then
