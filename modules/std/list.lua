@@ -43,6 +43,19 @@ function mapWith (f, l)
   return map (compose (f, unpack), l)
 end
 
+-- @func list.filterItem: filter primitive for table.process
+--   @f: predicate
+-- @returns
+--   @g: function to pass to process to filter a single item
+function filterItem (p)
+  return function (a, i, v)
+           if p (v) then
+             table.insert (a, v)
+           end
+           return a
+         end
+end
+
 -- @func filter: Filter a list according to a predicate
 --   @param p: predicate
 --     @param a: argument
@@ -53,17 +66,7 @@ end
 --   @param m: result list containing elements e of l for which p (e)
 --     is true
 function filter (p, l)
-  return table.process (ipairs,
-                        function (p)
-                          return function (a, i, v)
-                                   if p (v) then
-                                     table.insert (a, v)
-                                   end
-                                   return a
-                                 end
-                        end,
-                        {},
-                        l)
+  return table.process (ipairs, list.filterItem, {}, l)
 end
 
 -- @func slice: Slice a list

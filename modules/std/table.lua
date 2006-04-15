@@ -128,6 +128,19 @@ function table.mapItem (f)
          end
 end
 
+-- @func table.filterItem: filter primitive for table.process
+--   @f: predicate
+-- @returns
+--   @g: function to pass to process to filter a single item
+function table.mapItem (p)
+  return function (a, i, v)
+           if p (v) then
+             a[i] = v
+           end
+           return a
+         end
+end
+
 -- @func table.foldlItem: foldl primitive for table.process
 --   @f: function
 -- @returns
@@ -155,6 +168,15 @@ end
 --   @param m: result table {f (t[i1])...}
 function table.map (f, t)
   return table.process (pairs, table.mapItem (f), {}, t)
+end
+
+-- @func table.filter: Filter a table with a predicate
+--   @param p: predicate
+--   @param t: table
+-- @returns
+--   @param m: result table containing elements e of t for which p (e)
+function table.filter (f, t)
+  return table.process (pairs, table.filterItem (f), {}, t)
 end
 
 -- @func table.clone: Make a shallow copy of a table, including any
