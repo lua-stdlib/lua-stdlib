@@ -103,8 +103,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
   local st = 1
   local r, reps = {}, 0
   local retry, efr
-  efr = bit.bor (ef or 0, rex.NOTEMPTY)
-  efr = bit.bor (efr, rex.ANCHORED)
+  efr = bit.bor (ef or 0, rex.NOTEMPTY, rex.ANCHORED)
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, retry and efr or ef)
     if from then
@@ -114,7 +113,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
       end
       local rep = f (unpack (cap)) or string.sub (s, from, to)
       local reptype = type (rep)
-      if reptype~="string" and reptype~="number" then
+      if reptype ~= "string" and reptype ~= "number" then
         error ("invalid replacement value (a " .. reptype .. ")")
       end
       table.insert (r, rep)
