@@ -12,6 +12,8 @@ setmetatable (rex, {__call =
                   return self.newPCRE (p, cf, lo)
                 end})
 
+rex:flags() -- add flags to rex namespace
+
 -- @function rex.find: string.find for rex library
 --   @param s: string to search
 --   @param p: pattern to find
@@ -100,33 +102,38 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
   local reg = rex (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
+  local retry, efr
+  efr = bit.bor (ef or 0, rex.NOTEMPTY)
+  efr = bit.bor (efr, rex.ANCHORED)
   while (not n) or reps < n do
-    local from, to, cap = reg:match (s, st, ef)
-    if not from then
-      break
-    end
-    table.insert (r, string.sub (s, st, from - 1))
-    if #cap == 0 then
-      cap[1] = string.sub (s, from, to)
-    end
-    local rep = f (unpack (cap)) or string.sub (s, from, to)
-    local reptype = type (rep)
-    if reptype ~= "string" and reptype ~= "number" then
-      error ("invalid replacement value (a " .. reptype .. ")")
-    end
-    table.insert (r, rep)
-    reps = reps + 1
-    if st <= to then
-      st = to + 1
-      if from > to then -- empty string matched
-        st = from + 1
-        table.insert (r, string.sub (s, from, from))
+    local from, to, cap = reg:match (s, st, retry and efr or ef)
+    if from then
+      table.insert (r, string.sub (s, st, from - 1))
+      if #cap == 0 then
+        cap[1] = string.sub (s, from, to)
       end
-    elseif st <= #s then -- advance by 1 char (not replaced)
-      table.insert (r, string.sub (s, st, st))
-      st = st + 1
+      local rep = f (unpack (cap)) or string.sub (s, from, to)
+      local reptype = type (rep)
+      if reptype~="string" and reptype~="number" then
+        error ("invalid replacement value (a " .. reptype .. ")")
+      end
+      table.insert (r, rep)
+      reps = reps + 1
+      if from <= to then
+        retry = false
+        st = to + 1
+     elseif st <= #s then -- retry from the matching point
+        retry = true
+        st = from
+      else break
+      end
     else
-      break
+      if retry and st <= #s then -- advance by 1 char (not replaced)
+        table.insert (r, string.sub (s, st, st))
+        st = st + 1
+        retry = false
+      else break
+      end
     end
   end
   table.insert (r, string.sub (s, st))
