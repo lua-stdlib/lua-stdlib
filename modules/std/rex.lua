@@ -121,10 +121,11 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
       if from <= to then
         retry = false
         st = to + 1
-     elseif st <= #s then -- retry from the matching point
+      elseif st <= #s then -- retry from the matching point
         retry = true
         st = from
-      else break
+      else
+        break
       end
     else
       if retry and st <= #s then -- advance by 1 char (not replaced)
