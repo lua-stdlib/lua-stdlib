@@ -132,7 +132,7 @@ end
 --   @f: predicate
 -- @returns
 --   @g: function to pass to process to filter a single item
-function table.mapItem (p)
+function table.filterItem (p)
   return function (a, i, v)
            if p (v) then
              a[i] = v
