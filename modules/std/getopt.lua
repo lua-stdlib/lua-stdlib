@@ -149,15 +149,18 @@ end
 
 
 -- @func usageInfo: produce usage info for the given options
---   @param.header: header string
---   @param.optDesc: option descriptors
---   @param.pageWidth: width to format to [78]
+--   @param header: header string
+--   @param optDesc: option descriptors
+--   @param pageWidth: width to format to [78]
 -- @returns
---   @param.mess: formatted string
+--   @param mess: formatted string
 function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
-  -- format the usage info for a single option
-  -- @returns {opts, desc}: options, description
+  -- @func formatOpt: format the usage info for a single option
+  --   @param opt: the Option table
+  -- @returns
+  --   @param opts: options
+  --   @param desc: description
   local function fmtOpt (opt)
     local function fmtName (o)
       return "-" .. o
