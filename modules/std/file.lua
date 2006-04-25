@@ -53,6 +53,7 @@ end
 --   @param d: directory
 -- @returns
 --   @param l: list of files
+-- TODO: rewrite to be POSIX
 function io.readDir (d)
   local l = string.split ("\n",
                           string.chomp (shell ("ls -aU " .. d ..
