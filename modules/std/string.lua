@@ -32,6 +32,12 @@ require "std.lcs"
 --               -> a                       Result
 
 
+-- TODO: Replace the string.* API so that pattern arguments always
+--   have their metamethods called, and if you call a function, e.g.
+--   string.gsub or string.find, it automatically does the right
+--   thing. The functions below should also be injected into the
+--   metatables so they can be called as functions or methods.
+
 -- @func string.concat: Give a name to .. for strings
 --   @param s1, s2, ..., sn: strings
 -- @returns
@@ -186,7 +192,7 @@ function string.numbertosi (n)
     [8] = "Y"
   }
   local t = string.format("% #.2e", n)
-  local _, _, m, e = string.find(t, ".(.%...)e(.+)")
+  local _, _, m, e = t:find(".(.%...)e(.+)")
   local man, exp = tonumber (m), tonumber (e)
   local siexp = math.floor (exp / 3)
   local shift = exp - siexp * 3
@@ -208,7 +214,7 @@ function string.findl (s, p, init, plain)
   local function pack (from, to, ...)
     return from, to, {...}
   end
-  return pack (string.find (s, p, init, plain))
+  return pack (s:find (p, init, plain))
 end
 
 -- @function string.finds: Do multiple string.find's on a string
