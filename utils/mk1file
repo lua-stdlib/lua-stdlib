@@ -1,11 +1,12 @@
 #! /bin/sh
 
-# Make a single file that can be used with dofile and a redefinition
-# of require such as:
+# Make a single file that can be used with dofile
 
-# function require (f)
-#   package.loaded (f) = true
-# end
+cat <<EOF
+function require (f)
+  package.loaded[f] = true
+end
+EOF
 
 # FIXME: This list should be generated automatically from inspection
 # of the sources, by grepping for "^require" and following the
