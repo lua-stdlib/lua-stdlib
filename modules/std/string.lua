@@ -74,12 +74,12 @@ function string.escapePattern (s)
 end
 
 -- @param string.escapeShell: Escape a string to be used as a shell token
--- Quotes spaces, parentheses and \s
+-- Quotes spaces, parentheses, brackets and \s
 --   @param s: string to process
 -- @returns
 --   @param s_: processed string
 function string.escapeShell (s)
-  return (string.gsub (s, "([ %(%)%\\])", "\\%1"))
+  return (string.gsub (s, "([ %(%)%\\%[%]])", "\\%1"))
 end
 
 -- @func string.ordinalSuffix: Return the English suffix for an ordinal
