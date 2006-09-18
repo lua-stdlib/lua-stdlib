@@ -13,7 +13,6 @@ EOF
 # dependency tree, starting at std.lua.
 
 cat \
-  std.lua \
   std/base.lua \
   std/assert.lua \
   std/debug.lua \
@@ -31,4 +30,5 @@ cat \
   std/getopt.lua \
   std/set.lua \
   std/parser.lua \
-  std/mbox.lua
+  std/mbox.lua \
+  std.lua # comes last to lift modules into global environment
