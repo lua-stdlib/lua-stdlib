@@ -3,6 +3,7 @@
 module ("std.io", package.seeall)
 
 require "std.base"
+require "posix"
 
 
 -- @func io.readLines: Read a file into a list of lines and close it
@@ -43,7 +44,9 @@ end
 -- @returns
 --   @param name_: file name with new suffix
 function io.changeSuffix (from, to, name)
-  return string.gsub (name, "%." .. from .. "$", "") .. "." .. to
+  return posix.dirname(name) .. "/" ..
+    string.gsub (posix.basename(name), "%." .. from .. "$", "") ..
+    "." .. to
 end
 
 -- @func io.addSuffix: Add a suffix to a filename if not already present
