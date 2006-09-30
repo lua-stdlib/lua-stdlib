@@ -33,22 +33,6 @@ function io.exists (f)
   end
 end
 
--- @func io.dirname: POSIX dirname
---   @param p: path
--- @returns
---   @param q: path with trailing /component removed, or . if none
-function io.dirname (p)
-  if not (string.find (p, "/")) then
-    return "."
-  else
-    local q = string.gsub (p, "/[^/]*/?$", "")
-    if q == "" then
-      q = "/"
-    end
-    return q
-  end
-end
-
 -- @func readDir: Make a list of a directory's contents
 --   @param d: directory
 -- @returns
