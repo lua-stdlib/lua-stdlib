@@ -32,17 +32,3 @@ function io.exists (f)
     return h ~= nil
   end
 end
-
--- @func readDir: Make a list of a directory's contents
---   @param d: directory
--- @returns
---   @param l: list of files
--- TODO: rewrite to be POSIX
-function io.readDir (d)
-  local l = string.split ("\n",
-                          string.chomp (shell ("ls -aU " .. d ..
-                                               " 2>/dev/null")))
-  table.remove (l, 1) -- remove . and ..
-  table.remove (l, 1)
-  return l
-end
