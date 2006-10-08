@@ -86,7 +86,7 @@ function getOpt (argIn, options)
       parseOpt (opt, arg)
     end
   end
-  argOut.n = table.getn (argOut)
+  argOut.n = #argOut
   return argOut, optOut, errors
 end
 
@@ -195,7 +195,7 @@ function usageInfo (header, optDesc, pageWidth)
            end
   end
   local optText = ""
-  if table.getn (optDesc) > 0 then
+  if #optDesc > 0 then
     local cols = list.unzip (list.map (fmtOpt, optDesc))
     local width
     cols[1], width = sameLen (cols[1])
@@ -238,7 +238,7 @@ end
 -- adds -version/-v and -help/-h/-? automatically; stops program
 -- if there was an error or -help was used
 function processArgs ()
-  local totArgs = table.getn (arg)
+  local totArgs = #arg
   options = Options (list.concat (options or {},
                                   {Option {{"version", "v"},
                                       "show program version"},
@@ -250,15 +250,15 @@ function processArgs ()
   if (opt.version or opt.help) and prog.banner then
     io.stderr:write (prog.banner .. "\n")
   end
-  if table.getn (errors) > 0 or opt.help then
+  if #errors > 0 or opt.help then
     local name = prog.name
     prog.name = nil
-    if table.getn (errors) > 0 then
+    if #errors > 0 then
       warn (table.concat (errors, "\n") .. "\n")
     end
     prog.name = name
     getopt.dieWithUsage ()
-  elseif opt.version and table.getn (arg) == 0 then
+  elseif opt.version and #arg == 0 then
     os.exit ()
   end
 end
@@ -280,7 +280,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
   function test (cmdLine)
     local nonOpts, opts, errors = getopt.getOpt (cmdLine, options)
-    if table.getn (errors) == 0 then
+    if #errors == 0 then
       print ("options=" .. tostring (opts) ..
              "  args=" .. tostring (nonOpts) .. "\n")
     else

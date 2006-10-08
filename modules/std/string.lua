@@ -121,7 +121,7 @@ end
 --   @param s: formatted string
 local _format = string.format
 function string.format (f, ...)
-  if table.getn (arg) == 0 then
+  if #arg == 0 then
     return f
   else
     return _format (f, unpack (arg))
@@ -279,7 +279,7 @@ function string.split (sep, s)
   -- to the end, and flatten the result again.
   local pairs = list.concat ({0}, list.concat (unpack (string.finds(s, sep))), {0})
   local l = {}
-  for i = 1, table.getn (pairs), 2 do
+  for i = 1, #pairs, 2 do
     table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
   end
   return l

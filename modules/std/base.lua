@@ -267,7 +267,7 @@ end
 --   @returns
 --     @param f1 (...fn (args)...)
 function _G.compose (...)
-  local fns, n = arg, table.getn (arg)
+  local fns, n = arg, #arg
   return function (...)
            for i = n, 1, -1 do
              arg = {fns[i] (unpack (arg))}
@@ -294,7 +294,7 @@ end
 --     @param i: index (n - 1)
 --     @param v: value (t[n - 1))
 --   @param t: the table, as above
---   @param n: table.getn (t) + 1
+--   @param n: #t + 1
 function _G.ripairs (t)
   return function (t, n)
            n = n - 1
@@ -304,7 +304,7 @@ function _G.ripairs (t)
              return n, t[n]
            end
          end,
-  t, table.getn (t) + 1
+  t, #t + 1
 end
 
 -- @func treeIter: tree iterator
@@ -366,7 +366,7 @@ end
 --     or in a list
 function _G.listable (f)
   return function (...)
-           if table.getn (arg) == 1 and type (arg[1]) == "table" then
+           if #arg == 1 and type (arg[1]) == "table" then
              return f (unpack (arg[1]))
            else
              return f (unpack (arg))

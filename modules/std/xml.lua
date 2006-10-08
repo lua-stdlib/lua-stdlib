@@ -31,7 +31,7 @@ function string.writeXML (t, indent, spacing)
                          end
                        end
                      end
-                     if table.getn (x) == 0 then
+                     if #x == 0 then
                        s = s .. " /"
                      end
                      s = s .. ">"
@@ -41,7 +41,7 @@ function string.writeXML (t, indent, spacing)
                  end,
                  function (x)
                    spacing = string.gsub (spacing, indent .. "$", "")
-                   if x.tag and table.getn (x) > 0 then
+                   if x.tag and #x > 0 then
                      return spacing .. "</" .. x.tag .. ">"
                    end
                    return ""

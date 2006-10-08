@@ -28,7 +28,7 @@ end
 --   @param f: function
 --   @param l: list
 -- @returns
---   @param m: result list {f (l[1]) ... f (l[table.getn (l)])}
+--   @param m: result list {f (l[1]) ... f (l[#l])}
 function map (f, l)
   return table.process (ipairs, table.mapItem (f), {}, l)
 end
@@ -38,7 +38,7 @@ end
 --   @param ls: list of lists
 -- @returns
 --   @param m: result list {f (unpack (ls[1]))) ...
---     f (unpack (ls[table.getn (ls)]))}
+--     f (unpack (ls[#ls]))}
 function mapWith (f, l)
   return map (compose (f, unpack), l)
 end
@@ -72,13 +72,13 @@ end
 -- @func slice: Slice a list
 --   @param l: list
 --   @param [from], @param [to]: start and end of slice
---     from defaults to 1 and to to table.getn (l);
+--     from defaults to 1 and to to #l;
 --     negative values count from the end
 -- @returns
 --   @param m: {l[from] ... l[to]}
 function slice (l, from, to)
   local m = {}
-  local len = table.getn (l)
+  local len = #l
   from = from or 1
   to = to or len
   if from < 0 then
@@ -96,7 +96,7 @@ end
 -- @func tail: Return a list with its first element removed
 --   @param l: list
 -- @returns
---   @param m: {l[2] ... l[table.getn (l)]}
+--   @param m: {l[2] ... l[#l]}
 function tail (l)
   return slice (l, 2)
 end
@@ -126,8 +126,8 @@ end
 -- @func concat: Concatenate lists
 --   @param l1, l2, ... ln: lists
 -- @returns
---   @param r: result {l1[1] ... l1[table.getn (l1)], ... ,
---                     ln[1] ... ln[table.getn (ln)]}
+--   @param r: result {l1[1] ... l1[#l1], ... ,
+--                     ln[1] ... ln[#ln]}
 function concat (...)
   local r = {}
   for _, l in ipairs ({...}) do
@@ -141,10 +141,10 @@ end
 -- @func reverse: Reverse a list
 --   @param l: list
 -- @returns
---   @param m: list {l[table.getn (l)] ... l[1]}
+--   @param m: list {l[#l] ... l[1]}
 function reverse (l)
   local m = {}
-  for i = table.getn (l), 1, -1 do
+  for i = #l, 1, -1 do
     table.insert (m, l[i])
   end
   return m
@@ -156,13 +156,13 @@ end
 --   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
 -- Also give aliases zip and unzip
 function transpose (ls)
-  local ms, len = {}, table.getn (ls)
+  local ms, len = {}, #ls
   for i = 1, math.max (map (table.getn, ls)) do
     ms[i] = {}
     for j = 1, len do
       ms[i][j] = ls[j][i]
     end
-    ms[i].n = table.getn (ms[i])
+    ms[i].n = #ms[i]
   end
   return ms
 end
@@ -173,8 +173,8 @@ unzip = transpose
 --   @param f: function
 --   @param ls: list of lists
 -- @returns
---   @param m: {f (ls[1][1] ... ls[table.getn (ls)][1]) ...
---              f (ls[1][N] ... ls[table.getn (ls)][N])
+--   @param m: {f (ls[1][1] ... ls[#ls][1]) ...
+--              f (ls[1][N] ... ls[#ls][N])
 --     where N = max {map (table.getn, ls)}
 function zipWith (f, ls)
   return mapWith (f, zip (ls))

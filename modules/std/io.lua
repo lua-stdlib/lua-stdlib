@@ -79,7 +79,7 @@ end
 --     @param name: the name of the file being read
 --     @param i: the number of the argument
 function io.processFiles (f)
-  if table.getn (arg) == 0 then
+  if #arg == 0 then
     table.insert (arg, "-")
   end
   for i, v in ipairs (arg) do
