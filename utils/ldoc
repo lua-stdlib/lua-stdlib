@@ -1,7 +1,7 @@
 #! /usr/bin/env lua
 prog = {
   name = "ldoc",
-  banner = "ldoc 0.21 (22 Oct 2003) by Reuben Thomas (rrt@sc3d.org)",
+  banner = "ldoc $Revision: 1.5 $ by Reuben Thomas (rrt@sc3d.org)",
   purpose = "Extract and process the comments from Lua source files",
 }
 
@@ -79,7 +79,7 @@ function ldoc (name, _)
   writeLineOrNothing (h, rule.header)
   for i = 1, table.getn (block) do
     writeLineOrNothing (h, rule.prePara)
-    list.map (curry (io.writeLine, h), block[i])
+    list.map (bind (io.writeLine, h), block[i])
     writeLineOrNothing (h, rule.postPara)
   end
   writeLineOrNothing (h, rule.footer)
@@ -98,20 +98,11 @@ options = {
 
 -- Main routine
 getopt.processArgs ()
-if table.getn (arg) == 0 and table.empty (opt) then
+if table.getn (arg) == 0 and table.empty (getopt.opt) then
   getopt.dieWithUsage ()
 end
-suffix = opt.output or "html"
-if opt.rules then
-  rule = loadfile (opt.rules)()
+suffix = getopt.opt.output or "html"
+if getopt.opt.rules then
+  rule = loadfile (getopt.opt.rules)()
 end
 io.processFiles (ldoc)
-
-
--- Changelog
-
--- 22oct03  0.21 Updated to Lua 5 and new stdlib
---               Don't output blank lines
--- 25jul02  0.2  Basic patterns added and paragraphs treated as a
---               series of lines
--- 01feb02  0.1  Program first written
