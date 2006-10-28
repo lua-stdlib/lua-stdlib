@@ -196,14 +196,14 @@ function usageInfo (header, optDesc, pageWidth)
   end
   local optText = ""
   if #optDesc > 0 then
-    local cols = list.unzip (list.map (fmtOpt, optDesc))
+    local cols = list.transpose (list.map (fmtOpt, optDesc))
     local width
     cols[1], width = sameLen (cols[1])
     cols[2] = list.map (wrapper (pageWidth, width + 4), cols[2])
     optText = "\n\n" ..
-      table.concat (list.mapWith (paste, list.unzip ({sameLen
-                                                       (cols[1]),
-                                                       cols[2]})),
+      table.concat (list.mapWith (paste,
+                                  list.transpose ({sameLen (cols[1]),
+                                                    cols[2]})),
                     "\n")
   end
   return header .. optText

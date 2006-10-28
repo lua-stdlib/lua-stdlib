@@ -14,7 +14,6 @@ EOF
 
 cat \
   std/base.lua \
-  std/assert.lua \
   std/debug.lua \
   std/table.lua \
   std/list.lua \

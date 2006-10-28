@@ -1,4 +1,4 @@
--- @module Debugging
+-- @module debug
 
 -- Adds to the existing debug module
 

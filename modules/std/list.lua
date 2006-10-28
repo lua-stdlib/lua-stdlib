@@ -1,6 +1,6 @@
--- @module List
+-- @module list
 
-module ("std.list", package.seeall)
+module ("list", package.seeall)
 
 require "std.base"
 require "std.table"
@@ -43,7 +43,7 @@ function mapWith (f, l)
   return map (compose (f, unpack), l)
 end
 
--- @func list.filterItem: filter primitive for table.process
+-- @func filterItem: filter primitive for table.process
 --   @f: predicate
 -- @returns
 --   @g: function to pass to process to filter a single item
@@ -66,7 +66,7 @@ end
 --   @param m: result list containing elements e of l for which p (e)
 --     is true
 function filter (p, l)
-  return table.process (ipairs, list.filterItem, {}, l)
+  return table.process (ipairs, filterItem, {}, l)
 end
 
 -- @func slice: Slice a list
@@ -126,7 +126,7 @@ end
 -- @func concat: Concatenate lists
 --   @param l1, l2, ... ln: lists
 -- @returns
---   @param r: result {l1[1] ... l1[#l1], ... ,
+--   @param r: result {l1[1] ... l1[#l1] ...
 --                     ln[1] ... ln[#ln]}
 function concat (...)
   local r = {}
@@ -154,7 +154,8 @@ end
 --   @param ls: {{l11 ... l1c} ... {lr1 ... lrc}}
 -- @returns
 --   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
--- Also give aliases zip and unzip
+-- This function is equivalent to zip and unzip in more strongly typed
+-- languages
 function transpose (ls)
   local ms, len = {}, #ls
   for i = 1, math.max (map (table.getn, ls)) do
@@ -166,8 +167,6 @@ function transpose (ls)
   end
   return ms
 end
-zip = transpose
-unzip = transpose
 
 -- @func zipWith: Zip lists together with a function
 --   @param f: function
@@ -211,6 +210,72 @@ function depair (ls)
     t[v[1]] = v[2]
   end
   return t
+end
+
+-- @func flatten: Flatten a list
+--   @param l: list to flatten
+-- @returns
+--   @param m: flattened list
+function flatten (l)
+  local m = {}
+  for _, v in ipairs (l) do
+    if type (v) == "table" then
+      m = concat (m, flatten (v))
+    else
+      table.insert (m, v)
+    end
+  end
+  return m
+end
+
+-- @func shape: Shape a list according to a list of dimensions
+-- Dimensions are given outermost first and items from the original
+-- list are distributed breadth first; there may be one 0 indicating
+-- an indefinite number. Hence, {0} is a flat list, {1} is a
+-- singleton, {2, 0} is a list of two lists, and {0, 2} is a list of
+-- pairs.
+--   @param s: {d1 ... dn}
+--   @param l: list to reshape
+-- @returns
+--   @param m: reshaped list
+-- Algorithm: turn shape into all +ve numbers, calculating the zero if
+-- necessary and making sure there is at most one; recursively walk
+-- the shape, adding empty tables until the bottom level is reached at
+-- which point add table items instead, using a counter to walk the
+-- flattened original list.
+function shape (s, l)
+  l = flatten (l)
+  -- Check the shape and calculate the size of the zero, if any
+  local size = 1
+  local zero
+  for i, v in ipairs (s) do
+    if v == 0 then
+      if zero then -- bad shape: two zeros
+        return nil
+      else
+        zero = i
+      end
+    else
+      size = size * v
+    end
+  end
+  if zero then
+    s[zero] = math.ceil (#l / size)
+  end
+  local function fill (i, d)
+    if d > #s then
+      return l[i], i + 1
+    else
+      local t = {}
+      for j = 1, s[d] do
+        local e
+        e, i = fill (i, d + 1)
+        table.insert (t, e)
+      end
+      return t, i
+    end
+  end
+  return (fill (1, 1))
 end
 
 -- @func indexKey: Make an index of a list of tables on a given

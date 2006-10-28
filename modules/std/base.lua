@@ -1,4 +1,4 @@
--- @module Base
+-- @module base
 -- Adds to the existing global functions
 
 module ("std.base", package.seeall)
@@ -6,6 +6,7 @@ module ("std.base", package.seeall)
 require "std.table"
 require "std.list"
 require "std.string"
+--require "std.io" FIXME: allow loops
 
 
 -- @func metamethod: Return given metamethod, if any, or nil
@@ -116,7 +117,7 @@ function _G.print (...)
   for i = 1, select ("#", ...) do
     arg[i] = tostring (arg[i])
   end
-  _print (unpack (arg))
+  _print (...)
 end
 
 -- @func prettytostring: pretty-print a table
@@ -221,7 +222,7 @@ end
 -- @returns
 --   @param ...: the arguments passed to the function
 function _G.id (...)
-  return unpack (arg)
+  return ...
 end
 
 -- @func pack: Turn a tuple into a list
@@ -267,8 +268,10 @@ end
 --   @returns
 --     @param f1 (...fn (args)...)
 function _G.compose (...)
+  local arg = {...}
   local fns, n = arg, #arg
   return function (...)
+           local arg = {...}
            for i = n, 1, -1 do
              arg = {fns[i] (unpack (arg))}
            end
@@ -335,6 +338,7 @@ function _G.treeIter (t)
                          end)
 end
 
+-- FIXME: this version is more obvious but has an illegal yield
 -- @func treeIter: tree iterator
 --   @param t: tree to iterate over
 -- @returns
@@ -342,7 +346,7 @@ end
 --   @returns
 --     @param e: event
 --     @param t: table of values
--- function foo (t)
+-- function _G.treeIter (t)
 --   if not coroutine.yield ("branch", t) then
 --     for i, v in ipairs (t) do
 --       if type (v) ~= "table" then
@@ -366,29 +370,110 @@ end
 --     or in a list
 function _G.listable (f)
   return function (...)
+           local arg = {...}
            if #arg == 1 and type (arg[1]) == "table" then
              return f (unpack (arg[1]))
            else
-             return f (unpack (arg))
+             return f (...)
            end
          end
 end
 
--- @func pathSubscript: Subscript a table with a string containing
--- dots
---   @param t: table
---   @param s: subscript of the form s1.s2. ... .sn
+-- @func assert: Extend to allow formatted arguments
+--   @param v: value
+--   @param ...: arguments for format
 -- @returns
---   @param v: t.s1.s2. ... .sn
-function _G.pathSubscript (t, s)
-  return lookup (t, string.split ("%.", s))
+--   @param v: value
+function _G.assert (v, ...)
+  local arg = {...}
+  if not v then
+    if arg.n == 0 then
+      table.insert (arg, "")
+    end
+    error (string.format (unpack (arg)))
+  end
+  return v
 end
 
--- @func lookup: Do a late-bound table lookup
---   @param t: table to look up in
---   @param l: list of indices {l1 ... ln}
--- @returns
---   @param u: t[l1] ... [ln]
-function _G.lookup (t, l)
-  return list.foldl (table.subscript, t, l)
+-- @func warn: Give warning with the name of program and file (if any)
+--   @param ...: arguments for format
+function _G.warn (...)
+  if prog.name then
+    io.stderr:write (prog.name .. ":")
+  end
+  if prog.file then
+    io.stderr:write (prog.file .. ":")
+  end
+  if prog.line then
+    io.stderr:write (tostring (prog.line) .. ":")
+  end
+  if prog.name or prog.file or prog.line then
+    io.stderr:write (" ")
+  end
+  io.writeLine (io.stderr, string.format (...))
 end
+
+-- @func die: Die with error
+--   @param ...: arguments for format
+function _G.die (...)
+  warn (unpack (arg))
+  error ()
+end
+
+-- Function forms of operators
+_G.op = {
+  ["+"] = function (...)
+            return list.foldr (function (a, b)
+                                 return a + b
+                               end,
+                               0, {...})
+          end,
+  ["-"] = function (...)
+            return list.foldr (function (a, b)
+                                 return a - b
+                               end,
+                               0, {...})
+          end,
+  ["*"] = function (...)
+            return list.foldr (function (a, b)
+                                 return a * b
+                               end,
+                               1, {...})
+          end,
+  ["/"] = function (a, b)
+            return a / b
+          end,
+  ["and"] = function (...)
+              return list.foldl (function (a, b)
+                                   return a and b
+                                 end, true, {...})
+            end,
+  ["or"] = function (...)
+             return list.foldl (function (a, b)
+                                  return a or b
+                                end,
+                                false, {...})
+           end,
+  ["not"] = function (x)
+              return not x
+            end,
+  [".."] = list.concat,
+  ["=="] = function (x, ...)
+             for _, v in ipairs ({...}) do
+               if v ~= x then
+                 return false
+               end
+             end
+             return true
+           end,
+  ["~="] = function (...)
+             local t = {}
+             for _, v in ipairs ({...}) do
+               if t[v] then
+                 return false
+               end
+               t[v] = true
+             end
+             return true
+           end,
+}

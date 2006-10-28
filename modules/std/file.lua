@@ -16,19 +16,3 @@ function io.length (f)
   end
   return len
 end
-
--- @func io.exists: Finds whether a file exists
---   @param f: file name
--- @returns
---   @param r: non-nil if f exists, nil otherwise
-function io.exists (f)
-  if posix then
-    return posix.stat (f) ~= nil
-  else
-    local h = io.open (f)
-    if h then
-      h:close ()
-    end
-    return h ~= nil
-  end
-end

@@ -1,6 +1,13 @@
--- Regular expressions
+-- @module rex
+-- Regular expressions library
 
-module ("std.rex", package.seeall)
+-- The rex module provides an interface to the lrexlib POSIX and PCRE
+-- regular expression support that mimics the standard string library.
+-- It provides find, gmatch and gsub functions, which as far as
+-- possible are compatible with their string library equivalents. It
+-- also adds a gmatch metamethod for regex objects.
+
+module ("rex", package.seeall)
 
 -- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
 require "rex_pcre" -- global
@@ -14,7 +21,7 @@ setmetatable (rex, {__call =
 
 rex:flags() -- add flags to rex namespace
 
--- @function rex.find: string.find for rex library
+-- @function find: string.find for rex library
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param [st]: start position for match
@@ -32,7 +39,7 @@ function rex.find (s, p, st, cf, lo, ef)
   return from, to
 end
 
--- @function gmatch: rex:gmatch in Lua
+-- @function rex.gmatch: rex:gmatch in Lua
 --   @param self: compiled regex
 --   @param s: string to search
 --   @param f: function to call for each match
@@ -44,25 +51,25 @@ end
 --   @param [ef]: execution flags for the regex
 -- @returns
 --   @param reps: number of replacements made
-getmetatable (rex ("")).gmatch =
-  function (self, s, f, n, ef)
-    local reps, st = 0, 1
-    while (not n) or reps < n do
-      local from, to, cap = self:match (s, st, ef)
-      if from then
-        reps = reps + 1
-        if f (string.sub (s, from, to), cap) then
-          break
-        end
-        st = to + 1
-      else
+function rex.gmatch (self, s, f, n, ef)
+  local reps, st = 0, 1
+  while (not n) or reps < n do
+    local from, to, cap = self:match (s, st, ef)
+    if from then
+      reps = reps + 1
+      if f (string.sub (s, from, to), cap) then
         break
       end
+      st = to + 1
+    else
+      break
     end
-    return reps
   end
+  return reps
+end
+getmetatable (rex ("")).gmatch = rex.gmatch
 
--- @function rex.gsub: string.gsub for rex
+-- @function gsub: string.gsub for rex
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param f: replacement function or string
