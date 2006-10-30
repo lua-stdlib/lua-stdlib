@@ -6,29 +6,11 @@ require "std.base"
 require "std.table"
 
 
--- @func cons: Prepend an item to a list
---   @param x: item
---   @param l: list
--- @returns
---   @param r: {x, unpack (l)}
-function cons (x, l)
-  return {x, unpack (l)}
-end
-
--- @func append: Append an item to a list
---   @param x: item
---   @param l: list
--- @returns
---   @param r: {unpack (l), x}
-function append (x, l)
-  return {unpack (l), x}
-end
-
 -- @func map: Map a function over a list
 --   @param f: function
 --   @param l: list
 -- @returns
---   @param m: result list {f (l[1]) ... f (l[#l])}
+--   @param m: result list {f (l[1]), ..., f (l[#l])}
 function map (f, l)
   return table.process (ipairs, table.mapItem (f), {}, l)
 end
@@ -37,7 +19,7 @@ end
 --   @param f: function
 --   @param ls: list of lists
 -- @returns
---   @param m: result list {f (unpack (ls[1]))) ...
+--   @param m: result list {f (unpack (ls[1]))), ...,
 --     f (unpack (ls[#ls]))}
 function mapWith (f, l)
   return map (compose (f, unpack), l)
@@ -75,7 +57,7 @@ end
 --     from defaults to 1 and to to #l;
 --     negative values count from the end
 -- @returns
---   @param m: {l[from] ... l[to]}
+--   @param m: {l[from], ..., l[to]}
 function slice (l, from, to)
   local m = {}
   local len = #l
@@ -96,7 +78,7 @@ end
 -- @func tail: Return a list with its first element removed
 --   @param l: list
 -- @returns
---   @param m: {l[2] ... l[#l]}
+--   @param m: {l[2], ..., l[#l]}
 function tail (l)
   return slice (l, 2)
 end
@@ -123,11 +105,31 @@ function foldr (f, e, l)
   return table.process (ripairs, table.foldrItem (f), e, l)
 end
 
+-- @func cons: Prepend an item to a list
+--   @param x: item
+--   @param l: list
+-- @returns
+--   @param r: {x, unpack (l)}
+function cons (x, l)
+  return {x, unpack (l)}
+end
+
+-- @func append: Append an item to a list
+--   @param x: item
+--   @param l: list
+-- @returns
+--   @param r: {l[1], ..., l[#l], x}
+function append (x, l)
+  local r = {unpack (l)}
+  table.insert(r, x)
+  return r
+end
+
 -- @func concat: Concatenate lists
 --   @param l1, l2, ... ln: lists
 -- @returns
---   @param r: result {l1[1] ... l1[#l1] ...
---                     ln[1] ... ln[#ln]}
+--   @param r: result {l1[1], ..., l1[#l1], ...,
+--                     ln[1], ..., ln[#ln]}
 function concat (...)
   local r = {}
   for _, l in ipairs ({...}) do
@@ -141,7 +143,7 @@ end
 -- @func reverse: Reverse a list
 --   @param l: list
 -- @returns
---   @param m: list {l[#l] ... l[1]}
+--   @param m: list {l[#l], ..., l[1]}
 function reverse (l)
   local m = {}
   for i = #l, 1, -1 do
@@ -151,9 +153,9 @@ function reverse (l)
 end
 
 -- @func transpose: Transpose a list of lists
---   @param ls: {{l11 ... l1c} ... {lr1 ... lrc}}
+--   @param ls: {{l11, ..., l1c}, ..., {lr1, ..., lrc}}
 -- @returns
---   @param ms: {{l11 ... lr1} ... {l1c ... lrc}}
+--   @param ms: {{l11, ..., lr1}, ..., {l1c, ..., lrc}}
 -- This function is equivalent to zip and unzip in more strongly typed
 -- languages
 function transpose (ls)
@@ -172,8 +174,8 @@ end
 --   @param f: function
 --   @param ls: list of lists
 -- @returns
---   @param m: {f (ls[1][1] ... ls[#ls][1]) ...
---              f (ls[1][N] ... ls[#ls][N])
+--   @param m: {f (ls[1][1], ..., ls[#ls][1]), ...,
+--              f (ls[1][N], ..., ls[#ls][N])
 --     where N = max {map (table.getn, ls)}
 function zipWith (f, ls)
   return mapWith (f, zip (ls))
@@ -189,9 +191,9 @@ function project (f, l)
 end
 
 -- @func enpair: Turn a table into a list of pairs
---   @param t: table {i1=v1 ... in=vn}
+--   @param t: table {i1=v1, ..., in=vn}
 -- @returns
---   @param ls: list {{i1, v1} ... {in, vn}}
+--   @param ls: list {{i1, v1}, ..., {in, vn}}
 function enpair (t)
   local ls = {}
   for i, v in pairs (t) do
@@ -201,9 +203,9 @@ function enpair (t)
 end
 
 -- @func depair: Turn a list of pairs into a table
---   @param ls: list {{i1, v1} ... {in, vn}}
+--   @param ls: list {{i1, v1}, ..., {in, vn}}
 -- @returns
---   @param t: table {i1=v1 ... in=vn}
+--   @param t: table {i1=v1, ..., in=vn}
 function depair (ls)
   local t = {}
   for _, v in ipairs (ls) do
@@ -234,7 +236,7 @@ end
 -- an indefinite number. Hence, {0} is a flat list, {1} is a
 -- singleton, {2, 0} is a list of two lists, and {0, 2} is a list of
 -- pairs.
---   @param s: {d1 ... dn}
+--   @param s: {d1, ..., dn}
 --   @param l: list to reshape
 -- @returns
 --   @param m: reshaped list
@@ -281,9 +283,9 @@ end
 -- @func indexKey: Make an index of a list of tables on a given
 -- field
 --   @param f: field
---   @param l: list of tables {t1 ... tn}
+--   @param l: list of tables {t1, ..., tn}
 -- @returns
---   @param ind: index {t1[f]=1 ... tn[f]=n}
+--   @param ind: index {t1[f]=1, ..., tn[f]=n}
 function indexKey (f, l)
   return table.process (ipairs,
                         function (a, i, v)
@@ -298,9 +300,9 @@ end
 -- @func indexValue: Copy a list of tables, indexed on a given
 -- field
 --   @param f: field whose value should be used as index
---   @param l: list of tables {i1=t1 ... in=tn}
+--   @param l: list of tables {i1=t1, ..., in=tn}
 -- @returns
---   @param m: index {t1[f]=t1 ... tn[f]=tn}
+--   @param m: index {t1[f]=t1, ..., tn[f]=tn}
 function indexValue (f, l)
   return table.process (ipairs,
                         function (a, _, v)
