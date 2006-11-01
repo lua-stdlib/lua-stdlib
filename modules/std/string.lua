@@ -202,7 +202,7 @@ function numbertosi (n)
 end
 
 
--- @function findl: Do find, returning captures as a list
+-- @func findl: Do find, returning captures as a list
 --   @param s: target string
 --   @param p: pattern
 --   @param [init]: start position [1]
@@ -217,7 +217,7 @@ function findl (s, p, init, plain)
   return pack (s:find (p, init, plain))
 end
 
--- @function finds: Do multiple find's on a string
+-- @func finds: Do multiple find's on a string
 --   @param s: target string
 --   @param p: pattern
 --   @param [init]: start position [1]
@@ -238,7 +238,7 @@ function finds (s, p, init, plain)
   return t
 end
 
--- @function gsubs: Perform multiple calls to gsub
+-- @func gsubs: Perform multiple calls to gsub
 --   @param s: string to call gsub on
 --   @param sub: {pattern1=replacement1 ...}
 --   @param [n]: upper limit on replacements [infinite]
@@ -264,7 +264,7 @@ function gsubs (s, sub, n)
   return s, r
 end
 
--- @function split: Split a string at a given separator
+-- @func split: Split a string at a given separator
 --   @param [sep]: separator regex ["%s+"]
 --   @param s: string to split
 -- @returns
@@ -285,7 +285,7 @@ function split (sep, s)
   return l
 end
 
--- @function ltrim: Remove leading matter from a string
+-- @func ltrim: Remove leading matter from a string
 --   @param [r]: leading regex ["%s+"]
 --   @param s: string
 -- @returns
@@ -297,7 +297,7 @@ function ltrim (r, s)
   return (gsub (s, "^" .. r, ""))
 end
 
--- @function rtrim: Remove trailing matter from a string
+-- @func rtrim: Remove trailing matter from a string
 --   @param [r]: trailing regex ["%s+"]
 --   @param s: string
 -- @returns
@@ -309,7 +309,7 @@ function rtrim (r, s)
   return (gsub (s, r .. "$", ""))
 end
 
--- @function trim: Remove leading and trailing matter from a
+-- @func trim: Remove leading and trailing matter from a
 -- string
 --   @param [r]: leading/trailing regex ["%s+"]
 --   @param s: string
@@ -319,7 +319,7 @@ function trim (r, s)
   return ltrim (rtrim (r, s))
 end
 
--- TODO: @function rgsub: gsub-like wrapper for match
+-- TODO: @func rgsub: gsub-like wrapper for match
 --   @param s: target string
 --   @param p: pattern
 --   @param r: function

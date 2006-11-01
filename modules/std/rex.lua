@@ -22,7 +22,7 @@ setmetatable (rex, {__call =
 
 rex:flags() -- add flags to rex namespace
 
--- @function find: string.find for rex library
+-- @func find: string.find for rex library
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param [st]: start position for match
@@ -40,7 +40,7 @@ function rex.find (s, p, st, cf, lo, ef)
   return from, to
 end
 
--- @function rex.gmatch: rex:gmatch in Lua
+-- @func rex.gmatch: rex:gmatch in Lua
 --   @param self: compiled regex
 --   @param s: string to search
 --   @param f: function to call for each match
@@ -70,7 +70,7 @@ function rex.gmatch (self, s, f, n, ef)
 end
 getmetatable (rex ("")).gmatch = rex.gmatch
 
--- @function gsub: string.gsub for rex
+-- @func gsub: string.gsub for rex
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param f: replacement function or string
@@ -505,12 +505,12 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 end
 
 
--- TODO: @function string.checkRegex: check regex is valid
+-- TODO: @func string.checkRegex: check regex is valid
 --   @param p: regex pattern
 -- @returns
 --   @param f: true if regex is valid, or nil otherwise
 
--- TODO: @function rex.check{Posix,PCRE}Regex: check POSIX regex is valid
+-- TODO: @func rex.check{Posix,PCRE}Regex: check POSIX regex is valid
 --   @param p: POSIX regex pattern
 -- @returns
 --   @param f: true if regex is valid, or nil otherwise
