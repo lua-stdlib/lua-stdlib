@@ -5,7 +5,8 @@
 -- regular expression support that mimics the standard string library.
 -- It provides find, gmatch and gsub functions, which as far as
 -- possible are compatible with their string library equivalents. It
--- also adds a gmatch metamethod for regex objects.
+-- also adds a gmatch metamethod for regex objects (this allows gmatch
+-- to be used without constructing the regex object each time).
 
 module ("rex", package.seeall)
 
