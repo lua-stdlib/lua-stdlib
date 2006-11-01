@@ -1,7 +1,7 @@
 #! /usr/bin/env lua
 prog = {
   name = "ldoc",
-  banner = "ldoc $Revision: 1.5 $ by Reuben Thomas (rrt@sc3d.org)",
+  banner = "ldoc $Revision: 1.6 $ by Reuben Thomas (rrt@sc3d.org)",
   purpose = "Extract and process the comments from Lua source files",
 }
 
@@ -21,7 +21,7 @@ rule = {
     ["@class (.*)"] = "<h2>%1</h2>",
     ["@method (%S+)%s(.*)"] = "<strong>%1</strong> <em>%2</em>",
     ["@func (%S+)%s(.*)"] = "<strong>%1</strong> <em>%2</em>",
-    ["@param (%S+)"] = "<strong>%1</strong>",
+    ["@param (%S+):"] = "<strong>%1</strong>:",
     ["@returns"] = "<strong>returns</strong>",
     ["$"] = "<br>",
   },
