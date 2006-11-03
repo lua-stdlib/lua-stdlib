@@ -23,7 +23,6 @@ cat \
   std/xml.lua \
   std/rex.lua \
   std/math.lua \
-  std/bit.lua \
   std/io.lua \
   std/file.lua \
   std/getopt.lua \
