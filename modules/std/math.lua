@@ -15,22 +15,6 @@ while n < n + 1 do
 end
 _INTEGER_BITS = b
 
--- @func max: Extend to work on lists
---   @param (l: list
---          ( or
---   @param (v1 ... @param vn: values
--- @returns
---   @param m: max value
-max = listable (max)
-
--- @func min: Extend to work on lists
---   @param (l: list
---          ( or
---   @param (v1 ... @param vn: values
--- @returns
---   @param m: min value
-min = listable (min)
-
 -- @func floor: Extend to take the number of decimal places
 --   @param n: number
 --   @param [p]: number of decimal places to truncate to [0]

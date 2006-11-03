@@ -14,7 +14,6 @@
 module ("std", package.seeall)
 
 require "std.base"
-require "std.assert"
 require "std.debug"
 require "std.table"
 require "std.list"
@@ -24,7 +23,6 @@ require "std.string"
 require "std.xml"
 require "std.rex"
 require "std.math"
-require "std.bit"
 require "std.io"
 require "std.file"
 require "std.getopt"
