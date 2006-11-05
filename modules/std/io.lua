@@ -6,6 +6,19 @@ require "std.base"
 require "posix"
 
 
+-- @func length: Find the length of a file
+--   @param f: file name
+-- @returns
+--   @param len: length of file, or nil on error
+function length (f)
+  local s = posix.stat (f)
+  if s then
+    return s.size
+  else
+    return nil
+  end
+end
+
 -- @func readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
 -- @returns
