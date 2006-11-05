@@ -2,8 +2,6 @@
 
 module ("string", package.seeall)
 
-require "lcs"
-
 
 -- TODO: Pretty printing
 --
@@ -38,13 +36,15 @@ require "lcs"
 --   thing. The functions below should also be injected into the
 --   metatables so they can be called as functions or methods.
 
--- @func concat: Give a name to .. for strings
---   @param s1, s2, ..., sn: strings
+-- @func __index: Give strings a subscription operator
+--   @param s: string
+--   @param n: index
 -- @returns
---   @param s_: s1 .. s2 .. ... .. sn
-function concat (...)
-  return table.concat (arg)
-end
+--   @param s_: string.sub (s, n, n)
+getmetatable ("").__index =
+  function (s, n)
+    return sub (s, n, n)
+  end
 
 -- @func caps: Capitalise each word in a string
 --   @param s: string
@@ -98,19 +98,6 @@ function ordinalSuffix (n)
   else
     return "th"
   end
-end
-
--- @func lcs: Find the longest common subsequence of two
--- strings
---   @param: a, b: strings
--- @returns
---   @param: s: longest common subsequence
-function lcs (a, b)
-  return lcs.longestCommonSubseq (a, b,
-                                  function (s, i)
-                                    return sub (s, i, i)
-                                  end,
-                                  len, concat, "")
 end
 
 -- @func format: Extend to work better with one argument
