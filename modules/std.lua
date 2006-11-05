@@ -1,8 +1,8 @@
 -- @module std
 -- Lua standard library
 
--- TODO: Add @module, @class and @meth tags; introduce @meth by
---   replacing @func Foo:bar with @meth bar
+-- TODO: Add @class and @meth tags; introduce @meth by replacing @func
+--   Foo:bar with @meth bar 
 -- TODO: Write a style guide (indenting/wrapping, capitalisation,
 --   function and variable names); library functions should call
 --   error, not die; OO vs non-OO (a thorny problem)
