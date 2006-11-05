@@ -7,9 +7,8 @@ Thanks also to all those who have contributed bug fixes, suggestions
 and support.
 
 
-Reuben Thomas started the standard libraries project, wrote the code
-on which the libraries are based, and integrated code from other
-authors.
+Reuben Thomas started and maintains the standard libraries project,
+wrote many of the libraries, and integrated code from other authors.
 
 John Belmonte helped set the project up on lua-users, and contributed
 to the early organisation of the libraries.
