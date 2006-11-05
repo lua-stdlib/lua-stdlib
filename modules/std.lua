@@ -13,21 +13,21 @@
 
 module ("std", package.seeall)
 
-require "std.base"
-require "std.debug"
-require "std.table"
-require "std.list"
-require "std.object"
-require "std.lcs"
-require "std.string"
-require "std.xml"
-require "std.rex"
-require "std.math"
-require "std.io"
-require "std.getopt"
-require "std.set"
-require "std.parser"
-require "std.mbox"
+require "base"
+require "debug_ext"
+require "table_ext"
+require "list"
+require "object"
+require "lcs"
+require "string_ext"
+require "xml"
+require "rex"
+require "math_ext"
+require "io_ext"
+require "getopt"
+require "set"
+require "parser"
+require "mbox"
 
 -- Lift std libraries into the global environment
 for i, v in pairs (std) do

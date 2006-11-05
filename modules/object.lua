@@ -1,8 +1,8 @@
 -- Prototype-based objects
 
-module ("std.object", package.seeall)
+module ("object", package.seeall)
 
-require "std.table"
+require "table_ext"
 
 
 -- Usage:

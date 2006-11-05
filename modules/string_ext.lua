@@ -2,7 +2,7 @@
 
 module ("string", package.seeall)
 
-require "std.lcs"
+require "lcs"
 
 
 -- TODO: Pretty printing

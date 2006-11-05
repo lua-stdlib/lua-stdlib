@@ -1,12 +1,12 @@
 -- @module base
 -- Adds to the existing global functions
 
-module ("std.base", package.seeall)
+module ("base", package.seeall)
 
-require "std.table"
-require "std.list"
-require "std.string"
---require "std.io" FIXME: allow loops
+require "table_ext"
+require "list"
+require "string_ext"
+--require "io_ext" FIXME: allow loops
 
 
 -- @func metamethod: Return given metamethod, if any, or nil

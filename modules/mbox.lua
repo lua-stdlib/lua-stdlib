@@ -2,7 +2,7 @@
 -- mbox parser
 -- based on code by Diego Nahab
 
-module ("std.mbox", package.seeall)
+module ("mbox", package.seeall)
 
 local function headers (s)
   local header = {}

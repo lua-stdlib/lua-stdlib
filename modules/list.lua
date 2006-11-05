@@ -2,8 +2,8 @@
 
 module ("list", package.seeall)
 
-require "std.base"
-require "std.table"
+require "base"
+require "table_ext"
 
 
 -- @func map: Map a function over a list

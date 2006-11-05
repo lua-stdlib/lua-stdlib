@@ -2,7 +2,7 @@
 
 module ("table", package.seeall)
 
--- require "std.list"
+-- require "list"
 
 
 -- @func sort: Make table.sort return its result

@@ -1,9 +1,9 @@
 -- String
 
-module ("std.xml", package.seeall)
+module ("xml", package.seeall)
 
-require "std.base"
-require "std.rex"
+require "base"
+require "rex"
 
 
 -- @func string.writeXML: write a table as XML

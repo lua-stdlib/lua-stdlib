@@ -2,10 +2,10 @@
 
 -- Adds to the existing debug module
 
-module ("std.debug", package.seeall)
+module ("debug", package.seeall)
 
-require "std.io"
-require "std.string"
+require "io_ext"
+require "string_ext"
 
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
 -- table with the following members:
@@ -15,10 +15,10 @@ require "std.string"
 -- std: do standard library debugging (run examples & test code)
 
 
--- @func debug.say: Print a debugging message
+-- @func say: Print a debugging message
 --   @param [n]: debugging level [1]
 --   ...: objects to print (as for print)
-function debug.say (...)
+function say (...)
   local level = 1
   if type (arg[1]) == "number" then
     level = arg[1]
@@ -35,18 +35,17 @@ end
 -- Expose debug.say as debug
 setmetatable (debug,
               {__call = function (self, ...)
-                          debug.say (unpack (arg))
+                          say (unpack (arg))
                         end})
 
--- @func debug.traceCall: Trace function calls
+-- @func traceCall: Trace function calls
 --   @param event: event causing the call
 -- Use: debug.sethook (traceCall, "cr"), as below
 -- based on test/trace-calls.lua from the Lua 5.0 distribution
 local level = 0
-
-function debug.traceCall (event)
+function traceCall (event)
   local t = debug.getinfo (3)
-  local s = " >>> " .. string.rep(" ",level)
+  local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
     s = s .. t.short_src .. ":" .. t.currentline .. " "
   end

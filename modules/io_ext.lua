@@ -2,7 +2,7 @@
 
 module ("io", package.seeall)
 
-require "std.base"
+require "base"
 require "posix"
 
 

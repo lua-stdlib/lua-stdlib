@@ -4,8 +4,8 @@
 
 module ("Set", package.seeall)
 
-require "std.object"
-require "std.table"
+require "object"
+require "table_ext"
 
 
 local metamethods = {}

@@ -8,21 +8,14 @@
 -- also adds a gmatch metamethod for regex objects (this allows gmatch
 -- to be used without constructing the regex object each time).
 
+-- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
+rex = require "rex_pcre" -- global
+
 module ("rex", package.seeall)
 
--- TODO: Allow a default regex library to be installed (Lua, POSIX or PCRE)
-require "rex_pcre" -- global
-_G.rex = rex_pcre
+_M:flags () -- add flags to rex namespace
 
--- Default constructor (use PCREs)
-setmetatable (rex, {__call =
-                function (self, p, cf, lo)
-                  return self.newPCRE (p, cf, lo)
-                end})
-
-rex:flags() -- add flags to rex namespace
-
--- @func find: string.find for rex library
+-- @func find: string.find with regexs
 --   @param s: string to search
 --   @param p: pattern to find
 --   @param [st]: start position for match
@@ -31,44 +24,40 @@ rex:flags() -- add flags to rex namespace
 --   @param [ef]: execution flags for the regex
 -- @returns
 --   @param from, to: start and end points of match, or nil
---   @param [match, ...]: substring matches
-function rex.find (s, p, st, cf, lo, ef)
-  local from, to, cap = rex (p, cf, lo):match (s, st, ef)
+--   @param [c1, ...]: captures
+function find (s, p, st, cf, lo, ef)
+  local from, to, cap = new (p, cf, lo):match (s, st, ef)
   if from and cap[1] ~= nil then
     return from, to, unpack (cap)
   end
   return from, to
 end
 
--- @func rex.gmatch: rex:gmatch in Lua
---   @param self: compiled regex
+-- @func gmatch: string.gmatch with regexs
+--   @param p: pattern
 --   @param s: string to search
---   @param f: function to call for each match
---     @param m: matched string
---     @param t: table of captures
---   @returns
---     @param quit: true to stop gmatch immediately
---   @param [n]: maximum number of replacements [all]
+--   @param [cf]: compile-time flags for the regex
+--   @param [lo]: locale for the regex
 --   @param [ef]: execution flags for the regex
 -- @returns
---   @param reps: number of replacements made
-function rex.gmatch (self, s, f, n, ef)
-  local reps, st = 0, 1
-  while (not n) or reps < n do
-    local from, to, cap = self:match (s, st, ef)
-    if from then
-      reps = reps + 1
-      if f (string.sub (s, from, to), cap) then
-        break
-      end
-      st = to + 1
-    else
-      break
-    end
-  end
-  return reps
+--   @param f: iterator function
+--   @returns
+--     @param c1, ...: captures (or whole string if none)
+function gmatch (s, p, ef)
+  local r = new (p, cf, lo)
+  local st = 1
+  return function ()
+           local from, to, cap = r:match (s, st, ef)
+           if from then
+             st = to + 1
+             if #cap > 0 then
+               return unpack (cap)
+             else
+               return string.sub (s, from, to)
+             end
+           end
+         end
 end
-getmetatable (rex ("")).gmatch = rex.gmatch
 
 -- @func gsub: string.gsub for rex
 --   @param s: string to search
@@ -81,7 +70,7 @@ getmetatable (rex ("")).gmatch = rex.gmatch
 -- @returns
 --   @param r: string with replacements
 --   @param reps: number of replacements made
-function rex.gsub (s, p, f, n, cf, lo, ef)
+function gsub (s, p, f, n, cf, lo, ef)
   if type (f) == "string" then
     local rep = f
     f = function (...)
@@ -89,7 +78,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           local ret = rep
           local function repfun (percent, d)
             if #percent % 2 == 1 then
-              d = tonumber(d)
+              d = tonumber (d)
               d = arg [d == 0 and 1 or d]
               assert (d ~= nil, "invalid capture index")
               d = d or "" -- capture can be false
@@ -107,27 +96,32 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
           return rep[s]
         end
   end
-  local reg = rex (p, cf, lo)
+  local reg = new (p, cf, lo)
   local st = 1
   local r, reps = {}, 0
-  local efr = bit.bor (ef or 0, rex.NOTEMPTY, rex.ANCHORED)
+  local efr = bit.bor (ef or 0, NOTEMPTY, ANCHORED)
   local retry
   while (not n) or reps < n do
     local from, to, cap = reg:match (s, st, retry and efr or ef)
-    retry = false
     if from then
       table.insert (r, string.sub (s, st, from - 1))
       if #cap == 0 then
         cap[1] = string.sub (s, from, to)
       end
-      local rep = f (unpack (cap)) or string.sub (s, from, to)
-      local reptype = type (rep)
-      if reptype ~= "string" and reptype ~= "number" then
-        error ("invalid replacement value (a " .. reptype .. ")")
+      local rep = f (unpack (cap))
+      if rep then
+        local reptype = type (rep)
+        if reptype == "string" or reptype == "number" then
+          table.insert (r, rep)
+          reps = reps + 1
+        else
+          error ("invalid replacement value (a " .. reptype .. ")")
+        end
+      else
+        table.insert (r, string.sub (s, from, to))
       end
-      table.insert (r, rep)
-      reps = reps + 1
       if from <= to then
+        retry = false
         st = to + 1
       elseif st <= #s then -- retry from the matching point
         retry = true
@@ -139,6 +133,7 @@ function rex.gsub (s, p, f, n, cf, lo, ef)
       if retry and st <= #s then -- advance by 1 char (not replaced)
         table.insert (r, string.sub (s, st, st))
         st = st + 1
+        retry = false
       else
         break
       end
@@ -153,8 +148,8 @@ end
 
 if type (_DEBUG) == "table" and _DEBUG.std then
   
-  local function gsubPCRE(str, pat, repl, n)
-    return generic_gsub(rex_pcre.newPCRE, str, pat, repl, n)
+  local function gsubPCRE (str, pat, repl, n)
+    return generic_gsub (rex_pcre.newPCRE, str, pat, repl, n)
   end
 
   local t_esc = {
@@ -283,7 +278,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
     { "a2c3",     ".+",           "#", false, "#",         1 }, -- test .+
     { "a2c3",     ".*",           "#", false, "##",        2 }, -- test .*
     { "/* */ */", "%/%*(.*)%*%/", "#", false, "#",         1 },
-    { "a2c3",     ".-",           "#", false, "#a#2#c#3#", 5 }, -- test .-
+    { "a2c3",     ".-",           "#", false, "#########", 9 }, -- test .-
     { "/**/",     "%/%*(.-)%*%/", "#", false, "#",         1 },
     { "/* */ */", "%/%*(.-)%*%/", "#", false, "# */",      1 },
     { "a2c3",     "%d",           "#", false, "a#c#",      2 }, -- test %d
@@ -294,18 +289,18 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 
   local function frep1(...) end                             -- returns nothing
   local function frep2(...) return "#" end                  -- ignores arguments
-  local function frep3(...) return table.concat({...}, ",") end -- "normal"
+  local function frep3(...) return table.concat ({...}, ",") end -- "normal"
   local function frep4(...) return {} end                   -- invalid return type
 
   subj = "a2c3"
   local set5 = {
     name = "Set5",
     --  { s,      p,          f,     n,     res1,        res2 },
-    { subj, "a(.)c(.)", frep1, false, subj,        1 },
+    { subj, "a(.)c(.)", frep1, false, subj,        0 },
     { subj, "a(.)c(.)", frep2, false, "#",         1 },
     { subj, "a(.)c(.)", frep3, false, "2,3",       1 },
     { subj, "a.c.",     frep3, false, subj,        1 },
-    { subj, "",         frep1, false, subj,        5 },
+    { subj, "",         frep1, false, subj,        0 },
     { subj, "",         frep2, false, "#a#2#c#3#", 5 },
     { subj, "",         frep3, false, subj,        5 },
     { subj, subj,       frep4, false, false,       0 },
@@ -316,12 +311,12 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local set6 = {
     name = "Set6",
     --  { s,      p,        f,     n,     res1,  res2 },
-    { subj, "a(.)c(.)", tab1,  false, subj,  1 },
+    { subj, "a(.)c(.)", tab1,  false, subj,  0 },
     { subj, "a(.)c(.)", tab2,  false, "56",  1 },
     { subj, "a(.)c(.)", tab3,  false, false, 0 },
-    { subj, "a.c.",     tab1,  false, subj,  1 },
-    { subj, "a.c.",     tab2,  false, subj,  1 },
-    { subj, "a.c.",     tab3,  false, subj,  1 },
+    { subj, "a.c.",     tab1,  false, subj,  0 },
+    { subj, "a.c.",     tab2,  false, subj,  0 },
+    { subj, "a.c.",     tab3,  false, subj,  0 },
   }
 
   subj = ""
@@ -453,7 +448,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   --     that are further used as reference gsub results.
   --
   local function prepare_set (set)
-    for k,v in ipairs(set) do
+    for k,v in ipairs (set) do
       local r0, r1, r2 = pcall (string.gsub, v[1], v[2], v[3], v[4] or nil)
       if r0 then
         v[5], v[6] = r1, r2
@@ -471,23 +466,23 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   local function gsub_test (set)
     local r0, r1, r2 -- results
     local function err (k, func_name)
-      print("Test " .. k .. " of " .. func_name)
-      print("Test Data:", unpack(set[k]))
-      print("Test Results:", r1, r2, "\n")
+      print ("Test " .. k .. " of " .. func_name)
+      print ("Test Data:", unpack(set[k]))
+      print ("Test Results:", r1, r2, "\n")
     end
-    print(set.name or "Unnamed Set")
-    for k,v in ipairs(set) do
+    print (set.name or "Unnamed Set")
+    for k,v in ipairs (set) do
       local num = v[4] or nil
 
       local function run_test (f_gsub, s_gsub, f_pat)
-        r0, r1, r2 = pcall (f_gsub, v[1], f_pat(v[2]), v[3], num)
+        r0, r1, r2 = pcall (f_gsub, v[1], f_pat (v[2]), v[3], num)
         if (r0 and (r1~=v[5] or r2~=v[6])) or (not r0 and v[5]) then
-          err(k, s_gsub)
+          err (k, s_gsub)
         end
       end
 
       run_test (string.gsub, "string.gsub", function (p) return p end)
-      run_test (rex.gsub,    "rex.gsub",    PatternLua2Pcre)
+      run_test (gsub,        "rex.gsub",    PatternLua2Pcre)
       run_test (gsubPCRE,    "gsubPCRE",    PatternLua2Pcre)
     end
   end
@@ -505,12 +500,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 end
 
 
--- TODO: @func string.checkRegex: check regex is valid
---   @param p: regex pattern
--- @returns
---   @param f: true if regex is valid, or nil otherwise
-
--- TODO: @func rex.check{Posix,PCRE}Regex: check POSIX regex is valid
+-- TODO: @func check{Posix,PCRE}Regex: check POSIX regex is valid
 --   @param p: POSIX regex pattern
 -- @returns
 --   @param f: true if regex is valid, or nil otherwise

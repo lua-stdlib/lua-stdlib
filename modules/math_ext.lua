@@ -4,7 +4,7 @@
 
 module ("math", package.seeall)
 
-require "std.base"
+require "base"
 
 
 -- Calculate bits in an integer
