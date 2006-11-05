@@ -10,7 +10,7 @@ require "string_ext"
 -- _DEBUG is either any true value (equivalent to {level = 1}), or a
 -- table with the following members:
 
--- level: debugging level [1]
+-- level: debugging level
 -- call: do call trace debugging
 -- std: do standard library debugging (run examples & test code)
 
@@ -32,11 +32,11 @@ function say (...)
   end
 end
 
--- Expose debug.say as debug
-setmetatable (debug,
-              {__call = function (self, ...)
-                          say (unpack (arg))
-                        end})
+-- Expose say as global debug
+getmetatable (_M).__call =
+   function (self, ...)
+     say (unpack (arg))
+   end
 
 -- @func traceCall: Trace function calls
 --   @param event: event causing the call
@@ -44,12 +44,12 @@ setmetatable (debug,
 -- based on test/trace-calls.lua from the Lua 5.0 distribution
 local level = 0
 function traceCall (event)
-  local t = debug.getinfo (3)
+  local t = getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
     s = s .. t.short_src .. ":" .. t.currentline .. " "
   end
-  t = debug.getinfo (2)
+  t = getinfo (2)
   if event == "call" then
     level = level + 1
   else
@@ -72,5 +72,5 @@ end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  debug.sethook (debug.traceCall, "cr")
+  sethook (traceCall, "cr")
 end

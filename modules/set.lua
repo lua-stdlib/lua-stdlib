@@ -1,15 +1,10 @@
 -- @module set
--- FIXME: metamethods need sorting out. How do we neatly set a
--- metamethods table which still gives access to globals?
 
-module ("Set", package.seeall)
+module ("set", package.seeall)
 
 require "object"
 require "table_ext"
 
-
-local metamethods = {}
---setmetatable (_M, metamethods)
 
 -- Primitive methods (access the underlying representation)
 
@@ -34,7 +29,7 @@ end
 --   @param l: list
 -- @returns
 --   @param s: set
-function metamethods.__call (l)
+function new (l)
   local s = {}
   for _, v in ipairs (l) do
     s:add (true)
@@ -64,7 +59,7 @@ end
 -- @returns
 --   @param r: set intersection of self and t
 function intersect (t)
-  local r = Set {}
+  local r = new {}
   for e in self:pairs () do
     if t:member (e) then
       r:add (e)
@@ -78,7 +73,7 @@ end
 -- @returns
 --   @param r: set union of self and t
 function union (t)
-  local r = Set {}
+  local r = new {}
   r.set = table.merge (self.set, t.set)
   return r
 end
@@ -113,9 +108,14 @@ function equal (t)
   return self:subset (t) and t:subset (self)
 end
 
--- FIXME: Metamethods
--- __add = union -- set + table = union
--- __sub = minus -- set - table = set difference
--- __div = intersect -- set / table = intersection
--- __le = subset -- set <= table = subset
--- __lt = propersubset -- set < table = proper subset
+-- Metamethods
+-- set + table = union
+getmetatable (_M).__add = union
+-- set - table = set difference
+getmetatable (_M).__sub = minus
+-- set / table = intersection
+getmetatable (_M).__div = intersect
+-- set <= table = subset
+getmetatable (_M).__le = subset
+-- set < table = proper subset
+getmetatable (_M).__lt = propersubset
