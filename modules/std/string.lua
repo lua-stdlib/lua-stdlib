@@ -329,3 +329,8 @@ end
 --     @param rep: replacement
 -- @returns
 --   @param n: number of substitutions made
+
+-- TODO: @func string.checkRegex: check regex is valid
+--   @param p: regex pattern
+-- @returns
+--   @param f: true if regex is valid, or nil otherwise
