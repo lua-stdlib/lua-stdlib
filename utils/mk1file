@@ -12,6 +12,8 @@ EOF
 # of the sources, by grepping for "^require" and following the
 # dependency tree, starting at std.lua.
 
+# FIXME: Cope with external dependencies (see std.lua)
+
 cat \
   base.lua \
   debug_ext.lua \
