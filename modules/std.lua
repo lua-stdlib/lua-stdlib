@@ -28,10 +28,3 @@ require "getopt"
 require "set"
 require "parser"
 require "mbox"
-
--- Lift std libraries into the global environment
-for i, v in pairs (std) do
-  if _G[i] == nil then
-    _G[i] = v
-  end
-end
