@@ -6,6 +6,7 @@ require "base"
 require "posix"
 
 
+-- FIXME: Make this the __len metamethod
 -- @func length: Find the length of a file
 --   @param f: file name
 -- @returns
