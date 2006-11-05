@@ -24,7 +24,6 @@ cat \
   std/rex.lua \
   std/math.lua \
   std/io.lua \
-  std/file.lua \
   std/getopt.lua \
   std/set.lua \
   std/parser.lua \
