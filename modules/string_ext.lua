@@ -30,20 +30,19 @@ module ("string", package.seeall)
 --               -> a                       Result
 
 
--- TODO: Replace the string.* API so that pattern arguments always
---   have their metamethods called, and if you call a function, e.g.
---   gsub or find, it automatically does the right
---   thing. The functions below should also be injected into the
---   metatables so they can be called as functions or methods.
-
 -- @func __index: Give strings a subscription operator
 --   @param s: string
 --   @param n: index
 -- @returns
 --   @param s_: string.sub (s, n, n)
-getmetatable ("").__index =
+local oldmeta = getmetatable("").__index
+getmetatable("").__index =
   function (s, n)
-    return sub (s, n, n)
+    if type (n) == "number" then
+      return sub (s, n, n)
+    else
+      return oldmeta[n]
+    end
   end
 
 -- @func caps: Capitalise each word in a string
