@@ -180,7 +180,7 @@ function usageInfo (header, optDesc, pageWidth)
       opt.desc}
   end
   local function sameLen (xs)
-    local n = math.max (list.map (string.len, xs))
+    local n = math.max (unpack (list.map (string.len, xs)))
     for i, v in pairs (xs) do
       xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
     end

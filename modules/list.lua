@@ -160,7 +160,7 @@ end
 -- languages
 function transpose (ls)
   local ms, len = {}, #ls
-  for i = 1, math.max (map (table.getn, ls)) do
+  for i = 1, math.max (unpack (map (table.getn, ls))) do
     ms[i] = {}
     for j = 1, len do
       ms[i][j] = ls[j][i]
