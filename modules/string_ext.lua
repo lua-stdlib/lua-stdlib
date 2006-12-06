@@ -306,19 +306,3 @@ end
 function trim (r, s)
   return ltrim (rtrim (r, s))
 end
-
--- TODO: @func rgsub: gsub-like wrapper for match
---   @param s: target string
---   @param p: pattern
---   @param r: function
---     @param t: table of captures
---   @param [n]: maximum number of substutions [infinite]
---   @returns
---     @param rep: replacement
--- @returns
---   @param n: number of substitutions made
-
--- TODO: @func string.checkRegex: check regex is valid
---   @param p: regex pattern
--- @returns
---   @param f: true if regex is valid, or nil otherwise
