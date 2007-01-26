@@ -51,6 +51,37 @@ function writeLine (h, ...)
   end
 end
 
+-- @func basename: POSIX basename
+--   @param path
+-- @returns
+--   @param base: base name
+function basename (path)
+  if path == "/" then
+    return "/"
+  elseif path == "" then
+    return "."
+  end
+  path = string.gsub (path, "/$", "")
+  local _, _, base = string.find (path, "([^/]*)$")
+  return base
+end
+
+-- @func dirname: POSIX dirname
+--   @param path
+-- @returns
+--   @param dir: directory component
+function dirname (path)
+  if path == "/" then
+    return "/"
+  end
+  path = string.gsub (path, "/$", "")
+  local _, _, dir = string.find (path, "^(/?.-)/?[^/]*$")
+  if dir == "" then
+    dir = "."
+  end
+  return dir
+end
+
 -- @func changeSuffix: Change the suffix of a filename
 --   @param from: suffix to change (".-" for any suffix)
 --   @param to: suffix to replace with
@@ -58,9 +89,8 @@ end
 -- @returns
 --   @param name_: file name with new suffix
 function changeSuffix (from, to, name)
-  return posix.dirname (name) .. "/" ..
-    string.gsub (posix.basename (name), "%." .. from .. "$", "") ..
-    "." .. to
+  return dirname (name) .. "/" ..
+    string.gsub (basename (name), "%." .. from .. "$", "") .. "." .. to
 end
 
 -- @func addSuffix: Add a suffix to a filename if not already present
