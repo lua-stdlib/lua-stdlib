@@ -191,6 +191,7 @@ function project (f, l)
 end
 
 -- @func enpair: Turn a table into a list of pairs
+-- FIXME: Find a better name
 --   @param t: table {i1=v1, ..., in=vn}
 -- @returns
 --   @param ls: list {{i1, v1}, ..., {in, vn}}
@@ -203,6 +204,7 @@ function enpair (t)
 end
 
 -- @func depair: Turn a list of pairs into a table
+-- FIXME: Find a better name
 --   @param ls: list {{i1, v1}, ..., {in, vn}}
 -- @returns
 --   @param t: table {i1=v1, ..., in=vn}
