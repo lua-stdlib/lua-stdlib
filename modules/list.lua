@@ -295,6 +295,7 @@ function indexKey (f, l)
                           if k then
                             a[k] = i
                           end
+                          return a
                         end,
                         {}, l)
 end
@@ -312,6 +313,7 @@ function indexValue (f, l)
                           if k then
                             a[k] = v
                           end
+                          return a
                         end,
                         {}, l)
 end
