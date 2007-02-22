@@ -211,19 +211,19 @@ end
 --   @param [init]: start position [1]
 --   @param [plain]: inhibit magic characters [nil]
 -- @returns
---   @param t: table of {from, to; capt = {captures}}
+--   @param l: list of {from, to; capt = {captures}}
 function finds (s, p, init, plain)
   init = init or 1
-  local t = {}
+  local l = {}
   local from, to, r
   repeat
     from, to, r = findl (s, p, init, plain)
     if from ~= nil then
-      table.insert (t, {from, to, capt = r})
+      table.insert (l, {from, to, capt = r})
       init = to + 1
     end
   until not from
-  return t
+  return l
 end
 
 -- @func gsubs: Perform multiple calls to gsub
@@ -262,10 +262,10 @@ function split (sep, s)
     s, sep = sep, "%s+" -- TODO: make the default pattern configurable by the regex library
   end
   -- finds gets a list of {from, to, capt = {}} lists; we then
-  -- flatten the result, discarding the captures, add 0 (1 before the
-  -- first character) to the start and 0 (1 after the last character)
-  -- to the end, and flatten the result again.
-  local pairs = list.concat ({0}, list.concat (unpack (finds(s, sep))), {0})
+  -- flatten the result, discarding the captures, and prepend 0 (1
+  -- before the first character) and append 0 (1 after the last
+  -- character), and then read off the result in pairs.
+  local pairs = list.concat ({0}, list.flatten (finds (s, sep)), {0})
   local l = {}
   for i = 1, #pairs, 2 do
     table.insert (l, sub (s, pairs[i] + 1, pairs[i + 1] - 1))
