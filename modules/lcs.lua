@@ -32,6 +32,8 @@ function commonSubseqs (a, b)
 end
 
 -- @func longestCommonSubseq: find the LCS of two sequences
+-- The sequence type must have an __append metamethod. This is
+-- provided by string_ext for strings, and by list for lists.
 --   @param a, b: two sequences
 --   @param s: an empty sequence of the same type
 -- @returns
@@ -39,9 +41,10 @@ end
 function longestCommonSubseq (a, b, s)
   local l, m, n = lcs.commonSubseqs (a, b)
   local i, j = 1, 1
+  local f = getmetatable (s).__append
   while i <= m and j <= n do
     if a[i] == b[j] then
-      s = s .. a[i]
+      s = f (s, a[i])
       i = i + 1
       j = j + 1
     elseif l[i + 1][j] >= l[i][j + 1] then
