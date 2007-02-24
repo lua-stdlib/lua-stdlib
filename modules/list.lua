@@ -320,7 +320,27 @@ end
 permuteOn = indexValue
 
 -- @head Metamethods for lists
--- TODO: Set default metamethods:
--- __unm = reverse
--- __mul = repeat
--- __concat = concat
+metatable = {
+  -- list .. table = list.concat
+  __concat = list.concat,
+  -- @func append metamethod
+  --   @param l: list
+  --   @param e: list element
+  -- @returns
+  --   @param l_: {l[1], ..., l[#l], e}
+  __append =
+    function (l, e)
+      local l_ = table.clone (l)
+      table.insert (l_, e)
+      return l_
+    end,
+}
+
+-- @func new: List constructor
+-- Needed in order to use metamethods
+--   @param t: list (as a table)
+-- @returns
+--   @param l: list (with list metamethods)
+function new (l)
+  return setmetatable (l, metatable)
+end
