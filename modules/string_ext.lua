@@ -47,6 +47,16 @@ getmetatable ("").__index =
     end
   end
 
+-- @func __append: Give strings an append metamethod
+--   @param s: string
+--   @param c: character (1-character string)
+-- @returns
+--   @param s_: s .. c
+getmetatable ("").__append =
+  function (s, c)
+    return s .. c
+  end
+
 -- @func caps: Capitalise each word in a string
 --   @param s: string
 -- @returns
