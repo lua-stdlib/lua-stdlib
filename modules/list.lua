@@ -319,19 +319,6 @@ function indexValue (f, l)
 end
 permuteOn = indexValue
 
--- @func lcs: Find the longest common subsequence of two lists
---   @param a, b: lists
--- @returns
---   @param l: LCS of a and b
-function lcs (a, b)
-  return lcs.leastCommonSeq (a, b, table.subscript, table.getn,
-                             function (t, e)
-                               table.insert (t, e)
-                               return t
-                             end,
-                             {})
-end
-
 -- @head Metamethods for lists
 -- TODO: Set default metamethods:
 -- __unm = reverse
