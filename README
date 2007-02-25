@@ -10,6 +10,13 @@ details), and released under the MIT license (the same license as Lua
 itself). There is no warranty.
 
 
+Prerequisites
+-------------
+
+Version 2.0 or later of lrexlib, available from
+http://luaforge.net/projects/lrexlib/
+
+
 Installation
 ------------
 
