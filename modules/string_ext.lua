@@ -263,14 +263,11 @@ function gsubs (s, sub, n)
 end
 
 -- @func split: Split a string at a given separator
---   @param [sep]: separator regex ["%s+"]
+--   @param sep: separator regex
 --   @param s: string to split
 -- @returns
 --   @param l: list of strings
 function split (sep, s)
-  if s == nil then
-    s, sep = sep, "%s+" -- TODO: make the default pattern configurable by the regex library
-  end
   -- finds gets a list of {from, to, capt = {}} lists; we then
   -- flatten the result, discarding the captures, and prepend 0 (1
   -- before the first character) and append 0 (1 after the last
@@ -281,6 +278,20 @@ function split (sep, s)
     table.insert (l, sub (s, pairs[i] + 1, pairs[i + 1] - 1))
   end
   return l
+end
+
+-- @func join: Join a list of strings with the given separator
+--   @param sep: separator
+--   @param l: list of strings to join
+-- @returns
+--   @param s: string
+function join (sep, l)
+  local s = ""
+  for i = 1, #l - 1 do
+    s = s .. l[i] .. sep
+  end
+  s = s .. l[#l]
+  return s
 end
 
 -- @func ltrim: Remove leading matter from a string
