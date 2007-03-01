@@ -140,6 +140,19 @@ function concat (...)
   return r
 end
 
+-- @func rep: Repeat a list
+--   @param n: number of times to repeat
+--   @param l: list
+-- @returns
+--   @param r: n copies of l appended together
+function rep (n, l)
+  local r = {}
+  for i = 1, n do
+    r = list.concat (r, l)
+  end
+  return r
+end
+
 -- @func reverse: Reverse a list
 --   @param l: list
 -- @returns
