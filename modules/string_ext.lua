@@ -290,7 +290,9 @@ function join (sep, l)
   for i = 1, #l - 1 do
     s = s .. l[i] .. sep
   end
-  s = s .. l[#l]
+  if #l > 0 then
+    s = s .. l[#l]
+  end
   return s
 end
 
