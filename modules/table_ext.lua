@@ -2,7 +2,7 @@
 
 module ("table", package.seeall)
 
--- require "list"
+--require "list" FIXME: allow require loops
 
 
 -- @func sort: Make table.sort return its result
