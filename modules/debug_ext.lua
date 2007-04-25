@@ -20,6 +20,7 @@ require "string_ext"
 --   ...: objects to print (as for print)
 function say (...)
   local level = 1
+  local arg = {...}
   if type (arg[1]) == "number" then
     level = arg[1]
     table.remove (arg, 1)
@@ -35,7 +36,7 @@ end
 -- Expose say as global debug
 getmetatable (_M).__call =
    function (self, ...)
-     say (unpack (arg))
+     say (...)
    end
 
 -- @func traceCall: Trace function calls

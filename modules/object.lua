@@ -44,5 +44,6 @@ end
   
 -- @func Object:__call: Sugar instance creation
 function Object.__call (...)
-  return arg[1]._clone (unpack (arg))
+  -- First (...) gets first element of list
+  return (...)._clone (...)
 end
