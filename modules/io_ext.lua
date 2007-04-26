@@ -3,7 +3,6 @@
 module ("io", package.seeall)
 
 require "base"
-require "posix"
 
 
 -- FIXME: Make this the __len metamethod
@@ -12,13 +11,22 @@ require "posix"
 -- @returns
 --   @param len: length of file, or nil on error
 function length (f)
-  local s = posix.stat (f)
-  if s then
-    return s.size
-  else
-    return nil
-  end
+  local h, len
+  h = io.open (f, "rb")
+  len = h:seek ("end")
+  h:close ()
+  return len
 end
+-- FIXME: Use this POSIX implementation
+--require "posix"
+--function length (f)
+--  local s = posix.stat (f)
+--   if s then
+--     return s.size
+--   else
+--     return nil
+--   end
+-- end
 
 -- @func readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
