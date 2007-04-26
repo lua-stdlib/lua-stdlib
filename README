@@ -32,8 +32,12 @@ with
 
   require "std"
 
+
+Documentation
+-------------
+
 The libraries are documented in a LuaDoc-like style, and HTML
-documentation is produced by the included ldoc script. Run
+documentation is produced by the included utils/ldoc script. Run
 
   ldoc *.lua
 
