@@ -11,9 +11,8 @@ require "base"
 -- @returns
 --   @param len: length of file, or nil on error
 function length (f)
-  local h, len
-  h = io.open (f, "rb")
-  len = h:seek ("end")
+  local h = io.open (f, "rb")
+  local len = h:seek ("end")
   h:close ()
   return len
 end
