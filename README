@@ -13,8 +13,8 @@ itself). There is no warranty.
 Prerequisites
 -------------
 
-Version 2.0 or later of lrexlib, available from
-http://luaforge.net/projects/lrexlib/
+ * Version 2.0 or later of lrexlib, available from
+   http://luaforge.net/projects/lrexlib/
 
 
 Installation
@@ -33,7 +33,12 @@ with
   require "std"
 
 The libraries are documented in a LuaDoc-like style, and HTML
-documentation is produced by the included ldoc script.
+documentation is produced by the included ldoc script. Run
+
+  ldoc *.lua
+
+To get a documentation file "foo.html" for each file "foo.lua".
+Pre-built HTML files are included.
 
 
 Bug reports and code contributions
