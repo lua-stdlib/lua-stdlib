@@ -4,7 +4,7 @@
 module ("base", package.seeall)
 
 require "table_ext"
-require "list"
+--require "list" FIXME: sort out op table
 require "string_ext"
 --require "io_ext" FIXME: allow loops
 
@@ -439,7 +439,6 @@ _G.op = {
   ["not"] = function (x)
               return not x
             end,
-  [".."] = list.concat,
   ["=="] = function (x, ...)
              for _, v in ipairs ({...}) do
                if v ~= x then

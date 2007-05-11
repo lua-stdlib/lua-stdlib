@@ -357,3 +357,6 @@ metatable = {
 function new (l)
   return setmetatable (l, metatable)
 end
+
+-- Function forms of operators
+_G.op[".."] = list.concat

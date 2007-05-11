@@ -6,4 +6,4 @@
 
 require "rex_pcre"
 
-rex = rex_pcre
+_G.rex = rex_pcre
