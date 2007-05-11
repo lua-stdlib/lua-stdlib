@@ -9,7 +9,7 @@ require "object"
 require "io_ext"
 
 
--- TODO: Sort out the packaging. Option is tedious to type, but
+-- TODO: Sort out the packaging. getopt.Option is tedious to type, but
 -- surely Option shouldn't be in the root namespace?
 -- TODO: Wrap all messages; do all wrapping in processArgs, not
 -- usageInfo; use sdoc-like library (see string.format todos)
