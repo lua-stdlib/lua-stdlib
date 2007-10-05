@@ -4,6 +4,9 @@ module ("table", package.seeall)
 
 --require "list" FIXME: allow require loops
 
+-- FIXME: use consistent name for result table: t_? (currently r and
+-- u)
+
 
 -- @func sort: Make table.sort return its result
 --   @param t: table
@@ -107,17 +110,14 @@ end
 --   @param p: table {oldindex=newindex ...}
 --   @param t: table to permute
 -- @returns
---   @param u: permuted table
+--   @param r: permuted table
 function permute (p, t)
-  local u = {}
-  for i, v in pairs (t) do
-    if p[i] ~= nil then
-      u[p[i]] = v
-    else
-      u[i] = v
-    end
+  local r = clone (t)
+  for i, v in pairs (p) do
+    r[v] = t[i]
+    r[i] = nil
   end
-  return u
+  return r
 end
 
 -- @func process: map a function over a table using an iterator
