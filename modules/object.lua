@@ -38,7 +38,7 @@ setmetatable (Object, Object)
 -- @returns
 --   @param object: new object
 function Object:_clone (values)
-  local object = table.merge (self, table.permute (self._init, values))
+  local object = table.merge (self, table.rearrange (self._init, values))
   return setmetatable (object, object)
 end
   
