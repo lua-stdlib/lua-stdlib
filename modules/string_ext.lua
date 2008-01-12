@@ -212,7 +212,7 @@ function findl (s, p, init, plain)
   local function pack (from, to, ...)
     return from, to, {...}
   end
-  return pack (s:find (p, init, plain))
+  return pack (find (s, p, init, plain))
 end
 
 -- @func finds: Do multiple find's on a string
