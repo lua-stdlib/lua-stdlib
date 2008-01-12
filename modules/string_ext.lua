@@ -212,7 +212,7 @@ function findl (s, p, init, plain)
   local function pack (from, to, ...)
     return from, to, {...}
   end
-  return pack (find (s, p, init, plain))
+  return pack (p.find (s, p, init, plain))
 end
 
 -- @func finds: Do multiple find's on a string
@@ -255,7 +255,7 @@ function gsubs (s, sub, n)
         break
       end
     else
-      s, rep = gsub (s, i, v)
+      s, rep = i.gsub (s, i, v)
       r = r + rep
     end
   end
@@ -305,7 +305,7 @@ function ltrim (r, s)
   if s == nil then
     s, r = r, "%s+"
   end
-  return (gsub (s, "^" .. r, ""))
+  return (r.gsub (s, "^" .. r, ""))
 end
 
 -- @func rtrim: Remove trailing matter from a string
@@ -317,7 +317,7 @@ function rtrim (r, s)
   if s == nil then
     s, r = r, "%s+"
   end
-  return (gsub (s, r .. "$", ""))
+  return (r.gsub (s, r .. "$", ""))
 end
 
 -- @func trim: Remove leading and trailing matter from a
