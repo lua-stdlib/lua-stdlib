@@ -3,6 +3,7 @@
 module ("io", package.seeall)
 
 require "base"
+require "lfs"
 
 
 -- FIXME: Make this the __len metamethod
@@ -11,21 +12,13 @@ require "base"
 -- @returns
 --   @param len: length of file, or nil on error
 function length (f)
-  local h = io.open (f, "rb")
-  local len = h:seek ("end")
-  h:close ()
-  return len
+ local s = lfs.attributes (f)
+  if s then
+    return s.size
+  else
+    return nil
+  end
 end
--- FIXME: Use this POSIX implementation
---require "posix"
---function length (f)
---  local s = posix.stat (f)
---   if s then
---     return s.size
---   else
---     return nil
---   end
--- end
 
 -- @func readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
