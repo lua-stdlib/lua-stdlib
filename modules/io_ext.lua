@@ -12,12 +12,7 @@ require "lfs"
 -- @returns
 --   @param len: length of file, or nil on error
 function length (f)
- local s = lfs.attributes (f)
-  if s then
-    return s.size
-  else
-    return nil
-  end
+  return (lfs.attributes (f, "size"))
 end
 
 -- @func readLines: Read a file into a list of lines and close it
