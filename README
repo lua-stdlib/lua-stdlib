@@ -13,9 +13,6 @@ itself). There is no warranty.
 Prerequisites
 -------------
 
- * Version 1.4.0 or later of LuaFileSystem, available from
-   http://www.keplerproject.org/luafilesystem/
-
  * Version 2.2.0 or later of lrexlib, available from
    http://luaforge.net/projects/lrexlib/
 
