@@ -5,7 +5,7 @@
 
 
 This is a collection of Lua libraries for Lua 5.1. The libraries are
-copyright by their authors 2000-2007 (see the AUTHORS file for
+copyright by their authors 2000-2008 (see the AUTHORS file for
 details), and released under the MIT license (the same license as Lua
 itself). There is no warranty.
 
@@ -13,10 +13,11 @@ itself). There is no warranty.
 Prerequisites
 -------------
 
- * Version 2.0 or later of lrexlib, available from
+ * Version 1.4.0 or later of LuaFileSystem, available from
+   http://www.keplerproject.org/luafilesystem/
+
+ * Version 2.2.0 or later of lrexlib, available from
    http://luaforge.net/projects/lrexlib/
- * Release 24 or later of bitlib, available from
-   http://luaforge.net/projects/bitlib
 
 
 Installation
