@@ -107,7 +107,7 @@ function invert (t)
 end
 
 -- @func rearrange: Rearrange some indices of a table
---   @param m table {oldindex=newindex...}
+--   @param m: table {oldindex=newindex...}
 --   @param t: table to rearrange
 -- @returns
 --   @param r: rearranged table
@@ -197,8 +197,8 @@ end
 --   @param t: table
 -- @returns
 --   @param m: result table containing elements e of t for which p (e)
-function filter (f, t)
-  return process (pairs, filterItem (f), {}, t)
+function filter (p, t)
+  return process (pairs, filterItem (p), {}, t)
 end
 
 -- @func clone: Make a shallow copy of a table, including any
