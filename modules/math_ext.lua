@@ -4,16 +4,6 @@
 
 module ("math", package.seeall)
 
-require "base"
-
-
--- Calculate bits in an integer
-local n, b = 1, 0
-while n < n + 1 do
-  n = n * 2
-  b = b + 1
-end
-INTEGER_BITS = b
 
 -- @func floor: Extend to take the number of decimal places
 --   @param n: number

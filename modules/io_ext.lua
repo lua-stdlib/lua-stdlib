@@ -3,17 +3,7 @@
 module ("io", package.seeall)
 
 require "base"
-require "lfs"
 
-
--- FIXME: Make this the __len metamethod
--- @func length: Find the length of a file
---   @param f: file name
--- @returns
---   @param len: length of file, or nil on error
-function length (f)
-  return (lfs.attributes (f, "size"))
-end
 
 -- @func readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
