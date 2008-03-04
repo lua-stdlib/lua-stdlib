@@ -94,6 +94,7 @@ end
 --   @param path: path
 -- @returns
 --   @param: path1, ..., pathn: path components
+-- FIXME: Compare with Perl's File::Spec::splitdir
 function pathSplit (path)
   -- Compress multiple separators
   path = string.gsub (path, "//+", "/")
@@ -115,6 +116,7 @@ end
 --   @param: path1, ..., pathn: path components
 -- @returns
 --   @param path: path
+-- FIXME: Compare with Perl's File::Spec::catfile
 function pathConcat (...)
   local arg = {...}
   local rooted = false
