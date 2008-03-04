@@ -1,14 +1,14 @@
 #! /usr/bin/env lua
 prog = {
   name = "ldoc",
-  banner = "ldoc $Revision: 1.7 $ by Reuben Thomas (rrt@sc3d.org)",
+  banner = "ldoc $Revision: 1.8 $ by Reuben Thomas (rrt@sc3d.org)",
   purpose = "Extract and process the comments from Lua source files",
 }
 
 
 require "std"
 
--- TODO: Wrap paragraphs, stopping at in/outdents
+-- TODO: Replace with LuaDoc.
 
 
 -- Default comment processing rules
