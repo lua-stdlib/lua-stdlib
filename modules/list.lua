@@ -17,13 +17,14 @@ require "table_ext"
 --   @param l: the list, as above
 --   @param 0
 function elems (l)
-  return function (l, n)
+  local n = 0
+  return function (l)
            n = n + 1
            if n <= #l then
              return l[n]
            end
          end,
-  l, 0
+  l, true
 end
 
 -- @func relems: An iterator over the elements of a list, in reverse
@@ -37,13 +38,14 @@ end
 --   @param l: the list, as above
 --   @param n: #l + 1
 function relems (l)
-  return function (l, n)
+  local n = #l + 1
+  return function (l)
            n = n - 1
            if n > 0 then
              return l[n]
            end
          end,
-  t, #l + 1
+  l, true
 end
 
 -- @func map: Map a function over a list
