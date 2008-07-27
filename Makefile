@@ -3,4 +3,4 @@ all:
 
 dist:
 	cd modules && ../utils/ldoc *.lua
-	cd .. && tar czf stdlib-$REL.tar.gz --exclude=CVS --exclude=.cvsignore --exclude=template-rrt.lua stdlib
+	cd .. && tar czf stdlib-${REL}.tar.gz --exclude=CVS --exclude=.cvsignore --exclude=".#*" stdlib
