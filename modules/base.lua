@@ -330,7 +330,10 @@ end
 function _G.map (f, i, ...)
   local t = {}
   for e in i (...) do
-    table.insert (t, f (e))
+    local r = f (e)
+    if r then
+      table.insert (t, r)
+    end
   end
   return t
 end
