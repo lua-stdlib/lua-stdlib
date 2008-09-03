@@ -2,9 +2,6 @@
 
 module ("set", package.seeall)
 
-require "object"
-require "table_ext"
-
 
 -- Primitive methods (know about representation)
 
@@ -117,7 +114,7 @@ end
 -- @returns
 --   @param r: true if sets are equal, false otherwise
 function equal (s, t)
-  return subset (s, t) and subset (s, t)
+  return subset (s, t) and subset (t, s)
 end
 
 -- @head Metamethods for sets
