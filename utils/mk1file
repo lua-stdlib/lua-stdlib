@@ -4,7 +4,7 @@
 
 cat <<EOF
 require "rex_pcre"
-function require (f)
+local function require (f)
   package.loaded[f] = true
 end
 EOF
