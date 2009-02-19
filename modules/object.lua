@@ -16,7 +16,7 @@ require "table_ext"
 
 -- Access an object field: object.field
 -- Call an object method: object:method (...)
--- Call a class method: Class.method (self, ...)
+-- Call a class method: Class.method (object, ...)
 
 -- Add a field: object.field = x
 -- Add a method: function object:method (...) ... end
@@ -29,21 +29,21 @@ _G.Object = {
   -- numbered values in an object constructor are
   -- assigned to the fields given in _init
   _init = {},
+
+  -- @func _clone: Object constructor
+  --   @param values: initial values for fields in
+  --   _init
+  -- @returns
+  --   @param object: new object
+  _clone = function (self, values)
+             local object = table.merge (self, table.rearrange (self._init, values))
+             return setmetatable (object, object)
+           end,
+
+  -- @func __call: Sugar instance creation
+  __call = function (...)
+             -- First (...) gets first element of list
+             return (...)._clone (...)
+           end,
 }
 setmetatable (Object, Object)
-  
--- @func Object:_clone: Object constructor
---   @param values: initial values for fields in
---   _init
--- @returns
---   @param object: new object
-function Object:_clone (values)
-  local object = table.merge (self, table.rearrange (self._init, values))
-  return setmetatable (object, object)
-end
-  
--- @func Object:__call: Sugar instance creation
-function Object.__call (...)
-  -- First (...) gets first element of list
-  return (...)._clone (...)
-end
