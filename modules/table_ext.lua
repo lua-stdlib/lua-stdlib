@@ -139,13 +139,13 @@ end
 -- @returns
 --   @param u: copy of table
 function deepclone (t)
-  local r = {}
+  local r = setmetatable ({}, getmetatable (t))
   local d = {[t] = r}
   local function copy (o, x)
     for i, v in pairs (x) do
       if type (v) == "table" then
         if not d[v] then
-          d[v] = {}
+          d[v] = setmetatable ({}, getmetatable (v))
           local q = copy (d[v], v)
           o[i] = q
         else
