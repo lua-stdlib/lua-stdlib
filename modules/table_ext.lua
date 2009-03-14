@@ -123,10 +123,14 @@ end
 -- @func clone: Make a shallow copy of a table, including any
 -- metatable
 --   @param t: table
+--   @param nometa: if non-nil don't copy metatables
 -- @returns
 --   @param u: copy of table
-function clone (t)
-  local u = setmetatable ({}, getmetatable (t))
+function clone (t, nometa)
+  local u = {}
+  if not nometa then
+    setmetatable (u, getmetatable (t))
+  end
   for i, v in pairs (t) do
     u[i] = v
   end
@@ -136,16 +140,23 @@ end
 -- @func deepclone: Make a deep copy of a table, including any
 --  metatable
 --   @param t: table
+--   @param nometa: if non-nil don't copy metatables
 -- @returns
 --   @param u: copy of table
-function deepclone (t)
-  local r = setmetatable ({}, getmetatable (t))
+function deepclone (t, nometa)
+  local r = {}
+  if not nometa then
+    setmetatable (r, getmetatable (t))
+  end
   local d = {[t] = r}
   local function copy (o, x)
     for i, v in pairs (x) do
       if type (v) == "table" then
         if not d[v] then
-          d[v] = setmetatable ({}, getmetatable (v))
+          d[v] = {}
+          if not nometa then
+            setmetatable (d[v], getmetatable (v))
+          end
           local q = copy (d[v], v)
           o[i] = q
         else
