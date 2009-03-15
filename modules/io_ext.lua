@@ -124,7 +124,7 @@ function pathConcat (...)
     rooted = string.sub (arg[1], 1, 1) == "/"
   end
   -- Empty list is current dir
-  local path = string.join ("/", arg)
+  local path = table.concat (arg, "/")
   -- Compress multiple separators
   path = string.gsub (path, "//+", "/")
   -- Suppress trailing /

@@ -8,12 +8,12 @@ module ("string", package.seeall)
 --   (Use in getopt)
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
---   
+--
 --   Based on The Design of a Pretty-printing Library in Advanced
 --   Functional Programming, Johan Jeuring and Erik Meijer (eds), LNCS 925
 --   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
 --   Heavily modified by Simon Peyton Jones, Dec 96
---   
+--
 --   Haskell types:
 --   data Doc     list of lines
 --   quote :: Char -> Char -> Doc -> Doc    Wrap document in ...
@@ -278,22 +278,6 @@ function split (sep, s)
     table.insert (l, sub (s, pairs[i] + 1, pairs[i + 1] - 1))
   end
   return l
-end
-
--- @func join: Join a list of strings with the given separator
---   @param sep: separator
---   @param l: list of strings to join
--- @returns
---   @param s: string
-function join (sep, l)
-  local s = ""
-  for i = 1, #l - 1 do
-    s = s .. l[i] .. sep
-  end
-  if #l > 0 then
-    s = s .. l[#l]
-  end
-  return s
 end
 
 -- @func ltrim: Remove leading matter from a string
