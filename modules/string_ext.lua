@@ -118,11 +118,11 @@ end
 -- @returns
 --   @param s: formatted string
 local _format = format
-function format (f, ...)
-  if #arg == 0 then
+function format (f, arg1, ...)
+  if arg1 == nil then
     return f
   else
-    return _format (f, unpack (arg))
+    return _format (f, arg1, ...)
   end
 end
 
