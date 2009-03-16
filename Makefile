@@ -1,5 +1,5 @@
 all:
-	@echo "REL=VERSION make dist"
+	@echo "REL=VERSION make {release,dist}"
 
 dist:
 	cd modules && ../utils/ldoc *.lua
