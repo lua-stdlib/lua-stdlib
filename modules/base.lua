@@ -422,16 +422,15 @@ end
 
 -- @func assert: Extend to allow formatted arguments
 --   @param v: value
---   @param ...: arguments for format
+--   @param f, ...: arguments to format
 -- @returns
 --   @param v: value
-function _G.assert (v, ...)
-  local arg = {...}
+function _G.assert (v, f, ...)
   if not v then
-    if #arg == 0 then
-      table.insert (arg, "")
+    if f == nil then
+      f = ""
     end
-    error (string.format (unpack (arg)))
+    error (string.format (f, ...))
   end
   return v
 end
