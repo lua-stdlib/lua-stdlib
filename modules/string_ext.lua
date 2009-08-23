@@ -262,6 +262,7 @@ function gsubs (s, sub, n)
   return s, r
 end
 
+-- FIXME: Consider Perl and Python versions.
 -- @func split: Split a string at a given separator
 --   @param sep: separator regex
 --   @param s: string to split
