@@ -3,6 +3,7 @@
 module ("io", package.seeall)
 
 require "base"
+require "posix"
 
 
 -- @func readLines: Read a file into a list of lines and close it
@@ -43,8 +44,8 @@ end
 -- @returns
 --   @param name_: file name with new suffix
 function changeSuffix (from, to, name)
-  return dirname (name) .. "/" ..
-    string.gsub (basename (name), "%." .. from .. "$", "") .. "." .. to
+  return posix.dirname (name) .. "/" ..
+    string.gsub (posix.basename (name), "%." .. from .. "$", "") .. "." .. to
 end
 
 -- @func addSuffix: Add a suffix to a filename if not already present
