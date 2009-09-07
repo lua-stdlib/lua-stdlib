@@ -27,7 +27,6 @@ cat <<EOF
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 
-require "rex_pcre"
 local function require (f)
   package.loaded[f] = true
 end
@@ -36,8 +35,6 @@ EOF
 # FIXME: This list should be generated automatically from inspection
 # of the sources, by grepping for "^require" and following the
 # dependency tree, starting at std.lua.
-
-# FIXME: Cope with external dependencies (see std.lua)
 
 cat \
   base.lua \
