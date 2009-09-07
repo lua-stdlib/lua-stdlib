@@ -1,7 +1,7 @@
 #! /usr/bin/env lua
 prog = {
   name = "ldoc",
-  banner = "ldoc $Revision: 1.8 $ by Reuben Thomas (rrt@sc3d.org)",
+  banner = "ldoc $Revision: 1.9 $ by Reuben Thomas (rrt@sc3d.org)",
   purpose = "Extract and process the comments from Lua source files",
 }
 
@@ -69,7 +69,7 @@ function ldoc (name, _)
     end
   end
   local block = readBlocks ()
-  local out = io.changeSuffix (".-", suffix, name)
+  local out = string.gsub (name, "%.(.-)$", "." .. suffix)
   for i = 1, table.getn (block) do
     for j = 1, table.getn (block[i]) do
       block[i][j] = string.gsubs (block[i][j], rule.replace)
