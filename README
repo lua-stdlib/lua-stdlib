@@ -15,8 +15,6 @@ Prerequisites
 
  * Version 2.2.0 or later of lrexlib, available from
    http://luaforge.net/projects/lrexlib/
- * Version 5.1.1 or later of lua-posix, available from
-   http://luaforge.net/projects/luaposix/
 
 
 Installation

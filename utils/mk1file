@@ -28,7 +28,6 @@ cat <<EOF
 -- THE SOFTWARE.
 
 require "rex_pcre"
-require "posix"
 local function require (f)
   package.loaded[f] = true
 end
