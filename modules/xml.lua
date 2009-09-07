@@ -3,7 +3,6 @@
 module ("xml", package.seeall)
 
 require "base"
-require "rex"
 
 
 -- @func string.writeXML: write a table as XML
@@ -48,9 +47,16 @@ function string.writeXML (t, indent, spacing)
                  end,
                  function (s)
                    s = tostring (s)
+                   s = string.gsub (s, "&([%S]+)",
+                                    function (s)
+                                      if not string.match (s, "^#?%w+;") then
+                                        return "&amp;" .. s
+                                      else
+                                        return "&" .. s
+                                      end
+                                    end)
                    s = string.gsub (s, "<", "&lt;")
                    s = string.gsub (s, ">", "&gt;")
-                   s = rex.gsub (s, "&(?!#?\\w+;)", "&amp;")
                    return s
                  end,
                  function (x, i, v, is, vs)

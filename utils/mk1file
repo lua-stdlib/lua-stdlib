@@ -47,11 +47,7 @@ cat \
   object.lua \
   lcs.lua \
   string_ext.lua \
-  xml.lua \
-  rex.lua \
   math_ext.lua \
   io_ext.lua \
   getopt.lua \
-  set.lua \
-  parser.lua \
-  mbox.lua
+  set.lua

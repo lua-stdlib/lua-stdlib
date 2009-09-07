@@ -9,12 +9,7 @@ copyright by their authors 2000-2009 (see the AUTHORS file for
 details), and released under the MIT license (the same license as Lua
 itself). There is no warranty.
 
-
-Prerequisites
--------------
-
- * Version 2.2.0 or later of lrexlib, available from
-   http://luaforge.net/projects/lrexlib/
+Stdlib has no prerequisites beyond a standard Lua 5.1 system.
 
 
 Installation
@@ -27,10 +22,13 @@ LUA_PATH.
 Use
 ---
 
-As well as requiring individual libraries, you can load the entire set
-with
+As well as requiring individual libraries, you can load the standard
+set with
 
   require "std"
+
+Some of the less-used libraries are not loaded by this method; these
+are intended to be removed from stdlib eventually.
 
 
 Documentation
