@@ -200,7 +200,6 @@ function numbertosi (n)
   return tostring (man) .. s
 end
 
-
 -- @func findl: Do find, returning captures as a list
 --   @param s: target string
 --   @param p: pattern
@@ -306,8 +305,7 @@ function rtrim (r, s)
   return (r.gsub (s, r .. "$", ""))
 end
 
--- @func trim: Remove leading and trailing matter from a
--- string
+-- @func trim: Remove leading and trailing matter from a string
 --   @param [r]: leading/trailing regex ["%s+"]
 --   @param s: string
 -- @returns
