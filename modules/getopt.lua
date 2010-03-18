@@ -4,6 +4,7 @@
 module ("getopt", package.seeall)
 
 require "base"
+require "list"
 require "string_ext"
 require "object"
 require "io_ext"
@@ -267,7 +268,7 @@ end
 
 -- A small and hopefully enlightening example:
 if type (_DEBUG) == "table" and _DEBUG.std then
-  
+
   function out (o)
     return o or io.stdout
   end
