@@ -5,7 +5,7 @@
 cat <<EOF
 -- Lua stdlib
 --
--- Copyright (c) 2000-2009 stdlib authors.
+-- Copyright (c) 2000-2010 stdlib authors.
 --
 -- See http://luaforge.net/projects/stdlib/ for more information.
 --
@@ -32,9 +32,7 @@ local function require (f)
 end
 EOF
 
-# FIXME: This list should be generated automatically from inspection
-# of the sources, by grepping for "^require" and following the
-# dependency tree, starting at std.lua.
+# FIXME: This list should be generated automatically from std.lua
 
 cat \
   base.lua \
@@ -42,7 +40,6 @@ cat \
   table_ext.lua \
   list.lua \
   object.lua \
-  lcs.lua \
   string_ext.lua \
   math_ext.lua \
   io_ext.lua \
