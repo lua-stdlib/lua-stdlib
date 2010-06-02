@@ -3,8 +3,12 @@
 
 module ("base", package.seeall)
 
+-- Functional forms of infix operators
+-- Defined here so that other modules can write to it.
+_G.op = {}
+
 require "table_ext"
---require "list" FIXME: sort out op table
+require "list"
 require "string_ext"
 --require "io_ext" FIXME: allow loops
 
@@ -91,6 +95,7 @@ end
 --   @param x: object to convert to string
 -- @returns
 --   @param s: string representation
+_G._tostring = tostring -- make original tostring available
 local _tostring = tostring
 function _G.tostring (x)
   return render (x,
@@ -106,18 +111,6 @@ function _G.tostring (x)
                    end
                    return ""
                  end)
-end
-
--- @func print: Make print use tostring, so that improvements to tostring
--- are picked up
---   @param arg: objects to print
-local _print = print
-function _G.print (...)
-  local arg = {...}
-  for i = 1, select ("#", ...) do
-    arg[i] = tostring (arg[i])
-  end
-  _print (...)
 end
 
 -- @func prettytostring: pretty-print a table
@@ -461,58 +454,65 @@ function _G.die (...)
 end
 
 -- Function forms of operators
-_G.op = {
-  ["+"] = function (...)
-            return list.foldr (function (a, b)
-                                 return a + b
-                               end,
-                               0, {...})
-          end,
-  ["-"] = function (...)
-            return list.foldr (function (a, b)
-                                 return a - b
-                               end,
-                               0, {...})
-          end,
-  ["*"] = function (...)
-            return list.foldr (function (a, b)
-                                 return a * b
-                               end,
-                               1, {...})
-          end,
-  ["/"] = function (a, b)
-            return a / b
-          end,
-  ["and"] = function (...)
-              return list.foldl (function (a, b)
-                                   return a and b
-                                 end, true, {...})
-            end,
-  ["or"] = function (...)
-             return list.foldl (function (a, b)
-                                  return a or b
-                                end,
-                                false, {...})
-           end,
-  ["not"] = function (x)
-              return not x
-            end,
-  ["=="] = function (x, ...)
-             for _, v in ipairs ({...}) do
-               if v ~= x then
-                 return false
-               end
-             end
-             return true
-           end,
-  ["~="] = function (...)
-             local t = {}
-             for _, v in ipairs ({...}) do
-               if t[v] then
-                 return false
-               end
-               t[v] = true
-             end
-             return true
-           end,
-}
+_G.op["+"] =
+  function (...)
+    return list.foldr (function (a, b)
+                         return a + b
+                       end,
+                       0, {...})
+  end
+_G.op["-"] =
+  function (...)
+    return list.foldr (function (a, b)
+                         return a - b
+                       end,
+                       0, {...})
+  end
+_G.op["*"] =
+  function (...)
+    return list.foldr (function (a, b)
+                         return a * b
+                       end,
+                       1, {...})
+  end
+_G.op["/"] =
+  function (a, b)
+    return a / b
+  end
+_G.op["and"] =
+  function (...)
+    return list.foldl (function (a, b)
+                         return a and b
+                       end, true, {...})
+  end
+_G.op["or"] =
+  function (...)
+    return list.foldl (function (a, b)
+                         return a or b
+                       end,
+                       false, {...})
+  end
+_G.op["not"] =
+  function (x)
+    return not x
+  end
+_G.op["=="] =
+  function (x, ...)
+    for _, v in ipairs ({...}) do
+      if v ~= x then
+        return false
+      end
+    end
+    return true
+  end
+_G.op["~="] =
+  function (...)
+    local t = {}
+    for _, v in ipairs ({...}) do
+      if t[v] then
+        return false
+      end
+      t[v] = true
+    end
+    return true
+  end
