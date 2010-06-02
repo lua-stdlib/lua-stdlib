@@ -5,7 +5,7 @@
 
 
 This is a collection of Lua libraries for Lua 5.1. The libraries are
-copyright by their authors 2000-2009 (see the AUTHORS file for
+copyright by their authors 2000-2010 (see the AUTHORS file for
 details), and released under the MIT license (the same license as Lua
 itself). There is no warranty.
 
