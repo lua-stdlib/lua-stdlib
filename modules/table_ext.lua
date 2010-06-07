@@ -37,16 +37,6 @@ function lookup (t, l)
   return list.foldl (subscript, t, l)
 end
 
--- @func pathSubscript: Subscript a table with a string containing
--- dots
---   @param t: table
---   @param s: subscript of the form s1.s2. ... .sn
--- @returns
---   @param v: t.s1.s2. ... .sn
-function subscripts (t, s)
-  return lookup (t, string.split ("%.", s))
-end
-
 -- @func empty: Say whether table is empty
 --   @param t: table
 -- @returns
