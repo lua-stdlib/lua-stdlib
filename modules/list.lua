@@ -120,7 +120,7 @@ end
 -- @returns
 --   @param r: result
 function foldl (f, e, l)
-  return _G.foldl (f, elems, e, l)
+  return _G.fold (f, e, elems, l)
 end
 
 -- @func foldr: Fold a binary function through a list right
@@ -131,7 +131,8 @@ end
 -- @returns
 --   @param r: result
 function foldr (f, e, l)
-  return _G.foldr (f, relems, e, l)
+  return _G.fold (function (x, y) return f (y, x) end,
+                  e, relems, l)
 end
 
 -- @func cons: Prepend an item to a list

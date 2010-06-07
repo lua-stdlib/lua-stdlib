@@ -347,14 +347,14 @@ function _G.filter (p, i, ...)
   return t
 end
 
--- @func fold: Fold a function into an iterator leftwards
+-- @func fold: Fold a binary function into an iterator
 --   @param f: function
---   @param d: element to place in left-most position
+--   @param d: initial first argument
 --   @param i: iterator
 --   @param ...:
 -- @returns
 --   @param r: result
-function _G.foldl (f, i, ...)
+function _G.fold (f, d, i, ...)
   local r = d
   for e in i (...) do
     r = f (r, e)
@@ -399,19 +399,20 @@ end
 --     @param e: event
 --     @param t: table of values
 -- function _G.treeIter (t)
---   if not coroutine.yield ("branch", t) then
---     for i, v in ipairs (t) do
---       if type (v) ~= "table" then
---         if coroutine.yield ("leaf", {i, v}) then
---           break
+--   return coroutine.wrap (function ()
+--     if not coroutine.yield ("branch", t) then
+--       for i, v in ipairs (t) do
+--         if type (v) ~= "table" then
+--           if coroutine.yield ("leaf", {i, v}) then
+--             break
+--           end
+--         else
+--           f (v)
 --         end
---       else
---         f (v)
 --       end
+--       coroutine.yield ("join", t)
 --     end
---     coroutine.yield ("join", t)
---   end
--- end
+--   end)
 
 -- @func assert: Extend to allow formatted arguments
 --   @param v: value
@@ -455,64 +456,38 @@ end
 
 -- Function forms of operators
 _G.op["+"] =
-  function (...)
-    return list.foldr (function (a, b)
-                         return a + b
-                       end,
-                       0, {...})
+  function (a, b)
+    return a + b
   end
 _G.op["-"] =
-  function (...)
-    return list.foldr (function (a, b)
-                         return a - b
-                       end,
-                       0, {...})
+  function (a, b)
+    return a - b
   end
 _G.op["*"] =
-  function (...)
-    return list.foldr (function (a, b)
-                         return a * b
-                       end,
-                       1, {...})
+  function (a, b)
+    return a * b
   end
 _G.op["/"] =
   function (a, b)
     return a / b
   end
 _G.op["and"] =
-  function (...)
-    return list.foldl (function (a, b)
-                         return a and b
-                       end, true, {...})
+  function (a, b)
+    return a and b
   end
 _G.op["or"] =
-  function (...)
-    return list.foldl (function (a, b)
-                         return a or b
-                       end,
-                       false, {...})
+  function (a, b)
+    return a or b
   end
 _G.op["not"] =
-  function (x)
-    return not x
+  function (a)
+    return not a
   end
 _G.op["=="] =
-  function (x, ...)
-    for _, v in ipairs ({...}) do
-      if v ~= x then
-        return false
-      end
-    end
-    return true
+  function (a, b)
+    return a == b
   end
 _G.op["~="] =
-  function (...)
-    local t = {}
-    for _, v in ipairs ({...}) do
-      if t[v] then
-        return false
-      end
-      t[v] = true
-    end
-    return true
+  function (a, b)
+    return a ~= b
   end
