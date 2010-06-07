@@ -7,8 +7,11 @@ module ("debug", package.seeall)
 require "io_ext"
 require "string_ext"
 
--- _DEBUG is either any true value (equivalent to {level = 1}), or a
--- table with the following members:
+-- Debugging is off by default
+_G._DEBUG = nil
+
+-- To activate debugging set _DEBUG either to any true value
+-- (equivalent to {level = 1}), or a table with the following members:
 
 -- level: debugging level
 -- call: do call trace debugging
@@ -33,7 +36,7 @@ function say (...)
   end
 end
 
--- Expose say as global debug
+-- Expose say as global function `debug'
 getmetatable (_M).__call =
    function (self, ...)
      say (...)
@@ -41,10 +44,10 @@ getmetatable (_M).__call =
 
 -- @func traceCall: Trace function calls
 --   @param event: event causing the call
--- Use: debug.sethook (traceCall, "cr"), as below
--- based on test/trace-calls.lua from the Lua 5.0 distribution
+-- Use: debug.sethook (trace, "cr"), as below
+-- based on test/trace-calls.lua from the Lua distribution
 local level = 0
-function traceCall (event)
+function trace (event)
   local t = getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
@@ -54,7 +57,7 @@ function traceCall (event)
   if event == "call" then
     level = level + 1
   else
-    level = max (level - 1, 0)
+    level = math.max (level - 1, 0)
   end
   if t.what == "main" then
     if event == "call" then
@@ -73,5 +76,5 @@ end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  sethook (traceCall, "cr")
+  sethook (trace, "cr")
 end
