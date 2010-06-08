@@ -1,8 +1,9 @@
-#! /bin/sh
+#! /usr/bin/env lua
+-- Make a single file version of the library
 
-# Make a single file that can be used with dofile
+require "std"
 
-cat <<EOF
+io.write [[
 -- Lua stdlib
 --
 -- Copyright (c) 2000-2010 stdlib authors.
@@ -30,18 +31,11 @@ cat <<EOF
 local function require (f)
   package.loaded[f] = true
 end
-EOF
+]]
 
-# FIXME: This list should be generated automatically from std.lua
+local function read_module (m)
+  io.input (m .. ".lua")
+  return io.read ("*a")
+end
 
-cat \
-  base.lua \
-  debug_ext.lua \
-  table_ext.lua \
-  list.lua \
-  object.lua \
-  string_ext.lua \
-  math_ext.lua \
-  io_ext.lua \
-  getopt.lua \
-  set.lua
+io.write (table.concat (list.map (read_module, require "modules"), "\n"))

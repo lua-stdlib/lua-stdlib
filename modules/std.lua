@@ -13,13 +13,6 @@
 
 module ("std", package.seeall)
 
-require "base"
-require "debug_ext"
-require "table_ext"
-require "list"
-require "object"
-require "string_ext"
-require "math_ext"
-require "io_ext"
-require "getopt"
-require "set"
+for _, m in ipairs (require "modules") do
+  require (m)
+end
