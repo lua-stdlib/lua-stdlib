@@ -28,10 +28,10 @@ end
 --   @param ...: values to write (as for write)
 function writeLine (h, ...)
   if io.type (h) ~= "file" then
-    table.insert (arg, 1, h)
+    io.write (h, "\n")
     h = io.output ()
   end
-  for _, v in ipairs (arg) do
+  for _, v in ipairs ({...}) do
     h:write (v, "\n")
   end
 end
@@ -78,6 +78,7 @@ end
 --     @param name: the name of the file being read
 --     @param i: the number of the argument
 function processFiles (f)
+  -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
     table.insert (arg, "-")
   end
