@@ -28,7 +28,7 @@ end
 --   @param l: list
 -- @returns
 --   @param s: set
-metatable = {}
+local metatable = {}
 function new (l)
   local s = setmetatable ({}, metatable)
   for _, e in ipairs (l) do
