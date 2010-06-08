@@ -455,6 +455,11 @@ function _G.die (...)
 end
 
 -- Function forms of operators
+_G.op["[]"] =
+  function (t, s)
+    return t[s]
+  end
+
 _G.op["+"] =
   function (a, b)
     return a + b

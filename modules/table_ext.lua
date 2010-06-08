@@ -19,24 +19,6 @@ function sort (t, c)
   return t
 end
 
--- @func subscript: Expose [] as a function
---   @param t: table
---   @param s: subscript
--- @returns
---   @param v: t[s]
-function subscript (t, s)
-  return t[s]
-end
-
--- @func lookup: Do a late-bound table lookup
---   @param t: table to look up in
---   @param l: list of indices {l1 ... ln}
--- @returns
---   @param u: t[l1]...[ln]
-function lookup (t, l)
-  return list.foldl (subscript, t, l)
-end
-
 -- @func empty: Say whether table is empty
 --   @param t: table
 -- @returns
@@ -113,7 +95,7 @@ end
 -- @func clone: Make a shallow copy of a table, including any
 -- metatable
 --   @param t: table
---   @param nometa: if non-nil don't copy metatables
+--   @param nometa: if non-nil don't copy metatable
 -- @returns
 --   @param u: copy of table
 function clone (t, nometa)
@@ -125,40 +107,6 @@ function clone (t, nometa)
     u[i] = v
   end
   return u
-end
-
--- @func deepclone: Make a deep copy of a table, including any
---  metatable
---   @param t: table
---   @param nometa: if non-nil don't copy metatables
--- @returns
---   @param u: copy of table
-function deepclone (t, nometa)
-  local r = {}
-  if not nometa then
-    setmetatable (r, getmetatable (t))
-  end
-  local d = {[t] = r}
-  local function copy (o, x)
-    for i, v in pairs (x) do
-      if type (v) == "table" then
-        if not d[v] then
-          d[v] = {}
-          if not nometa then
-            setmetatable (d[v], getmetatable (v))
-          end
-          local q = copy (d[v], v)
-          o[i] = q
-        else
-          o[i] = d[v]
-        end
-      else
-        o[i] = v
-      end
-    end
-    return o
-  end
-  return copy (r, t)
 end
 
 -- @func merge: Merge two tables
@@ -175,12 +123,12 @@ function merge (t, u)
   return r
 end
 
--- @func newDefault: Make a table with a default value
---   @param x: default value
+-- @func new: Make a table with a default entry value
+--   @param [x]: default entry value [nil]
 --   @param [t]: initial table [{}]
 -- @returns
 --   @param u: table for which u[i] is x if u[i] does not exist
-function newDefault (x, t)
+function new (x, t)
   return setmetatable (t or {},
                        {__index = function (t, i)
                                     return x
