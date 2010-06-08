@@ -1,4 +1,5 @@
 return {
+  "strict",
   "base",
   "debug_ext",
   "table_ext",
