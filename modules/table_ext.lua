@@ -24,10 +24,7 @@ end
 -- @returns
 --   @param f: true if empty or false otherwise
 function empty (t)
-  for _ in pairs (t) do
-    return false
-  end
-  return true
+  return not next (t)
 end
 
 -- @func size: Find the number of elements in a table
