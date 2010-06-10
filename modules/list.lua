@@ -151,7 +151,7 @@ end
 --   @param r: {l[1], ..., l[#l], x}
 function append (x, l)
   local r = {unpack (l)}
-  table.insert(r, x)
+  table.insert (r, x)
   return r
 end
 
