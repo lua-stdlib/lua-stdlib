@@ -305,27 +305,27 @@ end
 --   @param tr: tree to iterate over
 -- @returns
 --   @param f: iterator function
---     @param p: path to this object within the tree
---   @returns
+--     @param n: current node
+--     @param p: path to node within the tree
+--   @yields
 --     @param ty: type ("leaf", "branch" (pre-order) or "join" (post-order))
---     @param p: path to node ({i1...in})
---     @param n: node
+--     @param p_: path to node ({i1...ik})
+--     @param n_: node
 function _G.nodes (tr)
-  return coroutine.wrap (function (p)
-                           if type (tr) == "table" then
-                             coroutine.yield ("branch", p, tr)
-                             for i, v in pairs (tr) do
-                               table.insert (p, i)
-                               for ty, q, w in nodes (v) do
-                                 coroutine.yield (ty, list.concat (p, q), w)
-                               end
-                               table.remove (p)
-                             end
-                             coroutine.yield ("join", p, tr)
-                           else
-                             coroutine.yield ("leaf", p, tr)
-                           end
-                         end), {}
+  local function visit (n, p)
+    if type (n) == "table" then
+      coroutine.yield ("branch", p, n)
+      for i, v in pairs (n) do
+        table.insert (p, i)
+        visit (v, p)
+        table.remove (p)
+      end
+      coroutine.yield ("join", p, n)
+    else
+      coroutine.yield ("leaf", p, n)
+    end
+  end
+  return coroutine.wrap (visit), tr, {}
 end
 
 -- @func collect: collect the results of an iterator
