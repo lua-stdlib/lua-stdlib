@@ -301,6 +301,33 @@ function _G.ripairs (t)
   t, #t + 1
 end
 
+-- @func nodes: tree iterator
+--   @param tr: tree to iterate over
+-- @returns
+--   @param f: iterator function
+--     @param p: path to this object within the tree
+--   @returns
+--     @param ty: type ("leaf", "branch" (pre-order) or "join" (post-order))
+--     @param p: path to node ({i1...in})
+--     @param n: node
+function _G.nodes (tr)
+  return coroutine.wrap (function (p)
+                           if type (tr) == "table" then
+                             coroutine.yield ("branch", p, tr)
+                             for i, v in pairs (tr) do
+                               table.insert (p, i)
+                               for ty, q, w in nodes (v) do
+                                 coroutine.yield (ty, list.concat (p, q), w)
+                               end
+                               table.remove (p)
+                             end
+                             coroutine.yield ("join", p, tr)
+                           else
+                             coroutine.yield ("leaf", p, tr)
+                           end
+                         end), {}
+end
+
 -- @func collect: collect the results of an iterator
 --   @param i: iterator
 --   @param ...: arguments
@@ -361,58 +388,6 @@ function _G.fold (f, d, i, ...)
   end
   return r
 end
-
--- @func treeIter: tree iterator
---   @param t: tree to iterate over
--- @returns
---   @param f: iterator function
---   @returns
---     @param e: event
---     @param t: table of values
-function _G.treeIter (t)
-  return coroutine.wrap (function ()
-                           if not coroutine.yield ("branch", t) then
-                             for i, v in ipairs (t) do
-                               if type (v) ~= "table" then
-                                 if coroutine.yield ("leaf", {i, v}) then
-                                   break
-                                 end
-                               else
-                                 for e, u in treeIter (v) do
-                                   if coroutine.yield (e, u) then
-                                     break
-                                   end
-                                 end
-                               end
-                             end
-                             coroutine.yield ("join", t)
-                           end
-                         end)
-end
-
--- FIXME: this version is more obvious but has an illegal yield
--- @func treeIter: tree iterator
---   @param t: tree to iterate over
--- @returns
---   @param f: iterator function
---   @returns
---     @param e: event
---     @param t: table of values
--- function _G.treeIter (t)
---   return coroutine.wrap (function ()
---     if not coroutine.yield ("branch", t) then
---       for i, v in ipairs (t) do
---         if type (v) ~= "table" then
---           if coroutine.yield ("leaf", {i, v}) then
---             break
---           end
---         else
---           f (v)
---         end
---       end
---       coroutine.yield ("join", t)
---     end
---   end)
 
 -- @func assert: Extend to allow formatted arguments
 --   @param v: value
