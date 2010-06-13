@@ -1,7 +1,7 @@
 #! /usr/bin/env lua
 prog = {
   name = "ldoc",
-  banner = "ldoc $Revision: 1.9 $ by Reuben Thomas (rrt@sc3d.org)",
+  banner = "ldoc $Revision: 1.10 $ by Reuben Thomas (rrt@sc3d.org)",
   purpose = "Extract and process the comments from Lua source files",
 }
 
@@ -36,7 +36,7 @@ rule = {
 function readBlocks ()
   local patt = "^%-%-+%s?"
   local block, lines = {n = 0}, 0
-  local line, to
+  local line, to, _
   repeat
     repeat
       line = io.read ("*l")

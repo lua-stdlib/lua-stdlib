@@ -239,6 +239,7 @@ end
 -- @func processArgs: simple getOpt wrapper
 -- adds -version/-v and -help/-h/-? automatically; stops program
 -- if there was an error or -help was used
+_G.options = nil
 function processArgs ()
   local totArgs = #arg
   options = Options (list.concat (options or {},
