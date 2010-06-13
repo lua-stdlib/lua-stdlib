@@ -4,7 +4,6 @@ module ("tree", package.seeall)
 
 require "list"
 
-
 -- @func new: Make a table into a tree
 --   @param t: table
 -- @returns
@@ -35,12 +34,10 @@ end
 function metatable.__newindex (tr, i, v)
   if type (i) == "table" then
     for n = 1, #i - 1 do
-      if type (tr[i[n]]) == "table" then
-        tr_ = tr[i[n]]
-      else
-        tr[i[n]] = {}
-        tr = tr[i[n]]
+      if type (tr[i[n]]) ~= "table" then
+        tr[i[n]] = tree.new ()
       end
+      tr = tr[i[n]]
     end
     rawset (tr, i[#i], v)
   else
