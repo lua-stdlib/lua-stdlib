@@ -35,16 +35,10 @@ module ("string", package.seeall)
 --   @param n: index
 -- @returns
 --   @param s_: string.sub (s, n, n)
-local oldmeta = getmetatable ("").__index
 getmetatable ("").__index =
   function (s, n)
     if type (n) == "number" then
       return sub (s, n, n)
-    -- Fall back to old metamethods
-    elseif type (oldmeta) == "function" then
-      return oldmeta (s, n)
-    else
-      return oldmeta[n]
     end
   end
 
