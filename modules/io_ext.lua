@@ -46,15 +46,22 @@ function splitdir (path)
   return string.split ("/", path)
 end
 
+-- @func catfile: concatenate directories into a path
+-- The same as Perl's File::Spec::catfile
+--   @param: path1, ..., pathn: path components
+-- @returns
+--   @param path: path
+function catfile (...)
+  local path = table.concat ({...}, "/")
+end
+
 -- @func catdir: concatenate directories into a path
 -- The same as Perl's File::Spec::catdir
 --   @param: path1, ..., pathn: path components
 -- @returns
 --   @param path: path
 function catdir (...)
-  local path = table.concat ({...}, "/")
-  -- Suppress trailing / on non-root path
-  return (string.gsub (path, "(.)/$", "%1"))
+  return (string.gsub (catfile (...), "^$", "/"))
 end
 
 -- @func shell: Perform a shell command and return its output
