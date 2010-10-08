@@ -6,6 +6,12 @@ module ("parser", package.seeall)
 require "object"
 
 
+-- FIXME: Give lexemes as an extra argument to Parser?
+-- FIXME: Rename second argument to parse method to "tokens"?
+-- FIXME: Make start_token an optional argument to parse? (swap with
+--   token list) and have it default to the first non-terminal?
+
+
 -- A parser is created by
 --
 --     p = Parser {grammar}
@@ -25,10 +31,10 @@ require "object"
 -- The output of the parser is a tree, each of whose
 -- nodes is of the form:
 --
---     {ty = symbol, node_1 = tree_1, node_2 = tree_2, ... [list]}
+--     {ty = symbol, node_1 = tree_1, node_2 = tree_2, ... [, list]}
 --
 -- where each node_i is a symbolic name, and list is the list of
--- subtrees returned if the corresponding token was a list token.
+-- trees returned if the corresponding token was a list token.
 --
 -- A grammar is a table of rules of the form
 --
@@ -58,7 +64,7 @@ require "object"
 --      * a list is indicated by the suffix "_list", and may be
 --        followed by "_<separator-symbol>" (default is no separator)
 --   * a lexeme class
---   * something else, which is taken as a literal string to match
+--   * a string to match literally
 --
 -- The parse tree for a literal string or lexeme class is the string
 -- that was matched. The parse tree for a non-terminal is a table of
@@ -87,7 +93,7 @@ require "object"
 -- where i_1, i_2, ... are numbers. This results in a parse tree of
 -- the form
 --
---     {ty = "name", subtree_i_1, subtree_i_2, ...}
+--     {ty = "name"; tree_i_1, tree_i_2, ...}
 --
 -- If a production has no abstract syntax rule, the result is the
 -- parse node for the current node.
