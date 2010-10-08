@@ -9,6 +9,7 @@ return {
   "string_ext",
   "math_ext",
   "io_ext",
+  "posix_ext",
   "getopt",
   "set",
 }
