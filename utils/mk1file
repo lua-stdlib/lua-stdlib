@@ -6,7 +6,7 @@ require "std"
 io.write [[
 -- Lua stdlib
 --
--- Copyright (c) 2000-2010 stdlib authors.
+-- Copyright (c) 2000-2010 stdlib authors
 --
 -- See http://luaforge.net/projects/stdlib/ for more information.
 --
