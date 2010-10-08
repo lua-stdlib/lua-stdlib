@@ -52,7 +52,7 @@ end
 -- @returns
 --   @param path: path
 function catfile (...)
-  local path = table.concat ({...}, "/")
+  return table.concat ({...}, "/")
 end
 
 -- @func catdir: concatenate directories into a path
