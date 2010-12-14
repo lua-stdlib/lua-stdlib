@@ -13,8 +13,12 @@ local _floor = floor
 -- @returns
 --   @param r: n truncated to p decimal places
 function floor (n, p)
-  local e = 10 ^ (p or 0)
-  return _floor (n * e) / e
+  if p and p ~= 0 then
+    local e = 10 ^ p
+    return _floor (n * e) / e
+  else
+    return _floor (n)
+  end
 end
 
 -- @func round: Round a number to p decimal places
