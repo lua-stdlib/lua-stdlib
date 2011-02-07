@@ -139,9 +139,9 @@ end
 -- @returns
 --   s_: justified string
 function pad (s, w, p)
-  p = rep (p or " ", abs (w))
+  p = rep (p or " ", math.abs (w))
   if w < 0 then
-    return sub (p .. s, -w)
+    return sub (p .. s, w)
   end
   return sub (s .. p, 1, w)
 end
