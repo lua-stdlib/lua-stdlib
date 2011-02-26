@@ -3,13 +3,8 @@
 module ("io", package.seeall)
 
 require "base"
+require "package_ext"
 
-
--- Reflect package.config (undocumented in 5.1; see luaconf.h for C
--- equivalents)
-local _
-_, _, dirsep, pathsep, path_mark, execdir, igmark =
-  string.find (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
 
 -- @func readLines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
@@ -49,7 +44,7 @@ end
 -- @returns
 --   @param: path1, ..., pathn: path components
 function splitdir (path)
-  return string.split ("/", path)
+  return string.split (package.dirsep, path)
 end
 
 -- @func catfile: concatenate directories into a path
@@ -58,7 +53,7 @@ end
 -- @returns
 --   @param path: path
 function catfile (...)
-  return table.concat ({...}, io.dirsep)
+  return table.concat ({...}, package.dirsep)
 end
 
 -- @func catdir: concatenate directories into a path
