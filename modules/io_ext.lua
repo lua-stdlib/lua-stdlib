@@ -62,7 +62,7 @@ end
 -- @returns
 --   @param path: path
 function catdir (...)
-  return (string.gsub (catfile (...), "^$", "/"))
+  return (string.gsub (catfile (...), "^$", package.dirsep))
 end
 
 -- @func shell: Perform a shell command and return its output
