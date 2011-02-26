@@ -52,7 +52,7 @@ end
 -- @returns
 --   @param path: path
 function catfile (...)
-  return table.concat ({...}, "/")
+  return table.concat ({...}, string.match (package.config, "^[^\n]+"))
 end
 
 -- @func catdir: concatenate directories into a path
