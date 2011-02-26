@@ -12,4 +12,4 @@ release: dist
 	git tag -a -m "Release tag" rel-${REL} && \
 	git push && \
 	woger lua-l stdlib stdlib "release ${REL}" "General Lua libraries" release-notes-${REL}
-	@cat release-notes-$(REL) && echo "Don't forget to release on LuaForge!"
+	@cat release-notes-$(REL) && echo -e "\n\nDon't forget to release on LuaForge!"
