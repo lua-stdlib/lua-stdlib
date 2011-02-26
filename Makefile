@@ -1,9 +1,11 @@
 all:
 	@echo "REL=VERSION make {release,dist}"
 
+tar = stdlib-${REL}.tar.gz
+
 dist:
 	cd modules && ../utils/ldoc *.lua
-	cd .. && tar czf stdlib-${REL}.tar.gz --exclude=.git --exclude=.gitignore --exclude=".#*" --exclude="release-notes-*" stdlib
+	rm *.tar.gz && cd .. && tar czf $(tar) --exclude=.git --exclude=.gitignore --exclude=".#*" --exclude="release-notes-*" stdlib && mv $(tar) stdlib/
 
 release: dist
 	git diff --exit-code && \
