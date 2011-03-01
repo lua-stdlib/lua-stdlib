@@ -3,6 +3,7 @@
 module ("io", package.seeall)
 
 require "base"
+require "package_ext"
 
 
 -- @func readLines: Read a file into a list of lines and close it
@@ -43,7 +44,7 @@ end
 -- @returns
 --   @param: path1, ..., pathn: path components
 function splitdir (path)
-  return string.split ("/", path)
+  return string.split (package.dirsep, path)
 end
 
 -- @func catfile: concatenate directories into a path
@@ -52,7 +53,7 @@ end
 -- @returns
 --   @param path: path
 function catfile (...)
-  return table.concat ({...}, "/")
+  return table.concat ({...}, package.dirsep)
 end
 
 -- @func catdir: concatenate directories into a path
@@ -61,7 +62,7 @@ end
 -- @returns
 --   @param path: path
 function catdir (...)
-  return (string.gsub (catfile (...), "^$", "/"))
+  return (string.gsub (catfile (...), "^$", package.dirsep))
 end
 
 -- @func shell: Perform a shell command and return its output

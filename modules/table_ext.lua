@@ -90,7 +90,7 @@ function rearrange (m, t)
 end
 
 -- @func clone: Make a shallow copy of a table, including any
--- metatable
+-- metatable (for a deep copy, use tree.clone)
 --   @param t: table
 --   @param nometa: if non-nil don't copy metatable
 -- @returns

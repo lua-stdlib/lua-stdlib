@@ -32,19 +32,21 @@ module ("string", package.seeall)
 
 -- @func __index: Give strings a subscription operator
 --   @param s: string
---   @param n: index
+--   @param i: index
 -- @returns
---   @param s_: string.sub (s, n, n)
-local oldmeta = getmetatable ("").__index
+--   @param s_: string.sub (s, i, i) if i is a number,
+--     or falls back to any previous metamethod (by default, string
+--     methods)
+local old__index = getmetatable ("").__index
 getmetatable ("").__index =
-  function (s, n)
-    if type (n) == "number" then
-      return sub (s, n, n)
+  function (s, i)
+    if type (i) == "number" then
+      return sub (s, i, i)
     -- Fall back to old metamethods
-    elseif type (oldmeta) == "function" then
-      return oldmeta (s, n)
+    elseif type (old__index) == "function" then
+      return old__index (s, i)
     else
-      return oldmeta[n]
+      return old__index[i]
     end
   end
 
@@ -137,9 +139,9 @@ end
 -- @returns
 --   s_: justified string
 function pad (s, w, p)
-  p = rep (p or " ", abs (w))
+  p = rep (p or " ", math.abs (w))
   if w < 0 then
-    return sub (p .. s, -w)
+    return sub (p .. s, w)
   end
   return sub (s .. p, 1, w)
 end
@@ -264,11 +266,11 @@ end
 
 -- FIXME: Consider Perl and Python versions.
 -- @func split: Split a string at a given separator
---   @param sep: separator regex
 --   @param s: string to split
+--   @param sep: separator regex
 -- @returns
 --   @param l: list of strings
-function split (sep, s)
+function split (s, sep)
   -- finds gets a list of {from, to, capt = {}} lists; we then
   -- flatten the result, discarding the captures, and prepend 0 (1
   -- before the first character) and append 0 (1 after the last
@@ -282,34 +284,30 @@ function split (sep, s)
 end
 
 -- @func ltrim: Remove leading matter from a string
---   @param [r]: leading regex ["%s+"]
 --   @param s: string
+--   @param [r]: leading regex ["%s+"]
 -- @returns
 --   @param s_: string without leading r
-function ltrim (r, s)
-  if s == nil then
-    s, r = r, "%s+"
-  end
-  return (r.gsub (s, "^" .. r, ""))
+function ltrim (s, r)
+  r = r or "%s+"
+  return (gsub (s, "^" .. r, ""))
 end
 
 -- @func rtrim: Remove trailing matter from a string
---   @param [r]: trailing regex ["%s+"]
 --   @param s: string
+--   @param [r]: trailing regex ["%s+"]
 -- @returns
 --   @param s_: string without trailing r
-function rtrim (r, s)
-  if s == nil then
-    s, r = r, "%s+"
-  end
-  return (r.gsub (s, r .. "$", ""))
+function rtrim (s, r)
+  r = r or "%s+"
+  return (gsub (s, r .. "$", ""))
 end
 
 -- @func trim: Remove leading and trailing matter from a string
---   @param [r]: leading/trailing regex ["%s+"]
 --   @param s: string
+--   @param [r]: leading/trailing regex ["%s+"]
 -- @returns
 --   @param s_: string without leading/trailing r
-function trim (r, s)
-  return ltrim (rtrim (r, s))
+function trim (s, r)
+  return rtrim (ltrim (s, r), r)
 end
