@@ -136,20 +136,20 @@ function foldr (f, e, l)
 end
 
 -- @func cons: Prepend an item to a list
---   @param x: item
 --   @param l: list
+--   @param x: item
 -- @returns
 --   @param r: {x, unpack (l)}
-function cons (x, l)
+function cons (l, x)
   return {x, unpack (l)}
 end
 
 -- @func append: Append an item to a list
---   @param x: item
 --   @param l: list
+--   @param x: item
 -- @returns
 --   @param r: {l[1], ..., l[#l], x}
-function append (x, l)
+function append (l, x)
   local r = {unpack (l)}
   table.insert (r, x)
   return r
@@ -171,11 +171,11 @@ function concat (...)
 end
 
 -- @func rep: Repeat a list
---   @param n: number of times to repeat
 --   @param l: list
+--   @param n: number of times to repeat
 -- @returns
 --   @param r: n copies of l appended together
-function rep (n, l)
+function rep (l, n)
   local r = {}
   for i = 1, n do
     r = list.concat (r, l)
@@ -368,12 +368,7 @@ metatable = {
   --   @param e: list element
   -- @returns
   --   @param l_: {l[1], ..., l[#l], e}
-  __append =
-    function (l, e)
-      local l_ = table.clone (l)
-      table.insert (l_, e)
-      return l_
-    end,
+  __append = list.append,
 }
 
 -- @func new: List constructor
