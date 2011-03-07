@@ -3,7 +3,7 @@
 module ("posix", package.seeall)
 
 
--- @func system
+-- @func system: Run a program like os.system, but without a shell
 --   @param file: filename of program to run
 --   @param ...: arguments to the program
 -- @returns
