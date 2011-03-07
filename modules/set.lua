@@ -14,14 +14,21 @@ module ("set", package.seeall)
 -- @returns
 --   @param f: true if e is in set, false otherwise
 function member (s, e)
-  return s[e] == true
+  return rawget (s, e) == true
 end
 
--- @func insert: Insert an element to a set
+-- @func insert: Insert an element into a set
 --   @param s: set
 --   @param e: element
 function insert (s, e)
-  s[e] = true
+  rawset (s, e, true)
+end
+
+-- @func delete: Delete an element from a set
+--   @param s: set
+--   @param e: element
+function delete (s, e)
+  rawset (s, e, nil)
 end
 
 -- @func new: Make a list into a set
@@ -126,6 +133,8 @@ function equal (s, t)
 end
 
 -- @head Metamethods for sets
+-- set:method ()
+metatable.__index = _M
 -- set + table = union
 metatable.__add = union
 -- set - table = set difference
