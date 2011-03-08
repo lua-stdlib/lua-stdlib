@@ -66,6 +66,6 @@ function euidaccess (file, mode)
   if string.gsub ("[^" .. granted .. "]", mode) == "" then
     return 0
   end
-  set_errno (posix.EACCESS)
+  set_errno (EACCESS)
   return -1
 end
