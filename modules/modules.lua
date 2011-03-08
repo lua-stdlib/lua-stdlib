@@ -1,7 +1,7 @@
 return {
   "strict",
   "base",
-  "package",
+  "package_ext",
   "debug_ext",
   "table_ext",
   "list",
