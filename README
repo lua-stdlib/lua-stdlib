@@ -9,7 +9,10 @@ copyright by their authors 2000-2011 (see the AUTHORS file for
 details), and released under the MIT license (the same license as Lua
 itself). There is no warranty.
 
-Stdlib has no prerequisites beyond a standard Lua 5.1 system.
+The standard subset of stdlib has no prerequisites beyond a standard
+Lua 5.1 system. The following modules have extra dependencies:
+
+  posix_ext: luaposix
 
 
 Installation
@@ -27,8 +30,8 @@ set with
 
   require "std"
 
-Some of the less-used libraries are not loaded by this method; these
-are intended to be removed from stdlib eventually.
+Modules not in the standard set may be removed from future versions of
+stdlib.
 
 
 Documentation
