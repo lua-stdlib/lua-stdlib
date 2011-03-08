@@ -363,11 +363,6 @@ permuteOn = indexValue
 metatable = {
   -- list .. table = list.concat
   __concat = list.concat,
-  -- @func append metamethod
-  --   @param l: list
-  --   @param e: list element
-  -- @returns
-  --   @param l_: {l[1], ..., l[#l], e}
   __append = list.append,
 }
 
