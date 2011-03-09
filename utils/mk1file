@@ -37,22 +37,7 @@ local function read_module (m)
   return io.open (m .. ".lua"):read ("*a")
 end
 
-local standard = {
-  "strict",
-  "base",
-  "package_ext",
-  "debug_ext",
-  "table_ext",
-  "list",
-  "tree",
-  "string_ext",
-  "math_ext",
-  "io_ext",
-  "getopt",
-  "set",
-}
-
-local modules = standard
+local modules = require "modules"
 if #arg >= 1 then
   modules = table.clone (arg)
   modules[0] = nil
