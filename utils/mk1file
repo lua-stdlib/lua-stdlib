@@ -1,4 +1,4 @@
-#! /usr/bin/env lua
+#!/usr/bin/env lua
 -- Make a single file version of the library
 
 require "std"
@@ -34,8 +34,28 @@ end
 ]]
 
 local function read_module (m)
-  io.input (m .. ".lua")
-  return io.read ("*a")
+  return io.open (m .. ".lua"):read ("*a")
 end
 
-io.write (table.concat (list.map (read_module, require "modules"), "\n"))
+local standard = {
+  "strict",
+  "base",
+  "package_ext",
+  "debug_ext",
+  "table_ext",
+  "list",
+  "tree",
+  "string_ext",
+  "math_ext",
+  "io_ext",
+  "getopt",
+  "set",
+}
+
+local modules = standard
+if #arg >= 1 then
+  modules = table.clone (arg)
+  modules[0] = nil
+end
+
+io.write (table.concat (list.map (read_module, modules), "\n"))
