@@ -10,7 +10,7 @@ require "package_ext"
 --   @param [h]: file handle or name [io.input ()]
 -- @returns
 --   @param l: list of lines
-function readLines (h)
+function readlines (h)
   if h == nil then
     h = input ()
   elseif _G.type (h) == "string" then
@@ -27,7 +27,7 @@ end
 -- @func writeLine: Write values adding a newline after each
 --   @param [h]: file handle [io.output ()]
 --   @param ...: values to write (as for write)
-function writeLine (h, ...)
+function writeline (h, ...)
   if io.type (h) ~= "file" then
     io.write (h, "\n")
     h = io.output ()
