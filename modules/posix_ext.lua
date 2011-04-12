@@ -26,7 +26,7 @@ end
 --   @param file: file to check
 --   @param mode: checks to perform (as for access)
 -- @returns
---   @param ret: 0 if access allowed; -1 otherwise (and errno is set)
+--   @param ret: 0 if access allowed; nil otherwise (and errno is set)
 function euidaccess (file, mode)
   local pid = getpid ()
 
@@ -37,7 +37,7 @@ function euidaccess (file, mode)
 
   local stats = stat (file)
   if not stats then
-    return -1
+    return
   end
 
   -- The super-user can read and write any file, and execute any file
@@ -67,5 +67,4 @@ function euidaccess (file, mode)
     return 0
   end
   set_errno (EACCESS)
-  return -1
 end
