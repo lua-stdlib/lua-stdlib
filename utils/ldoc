@@ -65,7 +65,7 @@ end
 function ldoc (name, _)
   local function writeLineOrNothing (h, s)
     if s ~= "" then
-      io.writeLine (h, s)
+      io.writeline (h, s)
     end
   end
   local block = readBlocks ()
@@ -79,7 +79,7 @@ function ldoc (name, _)
   writeLineOrNothing (h, rule.header)
   for i = 1, table.getn (block) do
     writeLineOrNothing (h, rule.prePara)
-    list.map (bind (io.writeLine, h), block[i])
+    list.map (bind (io.writeline, h), block[i])
     writeLineOrNothing (h, rule.postPara)
   end
   writeLineOrNothing (h, rule.footer)
