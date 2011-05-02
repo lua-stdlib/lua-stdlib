@@ -6,6 +6,10 @@ require "base"
 require "package_ext"
 
 
+-- Get file handle metatable
+local file_metatable = getmetatable (io.stdin)
+
+
 -- @func readlines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
 -- @returns
@@ -23,6 +27,7 @@ function readlines (h)
   h:close ()
   return l
 end
+file_metatable.readlines = readlines
 
 -- @func writeline: Write values adding a newline after each
 --   @param [h]: file handle [io.output ()]
@@ -36,6 +41,7 @@ function writeline (h, ...)
     h:write (v, "\n")
   end
 end
+file_metatable.writeline = writeline
 
 -- @func splitdir: split a directory path into components
 -- Empty components are retained: the root directory becomes {"", ""}.
