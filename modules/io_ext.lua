@@ -6,7 +6,7 @@ require "base"
 require "package_ext"
 
 
--- @func readLines: Read a file into a list of lines and close it
+-- @func readlines: Read a file into a list of lines and close it
 --   @param [h]: file handle or name [io.input ()]
 -- @returns
 --   @param l: list of lines
@@ -24,7 +24,7 @@ function readlines (h)
   return l
 end
 
--- @func writeLine: Write values adding a newline after each
+-- @func writeline: Write values adding a newline after each
 --   @param [h]: file handle [io.output ()]
 --   @param ...: values to write (as for write)
 function writeline (h, ...)
