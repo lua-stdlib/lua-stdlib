@@ -1,6 +1,6 @@
 return {
   "debug_init",
-  "strict",
+  --"strict",
   "base",
   "package_ext",
   "debug_ext",
