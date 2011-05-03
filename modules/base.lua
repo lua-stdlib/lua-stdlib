@@ -419,7 +419,7 @@ function _G.warn (...)
   if prog.name or prog.file or prog.line then
     io.stderr:write (" ")
   end
-  io.writeLine (io.stderr, string.format (...))
+  io.writeline (io.stderr, string.format (...))
 end
 
 -- @func die: Die with error
