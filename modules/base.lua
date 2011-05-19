@@ -35,35 +35,35 @@ end
 -- detection will not work
 --   @param x: object to convert to string
 --   @param open: open table renderer
---     @t: table
+--     @param t: table
 --   @returns
---     @s: open table string
+--     @param s: open table string
 --   @param close: close table renderer
---     @t: table
+--     @param t: table
 --   @returns
---     @s: close table string
+--     @param s: close table string
 --   @param elem: element renderer
---     @e: element
+--     @param e: element
 --   @returns
---     @s: element string
+--     @param s: element string
 --   @param pair: pair renderer
 --     N.B. this function should not try to render i and v, or treat
 --     them recursively
---     @t: table
---     @i: index
---     @v: value
---     @is: index string
---     @vs: value string
+--     @param t: table
+--     @param i: index
+--     @param v: value
+--     @param is: index string
+--     @param vs: value string
 --   @returns
---     @s: element string
+--     @param s: element string
 --   @param sep: separator renderer
---     @t: table
---     @i: preceding index (nil on first call)
---     @v: preceding value (nil on first call)
---     @j: following index (nil on last call)
---     @w: following value (nil on last call)
+--     @param t: table
+--     @param i: preceding index (nil on first call)
+--     @param v: preceding value (nil on first call)
+--     @param j: following index (nil on last call)
+--     @pararm w: following value (nil on last call)
 --   @returns
---     @s: separator string
+--     @param s: separator string
 -- @returns
 --   @param s: string representation
 function _G.render (x, open, close, elem, pair, sep, roots)
