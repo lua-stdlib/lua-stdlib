@@ -30,7 +30,7 @@ require "io_ext"
 -- if an option taking an argument is given multiple times, only the
 -- last value is returned; missing arguments are returned as 1
 
--- getOpt, usageInfo and dieWithUsage can be called directly (see
+-- getOpt, usageInfo and usage can be called directly (see
 -- below, and the example at the end). Set _DEBUG.std to a non-nil
 -- value to run the example.
 
@@ -211,8 +211,8 @@ function usageInfo (header, optDesc, pageWidth)
   return header .. optText
 end
 
--- @func dieWithUsage: die emitting a usage message
-function dieWithUsage ()
+-- @func usage: emit a usage message
+function usage ()
   local name = prog.name
   prog.name = nil
   local usage, purpose, notes = "[OPTION...] FILE...", "", ""
@@ -230,9 +230,9 @@ function dieWithUsage ()
       notes = notes .. prog.notes
     end
   end
-  die (getopt.usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
-                         options)
-         .. notes)
+  warn (getopt.usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
+                          options)
+        .. notes)
 end
 
 
@@ -260,8 +260,12 @@ function processArgs ()
       warn (table.concat (errors, "\n") .. "\n")
     end
     prog.name = name
-    getopt.dieWithUsage ()
-  elseif opt.version and #arg == 0 then
+    getopt.usage ()
+    if #errors > 0 then
+      error ()
+    end
+  end
+  if opt.version or opt.help then
     os.exit ()
   end
 end
