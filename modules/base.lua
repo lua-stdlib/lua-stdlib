@@ -61,7 +61,7 @@ end
 --     @param i: preceding index (nil on first call)
 --     @param v: preceding value (nil on first call)
 --     @param j: following index (nil on last call)
---     @pararm w: following value (nil on last call)
+--     @param w: following value (nil on last call)
 --   @returns
 --     @param s: separator string
 -- @returns
@@ -114,11 +114,11 @@ function _G.tostring (x)
 end
 
 -- @func prettytostring: pretty-print a table
---   @t: table to print
---   @indent: indent between levels ["\t"]
---   @spacing: space before every line
+--   @param t: table to print
+--   @param indent: indent between levels ["\t"]
+--   @param spacing: space before every line
 -- @returns
---   @s: pretty-printed string
+--   @param s: pretty-printed string
 function _G.prettytostring (t, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
@@ -332,7 +332,7 @@ end
 --   @param i: iterator
 --   @param ...: arguments
 -- @returns
---   @t: results of running the iterator on its arguments
+--   @param t: results of running the iterator on its arguments
 function _G.collect (i, ...)
   local t = {}
   for e in i (...) do

@@ -7,13 +7,13 @@ require "base"
 
 -- @func string.writeXML: write a table as XML
 -- The input format is assumed to be that output by luaexpat
---   @t: table to print
+--   @param t: table to print
 --   In each element, tag is its name, attr is the table of attributes,
 --   and the sub-elements are held in the integer keys
---   @indent: indent between levels ["\t"]
---   @spacing: space before every line
+--   @param indent: indent between levels ["\t"]
+--   @param spacing: space before every line
 -- @returns
---   @s: XML string
+--   @param s: XML string
 function string.writeXML (t, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""

@@ -124,7 +124,7 @@ end
 -- Error and usage information formatting
 
 -- @func errNoArg: argument when there shouldn't be one
---   @paramoptStr: option string
+--   @param optStr: option string
 -- @returns
 --   @param err: option error
 function errNoArg (optStr)
