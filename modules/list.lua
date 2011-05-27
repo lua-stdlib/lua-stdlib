@@ -56,8 +56,8 @@ end
 --- Filter a list according to a predicate.
 -- @param p predicate (function of one argument returning a boolean)
 -- @param l list of lists
--- @return result list containing elements e of l for which
--- <code>p (e)</code> is true
+-- @return result list containing elements <code>e</code> of
+--   <code>l</code> for which <code>p (e)</code> is true
 function filter (p, l)
   return _G.filter (p, elems, l)
 end
@@ -147,7 +147,7 @@ end
 --- Repeat a list.
 -- @param l list
 -- @param n number of times to repeat
--- @return n copies of l appended together
+-- @return <code>n</code> copies of <code>l</code> appended together
 function rep (l, n)
   local r = {}
   for i = 1, n do
@@ -197,7 +197,7 @@ end
 --- Project a list of fields from a list of tables.
 -- @param f field to project
 -- @param l list of tables
--- @return list of f fields
+-- @return list of <code>f</code> fields
 function project (f, l)
   return map (function (t) return t[f] end, l)
 end
