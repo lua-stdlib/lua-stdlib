@@ -37,8 +37,7 @@ stdlib.
 Documentation
 -------------
 
-The libraries are documented in a LuaDoc-like style, and HTML
-documentation is produced by the included utils/ldoc script. Run
+The libraries are documented in LuaDoc. Run
 
   ldoc *.lua
 
