@@ -13,6 +13,7 @@ The standard subset of stdlib has no prerequisites beyond a standard
 Lua 5.1 system. The following modules have extra dependencies:
 
   posix_ext: luaposix
+  fstable: Lua 5.2
 
 
 Installation
