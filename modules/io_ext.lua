@@ -1,5 +1,4 @@
--- I/O
-
+--- Additions to the io module
 module ("io", package.seeall)
 
 require "base"
@@ -10,10 +9,9 @@ require "package_ext"
 local file_metatable = getmetatable (io.stdin)
 
 
--- @func readlines: Read a file into a list of lines and close it
---   @param [h]: file handle or name [io.input ()]
--- @returns
---   @param l: list of lines
+--- Read a file into a list of lines and close it.
+-- @param h file handle or name (default: <code>io.input ()</code>)
+-- @return list of lines
 function readlines (h)
   if h == nil then
     h = input ()
@@ -29,9 +27,9 @@ function readlines (h)
 end
 file_metatable.readlines = readlines
 
--- @func writeline: Write values adding a newline after each
---   @param [h]: file handle [io.output ()]
---   @param ...: values to write (as for write)
+--- Write values adding a newline after each.
+-- @param h file handle (default: <code>io.output ()</code>
+-- @param ... values to write (as for write)
 function writeline (h, ...)
   if io.type (h) ~= "file" then
     io.write (h, "\n")
@@ -43,38 +41,31 @@ function writeline (h, ...)
 end
 file_metatable.writeline = writeline
 
--- @func splitdir: split a directory path into components
--- Empty components are retained: the root directory becomes {"", ""}.
--- The same as Perl's File::Spec::splitdir
---   @param path: path
--- @returns
---   @param: path1, ..., pathn: path components
+--- Split a directory path into components.
+-- Empty components are retained: the root directory becomes <code>{"", ""}</code>.
+-- @param path path
+-- @return list of path components
 function splitdir (path)
   return string.split (path, package.dirsep)
 end
 
--- @func catfile: concatenate directories into a path
--- The same as Perl's File::Spec::catfile
---   @param: path1, ..., pathn: path components
--- @returns
---   @param path: path
+--- Concatenate one or more directories and a filename into a path.
+-- @param ... path components
+-- @return path
 function catfile (...)
   return table.concat ({...}, package.dirsep)
 end
 
--- @func catdir: concatenate directories into a path
--- The same as Perl's File::Spec::catdir
---   @param: path1, ..., pathn: path components
--- @returns
---   @param path: path
+--- Concatenate two or more directories into a path, removing the trailing slash.
+-- @param ... path components
+-- @return path
 function catdir (...)
   return (string.gsub (catfile (...), "^$", package.dirsep))
 end
 
--- @func shell: Perform a shell command and return its output
---   @param c: command
--- @returns
---   @param o: output, or nil if error
+--- Perform a shell command and return its output.
+-- @param c command
+-- @return output, or nil if error
 function shell (c)
   local h = io.popen (c)
   local o
@@ -85,12 +76,12 @@ function shell (c)
   return o
 end
 
--- @func processFiles: Process files specified on the command-line
--- If no files given, process io.stdin; in list of files, "-" means
--- io.stdin
---   @param f: function to process files with
---     @param name: the name of the file being read
---     @param i: the number of the argument
+--- Process files specified on the command-line.
+-- If no files given, process <code>io.stdin</code>; in list of files,
+-- <code>-</code> means <code>io.stdin</code>.
+-- <br>FIXME: Make the file list an argument to the function.
+-- @param f function to process files with, which is passed
+-- <code>(name, arg_no)</code>
 function processFiles (f)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then

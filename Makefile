@@ -4,7 +4,7 @@ all:
 zip = stdlib-${REL}.zip
 
 dist:
-	cd modules && ../utils/ldoc *.lua
+	cd modules && luadoc *.lua
 	rm -f *.zip && cd .. && zip $(zip) -r stdlib -x "stdlib/.git/*" "*.gitignore" "*release-notes-*" && mv $(zip) stdlib/
 
 release: dist

@@ -1,17 +1,13 @@
--- Math
-
--- Adds to the existing math module
-
+--- Additions to the math module.
 module ("math", package.seeall)
 
 
 local _floor = floor
 
--- @func floor: Extend to take the number of decimal places
---   @param n: number
---   @param [p]: number of decimal places to truncate to [0]
--- @returns
---   @param r: n truncated to p decimal places
+--- Extend <code>math.floor</code> to take the number of decimal places.
+-- @param n number
+-- @param p number of decimal places to truncate to (default: 0)
+-- @return n truncated to p decimal places
 function floor (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
@@ -21,11 +17,10 @@ function floor (n, p)
   end
 end
 
--- @func round: Round a number to p decimal places
---   @param n: number
---   @param [p]: number of decimal places to truncate to [0]
--- @returns
---   @param r: n to p decimal places
+--- Round a number to a given number of decimal places
+-- @param n number
+-- @param p number of decimal places to round to (default: 0)
+-- @return n rounded to p decimal places
 function round (n, p)
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e

@@ -1,20 +1,17 @@
--- @module lcs
--- LCS algorithm
-
--- After pseudo-code in
--- http://www.ics.uci.edu/~eppstein/161/960229.html
--- Lecture notes by David Eppstein, eppstein@ics.uci.edu
-
+--- Longest Common Subsequence algorithm.
+-- After pseudo-code in <a
+-- href="http://www.ics.uci.edu/~eppstein/161/960229.html">lecture
+-- notes</a> by <a href="mailto:eppstein@ics.uci.edu">David Eppstein</a>.
 module ("lcs", package.seeall)
 
 
--- @func commonSubseqs: find common subsequences
---   @param a, b: two sequences
--- @returns
---   @param l: list of common subsequences
---   @param m: the length of a
---   @param n: the length of b
-function commonSubseqs (a, b)
+-- Find common subsequences.
+-- @param a first sequence
+-- @param b second sequence
+-- @return list of common subsequences
+-- @return the length of a
+-- @return the length of b
+local function commonSubseqs (a, b)
   local l, m, n = {}, #a, #b
   for i = m + 1, 1, -1 do
     l[i] = {}
@@ -31,15 +28,16 @@ function commonSubseqs (a, b)
   return l, m, n
 end
 
--- @func longestCommonSubseq: find the LCS of two sequences
--- The sequence type must have an __append metamethod. This is
--- provided by string_ext for strings, and by list for lists.
---   @param a, b: two sequences
---   @param s: an empty sequence of the same type
--- @returns
---   @param s_: the LCS of a and b
+--- Find the longest common subsequence of two sequences.
+-- The sequence objects must have an <code>__append</code> metamethod.
+-- This is provided by <code>string_ext</code> for strings, and by
+-- <code>list</code> for lists.
+-- @param a first sequence
+-- @param b second sequence
+-- @param s an empty sequence of the same type, to hold the result
+-- @return the LCS of a and b
 function longestCommonSubseq (a, b, s)
-  local l, m, n = lcs.commonSubseqs (a, b)
+  local l, m, n = commonSubseqs (a, b)
   local i, j = 1, 1
   local f = getmetatable (s).__append
   while i <= m and j <= n do

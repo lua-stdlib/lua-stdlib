@@ -1,27 +1,25 @@
--- @module debug
-
--- Adds to the existing debug module
-
+--- Additions to the debug module
 module ("debug", package.seeall)
 
 require "debug_init"
 require "io_ext"
 require "string_ext"
 
--- To activate debugging set _DEBUG either to any true value
--- (equivalent to {level = 1}), or a table with the following members:
+--- To activate debugging set _DEBUG either to any true value
+-- (equivalent to {level = 1}), or as documented below.
+-- @class table
+-- @name _DEBUG
+-- @field level debugging level
+-- @field call do call trace debugging
+-- @field std do standard library debugging (run examples & test code)
 
--- level: debugging level
--- call: do call trace debugging
--- std: do standard library debugging (run examples & test code)
 
-
--- @func say: Print a debugging message
---   @param [n]: debugging level [1]
---   ...: objects to print (as for print)
-function say (...)
+--- Print a debugging message
+-- @param n debugging level, defaults to 1
+-- @param ... objects to print (as for print)
+function say (n, ...)
   local level = 1
-  local arg = {...}
+  local arg = {n, ...}
   if type (arg[1]) == "number" then
     level = arg[1]
     table.remove (arg, 1)
@@ -34,16 +32,23 @@ function say (...)
   end
 end
 
--- Expose say as global function `debug'
+---
+-- debug.say is also available as the global function <code>debug</code>
+-- @class function
+-- @name debug
+-- @see say
 getmetatable (_M).__call =
    function (self, ...)
      say (...)
    end
 
--- @func traceCall: Trace function calls
---   @param event: event causing the call
--- Use: debug.sethook (trace, "cr"), as below
--- based on test/trace-calls.lua from the Lua distribution
+--- Trace function calls
+-- Use as debug.sethook (trace, "cr"), which is done automatically
+-- when _DEBUG.call is set.
+-- Based on test/trace-calls.lua from the Lua distribution.
+-- @class function
+-- @name trace
+-- @param event event causing the call
 local level = 0
 function trace (event)
   local t = getinfo (3)

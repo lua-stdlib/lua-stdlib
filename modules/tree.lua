@@ -1,23 +1,23 @@
--- @module tree
-
+--- Tables as trees.
 module ("tree", package.seeall)
 
 require "list"
 
--- @func new: Make a table into a tree
---   @param t: table
--- @returns
---   @param tr: tree
+
 local metatable = {}
+--- Make a table into a tree
+-- @param t table
+-- @return tree
 function new (t)
   return setmetatable (t or {}, metatable)
 end
 
--- @func __index: Tree __index metamethod
---   @param tr: tree
---   @param i: non-table, or list of indices {i1 ... in}
--- @returns
---   @param v: tr[i]...[in] if i is a table, or tr[i] otherwise
+--- Tree <code>__index</code> metamethod.
+-- @param tr tree
+-- @param i non-table, or list of indices <code>{i<sub>1</sub> ...
+-- i<sub>n</sub>}</code>
+-- @return <code>tr[i]...[i<sub>n</sub>]</code> if i is a table, or
+-- <code>tr[i]</code> otherwise
 function metatable.__index (tr, i)
   if type (i) == "table" then
     return list.foldl (op["[]"], tr, i)
@@ -26,11 +26,13 @@ function metatable.__index (tr, i)
   end
 end
 
--- @func __newindex: Tree __newindex metamethod
--- Sets tr[i1]...[in] = v if i is a table, or tr[i] = v otherwise
---   @param tr: tree
---   @param i: non-table, or list of indices {i1 ... in}
---   @param v: value
+--- Tree <code>__newindex</code> metamethod.
+-- Sets <code>tr[i<sub>1</sub>]...[i<sub>n</sub>] = v</code> if i is a
+-- table, or <code>tr[i] = v</code> otherwise
+-- @param tr tree
+-- @param i non-table, or list of indices <code>{i<sub>1</sub> ...
+-- i<sub>n</sub>}</code>
+-- @param v value
 function metatable.__newindex (tr, i, v)
   if type (i) == "table" then
     for n = 1, #i - 1 do
@@ -45,12 +47,10 @@ function metatable.__newindex (tr, i, v)
   end
 end
 
--- @func clone: Make a deep copy of a tree, including any
--- metatables
---   @param t: table
---   @param nometa: if non-nil don't copy metatables
--- @returns
---   @param u: copy of table
+--- Make a deep copy of a tree, including any metatables
+-- @param t table
+-- @param nometa if non-nil don't copy metatables
+-- @return copy of table
 function clone (t, nometa)
   local r = {}
   if not nometa then

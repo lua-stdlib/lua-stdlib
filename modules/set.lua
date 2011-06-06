@@ -1,40 +1,37 @@
--- @module set
-
+-- Set datatype.
 module ("set", package.seeall)
 
 
 -- Primitive methods (know about representation)
-
 -- The representation is a table whose tags are the elements, and
 -- whose values are true.
 
--- @func member: Say whether an element is in a set
---   @param s: set
---   @param e: element
--- @returns
---   @param f: true if e is in set, false otherwise
+--- Say whether an element is in a set
+-- @param s set
+-- @param e element
+-- @return <code>true</code> if e is in set, <code>false</code>
+-- otherwise
 function member (s, e)
   return rawget (s, e) == true
 end
 
--- @func insert: Insert an element into a set
---   @param s: set
---   @param e: element
+--- Insert an element into a set
+-- @param s set
+-- @param e element
 function insert (s, e)
   rawset (s, e, true)
 end
 
--- @func delete: Delete an element from a set
---   @param s: set
---   @param e: element
+--- Delete an element from a set
+-- @param s set
+-- @param e element
 function delete (s, e)
   rawset (s, e, nil)
 end
 
--- @func new: Make a list into a set
---   @param l: list
--- @returns
---   @param s: set
+--- Make a list into a set
+-- @param l list
+-- @return set
 local metatable = {}
 function new (l)
   local s = setmetatable ({}, metatable)
@@ -44,17 +41,17 @@ function new (l)
   return s
 end
 
--- @func elements: Iterator for sets
+--- Iterator for sets
 -- TODO: Make the iterator return only the key
 elements = pairs
 
 
--- High level methods (representation unknown)
+-- High level methods (representation-independent)
 
--- @func difference: Find the difference of two sets
---   @param s, t: sets
--- @returns
---   @param r: s with elements of t removed
+--- Find the difference of two sets
+-- @param s set
+-- @param t set
+-- @return s with elements of t removed
 function difference (s, t)
   local r = new {}
   for e in elements (s) do
@@ -65,18 +62,18 @@ function difference (s, t)
   return r
 end
 
--- @func difference: Find the symmetric difference of two sets
---   @param s, t: sets
--- @returns
---   @param r: elements of s and t that are in s or t but not both
+--- Find the symmetric difference of two sets
+-- @param s set
+-- @param t set
+-- @return elements of s and t that are in s or t but not both
 function symmetric_difference (s, t)
   return difference (union (s, t), intersection (t, s))
 end
 
--- @func intersection: Find the intersection of two sets
---   @param s, t: sets
--- @returns
---   @param r: set intersection of s and t
+--- Find the intersection of two sets
+-- @param s set
+-- @param t set
+-- @return set intersection of s and t
 function intersection (s, t)
   local r = new {}
   for e in elements (s) do
@@ -87,10 +84,10 @@ function intersection (s, t)
   return r
 end
 
--- @func union: Find the union of two sets
---   @param s, t: sets
--- @returns
---   @param r: set union of s and t
+--- Find the union of two sets
+-- @param s set
+-- @param t set
+-- @return set union of s and t
 function union (s, t)
   local r = new {}
   for e in elements (s) do
@@ -102,10 +99,11 @@ function union (s, t)
   return r
 end
 
--- @func subset: Find whether one set is a subset of another
---   @param s, t: sets
--- @returns
---   @param r: true if s is a subset of t, false otherwise
+--- Find whether one set is a subset of another
+-- @param s set
+-- @param t set
+-- @return <code>true</code> if s is a subset of t, <code>false</code>
+-- otherwise
 function subset (s, t)
   for e in elements (s) do
     if not member (t, e) then
@@ -115,19 +113,19 @@ function subset (s, t)
   return true
 end
 
--- @func propersubset: Find whether one set is a proper subset of
--- another
---   @param s, t: sets
--- @returns
---   @param r: true if s is a proper subset of t, false otherwise
+--- Find whether one set is a proper subset of another
+-- @param s set
+-- @param t set
+-- @return <code>true</code> if s is a proper subset of t, false otherwise
 function propersubset (s, t)
   return subset (s, t) and not subset (t, s)
 end
 
--- @func equal: Find whether two sets are equal
---   @param s, t: sets
--- @returns
---   @param r: true if sets are equal, false otherwise
+--- Find whether two sets are equal
+-- @param s set
+-- @param t set
+-- @return <code>true</code> if sets are equal, <code>false</code>
+-- otherwise
 function equal (s, t)
   return subset (s, t) and subset (t, s)
 end

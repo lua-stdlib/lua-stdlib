@@ -1,6 +1,25 @@
--- getopt
--- Simplified getopt, based on Svenne Panne's Haskell GetOpt
-
+--- Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br>
+-- Usage:
+-- <ul>
+-- <li><code>options = Options {Option {...} ...}</br>
+-- getopt.processArgs ()</code></li>
+-- <li>Assumes <code>prog = {name[, banner] [, purpose] [, notes] [, usage]}</code></li>
+-- <li>Options take a single dash, but may have a double dash.</li>
+-- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
+-- <li>If an option taking an argument is given multiple times, only the
+-- last value is returned; missing arguments are returned as 1.</li>
+-- </ul>
+-- getOpt, usageInfo and usage can be called directly (see
+-- below, and the example at the end). Set _DEBUG.std to a non-nil
+-- value to run the example.
+-- <ul>
+-- <li>TODO: Sort out the packaging. getopt.Option is tedious to type, but
+-- surely Option shouldn't be in the root namespace?</li>
+-- <li>TODO: Wrap all messages; do all wrapping in processArgs, not
+-- usageInfo; use sdoc-like library (see string.format todos).</li>
+-- <li>TODO: Don't require name to be repeated in banner.</li>
+-- <li>TODO: Store version separately (construct banner?).</li>
+-- </ul>
 module ("getopt", package.seeall)
 
 require "base"
@@ -10,38 +29,12 @@ require "object"
 require "io_ext"
 
 
--- TODO: Sort out the packaging. getopt.Option is tedious to type, but
--- surely Option shouldn't be in the root namespace?
--- TODO: Wrap all messages; do all wrapping in processArgs, not
--- usageInfo; use sdoc-like library (see string.format todos)
--- TODO: Don't require name to be repeated in banner.
--- TODO: Store version separately (construct banner?).
-
-
--- Usage:
-
--- options = Options {Option {...} ...}
--- getopt.processArgs ()
-
--- Assumes prog = {name[, banner] [, purpose] [, notes] [, usage]}
-
--- options take a single dash, but may have a double dash
--- arguments may be given as -opt=arg or -opt arg
--- if an option taking an argument is given multiple times, only the
--- last value is returned; missing arguments are returned as 1
-
--- getOpt, usageInfo and usage can be called directly (see
--- below, and the example at the end). Set _DEBUG.std to a non-nil
--- value to run the example.
-
-
--- @func getOpt: perform argument processing
---   @param argIn: list of command-line args
---   @param options: options table
--- @returns
---   @param argOut: table of remaining non-options
---   @param optOut: table of option key-value list pairs
---   @param errors: table of error messages
+--- Perform argument processing
+-- @param argIn list of command-line args
+-- @param options options table
+-- @return table of remaining non-options
+-- @return table of option key-value list pairs
+-- @return table of error messages
 function getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
@@ -49,7 +42,7 @@ function getOpt (argIn, options)
   local function getArg (o, opt, arg, oldarg)
     if o.type == nil then
       if arg ~= nil then
-        table.insert (errors, getopt.errNoArg (opt))
+        table.insert (errors, "option `" .. opt .. "' doesn't take an argument")
       end
     else
       if arg == nil and argIn[1] and
@@ -58,7 +51,8 @@ function getOpt (argIn, options)
         table.remove (argIn, 1)
       end
       if arg == nil and o.type == "Req" then
-        table.insert (errors, getopt.errReqArg (opt, o.var))
+        table.insert (errors,  "option `" .. opt ..
+                      "' requires an argument `" .. o.var .. "'")
         return nil
       end
     end
@@ -73,7 +67,7 @@ function getOpt (argIn, options)
     if o ~= nil then
       optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
     else
-      table.insert (errors, getopt.errUnrec (opt))
+      table.insert (errors, "unrecognized option `-" .. opt .. "'")
     end
   end
   while argIn[1] do
@@ -93,19 +87,20 @@ function getOpt (argIn, options)
 end
 
 
--- Options table type
+--- Options table type.
+-- @class table
+-- @name _G.Option
+-- @field name list of names
+-- @field desc description of this option
+-- @field type type of argument (if any): <code>Req</code>(uired),
+-- <code>Opt</code>(ional)
+-- @field var descriptive name for the argument
+-- @field func optional function (newarg, oldarg) to convert argument
+-- into actual argument, (if omitted, argument is left as it
+-- is)
+_G.Option = Object {_init = {"name", "desc", "type", "var", "func"}}
 
-_G.Option = Object {_init = {
-    "name", -- list of names
-    "desc", -- description of this option
-    "type", -- type of argument (if any): Req (uired), Opt (ional)
-    "var",  -- descriptive name for the argument
-    "func"  -- optional function (newarg, oldarg) to convert argument
-    -- into actual argument, (if omitted, argument is left as it
-    -- is)
-}}
-
--- Options table constructor: adds lookup tables for the option names
+--- Options table constructor: adds lookup tables for the option names
 function _G.Options (t)
   local name = {}
   for _, v in ipairs (t) do
@@ -121,48 +116,17 @@ function _G.Options (t)
 end
 
 
--- Error and usage information formatting
-
--- @func errNoArg: argument when there shouldn't be one
---   @param optStr: option string
--- @returns
---   @param err: option error
-function errNoArg (optStr)
-  return "option `" .. optStr .. "' doesn't take an argument"
-end
-
--- @func errReqArg: required argument missing
---   @param optStr: option string
---   @param desc: argument description
--- @returns
---   @param err: option error
-function errReqArg (optStr, desc)
-  return "option `" .. optStr .. "' requires an argument `" .. desc ..
-    "'"
-end
-
--- @func errUnrec: unrecognized option
---   @param optStr: option string
--- @returns
---   @param err: option error
-function errUnrec (optStr)
-  return "unrecognized option `-" .. optStr .. "'"
-end
-
-
--- @func usageInfo: produce usage info for the given options
---   @param header: header string
---   @param optDesc: option descriptors
---   @param pageWidth: width to format to [78]
--- @returns
---   @param mess: formatted string
+--- Produce usage info for the given options
+-- @param header header string
+-- @param optDesc option descriptors
+-- @param pageWidth width to format to [78]
+-- @return formatted string
 function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
-  -- @func formatOpt: format the usage info for a single option
-  --   @param opt: the Option table
-  -- @returns
-  --   @param opts: options
-  --   @param desc: description
+  -- Format the usage info for a single option
+  -- @param opt the Option table
+  -- @return options
+  -- @return description
   local function fmtOpt (opt)
     local function fmtName (o)
       return "-" .. o
@@ -211,7 +175,7 @@ function usageInfo (header, optDesc, pageWidth)
   return header .. optText
 end
 
--- @func usage: emit a usage message
+--- Emit a usage message.
 function usage ()
   local name = prog.name
   prog.name = nil
@@ -236,10 +200,11 @@ function usage ()
 end
 
 
--- @func processArgs: simple getOpt wrapper
--- adds -version/-v and -help/-h/-? automatically; stops program
--- if there was an error or -help was used
-_G.options = nil
+--- Simple getOpt wrapper.
+-- Adds <code>-version</code>/<code>-v</code> and
+-- <code>-help</code>/<code>-h</code>/<code>-?</code> automatically;
+-- stops program if there was an error, or if <code>-help</code> or
+-- <code>-version</code> was used.
 function processArgs ()
   local totArgs = #arg
   options = Options (list.concat (options or {},
@@ -269,6 +234,7 @@ function processArgs ()
     os.exit ()
   end
 end
+_G.options = nil
 
 
 -- A small and hopefully enlightening example:
@@ -297,6 +263,7 @@ if type (_DEBUG) == "table" and _DEBUG.std then
     end
   end
 
+  -- FIXME: Turn the following documentation into unit tests
   prog = {name = "foobar"} -- in case of errors
   -- example runs:
   test {"foo", "-v"}

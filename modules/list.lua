@@ -1,21 +1,15 @@
--- @module list
-
+--- Tables as lists.
 module ("list", package.seeall)
 
 require "base"
 require "table_ext"
 
 
--- @func elems: An iterator over the elements of a list
---   @param l: list to iterate over
--- @returns
---   @param f: iterator function
---     @param l: list
---     @param n: index
---   @returns
---     @param v: value (l[n - 1])
---   @param l: the list, as above
---   @param 0
+--- An iterator over the elements of a list.
+-- @param l list to iterate over
+-- @return iterator function which returns successive elements of the list
+-- @return the list <code>l</code> as above
+-- @return <code>true</code>
 function elems (l)
   local n = 0
   return function (l)
@@ -27,16 +21,11 @@ function elems (l)
   l, true
 end
 
--- @func relems: An iterator over the elements of a list, in reverse
---   @param l: list to iterate over
--- @returns
---   @param f: iterator function
---     @param l: list
---     @param n: index
---   @returns
---     @param v: value (l[n - 1))
---   @param l: the list, as above
---   @param n: #l + 1
+--- An iterator over the elements of a list, in reverse.
+-- @param l list to iterate over
+-- @return iterator function which returns precessive elements of the list
+-- @return the list <code>l</code> as above
+-- @return <code>true</code>
 function relems (l)
   local n = #l + 1
   return function (l)
@@ -48,45 +37,37 @@ function relems (l)
   l, true
 end
 
--- @func map: Map a function over a list
---   @param f: function
---   @param l: list
--- @returns
---   @param m: result list {f (l[1]), ..., f (l[#l])}
+--- Map a function over a list.
+-- @param f function
+-- @param l list
+-- @return result list <code>{f (l[1]), ..., f (l[#l])}</code>
 function map (f, l)
   return _G.map (f, elems, l)
 end
 
--- @func mapWith: Map a function over a list of lists
---   @param f: function
---   @param ls: list of lists
--- @returns
---   @param m: result list {f (unpack (ls[1]))), ...,
---     f (unpack (ls[#ls]))}
+--- Map a function over a list of lists.
+-- @param f function
+-- @param ls list of lists
+-- @return result list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
 function mapWith (f, l)
   return _G.map (compose (f, unpack), elems, l)
 end
 
--- @func filter: Filter a list according to a predicate
---   @param p: predicate
---     @param a: argument
---   @returns
---     @param f: flag
---   @param l: list of lists
--- @returns
---   @param m: result list containing elements e of l for which p (e)
---     is true
+--- Filter a list according to a predicate.
+-- @param p predicate (function of one argument returning a boolean)
+-- @param l list of lists
+-- @return result list containing elements e of l for which
+-- <code>p (e)</code> is true
 function filter (p, l)
   return _G.filter (p, elems, l)
 end
 
--- @func slice: Slice a list
---   @param l: list
---   @param [from], @param [to]: start and end of slice
---     from defaults to 1 and to to #l;
---     negative values count from the end
--- @returns
---   @param m: {l[from], ..., l[to]}
+--- Return a slice of a list.
+-- (Negative list indices count from the end of the list.)
+-- @param l list
+-- @param from start of slice (default: 1)
+-- @param to end of slice (default: <code>#l</code>)
+-- @return <code>{l[from], ..., l[to]}</code>
 function slice (l, from, to)
   local m = {}
   local len = #l
@@ -104,62 +85,55 @@ function slice (l, from, to)
   return m
 end
 
--- @func tail: Return a list with its first element removed
---   @param l: list
--- @returns
---   @param m: {l[2], ..., l[#l]}
+--- Return a list with its first element removed.
+-- @param l list
+-- @return <code>{l[2], ..., l[#l]}</code>
 function tail (l)
   return slice (l, 2)
 end
 
--- @func foldl: Fold a binary function through a list left
--- associatively
---   @param f: function
---   @param e: element to place in left-most position
---   @param l: list
--- @returns
---   @param r: result
+--- Fold a binary function through a list left associatively.
+-- @param f function
+-- @param e element to place in left-most position
+-- @param l list
+-- @return result
 function foldl (f, e, l)
   return _G.fold (f, e, elems, l)
 end
 
--- @func foldr: Fold a binary function through a list right
--- associatively
---   @param f: function
---   @param e: element to place in right-most position
---   @param l: list
--- @returns
---   @param r: result
+--- Fold a binary function through a list right associatively.
+-- @param f function
+-- @param e element to place in right-most position
+-- @param l list
+-- @return result
 function foldr (f, e, l)
   return _G.fold (function (x, y) return f (y, x) end,
                   e, relems, l)
 end
 
--- @func cons: Prepend an item to a list
---   @param l: list
---   @param x: item
--- @returns
---   @param r: {x, unpack (l)}
+--- Prepend an item to a list.
+-- @param l list
+-- @param x item
+-- @return <code>{x, unpack (l)}</code>
 function cons (l, x)
   return {x, unpack (l)}
 end
 
--- @func append: Append an item to a list
---   @param l: list
---   @param x: item
--- @returns
---   @param r: {l[1], ..., l[#l], x}
+--- Append an item to a list.
+-- @param l list
+-- @param x item
+-- @return <code>{l[1], ..., l[#l], x}</code>
 function append (l, x)
   local r = {unpack (l)}
   table.insert (r, x)
   return r
 end
 
--- @func concat: Concatenate lists
---   @param l1, l2, ... ln: lists
--- @returns
---   @param r: result {l1[1], ..., l1[#l1], ...,
---                     ln[1], ..., ln[#ln]}
+--- Concatenate lists.
+-- @param ... lists
+-- @return <code>{l<sub>1</sub>[1], ...,
+-- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
+-- l<sub>n</sub>[#l<sub>n</sub>]}</code>
 function concat (...)
   local r = {}
   for _, l in ipairs ({...}) do
@@ -170,11 +144,10 @@ function concat (...)
   return r
 end
 
--- @func rep: Repeat a list
---   @param l: list
---   @param n: number of times to repeat
--- @returns
---   @param r: n copies of l appended together
+--- Repeat a list.
+-- @param l list
+-- @param n number of times to repeat
+-- @return n copies of l appended together
 function rep (l, n)
   local r = {}
   for i = 1, n do
@@ -183,10 +156,9 @@ function rep (l, n)
   return r
 end
 
--- @func reverse: Reverse a list
---   @param l: list
--- @returns
---   @param m: list {l[#l], ..., l[1]}
+--- Reverse a list.
+-- @param l list
+-- @return list <code>{l[#l], ..., l[1]}</code>
 function reverse (l)
   local m = {}
   for i = #l, 1, -1 do
@@ -195,15 +167,16 @@ function reverse (l)
   return m
 end
 
--- @func transpose: Transpose a list of lists
---   @param ls: {{l11, ..., l1c}, ..., {lr1, ..., lrc}}
--- @returns
---   @param ms: {{l11, ..., lr1}, ..., {l1c, ..., lrc}}
--- This function is equivalent to zip and unzip in more strongly typed
--- languages
+--- Transpose a list of lists.
+-- This function in Lua is equivalent to zip and unzip in more
+-- strongly typed languages.
+-- @param ls <code>{{l<sub>1,1</sub>, ..., l<sub>1,c</sub>}, ...,
+-- {l<sub>r,1<sub>, ..., l<sub>r,c</sub>}}</code>
+-- @return <code>{{l<sub>1,1</sub>, ..., l<sub>r,1</sub>}, ...,
+-- {l<sub>1,c</sub>, ..., l<sub>r,c</sub>}}</code>
 function transpose (ls)
   local ms, len = {}, #ls
-  for i = 1, math.max (unpack (map (table.getn, ls))) do
+  for i = 1, math.max (unpack (map (function (l) return #l end, ls))) do
     ms[i] = {}
     for j = 1, len do
       ms[i][j] = ls[j][i]
@@ -212,31 +185,29 @@ function transpose (ls)
   return ms
 end
 
--- @func zipWith: Zip lists together with a function
---   @param f: function
---   @param ls: list of lists
--- @returns
---   @param m: {f (ls[1][1], ..., ls[#ls][1]), ...,
---              f (ls[1][N], ..., ls[#ls][N])
---     where N = max {map (table.getn, ls)}
+--- Zip lists together with a function.
+-- @param f function
+-- @param ls list of lists
+-- @return <code>{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])</code>
+-- where <code>N = max {map (function (l) return #l end, ls)}</code>
 function zipWith (f, ls)
-  return mapWith (f, zip (ls))
+  return mapWith (f, transpose (ls))
 end
 
--- @func project: Project a list of fields from a list of tables
---   @param f: field to project
---   @param l: list of tables
--- @returns
---   @param m: list of f fields
+--- Project a list of fields from a list of tables.
+-- @param f field to project
+-- @param l list of tables
+-- @return list of f fields
 function project (f, l)
   return map (function (t) return t[f] end, l)
 end
 
--- @func enpair: Turn a table into a list of pairs
--- FIXME: Find a better name
---   @param t: table {i1=v1, ..., in=vn}
--- @returns
---   @param ls: list {{i1, v1}, ..., {in, vn}}
+--- Turn a table into a list of pairs.
+-- <br>FIXME: Find a better name.
+-- @param t table <code>{i<sub>1</sub>=v<sub>1</sub>, ...,
+-- i<sub>n</sub>=v<sub>n</sub>}</code>
+-- @return list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
+-- {i<sub>n</sub>, v<sub>n</sub>}}</code>
 function enpair (t)
   local ls = {}
   for i, v in pairs (t) do
@@ -245,11 +216,12 @@ function enpair (t)
   return ls
 end
 
--- @func depair: Turn a list of pairs into a table
--- FIXME: Find a better name
---   @param ls: list {{i1, v1}, ..., {in, vn}}
--- @returns
---   @param t: table {i1=v1, ..., in=vn}
+--- Turn a list of pairs into a table.
+-- <br>FIXME: Find a better name.
+-- @param ls list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
+-- {i<sub>n</sub>, v<sub>n</sub>}}</code>
+-- @return table <code>{i<sub>1</sub>=v<sub>1</sub>, ...,
+-- i<sub>n</sub>=v<sub>n</sub>}</code>
 function depair (ls)
   local t = {}
   for _, v in ipairs (ls) do
@@ -258,10 +230,9 @@ function depair (ls)
   return t
 end
 
--- @func flatten: Flatten a list
---   @param l: list to flatten
--- @returns
---   @param m: flattened list
+--- Flatten a list.
+-- @param l list to flatten
+-- @return flattened list
 function flatten (l)
   local m = {}
   for _, v in ipairs (l) do
@@ -274,21 +245,23 @@ function flatten (l)
   return m
 end
 
--- @func shape: Shape a list according to a list of dimensions
+--- Shape a list according to a list of dimensions.
+--
 -- Dimensions are given outermost first and items from the original
 -- list are distributed breadth first; there may be one 0 indicating
--- an indefinite number. Hence, {0} is a flat list, {1} is a
--- singleton, {2, 0} is a list of two lists, and {0, 2} is a list of
--- pairs.
---   @param s: {d1, ..., dn}
---   @param l: list to reshape
--- @returns
---   @param m: reshaped list
--- Algorithm: turn shape into all +ve numbers, calculating the zero if
--- necessary and making sure there is at most one; recursively walk
--- the shape, adding empty tables until the bottom level is reached at
--- which point add table items instead, using a counter to walk the
--- flattened original list.
+-- an indefinite number. Hence, <code>{0}</code> is a flat list,
+-- <code>{1}</code> is a singleton, <code>{2, 0}</code> is a list of
+-- two lists, and <code>{0, 2}</code> is a list of pairs.
+-- <br>
+-- Algorithm: turn shape into all positive numbers, calculating
+-- the zero if necessary and making sure there is at most one;
+-- recursively walk the shape, adding empty tables until the bottom
+-- level is reached at which point add table items instead, using a
+-- counter to walk the flattened original list.
+-- <br>
+-- @param s <code>{d<sub>1</sub>, ..., d<sub>n</sub>}</code>
+-- @param l list to reshape
+-- @return reshaped list
 function shape (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
@@ -324,12 +297,12 @@ function shape (s, l)
   return (fill (1, 1))
 end
 
--- @func indexKey: Make an index of a list of tables on a given
--- field
---   @param f: field
---   @param l: list of tables {t1, ..., tn}
--- @returns
---   @param m: index {t1[f]=1, ..., tn[f]=n}
+--- Make an index of a list of tables on a given field
+-- @param f field
+-- @param l list of tables <code>{t<sub>1</sub>, ...,
+-- t<sub>n</sub>}</code>
+-- @return index <code>{t<sub>1</sub>[f]=1, ...,
+-- t<sub>n</sub>[f]=n}</code>
 function indexKey (f, l)
   local m = {}
   for i, v in ipairs (l) do
@@ -341,12 +314,12 @@ function indexKey (f, l)
   return m
 end
 
--- @func indexValue: Copy a list of tables, indexed on a given
--- field
---   @param f: field whose value should be used as index
---   @param l: list of tables {i1=t1, ..., in=tn}
--- @returns
---   @param m: index {t1[f]=t1, ..., tn[f]=tn}
+--- Copy a list of tables, indexed on a given field
+-- @param f field whose value should be used as index
+-- @param l list of tables <code>{i<sub>1</sub>=t<sub>1</sub>, ...,
+-- i<sub>n</sub>=t<sub>n</sub>}</code>
+-- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
+-- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
 function indexValue (f, l)
   local m = {}
   for i, v in ipairs (l) do
@@ -359,18 +332,17 @@ function indexValue (f, l)
 end
 permuteOn = indexValue
 
--- @head Metamethods for lists
+-- Metamethods for lists
 metatable = {
   -- list .. table = list.concat
   __concat = list.concat,
   __append = list.append,
 }
 
--- @func new: List constructor
--- Needed in order to use metamethods
---   @param t: list (as a table)
--- @returns
---   @param l: list (with list metamethods)
+--- List constructor.
+-- Needed in order to use metamethods.
+-- @param t list (as a table)
+-- @return list (with list metamethods)
 function new (l)
   return setmetatable (l, metatable)
 end

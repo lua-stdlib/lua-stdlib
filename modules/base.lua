@@ -1,10 +1,10 @@
--- @module base
--- Adds to the existing global functions
-
+--- Adds to the existing global functions
 module ("base", package.seeall)
 
--- Functional forms of infix operators
+--- Functional forms of infix operators.
 -- Defined here so that other modules can write to it.
+-- @class table
+-- @name _G.op
 _G.op = {}
 
 require "table_ext"
@@ -13,12 +13,11 @@ require "string_ext"
 --require "io_ext" FIXME: allow loops
 
 
--- @func metamethod: Return given metamethod, if any, or nil
---   @param x: object to get metamethod of
---   @param n: name of metamethod to get
--- @returns
---   @param m: metamethod function or nil if no metamethod or not a
---     function
+--- Return given metamethod, if any, or nil.
+-- @param x object to get metamethod of
+-- @param n name of metamethod to get
+-- @return metamethod function or nil if no metamethod or not a
+-- function
 function _G.metamethod (x, n)
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
@@ -30,49 +29,22 @@ function _G.metamethod (x, n)
   return m
 end
 
--- @func render: Turn tables into strings with recursion detection
+--- Turn tables into strings with recursion detection.
 -- N.B. Functions calling render should not recurse, or recursion
--- detection will not work
---   @param x: object to convert to string
---   @param open: open table renderer
---     @param t: table
---   @returns
---     @param s: open table string
---   @param close: close table renderer
---     @param t: table
---   @returns
---     @param s: close table string
---   @param elem: element renderer
---     @param e: element
---   @returns
---     @param s: element string
---   @param pair: pair renderer
---     N.B. this function should not try to render i and v, or treat
---     them recursively
---     @param t: table
---     @param i: index
---     @param v: value
---     @param is: index string
---     @param vs: value string
---   @returns
---     @param s: element string
---   @param sep: separator renderer
---     @param t: table
---     @param i: preceding index (nil on first call)
---     @param v: preceding value (nil on first call)
---     @param j: following index (nil on last call)
---     @param w: following value (nil on last call)
---   @returns
---     @param s: separator string
--- @returns
---   @param s: string representation
+-- detection will not work.
+-- @see render_OpenRenderer, render_CloseRenderer
+-- @see render_ElementRenderer, render_PairRenderer
+-- @see render_SeparatorRenderer
+-- @param x object to convert to string
+-- @param open open table renderer
+-- @param close close table renderer
+-- @param elem element renderer
+-- @param pair pair renderer
+-- @param sep separator renderer
+-- @return string representation
 function _G.render (x, open, close, elem, pair, sep, roots)
-  local function stopRoots (x)
-    if roots[x] then
-      return roots[x]
-    else
-      return render (x, open, close, elem, pair, sep, table.clone (roots))
-    end
+  local function stop_roots (x)
+    return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
   roots = roots or {}
   local s
@@ -83,7 +55,7 @@ function _G.render (x, open, close, elem, pair, sep, roots)
     roots[x] = elem (x)
     local i, v = nil, nil
     for j, w in pairs (x) do
-      s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stopRoots (j), stopRoots (w))
+      s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
       i, v = j, w
     end
     s = s .. sep(x, i, v, nil, nil) .. close (x)
@@ -91,10 +63,51 @@ function _G.render (x, open, close, elem, pair, sep, roots)
   return s
 end
 
--- @func tostring: Extend tostring to work better on tables
---   @param x: object to convert to string
--- @returns
---   @param s: string representation
+---
+-- @class function
+-- @name render_OpenRenderer
+-- @param t table
+-- @return open table string
+
+---
+-- @class function
+-- @name render_CloseRenderer
+-- @param t table
+-- @return close table string
+
+---
+-- @class function
+-- @name render_ElementRenderer
+-- @param e element
+-- @return element string
+
+---
+-- @class function
+-- @name render_PairRenderer
+-- N.B. the function should not try to render i and v, or treat
+-- them recursively.
+-- @param t table
+-- @param i index
+-- @param v value
+-- @param is index string
+-- @param vs value string
+-- @return element string
+
+---
+-- @class function
+-- @name render_SeparatorRenderer
+-- @param t table
+-- @param i preceding index (nil on first call)
+-- @param v preceding value (nil on first call)
+-- @param j following index (nil on last call)
+-- @param w following value (nil on last call)
+-- @return separator string
+
+--- Extend <code>tostring</code> to work better on tables.
+-- @class function
+-- @name _G.tostring
+-- @param x object to convert to string
+-- @return string representation
 _G._tostring = tostring -- make original tostring available
 local _tostring = tostring
 function _G.tostring (x)
@@ -113,12 +126,11 @@ function _G.tostring (x)
                  end)
 end
 
--- @func prettytostring: pretty-print a table
---   @param t: table to print
---   @param indent: indent between levels ["\t"]
---   @param spacing: space before every line
--- @returns
---   @param s: pretty-printed string
+--- Pretty-print a table.
+-- @param t table to print
+-- @param indent indent between levels ["\t"]
+-- @param spacing space before every line
+-- @return pretty-printed string
 function _G.prettytostring (t, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
@@ -166,11 +178,9 @@ function _G.prettytostring (t, indent, spacing)
                  end)
 end
 
--- @func totable: Turn an object into a table according to __totable
--- metamethod
---   @param x: object to turn into a table
--- @returns
---   @param t: table or nil
+--- Turn an object into a table according to __totable metamethod.
+-- @param x object to turn into a table
+-- @return table or nil
 function _G.totable (x)
   local m = metamethod (x, "__totable")
   if m then
@@ -182,12 +192,11 @@ function _G.totable (x)
   end
 end
 
--- @func pickle: Convert a value to a string
--- The string can be passed to dostring to retrieve the value
--- TODO: Make it work for recursive tables
---   @param x: object to pickle
--- @returns
---   @param s: string such that eval (s) is the same value as x
+--- Convert a value to a string.
+-- The string can be passed to dostring to retrieve the value.
+-- <br>TODO: Make it work for recursive tables.
+-- @param x object to pickle
+-- @return string such that eval (s) is the same value as x
 function _G.pickle (x)
   if type (x) == "string" then
     return string.format ("%q", x)
@@ -210,27 +219,24 @@ function _G.pickle (x)
   end
 end
 
--- @func id: Identity
---   @param ...
--- @returns
---   @param ...: the arguments passed to the function
+--- Identity function.
+-- @param ...
+-- @return the arguments passed to the function
 function _G.id (...)
   return ...
 end
 
--- @func pack: Turn a tuple into a list
---   @param ...: tuple
--- @returns
---   @param l: list
+--- Turn a tuple into a list.
+-- @param ... tuple
+-- @return list
 function _G.pack (...)
   return {...}
 end
 
--- @func bind: Partially apply a function
---   @param f: function to apply partially
---   @param a1 ... an: arguments to bind
--- @returns
---   @param g: function with ai already bound
+--- Partially apply a function.
+-- @param f function to apply partially
+-- @param ... arguments to bind
+-- @return function with ai already bound
 function _G.bind (f, ...)
   local fix = {...}
   return function (...)
@@ -238,11 +244,10 @@ function _G.bind (f, ...)
          end
 end
 
--- @func curry: Curry a function
---   @param f: function to curry
---   @param n: number of arguments
--- @returns
---   @param g: curried version of f
+--- Curry a function.
+-- @param f function to curry
+-- @param n number of arguments
+-- @return curried version of f
 function _G.curry (f, n)
   if n <= 1 then
     return f
@@ -253,13 +258,9 @@ function _G.curry (f, n)
   end
 end
 
--- @func compose: Compose functions
---   @param f1 ... fn: functions to compose
--- @returns
---   @param g: composition of f1 ... fn
---     @param args: arguments
---   @returns
---     @param f1 (...fn (args)...)
+--- Compose functions.
+-- @param f1...fn functions to compose
+-- @return composition of f1 ... fn
 function _G.compose (...)
   local arg = {...}
   local fns, n = arg, #arg
@@ -272,25 +273,18 @@ function _G.compose (...)
          end
 end
 
--- @func eval: Evaluate a string
---   @param s: string
--- @returns
---   @param v: value of string
+--- Evaluate a string.
+-- @param s string
+-- @return value of string
 function _G.eval (s)
   return loadstring ("return " .. s)()
 end
 
--- @func ripairs: An iterator like ipairs, but in reverse
---   @param t: table to iterate over
--- @returns
---   @param f: iterator function
---     @param t: table
---     @param n: index
---   @returns
---     @param i: index (n - 1)
---     @param v: value (t[n - 1])
---   @param t: the table, as above
---   @param n: #t + 1
+--- An iterator like ipairs, but in reverse.
+-- @param t table to iterate over
+-- @return iterator function
+-- @return the table, as above
+-- @return #t + 1
 function _G.ripairs (t)
   return function (t, n)
            n = n - 1
@@ -301,16 +295,10 @@ function _G.ripairs (t)
   t, #t + 1
 end
 
--- @func nodes: tree iterator
---   @param tr: tree to iterate over
--- @returns
---   @param f: iterator function
---     @param n: current node
---     @param p: path to node within the tree
---   @yields
---     @param ty: type ("leaf", "branch" (pre-order) or "join" (post-order))
---     @param p_: path to node ({i1...ik})
---     @param n_: node
+--- Tree iterator.
+-- @see tree_Iterator
+-- @param tr tree to iterate over
+-- @return iterator function
 function _G.nodes (tr)
   local function visit (n, p)
     if type (n) == "table" then
@@ -328,11 +316,18 @@ function _G.nodes (tr)
   return coroutine.wrap (visit), tr, {}
 end
 
--- @func collect: collect the results of an iterator
---   @param i: iterator
---   @param ...: arguments
--- @returns
---   @param t: results of running the iterator on its arguments
+---
+-- @class function
+-- @name tree_Iterator
+-- @param n current node
+-- @param p path to node within the tree
+-- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @return path to node ({i1...ik})
+-- @return node
+
+--- Collect the results of an iterator.
+-- @param i iterator
+-- @return results of running the iterator on its arguments
 function _G.collect (i, ...)
   local t = {}
   for e in i (...) do
@@ -341,12 +336,10 @@ function _G.collect (i, ...)
   return t
 end
 
--- @func map: Map a function over an iterator
---   @param f: function
---   @param i: iterator
---   @param ...: iterator's arguments
--- @returns
---   @param t: result table
+--- Map a function over an iterator.
+-- @param f function
+-- @param i iterator
+-- @return result table
 function _G.map (f, i, ...)
   local t = {}
   for e in i (...) do
@@ -358,12 +351,10 @@ function _G.map (f, i, ...)
   return t
 end
 
--- @func filter: Filter an iterator with a predicate
---   @param p: predicate
---   @param i: iterator
---   @param ...:
--- @returns
---   @param t: result table containing elements e for which p (e)
+--- Filter an iterator with a predicate.
+-- @param p predicate
+-- @param i iterator
+-- @return result table containing elements e for which p (e)
 function _G.filter (p, i, ...)
   local t = {}
   for e in i (...) do
@@ -374,13 +365,11 @@ function _G.filter (p, i, ...)
   return t
 end
 
--- @func fold: Fold a binary function into an iterator
---   @param f: function
---   @param d: initial first argument
---   @param i: iterator
---   @param ...:
--- @returns
---   @param r: result
+--- Fold a binary function into an iterator.
+-- @param f function
+-- @param d initial first argument
+-- @param i iterator
+-- @return result
 function _G.fold (f, d, i, ...)
   local r = d
   for e in i (...) do
@@ -389,11 +378,11 @@ function _G.fold (f, d, i, ...)
   return r
 end
 
--- @func assert: Extend to allow formatted arguments
---   @param v: value
---   @param f, ...: arguments to format
--- @returns
---   @param v: value
+--- Extend to allow formatted arguments.
+-- @param v value to assert
+-- @param f format
+-- @param ... arguments to format
+-- @return value
 function _G.assert (v, f, ...)
   if not v then
     if f == nil then
@@ -404,8 +393,8 @@ function _G.assert (v, f, ...)
   return v
 end
 
--- @func warn: Give warning with the name of program and file (if any)
---   @param ...: arguments for format
+--- Give warning with the name of program and file (if any).
+-- @param ... arguments for format
 function _G.warn (...)
   if prog.name then
     io.stderr:write (prog.name .. ":")
@@ -422,14 +411,15 @@ function _G.warn (...)
   io.writeline (io.stderr, string.format (...))
 end
 
--- @func die: Die with error
---   @param ...: arguments for format
+--- Die with error.
+-- @param ... arguments for format
 function _G.die (...)
   warn (unpack (arg))
   error ()
 end
 
--- Function forms of operators
+-- Function forms of operators.
+-- FIXME: Make these visible in LuaDoc (also list.concat in list)
 _G.op["[]"] =
   function (t, s)
     return t[s]

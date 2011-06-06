@@ -1,46 +1,43 @@
--- Prototype-based objects
-
+--- Prototype-based objects
+-- <ul>
+-- <li>Create an object/class:</li>
+-- <ul>
+-- <li><code>object/class = prototype {value, ...; field = value ...}</code></li>
+-- <li>An object's metatable is itself.</li>
+-- <li>In the initialiser, unnamed values are assigned to the fields
+-- given by <code>_init</code> (assuming the default
+-- <code>_clone</code>).</li>
+-- <li>Private fields and methods start with "<code>_</code>".</li>
+-- </ul>
+-- <li>Access an object field: <code>object.field</code></li>
+-- <li>Call an object method: <code>object:method (...)</code></li>
+-- <li>Call a class method: <code>Class.method (object, ...)</li>
+-- <li>Add a field: <code>object.field = x</code></li>
+-- <li>Add a method: <code>function object:method (...) ... end</code></li>
+-- </li>
 module ("object", package.seeall)
 
 require "table_ext"
 
 
--- Usage:
-
--- Create an object/class:
---   object/class = prototype {value, ...; field = value ...}
---   An object's metatable is itself.
---   In the initialiser, unnamed values are assigned to the fields
---   given by _init (assuming the default _clone).
---   Private fields and methods start with "_"
-
--- Access an object field: object.field
--- Call an object method: object:method (...)
--- Call a class method: Class.method (object, ...)
-
--- Add a field: object.field = x
--- Add a method: function object:method (...) ... end
-
-
--- Root object
+--- Root object
+-- @class table
+-- @name Object
+-- @field _init list of fields to be initialised by the
+-- constructor: assuming the default _clone, the
+-- numbered values in an object constructor are
+-- assigned to the fields given in <code>_init</code>
+-- @field _clone object constructor which takes initial values for
+-- fields in <code>_init</code>
 _G.Object = {
-  -- List of fields to be initialised by the
-  -- constructor: assuming the default _clone, the
-  -- numbered values in an object constructor are
-  -- assigned to the fields given in _init
   _init = {},
 
-  -- @func _clone: Object constructor
-  --   @param values: initial values for fields in
-  --   _init
-  -- @returns
-  --   @param object: new object
   _clone = function (self, values)
              local object = table.merge (self, table.rearrange (self._init, values))
              return setmetatable (object, object)
            end,
 
-  -- @func __call: Sugar instance creation
+  -- Sugar instance creation
   __call = function (...)
              -- First (...) gets first element of list
              return (...)._clone (...)

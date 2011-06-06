@@ -1,110 +1,109 @@
--- @module parser
--- Parser generator
-
+--- Parser generator.
+-- <p>A parser is created by</p>
+-- <blockquote>
+-- <p><code>p = Parser {grammar}</code></p>
+-- </blockquote>
+-- <p>and called with</p>
+-- <blockquote>
+-- <p><code>result = p:parse (start_token, token_list[,
+-- from])</code></p>
+-- </blockquote>
+-- <p>where start_token is the non-terminal at which to start parsing
+-- in the grammar, token_list is a list of tokens of the form</p>
+-- <blockquote>
+-- <p><code>{ty = "token_type", tok = "token_text"}</code></p>
+-- </blockquote>
+-- <p>and from is the token in the list from which to start (the
+-- default value is 1).</p>
+-- <p>The output of the parser is a tree, each of whose
+-- nodes is of the form:</p>
+-- <blockquote>
+-- <p><code>{ty = symbol, node<sub>1</sub> = tree<sub>1</sub>,
+-- node<sub>2</sub> = tree<sub>2</sub>, ... [, list]}</code></p>
+-- </blockquote>
+-- <p>where each <code>node<sub>i</sub></code> is a symbolic name, and
+-- list is the list of trees returned if the corresponding token was a
+-- list token.</p>
+-- <p>A grammar is a table of rules of the form</p>
+-- <blockquote>
+-- <p><code>non-terminal = {production<sub>1</sub>,
+-- production<sub>2</sub>, ...}</code></p>
+-- </blockquote>
+-- <p>plus a special item</p>
+-- <blockquote>
+-- <p><code>lexemes = Set {"class<sub>1</sub>", "class<sub>2</sub>",
+-- ...}</code></p>
+-- </blockquote>
+-- <p>Each production gives a form that a non-terminal may take. A
+-- production has the form</p>
+-- <blockquote>
+-- <p><code>production = {"token<sub>1</sub>", "token<sub>2</sub>",
+-- ..., [action][,abstract]}</code></p>
+-- </blockquote>
+-- <p>A production</p>
+-- <ul>
+-- <li>must not start with the non-terminal being defined (it must not
+-- be left-recursive)</li>
+-- <li>must not be a prefix of a later production in the same
+-- non-terminal</li>
+-- </ul>
+-- <p>Each token may be</p>
+-- <ul>
+-- <li>a non-terminal, i.e. a token defined by the grammar</li>
+--   <ul>
+--   <li>an optional symbol is indicated by the suffix <code>_opt</code></li>
+--   <li>a list is indicated by the suffix <code>_list</code>, and may be
+--   followed by <code>_&le;separator-symbol&gt;</code> (default is no separator)</li>
+--   </ul>
+-- <li>a lexeme class</li>
+-- <li>a string to match literally</li>
+-- </ul>
+-- <p>The parse tree for a literal string or lexeme class is the string
+-- that was matched. The parse tree for a non-terminal is a table of
+-- the form</p>
+-- <blockquote>
+-- <p><code>{ty = "non_terminal_name", tree<sub>1</sub>,
+-- tree<sub>2</sub>, ...}</code></p>
+-- </blockquote>
+-- <p>where the <code>tree<sub>i</sub></code> are the parse trees for the
+-- corresponding terminals and non-terminals.</p>
+-- <p>An action is of the form</p>
+-- <blockquote>
+-- <p><code>action = function (tree, token, pos) ... return tree_
+-- end</code></p>
+-- </blockquote>
+-- <p>It is passed the parse tree for the current node, the token list,
+-- and the current position in the token list, and returns a new parse
+-- tree.</p>
+-- <p>An abstract syntax rule is of the form</p>
+-- <blockquote>
+-- <p><code>name = {i<sub>1</sub>, i<sub>2</sub>, ...}</code></p>
+-- </blockquote>
+-- <p>where <code>i<sub>1</sub></code>, <code>i<sub>2</sub></code>,
+-- ... are numbers. This results in a parse tree of the form</p>
+-- <blockquote>
+-- <p><code>{ty = "name"; tree<sub>i<sub>1</sub></sub>,
+-- tree<sub>i<sub>2</sub></sub>, ...}</code></p>
+-- </blockquote>
+-- <p>If a production has no abstract syntax rule, the result is the
+-- parse node for the current node.</p>
+-- <p>FIXME: Give lexemes as an extra argument to <code>Parser</code>?
+-- <br>FIXME: Rename second argument to parse method to "tokens"?
+-- <br>FIXME: Make start_token an optional argument to parse? (swap with
+-- token list) and have it default to the first non-terminal?</p>
 module ("parser", package.seeall)
 
 require "object"
 
 
--- FIXME: Give lexemes as an extra argument to Parser?
--- FIXME: Rename second argument to parse method to "tokens"?
--- FIXME: Make start_token an optional argument to parse? (swap with
---   token list) and have it default to the first non-terminal?
-
-
--- A parser is created by
---
---     p = Parser {grammar}
---
--- and called with
---
---     result = p:parse (start_token, token_list[, from])
---
--- where start_token is the non-terminal at which to start parsing in
--- the grammar, token_list is a list of tokens of the form
---
---     {ty = "token_type", tok = "token_text"}
---
--- and from is the token in the list from which to start (the default
--- value is 1).
---
--- The output of the parser is a tree, each of whose
--- nodes is of the form:
---
---     {ty = symbol, node_1 = tree_1, node_2 = tree_2, ... [, list]}
---
--- where each node_i is a symbolic name, and list is the list of
--- trees returned if the corresponding token was a list token.
---
--- A grammar is a table of rules of the form
---
---     non-terminal = {production_1, production_2, ...}
---
--- plus a special item
---
---     lexemes = Set {"class_1", "class_2", ...}
---
--- Each production gives a form that a non-terminal may take. A
--- production has the form
---
---     production = {"token_1", "token_2", ...,
---                   [action][,abstract]}
---
--- A production
---
---   * must not start with the non-terminal being defined (it must not
---     be left-recursive)
---   * must not be a prefix of a later production in the same
---     non-terminal
---
--- Each token may be
---
---   * a non-terminal, i.e. a token defined by the grammar
---      * an optional symbol is indicated by the suffix "_opt"
---      * a list is indicated by the suffix "_list", and may be
---        followed by "_<separator-symbol>" (default is no separator)
---   * a lexeme class
---   * a string to match literally
---
--- The parse tree for a literal string or lexeme class is the string
--- that was matched. The parse tree for a non-terminal is a table of
--- the form
---
---    {ty = "non_terminal_name", tree_1, tree_2, ...}
---
--- where the tree_i are the parse trees for the corresponding
--- terminals and non-terminals.
---
--- An action is of the form
---
---     action = function (tree, token, pos)
---       ...
---       return tree_
---     end
---
--- It is passed the parse tree for the current node, the token list,
--- and the current position in the token list, and returns a new parse
--- tree.
---
--- An abstract syntax rule is of the form
---
---     name = {i_1, i_2, ...}
---
--- where i_1, i_2, ... are numbers. This results in a parse tree of
--- the form
---
---     {ty = "name"; tree_i_1, tree_i_2, ...}
---
--- If a production has no abstract syntax rule, the result is the
--- parse node for the current node.
-
-
 Parser = Object {_init = {"grammar"}}
 
 
--- Parser constructor (deals with abstract syntax rules)
-function Parser:_clone (values)
-  local init = table.permute (self._init, values)
+--- Parser constructor
+-- @param grammar parser grammar
+-- @return parser
+function Parser:_clone (grammar)
+  local init = table.permute (self._init, grammar)
   -- Reformat the abstract syntax rules
   for rname, rule in pairs (init.grammar) do
     if name ~= "lexemes" then
@@ -135,23 +134,22 @@ function Parser:_clone (values)
   return setmetatable (object, object)
 end
 
--- @func Parser:parse: Parse a token list
---   @param start: the token at which to start
---   @param token: the list of tokens
--- @returns
---   @param tree: parse tree
+--- Parse a token list.
+-- @param start the token at which to start
+-- @param token the list of tokens
+-- @param from the index of the token to start from (default: 1)
+-- @return parse tree
 function Parser:parse (start, token, from)
 
   local grammar = self.grammar -- for consistency and brevity
   local rule, symbol -- functions called before they are defined
   
-  -- @func Parser:optional: Try to parse an optional symbol
-  --   @param sym: the symbol being tried
-  --   @param from: the index of the token to start from
-  -- @returns
-  --   @param tree: the resulting parse tree, or false if empty
-  --   @param to: the index of the first unused token, or false to
-  --     indicate failure
+  -- Try to parse an optional symbol.
+  -- @param sym the symbol being tried
+  -- @param from the index of the token to start from
+  -- @return the resulting parse tree, or false if empty
+  -- @return the index of the first unused token, or false to
+  -- indicate failure
   local function optional (sym, from)
     local tree, to = symbol (sym, from)
     if to then
@@ -161,14 +159,13 @@ function Parser:parse (start, token, from)
     end
   end
 
-  -- @func Parser:list: Try to parse a list of symbols
-  --   @param sym: the symbol being tried
-  --   @param sep: the list separator
-  --   @param from: the index of the token to start from
-  -- @returns
-  --   @param tree: the resulting parse tree, or false if empty
-  --   @param to: the index of the first unused token, or false to
-  --     indicate failure
+  -- Try to parse a list of symbols.
+  -- @param sym the symbol being tried
+  -- @param sep the list separator
+  -- @param from the index of the token to start from
+  -- @return the resulting parse tree, or false if empty
+  -- @return the index of the first unused token, or false to
+  -- indicate failure
   local function list (sym, sep, from)
     local tree, to
     tree, from = symbol (sym, from)
@@ -192,13 +189,12 @@ function Parser:parse (start, token, from)
     return list, to
   end
 
-  -- @func symbol: Try to parse a given symbol
-  --   @param sym: the symbol being tried
-  --   @param from: the index of the token to start from
-  -- @returns
-  --   @param tree: the resulting parse tree, or false if empty
-  --   @param to: the index of the first unused token, or false to
-  --     indicate failure
+  -- Try to parse a given symbol.
+  -- @param sym the symbol being tried
+  -- @param from the index of the token to start from
+  -- @return tree the resulting parse tree, or false if empty
+  -- @return the index of the first unused token, or false to
+  -- indicate failure
   symbol = function (sym, from) -- declared at the top
     if string.sub (sym, -4, -1) == "_opt" then -- optional symbol
       return optional (string.sub (sym, 1, -5), from)
@@ -218,14 +214,13 @@ function Parser:parse (start, token, from)
     end
   end
 
-  -- @func production: Try a production
-  --   @param name: the name of the current rule
-  --   @param prod: the production (list of symbols) being tried
-  --   @param from: the index of the token to start from
-  -- @returns
-  --   @param tree: the parse tree (incomplete if to is false)
-  --   @param to: the index of the first unused token, or false to
-  --     indicate failure
+  -- Try a production.
+  -- @param name the name of the current rule
+  -- @param prod the production (list of symbols) being tried
+  -- @param from the index of the token to start from
+  -- @return the parse tree (incomplete if to is false)
+  -- @return the index of the first unused token, or false to
+  -- indicate failure
   local function production (name, prod, from)
     local tree = {ty = name}
     local to = from
@@ -252,13 +247,12 @@ function Parser:parse (start, token, from)
     return tree, to
   end
 
-  -- @func rule: Parse according to a particular rule
-  --   @param name: the name of the rule to try
-  --   @param from: the index of the token to start from
-  -- @returns
-  --   @param tree: parse tree
-  --   @param to: the index of the first unused token, or false to
-  --     indicate failure
+  -- Parse according to a particular rule.
+  -- @param name the name of the rule to try
+  -- @param from the index of the token to start from
+  -- @return parse tree
+  -- @return the index of the first unused token, or false to
+  -- indicate failure
   rule = function (name, from) -- declared at the top
     local alt = grammar[name]
     local tree, to

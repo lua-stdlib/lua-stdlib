@@ -1,14 +1,12 @@
--- POSIX
-
+-- Additions to the posix module (of luaposix).
 module ("posix", package.seeall)
 
 
--- @func system: Run a program like os.system, but without a shell
---   @param file: filename of program to run
---   @param ...: arguments to the program
--- @returns
---   @param status: exit code, or nil if fork or wait fails
---   [@param reason]: error message, or exit type if wait succeeds
+--- Run a program like <code>os.system</code>, but without a shell.
+-- @param file filename of program to run
+-- @param ... arguments to the program
+-- @return status exit code, or nil if fork or wait fails
+-- @return error message, or exit type if wait succeeds
 function system (file, ...)
   local pid = fork ()
   if pid == 0 then
@@ -19,14 +17,13 @@ function system (file, ...)
   end
 end
 
--- @func euidaccess: Check permissions like access, but for euid
+--- Check permissions like <code>access</code>, but for euid.
 -- Based on the glibc function of the same name. Does not always check
 -- for read-only file system, text busy, etc., and does not work with
 -- ACLs &c.
---   @param file: file to check
---   @param mode: checks to perform (as for access)
--- @returns
---   @param ret: 0 if access allowed; nil otherwise (and errno is set)
+-- @param file file to check
+-- @param mode checks to perform (as for access)
+-- @return 0 if access allowed; <code>nil</code> otherwise (and errno is set)
 function euidaccess (file, mode)
   local pid = getpid ()
 

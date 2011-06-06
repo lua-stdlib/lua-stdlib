@@ -1,19 +1,19 @@
--- String
-
-module ("xml", package.seeall)
+-- XML extensions to string module.
+-- @class module
+-- @name xml
 
 require "base"
+require "string_ext"
 
 
--- @func string.writeXML: write a table as XML
--- The input format is assumed to be that output by luaexpat
---   @param t: table to print
---   In each element, tag is its name, attr is the table of attributes,
---   and the sub-elements are held in the integer keys
---   @param indent: indent between levels ["\t"]
---   @param spacing: space before every line
--- @returns
---   @param s: XML string
+--- Write a table as XML.
+-- The input format is assumed to be that output by luaexpat.
+-- @param t table to print.
+-- In each element, tag is its name, attr is the table of attributes,
+-- and the sub-elements are held in the integer keys
+-- @param indent indent between levels (default: <code>"\t"</code>)
+-- @param spacing space before every line
+-- @returns XML string
 function string.writeXML (t, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
