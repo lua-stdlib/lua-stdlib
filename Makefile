@@ -9,7 +9,8 @@ dist:
 
 release: dist
 	git diff --exit-code && \
-	git tag -a -m "Release tag" rel-${REL} && \
 	git push && \
-	woger lua-l package=stdlib package_name=stdlib version="release ${REL}" description="General Lua libraries" notes=release-notes-${REL}
+	woger lua-l package=stdlib package_name=stdlib version="release ${REL}" description="General Lua libraries" notes=release-notes-${REL} \ &&
+	git tag -a -m "Release tag" rel-${REL} && \
+	git push --tags
 	@cat release-notes-$(REL) && echo "\n\nDon't forget to release on LuaForge!"
