@@ -47,11 +47,11 @@ function _G.render (x, open, close, elem, pair, sep, roots)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
   roots = roots or {}
-  local s
   if type (x) ~= "table" or metamethod (x, "__tostring") then
-    s = elem (x)
+    return elem (x)
   else
-    s = open (x)
+    local s = strbuf.new ()
+    s = s .. open (x)
     roots[x] = elem (x)
     local i, v = nil, nil
     for j, w in pairs (x) do
@@ -59,8 +59,8 @@ function _G.render (x, open, close, elem, pair, sep, roots)
       i, v = j, w
     end
     s = s .. sep(x, i, v, nil, nil) .. close (x)
+    return s:tostring ()
   end
-  return s
 end
 
 ---

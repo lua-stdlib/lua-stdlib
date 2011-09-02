@@ -12,4 +12,5 @@ return {
   "io_ext",
   "getopt",
   "set",
+  "strbuf",
 }
