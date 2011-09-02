@@ -130,7 +130,7 @@ function equal (s, t)
   return subset (s, t) and subset (t, s)
 end
 
--- @head Metamethods for sets
+--- Metamethods for sets
 -- set:method ()
 metatable.__index = _M
 -- set + table = union
