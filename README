@@ -12,7 +12,6 @@ itself). There is no warranty.
 The standard subset of stdlib has no prerequisites beyond a standard
 Lua 5.1 system. The following modules have extra dependencies:
 
-  posix_ext: luaposix
   fstable: Lua 5.2
 
 
@@ -38,12 +37,8 @@ stdlib.
 Documentation
 -------------
 
-The libraries are documented in LuaDoc. Run
-
-  ldoc *.lua
-
-To get a documentation file "foo.html" for each file "foo.lua".
-Pre-built HTML files are included.
+The libraries are documented in LuaDoc. Pre-built HTML files are
+included.
 
 
 Bug reports and code contributions
