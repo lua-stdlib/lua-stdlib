@@ -2,6 +2,14 @@
 module ("posix", package.seeall)
 
 
+--- Create a file.
+-- @param file name of file to create
+-- @param mode permissions with which to create file
+-- @return file descriptor, or -1 on error
+function creat (file, mode)
+  return open (file, {"creat", "wronly", "trunc"}, mode)
+end
+
 --- Run a program like <code>os.system</code>, but without a shell.
 -- @param file filename of program to run
 -- @param ... arguments to the program
