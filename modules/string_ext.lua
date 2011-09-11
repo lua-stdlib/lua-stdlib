@@ -195,10 +195,8 @@ end
 -- @param p pattern
 -- @param init start position (default: 1)
 -- @param plain inhibit magic characters (default: nil)
--- @return start of match
--- @return end of match
--- @return table of captures
-function findl (s, p, init, plain)
+-- @return start of match, end of match, table of captures
+function tfind (s, p, init, plain)
   local function pack (from, to, ...)
     return from, to, {...}
   end
