@@ -1,4 +1,4 @@
-package="@PACKAGE@"
+package="stdlib"
 version="@VERSION@-1"
 source = {
   url = "http://luaforge.net/frs/download.php/@FRS@/@PACKAGE@-@VERSION@.zip",
@@ -12,7 +12,7 @@ description = {
       including list, table and functional operations, regexps, objects,
       pickling, pretty-printing and getopt.
    ]],
-  homepage = "http://luaforge.net/projects/@PACKAGE@/",
+  homepage = "http://luaforge.net/projects/stdlib/",
   license = "MIT/X11"
 }
 dependencies = {
