@@ -1,2 +1,12 @@
-release-notes-*
-stdlib-*.zip
+/COPYING
+/ChangeLog
+/Makefile.in
+/aclocal.m4
+/autom4te.cache
+/build-aux
+/configure
+/config.log
+/config.status
+/release-notes-*
+/lua-stdlib-*.zip
+/*.rockspec

@@ -1,0 +1,25 @@
+package="@PACKAGE@"
+version="@VERSION@-1"
+source = {
+  url = "http://luaforge.net/frs/download.php/@FRS@/@PACKAGE@-@VERSION@.zip",
+  md5 = "@MD5@",
+  dir = "@PACKAGE@-@VERSION@"
+}
+description = {
+  summary = "General Lua libraries",
+  detailed = [[
+      stdlib is a library of modules for common programming tasks,
+      including list, table and functional operations, regexps, objects,
+      pickling, pretty-printing and getopt.
+   ]],
+  homepage = "http://luaforge.net/projects/@PACKAGE@/",
+  license = "MIT/X11"
+}
+dependencies = {
+  "lua >= 5.1"
+}
+build = {
+  type = "command",
+  build_command = "LUA=$(LUA) CPPFLAGS=-I$(LUA_INCDIR) ./configure --prefix=$(PREFIX) --libdir=$(LIBDIR) --datadir=$(LUADIR)",
+  install_command = "make install"
+}
