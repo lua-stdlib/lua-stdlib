@@ -1,6 +1,7 @@
 /COPYING
 /ChangeLog
 /Makefile.in
+/Makefile
 /aclocal.m4
 /autom4te.cache
 /build-aux
