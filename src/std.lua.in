@@ -9,6 +9,8 @@
 -- </ul>
 module ("std", package.seeall)
 
+version = "General Lua libraries / @VERSION@"
+
 for _, m in ipairs (require "modules") do
   require (m)
 end

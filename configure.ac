@@ -16,5 +16,5 @@ AX_WITH_PROG([MD5SUM], [md5sum], [false])
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
-AC_CONFIG_FILES(Makefile $PACKAGE.rockspec)
+AC_CONFIG_FILES(Makefile $PACKAGE.rockspec src/std.lua)
 AC_OUTPUT

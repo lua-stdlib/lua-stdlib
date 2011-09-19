@@ -5,6 +5,7 @@ ACLOCAL_AMFLAGS = -I m4
 SOURCES = $(wildcard src/*.lua)
 dist_data_DATA = $(SOURCES)
 EXTRA_DIST =				\
+	src/std.lua.in			\
 	src/index.html			\
 	src/luadoc.css			\
 	$(PACKAGE).rockspec.in		\
