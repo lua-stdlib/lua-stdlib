@@ -7,8 +7,11 @@ dist_data_DATA = $(SOURCES)
 EXTRA_DIST =				\
 	src/index.html			\
 	src/luadoc.css			\
+	$(PACKAGE).rockspec.in		\
 	$(wildcard src/files/*.html)	\
 	$(wildcard src/modules/*.html)
+
+DISTCLEANFILES = $(PACKAGE).rockspec
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
