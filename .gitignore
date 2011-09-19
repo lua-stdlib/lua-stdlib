@@ -9,5 +9,5 @@
 /config.log
 /config.status
 /release-notes-*
-/lua-stdlib-*.zip
+/stdlib-*.zip
 /*.rockspec
