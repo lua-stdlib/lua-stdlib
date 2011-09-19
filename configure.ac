@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(lua-stdlib, 24, rrt@sc3d.org)
+AC_INIT(stdlib, 24, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-zip])
@@ -16,5 +16,5 @@ AX_WITH_PROG([MD5SUM], [md5sum], [false])
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
-AC_CONFIG_FILES(Makefile lua-stdlib.rockspec)
+AC_CONFIG_FILES(Makefile $PACKAGE.rockspec)
 AC_OUTPUT
