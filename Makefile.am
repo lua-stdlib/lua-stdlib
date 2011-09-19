@@ -30,4 +30,4 @@ release: distcheck $(ROCKSPEC)
 	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION)
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push --tags
-	@cat release-notes-$(VERSION) && echo && echo "Don't forget to release on LuaForge, and fix the download URL in and upload the rockspec!"
+	@cat release-notes-$(VERSION) && echo && echo "Now upload to LuaForge, and fix the download URL in and send the rockspec!"
