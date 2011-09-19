@@ -16,7 +16,7 @@ DISTCLEANFILES = $(PACKAGE).rockspec
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
-$(ROCKSPEC): $(PACKAGE).rockspec $(distdir).zip
+$(ROCKSPEC): $(PACKAGE).rockspec dist
 	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).zip | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
 
 html: $(SOURCES)
