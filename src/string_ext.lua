@@ -214,7 +214,7 @@ function finds (s, p, init, plain)
   local l = {}
   local from, to, r
   repeat
-    from, to, r = findl (s, p, init, plain)
+    from, to, r = tfind (s, p, init, plain)
     if from ~= nil then
       table.insert (l, {from, to, capt = r})
       init = to + 1
