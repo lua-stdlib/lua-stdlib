@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(stdlib, 24, rrt@sc3d.org)
+AC_INIT(stdlib, 25, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-zip])
