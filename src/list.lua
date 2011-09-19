@@ -332,10 +332,36 @@ function indexValue (f, l)
 end
 permuteOn = indexValue
 
+--- Compare two lists element by element left-to-right
+-- @param l first list
+-- @param m second list
+-- @return -1 if <code>l</code> is less than <code>m</code>, 0 if they
+-- are the same, and 1 if <code>l</code> is greater than <code>m</code>
+function compare (l, m)
+  for i = 1, math.min (#l, #m) do
+    if l[i] < m[i] then
+      return -1
+    elseif l[i] > m[i] then
+      return 1
+    end
+  end
+  if #l < #m then
+    return -1
+  elseif #l > #m then
+    return 1
+  end
+  return 0
+end
+
 -- Metamethods for lists
 metatable = {
   -- list .. table = list.concat
   __concat = list.concat,
+  -- list == list retains its referential meaning
+  -- list < list = list.compare returns < 0
+  __lt = function (l, m) return compare (l, m) < 0 end,
+  -- list <= list = list.compare returns <= 0
+  __le = function (l, m) return compare (l, m) <= 0 end,
   __append = list.append,
 }
 
