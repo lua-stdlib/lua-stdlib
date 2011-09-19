@@ -21,7 +21,7 @@ html: $(SOURCES)
 ChangeLog:
 	git2cl > ChangeLog
 
-release: distcheck
+release: distcheck $(ROCKSPEC)
 	git diff --exit-code && \
 	git push && \
 	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION)
