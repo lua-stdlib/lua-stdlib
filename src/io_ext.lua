@@ -96,4 +96,5 @@ function processFiles (f)
     prog.file = v
     f (v, i)
   end
+  prog.file = nil
 end
