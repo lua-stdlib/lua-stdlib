@@ -9,15 +9,35 @@ require "package_ext"
 local file_metatable = getmetatable (io.stdin)
 
 
---- Read a file into a list of lines and close it.
+-- Get an input file handle.
 -- @param h file handle or name (default: <code>io.input ()</code>)
--- @return list of lines
-function readlines (h)
+-- @return file handle, or nil on error
+local function input_handle (h)
   if h == nil then
     h = input ()
   elseif _G.type (h) == "string" then
     h = io.open (h)
   end
+  return h
+end
+
+--- Slurp a file handle.
+-- @param h file handle or name (default: <code>io.input ()</code>)
+-- @return contents of file or handle, or nil if error
+function slurp (h)
+  h = input_handle (h)
+  if h then
+    local s = h:read ("*a")
+    h:close ()
+    return s
+  end
+end
+
+--- Read a file into a list of lines and close it.
+-- @param h file handle or name (default: <code>io.input ()</code>)
+-- @return list of lines
+function readlines (h)
+  h = input_handle (h)
   local l = {}
   for line in h:lines () do
     table.insert (l, line)
@@ -67,13 +87,7 @@ end
 -- @param c command
 -- @return output, or nil if error
 function shell (c)
-  local h = io.popen (c)
-  local o
-  if h then
-    o = h:read ("*a")
-    h:close ()
-  end
-  return o
+  return io.slurp (io.popen (c))
 end
 
 --- Process files specified on the command-line.

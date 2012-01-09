@@ -18,7 +18,7 @@ local function fsnext (dir)
   repeat
     f = dir:next ()
   until f ~= "." and f ~= ".."
-  return f  
+  return f
 end
 
 -- Metamethods for persistent tables
@@ -30,12 +30,7 @@ function (t, k)
   local attrs = lfs.attributes (path)
   if attrs then
     if attrs.mode == "file" then
-      local h = io.open (path)
-      if h then
-        local v = h:read ("*a")
-        h:close ()
-        return v
-      end
+      return io.slurp (path)
     elseif attrs.mode == "directory" then
       return new (path)
     end
