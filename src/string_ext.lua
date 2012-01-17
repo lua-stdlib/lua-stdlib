@@ -7,8 +7,8 @@ module ("string", package.seeall)
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
 --
---   Based on The Design of a Pretty-printing Library in Advanced
---   Functional Programming, Johan Jeuring and Erik Meijer (eds), LNCS 925
+--   Based on "The Design of a Pretty-printing Library in Advanced
+--   Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
 --   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
 --   Heavily modified by Simon Peyton Jones, Dec 96
 --
@@ -34,26 +34,32 @@ module ("string", package.seeall)
 -- @return <code>string.sub (s, i, i)</code> if i is a number, or
 -- falls back to any previous metamethod (by default, string methods)
 local old__index = getmetatable ("").__index
-getmetatable ("").__index =
-  function (s, i)
-    if type (i) == "number" then
-      return sub (s, i, i)
+getmetatable ("").__index = function (s, i)
+  if type (i) == "number" then
+    return sub (s, i, i)
     -- Fall back to old metamethods
-    elseif type (old__index) == "function" then
-      return old__index (s, i)
-    else
-      return old__index[i]
-    end
+  elseif type (old__index) == "function" then
+    return old__index (s, i)
+  else
+    return old__index[i]
   end
+end
 
 --- Give strings an append metamethod.
 -- @param s string
 -- @param c character (1-character string)
 -- @return <code>s .. c</code>
-getmetatable ("").__append =
-  function (s, c)
-    return s .. c
-  end
+getmetatable ("").__append = function (s, c)
+  return s .. c
+end
+
+--- Give strings a concat metamethod.
+-- @param s string
+-- @param o object
+-- @return s .. tostring (o)
+getmetatable ("").__concat = function (s, o)
+  return s .. tostring (o)
+end
 
 --- Capitalise each word in a string.
 -- @param s string
