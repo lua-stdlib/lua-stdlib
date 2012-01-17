@@ -58,7 +58,7 @@ end
 -- @param o object
 -- @return s .. tostring (o)
 getmetatable ("").__concat = function (s, o)
-  return s .. tostring (o)
+  return tostring (s) .. tostring (o)
 end
 
 --- Capitalise each word in a string.
