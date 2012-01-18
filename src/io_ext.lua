@@ -33,8 +33,9 @@ function slurp (h)
   end
 end
 
---- Read a file into a list of lines and close it.
--- @param h file handle or name (default: <code>io.input ()</code>)
+--- Read a file or file handle into a list of lines.
+-- @param h file handle or name (default: <code>io.input ()</code>);
+-- if h is a handle, the file is closed after reading
 -- @return list of lines
 function readlines (h)
   h = input_handle (h)
