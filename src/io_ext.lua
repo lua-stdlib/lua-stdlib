@@ -51,16 +51,16 @@ file_metatable.readlines = readlines
 --- Write values adding a newline after each.
 -- @param h file handle (default: <code>io.output ()</code>
 -- @param ... values to write (as for write)
-function writeline (h, ...)
+function writelines (h, ...)
   if io.type (h) ~= "file" then
     io.write (h, "\n")
     h = io.output ()
   end
-  for _, v in ipairs ({...}) do
+  for v in ileaves ({...}) do
     h:write (v, "\n")
   end
 end
-file_metatable.writeline = writeline
+file_metatable.writelines = writelines
 
 --- Split a directory path into components.
 -- Empty components are retained: the root directory becomes <code>{"", ""}</code>.

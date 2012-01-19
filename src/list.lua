@@ -136,8 +136,8 @@ end
 -- l<sub>n</sub>[#l<sub>n</sub>]}</code>
 function concat (...)
   local r = {}
-  for _, l in ipairs ({...}) do
-    for _, v in ipairs (l) do
+  for l in elems ({...}) do
+    for v in elems (l) do
       table.insert (r, v)
     end
   end
@@ -224,7 +224,7 @@ end
 -- i<sub>n</sub>=v<sub>n</sub>}</code>
 function depair (ls)
   local t = {}
-  for _, v in ipairs (ls) do
+  for v in elems (ls) do
     t[v[1]] = v[2]
   end
   return t
@@ -235,12 +235,8 @@ end
 -- @return flattened list
 function flatten (l)
   local m = {}
-  for _, v in ipairs (l) do
-    if type (v) == "table" then
-      m = concat (m, flatten (v))
-    else
-      table.insert (m, v)
-    end
+  for v in ileaves (l) do
+    table.insert (m, v)
   end
   return m
 end
@@ -262,6 +258,8 @@ end
 -- @param s <code>{d<sub>1</sub>, ..., d<sub>n</sub>}</code>
 -- @param l list to reshape
 -- @return reshaped list
+-- FIXME: Use ileaves instead of flatten (needs a while instead of a
+-- for in fill function)
 function shape (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any

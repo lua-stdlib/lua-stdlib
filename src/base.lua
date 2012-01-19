@@ -295,17 +295,14 @@ function _G.ripairs (t)
   t, #t + 1
 end
 
---- Tree iterator.
--- @see tree_Iterator
--- @param tr tree to iterate over
--- @return iterator function
-function _G.nodes (tr)
-  local function visit (n, p)
+local function _nodes (it, tr)
+  local p = {}
+  local function visit (n)
     if type (n) == "table" then
       coroutine.yield ("branch", p, n)
-      for i, v in pairs (n) do
+      for i, v in it (n) do
         table.insert (p, i)
-        visit (v, p)
+        visit (v)
         table.remove (p)
       end
       coroutine.yield ("join", p, n)
@@ -313,17 +310,63 @@ function _G.nodes (tr)
       coroutine.yield ("leaf", p, n)
     end
   end
-  return coroutine.wrap (visit), tr, {}
+  return coroutine.wrap (visit), tr
+end
+
+--- Tree iterator.
+-- @see tree_Iterator
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+function _G.nodes (tr)
+  return _nodes (pairs, tr)
+end
+
+--- Tree iterator over numbered nodes, in order.
+-- @see tree_Iterator
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+function _G.inodes (tr)
+  return _nodes (ipairs, tr)
 end
 
 ---
 -- @class function
 -- @name tree_Iterator
 -- @param n current node
--- @param p path to node within the tree
 -- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
 -- @return path to node ({i1...ik})
 -- @return node
+
+local function _leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+--- Tree iterator which returns just numbered leaves, in order.
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+function _G.ileaves (tr)
+  return _leaves (ipairs, tr)
+end
+
+--- Tree iterator which returns just leaves.
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+function _G.leaves (tr)
+  return _leaves (pairs, tr)
+end
 
 --- Collect the results of an iterator.
 -- @param i iterator
@@ -408,7 +451,7 @@ function _G.warn (...)
   if prog.name or prog.file or prog.line then
     io.stderr:write (" ")
   end
-  io.writeline (io.stderr, string.format (...))
+  io.writelines (io.stderr, string.format (...))
 end
 
 --- Die with error.

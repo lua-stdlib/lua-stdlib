@@ -35,15 +35,14 @@ end
 local metatable = {}
 function new (l)
   local s = setmetatable ({}, metatable)
-  for _, e in ipairs (l) do
+  for e in list.elems (l) do
     insert (s, e)
   end
   return s
 end
 
 --- Iterator for sets
--- TODO: Make the iterator return only the key
-elements = pairs
+elements = leaves
 
 
 -- High level methods (representation-independent)

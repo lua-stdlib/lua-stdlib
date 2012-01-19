@@ -109,7 +109,7 @@ local function makeOptions (t)
                             "display this help and exit"}}
                )
   local name = {}
-  for _, v in ipairs (t) do
+  for v in list.elems (t) do
     for j, s in pairs (v.name) do
       if name[s] then
         warn ("duplicate option '%s'", s)
