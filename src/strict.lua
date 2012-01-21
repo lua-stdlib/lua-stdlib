@@ -25,7 +25,7 @@ mt.__newindex = function (t, n, v)
   if not mt.__declared[n] then
     local w = what()
     if w ~= "main" and w ~= "C" then
-      error("assign to undeclared variable '"..n.."'", 2)
+      error("assignment to undeclared variable '"..n.."'", 2)
     end
     mt.__declared[n] = true
   end
