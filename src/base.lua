@@ -11,6 +11,7 @@ require "table_ext"
 require "list"
 require "string_ext"
 --require "io_ext" FIXME: allow loops
+require "strbuf"
 
 
 --- Return given metamethod, if any, or nil.
