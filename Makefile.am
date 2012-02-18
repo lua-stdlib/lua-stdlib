@@ -28,7 +28,6 @@ ChangeLog:
 release: distcheck $(ROCKSPEC)
 	git diff --exit-code && \
 	git push && \
-	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type=zip github_user=rrthomas
+	woger lua,github package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type=zip github_user=rrthomas
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push --tags
-	@cat release-notes-$(VERSION) && echo && echo "Now upload to LuaForge, and fix the download URL in and send the rockspec!"
