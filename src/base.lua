@@ -274,6 +274,18 @@ function _G.compose (...)
          end
 end
 
+-- Memoize a function, by wrapping it in a functable.
+-- @param fn function that returns a single result
+-- @return memoized function
+function _G.memoize (fn)
+  return setmetatable ({}, {__call = function (self, ...)
+    local k = tostring {...}
+    local v = self[k]
+    if v == nil then v = fn (...); self[k] = v end
+    return v
+  end})
+end
+
 --- Evaluate a string.
 -- @param s string
 -- @return value of string
