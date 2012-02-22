@@ -280,7 +280,7 @@ end
 function _G.memoize (fn)
   return setmetatable ({}, {
     __call = function (self, ...)
-               local k = tostring {...}
+               local k = tostring ({...})
                local v = self[k]
                if v == nil then
                  v = fn (...)
