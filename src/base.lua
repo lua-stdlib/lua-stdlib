@@ -464,44 +464,33 @@ end
 
 -- Function forms of operators.
 -- FIXME: Make these visible in LuaDoc (also list.concat in list)
-_G.op["[]"] =
-  function (t, s)
-    return t[s]
-  end
-
-_G.op["+"] =
-  function (a, b)
-    return a + b
-  end
-_G.op["-"] =
-  function (a, b)
-    return a - b
-  end
-_G.op["*"] =
-  function (a, b)
-    return a * b
-  end
-_G.op["/"] =
-  function (a, b)
-    return a / b
-  end
-_G.op["and"] =
-  function (a, b)
-    return a and b
-  end
-_G.op["or"] =
-  function (a, b)
-    return a or b
-  end
-_G.op["not"] =
-  function (a)
-    return not a
-  end
-_G.op["=="] =
-  function (a, b)
-    return a == b
-  end
-_G.op["~="] =
-  function (a, b)
-    return a ~= b
-  end
+_G.op["[]"] = function (t, s)
+  return t[s]
+end
+_G.op["+"] = function (a, b)
+  return a + b
+end
+_G.op["-"] = function (a, b)
+  return a - b
+end
+_G.op["*"] = function (a, b)
+  return a * b
+end
+_G.op["/"] = function (a, b)
+  return a / b
+end
+_G.op["and"] = function (a, b)
+  return a and b
+end
+_G.op["or"] = function (a, b)
+  return a or b
+end
+_G.op["not"] = function (a)
+  return not a
+end
+_G.op["=="] = function (a, b)
+  return a == b
+end
+_G.op["~="] = function (a, b)
+  return a ~= b
+end
