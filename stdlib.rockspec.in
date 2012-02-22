@@ -12,7 +12,7 @@ description = {
       including list, table and functional operations, regexps, objects,
       pickling, pretty-printing and getopt.
    ]],
-  homepage = "http://luaforge.net/projects/stdlib/",
+  homepage = "http://github.com/rrthomas/@PACKAGE@/",
   license = "MIT/X11"
 }
 dependencies = {

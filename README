@@ -1,7 +1,7 @@
                         Standard Lua libraries
                         ----------------------
 
-     by the stdlib project (http://luaforge.net/projects/stdlib/)
+     by the stdlib project (http://github.com/rrthomas/lua-stdlib/)
 
 
 This is a collection of Lua libraries for Lua 5.1, with provisional
