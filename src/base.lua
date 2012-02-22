@@ -466,7 +466,11 @@ end
 -- FIXME: Make these visible in LuaDoc (also list.concat in list)
 _G.op["[]"] =
   function (t, s)
-    return t[s]
+    if type(t) == "table" then
+      return t[s]
+    else
+      return t
+    end
   end
 
 _G.op["+"] =
