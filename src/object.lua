@@ -2,7 +2,7 @@
 -- <ul>
 -- <li>Create an object/class:</li>
 -- <ul>
--- <li><code>object/class = prototype {value, ...; field = value ...}</code></li>
+-- <li><code>object/Class = prototype {value, ...; field = value, ...}</code></li>
 -- <li>An object's metatable is itself.</li>
 -- <li>In the initialiser, unnamed values are assigned to the fields
 -- given by <code>_init</code> (assuming the default
@@ -11,7 +11,7 @@
 -- </ul>
 -- <li>Access an object field: <code>object.field</code></li>
 -- <li>Call an object method: <code>object:method (...)</code></li>
--- <li>Call a class method: <code>Class.method (object, ...)</li>
+-- <li>Call a class method: <code>Class.method (object, ...)</code></li>
 -- <li>Add a field: <code>object.field = x</code></li>
 -- <li>Add a method: <code>function object:method (...) ... end</code></li>
 -- </li>
