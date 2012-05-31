@@ -102,7 +102,7 @@ Parser = Object {_init = {"grammar"}}
 --- Parser constructor
 -- @param grammar parser grammar
 -- @return parser
-function Parser:_clone (grammar)
+function Parser:_init (grammar)
   local init = table.clone_rename (self._init, grammar)
   -- Reformat the abstract syntax rules
   for rname, rule in pairs (init.grammar) do
@@ -130,8 +130,7 @@ function Parser:_clone (grammar)
       end
     end
   end
-  local object = table.merge (table.clone (self), init)
-  return setmetatable (object, object)
+  return table.merge (self, init)
 end
 
 --- Parse a token list.
