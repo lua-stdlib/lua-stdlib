@@ -103,7 +103,7 @@ Parser = Object {_init = {"grammar"}}
 -- @param grammar parser grammar
 -- @return parser
 function Parser:_clone (grammar)
-  local init = table.permute (self._init, grammar)
+  local init = table.rearrange (self._init, grammar)
   -- Reformat the abstract syntax rules
   for rname, rule in pairs (init.grammar) do
     if name ~= "lexemes" then
