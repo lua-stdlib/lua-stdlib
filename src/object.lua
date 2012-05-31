@@ -44,7 +44,7 @@ _G.Object = {
     else
       object = self._init (object, ...)
     end
-    return object
+    return setmetatable (object, object)
   end,
 
   -- Sugar instance creation
