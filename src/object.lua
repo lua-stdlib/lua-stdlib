@@ -33,14 +33,14 @@ _G.Object = {
   _init = {},
 
   _clone = function (self, values)
-             local object = table.merge (self, table.rearrange (self._init, values))
-             return setmetatable (object, object)
-           end,
+    local object = table.merge (table.clone (self), table.clone_rename (self._init, values))
+    return setmetatable (object, object)
+  end,
 
   -- Sugar instance creation
   __call = function (...)
-             -- First (...) gets first element of list
-             return (...)._clone (...)
-           end,
+    -- First (...) gets first element of list
+    return (...)._clone (...)
+  end,
 }
 setmetatable (Object, Object)

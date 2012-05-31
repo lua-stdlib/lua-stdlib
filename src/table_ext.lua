@@ -65,19 +65,6 @@ function invert (t)
   return u
 end
 
---- Rearrange some indices of a table.
--- @param m table <code>{old_index=new_index, ...}</code>
--- @param t table to rearrange
--- @return rearranged table
-function rearrange (m, t)
-  local r = clone (t)
-  for i, v in pairs (m) do
-    r[v] = t[i]
-    r[i] = nil
-  end
-  return r
-end
-
 --- Make a shallow copy of a table, including any metatable (for a
 -- deep copy, use tree.clone).
 -- @param t table
@@ -94,18 +81,28 @@ function clone (t, nometa)
   return u
 end
 
---- Merge two tables.
--- If there are duplicate fields, u's will be used. The metatable of
--- the returned table is that of t.
--- @param t first table
--- @param u second table
--- @return merged table
-function merge (t, u)
+--- Clone a table, renaming some keys.
+-- @param map table <code>{old_key=new_key, ...}</code>
+-- @param t table to copy
+-- @return copy of table
+function clone_rename (map, t)
   local r = clone (t)
-  for i, v in pairs (u) do
-    r[i] = v
+  for i, v in pairs (map) do
+    r[v] = t[i]
+    r[i] = nil
   end
   return r
+end
+
+--- Merge one table into another. <code>u</code> is merged into <code>t</code>.
+-- @param t first table
+-- @param u second table
+-- @return first table
+function merge (t, u)
+  for i, v in pairs (u) do
+    t[i] = v
+  end
+  return t
 end
 
 --- Make a table with a default value for unset keys.
