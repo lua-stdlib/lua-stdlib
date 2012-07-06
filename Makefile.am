@@ -26,6 +26,7 @@ ChangeLog:
 	git2cl > ChangeLog
 
 release: distcheck $(ROCKSPEC)
+	grep md5 $(ROCKSPEC) | sed -e 's/[^"]*"\([0-9a-f]\+\)",/\1  $(distdir).zip/' | md5sum --check - && \
 	git diff --exit-code && \
 	git push && \
 	woger lua,github package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type=zip github_user=rrthomas
