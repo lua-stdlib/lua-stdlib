@@ -209,26 +209,6 @@ function tfind (s, p, init, plain)
   return pack (p.find (s, p, init, plain))
 end
 
---- Do multiple <code>find</code>s on a string.
--- @param s target string
--- @param p pattern
--- @param init start position (default: 1)
--- @param plain inhibit magic characters (default: nil)
--- @return list of <code>{from, to; capt = {captures}}</code>
-function finds (s, p, init, plain)
-  init = init or 1
-  local l = {}
-  local from, to, r
-  repeat
-    from, to, r = tfind (s, p, init, plain)
-    if from ~= nil then
-      table.insert (l, {from, to, capt = r})
-      init = to + 1
-    end
-  until not from
-  return l
-end
-
 --- Split a string at a given separator.
 -- FIXME: Consider Perl and Python versions.
 -- @param s string to split
