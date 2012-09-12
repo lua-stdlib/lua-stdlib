@@ -33,13 +33,14 @@ function say (n, ...)
 end
 
 ---
--- debug.say is also available as the global function <code>debug</code>
+-- The global function <code>debug</code> is an abbreviation for
+-- <code>debug.say (1, ...)</code>
 -- @class function
 -- @name debug
 -- @see say
 getmetatable (_M).__call =
    function (self, ...)
-     say (...)
+     say (1, ...)
    end
 
 --- Trace function calls
