@@ -356,7 +356,6 @@ end
 -- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
 -- @return path to node ({i1...ik})
 -- @return node
-
 local function _leaves (it, tr)
   local function visit (n)
     if type (n) == "table" then
