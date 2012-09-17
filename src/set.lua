@@ -42,7 +42,8 @@ function new (l)
 end
 
 --- Iterator for sets
-elems = leaves
+-- TODO: Make the iterator return only the key
+elements = pairs
 
 
 -- High level methods (representation-independent)
