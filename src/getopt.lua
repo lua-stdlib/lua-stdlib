@@ -26,7 +26,6 @@ require "base"
 require "list"
 require "string_ext"
 require "object"
-require "io_ext"
 
 
 --- Perform argument processing
@@ -61,7 +60,7 @@ function getOpt (argIn, options)
     end
     return arg or 1 -- make sure arg has a value
   end
-  -- parse an option
+
   local function parseOpt (opt, arg)
     local o = options.name[opt]
     if o ~= nil then
@@ -96,8 +95,7 @@ end
 -- <code>Opt</code>(ional)
 -- @field var descriptive name for the argument
 -- @field func optional function (newarg, oldarg) to convert argument
--- into actual argument, (if omitted, argument is left as it
--- is)
+-- into actual argument, (if omitted, argument is left as it is)
 _G.Option = Object {_init = {"name", "desc", "type", "var", "func"}}
 
 --- Options table constructor: adds lookup tables for the option names
