@@ -43,7 +43,7 @@ end
 
 --- Iterator for sets
 -- TODO: Make the iterator return only the key
-elements = pairs
+elems = pairs
 
 
 -- High level methods (representation-independent)
