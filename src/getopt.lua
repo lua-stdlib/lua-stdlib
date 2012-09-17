@@ -55,16 +55,14 @@ function getOpt (argIn, options)
         return nil
       end
     end
-    if o.func then
-      return o.func (arg, oldarg)
-    end
     return arg or 1 -- make sure arg has a value
   end
 
   local function parseOpt (opt, arg)
     local o = options.name[opt]
     if o ~= nil then
-      optOut[o.name[1]] = getArg (o, opt, arg, optOut[o.name[1]])
+      optOut[o.name[1]] = optOut[o.name[1]] or {}
+      table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
     else
       table.insert (errors, "unrecognized option `-" .. opt .. "'")
     end
@@ -94,9 +92,7 @@ end
 -- @field type type of argument (if any): <code>Req</code>(uired),
 -- <code>Opt</code>(ional)
 -- @field var descriptive name for the argument
--- @field func optional function (newarg, oldarg) to convert argument
--- into actual argument, (if omitted, argument is left as it is)
-_G.Option = Object {_init = {"name", "desc", "type", "var", "func"}}
+_G.Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
 local function makeOptions (t)
@@ -239,13 +235,9 @@ _G.options = nil
 -- A small and hopefully enlightening example:
 if type (_DEBUG) == "table" and _DEBUG.std then
 
-  function out (o)
-    return o or io.stdout
-  end
-
   options = makeOptions ({
                            Option {{"verbose", "v"}, "verbosely list files"},
-                           Option {{"output", "o"}, "dump to FILE", "Opt", "FILE", out},
+                           Option {{"output", "o"}, "dump to FILE", "Opt", "FILE"},
                            Option {{"name", "n"}, "only dump USER's files", "Req", "USER"},
                        })
 
@@ -265,11 +257,11 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   prog = {name = "foobar"} -- for errors
   -- Example runs:
   test {"foo", "-v"}
-  -- options={verbose=1}  args={1=foo}
+  -- options={verbose={1}}  args={1=foo}
   test {"foo", "--", "-v"}
   -- options={}  args={1=foo,2=-v}
   test {"-o", "-V", "-name", "bar", "--name=baz"}
-  -- options={name=baz,version=1,output=file (0x????????)}  args={}
+  -- options={name={"baz"},version={1},output={1}}  args={}
   test {"-foo"}
   -- unrecognized option `-foo'
   -- Usage: foobar [OPTION]... [FILE]...
