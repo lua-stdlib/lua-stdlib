@@ -177,8 +177,6 @@ end
 
 --- Emit a usage message.
 function usage ()
-  local name = prog.name
-  prog.name = nil
   local usage, purpose, notes = "[OPTION]... [FILE]...", "", ""
   if prog.usage then
     usage = prog.usage
@@ -194,9 +192,9 @@ function usage ()
       notes = notes .. prog.notes
     end
   end
-  warn (getopt.usageInfo ("Usage: " .. name .. " " .. usage .. purpose,
-                          options)
-        .. notes)
+  io.writelines (getopt.usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
+                                   options)
+                 .. notes)
 end
 
 
@@ -211,7 +209,7 @@ function processArgs ()
   local errors
   _G.arg, opt, errors = getopt.getOpt (arg, options)
   if (opt.version or opt.help) and prog.banner then
-    io.stderr:write (prog.banner .. "\n")
+    io.writelines (prog.banner)
   end
   if #errors > 0 or opt.help then
     local name = prog.name
