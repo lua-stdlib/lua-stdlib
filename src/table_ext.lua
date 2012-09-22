@@ -32,10 +32,10 @@ function size (t)
   return n
 end
 
---- Make the list of indices of a table.
+--- Make the list of keys of a table.
 -- @param t table
--- @return list of indices
-function indices (t)
+-- @return list of keys
+function keys (t)
   local u = {}
   for i, v in pairs (t) do
     insert (u, i)

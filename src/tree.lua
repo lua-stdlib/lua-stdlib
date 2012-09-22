@@ -14,7 +14,7 @@ end
 
 --- Tree <code>__index</code> metamethod.
 -- @param tr tree
--- @param i non-table, or list of indices <code>{i<sub>1</sub> ...
+-- @param i non-table, or list of keys <code>{i<sub>1</sub> ...
 -- i<sub>n</sub>}</code>
 -- @return <code>tr[i]...[i<sub>n</sub>]</code> if i is a table, or
 -- <code>tr[i]</code> otherwise
@@ -32,7 +32,7 @@ end
 -- Sets <code>tr[i<sub>1</sub>]...[i<sub>n</sub>] = v</code> if i is a
 -- table, or <code>tr[i] = v</code> otherwise
 -- @param tr tree
--- @param i non-table, or list of indices <code>{i<sub>1</sub> ...
+-- @param i non-table, or list of keys <code>{i<sub>1</sub> ...
 -- i<sub>n</sub>}</code>
 -- @param v value
 function metatable.__newindex (tr, i, v)
