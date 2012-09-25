@@ -4,13 +4,18 @@ ACLOCAL_AMFLAGS = -I m4
 
 SOURCES = $(wildcard src/*.lua)
 dist_data_DATA = $(SOURCES)
+
+dist_doc_DATA =				\
+	src/index.html			\
+	src/luadoc.css
+filesdir = $(docdir)/files
+files_DATA = $(wildcard src/files/*.html)
+modulesdir = $(docdir)/modules
+modules_DATA = $(wildcard src/modules/*.html)
+
 EXTRA_DIST =				\
 	src/std.lua.in			\
-	src/index.html			\
-	src/luadoc.css			\
-	$(PACKAGE).rockspec.in		\
-	$(wildcard src/files/*.html)	\
-	$(wildcard src/modules/*.html)
+	$(PACKAGE).rockspec.in
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
