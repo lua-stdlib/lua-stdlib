@@ -9,9 +9,9 @@ dist_doc_DATA =				\
 	src/index.html			\
 	src/luadoc.css
 filesdir = $(docdir)/files
-files_DATA = $(wildcard src/files/*.html)
+dist_files_DATA = $(wildcard src/files/*.html)
 modulesdir = $(docdir)/modules
-modules_DATA = $(wildcard src/modules/*.html)
+dist_modules_DATA = $(wildcard src/modules/*.html)
 
 EXTRA_DIST =				\
 	src/std.lua.in			\
