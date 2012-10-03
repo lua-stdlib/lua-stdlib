@@ -12,7 +12,7 @@ description = {
       including list, table and functional operations, regexps, objects,
       pickling, pretty-printing and getopt.
    ]],
-  homepage = "http://github.com/rrthomas/@PACKAGE@/",
+  homepage = "http://github.com/rrthomas/lua-stdlib/",
   license = "MIT/X11"
 }
 dependencies = {
