@@ -337,6 +337,13 @@ function _G.ripairs (t)
   t, #t + 1
 end
 
+---
+-- @class function
+-- @name tree_Iterator
+-- @param n current node
+-- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @return path to node ({i1...ik})
+-- @return node
 local function _nodes (it, tr)
   local p = {}
   local function visit (n)
@@ -373,13 +380,6 @@ function _G.inodes (tr)
   return _nodes (ipairs, tr)
 end
 
----
--- @class function
--- @name tree_Iterator
--- @param n current node
--- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
--- @return path to node ({i1...ik})
--- @return node
 local function _leaves (it, tr)
   local function visit (n)
     if type (n) == "table" then
