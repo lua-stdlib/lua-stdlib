@@ -19,14 +19,14 @@ require "strbuf"
 -- @param min lowest acceptable version (default: any)
 -- @param too_big lowest version that is too big (default: none)
 -- @pattern pattern to match version in <code>module.version</code> or
--- <code>module.VERSION</code> (default: <code>"[^/]*/?%s*(.*)%s*/?"</code>
+-- <code>module.VERSION</code> (default: <code>".*[%.%d]+"</code>
 function _G.require_version (module, min, too_big, pattern)
   local function version_to_list (v)
     return list.new (string.split (v, "%."))
   end
   local function module_version (module, pattern)
     return version_to_list (string.match (module.version or module._VERSION,
-                                          pattern or "[^/]*/?%s*(.*)%s*/?"))
+                                          pattern or ".*[%.%d]+"))
   end
   local m = require (module)
   if min then
