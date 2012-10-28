@@ -6,9 +6,9 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign no-dist-gzip dist-zip])
 AM_SILENT_RULES([yes])
 
-dnl Lua 5.1 or 5.2
-AX_PROG_LUA(501, 503)
-AC_SUBST(LUA)
+dnl Lua
+AC_SUBST([LUA_MIN_VERSION], [5.1])
+AX_PROG_LUA([$LUA_MIN_VERSION], [5.3])
 
 dnl md5sum
 AX_WITH_PROG([MD5SUM], [md5sum], [false])
