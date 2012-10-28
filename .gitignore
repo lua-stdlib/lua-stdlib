@@ -8,6 +8,7 @@
 /configure
 /config.log
 /config.status
+/luarocks-config.lua
 /release-notes-*
 /stdlib-*.zip
 /*.rockspec
