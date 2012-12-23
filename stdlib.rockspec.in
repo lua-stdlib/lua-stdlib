@@ -3,7 +3,6 @@ version="@VERSION@-1"
 source = {
   url = "https://github.com/downloads/rrthomas/lua-stdlib/@PACKAGE@-@VERSION@.zip",
   md5 = "_MD5_",
-  dir = "@PACKAGE@-@VERSION@"
 }
 description = {
   summary = "General Lua libraries",
