@@ -4,13 +4,13 @@
      by the stdlib project (http://github.com/rrthomas/lua-stdlib/)
 
 
-This is a collection of Lua libraries for Lua 5.1, with provisional
-support for Lua 5.2. The libraries are copyright by their authors
-2000-2011 (see the AUTHORS file for details), and released under the
-MIT license (the same license as Lua itself). There is no warranty.
+This is a collection of Lua libraries for Lua 5.1 and 5.2. The
+libraries are copyright by their authors 2000-2013 (see the AUTHORS
+file for details), and released under the MIT license (the same
+license as Lua itself). There is no warranty.
 
 The standard subset of stdlib has no prerequisites beyond a standard
-Lua 5.1 system. The following modules have extra dependencies:
+Lua system. The following modules have extra dependencies:
 
   fstable: Lua 5.2
 
