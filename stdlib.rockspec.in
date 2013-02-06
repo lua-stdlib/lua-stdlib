@@ -1,8 +1,8 @@
 package="stdlib"
 version="@VERSION@-1"
 source = {
-  url = "https://github.com/downloads/rrthomas/lua-stdlib/@PACKAGE@-@VERSION@.zip",
-  md5 = "_MD5_",
+  url = "git://github.com/rrthomas/lua-stdlib.git",
+  branch = "v@VERSION@",
 }
 description = {
   summary = "General Lua libraries",
