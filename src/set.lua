@@ -12,21 +12,21 @@ module ("set", package.seeall)
 -- @return <code>true</code> if e is in set, <code>false</code>
 -- otherwise
 function member (s, e)
-  return rawget (s, e) == true
+  return rawget (s.contents, e) == true
 end
 
 --- Insert an element into a set
 -- @param s set
 -- @param e element
 function insert (s, e)
-  rawset (s, e, true)
+  rawset (s.contents, e, true)
 end
 
 --- Delete an element from a set
 -- @param s set
 -- @param e element
 function delete (s, e)
-  rawset (s, e, nil)
+  rawset (s.contents, e, nil)
 end
 
 --- Make a list into a set
@@ -34,7 +34,7 @@ end
 -- @return set
 local metatable = {}
 function new (l)
-  local s = setmetatable ({}, metatable)
+  local s = setmetatable ({contents={}}, metatable)
   for e in list.elems (l) do
     insert (s, e)
   end

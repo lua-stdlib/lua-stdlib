@@ -1,8 +1,8 @@
 package="stdlib"
-version="@VERSION@-1"
+version="29-1"
 source = {
   url = "git://github.com/rrthomas/lua-stdlib.git",
-  branch = "release-v@VERSION@",
+  branch = "v29",
 }
 description = {
   summary = "General Lua libraries",
@@ -15,7 +15,7 @@ description = {
   license = "MIT/X11"
 }
 dependencies = {
-  "lua >= @LUA_MIN_VERSION@"
+  "lua >= 5.1"
 }
 build = {
   type = "command",
