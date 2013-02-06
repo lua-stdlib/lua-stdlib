@@ -32,7 +32,7 @@ tag-release:
 	git tag -a -m "Release tag" v$(VERSION) && \
 	git push && git push --tags
 
-check-in-release:
+check-in-release: distcheck
 	git checkout release && \
 	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
 	cp -af $(PACKAGE)-$(VERSION)/* . && \
@@ -41,7 +41,7 @@ check-in-release:
 	git push && git push --tags && \
 	git checkout master
 
-release: $(ROCKSPEC) distcheck
+release: $(ROCKSPEC)
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC) && \
