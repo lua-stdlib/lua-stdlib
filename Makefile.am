@@ -2,16 +2,16 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SOURCES = $(wildcard src/*.lua)
+SOURCES = $(wildcard $(srcdir)/src/*.lua)
 dist_data_DATA = $(SOURCES)
 
 dist_doc_DATA =				\
-	src/index.html			\
-	src/luadoc.css
+	$(top_srcdir)/src/index.html	\
+	$(top_srcdir)/src/luadoc.css
 filesdir = $(docdir)/files
-dist_files_DATA = $(wildcard src/files/*.html)
+dist_files_DATA = $(wildcard $(top_srcdir)/src/files/*.html)
 modulesdir = $(docdir)/modules
-dist_modules_DATA = $(wildcard src/modules/*.html)
+dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
 
 EXTRA_DIST =				\
 	src/std.lua.in			\
