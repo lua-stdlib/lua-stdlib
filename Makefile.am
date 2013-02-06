@@ -21,7 +21,7 @@ DISTCLEANFILES = $(PACKAGE).rockspec
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
-html: $(SOURCES)
+$(dist_doc_DATA): $(SOURCES)
 	cd src && luadoc *.lua
 
 ChangeLog:
