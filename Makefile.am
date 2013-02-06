@@ -37,12 +37,12 @@ check-in-release:
 	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
 	cp -af $(PACKAGE)-$(VERSION)/* . && \
 	git add . && git ci -m "Release v$(VERSION)" && \
-	git tag -a -m "Release tag" sources-v$(VERSION) && \
+	git tag -a -m "Release tag" release-v$(VERSION) && \
 	git push && git push --tags && \
 	git checkout master
 
 release: $(ROCKSPEC) distcheck
 	$(MAKE) tag-release && \
-	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC) && \
 	$(MAKE) check-in-release && \
+	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC) && \
 	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
