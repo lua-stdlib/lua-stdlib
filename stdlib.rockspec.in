@@ -2,7 +2,7 @@ package="stdlib"
 version="@VERSION@-1"
 source = {
   url = "git://github.com/rrthomas/lua-stdlib.git",
-  branch = "v@VERSION@",
+  branch = "release-v@VERSION@",
 }
 description = {
   summary = "General Lua libraries",
