@@ -2674,7 +2674,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile $PACKAGE.rockspec luarocks-config.lua src/std.lua"
+ac_config_files="$ac_config_files Makefile $PACKAGE.rockspec luarocks-config.lua"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3388,7 +3388,6 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "$PACKAGE.rockspec") CONFIG_FILES="$CONFIG_FILES $PACKAGE.rockspec" ;;
     "luarocks-config.lua") CONFIG_FILES="$CONFIG_FILES luarocks-config.lua" ;;
-    "src/std.lua") CONFIG_FILES="$CONFIG_FILES src/std.lua" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
