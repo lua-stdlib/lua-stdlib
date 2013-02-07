@@ -21,6 +21,13 @@ DISTCLEANFILES = $(PACKAGE).rockspec
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
+# In order to avoid regenerating std.lua at configure time, which
+# causes the documentation to be rebuilt and hence requires users to
+# have luadoc installed, put src/std.lua in as a Makefile dependency.
+# (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
+src/std.lua: src/std.lua.in
+	./config.status --file=$@
+
 $(dist_doc_DATA): $(SOURCES)
 	cd src && luadoc *.lua
 
