@@ -1,6 +1,8 @@
 -- Set datatype.
 module ("set", package.seeall)
 
+require "list"
+
 
 -- Primitive methods (know about representation)
 -- The representation is a table whose tags are the elements, and
