@@ -129,6 +129,7 @@ end
 -- @return separator string
 
 --- Extend <code>tostring</code> to work better on tables.
+-- The original <code>tostring</code> is available as <code>_tostring</code>.
 -- @class function
 -- @name _G.tostring
 -- @param x object to convert to string
