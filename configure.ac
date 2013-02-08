@@ -12,5 +12,5 @@ AX_PROG_LUA([$LUA_MIN_VERSION], [5.3])
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
-AC_CONFIG_FILES(Makefile $PACKAGE.rockspec luarocks-config.lua)
+AC_CONFIG_FILES([Makefile luarocks-config.lua])
 AC_OUTPUT

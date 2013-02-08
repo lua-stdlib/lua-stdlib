@@ -19,8 +19,6 @@ EXTRA_DIST =				\
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
-ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
-
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
 # have luadoc installed, put src/std.lua in as a Makefile dependency.
@@ -31,8 +29,10 @@ src/std.lua: src/std.lua.in
 $(dist_doc_DATA): $(SOURCES)
 	cd src && luadoc *.lua
 
-$(ROCKSPEC): $(PACKAGE).rockspec
-	cp $< $@
+rockspecs:
+	rm -f *.rockspec
+	$(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
+	$(LUA) mkrockspecs.lua $(PACKAGE) git
 
 bootstrap:
 	autoreconf -i && \
@@ -54,10 +54,10 @@ check-in-release: distcheck
 	rm -rf $(PACKAGE)-$(VERSION)/
 
 # After check-in-release we need to bootstrap to get the build files back
-release: $(ROCKSPEC)
+release: rockspecs
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	$(MAKE) bootstrap && \
-	$(MAKE) $(ROCKSPEC) && \
-	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC) && \
+	$(MAKE) rockspecs && \
+	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(PACKAGE)-$(VERSION)-1.rockspec && \
 	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
