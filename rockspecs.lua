@@ -37,6 +37,8 @@ local default = {
 
 if version ~= "git" then
   default.source.branch = "release-v"..version_dashed
+else
+  default.build.build_command = "autoreconf -i && " .. default.build.build_command
 end
 
 return {default=default, [""]={}}
