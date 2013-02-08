@@ -79,3 +79,17 @@ function clone (t, nometa)
   end
   return copy (r, t)
 end
+
+--- Deep-merge one tree into another. <code>u</code> is merged into
+--- <code>t</code>.
+-- @param t first tree
+-- @param u second tree
+-- @return first tree
+function merge (t, u)
+  for ty, p, n in nodes (u) do
+    if ty == "leaf" then
+      t[p] = n
+    end
+  end
+  return t
+end
