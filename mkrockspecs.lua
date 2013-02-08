@@ -22,7 +22,7 @@ function format (x, indent)
     for i, v in ipairs (x) do
       s = s..indent..format (v, indent.."  ")..",\n"
     end
-    return s..indent:sub(1, -3).."}"
+    return s..indent:sub (1, -3).."}"
   elseif type (x) == "string" then
     return string.format ("%q", x)
   else
