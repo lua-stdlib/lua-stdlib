@@ -45,7 +45,9 @@ end
 
 --- Iterator for sets
 -- TODO: Make the iterator return only the key
-elems = pairs
+function elems (s)
+  return pairs (s.contents)
+end
 
 
 -- High level methods (representation-independent)
