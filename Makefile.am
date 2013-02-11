@@ -27,7 +27,7 @@ src/std.lua: src/std.lua.in
 	./config.status --file=$@
 
 $(dist_doc_DATA): $(SOURCES)
-	cd src && luadoc *.lua
+	cd src && $(LUADOC) *.lua
 
 rockspecs:
 	rm -f *.rockspec

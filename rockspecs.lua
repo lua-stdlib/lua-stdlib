@@ -39,7 +39,6 @@ if version ~= "git" then
   default.source.branch = "release-v"..version_dashed
 else
   default.build.build_command = "autoreconf -i && " .. default.build.build_command
-  table.insert (default.dependencies, "luadoc")
 end
 
 return {default=default, [""]={}}

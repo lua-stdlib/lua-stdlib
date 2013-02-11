@@ -10,6 +10,8 @@ dnl Lua
 AC_SUBST([LUA_MIN_VERSION], [5.1])
 AX_PROG_LUA([$LUA_MIN_VERSION], [5.3])
 
+AX_WITH_PROG([LUADOC], [luadoc], [:])
+
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_FILES([Makefile luarocks-config.lua])
