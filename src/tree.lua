@@ -1,7 +1,7 @@
 --- Tables as trees.
 module ("tree", package.seeall)
 
-require "list"
+local list = require "list"
 
 
 local metatable = {}

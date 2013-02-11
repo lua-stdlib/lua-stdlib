@@ -8,7 +8,7 @@ module ("base", package.seeall)
 _G.op = {}
 
 require "table_ext"
-require "list"
+local list = require "list"
 require "string_ext"
 --require "io_ext" FIXME: allow loops
 require "strbuf"

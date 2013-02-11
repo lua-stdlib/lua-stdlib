@@ -1,4 +1,4 @@
-require "list"
+local list = require "list"
 
 
 -- Primitive methods (know about representation)

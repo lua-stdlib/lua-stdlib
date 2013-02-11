@@ -1,7 +1,7 @@
 -- Extensions to the table module
 module ("table", package.seeall)
 
---require "list" FIXME: allow require loops
+--local list = require "list" FIXME: allow require loops
 
 
 local _sort = sort

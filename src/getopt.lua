@@ -23,7 +23,7 @@
 module ("getopt", package.seeall)
 
 require "base"
-require "list"
+local list = require "list"
 require "string_ext"
 require "object"
 
