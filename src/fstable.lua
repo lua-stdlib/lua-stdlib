@@ -4,7 +4,6 @@
 -- Values are stored as strings (converted by tostring).
 -- As with disk operations, a table's elements must be set to nil
 -- (deleted) before the table itself can be set to nil.
-module ("fstable", package.seeall)
 
 require "io_ext"
 require "table_ext"
@@ -12,6 +11,8 @@ require "table_ext"
 require "io_ext"
 require "lfs"
 require "posix"
+
+local new
 
 local function fsnext (dir)
   local f
@@ -114,3 +115,9 @@ function new (path, t)
   end
   return d
 end
+
+local M = {
+  new = new,
+}
+
+return M
