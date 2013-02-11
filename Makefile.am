@@ -2,7 +2,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-SOURCES = $(wildcard $(srcdir)/src/*.lua)
+SOURCES = $(wildcard $(srcdir)/src/*.lua) $(srcdir)/src/std.lua
 dist_data_DATA = $(SOURCES)
 
 dist_doc_DATA =				\
