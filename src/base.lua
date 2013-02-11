@@ -499,7 +499,7 @@ end
 --- Die with error.
 -- @param ... arguments for format
 function _G.die (...)
-  warn (unpack (arg))
+  warn (...)
   error ()
 end
 
