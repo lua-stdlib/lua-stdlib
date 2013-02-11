@@ -24,7 +24,7 @@
 require "base"
 local list = require "list"
 require "string_ext"
-require "object"
+local Object = require "object"
 
 
 --- Perform argument processing

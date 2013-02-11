@@ -93,7 +93,7 @@
 -- token list) and have it default to the first non-terminal?</p>
 module ("parser", package.seeall)
 
-require "object"
+local Object = require "object"
 
 
 Parser = Object {_init = {"grammar"}}
