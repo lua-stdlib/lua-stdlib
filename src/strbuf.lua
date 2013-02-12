@@ -1,9 +1,8 @@
 --- String buffers
-module ("strbuf", package.seeall)
 
 --- Create a new string buffer
 local metatable = {}
-function new ()
+local function new ()
   return setmetatable ({}, metatable)
 end
 
@@ -11,7 +10,7 @@ end
 -- @param b buffer
 -- @param s string to add
 -- @return buffer
-function concat (b, s)
+local function concat (b, s)
   table.insert (b, s)
   return b
 end
@@ -19,14 +18,24 @@ end
 --- Convert a buffer to a string
 -- @param b buffer
 -- @return string
-function tostring (b)
+local function tostring (b)
   return table.concat (b)
 end
 
+
+-- Public interface
+local M = {
+  concat   = concat,
+  new      = new,
+  tostring = tostring,
+}
+
 --- Metamethods for string buffers
 -- buffer:method ()
-metatable.__index = _M
+metatable.__index = M
 -- buffer .. string
 metatable.__concat = concat
 -- tostring
 metatable.__tostring = tostring
+
+return M
