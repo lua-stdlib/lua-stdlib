@@ -1,6 +1,5 @@
 --- mbox parser.
 -- Based on code by Diego Nahab.
-module ("mbox", package.seeall)
 
 local function headers (s)
   local header = {}
@@ -37,7 +36,7 @@ end
 --- Parse a mailbox into messages.
 -- @param s mailbox as a string
 -- @return list of messages, each of form <code>{header = {...}, body = "..."}</code>
-function parse (s)
+local function parse (s)
   local mbox = {}
   s = "\n" .. s .. "\nFrom "
   local i, j = 1, 1
@@ -51,3 +50,10 @@ function parse (s)
   end
   return mbox
 end
+
+-- Public interface
+local M = {
+  parse = parse,
+}
+
+return M

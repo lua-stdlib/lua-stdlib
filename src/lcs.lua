@@ -2,7 +2,6 @@
 -- After pseudo-code in <a
 -- href="http://www.ics.uci.edu/~eppstein/161/960229.html">lecture
 -- notes</a> by <a href="mailto:eppstein@ics.uci.edu">David Eppstein</a>.
-module ("lcs", package.seeall)
 
 
 -- Find common subsequences.
@@ -36,7 +35,7 @@ end
 -- @param b second sequence
 -- @param s an empty sequence of the same type, to hold the result
 -- @return the LCS of a and b
-function longestCommonSubseq (a, b, s)
+local function longestCommonSubseq (a, b, s)
   local l, m, n = commonSubseqs (a, b)
   local i, j = 1, 1
   local f = getmetatable (s).__append
@@ -53,3 +52,10 @@ function longestCommonSubseq (a, b, s)
   end
   return s
 end
+
+-- Public interface
+local M = {
+  longestCommonSubseq = longestCommonSubseq,
+}
+
+return M

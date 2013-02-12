@@ -1,6 +1,4 @@
 --- Tables as lists.
-module ("list", package.seeall)
-
 require "base"
 require "table_ext"
 
@@ -10,7 +8,7 @@ require "table_ext"
 -- @return iterator function which returns successive elements of the list
 -- @return the list <code>l</code> as above
 -- @return <code>true</code>
-function elems (l)
+local function elems (l)
   local n = 0
   return function (l)
            n = n + 1
@@ -26,7 +24,7 @@ end
 -- @return iterator function which returns precessive elements of the list
 -- @return the list <code>l</code> as above
 -- @return <code>true</code>
-function relems (l)
+local function relems (l)
   local n = #l + 1
   return function (l)
            n = n - 1
@@ -41,7 +39,7 @@ end
 -- @param f function
 -- @param l list
 -- @return result list <code>{f (l[1]), ..., f (l[#l])}</code>
-function map (f, l)
+local function map (f, l)
   return _G.map (f, elems, l)
 end
 
@@ -49,7 +47,7 @@ end
 -- @param f function
 -- @param ls list of lists
 -- @return result list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
-function mapWith (f, l)
+local function mapWith (f, l)
   return _G.map (compose (f, unpack), elems, l)
 end
 
@@ -58,7 +56,7 @@ end
 -- @param l list of lists
 -- @return result list containing elements <code>e</code> of
 --   <code>l</code> for which <code>p (e)</code> is true
-function filter (p, l)
+local function filter (p, l)
   return _G.filter (p, elems, l)
 end
 
@@ -68,7 +66,7 @@ end
 -- @param from start of slice (default: 1)
 -- @param to end of slice (default: <code>#l</code>)
 -- @return <code>{l[from], ..., l[to]}</code>
-function slice (l, from, to)
+local function slice (l, from, to)
   local m = {}
   local len = #l
   from = from or 1
@@ -88,7 +86,7 @@ end
 --- Return a list with its first element removed.
 -- @param l list
 -- @return <code>{l[2], ..., l[#l]}</code>
-function tail (l)
+local function tail (l)
   return slice (l, 2)
 end
 
@@ -97,8 +95,8 @@ end
 -- @param e element to place in left-most position
 -- @param l list
 -- @return result
-function foldl (f, e, l)
-  return _G.fold (f, e, elems, l)
+local function foldl (f, e, l)
+  return fold (f, e, elems, l)
 end
 
 --- Fold a binary function through a list right associatively.
@@ -106,16 +104,16 @@ end
 -- @param e element to place in right-most position
 -- @param l list
 -- @return result
-function foldr (f, e, l)
-  return _G.fold (function (x, y) return f (y, x) end,
-                  e, relems, l)
+local function foldr (f, e, l)
+  return fold (function (x, y) return f (y, x) end,
+               e, relems, l)
 end
 
 --- Prepend an item to a list.
 -- @param l list
 -- @param x item
 -- @return <code>{x, unpack (l)}</code>
-function cons (l, x)
+local function cons (l, x)
   return {x, unpack (l)}
 end
 
@@ -123,7 +121,7 @@ end
 -- @param l list
 -- @param x item
 -- @return <code>{l[1], ..., l[#l], x}</code>
-function append (l, x)
+local function append (l, x)
   local r = {unpack (l)}
   table.insert (r, x)
   return r
@@ -134,7 +132,7 @@ end
 -- @return <code>{l<sub>1</sub>[1], ...,
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}</code>
-function concat (...)
+local function concat (...)
   local r = {}
   for l in elems ({...}) do
     for v in elems (l) do
@@ -148,10 +146,10 @@ end
 -- @param l list
 -- @param n number of times to repeat
 -- @return <code>n</code> copies of <code>l</code> appended together
-function rep (l, n)
+local function rep (l, n)
   local r = {}
   for i = 1, n do
-    r = list.concat (r, l)
+    r = concat (r, l)
   end
   return r
 end
@@ -159,7 +157,7 @@ end
 --- Reverse a list.
 -- @param l list
 -- @return list <code>{l[#l], ..., l[1]}</code>
-function reverse (l)
+local function reverse (l)
   local m = {}
   for i = #l, 1, -1 do
     table.insert (m, l[i])
@@ -174,7 +172,7 @@ end
 -- {l<sub>r,1<sub>, ..., l<sub>r,c</sub>}}</code>
 -- @return <code>{{l<sub>1,1</sub>, ..., l<sub>r,1</sub>}, ...,
 -- {l<sub>1,c</sub>, ..., l<sub>r,c</sub>}}</code>
-function transpose (ls)
+local function transpose (ls)
   local ms, len = {}, #ls
   for i = 1, math.max (unpack (map (function (l) return #l end, ls))) do
     ms[i] = {}
@@ -190,7 +188,7 @@ end
 -- @param ls list of lists
 -- @return <code>{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])</code>
 -- where <code>N = max {map (function (l) return #l end, ls)}</code>
-function zipWith (f, ls)
+local function zipWith (f, ls)
   return mapWith (f, transpose (ls))
 end
 
@@ -198,7 +196,7 @@ end
 -- @param f field to project
 -- @param l list of tables
 -- @return list of <code>f</code> fields
-function project (f, l)
+local function project (f, l)
   return map (function (t) return t[f] end, l)
 end
 
@@ -208,7 +206,7 @@ end
 -- i<sub>n</sub>=v<sub>n</sub>}</code>
 -- @return list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
 -- {i<sub>n</sub>, v<sub>n</sub>}}</code>
-function enpair (t)
+local function enpair (t)
   local ls = {}
   for i, v in pairs (t) do
     table.insert (ls, {i, v})
@@ -222,7 +220,7 @@ end
 -- {i<sub>n</sub>, v<sub>n</sub>}}</code>
 -- @return table <code>{i<sub>1</sub>=v<sub>1</sub>, ...,
 -- i<sub>n</sub>=v<sub>n</sub>}</code>
-function depair (ls)
+local function depair (ls)
   local t = {}
   for v in elems (ls) do
     t[v[1]] = v[2]
@@ -233,7 +231,7 @@ end
 --- Flatten a list.
 -- @param l list to flatten
 -- @return flattened list
-function flatten (l)
+local function flatten (l)
   local m = {}
   for v in ileaves (l) do
     table.insert (m, v)
@@ -260,7 +258,7 @@ end
 -- @return reshaped list
 -- FIXME: Use ileaves instead of flatten (needs a while instead of a
 -- for in fill function)
-function shape (s, l)
+local function shape (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
@@ -301,7 +299,7 @@ end
 -- t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=1, ...,
 -- t<sub>n</sub>[f]=n}</code>
-function indexKey (f, l)
+local function indexKey (f, l)
   local m = {}
   for i, v in ipairs (l) do
     local k = v[f]
@@ -318,7 +316,7 @@ end
 -- i<sub>n</sub>=t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
 -- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
-function indexValue (f, l)
+local function indexValue (f, l)
   local m = {}
   for i, v in ipairs (l) do
     local k = v[f]
@@ -335,7 +333,7 @@ permuteOn = indexValue
 -- @param m second list
 -- @return -1 if <code>l</code> is less than <code>m</code>, 0 if they
 -- are the same, and 1 if <code>l</code> is greater than <code>m</code>
-function compare (l, m)
+local function compare (l, m)
   for i = 1, math.min (#l, #m) do
     if l[i] < m[i] then
       return -1
@@ -352,24 +350,55 @@ function compare (l, m)
 end
 
 -- Metamethods for lists
-metatable = {
+local metatable = {
   -- list .. table = list.concat
-  __concat = list.concat,
+  __concat = concat,
   -- list == list retains its referential meaning
   -- list < list = list.compare returns < 0
   __lt = function (l, m) return compare (l, m) < 0 end,
   -- list <= list = list.compare returns <= 0
   __le = function (l, m) return compare (l, m) <= 0 end,
-  __append = list.append,
+  __append = append,
 }
 
 --- List constructor.
 -- Needed in order to use metamethods.
 -- @param t list (as a table)
 -- @return list (with list metamethods)
-function new (l)
+local function new (l)
   return setmetatable (l, metatable)
 end
 
 -- Function forms of operators
-_G.op[".."] = list.concat
+_G.op[".."] = concat
+
+-- Public interface
+local M = {
+  append     = append,
+  compare    = compare,
+  concat     = concat,
+  cons       = cons,
+  depair     = depair,
+  elems      = elems,
+  enpair     = enpair,
+  filter     = filter,
+  flatten    = flatten,
+  foldl      = foldl,
+  foldr      = foldr,
+  indexKey   = indexKey,
+  indexValue = indexValue,
+  new        = new,
+  map        = map,
+  mapWith    = mapWith,
+  project    = project,
+  relems     = relems,
+  rep        = rep,
+  reverse    = reverse,
+  shape      = shape,
+  slice      = slice,
+  tail       = tail,
+  transpose  = transpose,
+  zipWith    = zipWith,
+}
+
+return M

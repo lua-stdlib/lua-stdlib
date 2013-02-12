@@ -91,12 +91,11 @@
 -- <br>FIXME: Rename second argument to parse method to "tokens"?
 -- <br>FIXME: Make start_token an optional argument to parse? (swap with
 -- token list) and have it default to the first non-terminal?</p>
-module ("parser", package.seeall)
 
-require "object"
+local Object = require "object"
 
 
-Parser = Object {_init = {"grammar"}}
+local Parser = Object {_init = {"grammar"}}
 
 
 --- Parser constructor
@@ -264,3 +263,5 @@ function Parser:parse (start, token, from)
 
   return rule (start, 1, from or 1)
 end
+
+return Parser
