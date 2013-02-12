@@ -39,19 +39,7 @@
 	</li>
 
 	<li>
-		<a href="../modules/bin.html">bin</a>
-	</li>
-
-	<li>
 		<a href="../modules/debug.html">debug</a>
-	</li>
-
-	<li>
-		<a href="../modules/fstable.html">fstable</a>
-	</li>
-
-	<li>
-		<a href="../modules/getopt.html">getopt</a>
 	</li>
 
 	<li>
@@ -59,43 +47,11 @@
 	</li>
 
 	<li>
-		<a href="../modules/lcs.html">lcs</a>
-	</li>
-
-	<li>
-		<a href="../modules/list.html">list</a>
-	</li>
-
-	<li>
 		<a href="../modules/math.html">math</a>
 	</li>
 
 	<li>
-		<a href="../modules/mbox.html">mbox</a>
-	</li>
-
-	<li>
-		<a href="../modules/object.html">object</a>
-	</li>
-
-	<li>
 		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/parser.html">parser</a>
-	</li>
-
-	<li>
-		<a href="../modules/set.html">set</a>
-	</li>
-
-	<li>
-		<a href="../modules/std.html">std</a>
-	</li>
-
-	<li>
-		<a href="../modules/strbuf.html">strbuf</a>
 	</li>
 
 	<li>
@@ -104,10 +60,6 @@
 
 	<li>
 		<a href="../modules/table.html">table</a>
-	</li>
-
-	<li>
-		<a href="../modules/tree.html">tree</a>
 	</li>
 
 </ul>
@@ -222,8 +174,6 @@
 
 <h1>File <code>getopt.lua</code></h1>
 
-
-<p>Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br> Usage: <ul> <li><code>options = {Option {...}, ...}</br> getopt.processArgs ()</code></li> <li>Assumes <code>prog = {name[, banner] [, purpose] [, notes] [, usage]}</code></li> <li>Options take a single dash, but may have a double dash.</li> <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li> <li>If an option taking an argument is given multiple times, only the last value is returned; missing arguments are returned as 1.</li> </ul> getOpt, usageInfo and usage can be called directly (see below, and the example at the end). Set _DEBUG.std to a non-nil value to run the example. <ul> <li>TODO: Sort out the packaging. getopt.Option is tedious to type, but surely Option shouldn't be in the root namespace?</li> <li>TODO: Wrap all messages; do all wrapping in processArgs, not usageInfo; use sdoc-like library (see string.format todos).</li> <li>TODO: Don't require name to be repeated in banner.</li> <li>TODO: Store version separately (construct banner?).</li> </ul></p>
 
 
 

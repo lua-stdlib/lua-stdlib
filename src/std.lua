@@ -7,10 +7,14 @@
 --   this also helps to check module dependencies.</li>
 -- <li>TODO: pre-compile.</li>
 -- </ul>
-module ("std", package.seeall)
-
-version = "General Lua libraries / 29"
+local version = "General Lua libraries / 30"
 
 for _, m in ipairs (require "modules") do
-  require (m)
+  _G[m] = require (m)
 end
+
+local M = {
+  version = version,
+}
+
+return M

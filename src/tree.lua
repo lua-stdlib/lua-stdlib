@@ -1,14 +1,12 @@
 --- Tables as trees.
-module ("tree", package.seeall)
-
-require "list"
+local list = require "list"
 
 
 local metatable = {}
 --- Make a table into a tree
 -- @param t table
 -- @return tree
-function new (t)
+local function new (t)
   return setmetatable (t or {}, metatable)
 end
 
@@ -39,7 +37,7 @@ function metatable.__newindex (tr, i, v)
   if type (i) == "table" then
     for n = 1, #i - 1 do
       if getmetatable (tr[i[n]]) ~= metatable then
-        rawset (tr, i[n], tree.new ())
+        rawset (tr, i[n], new ())
       end
       tr = tr[i[n]]
     end
@@ -53,7 +51,7 @@ end
 -- @param t table
 -- @param nometa if non-nil don't copy metatables
 -- @return copy of table
-function clone (t, nometa)
+local function clone (t, nometa)
   local r = {}
   if not nometa then
     setmetatable (r, getmetatable (t))
@@ -79,3 +77,26 @@ function clone (t, nometa)
   end
   return copy (r, t)
 end
+
+--- Deep-merge one tree into another. <code>u</code> is merged into
+--- <code>t</code>.
+-- @param t first tree
+-- @param u second tree
+-- @return first tree
+local function merge (t, u)
+  for ty, p, n in nodes (u) do
+    if ty == "leaf" then
+      t[p] = n
+    end
+  end
+  return t
+end
+
+-- Public interface
+local M = {
+  clone = clone,
+  merge = merge,
+  new   = new,
+}
+
+return M

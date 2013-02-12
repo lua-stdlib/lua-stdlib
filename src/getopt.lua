@@ -20,12 +20,11 @@
 -- <li>TODO: Don't require name to be repeated in banner.</li>
 -- <li>TODO: Store version separately (construct banner?).</li>
 -- </ul>
-module ("getopt", package.seeall)
 
 require "base"
-require "list"
+local list = require "list"
 require "string_ext"
-require "object"
+local Object = require "object"
 
 
 --- Perform argument processing
@@ -34,7 +33,7 @@ require "object"
 -- @return table of remaining non-options
 -- @return table of option key-value list pairs
 -- @return table of error messages
-function getOpt (argIn, options)
+local function getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -121,7 +120,7 @@ end
 -- @param optDesc option descriptors
 -- @param pageWidth width to format to [78]
 -- @return formatted string
-function usageInfo (header, optDesc, pageWidth)
+local function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- Format the usage info for a single option
   -- @param opt the Option table
@@ -176,7 +175,7 @@ function usageInfo (header, optDesc, pageWidth)
 end
 
 --- Emit a usage message.
-function usage ()
+local function usage ()
   local usage, purpose, notes = "[OPTION]... [FILE]...", "", ""
   if prog.usage then
     usage = prog.usage
@@ -192,8 +191,8 @@ function usage ()
       notes = notes .. prog.notes
     end
   end
-  io.writelines (getopt.usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
-                                   options)
+  io.writelines (usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
+                            options)
                  .. notes)
 end
 
@@ -203,7 +202,7 @@ end
 -- <code>-help</code>/<code>-h</code> automatically;
 -- stops program if there was an error, or if <code>-help</code> or
 -- <code>-version</code> was used.
-function processArgs ()
+local function processArgs ()
   local totArgs = #arg
   options = makeOptions (options)
   local errors
@@ -218,7 +217,7 @@ function processArgs ()
       warn (table.concat (errors, "\n") .. "\n")
     end
     prog.name = name
-    getopt.usage ()
+    usage ()
     if #errors > 0 then
       error ()
     end
@@ -246,8 +245,8 @@ if type (_DEBUG) == "table" and _DEBUG.std then
              "  args=" .. tostring (nonOpts) .. "\n")
     else
       print (table.concat (errors, "\n") .. "\n" ..
-             getopt.usageInfo ("Usage: foobar [OPTION...] FILE...",
-                               options))
+             usageInfo ("Usage: foobar [OPTION...] FILE...",
+                        options))
     end
   end
 
@@ -271,3 +270,13 @@ if type (_DEBUG) == "table" and _DEBUG.std then
   --   -h, -help                   display this help and exit
 
 end
+
+-- Public interface
+local M = {
+  getOpt      = getOpt,
+  processArgs = processArgs,
+  usage       = usage,
+  usageInfo   = usageInfo,
+}
+
+return M

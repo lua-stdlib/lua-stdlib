@@ -22,7 +22,6 @@
 --   <li>Add a field: <code>object.field = x</code></li>
 --   <li>Add a method: <code>function object:method (...) ... end</code></li>
 -- </li>
-module ("object", package.seeall)
 
 require "table_ext"
 
@@ -34,7 +33,7 @@ require "table_ext"
 -- constructor
 -- @field _clone object constructor which provides the behaviour for <code>_init</code>
 -- documented above
-_G.Object = {
+local Object = {
   _init = {},
 
   _clone = function (self, ...)
@@ -54,3 +53,5 @@ _G.Object = {
   end,
 }
 setmetatable (Object, Object)
+
+return Object

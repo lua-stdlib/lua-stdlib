@@ -1,5 +1,4 @@
--- Set datatype.
-module ("set", package.seeall)
+local list = require "list"
 
 
 -- Primitive methods (know about representation)
@@ -11,21 +10,21 @@ module ("set", package.seeall)
 -- @param e element
 -- @return <code>true</code> if e is in set, <code>false</code>
 -- otherwise
-function member (s, e)
+local function member (s, e)
   return rawget (s.contents, e) == true
 end
 
 --- Insert an element into a set
 -- @param s set
 -- @param e element
-function insert (s, e)
+local function insert (s, e)
   rawset (s.contents, e, true)
 end
 
 --- Delete an element from a set
 -- @param s set
 -- @param e element
-function delete (s, e)
+local function delete (s, e)
   rawset (s.contents, e, nil)
 end
 
@@ -33,7 +32,7 @@ end
 -- @param l list
 -- @return set
 local metatable = {}
-function new (l)
+local function new (l)
   local s = setmetatable ({contents={}}, metatable)
   for e in list.elems (l) do
     insert (s, e)
@@ -43,10 +42,14 @@ end
 
 --- Iterator for sets
 -- TODO: Make the iterator return only the key
-elems = pairs
+local function elems (s)
+  return pairs (s.contents)
+end
 
 
 -- High level methods (representation-independent)
+
+local difference, symmetric_difference, intersection, union, subset, equal
 
 --- Find the difference of two sets
 -- @param s set
@@ -130,9 +133,24 @@ function equal (s, t)
   return subset (s, t) and subset (t, s)
 end
 
+-- Public interface
+local M = {
+  delete       = delete,
+  difference   = difference,
+  elems        = elems,
+  equal        = equal,
+  insert       = insert,
+  intersection = intersection,
+  member       = member,
+  new          = new,
+  subset       = subset,
+  symmetric_difference = symmetric_difference,
+  union        = union,
+}
+
 --- Metamethods for sets
 -- set:method ()
-metatable.__index = _M
+metatable.__index = M
 -- set + table = union
 metatable.__add = union
 -- set - table = set difference
@@ -145,3 +163,5 @@ metatable.__div = symmetric_difference
 metatable.__le = subset
 -- set < table = proper subset
 metatable.__lt = propersubset
+
+return M

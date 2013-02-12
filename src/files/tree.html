@@ -39,19 +39,7 @@
 	</li>
 
 	<li>
-		<a href="../modules/bin.html">bin</a>
-	</li>
-
-	<li>
 		<a href="../modules/debug.html">debug</a>
-	</li>
-
-	<li>
-		<a href="../modules/fstable.html">fstable</a>
-	</li>
-
-	<li>
-		<a href="../modules/getopt.html">getopt</a>
 	</li>
 
 	<li>
@@ -59,43 +47,11 @@
 	</li>
 
 	<li>
-		<a href="../modules/lcs.html">lcs</a>
-	</li>
-
-	<li>
-		<a href="../modules/list.html">list</a>
-	</li>
-
-	<li>
 		<a href="../modules/math.html">math</a>
 	</li>
 
 	<li>
-		<a href="../modules/mbox.html">mbox</a>
-	</li>
-
-	<li>
-		<a href="../modules/object.html">object</a>
-	</li>
-
-	<li>
 		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/parser.html">parser</a>
-	</li>
-
-	<li>
-		<a href="../modules/set.html">set</a>
-	</li>
-
-	<li>
-		<a href="../modules/std.html">std</a>
-	</li>
-
-	<li>
-		<a href="../modules/strbuf.html">strbuf</a>
 	</li>
 
 	<li>
@@ -104,10 +60,6 @@
 
 	<li>
 		<a href="../modules/table.html">table</a>
-	</li>
-
-	<li>
-		<a href="../modules/tree.html">tree</a>
 	</li>
 
 </ul>
@@ -223,8 +175,6 @@
 <h1>File <code>tree.lua</code></h1>
 
 
-<p>Tables as trees.</p>
-
 
 
 
@@ -236,6 +186,11 @@
 	<tr>
 	<td class="name" nowrap><a href="#clone">clone</a>&nbsp;(t, nometa)</td>
 	<td class="summary">Make a deep copy of a tree, including any metatables </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#merge">merge</a>&nbsp;(t, u)</td>
+	<td class="summary">Deep-merge one tree into another.</td>
 	</tr>
 
 	<tr>
@@ -296,6 +251,39 @@ Make a deep copy of a tree, including any metatables
 
 <h3>Return value:</h3>
 copy of table
+
+
+
+</dd>
+
+
+
+
+<dt><a name="merge"></a><strong>merge</strong>&nbsp;(t, u)</dt>
+<dd>
+Deep-merge one tree into another. <code>u</code> is merged into <code>t</code>.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  t: first tree
+	</li>
+	
+	<li>
+	  u: second tree
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+first tree
 
 
 

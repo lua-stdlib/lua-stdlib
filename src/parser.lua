@@ -31,7 +31,7 @@
 -- </blockquote>
 -- <p>plus a special item</p>
 -- <blockquote>
--- <p><code>lexemes = Set {"class<sub>1</sub>", "class<sub>2</sub>",
+-- <p><code>lexemes = set.new {"class<sub>1</sub>", "class<sub>2</sub>",
 -- ...}</code></p>
 -- </blockquote>
 -- <p>Each production gives a form that a non-terminal may take. A
@@ -91,19 +91,18 @@
 -- <br>FIXME: Rename second argument to parse method to "tokens"?
 -- <br>FIXME: Make start_token an optional argument to parse? (swap with
 -- token list) and have it default to the first non-terminal?</p>
-module ("parser", package.seeall)
 
-require "object"
+local Object = require "object"
 
 
-Parser = Object {_init = {"grammar"}}
+local Parser = Object {_init = {"grammar"}}
 
 
 --- Parser constructor
 -- @param grammar parser grammar
 -- @return parser
 function Parser:_init (grammar)
-  local init = table.clone_rename (self._init, grammar)
+  local init = table.clone_rename ({"grammar"}, grammar)
   -- Reformat the abstract syntax rules
   for rname, rule in pairs (init.grammar) do
     if name ~= "lexemes" then
@@ -112,7 +111,6 @@ function Parser:_init (grammar)
         for i, v in pairs (prod) do
           if type (i) == "string" and i ~= "action" then
             if abstract then
-              print (prod)
               die ("more than one abstract rule for " .. rname .. "."
                    .. tostring (pnum))
             else
@@ -203,8 +201,7 @@ function Parser:parse (start, token, from)
     elseif grammar[sym] then -- non-terminal
       return rule (sym, from)
     elseif token[from] and -- not end of token list
-      ((grammar.lexemes[sym] and sym == token[from].ty) or
-       -- lexeme
+      ((grammar.lexemes:member (sym) and sym == token[from].ty) or -- lexeme
        sym == token[from].tok) -- literal terminal
     then
       return token[from].tok, from + 1 -- advance to next token
@@ -223,7 +220,7 @@ function Parser:parse (start, token, from)
   local function production (name, prod, from)
     local tree = {ty = name}
     local to = from
-    for prod in list.elems (prod) do
+    for prod in _G.list.elems (prod) do
       local sym
       sym, to = symbol (prod, to)
       if to then
@@ -238,7 +235,7 @@ function Parser:parse (start, token, from)
     if prod.abstract then
       local ntree = {}
       ntree.ty = prod.abstract.ty
-      for i, n in prod.abstract.template do
+      for i, n in pairs (prod.abstract.template) do
         ntree[i] = tree[n]
       end
       tree = ntree
@@ -255,7 +252,7 @@ function Parser:parse (start, token, from)
   rule = function (name, from) -- declared at the top
     local alt = grammar[name]
     local tree, to
-    for alt in list.elems (alt) do
+    for alt in _G.list.elems (alt) do
       tree, to = production (name, alt, from)
       if to then
         return tree, to
@@ -266,3 +263,5 @@ function Parser:parse (start, token, from)
 
   return rule (start, 1, from or 1)
 end
+
+return Parser

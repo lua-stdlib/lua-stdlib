@@ -8,10 +8,10 @@ module ("base", package.seeall)
 _G.op = {}
 
 require "table_ext"
-require "list"
+local list = require "list"
 require "string_ext"
 --require "io_ext" FIXME: allow loops
-require "strbuf"
+local strbuf = require "strbuf"
 
 
 --- Require a module with a particular version
@@ -129,6 +129,7 @@ end
 -- @return separator string
 
 --- Extend <code>tostring</code> to work better on tables.
+-- The original <code>tostring</code> is available as <code>_tostring</code>.
 -- @class function
 -- @name _G.tostring
 -- @param x object to convert to string
@@ -498,7 +499,7 @@ end
 --- Die with error.
 -- @param ... arguments for format
 function _G.die (...)
-  warn (unpack (arg))
+  warn (...)
   error ()
 end
 

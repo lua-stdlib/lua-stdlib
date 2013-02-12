@@ -39,19 +39,7 @@
 	</li>
 
 	<li>
-		<a href="modules/bin.html">bin</a>
-	</li>
-
-	<li>
 		<a href="modules/debug.html">debug</a>
-	</li>
-
-	<li>
-		<a href="modules/fstable.html">fstable</a>
-	</li>
-
-	<li>
-		<a href="modules/getopt.html">getopt</a>
 	</li>
 
 	<li>
@@ -59,43 +47,11 @@
 	</li>
 
 	<li>
-		<a href="modules/lcs.html">lcs</a>
-	</li>
-
-	<li>
-		<a href="modules/list.html">list</a>
-	</li>
-
-	<li>
 		<a href="modules/math.html">math</a>
 	</li>
 
 	<li>
-		<a href="modules/mbox.html">mbox</a>
-	</li>
-
-	<li>
-		<a href="modules/object.html">object</a>
-	</li>
-
-	<li>
 		<a href="modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="modules/parser.html">parser</a>
-	</li>
-
-	<li>
-		<a href="modules/set.html">set</a>
-	</li>
-
-	<li>
-		<a href="modules/std.html">std</a>
-	</li>
-
-	<li>
-		<a href="modules/strbuf.html">strbuf</a>
 	</li>
 
 	<li>
@@ -104,10 +60,6 @@
 
 	<li>
 		<a href="modules/table.html">table</a>
-	</li>
-
-	<li>
-		<a href="modules/tree.html">tree</a>
 	</li>
 
 </ul>
@@ -234,23 +186,8 @@
 	</tr>
 
 	<tr>
-		<td class="name"><a href="modules/bin.html">bin</a></td>
-		<td class="summary">Binary data utilities </td>
-	</tr>
-
-	<tr>
 		<td class="name"><a href="modules/debug.html">debug</a></td>
 		<td class="summary">Additions to the debug module </td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/fstable.html">fstable</a></td>
-		<td class="summary">Tables mapped to the filing system Only string keys are permitted; package.dirsep characters are converted to underscores.</td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/getopt.html">getopt</a></td>
-		<td class="summary">Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br> Usage: <ul> <li><code>options = {Option {...}, ...}</br> getopt.processArgs ()</code></li> <li>Assumes <code>prog = {name[, banner] [, purpose] [, notes] [, usage]}</code></li> <li>Options take a single dash, but may have a double dash.</li> <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li> <li>If an option taking an argument is given multiple times, only the last value is returned; missing arguments are returned as 1.</li> </ul> getOpt, usageInfo and usage can be called directly (see below, and the example at the end).</td>
 	</tr>
 
 	<tr>
@@ -259,53 +196,13 @@
 	</tr>
 
 	<tr>
-		<td class="name"><a href="modules/lcs.html">lcs</a></td>
-		<td class="summary">Longest Common Subsequence algorithm.</td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/list.html">list</a></td>
-		<td class="summary">Tables as lists.</td>
-	</tr>
-
-	<tr>
 		<td class="name"><a href="modules/math.html">math</a></td>
 		<td class="summary">Additions to the math module.</td>
 	</tr>
 
 	<tr>
-		<td class="name"><a href="modules/mbox.html">mbox</a></td>
-		<td class="summary">mbox parser.</td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/object.html">object</a></td>
-		<td class="summary">Prototype-based objects <ul> <li>Create an object/class:</li> <ul> <li>Either, if the <code>_init</code> field is a list: <ul> <li><code>object/Class = prototype {value, ...; field = value, ...}</code></li> <li>Named values are assigned to the corresponding fields, and unnamed values to the fields given by <code>_init</code>.</li> </ul> <li>Or, if the <code>_init</code> field is a function: <ul> <li><code>object/Class = prototype (value, ...)</code></li> <li>The given values are passed as arguments to the <code>_init</code> function.</li> </ul> <li>An object's metatable is itself.</li> <li>Private fields and methods start with "<code>_</code>".</li> </ul> <li>Access an object field: <code>object.field</code></li> <li>Call an object method: <code>object:method (...)</code></li> <li>Call a class method: <code>Class.method (object, ...)</code></li> <li>Add a field: <code>object.field = x</code></li> <li>Add a method: <code>function object:method (...) ...</td>
-	</tr>
-
-	<tr>
 		<td class="name"><a href="modules/package.html">package</a></td>
 		<td class="summary"></td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/parser.html">parser</a></td>
-		<td class="summary">Parser generator.</td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/set.html">set</a></td>
-		<td class="summary"></td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/std.html">std</a></td>
-		<td class="summary">Lua standard library <ul> <li>TODO: Write a style guide (indenting/wrapping, capitalisation, function and variable names); library functions should call error, not die; OO vs non-OO (a thorny problem).</li> <li>TODO: Add tests for each function immediately after the function; this also helps to check module dependencies.</li> <li>TODO: pre-compile.</li> </ul> </td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/strbuf.html">strbuf</a></td>
-		<td class="summary">String buffers </td>
 	</tr>
 
 	<tr>
@@ -316,11 +213,6 @@
 	<tr>
 		<td class="name"><a href="modules/table.html">table</a></td>
 		<td class="summary"></td>
-	</tr>
-
-	<tr>
-		<td class="name"><a href="modules/tree.html">tree</a></td>
-		<td class="summary">Tables as trees.</td>
 	</tr>
 
 </table>

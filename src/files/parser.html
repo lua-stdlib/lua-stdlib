@@ -39,19 +39,7 @@
 	</li>
 
 	<li>
-		<a href="../modules/bin.html">bin</a>
-	</li>
-
-	<li>
 		<a href="../modules/debug.html">debug</a>
-	</li>
-
-	<li>
-		<a href="../modules/fstable.html">fstable</a>
-	</li>
-
-	<li>
-		<a href="../modules/getopt.html">getopt</a>
 	</li>
 
 	<li>
@@ -59,43 +47,11 @@
 	</li>
 
 	<li>
-		<a href="../modules/lcs.html">lcs</a>
-	</li>
-
-	<li>
-		<a href="../modules/list.html">list</a>
-	</li>
-
-	<li>
 		<a href="../modules/math.html">math</a>
 	</li>
 
 	<li>
-		<a href="../modules/mbox.html">mbox</a>
-	</li>
-
-	<li>
-		<a href="../modules/object.html">object</a>
-	</li>
-
-	<li>
 		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/parser.html">parser</a>
-	</li>
-
-	<li>
-		<a href="../modules/set.html">set</a>
-	</li>
-
-	<li>
-		<a href="../modules/std.html">std</a>
-	</li>
-
-	<li>
-		<a href="../modules/strbuf.html">strbuf</a>
 	</li>
 
 	<li>
@@ -104,10 +60,6 @@
 
 	<li>
 		<a href="../modules/table.html">table</a>
-	</li>
-
-	<li>
-		<a href="../modules/tree.html">tree</a>
 	</li>
 
 </ul>
@@ -222,8 +174,6 @@
 
 <h1>File <code>parser.lua</code></h1>
 
-
-<p>Parser generator. <p>A parser is created by</p> <blockquote> <p><code>p = Parser {grammar}</code></p> </blockquote> <p>and called with</p> <blockquote> <p><code>result = p:parse (start_token, token_list[, from])</code></p> </blockquote> <p>where start_token is the non-terminal at which to start parsing in the grammar, token_list is a list of tokens of the form</p> <blockquote> <p><code>{ty = "token_type", tok = "token_text"}</code></p> </blockquote> <p>and from is the token in the list from which to start (the default value is 1).</p> <p>The output of the parser is a tree, each of whose nodes is of the form:</p> <blockquote> <p><code>{ty = symbol, node<sub>1</sub> = tree<sub>1</sub>, node<sub>2</sub> = tree<sub>2</sub>, ... [, list]}</code></p> </blockquote> <p>where each <code>node<sub>i</sub></code> is a symbolic name, and list is the list of trees returned if the corresponding token was a list token.</p> <p>A grammar is a table of rules of the form</p> <blockquote> <p><code>non-terminal = {production<sub>1</sub>, production<sub>2</sub>, ...}</code></p> </blockquote> <p>plus a special item</p> <blockquote> <p><code>lexemes = Set {"class<sub>1</sub>", "class<sub>2</sub>", ...}</code></p> </blockquote> <p>Each production gives a form that a non-terminal may take. A production has the form</p> <blockquote> <p><code>production = {"token<sub>1</sub>", "token<sub>2</sub>", ..., [action][,abstract]}</code></p> </blockquote> <p>A production</p> <ul> <li>must not start with the non-terminal being defined (it must not be left-recursive)</li> <li>must not be a prefix of a later production in the same non-terminal</li> </ul> <p>Each token may be</p> <ul> <li>a non-terminal, i.e. a token defined by the grammar</li> <ul> <li>an optional symbol is indicated by the suffix <code>_opt</code></li> <li>a list is indicated by the suffix <code>_list</code>, and may be followed by <code>_&le;separator-symbol&gt;</code> (default is no separator)</li> </ul> <li>a lexeme class</li> <li>a string to match literally</li> </ul> <p>The parse tree for a literal string or lexeme class is the string that was matched. The parse tree for a non-terminal is a table of the form</p> <blockquote> <p><code>{ty = "non_terminal_name", tree<sub>1</sub>, tree<sub>2</sub>, ...}</code></p> </blockquote> <p>where the <code>tree<sub>i</sub></code> are the parse trees for the corresponding terminals and non-terminals.</p> <p>An action is of the form</p> <blockquote> <p><code>action = function (tree, token, pos) ... return tree_ end</code></p> </blockquote> <p>It is passed the parse tree for the current node, the token list, and the current position in the token list, and returns a new parse tree.</p> <p>An abstract syntax rule is of the form</p> <blockquote> <p><code>name = {i<sub>1</sub>, i<sub>2</sub>, ...}</code></p> </blockquote> <p>where <code>i<sub>1</sub></code>, <code>i<sub>2</sub></code>, ... are numbers. This results in a parse tree of the form</p> <blockquote> <p><code>{ty = "name"; tree<sub>i<sub>1</sub></sub>, tree<sub>i<sub>2</sub></sub>, ...}</code></p> </blockquote> <p>If a production has no abstract syntax rule, the result is the parse node for the current node.</p> <p>FIXME: Give lexemes as an extra argument to <code>Parser</code>? <br>FIXME: Rename second argument to parse method to "tokens"? <br>FIXME: Make start_token an optional argument to parse? (swap with token list) and have it default to the first non-terminal?</p></p>
 
 
 

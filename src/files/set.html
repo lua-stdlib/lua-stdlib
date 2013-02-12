@@ -39,19 +39,7 @@
 	</li>
 
 	<li>
-		<a href="../modules/bin.html">bin</a>
-	</li>
-
-	<li>
 		<a href="../modules/debug.html">debug</a>
-	</li>
-
-	<li>
-		<a href="../modules/fstable.html">fstable</a>
-	</li>
-
-	<li>
-		<a href="../modules/getopt.html">getopt</a>
 	</li>
 
 	<li>
@@ -59,43 +47,11 @@
 	</li>
 
 	<li>
-		<a href="../modules/lcs.html">lcs</a>
-	</li>
-
-	<li>
-		<a href="../modules/list.html">list</a>
-	</li>
-
-	<li>
 		<a href="../modules/math.html">math</a>
 	</li>
 
 	<li>
-		<a href="../modules/mbox.html">mbox</a>
-	</li>
-
-	<li>
-		<a href="../modules/object.html">object</a>
-	</li>
-
-	<li>
 		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/parser.html">parser</a>
-	</li>
-
-	<li>
-		<a href="../modules/set.html">set</a>
-	</li>
-
-	<li>
-		<a href="../modules/std.html">std</a>
-	</li>
-
-	<li>
-		<a href="../modules/strbuf.html">strbuf</a>
 	</li>
 
 	<li>
@@ -104,10 +60,6 @@
 
 	<li>
 		<a href="../modules/table.html">table</a>
-	</li>
-
-	<li>
-		<a href="../modules/tree.html">tree</a>
 	</li>
 
 </ul>
@@ -223,8 +175,6 @@
 <h1>File <code>set.lua</code></h1>
 
 
-<p>Say whether an element is in a set</p>
-
 
 
 
@@ -241,6 +191,11 @@
 	<tr>
 	<td class="name" nowrap><a href="#difference">difference</a>&nbsp;(s, t)</td>
 	<td class="summary">Find the difference of two sets </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#elems">elems</a>&nbsp;(s)</td>
+	<td class="summary">Iterator for sets TODO: Make the iterator return only the key </td>
 	</tr>
 
 	<tr>
@@ -356,6 +311,32 @@ Find the difference of two sets
 
 <h3>Return value:</h3>
 s with elements of t removed
+
+
+
+</dd>
+
+
+
+
+<dt><a name="elems"></a><strong>elems</strong>&nbsp;(s)</dt>
+<dd>
+Iterator for sets TODO: Make the iterator return only the key
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  s: 
+	</li>
+	
+</ul>
+
+
+
+
+
 
 
 
