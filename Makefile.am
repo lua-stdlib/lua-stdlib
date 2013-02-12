@@ -2,6 +2,9 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+LUA_PATH ?= ;
+LUA_ENV = LUA_PATH="$(abs_srcdir)/src/?.lua;$(LUA_PATH)"
+
 SOURCES = $(wildcard $(srcdir)/src/*.lua)
 dist_data_DATA = $(SOURCES)
 
@@ -31,8 +34,8 @@ $(dist_doc_DATA): $(SOURCES)
 
 rockspecs:
 	rm -f *.rockspec
-	$(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
-	$(LUA) mkrockspecs.lua $(PACKAGE) git
+	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
+	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
 
 bootstrap:
 	autoreconf -i && \
