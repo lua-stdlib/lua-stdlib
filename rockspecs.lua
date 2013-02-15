@@ -2,7 +2,6 @@
 
 -- Variables to be interpolated:
 --
--- flavour: regex library
 -- package
 -- version
 
