@@ -17,8 +17,7 @@ modulesdir = $(docdir)/modules
 dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
 
 EXTRA_DIST =				\
-	src/std.lua.in			\
-	$(PACKAGE).rockspec.in
+	src/std.lua.in
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
