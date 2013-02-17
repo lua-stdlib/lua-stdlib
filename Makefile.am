@@ -5,7 +5,8 @@ ACLOCAL_AMFLAGS = -I m4
 LUA_PATH ?= ;
 LUA_ENV = LUA_PATH="$(abs_srcdir)/src/?.lua;$(LUA_PATH)"
 
-SOURCES = $(wildcard $(srcdir)/src/*.lua) $(srcdir)/src/std.lua
+SOURCES = $(filter-out $(srcdir)/src/std.lua, $(wildcard $(srcdir)/src/*.lua))
+SOURCES += $(srcdir)/src/std.lua
 dist_data_DATA = $(SOURCES)
 
 dist_doc_DATA =				\
