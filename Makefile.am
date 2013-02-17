@@ -47,6 +47,7 @@ tag-release:
 	git push && git push --tags
 
 check-in-release: distcheck
+	git stash && git clean -fx && \
 	git checkout release && \
 	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
 	cp -af $(PACKAGE)-$(VERSION)/* . && \
