@@ -363,10 +363,10 @@ local metatable = {
 
 --- List constructor.
 -- Needed in order to use metamethods.
--- @param t list (as a table)
+-- @param t list (as a table), or nil for empty list
 -- @return list (with list metamethods)
 local function new (l)
-  return setmetatable (l, metatable)
+  return setmetatable (l or {}, metatable)
 end
 
 -- Function forms of operators
