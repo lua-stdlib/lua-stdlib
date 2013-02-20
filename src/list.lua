@@ -349,6 +349,33 @@ local function compare (l, m)
   return 0
 end
 
+-- Methods for lists
+local methods = {
+  append     = append,
+  compare    = compare,
+  concat     = concat,
+  cons       = cons,
+  depair     = depair,
+  elems      = elems,
+  filter     = function (self, p) return filter (p, self) end,
+  flatten    = flatten,
+  foldl      = function (self, f, e) return foldl (f, e, self) end,
+  foldr      = function (self, f, e) return foldr (f, e, self) end,
+  indexKey   = function (self, f) return indexKey (self, f) end,
+  indexValue = function (self, f) return indexValue (self, f) end,
+  map        = function (self, f) return map (f, self) end,
+  mapWith    = function (self, f) return mapWith (f, self) end,
+  project    = function (self, f) return project (f, self) end,
+  relems     = relems,
+  rep        = rep,
+  reverse    = reverse,
+  shape      = function (self, s) return shape (s, self) end,
+  slice      = slice,
+  tail       = tail,
+  transpose  = transpose,
+  zipWith    = function (self, f) return zipWith (f, self) end,
+}
+
 -- Metamethods for lists
 local metatable = {
   -- list .. table = list.concat
@@ -359,6 +386,7 @@ local metatable = {
   -- list <= list = list.compare returns <= 0
   __le = function (l, m) return compare (l, m) <= 0 end,
   __append = append,
+  __index = methods,
 }
 
 --- List constructor.
