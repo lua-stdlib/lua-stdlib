@@ -1,7 +1,7 @@
 --- Additions to the string module
 -- TODO: Pretty printing (use in getopt); see source for details.
-module ("string", package.seeall)
 
+require "table_ext"
 
 -- Write pretty-printing based on:
 --
@@ -64,26 +64,26 @@ end
 --- Capitalise each word in a string.
 -- @param s string
 -- @return capitalised string
-function caps (s)
-  return (gsub (s, "(%w)([%w]*)",
-                function (l, ls)
-                  return upper (l) .. ls
-                end))
+local function caps (s)
+  return (string.gsub (s, "(%w)([%w]*)",
+                      function (l, ls)
+                        return string.upper (l) .. ls
+                      end))
 end
 
 --- Remove any final newline from a string.
 -- @param s string to process
 -- @return processed string
-function chomp (s)
-  return (gsub (s, "\n$", ""))
+local function chomp (s)
+  return (string.gsub (s, "\n$", ""))
 end
 
 --- Escape a string to be used as a pattern
 -- @param s string to process
 -- @return
 --   @param s_: processed string
-function escapePattern (s)
-  return (gsub (s, "(%W)", "%%%1"))
+local function escapePattern (s)
+  return (string.gsub (s, "(%W)", "%%%1"))
 end
 
 -- Escape a string to be used as a shell token.
@@ -91,14 +91,14 @@ end
 -- whitespace.
 -- @param s string to process
 -- @return processed string
-function escapeShell (s)
-  return (gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
+local function escapeShell (s)
+  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
 end
 
 --- Return the English suffix for an ordinal.
 -- @param n number of the day
 -- @return suffix
-function ordinalSuffix (n)
+local function ordinalSuffix (n)
   n = math.abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
@@ -117,8 +117,8 @@ end
 -- @param f format
 -- @param ... arguments to format
 -- @return formatted string
-local _format = format
-function format (f, arg1, ...)
+local _format = string.format
+local function format (f, arg1, ...)
   if arg1 == nil then
     return f
   else
@@ -134,12 +134,12 @@ end
 -- left-justify)
 -- @param p string to pad with (default: <code>" "</code>)
 -- @return justified string
-function pad (s, w, p)
-  p = rep (p or " ", math.abs (w))
+local function pad (s, w, p)
+  p = string.rep (p or " ", math.abs (w))
   if w < 0 then
-    return sub (p .. s, w)
+    return string.sub (p .. s, w)
   end
-  return sub (s .. p, 1, w)
+  return string.sub (s .. p, 1, w)
 end
 
 --- Wrap a string into a paragraph.
@@ -148,7 +148,7 @@ end
 -- @param ind indent (default: 0)
 -- @param ind1 indent of first line (default: ind)
 -- @return wrapped paragraph
-function wrap (s, w, ind, ind1)
+local function wrap (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
   ind1 = ind1 or ind
@@ -156,19 +156,19 @@ function wrap (s, w, ind, ind1)
           "the indents must be less than the line width")
   assert (type (s) == "string",
           "bad argument #1 to 'wrap' (string expected, got " .. type (s) .. ")")
-  s = rep (" ", ind1) .. s
-  local lstart, len = 1, len (s)
+  s = string.rep (" ", ind1) .. s
+  local lstart, len = 1, string.len (s)
   while len - lstart > w - ind do
     local i = lstart + w - ind
-    while i > lstart and sub (s, i, i) ~= " " do
+    while i > lstart and string.sub (s, i, i) ~= " " do
       i = i - 1
     end
     local j = i
-    while j > lstart and sub (s, j, j) == " " do
+    while j > lstart and string.sub (s, j, j) == " " do
       j = j - 1
     end
-    s = sub (s, 1, j) .. "\n" .. rep (" ", ind) ..
-      sub (s, i + 1, -1)
+    s = string.sub (s, 1, j) .. "\n" .. string.rep (" ", ind) ..
+      string.sub (s, i + 1, -1)
     local change = ind + 1 - (i - j)
     lstart = j + change
     len = len + change
@@ -180,7 +180,7 @@ end
 -- The number is always written to 3 s.f.
 -- @param n number
 -- @return string
-function numbertosi (n)
+local function numbertosi (n)
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
     [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
@@ -188,7 +188,7 @@ function numbertosi (n)
     [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
     [8] = "Y"
   }
-  local t = format("% #.2e", n)
+  local t = string.format("% #.2e", n)
   local _, _, m, e = t:find(".(.%...)e(.+)")
   local man, exp = tonumber (m), tonumber (e)
   local siexp = math.floor (exp / 3)
@@ -204,7 +204,7 @@ end
 -- @param init start position (default: 1)
 -- @param plain inhibit magic characters (default: nil)
 -- @return start of match, end of match, table of captures
-function tfind (s, p, init, plain)
+local function tfind (s, p, init, plain)
   assert (type (s) == "string",
           "bad argument #1 to 'tfind' (string expected, got " .. type (s) .. ")")
   assert (type (p) == "string",
@@ -221,7 +221,7 @@ end
 -- @param init start position (default: 1)
 -- @param plain inhibit magic characters (default: nil)
 -- @return list of <code>{from, to; capt = {captures}}</code>
-function finds (s, p, init, plain)
+local function finds (s, p, init, plain)
   init = init or 1
   local l = {}
   local from, to, r
@@ -240,7 +240,7 @@ end
 -- @param s string to split
 -- @param sep separator pattern
 -- @return list of strings
-function split (s, sep)
+local function split (s, sep)
   -- finds gets a list of {from, to, capt = {}} lists; we then
   -- flatten the result, discarding the captures, and prepend 0 (1
   -- before the first character) and append 0 (1 after the last
@@ -248,7 +248,7 @@ function split (s, sep)
   local pairs = list.concat ({0}, list.flatten (finds (s, sep)), {0})
   local l = {}
   for i = 1, #pairs, 2 do
-    table.insert (l, sub (s, pairs[i] + 1, pairs[i + 1] - 1))
+    table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
   end
   return l
 end
@@ -257,24 +257,51 @@ end
 -- @param s string
 -- @param r leading pattern (default: <code>"%s+"</code>)
 -- @return string without leading r
-function ltrim (s, r)
+local function ltrim (s, r)
   r = r or "%s+"
-  return (gsub (s, "^" .. r, ""))
+  return (string.gsub (s, "^" .. r, ""))
 end
 
 --- Remove trailing matter from a string.
 -- @param s string
 -- @param r trailing pattern (default: <code>"%s+"</code>)
 -- @return string without trailing r
-function rtrim (s, r)
+local function rtrim (s, r)
   r = r or "%s+"
-  return (gsub (s, r .. "$", ""))
+  return (string.gsub (s, r .. "$", ""))
 end
 
 --- Remove leading and trailing matter from a string.
 -- @param s string
 -- @param r leading/trailing pattern (default: <code>"%s+"</code>)
 -- @return string without leading/trailing r
-function trim (s, r)
+local function trim (s, r)
   return rtrim (ltrim (s, r), r)
 end
+
+-- Save original unextended table.
+local unextended = table.clone (string)
+
+local M = {
+  __index       = old__index,
+  caps          = caps,
+  chomp         = chomp,
+  escapePattern = escapePattern,
+  escapeShell   = escapeShell,
+  finds         = finds,
+  format        = format,
+  ltrim         = ltrim,
+  numbertosi    = numbertosi,
+  ordinalSuffix = ordinalSuffix,
+  pad           = pad,
+  rtrim         = rtrim,
+  split         = split,
+  tfind         = tfind,
+  trim          = trim,
+  wrap          = wrap,
+}
+
+-- Inject stdlib extensions directly into the string package.
+_G.string = table.merge (string, M)
+
+return unextended

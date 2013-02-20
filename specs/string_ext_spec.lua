@@ -1,6 +1,6 @@
 {["specify string_ext"] = {
   before = function ()
-    require "string_ext"
+    unextended = require "string_ext"
 
     subject = "a string \n\n"
   end,
@@ -480,6 +480,34 @@
     {["it diagnoses non-string arguments"] = function ()
       expect ("string expected").should_error (f, nil)
       expect ("string expected").should_error (f, { "a table" })
+    end},
+  }},
+
+
+  {["context when requiring the module"] = {
+    before = function ()
+      extensions = { "caps", "chomp", "escapePattern", "escapeShell",
+                     "finds", "format", "ltrim", "numbertosi",
+                     "ordinalSuffix", "pad", "rtrim", "split", "tfind",
+                     "trim", "wrap" }
+    end,
+
+    {["it returns the unextended module table"] = function ()
+      for _, api in ipairs (extensions) do
+	if api ~= "format" then
+          expect (unextended[api]).should_be (nil)
+	end
+      end
+    end},
+    {["it injects an enhanced format function"] = function ()
+      expect (unextended.format).should_not_be (table.format)
+    end},
+    {["it doesn't override any other module access points"] = function ()
+      for api in pairs (unextended) do
+	if api ~= "format" then
+          expect (string[api]).should_be (unextended[api])
+	end
+      end
     end},
   }},
 }}
