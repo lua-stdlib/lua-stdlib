@@ -60,14 +60,14 @@ local function filter (p, l)
   return _G.filter (p, elems, l)
 end
 
---- Return a slice of a list.
--- (Negative list indices count from the end of the list.)
+--- Return a sub-range of a list. (The equivalent of <code>string.sub</code>
+-- on strings; negative list indices count from the end of the list.)
 -- @param l list
--- @param from start of slice (default: 1)
--- @param to end of slice (default: <code>#l</code>)
+-- @param from start of range (default: 1)
+-- @param to end of range (default: <code>#l</code>)
 -- @return <code>{l[from], ..., l[to]}</code>
-local function slice (l, from, to)
-  local m = {}
+local function sub (l, from, to)
+  local r = list.new ()
   local len = #l
   from = from or 1
   to = to or len
@@ -78,16 +78,16 @@ local function slice (l, from, to)
     to = to + len + 1
   end
   for i = from, to do
-    table.insert (m, l[i])
+    table.insert (r, l[i])
   end
-  return m
+  return r
 end
 
 --- Return a list with its first element removed.
 -- @param l list
 -- @return <code>{l[2], ..., l[#l]}</code>
 local function tail (l)
-  return slice (l, 2)
+  return sub (l, 2)
 end
 
 --- Fold a binary function through a list left associatively.
@@ -133,7 +133,7 @@ end
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}</code>
 local function concat (...)
-  local r = {}
+  local r = list.new ()
   for l in elems ({...}) do
     for v in elems (l) do
       table.insert (r, v)
@@ -147,7 +147,7 @@ end
 -- @param n number of times to repeat
 -- @return <code>n</code> copies of <code>l</code> appended together
 local function rep (l, n)
-  local r = {}
+  local r = list.new ()
   for i = 1, n do
     r = concat (r, l)
   end
@@ -158,11 +158,11 @@ end
 -- @param l list
 -- @return list <code>{l[#l], ..., l[1]}</code>
 local function reverse (l)
-  local m = {}
+  local r = list.new ()
   for i = #l, 1, -1 do
-    table.insert (m, l[i])
+    table.insert (r, l[i])
   end
-  return m
+  return r
 end
 
 --- Transpose a list of lists.
@@ -173,14 +173,14 @@ end
 -- @return <code>{{l<sub>1,1</sub>, ..., l<sub>r,1</sub>}, ...,
 -- {l<sub>1,c</sub>, ..., l<sub>r,c</sub>}}</code>
 local function transpose (ls)
-  local ms, len = {}, #ls
+  local rs, len = list.new (), #ls
   for i = 1, math.max (unpack (map (function (l) return #l end, ls))) do
-    ms[i] = {}
+    rs[i] = list.new ()
     for j = 1, len do
-      ms[i][j] = ls[j][i]
+      rs[i][j] = ls[j][i]
     end
   end
-  return ms
+  return rs
 end
 
 --- Zip lists together with a function.
@@ -207,7 +207,7 @@ end
 -- @return list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
 -- {i<sub>n</sub>, v<sub>n</sub>}}</code>
 local function enpair (t)
-  local ls = {}
+  local ls = list.new ()
   for i, v in pairs (t) do
     table.insert (ls, {i, v})
   end
@@ -232,11 +232,11 @@ end
 -- @param l list to flatten
 -- @return flattened list
 local function flatten (l)
-  local m = {}
+  local r = list.new ()
   for v in ileaves (l) do
-    table.insert (m, v)
+    table.insert (r, v)
   end
-  return m
+  return r
 end
 
 --- Shape a list according to a list of dimensions.
@@ -281,13 +281,13 @@ local function shape (s, l)
     if d > #s then
       return l[i], i + 1
     else
-      local t = {}
+      local r = list.new ()
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
-        table.insert (t, e)
+        table.insert (r, e)
       end
-      return t, i
+      return r, i
     end
   end
   return (fill (1, 1))
@@ -300,14 +300,14 @@ end
 -- @return index <code>{t<sub>1</sub>[f]=1, ...,
 -- t<sub>n</sub>[f]=n}</code>
 local function indexKey (f, l)
-  local m = {}
+  local r = list.new ()
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
-      m[k] = i
+      r[k] = i
     end
   end
-  return m
+  return r
 end
 
 --- Copy a list of tables, indexed on a given field
@@ -317,14 +317,14 @@ end
 -- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
 -- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
 local function indexValue (f, l)
-  local m = {}
+  local r = list.new ()
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
-      m[k] = v
+      r[k] = v
     end
   end
-  return m
+  return r
 end
 permuteOn = indexValue
 
@@ -349,6 +349,33 @@ local function compare (l, m)
   return 0
 end
 
+-- Methods for lists
+local methods = {
+  append     = append,
+  compare    = compare,
+  concat     = concat,
+  cons       = cons,
+  depair     = depair,
+  elems      = elems,
+  filter     = function (self, p) return filter (p, self) end,
+  flatten    = flatten,
+  foldl      = function (self, f, e) return foldl (f, e, self) end,
+  foldr      = function (self, f, e) return foldr (f, e, self) end,
+  indexKey   = function (self, f) return indexKey (self, f) end,
+  indexValue = function (self, f) return indexValue (self, f) end,
+  map        = function (self, f) return map (f, self) end,
+  mapWith    = function (self, f) return mapWith (f, self) end,
+  project    = function (self, f) return project (f, self) end,
+  relems     = relems,
+  rep        = rep,
+  reverse    = reverse,
+  shape      = function (self, s) return shape (s, self) end,
+  sub        = sub,
+  tail       = tail,
+  transpose  = transpose,
+  zipWith    = function (self, f) return zipWith (f, self) end,
+}
+
 -- Metamethods for lists
 local metatable = {
   -- list .. table = list.concat
@@ -359,14 +386,15 @@ local metatable = {
   -- list <= list = list.compare returns <= 0
   __le = function (l, m) return compare (l, m) <= 0 end,
   __append = append,
+  __index = methods,
 }
 
 --- List constructor.
 -- Needed in order to use metamethods.
--- @param t list (as a table)
+-- @param t list (as a table), or nil for empty list
 -- @return list (with list metamethods)
 local function new (l)
-  return setmetatable (l, metatable)
+  return setmetatable (l or {}, metatable)
 end
 
 -- Function forms of operators
@@ -395,7 +423,8 @@ local M = {
   rep        = rep,
   reverse    = reverse,
   shape      = shape,
-  slice      = slice,
+  slice      = sub, -- backwards compatibility
+  sub        = sub,
   tail       = tail,
   transpose  = transpose,
   zipWith    = zipWith,

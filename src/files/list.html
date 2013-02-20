@@ -289,8 +289,8 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#slice">slice</a>&nbsp;(l, from, to)</td>
-	<td class="summary">Return a slice of a list.</td>
+	<td class="name" nowrap><a href="#sub">sub</a>&nbsp;(l, from, to)</td>
+	<td class="summary">Return a sub-range of a list.</td>
 	</tr>
 
 	<tr>
@@ -834,7 +834,7 @@ List constructor. Needed in order to use metamethods.
 	</li>
 	
 	<li>
-	  t: list (as a table)
+	  t: list (as a table), or nil for empty list
 	</li>
 	
 </ul>
@@ -1019,9 +1019,9 @@ reshaped list FIXME: Use ileaves instead of flatten (needs a while instead of a 
 
 
 
-<dt><a name="slice"></a><strong>slice</strong>&nbsp;(l, from, to)</dt>
+<dt><a name="sub"></a><strong>sub</strong>&nbsp;(l, from, to)</dt>
 <dd>
-Return a slice of a list. (Negative list indices count from the end of the list.)
+Return a sub-range of a list. (The equivalent of <code>string.sub</code> on strings; negative list indices count from the end of the list.)
 
 
 <h3>Parameters</h3>
@@ -1032,11 +1032,11 @@ Return a slice of a list. (Negative list indices count from the end of the list.
 	</li>
 	
 	<li>
-	  from: start of slice (default: 1)
+	  from: start of range (default: 1)
 	</li>
 	
 	<li>
-	  to: end of slice (default: <code>#l</code>)
+	  to: end of range (default: <code>#l</code>)
 	</li>
 	
 </ul>

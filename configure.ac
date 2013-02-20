@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script
 
 dnl Initialise autoconf and automake
-AC_INIT(stdlib, 30, rrt@sc3d.org)
+AC_INIT(stdlib, 31, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign])
 AM_SILENT_RULES([yes])

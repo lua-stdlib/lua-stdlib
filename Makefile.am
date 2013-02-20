@@ -37,10 +37,6 @@ rockspecs:
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
 
-bootstrap:
-	autoreconf -i && \
-	./configure
-
 tag-release:
 	git diff --exit-code && \
 	git tag -a -m "Release tag" v$(VERSION) && \
@@ -55,9 +51,8 @@ check-in-release: distcheck
 	git tag -a -m "Full source release tag" release-v$(VERSION) && \
 	git push && git push --tags
 
-# After check-in-release we need to bootstrap to get the build files back
 release: rockspecs
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(PACKAGE)-$(VERSION)-1.rockspec && \
-	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
+	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
