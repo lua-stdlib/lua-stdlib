@@ -37,10 +37,6 @@ rockspecs:
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
 
-bootstrap:
-	autoreconf -i && \
-	./configure
-
 tag-release:
 	git diff --exit-code && \
 	git tag -a -m "Release tag" v$(VERSION) && \
@@ -55,7 +51,6 @@ check-in-release: distcheck
 	git tag -a -m "Full source release tag" release-v$(VERSION) && \
 	git push && git push --tags
 
-# After check-in-release we need to bootstrap to get the build files back
 release: rockspecs
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
