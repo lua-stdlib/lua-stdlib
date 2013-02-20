@@ -60,13 +60,13 @@ local function filter (p, l)
   return _G.filter (p, elems, l)
 end
 
---- Return a slice of a list.
--- (Negative list indices count from the end of the list.)
+--- Return a sub-range of a list. (The equivalent of <code>string.sub</code>
+-- on strings; negative list indices count from the end of the list.)
 -- @param l list
--- @param from start of slice (default: 1)
--- @param to end of slice (default: <code>#l</code>)
+-- @param from start of range (default: 1)
+-- @param to end of range (default: <code>#l</code>)
 -- @return <code>{l[from], ..., l[to]}</code>
-local function slice (l, from, to)
+local function sub (l, from, to)
   local r = list.new ()
   local len = #l
   from = from or 1
@@ -87,7 +87,7 @@ end
 -- @param l list
 -- @return <code>{l[2], ..., l[#l]}</code>
 local function tail (l)
-  return slice (l, 2)
+  return sub (l, 2)
 end
 
 --- Fold a binary function through a list left associatively.
@@ -370,7 +370,7 @@ local methods = {
   rep        = rep,
   reverse    = reverse,
   shape      = function (self, s) return shape (s, self) end,
-  slice      = slice,
+  sub        = sub,
   tail       = tail,
   transpose  = transpose,
   zipWith    = function (self, f) return zipWith (f, self) end,
@@ -423,7 +423,8 @@ local M = {
   rep        = rep,
   reverse    = reverse,
   shape      = shape,
-  slice      = slice,
+  slice      = sub, -- backwards compatibility
+  sub        = sub,
   tail       = tail,
   transpose  = transpose,
   zipWith    = zipWith,
