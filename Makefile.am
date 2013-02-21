@@ -79,22 +79,42 @@ rockspecs:
 check-local:
 	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua
 
+GIT ?= git
+LN_S ?= ln -sf
+
 tag-release:
-	git diff --exit-code && \
-	git tag -a -m "Release tag" v$(VERSION) && \
-	git push && git push --tags
+	$(GIT) diff --exit-code && \
+	$(GIT) tag -f -a -m "Release tag" v$(VERSION)
+
+define unpack-distcheck-release
+	rm -rf $(PACKAGE)-$(VERSION)/ && \
+	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
+	cp -a -f $(PACKAGE)-$(VERSION)/* . && \
+	rm -rf $(PACKAGE)-$(VERSION)/ && \
+	echo "unpacked $(PACKAGE)-$(VERSION).tar.gz over current directory" && \
+	echo './configure && make all rockspecs' && \
+	./configure --version && ./configure && \
+	$(MAKE) all rockspecs
+endef
 
 check-in-release: distcheck
-	cd ../lua-stdlib-release && \
-	tar zxf ../lua-stdlib/$(PACKAGE)-$(VERSION).tar.gz && \
-	cp -af $(PACKAGE)-$(VERSION)/* . && \
-	rm -rf $(PACKAGE)-$(VERSION)/ && \
-	git add . && git ci -m "Release v$(VERSION)" && \
-	git tag -a -m "Full source release tag" release-v$(VERSION) && \
-	git push && git push --tags
+	current_branch=`$(GIT) symbolic-ref HEAD`; \
+	{ $(GIT) checkout -b release 2>/dev/null || $(GIT) checkout release; } && \
+	{ $(GIT) pull origin release || true; } && \
+	$(unpack-distcheck-release) && \
+	$(GIT) add . && \
+	$(GIT) commit -a -m "Release v$(VERSION)" && \
+	$(GIT) tag -f -a -m "Full source release tag" release-v$(VERSION); \
+	$(GIT) checkout `echo "$$current_branch" | sed 's,.*/,,g'`
+
+
+## To test the release process without publishing upstream, use:
+##   make release WOGER=: GIT_PUBLISH=:
+GIT_PUBLISH ?= $(GIT)
 
 release: rockspecs
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
+	$(GIT_PUBLISH) push && $(GIT_PUBLISH) push --tags && \
 	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(PACKAGE)-$(VERSION)-1.rockspec && \
-	woger lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
+	$(WOGER) lua package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) home="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec' $(LUA) -l$(PACKAGE) -e 'print (description.homepage)'`"
