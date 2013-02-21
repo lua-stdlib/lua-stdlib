@@ -2,8 +2,12 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+src_spec = $(abs_srcdir)/src/?.lua
+lib_spec = $(abs_srcdir)/specs/lib/?.lua
+
 LUA_PATH ?= ;
-LUA_ENV = LUA_PATH="$(abs_srcdir)/src/?.lua;$(LUA_PATH)"
+LUA_ENV  = LUA_PATH="$(src_spec);$(LUA_PATH)"
+SPEC_ENV = LUA_PATH="$(lib_spec);$(src_spec);$(LUA_PATH)"
 
 NOTHING_ELSE =
 
@@ -33,6 +37,10 @@ SOURCES = 				\
 	src/xml.lua			\
 	$(NOTHING_ELSE)
 
+SPECS =					\
+	specs/table_ext_spec.lua	\
+	$(NOTHING_ELSE)
+
 dist_data_DATA = $(SOURCES)
 
 dist_doc_DATA =				\
@@ -44,7 +52,11 @@ modulesdir = $(docdir)/modules
 dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
 
 EXTRA_DIST =				\
-	src/std.lua.in
+	specs/specl			\
+	specs/lib/specl.lua		\
+	src/std.lua.in			\
+	$(SPECS)			\
+	$(NOTHING_ELSE)
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
@@ -62,6 +74,9 @@ rockspecs:
 	rm -f *.rockspec
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
 	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
+
+check-local:
+	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua
 
 tag-release:
 	git diff --exit-code && \
