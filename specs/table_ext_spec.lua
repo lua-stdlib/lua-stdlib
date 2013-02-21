@@ -1,6 +1,6 @@
 {["specify table_ext"] = {
   before = function ()
-    require "table_ext"
+    unextended = require "table_ext"
   end,
 
 
@@ -295,6 +295,32 @@
     {["it diagnoses non-table arguments"] = function ()
       expect ("table expected").should_error (f, nil)
       expect ("table expected").should_error (f, "foo")
+    end},
+  }},
+
+
+  {["context when requiring the module"] = {
+    before = function ()
+      extensions = { "clone", "clone_rename", "empty", "invert", "keys",
+                     "merge", "new", "size", "sort", "values" }
+    end,
+
+    {["it returns the unextended module table"] = function ()
+      for _, api in ipairs (extensions) do
+	if api ~= "sort" then
+          expect (unextended[api]).should_be (nil)
+	end
+      end
+    end},
+    {["it injects an enhanced sort function"] = function ()
+      expect (unextended.sort).should_not_be (table.sort)
+    end},
+    {["it doesn't override any other module access points"] = function ()
+      for api in pairs (unextended) do
+	if api ~= "sort" then
+          expect (table[api]).should_be (unextended[api])
+	end
+      end
     end},
   }},
 }}
