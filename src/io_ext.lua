@@ -2,7 +2,7 @@
 module ("io", package.seeall)
 
 require "base"
-require "package_ext"
+local package_unext = require "package_ext"
 
 
 -- Get file handle metatable

@@ -202,11 +202,16 @@ end
 -- <code>-help</code>/<code>-h</code> automatically;
 -- stops program if there was an error, or if <code>-help</code> or
 -- <code>-version</code> was used.
+local M = {
+  opt = {},
+}
+
 local function processArgs ()
   local totArgs = #arg
   options = makeOptions (options)
   local errors
-  _G.arg, opt, errors = getopt.getOpt (arg, options)
+  _G.arg, M.opt, errors = getopt.getOpt (arg, options)
+  local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
   end
@@ -272,11 +277,9 @@ if type (_DEBUG) == "table" and _DEBUG.std then
 end
 
 -- Public interface
-local M = {
+return table.merge (M, {
   getOpt      = getOpt,
   processArgs = processArgs,
   usage       = usage,
   usageInfo   = usageInfo,
-}
-
-return M
+})

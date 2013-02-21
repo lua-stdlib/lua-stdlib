@@ -1,15 +1,14 @@
 -- Extensions to the table module
-module ("table", package.seeall)
 
 --local list = require "list" FIXME: allow require loops
 
 
-local _sort = sort
+local _sort = table.sort
 --- Make table.sort return its result.
 -- @param t table
 -- @param c comparator function
 -- @return sorted table
-function sort (t, c)
+local function sort (t, c)
   _sort (t, c)
   return t
 end
@@ -17,14 +16,14 @@ end
 --- Return whether table is empty.
 -- @param t table
 -- @return <code>true</code> if empty or <code>false</code> otherwise
-function empty (t)
+local function empty (t)
   return not next (t)
 end
 
 --- Find the number of elements in a table.
 -- @param t table
 -- @return number of elements in t
-function size (t)
+local function size (t)
   local n = 0
   for _ in pairs (t) do
     n = n + 1
@@ -35,10 +34,10 @@ end
 --- Make the list of keys of a table.
 -- @param t table
 -- @return list of keys
-function keys (t)
+local function keys (t)
   local u = {}
   for i, v in pairs (t) do
-    insert (u, i)
+    table.insert (u, i)
   end
   return u
 end
@@ -46,10 +45,10 @@ end
 --- Make the list of values of a table.
 -- @param t table
 -- @return list of values
-function values (t)
+local function values (t)
   local u = {}
   for i, v in pairs (t) do
-    insert (u, v)
+    table.insert (u, v)
   end
   return u
 end
@@ -57,7 +56,7 @@ end
 --- Invert a table.
 -- @param t table <code>{i=v, ...}</code>
 -- @return inverted table <code>{v=i, ...}</code>
-function invert (t)
+local function invert (t)
   local u = {}
   for i, v in pairs (t) do
     u[v] = i
@@ -70,7 +69,7 @@ end
 -- @param t table
 -- @param nometa if non-nil don't copy metatable
 -- @return copy of table
-function clone (t, nometa)
+local function clone (t, nometa)
   local u = {}
   if not nometa then
     setmetatable (u, getmetatable (t))
@@ -85,7 +84,7 @@ end
 -- @param map table <code>{old_key=new_key, ...}</code>
 -- @param t table to copy
 -- @return copy of table
-function clone_rename (map, t)
+local function clone_rename (map, t)
   local r = clone (t)
   for i, v in pairs (map) do
     r[v] = t[i]
@@ -98,7 +97,7 @@ end
 -- @param t first table
 -- @param u second table
 -- @return first table
-function merge (t, u)
+local function merge (t, u)
   for i, v in pairs (u) do
     t[i] = v
   end
@@ -109,9 +108,30 @@ end
 -- @param x default entry value (default: <code>nil</code>)
 -- @param t initial table (default: <code>{}</code>)
 -- @return table whose unset elements are x
-function new (x, t)
+local function new (x, t)
   return setmetatable (t or {},
                        {__index = function (t, i)
                                     return x
                                   end})
 end
+
+-- Save original unextended table.
+local unextended = clone (table)
+
+local M = {
+  clone        = clone,
+  clone_rename = clone_rename,
+  empty        = empty,
+  invert       = invert,
+  keys         = keys,
+  merge        = merge,
+  new          = new,
+  size         = size,
+  sort         = sort,
+  values       = values,
+}
+
+-- Inject stdlib extensions directly into the table package.
+_G.table = merge (table, M)
+
+return unextended
