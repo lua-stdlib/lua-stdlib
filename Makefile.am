@@ -111,6 +111,7 @@ check-in-release: distcheck
 ## To test the release process without publishing upstream, use:
 ##   make release WOGER=: GIT_PUBLISH=:
 GIT_PUBLISH ?= $(GIT)
+WOGER ?= woger
 
 release: rockspecs
 	$(MAKE) tag-release && \
