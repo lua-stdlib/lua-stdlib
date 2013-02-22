@@ -99,8 +99,8 @@ end
 -- @param n number of the day
 -- @return suffix
 function ordinalSuffix (n)
-  n = math.mod (n, 100)
-  local d = math.mod (n, 10)
+  n = n % 100
+  local d = n % 10
   if d == 1 and n ~= 11 then
     return "st"
   elseif d == 2 and n ~= 12 then
