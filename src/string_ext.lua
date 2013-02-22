@@ -154,6 +154,8 @@ function wrap (s, w, ind, ind1)
   ind1 = ind1 or ind
   assert (ind1 < w and ind < w,
           "the indents must be less than the line width")
+  assert (type (s) == "string",
+          "bad argument #1 to 'wrap' (string expected, got " .. type (s) .. ")")
   s = rep (" ", ind1) .. s
   local lstart, len = 1, len (s)
   while len - lstart > w - ind do
@@ -203,6 +205,10 @@ end
 -- @param plain inhibit magic characters (default: nil)
 -- @return start of match, end of match, table of captures
 function tfind (s, p, init, plain)
+  assert (type (s) == "string",
+          "bad argument #1 to 'tfind' (string expected, got " .. type (s) .. ")")
+  assert (type (p) == "string",
+          "bad argument #2 to 'tfind' (string expected, got " .. type (p) .. ")")
   local function pack (from, to, ...)
     return from, to, {...}
   end
