@@ -319,9 +319,10 @@ end
 
 local function run (spec, format)
   formatter = format or formatter
-  formatter.header (stats)
+  formatter.header (_G.stats)
   run_specs (spec)
-  formatter.footer (stats)
+  formatter.footer (_G.stats)
+  return _G.stats.fail == 0
 end
 
 
