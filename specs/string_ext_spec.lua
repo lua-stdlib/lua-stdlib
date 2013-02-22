@@ -130,6 +130,40 @@
   }},
 
 
+  {["describe string.finds ()"] = {
+    before = function ()
+      subject = "abcd"
+      f = string.finds
+    end,
+
+    {["it creates a list of pattern captures"] = function ()
+      target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
+      expect ({f (subject, "(.)(.)")}).should_equal ({ target })
+    end},
+    {["it creates an empty list where no captures are matched "] = function ()
+      target = {}
+      expect ({f (subject, "(x)")}).should_equal ({ target })
+    end},
+    {["it creates an empty list for a pattern without captures"] = function ()
+      target = { { 1, 1; capt = {} } }
+      expect ({f (subject, "a")}).should_equal ({ target })
+    end},
+    {["it starts the search at a specified index into the subject"] = function ()
+      target = { { 8, 9; capt = { "a", "b" } }, { 10, 11; capt = { "c", "d" } } }
+      expect ({f ("garbage" .. subject, "(.)(.)", 8)}).should_equal ({ target })
+    end},
+    {["the original subject is not perturbed"] = function ()
+      original = subject
+      newstring = f (subject, "...")
+      expect (subject).should_be (original)
+    end},
+    {["it diagnoses non-string arguments"] = function ()
+      expect ("string expected").should_error (f, nil)
+      expect ("string expected").should_error (f, { "a table" })
+    end},
+  }},
+
+
   -- FIXME: This looks like a misfeature to me, let's remove it!
   {["describe string.format ()"] = {
     before = function ()
@@ -328,6 +362,40 @@
       expect ("string expected").should_error (f, "a string", nil)
       expect ("string expected").should_error (f, nil, ",")
       expect ("string expected").should_error (f, { "a table" }, ",")
+    end},
+  }},
+
+
+  {["describe string.tfind ()"] = {
+    before = function ()
+      subject = "abc"
+      f = string.tfind
+    end,
+
+    {["it creates a list of pattern captures"] = function ()
+      target = { 1, 3, { "a", "b", "c" } }
+      expect ({f (subject, "(.)(.)(.)")}).should_equal (target)
+    end},
+    {["it creates an empty list where no captures are matched "] = function ()
+      target = { nil, nil, {} }
+      expect ({f (subject, "(x)(y)(z)")}).should_equal (target)
+    end},
+    {["it creates an empty list for a pattern without captures"] = function ()
+      target = { 1, 1, {} }
+      expect ({f (subject, "a")}).should_equal (target)
+    end},
+    {["it starts the search at a specified index into the subject"] = function ()
+      target = { 8, 10, { "a", "b", "c" } }
+      expect ({f ("garbage" .. subject, "(.)(.)(.)", 8)}).should_equal (target)
+    end},
+    {["the original subject is not perturbed"] = function ()
+      original = subject
+      newstring = f (subject, "...")
+      expect (subject).should_be (original)
+    end},
+    {["it diagnoses non-string arguments"] = function ()
+      expect ("string expected").should_error (f, nil)
+      expect ("string expected").should_error (f, { "a table" })
     end},
   }},
 
