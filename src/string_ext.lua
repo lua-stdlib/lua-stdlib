@@ -36,7 +36,7 @@ require "table_ext"
 local old__index = getmetatable ("").__index
 getmetatable ("").__index = function (s, i)
   if type (i) == "number" then
-    return sub (s, i, i)
+    return s:sub (i, i)
     -- Fall back to old metamethods
   elseif type (old__index) == "function" then
     return old__index (s, i)
