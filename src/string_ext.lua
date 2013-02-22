@@ -232,7 +232,7 @@ end
 --- Split a string at a given separator.
 -- FIXME: Consider Perl and Python versions.
 -- @param s string to split
--- @param sep separator regex
+-- @param sep separator pattern
 -- @return list of strings
 function split (s, sep)
   -- finds gets a list of {from, to, capt = {}} lists; we then
@@ -249,7 +249,7 @@ end
 
 --- Remove leading matter from a string.
 -- @param s string
--- @param r leading regex (default: <code>"%s+"</code>)
+-- @param r leading pattern (default: <code>"%s+"</code>)
 -- @return string without leading r
 function ltrim (s, r)
   r = r or "%s+"
@@ -258,7 +258,7 @@ end
 
 --- Remove trailing matter from a string.
 -- @param s string
--- @param r trailing regex (default: <code>"%s+"</code>)
+-- @param r trailing pattern (default: <code>"%s+"</code>)
 -- @return string without trailing r
 function rtrim (s, r)
   r = r or "%s+"
@@ -267,7 +267,7 @@ end
 
 --- Remove leading and trailing matter from a string.
 -- @param s string
--- @param r leading/trailing regex (default: <code>"%s+"</code>)
+-- @param r leading/trailing pattern (default: <code>"%s+"</code>)
 -- @return string without leading/trailing r
 function trim (s, r)
   return rtrim (ltrim (s, r), r)
