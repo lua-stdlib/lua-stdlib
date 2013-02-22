@@ -474,7 +474,7 @@
         ".1 and 5.2.\n  The libraries are copyright by their author" ..
 	"s 2000-2013 (see\n  the AUTHORS file for details), and rel" ..
 	"eased under the MIT\n  license (the same license as Lua it" ..
-	"self). There is no warranty."
+	"self). There is no\n  warranty."
       expect (f (subject, 64, 2, 4)).should_be (target)
     end},
     {["the original subject is not perturbed"] = function ()

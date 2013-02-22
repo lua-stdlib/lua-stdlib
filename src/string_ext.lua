@@ -2,6 +2,7 @@
 -- TODO: Pretty printing (use in getopt); see source for details.
 
 require "table_ext"
+require "strbuf"
 
 -- Write pretty-printing based on:
 --
@@ -156,24 +157,25 @@ local function wrap (s, w, ind, ind1)
           "the indents must be less than the line width")
   assert (type (s) == "string",
           "bad argument #1 to 'wrap' (string expected, got " .. type (s) .. ")")
-  s = string.rep (" ", ind1) .. s
-  local lstart, len = 1, string.len (s)
-  while len - lstart > w - ind do
-    local i = lstart + w - ind
-    while i > lstart and string.sub (s, i, i) ~= " " do
-      i = i - 1
-    end
-    local j = i
-    while j > lstart and string.sub (s, j, j) == " " do
+  local r = strbuf.new ():concat (string.rep (" ", ind1))
+  local i, lstart, len = 1, ind1, #s
+  while i <= #s do
+    local j = i + w - lstart
+    while #s[j] > 0 and s[j] ~= " " and j > i do
       j = j - 1
     end
-    s = string.sub (s, 1, j) .. "\n" .. string.rep (" ", ind) ..
-      string.sub (s, i + 1, -1)
-    local change = ind + 1 - (i - j)
-    lstart = j + change
-    len = len + change
+    local ni = j + 1
+    while s[j] == " " do
+      j = j - 1
+    end
+    r:concat (s:sub (i, j))
+    i = ni
+    if i < #s then
+      r:concat ("\n" .. string.rep (" ", ind))
+      lstart = ind
+    end
   end
-  return s
+  return r:tostring ()
 end
 
 --- Write a number using SI suffixes.
