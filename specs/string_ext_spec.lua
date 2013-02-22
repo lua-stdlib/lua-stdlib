@@ -226,8 +226,8 @@
       expect (f "-91").should_be "st"
     end},
     {["it diagnoses non-numeric arguments"] = function ()
-      expect ("attempt to perform arithmetic").should_error (f, nil)
-      expect ("attempt to perform arithmetic").should_error (f, { "a table" })
+      expect ("number expected").should_error (f, nil)
+      expect ("number expected").should_error (f, { "a table" })
     end},
   }},
 
