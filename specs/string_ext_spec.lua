@@ -76,9 +76,9 @@
   }},
 
 
-  {["describe string.escapePattern ()"] = {
+  {["describe string.escape_pattern ()"] = {
     before = function ()
-      f = string.escapePattern
+      f = string.escape_pattern
     end,
 
     {["it inserts a % before any non-alphanumeric in a string"] = function ()
@@ -90,6 +90,9 @@
 	target = target .. s
       end
       expect (f (subject)).should_be (target)
+    end},
+    {["legacy escapePattern call is the same function"] = function ()
+      expect (string.escapePattern).should_be (f)
     end},
     {["the original subject is not perturbed"] = function ()
       original = subject
@@ -103,9 +106,9 @@
   }},
 
 
-  {["describe string.escapeShell ()"] = {
+  {["describe string.escape_shell ()"] = {
     before = function ()
-      f = string.escapeShell
+      f = string.escape_shell
     end,
 
     {["it inserts a \\ before any shell metacharacters"] = function ()
@@ -117,6 +120,9 @@
 	target = target .. s
       end
       expect (f (subject)).should_be (target)
+    end},
+    {["legacy escapeShell call is the same function"] = function ()
+      expect (string.escapeShell).should_be (f)
     end},
     {["the original subject is not perturbed"] = function ()
       original = subject
@@ -237,9 +243,9 @@
   }},
 
 
-  {["describe string.ordinalSuffix ()"] = {
+  {["describe string.ordinal_suffix ()"] = {
     before = function ()
-      f = string.ordinalSuffix
+      f = string.ordinal_suffix
     end,
 
     {["it returns the English suffix for a number"] = function ()
@@ -255,6 +261,9 @@
         table.insert (subject, n .. f (n))
       end
       expect (subject).should_equal (target)
+    end},
+    {["legacy ordinalSuffix call is the same function"] = function ()
+      expect (string.ordinalSuffix).should_be (f)
     end},
     {["it coerces string arguments to a number"] = function ()
       expect (f "-91").should_be "st"
@@ -486,9 +495,9 @@
 
   {["context when requiring the module"] = {
     before = function ()
-      extensions = { "caps", "chomp", "escapePattern", "escapeShell",
+      extensions = { "caps", "chomp", "escape_pattern", "escape_shell",
                      "finds", "format", "ltrim", "numbertosi",
-                     "ordinalSuffix", "pad", "rtrim", "split", "tfind",
+                     "ordinal_suffix", "pad", "rtrim", "split", "tfind",
                      "trim", "wrap" }
     end,
 

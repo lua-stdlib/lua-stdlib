@@ -82,7 +82,7 @@ end
 -- @param s string to process
 -- @return
 --   @param s_: processed string
-local function escapePattern (s)
+local function escape_pattern (s)
   return (string.gsub (s, "(%W)", "%%%1"))
 end
 
@@ -91,14 +91,14 @@ end
 -- whitespace.
 -- @param s string to process
 -- @return processed string
-local function escapeShell (s)
+local function escape_shell (s)
   return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
 end
 
 --- Return the English suffix for an ordinal.
 -- @param n number of the day
 -- @return suffix
-local function ordinalSuffix (n)
+local function ordinal_suffix (n)
   n = math.abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
@@ -283,22 +283,27 @@ end
 local unextended = table.clone (string)
 
 local M = {
-  __index       = old__index,
-  caps          = caps,
-  chomp         = chomp,
-  escapePattern = escapePattern,
-  escapeShell   = escapeShell,
-  finds         = finds,
-  format        = format,
-  ltrim         = ltrim,
-  numbertosi    = numbertosi,
-  ordinalSuffix = ordinalSuffix,
-  pad           = pad,
-  rtrim         = rtrim,
-  split         = split,
-  tfind         = tfind,
-  trim          = trim,
-  wrap          = wrap,
+  __index        = old__index,
+  caps           = caps,
+  chomp          = chomp,
+  escape_pattern = escape_pattern,
+  escape_shell   = escape_shell,
+  finds          = finds,
+  format         = format,
+  ltrim          = ltrim,
+  numbertosi     = numbertosi,
+  ordinal_suffix = ordinal_suffix,
+  pad            = pad,
+  rtrim          = rtrim,
+  split          = split,
+  tfind          = tfind,
+  trim           = trim,
+  wrap           = wrap,
+
+  -- camelCase compatibility:
+  escapePattern  = escape_pattern,
+  escapeShell    = escape_shell,
+  ordinalSuffix  = ordinal_suffix,
 }
 
 -- Inject stdlib extensions directly into the string package.
