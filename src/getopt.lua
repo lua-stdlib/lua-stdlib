@@ -126,7 +126,7 @@ local function usageInfo (header, optDesc, pageWidth)
   -- @return description
   local function fmtOpt (opt)
     local function fmtName (o)
-      return "-" .. o
+      return (#o > 1 and "--" or "-") .. o
     end
     local function fmtArg ()
       if opt.type == nil then
@@ -139,7 +139,11 @@ local function usageInfo (header, optDesc, pageWidth)
     end
     local textName = list.reverse (list.map (fmtName, opt.name))
     textName[#textName] = textName[#textName] .. fmtArg ()
-    return {table.concat ({table.concat (textName, ", ")}, ", "),
+    local indent = ""
+    if #opt.name == 1 and #opt.name[1] > 1 then
+      indent = "    "
+    end
+    return {indent .. table.concat ({table.concat (textName, ", ")}, ", "),
       opt.desc}
   end
   local function sameLen (xs)
