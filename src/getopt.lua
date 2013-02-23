@@ -93,23 +93,30 @@ local Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
 local function makeOptions (t)
-  t = list.concat (t or {},
-                   {Option {{"version", "V"},
-                            "output version information and exit"},
-                    Option {{"help", "h"},
-                            "display this help and exit"}}
-               )
-  local name = {}
-  for v in list.elems (t) do
-    for j, s in pairs (v.name) do
+  local options, name = {}, {}
+  local function appendOpt (v, nodupes)
+    local dupe = false
+    for s in list.elems (v.name) do
       if name[s] then
-        warn ("duplicate option '%s'", s)
+	dupe = true
       end
       name[s] = v
     end
+    if not dupe or nodupes ~= true then
+      if dupe then warn ("duplicate option '%s'", s) end
+      for s in list.elems (v.name) do name[s] = v end
+      options = list.concat (options, {v})
+    end
   end
-  t.name = name
-  return t
+  for v in list.elems (t or {}) do
+    appendOpt (v)
+  end
+  -- Unless they were supplied already, add version and help options
+  appendOpt (Option {{"version", "V"}, "print version information, then exit"},
+             true)
+  appendOpt (Option {{"help", "h"}, "print this help, then exit"}, true)
+  options.name = name
+  return options
 end
 
 
@@ -200,10 +207,11 @@ end
 
 
 --- Simple getOpt wrapper.
--- Adds <code>-version</code>/<code>-V</code> and
--- <code>-help</code>/<code>-h</code> automatically;
--- stops program if there was an error, or if <code>-help</code> or
--- <code>-version</code> was used.
+-- If the caller didn't supply their own already,
+-- adds <code>--version</code>/<code>-V</code> and
+-- <code>--help</code>/<code>-h</code> options automatically;
+-- stops program if there was an error, or if <code>--help</code> or
+-- <code>--version</code> was used.
 local M = {
   opt = {},
 }
