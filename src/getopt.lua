@@ -1,9 +1,18 @@
 --- Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br>
 -- Usage:
 -- <ul>
--- <li><code>options = {Option {...}, ...}</br>
--- getopt.processArgs ()</code></li>
--- <li>Assumes <code>prog = {name[, banner] [, purpose] [, notes] [, usage]}</code></li>
+-- <li><code>prog = {<
+--     name = <progname>,
+--     [usage = <usage line>,]
+--     [options = {
+--        {Option {<names>}, <desc>, [<type>,] [var]},
+--        ...
+--     },]
+--     [banner = <banner string>,]
+--     [purpose = <purpose string>,]
+--     [notes = <additional notes>]
+-- }</code></li>
+-- <li><code>getopt.processArgs (prog)</code></li>
 -- <li>Options take a single dash, but may have a double dash.</li>
 -- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
 -- <li>If an option taking an argument is given multiple times, only the
@@ -23,6 +32,10 @@ require "base"
 local list = require "list"
 require "string_ext"
 local Object = require "object"
+
+local M = {
+  opt = {},
+}
 
 
 --- Perform argument processing
@@ -184,7 +197,8 @@ local function usageInfo (header, optDesc, pageWidth)
 end
 
 --- Emit a usage message.
-local function usage ()
+-- @param prog table of named parameters
+local function usage (prog)
   local usage, purpose, notes = "[OPTION]... [FILE]...", "", ""
   if prog.usage then
     usage = prog.usage
@@ -201,7 +215,7 @@ local function usage ()
     end
   end
   io.writelines (usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
-                            options)
+                            prog.options)
                  .. notes)
 end
 
@@ -212,13 +226,10 @@ end
 -- <code>--help</code>/<code>-h</code> options automatically;
 -- stops program if there was an error, or if <code>--help</code> or
 -- <code>--version</code> was used.
-local M = {
-  opt = {},
-}
-
-local function processArgs ()
+-- @param prog table of named parameters
+local function processArgs (prog)
   local totArgs = #arg
-  options = makeOptions (options)
+  local options = makeOptions (prog.options)
   local errors
   _G.arg, M.opt, errors = getopt.getOpt (arg, options)
   local opt = M.opt
@@ -232,7 +243,7 @@ local function processArgs ()
       warn (table.concat (errors, "\n") .. "\n")
     end
     prog.name = name
-    usage ()
+    usage (prog)
     if #errors > 0 then
       error ()
     end
@@ -241,7 +252,6 @@ local function processArgs ()
     os.exit ()
   end
 end
-_G.options = nil
 
 
 -- A small and hopefully enlightening example:

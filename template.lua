@@ -15,13 +15,13 @@ end
 
 
 -- Command-line options
-options = {
+prog.options = {
   getopt.Option {{"test", "t"},
     "test option"},
 }
 
 -- Main routine
-getopt.processArgs ()
+getopt.processArgs (prog)
 if table.getn (arg) == 0 then
   getopt.dieWithUsage ()
 end
