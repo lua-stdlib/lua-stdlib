@@ -199,12 +199,18 @@ end
 --- Emit a usage message.
 -- @param prog table of named parameters
 local function usage (prog)
-  local usage, purpose, notes = "[OPTION]... [FILE]...", "", ""
+  local usage = "[OPTION]... [FILE]..."
+  local purpose, description, notes = "", "", ""
   if prog.usage then
     usage = prog.usage
   end
   if prog.purpose then
-    purpose = "\n\n" .. prog.purpose
+      purpose = "\n\n" .. prog.purpose
+  end
+  if prog.description then
+    for para in list.elems (string.split (prog.description, "\n")) do
+      description = description .. "\n\n" .. string.wrap (para)
+    end
   end
   if prog.notes then
     notes = "\n\n"
@@ -214,10 +220,20 @@ local function usage (prog)
       notes = notes .. prog.notes
     end
   end
-  io.writelines (usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
-                            prog.options)
-                 .. notes)
+  local header = "Usage: " .. prog.name .. " " .. usage ..
+                 purpose .. description
+  io.writelines (usageInfo (header, prog.options) .. notes)
 end
+
+
+local function version (prog)
+  local version = prog.version or prog.name or "unknown version!"
+  if prog.copyright then
+    version = version .. "\n\n" .. prog.copyright
+  end
+  io.writelines (version)
+end
+
 
 
 --- Simple getOpt wrapper.
@@ -247,6 +263,8 @@ local function processArgs (prog)
     if #errors > 0 then
       error ()
     end
+  elseif opt.version then
+    version (prog)
   end
   if opt.version or opt.help then
     os.exit ()

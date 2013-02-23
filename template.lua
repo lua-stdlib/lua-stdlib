@@ -1,8 +1,11 @@
 #! /usr/bin/env lua
 prog = {
-  name = "",
-  banner = " VERSION (DATE) by AUTHOR <EMAIL>)",
-  purpose = "",
+  name        = arg[0]:gsub ("^.*/", ""),,
+  version     = "VERSION (DATE) by AUTHOR <EMAIL>)",
+  purpose     = "ONE LINE DESCRIPTION OF WHAT THIS PROGRAM DOES",
+  description = "optional longer description of how to use this program",
+  copyright   = "Copyright (C) YEAR COPYRIGHT-HOLDER",
+  notes       = "Usage footer messasge",
 }
 
 
@@ -22,9 +25,6 @@ prog.options = {
 
 -- Main routine
 getopt.processArgs (prog)
-if table.getn (arg) == 0 then
-  getopt.dieWithUsage ()
-end
 io.processFiles (main)
 
 
