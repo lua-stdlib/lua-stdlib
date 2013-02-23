@@ -204,6 +204,7 @@ local function usage (prog)
   if prog.usage then
     usage = prog.usage
   end
+  usage = "Usage: " .. prog.name .. " " .. usage
   if prog.purpose then
       purpose = "\n\n" .. prog.purpose
   end
@@ -220,8 +221,7 @@ local function usage (prog)
       notes = notes .. prog.notes
     end
   end
-  local header = "Usage: " .. prog.name .. " " .. usage ..
-                 purpose .. description
+  local header = usage .. purpose .. description
   io.writelines (usageInfo (header, prog.options) .. notes)
 end
 
@@ -252,19 +252,20 @@ local function processArgs (prog)
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
   end
-  if #errors > 0 or opt.help then
+  if #errors > 0 then
     local name = prog.name
     prog.name = nil
     if #errors > 0 then
-      warn (table.concat (errors, "\n") .. "\n")
+      warn (name .. ": " .. table.concat (errors, "\n"))
+      warn (name .. ": Try '" .. (arg[0] or name) .. " --help' for more help")
     end
-    prog.name = name
-    usage (prog)
     if #errors > 0 then
       error ()
     end
   elseif opt.version then
     version (prog)
+  elseif opt.help then
+    usage (prog)
   end
   if opt.version or opt.help then
     os.exit ()
