@@ -204,7 +204,7 @@ local function usage (prog)
     usage = prog.usage
   end
   if prog.purpose then
-    purpose = "\n" .. prog.purpose
+    purpose = "\n\n" .. prog.purpose
   end
   if prog.notes then
     notes = "\n\n"
