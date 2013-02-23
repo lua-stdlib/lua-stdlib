@@ -16,7 +16,7 @@ end
 
 -- Command-line options
 options = {
-  Option {{"test", "t"},
+  getopt.Option {{"test", "t"},
     "test option"},
 }
 

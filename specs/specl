@@ -40,7 +40,9 @@ prog = {
 }
 
 options = {
-  Option {{"verbose", "v"}, "verbose mode"},
+  getopt.Option {{"help"}, "print this help, then exit"},
+  getopt.Option {{"version"}, "print version number, then exit"},
+  getopt.Option {{"verbose", "v"}, "verbose mode"},
 }
 
 

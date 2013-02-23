@@ -13,8 +13,6 @@
 -- below, and the example at the end). Set _DEBUG.std to a non-nil
 -- value to run the example.
 -- <ul>
--- <li>TODO: Sort out the packaging. getopt.Option is tedious to type, but
--- surely Option shouldn't be in the root namespace?</li>
 -- <li>TODO: Wrap all messages; do all wrapping in processArgs, not
 -- usageInfo; use sdoc-like library (see string.format todos).</li>
 -- <li>TODO: Don't require name to be repeated in banner.</li>
@@ -83,15 +81,15 @@ local function getOpt (argIn, options)
 end
 
 
---- Options table type.
+--- Object that defines a single Option entry.
 -- @class table
--- @name _G.Option
--- @field name list of names
+-- @name Option
+-- @field name list of option names
 -- @field desc description of this option
--- @field type type of argument (if any): <code>Req</code>(uired),
+-- @field type type of option argument (if any): <code>Req</code>(uired),
 -- <code>Opt</code>(ional)
--- @field var descriptive name for the argument
-_G.Option = Object {_init = {"name", "desc", "type", "var"}}
+-- @field var descriptive name for the option argument
+local Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
 local function makeOptions (t)
@@ -279,6 +277,7 @@ end
 -- Public interface
 return table.merge (M, {
   getOpt      = getOpt,
+  Option      = Option,
   processArgs = processArgs,
   usage       = usage,
   usageInfo   = usageInfo,
