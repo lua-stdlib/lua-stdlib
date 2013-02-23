@@ -38,6 +38,7 @@ SOURCES = 				\
 	$(NOTHING_ELSE)
 
 SPECS =					\
+	specs/getopt_spec.lua		\
 	specs/package_ext_spec.lua	\
 	specs/string_ext_spec.lua	\
 	specs/table_ext_spec.lua	\

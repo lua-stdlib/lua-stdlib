@@ -245,9 +245,9 @@ end
 -- @param prog table of named parameters
 local function processArgs (prog)
   local totArgs = #arg
-  local options = makeOptions (prog.options)
   local errors
-  _G.arg, M.opt, errors = getopt.getOpt (arg, options)
+  prog.options = makeOptions (prog.options)
+  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
@@ -272,48 +272,6 @@ local function processArgs (prog)
   end
 end
 
-
--- A small and hopefully enlightening example:
-if type (_DEBUG) == "table" and _DEBUG.std then
-
-  options = makeOptions ({
-                           Option {{"verbose", "v"}, "verbosely list files"},
-                           Option {{"output", "o"}, "dump to FILE", "Opt", "FILE"},
-                           Option {{"name", "n"}, "only dump USER's files", "Req", "USER"},
-                       })
-
-  function test (cmdLine)
-    local nonOpts, opts, errors = getopt.getOpt (cmdLine, options)
-    if #errors == 0 then
-      print ("options=" .. tostring (opts) ..
-             "  args=" .. tostring (nonOpts) .. "\n")
-    else
-      print (table.concat (errors, "\n") .. "\n" ..
-             usageInfo ("Usage: foobar [OPTION...] FILE...",
-                        options))
-    end
-  end
-
-  -- FIXME: Turn the following documentation into unit tests
-  prog = {name = "foobar"} -- for errors
-  -- Example runs:
-  test {"foo", "-v"}
-  -- options={verbose={1}}  args={1=foo}
-  test {"foo", "--", "-v"}
-  -- options={}  args={1=foo,2=-v}
-  test {"-o", "-V", "-name", "bar", "--name=baz"}
-  -- options={name={"baz"},version={1},output={1}}  args={}
-  test {"-foo"}
-  -- unrecognized option `-foo'
-  -- Usage: foobar [OPTION]... [FILE]...
-  --
-  --   -v, -verbose                verbosely list files
-  --   -o, -output[=FILE]          dump to FILE
-  --   -n, -name=USER              only dump USER's files
-  --   -V, -version                output version information and exit
-  --   -h, -help                   display this help and exit
-
-end
 
 -- Public interface
 return table.merge (M, {
