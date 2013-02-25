@@ -108,8 +108,6 @@ function processFiles (f)
     else
       io.input (v)
     end
-    prog.file = v
     f (v, i)
   end
-  prog.file = nil
 end
