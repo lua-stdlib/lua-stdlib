@@ -26,24 +26,25 @@ package.path = "specs/lib/?.lua;src/?.lua;" .. package.path
 
 local specl = require "specl"
 
--- TODO: remove fake specs
--- TODO: write some specs for specl!
 -- TODO: make sure it really works with 5.1
--- TODO: Environment sharing between before/example/after is not right :(
 
 prog = {
-  name    = arg[0]:gsub ("^.*/", ""),
-  banner  = "Specl 0.1 by Gary V. Vaughan <gary@gnu.org>",
-  purpose = "A specification testing framework.",
-  notes   = "Copyright (c) 2013 Gary V. Vaughan\n" ..
+  name        = arg[0]:gsub ("^.*/", ""),
+  version     = "Specl 0.1\nWritten by Gary V. Vaughan <gary@gnu.org>, 2013",
+  purpose     = "A specification testing framework.",
+  description = "Execute specifications from FILEs or standard input, " ..
+    "reporting results on standard output.\nIf no FILE is listed, or w" ..
+    "here '-' is given as a FILE, read from standard input.",
+  copyright = "Copyright (c) 2013 Gary V. Vaughan\n" ..
     "Specl comes with ABSOLUTELY NO WARRANTY.\n" ..
     "You may redistribute copies of Specl under the terms of the GNU\n" ..
-    "General Public License; either version 3, or any later version.\n" ..
-    "Report bugs at http://github.com/gvvaughan/specl/issues."
-}
-
-options = {
-  Option {{"verbose", "v"}, "verbose mode"},
+    "General Public License; either version 3, or any later version.",
+  notes     = "Report bugs at http://github.com/gvvaughan/specl/issues.",
+  options = {
+    getopt.Option {{"help"}, "print this help, then exit"},
+    getopt.Option {{"version"}, "print version number, then exit"},
+    getopt.Option {{"verbose", "v"}, "verbose mode"},
+  }
 }
 
 
@@ -79,8 +80,6 @@ function slurp (filename)
 end
 
 
-getopt.processArgs ()
+getopt.processArgs (prog)
 io.processFiles (slurp)
-specl.run (spec, getopt.opt.verbose and specl.report)
-
-os.exit (0)
+os.exit (specl.run (spec, getopt.opt.verbose and specl.report) and 0 or 1)

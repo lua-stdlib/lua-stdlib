@@ -50,18 +50,6 @@
 		<a href="../modules/math.html">math</a>
 	</li>
 
-	<li>
-		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/string.html">string</a>
-	</li>
-
-	<li>
-		<a href="../modules/table.html">table</a>
-	</li>
-
 </ul>
 
 
@@ -194,12 +182,12 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;()</td>
+	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;(prog)</td>
 	<td class="summary">Simple getOpt wrapper.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#usage">usage</a>&nbsp;()</td>
+	<td class="name" nowrap><a href="#usage">usage</a>&nbsp;(prog)</td>
 	<td class="summary">Emit a usage message.</td>
 	</tr>
 
@@ -217,8 +205,8 @@
 <table class="table_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#_G.Option">_G.Option</a></td>
-	<td class="summary">Options table type.</td>
+	<td class="name" nowrap><a href="#Option">Option</a></td>
+	<td class="summary">Object that defines a single Option entry.</td>
 	</tr>
 
 </table>
@@ -303,10 +291,19 @@ Options table constructor: adds lookup tables for the option names
 
 
 
-<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;()</dt>
+<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;(prog)</dt>
 <dd>
-Simple getOpt wrapper. Adds <code>-version</code>/<code>-V</code> and <code>-help</code>/<code>-h</code> automatically; stops program if there was an error, or if <code>-help</code> or <code>-version</code> was used.
+Simple getOpt wrapper. If the caller didn't supply their own already, adds <code>--version</code>/<code>-V</code> and <code>--help</code>/<code>-h</code> options automatically; stops program if there was an error, or if <code>--help</code> or <code>--version</code> was used.
 
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  prog: table of named parameters
+	</li>
+	
+</ul>
 
 
 
@@ -320,10 +317,19 @@ Simple getOpt wrapper. Adds <code>-version</code>/<code>-V</code> and <code>-hel
 
 
 
-<dt><a name="usage"></a><strong>usage</strong>&nbsp;()</dt>
+<dt><a name="usage"></a><strong>usage</strong>&nbsp;(prog)</dt>
 <dd>
 Emit a usage message.
 
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  prog: table of named parameters
+	</li>
+	
+</ul>
 
 
 
@@ -380,15 +386,15 @@ formatted string
 <h2><a name="tables"></a>Tables</h2>
 <dl class="table">
 
-<dt><a name="_G.Option"></a><strong>_G.Option</strong></dt>
-<dd>Options table type.
+<dt><a name="Option"></a><strong>Option</strong></dt>
+<dd>Object that defines a single Option entry.
 
 
 <em>Fields</em>
 <ul>
 	
 	<li>
-	  name: list of names
+	  name: list of option names
 	</li>
 	
 	<li>
@@ -396,11 +402,11 @@ formatted string
 	</li>
 	
 	<li>
-	  type: type of argument (if any): <code>Req</code>(uired), <code>Opt</code>(ional)
+	  type: type of option argument (if any): <code>Req</code>(uired), <code>Opt</code>(ional)
 	</li>
 	
 	<li>
-	  var: descriptive name for the argument
+	  var: descriptive name for the option argument
 	</li>
 	
 </ul>

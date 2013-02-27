@@ -50,18 +50,6 @@
 		<a href="../modules/math.html">math</a>
 	</li>
 
-	<li>
-		<a href="../modules/package.html">package</a>
-	</li>
-
-	<li>
-		<a href="../modules/string.html">string</a>
-	</li>
-
-	<li>
-		<a href="../modules/table.html">table</a>
-	</li>
-
 </ul>
 
 
@@ -175,8 +163,6 @@
 <h1>File <code>string_ext.lua</code></h1>
 
 
-<p>Additions to the string module TODO: Pretty printing (use in getopt); see source for details.</p>
-
 
 
 
@@ -196,7 +182,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#escapePattern">escapePattern</a>&nbsp;(s)</td>
+	<td class="name" nowrap><a href="#escape_pattern">escape_pattern</a>&nbsp;(s)</td>
 	<td class="summary">Escape a string to be used as a pattern </td>
 	</tr>
 
@@ -216,7 +202,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#ordinalSuffix">ordinalSuffix</a>&nbsp;(n)</td>
+	<td class="name" nowrap><a href="#ordinal_suffix">ordinal_suffix</a>&nbsp;(n)</td>
 	<td class="summary">Return the English suffix for an ordinal.</td>
 	</tr>
 
@@ -326,7 +312,7 @@ processed string
 
 
 
-<dt><a name="escapePattern"></a><strong>escapePattern</strong>&nbsp;(s)</dt>
+<dt><a name="escape_pattern"></a><strong>escape_pattern</strong>&nbsp;(s)</dt>
 <dd>
 Escape a string to be used as a pattern
 
@@ -406,7 +392,7 @@ Remove leading matter from a string.
 	</li>
 	
 	<li>
-	  r: leading regex (default: <code>"%s+"</code>)
+	  r: leading pattern (default: <code>"%s+"</code>)
 	</li>
 	
 </ul>
@@ -455,7 +441,7 @@ string
 
 
 
-<dt><a name="ordinalSuffix"></a><strong>ordinalSuffix</strong>&nbsp;(n)</dt>
+<dt><a name="ordinal_suffix"></a><strong>ordinal_suffix</strong>&nbsp;(n)</dt>
 <dd>
 Return the English suffix for an ordinal.
 
@@ -534,7 +520,7 @@ Remove trailing matter from a string.
 	</li>
 	
 	<li>
-	  r: trailing regex (default: <code>"%s+"</code>)
+	  r: trailing pattern (default: <code>"%s+"</code>)
 	</li>
 	
 </ul>
@@ -567,7 +553,7 @@ Split a string at a given separator. FIXME: Consider Perl and Python versions.
 	</li>
 	
 	<li>
-	  sep: separator regex
+	  sep: separator pattern
 	</li>
 	
 </ul>
@@ -641,7 +627,7 @@ Remove leading and trailing matter from a string.
 	</li>
 	
 	<li>
-	  r: leading/trailing regex (default: <code>"%s+"</code>)
+	  r: leading/trailing pattern (default: <code>"%s+"</code>)
 	</li>
 	
 </ul>

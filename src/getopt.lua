@@ -1,9 +1,18 @@
 --- Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br>
 -- Usage:
 -- <ul>
--- <li><code>options = {Option {...}, ...}</br>
--- getopt.processArgs ()</code></li>
--- <li>Assumes <code>prog = {name[, banner] [, purpose] [, notes] [, usage]}</code></li>
+-- <li><code>prog = {<
+--     name = <progname>,
+--     [usage = <usage line>,]
+--     [options = {
+--        {Option {<names>}, <desc>, [<type>,] [var]},
+--        ...
+--     },]
+--     [banner = <banner string>,]
+--     [purpose = <purpose string>,]
+--     [notes = <additional notes>]
+-- }</code></li>
+-- <li><code>getopt.processArgs (prog)</code></li>
 -- <li>Options take a single dash, but may have a double dash.</li>
 -- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
 -- <li>If an option taking an argument is given multiple times, only the
@@ -13,8 +22,6 @@
 -- below, and the example at the end). Set _DEBUG.std to a non-nil
 -- value to run the example.
 -- <ul>
--- <li>TODO: Sort out the packaging. getopt.Option is tedious to type, but
--- surely Option shouldn't be in the root namespace?</li>
 -- <li>TODO: Wrap all messages; do all wrapping in processArgs, not
 -- usageInfo; use sdoc-like library (see string.format todos).</li>
 -- <li>TODO: Don't require name to be repeated in banner.</li>
@@ -25,6 +32,10 @@ require "base"
 local list = require "list"
 require "string_ext"
 local Object = require "object"
+
+local M = {
+  opt = {},
+}
 
 
 --- Perform argument processing
@@ -83,35 +94,42 @@ local function getOpt (argIn, options)
 end
 
 
---- Options table type.
+--- Object that defines a single Option entry.
 -- @class table
--- @name _G.Option
--- @field name list of names
+-- @name Option
+-- @field name list of option names
 -- @field desc description of this option
--- @field type type of argument (if any): <code>Req</code>(uired),
+-- @field type type of option argument (if any): <code>Req</code>(uired),
 -- <code>Opt</code>(ional)
--- @field var descriptive name for the argument
-_G.Option = Object {_init = {"name", "desc", "type", "var"}}
+-- @field var descriptive name for the option argument
+local Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
 local function makeOptions (t)
-  t = list.concat (t or {},
-                   {Option {{"version", "V"},
-                            "output version information and exit"},
-                    Option {{"help", "h"},
-                            "display this help and exit"}}
-               )
-  local name = {}
-  for v in list.elems (t) do
-    for j, s in pairs (v.name) do
+  local options, name = {}, {}
+  local function appendOpt (v, nodupes)
+    local dupe = false
+    for s in list.elems (v.name) do
       if name[s] then
-        warn ("duplicate option '%s'", s)
+	dupe = true
       end
       name[s] = v
     end
+    if not dupe or nodupes ~= true then
+      if dupe then warn ("duplicate option '%s'", s) end
+      for s in list.elems (v.name) do name[s] = v end
+      options = list.concat (options, {v})
+    end
   end
-  t.name = name
-  return t
+  for v in list.elems (t or {}) do
+    appendOpt (v)
+  end
+  -- Unless they were supplied already, add version and help options
+  appendOpt (Option {{"version", "V"}, "print version information, then exit"},
+             true)
+  appendOpt (Option {{"help", "h"}, "print this help, then exit"}, true)
+  options.name = name
+  return options
 end
 
 
@@ -128,7 +146,7 @@ local function usageInfo (header, optDesc, pageWidth)
   -- @return description
   local function fmtOpt (opt)
     local function fmtName (o)
-      return "-" .. o
+      return (#o > 1 and "--" or "-") .. o
     end
     local function fmtArg ()
       if opt.type == nil then
@@ -141,7 +159,11 @@ local function usageInfo (header, optDesc, pageWidth)
     end
     local textName = list.reverse (list.map (fmtName, opt.name))
     textName[#textName] = textName[#textName] .. fmtArg ()
-    return {table.concat ({table.concat (textName, ", ")}, ", "),
+    local indent = ""
+    if #opt.name == 1 and #opt.name[1] > 1 then
+      indent = "    "
+    end
+    return {indent .. table.concat ({table.concat (textName, ", ")}, ", "),
       opt.desc}
   end
   local function sameLen (xs)
@@ -175,13 +197,21 @@ local function usageInfo (header, optDesc, pageWidth)
 end
 
 --- Emit a usage message.
-local function usage ()
-  local usage, purpose, notes = "[OPTION]... [FILE]...", "", ""
+-- @param prog table of named parameters
+local function usage (prog)
+  local usage = "[OPTION]... [FILE]..."
+  local purpose, description, notes = "", "", ""
   if prog.usage then
     usage = prog.usage
   end
+  usage = "Usage: " .. prog.name .. " " .. usage
   if prog.purpose then
-    purpose = "\n" .. prog.purpose
+      purpose = "\n\n" .. prog.purpose
+  end
+  if prog.description then
+    for para in list.elems (string.split (prog.description, "\n")) do
+      description = description .. "\n\n" .. string.wrap (para)
+    end
   end
   if prog.notes then
     notes = "\n\n"
@@ -191,94 +221,62 @@ local function usage ()
       notes = notes .. prog.notes
     end
   end
-  io.writelines (usageInfo ("Usage: " .. prog.name .. " " .. usage .. purpose,
-                            options)
-                 .. notes)
+  local header = usage .. purpose .. description
+  io.writelines (usageInfo (header, prog.options) .. notes)
 end
 
 
---- Simple getOpt wrapper.
--- Adds <code>-version</code>/<code>-V</code> and
--- <code>-help</code>/<code>-h</code> automatically;
--- stops program if there was an error, or if <code>-help</code> or
--- <code>-version</code> was used.
-local M = {
-  opt = {},
-}
+local function version (prog)
+  local version = prog.version or prog.name or "unknown version!"
+  if prog.copyright then
+    version = version .. "\n\n" .. prog.copyright
+  end
+  io.writelines (version)
+end
 
-local function processArgs ()
+
+
+--- Simple getOpt wrapper.
+-- If the caller didn't supply their own already,
+-- adds <code>--version</code>/<code>-V</code> and
+-- <code>--help</code>/<code>-h</code> options automatically;
+-- stops program if there was an error, or if <code>--help</code> or
+-- <code>--version</code> was used.
+-- @param prog table of named parameters
+local function processArgs (prog)
   local totArgs = #arg
-  options = makeOptions (options)
   local errors
-  _G.arg, M.opt, errors = getopt.getOpt (arg, options)
+  prog.options = makeOptions (prog.options)
+  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
   end
-  if #errors > 0 or opt.help then
+  if #errors > 0 then
     local name = prog.name
     prog.name = nil
     if #errors > 0 then
-      warn (table.concat (errors, "\n") .. "\n")
+      warn (name .. ": " .. table.concat (errors, "\n"))
+      warn (name .. ": Try '" .. (arg[0] or name) .. " --help' for more help")
     end
-    prog.name = name
-    usage ()
     if #errors > 0 then
       error ()
     end
+  elseif opt.version then
+    version (prog)
+  elseif opt.help then
+    usage (prog)
   end
   if opt.version or opt.help then
     os.exit ()
   end
 end
-_G.options = nil
 
-
--- A small and hopefully enlightening example:
-if type (_DEBUG) == "table" and _DEBUG.std then
-
-  options = makeOptions ({
-                           Option {{"verbose", "v"}, "verbosely list files"},
-                           Option {{"output", "o"}, "dump to FILE", "Opt", "FILE"},
-                           Option {{"name", "n"}, "only dump USER's files", "Req", "USER"},
-                       })
-
-  function test (cmdLine)
-    local nonOpts, opts, errors = getopt.getOpt (cmdLine, options)
-    if #errors == 0 then
-      print ("options=" .. tostring (opts) ..
-             "  args=" .. tostring (nonOpts) .. "\n")
-    else
-      print (table.concat (errors, "\n") .. "\n" ..
-             usageInfo ("Usage: foobar [OPTION...] FILE...",
-                        options))
-    end
-  end
-
-  -- FIXME: Turn the following documentation into unit tests
-  prog = {name = "foobar"} -- for errors
-  -- Example runs:
-  test {"foo", "-v"}
-  -- options={verbose={1}}  args={1=foo}
-  test {"foo", "--", "-v"}
-  -- options={}  args={1=foo,2=-v}
-  test {"-o", "-V", "-name", "bar", "--name=baz"}
-  -- options={name={"baz"},version={1},output={1}}  args={}
-  test {"-foo"}
-  -- unrecognized option `-foo'
-  -- Usage: foobar [OPTION]... [FILE]...
-  --
-  --   -v, -verbose                verbosely list files
-  --   -o, -output[=FILE]          dump to FILE
-  --   -n, -name=USER              only dump USER's files
-  --   -V, -version                output version information and exit
-  --   -h, -help                   display this help and exit
-
-end
 
 -- Public interface
 return table.merge (M, {
   getOpt      = getOpt,
+  Option      = Option,
   processArgs = processArgs,
   usage       = usage,
   usageInfo   = usageInfo,

@@ -182,22 +182,32 @@ local matchers = {
   end,
 
   -- Matches if VALUE matches regular expression PATTERN.
-  match = function (target, pattern)
-    if type (target) ~= 'string' then
-      error ("type error, 'match' matcher expecting target as string")
+  match = function (value, pattern)
+    if type (value) ~= "string" then
+      error ("'match' matcher: string expected, but got " .. type (value))
     end
     local m = "expecting string matching " .. q(pattern) .. ", but got " .. q(value)
-    return (string.match (value, pattern) == true), m
+    return (value:match (pattern) ~= nil), m
   end,
 
-  -- Matches if VALUE contains the string EXPECTED.
+  -- Matches if VALUE contains EXPECTED.
   contain = function (value, expected)
-    if type (target) ~= 'string' then
-      error ("type error, 'contain' matcher expecting target as string")
+    if type (value) == "string" and type (expected) == "string" then
+      -- Look for a substring if VALUE is a string.
+      local pattern = expected:gsub ("%W", "%%%0")
+      local m = "expecting string containing " .. q(expected) .. ", but got " .. q(value)
+      return (value:match (pattern) ~= nil), m
+    elseif type (value) == "table" then
+      -- Do deep comparison against keys and values of the table.
+      local m = "expecting table containing " .. q(expected) .. ", but got " .. q(value)
+      for k, v in pairs (value) do
+        if objcmp (k, expected) or objcmp (v, expected) then
+          return true, m
+        end
+      end
+      return false, m
     end
-    local m = "expecting string containing " .. q(expected) .. ", but got " .. q(value)
-    local pattern = ".*" .. expected:gsub ("%W", "%%%0") .. ".*"
-    return (string.match (value, pattern)), m
+    error ("'contain' matcher: string or table expected, but got " .. type (value))
   end,
 }
 
@@ -309,9 +319,10 @@ end
 
 local function run (spec, format)
   formatter = format or formatter
-  formatter.header (stats)
+  formatter.header (_G.stats)
   run_specs (spec)
-  formatter.footer (stats)
+  formatter.footer (_G.stats)
+  return _G.stats.fail == 0
 end
 
 
@@ -320,10 +331,18 @@ end
 --[[ ----------------- ]]--
 
 local M = {
+  _VERSION  = "0.1",
+
   matchers  = matchers,
   progress  = progress,
   report    = report,
   run       = run,
 }
+
+
+if _G._SPEC then
+  -- Give specs access to some additional private access points.
+  M = table.merge (M, { _expect = expect })
+end
 
 return M
