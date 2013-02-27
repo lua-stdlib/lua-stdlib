@@ -58,6 +58,7 @@ EXTRA_DIST =				\
 	specs/specl			\
 	specs/lib/specl.lua		\
 	src/std.lua.in			\
+	GNUmakefile			\
 	$(SPECS)			\
 	$(NOTHING_ELSE)
 
