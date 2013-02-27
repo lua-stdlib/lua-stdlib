@@ -48,14 +48,12 @@ define unpack-distcheck-release
 endef
 
 check-in-release: distcheck
-	current_branch=`$(GIT) symbolic-ref HEAD`; \
 	{ $(GIT) checkout -b release 2>/dev/null || $(GIT) checkout release; } && \
 	{ $(GIT) pull origin release || true; } && \
 	$(unpack-distcheck-release) && \
 	$(GIT) add . && \
 	$(GIT) commit -a -m "Release v$(VERSION)" && \
-	$(GIT) tag -f -a -m "Full source release tag" release-v$(VERSION); \
-	$(GIT) checkout `echo "$$current_branch" | sed 's,.*/,,g'`
+	$(GIT) tag -f -a -m "Full source release tag" release-v$(VERSION)
 
 
 ## To test the release process without publishing upstream, use:
@@ -67,6 +65,7 @@ WOGER_ENV = LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec'
 WOGER_OUT = $(WOGER_ENV) $(LUA) -l$(PACKAGE) -e
 
 release: rockspecs
+	current_branch=`$(GIT) symbolic-ref HEAD`; \
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	$(GIT_PUBLISH) push && $(GIT_PUBLISH) push --tags && \
@@ -79,5 +78,6 @@ release: rockspecs
 	  notes=release-notes-$(VERSION) \
 	  home="`$(WOGER_OUT) 'print (description.homepage)'`" \
 	  description="`$(WOGER_OUT) 'print (description.summary)'`"
+	$(GIT) checkout `echo "$$current_branch" | sed 's,.*/,,g'`
 
 endif
