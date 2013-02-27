@@ -51,9 +51,9 @@ POST_UNINSTALL = :
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(srcdir)/luarocks-config.lua.in $(dist_data_DATA) \
-	$(dist_doc_DATA) $(dist_files_DATA) $(dist_modules_DATA) \
-	AUTHORS INSTALL README build-aux/install-sh build-aux/missing \
+	$(dist_data_DATA) $(dist_doc_DATA) $(dist_files_DATA) \
+	$(dist_modules_DATA) AUTHORS INSTALL README \
+	build-aux/install-sh build-aux/missing \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -65,7 +65,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES = luarocks-config.lua
+CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -291,6 +291,7 @@ EXTRA_DIST = \
 	specs/specl			\
 	specs/lib/specl.lua		\
 	src/std.lua.in			\
+	GNUmakefile			\
 	$(SPECS)			\
 	$(NOTHING_ELSE)
 
@@ -332,8 +333,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-luarocks-config.lua: $(top_builddir)/config.status $(srcdir)/luarocks-config.lua.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
@@ -776,11 +775,6 @@ src/std.lua: src/std.lua.in
 
 $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
-
-rockspecs:
-	rm -f *.rockspec
-	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
-	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
 
 check-local:
 	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua

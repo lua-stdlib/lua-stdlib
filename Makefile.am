@@ -58,6 +58,7 @@ EXTRA_DIST =				\
 	specs/specl			\
 	specs/lib/specl.lua		\
 	src/std.lua.in			\
+	GNUmakefile			\
 	$(SPECS)			\
 	$(NOTHING_ELSE)
 
@@ -72,11 +73,6 @@ src/std.lua: src/std.lua.in
 
 $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
-
-rockspecs:
-	rm -f *.rockspec
-	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) $(VERSION)
-	$(LUA_ENV) $(LUA) mkrockspecs.lua $(PACKAGE) git
 
 check-local:
 	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua
