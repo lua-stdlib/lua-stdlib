@@ -14,5 +14,5 @@ AX_WITH_PROG([LUADOC], [luadoc], [:])
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
-AC_CONFIG_FILES([Makefile luarocks-config.lua])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
