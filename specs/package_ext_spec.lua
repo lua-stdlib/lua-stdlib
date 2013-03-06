@@ -22,7 +22,7 @@
     {["it splits package.config up"] = function ()
       expect (string.format ("%s\n%s\n%s\n%s\n%s\n",
               package.dirsep, package.pathsep, package.path_mark, package.execdir, package.igmark)
-      ).should_be (package.config)
+      ).should_contain (package.config)
     end},
     {["it doesn't override any other module access points"] = function ()
 
