@@ -37,10 +37,10 @@ SOURCES = 				\
 	$(NOTHING_ELSE)
 
 SPECS =						\
-	$(srcdir)/specs/getopt_spec.lua		\
-	$(srcdir)/specs/package_ext_spec.lua	\
-	$(srcdir)/specs/string_ext_spec.lua	\
-	$(srcdir)/specs/table_ext_spec.lua	\
+	$(srcdir)/specs/getopt_spec.yaml	\
+	$(srcdir)/specs/package_ext_spec.yaml	\
+	$(srcdir)/specs/string_ext_spec.yaml	\
+	$(srcdir)/specs/table_ext_spec.yaml	\
 	$(NOTHING_ELSE)
 
 dist_data_DATA = $(SOURCES)
