@@ -5,13 +5,16 @@
 --     name = <progname>,
 --     [usage = <usage line>,]
 --     [options = {
---        {Option {<names>}, <desc>, [<type>,] [var]},
+--        {{<name>[, ...]}, <desc>, [<type> [, <var>]]},
 --        ...
 --     },]
 --     [banner = <banner string>,]
 --     [purpose = <purpose string>,]
 --     [notes = <additional notes>]
 -- }</code></li>
+-- <li>The <code>type</code> of option argument is one of <code>Req</code>(uired),
+-- <code>Opt</code>(ional)</li>
+-- <li>The <code>var</code>is a descriptive name for the option argument.</li>
 -- <li><code>getopt.processArgs (prog)</code></li>
 -- <li>Options take a single dash, but may have a double dash.</li>
 -- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
@@ -96,14 +99,7 @@ local function getOpt (argIn, options, undefined_options)
 end
 
 
---- Object that defines a single Option entry.
--- @class table
--- @name Option
--- @field name list of option names
--- @field desc description of this option
--- @field type type of option argument (if any): <code>Req</code>(uired),
--- <code>Opt</code>(ional)
--- @field var descriptive name for the option argument
+-- Object that defines a single Option entry.
 local Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
@@ -111,6 +107,7 @@ local function makeOptions (t)
   local options, name = {}, {}
   local function appendOpt (v, nodupes)
     local dupe = false
+    v = Option (v)
     for s in list.elems (v.name) do
       if name[s] then
 	dupe = true
@@ -127,9 +124,9 @@ local function makeOptions (t)
     appendOpt (v)
   end
   -- Unless they were supplied already, add version and help options
-  appendOpt (Option {{"version", "V"}, "print version information, then exit"},
+  appendOpt ({{"version", "V"}, "print version information, then exit"},
              true)
-  appendOpt (Option {{"help", "h"}, "print this help, then exit"}, true)
+  appendOpt ({{"help", "h"}, "print this help, then exit"}, true)
   options.name = name
   return options
 end
@@ -143,7 +140,7 @@ end
 local function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- Format the usage info for a single option
-  -- @param opt the Option table
+  -- @param opt the option table
   -- @return options
   -- @return description
   local function fmtOpt (opt)
@@ -279,7 +276,6 @@ end
 -- Public interface
 return table.merge (M, {
   getOpt      = getOpt,
-  Option      = Option,
   processArgs = processArgs,
   usage       = usage,
   usageInfo   = usageInfo,

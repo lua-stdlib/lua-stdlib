@@ -1,16 +1,14 @@
 specify getopt:
 - before:
     getopt = require "getopt"
-    Option = getopt.Option
 
 - "describe getopt.getOpt":
   - before: |
       prog = {
         name = "getopt_spec.lua",
-        options = { Option {{"verbose", "v"}, "verbosely list files"},
-                    Option {{"output", "o"}, "dump to FILE", "Opt", "FILE"},
-                    Option {{"name", "n"},
-                             "only dump USER's files", "Req", "USER"},
+        options = { {{"verbose", "v"}, "verbosely list files"},
+                    {{"output", "o"}, "dump to FILE", "Opt", "FILE"},
+                    {{"name", "n"}, "only dump USER's files", "Req", "USER"},
                   }
       }
 
@@ -47,8 +45,8 @@ specify getopt:
         helppatt    = "%-h, %-%-help%s+print this help, then exit"
         versionpatt = "%-V, %-%-version%s+print version information, then exit"
         prog        = { name = "getopt_spec.lua", options = {} }
-        options     = { Option {{"help", "?"}, "display this help"},
-                        Option {{"version"}, "display version number"} }
+        options     = { {{"help", "?"}, "display this help"},
+                        {{"version"}, "display version number"} }
         f           = getopt.usageInfo
 
     - it provides a default version option:
