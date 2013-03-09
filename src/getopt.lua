@@ -41,10 +41,11 @@ local M = {
 --- Perform argument processing
 -- @param argIn list of command-line args
 -- @param options options table
+-- @param undefined_options if true, allow and collect undefined options
 -- @return table of remaining non-options
 -- @return table of option key-value list pairs
 -- @return table of error messages
-local function getOpt (argIn, options)
+local function getOpt (argIn, options, undefined_options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -70,7 +71,8 @@ local function getOpt (argIn, options)
 
   local function parseOpt (opt, arg)
     local o = options.name[opt]
-    if o ~= nil then
+    if undefined_options or o ~= nil then
+      o = o or {name = {opt}}
       optOut[o.name[1]] = optOut[o.name[1]] or {}
       table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
     else
@@ -243,11 +245,12 @@ end
 -- stops program if there was an error, or if <code>--help</code> or
 -- <code>--version</code> was used.
 -- @param prog table of named parameters
-local function processArgs (prog)
+-- @param undefined_opts if true, allow and collect undefined options
+local function processArgs (prog, undefined_opts)
   local totArgs = #arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options)
+  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options, undefined_opts)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)

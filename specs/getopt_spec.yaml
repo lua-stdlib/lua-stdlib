@@ -14,8 +14,8 @@ specify getopt:
                   }
       }
 
-      function test (cmdLine)
-        local nonOpts, opts, errors = getopt.getOpt (cmdLine, prog.options)
+      function test (cmdLine, undefined_opts)
+        local nonOpts, opts, errors = getopt.getOpt (cmdLine, prog.options, undefined_opts)
         if #errors == 0 then
           return { options = opts, args = nonOpts }
         else
@@ -37,6 +37,9 @@ specify getopt:
             args = {} })
   - it diagnoses unrecognized options:
       expect (test {"-foo"}).should_contain "unrecognized option `-foo'"
+  - it allows unrecognized options if told to:
+      expect (test ({"-foo"}, true)).should_equal (
+          { options = { foo = {1}}, args = {} })
 
 - "describe getopt.usageInfo":
   - context when specifying options:
