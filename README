@@ -12,7 +12,7 @@ license as Lua itself). There is no warranty.
 The standard subset of stdlib has no prerequisites beyond a standard
 Lua system. The following modules have extra dependencies:
 
-  fstable: Lua 5.2
+  fstable: Lua 5.2, lfs, luaposix
 
 
 Installation
