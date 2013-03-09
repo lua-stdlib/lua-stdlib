@@ -71,5 +71,12 @@ src/std.lua: src/std.lua.in
 $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
 
+# Use 'make check V=1' for verbose output, or set SPECL_OPTS to
+# pass alternative options to specl command.
+SPECL_OPTS ?= $(specl_verbose_$(V))
+specl_verbose_ = $(specl_verbose_$(AM_DEFAULT_VERBOSITY))
+specl_verbose_0 =
+specl_verbose_1 = -v
+
 check-local:
-	$(AM_V_at)$(SPEC_ENV) specl $(SPECS)
+	$(AM_V_at)$(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS)
