@@ -2,7 +2,8 @@
 -- TODO: Pretty printing (use in getopt); see source for details.
 
 require "table_ext"
-require "strbuf"
+local list   = require "list"
+local strbuf = require "strbuf"
 
 -- Write pretty-printing based on:
 --
