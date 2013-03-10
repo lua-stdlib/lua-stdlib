@@ -247,7 +247,7 @@ local function processArgs (prog, undefined_opts)
   local totArgs = #arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options, undefined_opts)
+  _G.arg, M.opt, errors = getOpt (arg, prog.options, undefined_opts)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
