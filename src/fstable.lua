@@ -6,6 +6,7 @@
 -- (deleted) before the table itself can be set to nil.
 
 require "io_ext"
+local package = require "package_ext"
 require "table_ext"
 
 require "io_ext"

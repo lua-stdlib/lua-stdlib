@@ -1,9 +1,6 @@
 -- Additions to the package module.
 
-local table_unext = require "table_ext"
-
--- Save original unextended table.
-local unextended = table.clone (package)
+local M = {}
 
 --- Make named constants for <code>package.config</code> (undocumented
 -- in 5.1; see luaconf.h for C equivalents).
@@ -14,7 +11,11 @@ local unextended = table.clone (package)
 -- @field path_mark string that marks substitution points in a path template
 -- @field execdir (Windows only) replaced by the executable's directory in a path
 -- @field igmark Mark to ignore all before it when building <code>luaopen_</code> function name.
-package.dirsep, package.pathsep, package.path_mark, package.execdir, package.igmark =
+M.dirsep, M.pathsep, M.path_mark, M.execdir, M.igmark =
   string.match (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
 
-return unextended
+for k, v in pairs (package) do
+  M[k] = M[k] or v
+end
+
+return M

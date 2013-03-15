@@ -13,6 +13,8 @@ for _, m in ipairs (require "modules") do
   _G[m] = require (m)
 end
 
+_G.package = _G.package_ext
+
 local M = {
   version = version,
 }
