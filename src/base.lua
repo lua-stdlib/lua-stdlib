@@ -7,7 +7,7 @@ module ("base", package.seeall)
 -- @name _G.op
 _G.op = {}
 
-require "table_ext"
+local table = require "table_ext"
 local list = require "list"
 require "string_ext"
 --require "io_ext" FIXME: allow loops

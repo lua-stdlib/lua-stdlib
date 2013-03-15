@@ -1,8 +1,5 @@
 -- Extensions to the table module
 
---local list = require "list" FIXME: allow require loops
-
-
 local _sort = table.sort
 --- Make table.sort return its result.
 -- @param t table
@@ -115,9 +112,6 @@ local function new (x, t)
                                   end})
 end
 
--- Save original unextended table.
-local unextended = clone (table)
-
 local M = {
   clone        = clone,
   clone_rename = clone_rename,
@@ -129,9 +123,13 @@ local M = {
   size         = size,
   sort         = sort,
   values       = values,
+
+  -- Core Lua table.sort function.
+  _sort        = _sort,
 }
 
--- Inject stdlib extensions directly into the table package.
-_G.table = merge (table, M)
+for k, v in pairs (table) do
+  M[k] = M[k] or v
+end
 
-return unextended
+return M

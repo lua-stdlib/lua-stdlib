@@ -14,6 +14,7 @@ for _, m in ipairs (require "modules") do
 end
 
 _G.package = _G.package_ext
+_G.table   = _G.table_ext.merge (_G.table, _G.table_ext)
 
 local M = {
   version = version,

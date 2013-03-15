@@ -1,7 +1,7 @@
 --- Additions to the string module
 -- TODO: Pretty printing (use in getopt); see source for details.
 
-require "table_ext"
+local table  = require "table_ext"
 local list   = require "list"
 local strbuf = require "strbuf"
 

@@ -1,10 +1,67 @@
 specify table_ext:
-- before:
-    unextended = require "table_ext"
-- "describe table.clone ()":
+- before: |
+    M = require "table_ext"
+
+    extends      = table
+    enhancements = { "sort" }
+    extensions   = { "clone", "clone_rename", "empty", "invert", "keys",
+                     "merge", "new", "size", "values" }
+
+- context when required:
+  - before:
+      enhanced = {}
+      for _, api in ipairs (enhancements) do enhanced[api] = true end
+
+  - context by name:
+    - before: |
+        function restore (g, m)
+          for _, api in ipairs (enhancements) do
+            g[api], g["_" .. api] = m[api], m["_" .. api]
+          end
+          for _, api in ipairs (extensions) do g[api] = m[api] end
+        end
+
+        for _, api in ipairs (enhancements) do
+          extends[api] = M["_" .. api]
+        end
+        for _, api in ipairs (extensions) do extends[api] = nil end
+    - after:
+        restore (extends, M)
+    - it does not perturb the global table:
+        for _, api in ipairs (extensions) do
+          expect (extends[api]).should_be (nil)
+        end
+        for _, api in ipairs (enhancements) do
+          expect (extends[api]).should_be (M["_" .. api])
+        end
+    - it contains all global access points:
+        for api in pairs (extends) do
+          if enhanced[api] then
+            expect (M[api]).should_not_be (extends[api])
+          else
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+  - context via the std module:
+    - before:
+        require "std"
+    - it adds extension apis to the global table:
+        for api in pairs (M) do
+          expect (extends[api]).should_be (M[api])
+        end
+    - it does not add any other global access points:
+        for api in pairs (extends) do
+          if not enhanced[api] then
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+
+- describe clone:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f       = table.clone
+      f       = M.clone
   - it does not just return the subject:
       expect (f (subject)).should_not_be (subject)
   - it does copy the subject:
@@ -21,10 +78,10 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo")
 
 
-- "describe table.clone_rename()":
+- describe clone_rename:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f       = table.clone_rename
+      f       = M.clone_rename
   - it does not just return the subject:
       expect (f ({}, subject)).should_not_be (subject)
   - it copies the subject:
@@ -45,9 +102,9 @@ specify table_ext:
       expect ("table expected").should_error (f, {}, "foo")
 
 
-- "describe table.empty ()":
+- describe empty:
   - before:
-      f = table.empty
+      f = M.empty
   - it returns true for an empty table:
       expect (f {}).should_be (true)
       expect (f {nil}).should_be (true)
@@ -60,10 +117,10 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo")
 
 
-- "describe table.invert ()":
+- describe invert:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = table.invert
+      f       = M.invert
   - it returns a new table:
       expect (f (subject)).should_not_be (subject)
   - it inverts keys and values in the returned table:
@@ -79,15 +136,15 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo")
 
 
-- "describe table.keys ()":
+- describe keys:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = table.keys
+      f       = M.keys
   - it returns an empty list when subject is empty:
       expect (f {}).should_equal {}
   - it makes a list of table keys:
       cmp = function (a, b) return a < b end
-      expect (table.sort (f (subject), cmp)).should_equal {"k1", "k2", "k3"}
+      expect (M.sort (f (subject), cmp)).should_equal {"k1", "k2", "k3"}
   - it does not guarantee stable ordering:
       subject = {}
       -- is this a good test? there is a vanishingly small possibility the
@@ -99,12 +156,12 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo")
 
 
-- "describe table.merge ()":
+- describe merge:
   - before: |
       -- Additional merge keys which are moderately unusual
       t1 = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
       t2 = { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = t1.k1 }
-      f  = table.merge
+      f  = M.merge
 
       target = {}
       for k, v in pairs (t1) do target[k] = v end
@@ -119,7 +176,7 @@ specify table_ext:
   - it merges keys from t2 into t1:
       expect (f (t1, t2)).should_equal (target)
   - it gives precedence to values from t2:
-      original = table.clone (t1)
+      original = M.clone (t1)
       m = f (t1, t2)      -- Merge is destructive, do it once only.
       expect (m.k3).should_be (t2.k3)
       expect (m.k3).should_not_be (original.k3)
@@ -128,9 +185,9 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo", "bar")
 
 
-- "describe table.new ()":
+- describe new:
   - before:
-      f = table.new
+      f = M.new
 
   - context when not setting a default:
     - before: default = nil
@@ -165,11 +222,11 @@ specify table_ext:
       expect ("table expected").should_error (f, nil, "foo")
 
 
-- "describe table.size ()":
+- describe size:
   - before: |
       --          - 1 -  --------- 2 ----------  -- 3 --
       subject = { "one", { { "two" }, "three" }, four = 5 }
-      f = table.size
+      f = M.size
   - it counts the number of keys in a table:
       expect (f (subject)).should_be (3)
   - it counts no keys in an empty table:
@@ -179,12 +236,12 @@ specify table_ext:
       expect ("table expected").should_error (f, "foo")
 
 
-- "describe table.sort ()":
+- describe sort:
   - before:
       subject = { 5, 2, 4, 1, 0, 3 }
       target  = { 0, 1, 2, 3, 4, 5 }
       cmp     = function (a, b) return a < b end
-      f       = table.sort
+      f       = M.sort
   - it sorts elements in place:
       f (subject, cmp)
       expect (subject).should_equal (target)
@@ -195,15 +252,15 @@ specify table_ext:
       expect ("table expected").should_error (f, nil)
 
   
-- "describe table.values ()":
+- describe values:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
-      f       = table.values
+      f       = M.values
   - it returns an empty list when subject is empty:
       expect (f {}).should_equal {}
   - it makes a list of table values:
       cmp = function (a, b) return a[1] < b[1] end
-      expect (table.sort (f (subject), cmp)).should_equal {{1}, {2}, {3}}
+      expect (M.sort (f (subject), cmp)).should_equal {{1}, {2}, {3}}
   - it does guarantee stable ordering:
       subject = {}
       -- is this a good test? or just requiring an implementation quirk?
@@ -212,23 +269,3 @@ specify table_ext:
   - "it diagnoses non-table arguments":
       expect ("table expected").should_error (f, nil)
       expect ("table expected").should_error (f, "foo")
-
-
-- context when requiring the module:
-  - before:
-      extensions = { "clone", "clone_rename", "empty", "invert", "keys",
-                     "merge", "new", "size", "sort", "values" }
-  - it returns the unextended module table:
-      for _, api in ipairs (extensions) do
-        if api ~= "sort" then
-          expect (unextended[api]).should_be (nil)
-        end
-      end
-  - it injects an enhanced sort function:
-      expect (unextended.sort).should_not_be (table.sort)
-  - it does not override any other module access points:
-      for api in pairs (unextended) do
-        if api ~= "sort" then
-          expect (table[api]).should_be (unextended[api])
-        end
-      end
