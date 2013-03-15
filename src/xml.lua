@@ -3,7 +3,7 @@
 -- @name xml
 
 require "base"
-require "string_ext"
+local string = require "string_ext"
 
 
 --- Write a table as XML.

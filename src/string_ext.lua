@@ -1,9 +1,53 @@
 --- Additions to the string module
 -- TODO: Pretty printing (use in getopt); see source for details.
 
-local table  = require "table_ext"
 local list   = require "list"
 local strbuf = require "strbuf"
+local table  = require "table_ext"
+
+local format -- forward declaration
+
+--- Extend to allow formatted arguments.
+-- @param v value to assert
+-- @param f format
+-- @param ... arguments to format
+-- @return value
+local function assert (v, f, ...)
+  if not v then
+    if f == nil then
+      f = ""
+    end
+    error (format (f, ...))
+  end
+  return v
+end
+
+local split -- forward declaration
+
+--- Require a module with a particular version
+-- @param module module to require
+-- @param min lowest acceptable version (default: any)
+-- @param too_big lowest version that is too big (default: none)
+-- @pattern pattern to match version in <code>module.version</code> or
+-- <code>module.VERSION</code> (default: <code>".*[%.%d]+"</code>
+local function require_version (module, min, too_big, pattern)
+  local function version_to_list (v)
+    return list.new (split (v, "%."))
+  end
+  local function module_version (module, pattern)
+    return version_to_list (string.match (module.version or module._VERSION,
+                                          pattern or ".*[%.%d]+"))
+  end
+  local m = require (module)
+  if min then
+    assert (module_version (m, pattern) >= version_to_list (min))
+  end
+  if too_big then
+    assert (module_version (m, pattern) < version_to_list (too_big))
+  end
+  return m
+end
+
 
 -- Write pretty-printing based on:
 --
@@ -28,6 +72,184 @@ local strbuf = require "strbuf"
 --               -> a                       What to do at the end
 --               -> Doc                     The document
 --               -> a                       Result
+
+
+--- Turn tables into strings with recursion detection.
+-- N.B. Functions calling render should not recurse, or recursion
+-- detection will not work.
+-- @see render_OpenRenderer, render_CloseRenderer
+-- @see render_ElementRenderer, render_PairRenderer
+-- @see render_SeparatorRenderer
+-- @param x object to convert to string
+-- @param open open table renderer
+-- @param close close table renderer
+-- @param elem element renderer
+-- @param pair pair renderer
+-- @param sep separator renderer
+-- @return string representation
+local function render (x, open, close, elem, pair, sep, roots)
+  local function stop_roots (x)
+    return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
+  end
+  roots = roots or {}
+  if type (x) ~= "table" or metamethod (x, "__tostring") then
+    return elem (x)
+  else
+    local s = strbuf.new ()
+    s = s .. open (x)
+    roots[x] = elem (x)
+    local i, v = nil, nil
+    for j, w in pairs (x) do
+      s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
+      i, v = j, w
+    end
+    s = s .. sep (x, i, v, nil, nil) .. close (x)
+    return s:tostring ()
+  end
+end
+
+---
+-- @class function
+-- @name render_OpenRenderer
+-- @param t table
+-- @return open table string
+
+---
+-- @class function
+-- @name render_CloseRenderer
+-- @param t table
+-- @return close table string
+
+---
+-- @class function
+-- @name render_ElementRenderer
+-- @param e element
+-- @return element string
+
+---
+-- @class function
+-- @name render_PairRenderer
+-- N.B. the function should not try to render i and v, or treat
+-- them recursively.
+-- @param t table
+-- @param i index
+-- @param v value
+-- @param is index string
+-- @param vs value string
+-- @return element string
+
+---
+-- @class function
+-- @name render_SeparatorRenderer
+-- @param t table
+-- @param i preceding index (nil on first call)
+-- @param v preceding value (nil on first call)
+-- @param j following index (nil on last call)
+-- @param w following value (nil on last call)
+-- @return separator string
+
+--- Extend <code>tostring</code> to work better on tables.
+-- @class function
+-- @name tostring
+-- @param x object to convert to string
+-- @return string representation
+local _tostring = tostring
+local function tostring (x)
+  return render (x,
+                 function () return "{" end,
+                 function () return "}" end,
+                 _tostring,
+                 function (t, _, _, i, v)
+                   return i .. "=" .. v
+                 end,
+                 function (_, i, _, j)
+                   if i and j then
+                     return ","
+                   end
+                   return ""
+                 end)
+end
+
+
+--- Pretty-print a table.
+-- @param t table to print
+-- @param indent indent between levels ["\t"]
+-- @param spacing space before every line
+-- @return pretty-printed string
+local function prettytostring (t, indent, spacing)
+  indent = indent or "\t"
+  spacing = spacing or ""
+  return render (t,
+                 function ()
+                   local s = spacing .. "{"
+                   spacing = spacing .. indent
+                   return s
+                 end,
+                 function ()
+                   spacing = string.gsub (spacing, indent .. "$", "")
+                   return spacing .. "}"
+                 end,
+                 function (x)
+                   if type (x) == "string" then
+                     return format ("%q", x)
+                   else
+                     return tostring (x)
+                   end
+                 end,
+                 function (x, i, v, is, vs)
+                   local s = spacing .. "["
+                   if type (i) == "table" then
+                     s = s .. "\n"
+                   end
+                   s = s .. is
+                   if type (i) == "table" then
+                     s = s .. "\n"
+                   end
+                   s = s .. "] ="
+                   if type (v) == "table" then
+                     s = s .. "\n"
+                   else
+                     s = s .. " "
+                   end
+                   s = s .. vs
+                   return s
+                 end,
+                 function (_, i)
+                   local s = "\n"
+                   if i then
+                     s = "," .. s
+                   end
+                   return s
+                 end)
+end
+
+
+--- Convert a value to a string.
+-- The string can be passed to dostring to retrieve the value.
+-- <br>TODO: Make it work for recursive tables.
+-- @param x object to pickle
+-- @return string such that eval (s) is the same value as x
+local function pickle (x)
+  if type (x) == "string" then
+    return format ("%q", x)
+  elseif type (x) == "number" or type (x) == "boolean" or
+    type (x) == "nil" then
+    return tostring (x)
+  else
+    x = totable (x) or x
+    if type (x) == "table" then
+      local s, sep = "{", ""
+      for i, v in pairs (x) do
+        s = s .. sep .. "[" .. pickle (i) .. "]=" .. pickle (v)
+        sep = ","
+      end
+      s = s .. "}"
+      return s
+    else
+      die ("cannot pickle " .. tostring (x))
+    end
+  end
+end
 
 
 --- Give strings a subscription operator.
@@ -120,7 +342,7 @@ end
 -- @param ... arguments to format
 -- @return formatted string
 local _format = string.format
-local function format (f, arg1, ...)
+function format (f, arg1, ...)
   if arg1 == nil then
     return f
   else
@@ -191,7 +413,7 @@ local function numbertosi (n)
     [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
     [8] = "Y"
   }
-  local t = string.format("% #.2e", n)
+  local t = format("% #.2e", n)
   local _, _, m, e = t:find(".(.%...)e(.+)")
   local man, exp = tonumber (m), tonumber (e)
   local siexp = math.floor (exp / 3)
@@ -243,7 +465,8 @@ end
 -- @param s string to split
 -- @param sep separator pattern
 -- @return list of strings
-local function split (s, sep)
+function split (s, sep)
+  local list = require "list"
   -- finds gets a list of {from, to, capt = {}} lists; we then
   -- flatten the result, discarding the captures, and prepend 0 (1
   -- before the first character) and append 0 (1 after the last
@@ -282,8 +505,6 @@ local function trim (s, r)
   return rtrim (ltrim (s, r), r)
 end
 
--- Save original unextended table.
-local unextended = table.clone (string)
 
 local M = {
   __index        = old__index,
@@ -303,13 +524,26 @@ local M = {
   trim           = trim,
   wrap           = wrap,
 
+  -- APIs that used to be in "base".
+  assert          = assert,
+  pickle          = pickle,
+  prettytostring  = prettytostring,
+  render          = render,
+  require_version = require_version,
+  tostring        = tostring,
+
   -- camelCase compatibility:
   escapePattern  = escape_pattern,
   escapeShell    = escape_shell,
   ordinalSuffix  = ordinal_suffix,
+
+  -- Core Lua string.format function.
+  _format        = _format,
+  _tostring      = _tostring,
 }
 
--- Inject stdlib extensions directly into the string package.
-_G.string = table.merge (string, M)
+for k, v in pairs (string) do
+  M[k] = M[k] or v
+end
 
-return unextended
+return M

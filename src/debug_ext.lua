@@ -3,7 +3,7 @@ module ("debug", package.seeall)
 
 require "debug_init"
 require "io_ext"
-require "string_ext"
+local string = require "string_ext"
 
 --- To activate debugging set _DEBUG either to any true value
 -- (equivalent to {level = 1}), or as documented below.

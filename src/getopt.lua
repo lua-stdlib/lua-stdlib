@@ -32,10 +32,10 @@
 -- </ul>
 
 require "base"
-local list = require "list"
-require "string_ext"
+local list   = require "list"
+local string = require "string_ext"
 local Object = require "object"
-local table = require "table_ext"
+local table  = require "table_ext"
 
 local M = {
   opt = {},

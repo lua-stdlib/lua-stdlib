@@ -13,8 +13,24 @@ for _, m in ipairs (require "modules") do
   _G[m] = require (m)
 end
 
+-- Inject stdlib extensions directly into global package namespaces.
 _G.package = _G.package_ext
-_G.table   = _G.table_ext.merge (_G.table, _G.table_ext)
+_G.string  = _G.string_ext
+_G.table   = _G.table_ext
+
+-- Maintain old interface access points.
+local baseapis = { "require_version", "assert", "render", "tostring",
+                   "prettytostring", "pickle" }
+for _, api in ipairs {
+  "assert",
+  "pickle",
+  "prettytostring",
+  "render",
+  "require_version",
+  "tostring",
+} do
+  _G[api] = string_ext[api]
+end
 
 local M = {
   version = version,
