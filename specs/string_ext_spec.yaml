@@ -9,7 +9,7 @@ specify string_ext:
       expect (subject .. " another string").should_be (target)
   - "it stringifies non-string arguments":
       argument = { "a table" }
-      expect (subject .. argument).should_be (string.format ("%s%s", subject, tostring (argument)))
+      expect (subject .. argument).should_match (string.format ("%s{1=a table}", subject))
   - it stringifies nil arguments:
       argument = nil
       expect (subject .. argument).should_be (string.format ("%s%s", subject, tostring (argument)))
