@@ -8,6 +8,8 @@ LUA_PATH ?= ;
 LUA_ENV  = LUA_PATH="$(src_spec);$(LUA_PATH)"
 SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
 
+SPECL_MIN = 3
+
 NOTHING_ELSE =
 
 SOURCES = 				\
@@ -72,4 +74,11 @@ $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
 
 check-local:
-	$(AM_V_at)$(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS)
+	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
+	if test "$$v" -lt "$(SPECL_MIN)"; then			\
+	  echo "ERROR: Specl version $$v is too old, please upgrade to at least version $(SPECL_MIN),";\
+	  echo "ERROR: and rerun \`make check\`";		\
+	  exit 1;						\
+	else							\
+	  $(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS);		\
+	fi
