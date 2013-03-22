@@ -179,35 +179,6 @@ function _G.inodes (tr)
   return _nodes (ipairs, tr)
 end
 
-local function _leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
-    end
-  end
-  return coroutine.wrap (visit), tr
-end
-
---- Tree iterator which returns just numbered leaves, in order.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-function _G.ileaves (tr)
-  return _leaves (ipairs, tr)
-end
-
---- Tree iterator which returns just leaves.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-function _G.leaves (tr)
-  return _leaves (pairs, tr)
-end
-
 --- Collect the results of an iterator.
 -- @param i iterator
 -- @return results of running the iterator on its arguments

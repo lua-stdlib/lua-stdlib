@@ -1,7 +1,7 @@
 --- Additions to the io module
 module ("io", package.seeall)
 
-require "base"
+local list    = require "list"
 local package = require "package_ext"
 
 
@@ -56,7 +56,7 @@ function writelines (h, ...)
     io.write (h, "\n")
     h = io.output ()
   end
-  for v in ileaves ({...}) do
+  for v in list.ileaves ({...}) do
     h:write (v, "\n")
   end
 end

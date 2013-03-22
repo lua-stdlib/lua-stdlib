@@ -94,9 +94,11 @@ end
 
 -- Public interface
 local M = {
-  clone = clone,
-  merge = merge,
-  new   = new,
+  clone   = clone,
+  ileaves = list.ileaves,
+  leaves  = list.leaves,
+  merge   = merge,
+  new     = new,
 }
 
 return M

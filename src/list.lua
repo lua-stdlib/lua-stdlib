@@ -228,6 +228,36 @@ local function depair (ls)
   return t
 end
 
+
+local function _leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+--- Tree iterator which returns just numbered leaves, in order.
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+local function ileaves (tr)
+  return _leaves (ipairs, tr)
+end
+
+--- Tree iterator which returns just leaves.
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+local function leaves (tr)
+  return _leaves (pairs, tr)
+end
+
 --- Flatten a list.
 -- @param l list to flatten
 -- @return flattened list
@@ -428,6 +458,10 @@ local M = {
   tail       = tail,
   transpose  = transpose,
   zipWith    = zipWith,
+
+  -- APIs that used to be in "base".
+  ileaves    = ileaves,
+  leaves     = leaves,
 }
 
 return M
