@@ -40,6 +40,7 @@ SOURCES = 				\
 
 SPECS =						\
 	$(srcdir)/specs/getopt_spec.yaml	\
+	$(srcdir)/specs/io_ext_spec.yaml	\
 	$(srcdir)/specs/package_ext_spec.yaml	\
 	$(srcdir)/specs/string_ext_spec.yaml	\
 	$(srcdir)/specs/table_ext_spec.yaml	\

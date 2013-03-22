@@ -5,11 +5,10 @@
 -- As with disk operations, a table's elements must be set to nil
 -- (deleted) before the table itself can be set to nil.
 
-require "io_ext"
+local io      = require "io_ext"
 local package = require "package_ext"
 local table   = require "table_ext"
 
-require "io_ext"
 require "lfs"
 require "posix"
 

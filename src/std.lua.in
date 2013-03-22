@@ -14,9 +14,15 @@ for _, m in ipairs (require "modules") do
 end
 
 -- Inject stdlib extensions directly into global package namespaces.
+_G.io      = _G.io_ext
 _G.package = _G.package_ext
 _G.string  = _G.string_ext
 _G.table   = _G.table_ext
+
+-- Add io functions to the file handle metatable.
+local file_metatable = getmetatable (io.stdin)
+file_metatable.readlines  = io.readlines
+file_metatable.writelines = io.writelines
 
 -- Maintain old global interface access points.
 for _, api in ipairs {
