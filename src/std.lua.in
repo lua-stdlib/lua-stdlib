@@ -15,6 +15,7 @@ end
 
 -- Inject stdlib extensions directly into global package namespaces.
 _G.io      = _G.io_ext
+_G.math    = _G.math_ext
 _G.package = _G.package_ext
 _G.string  = _G.string_ext
 _G.table   = _G.table_ext

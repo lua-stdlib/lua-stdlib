@@ -12,6 +12,7 @@ local format -- forward declaration
 -- @param f format
 -- @param ... arguments to format
 -- @return value
+local _assert = assert
 local function assert (v, f, ...)
   if not v then
     if f == nil then
@@ -537,9 +538,9 @@ local M = {
   escapeShell    = escape_shell,
   ordinalSuffix  = ordinal_suffix,
 
-  -- Core Lua string.format function.
-  _format        = _format,
-  _tostring      = _tostring,
+  -- Core Lua function implementations.
+  _format   = _format,
+  _tostring = _tostring,
 }
 
 for k, v in pairs (string) do
