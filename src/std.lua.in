@@ -10,15 +10,13 @@
 local version = "General Lua libraries / @VERSION@"
 
 for _, m in ipairs (require "modules") do
-  _G[m] = require (m)
+  if m:match "_ext$" ~= nil then
+    -- Inject stdlib extensions directly into global package namespaces.
+    _G[m:match "(.*)_ext$"] = require (m)
+  else
+    _G[m] = require (m)
+  end
 end
-
--- Inject stdlib extensions directly into global package namespaces.
-_G.io      = _G.io_ext
-_G.math    = _G.math_ext
-_G.package = _G.package_ext
-_G.string  = _G.string_ext
-_G.table   = _G.table_ext
 
 -- Add io functions to the file handle metatable.
 local file_metatable = getmetatable (io.stdin)
@@ -37,7 +35,7 @@ for _, api in ipairs {
   "tostring",
 } do
   _G[api] = _G[api] or list[api]
-  _G[api] = _G[api] or string_ext[api]
+  _G[api] = _G[api] or string[api]
 end
 
 local M = {

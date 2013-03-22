@@ -1,7 +1,6 @@
 --- Additions to the debug module
-module ("debug", package.seeall)
 
-require "debug_init"
+local init   = require "debug_init"
 local io     = require "io_ext"
 local string = require "string_ext"
 
@@ -17,31 +16,20 @@ local string = require "string_ext"
 --- Print a debugging message
 -- @param n debugging level, defaults to 1
 -- @param ... objects to print (as for print)
-function say (n, ...)
+local function say (n, ...)
   local level = 1
   local arg = {n, ...}
   if type (arg[1]) == "number" then
     level = arg[1]
     table.remove (arg, 1)
   end
-  if _DEBUG and
-    ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
-      _DEBUG.level >= level)
+  if init._DEBUG and
+    ((type (init._DEBUG) == "table" and type (init._DEBUG.level) == "number" and
+      init._DEBUG.level >= level)
        or level <= 1) then
     io.writelines (io.stderr, table.concat (list.map (tostring, arg), "\t"))
   end
 end
-
----
--- The global function <code>debug</code> is an abbreviation for
--- <code>debug.say (1, ...)</code>
--- @class function
--- @name debug
--- @see say
-getmetatable (_M).__call =
-   function (self, ...)
-     say (1, ...)
-   end
 
 --- Trace function calls
 -- Use as debug.sethook (trace, "cr"), which is done automatically
@@ -51,8 +39,8 @@ getmetatable (_M).__call =
 -- @name trace
 -- @param event event causing the call
 local level = 0
-function trace (event)
-  local t = getinfo (3)
+local function trace (event)
+  local t = debug.getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
     s = s .. t.short_src .. ":" .. t.currentline .. " "
@@ -78,7 +66,30 @@ function trace (event)
   io.writelines (io.stderr, s)
 end
 
--- Set hooks according to _DEBUG
-if type (_DEBUG) == "table" and _DEBUG.call then
-  sethook (trace, "cr")
+-- Set hooks according to init._DEBUG
+if type (init._DEBUG) == "table" and init._DEBUG.call then
+  debug.sethook (trace, "cr")
 end
+
+local M = {
+  say   = say,
+  trace = trace,
+}
+
+for k, v in pairs (debug) do
+  M[k] = M[k] or v
+end
+
+---
+-- The global function <code>debug</code> is an abbreviation for
+-- <code>debug.say (1, ...)</code>
+-- @class function
+-- @name debug
+-- @see say
+local metatable = {
+  __call = function (self, ...)
+             say (1, ...)
+           end,
+}
+
+return setmetatable (M, metatable)

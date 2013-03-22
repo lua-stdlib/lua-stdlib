@@ -39,6 +39,7 @@ SOURCES = 				\
 	$(NOTHING_ELSE)
 
 SPECS =						\
+	$(srcdir)/specs/debug_ext_spec.yaml	\
 	$(srcdir)/specs/getopt_spec.yaml	\
 	$(srcdir)/specs/io_ext_spec.yaml	\
 	$(srcdir)/specs/math_ext_spec.yaml	\
