@@ -13,6 +13,13 @@ Makefile.in:
 
 else
 
+# Use 'make check V=1' for verbose output, or set SPECL_OPTS to
+# pass alternative options to specl command.
+SPECL_OPTS ?= $(specl_verbose_$(V))
+specl_verbose_ = $(specl_verbose_$(AM_DEFAULT_VERBOSITY))
+specl_verbose_0 =
+specl_verbose_1 = --verbose --formatter=report
+
 include Makefile
 
 MKROCKSPECS = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/mkrockspecs.lua
