@@ -38,7 +38,7 @@ tag-release:
 
 define unpack-distcheck-release
 	rm -rf $(PACKAGE)-$(VERSION)/ && \
-	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
+	tar zxf ../$(PACKAGE)/$(PACKAGE)-$(VERSION).tar.gz && \
 	cp -a -f $(PACKAGE)-$(VERSION)/* . && \
 	rm -rf $(PACKAGE)-$(VERSION)/ && \
 	echo "unpacked $(PACKAGE)-$(VERSION).tar.gz over current directory" && \
@@ -48,8 +48,7 @@ define unpack-distcheck-release
 endef
 
 check-in-release: distcheck
-	{ $(GIT) checkout -b release 2>/dev/null || $(GIT) checkout release; } && \
-	{ $(GIT) pull origin release || true; } && \
+	cd ../$(PACKAGE)-release && \
 	$(unpack-distcheck-release) && \
 	$(GIT) add . && \
 	$(GIT) commit -a -m "Release v$(VERSION)" && \
@@ -65,7 +64,6 @@ WOGER_ENV = LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec'
 WOGER_OUT = $(WOGER_ENV) $(LUA) -l$(PACKAGE) -e
 
 release: rockspecs
-	current_branch=`$(GIT) symbolic-ref HEAD`; \
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	$(GIT_PUBLISH) push && $(GIT_PUBLISH) push --tags && \
@@ -78,6 +76,5 @@ release: rockspecs
 	  notes=release-notes-$(VERSION) \
 	  home="`$(WOGER_OUT) 'print (description.homepage)'`" \
 	  description="`$(WOGER_OUT) 'print (description.summary)'`"
-	$(GIT) checkout `echo "$$current_branch" | sed 's,.*/,,g'`
 
 endif
