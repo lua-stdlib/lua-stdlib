@@ -172,7 +172,7 @@
 <table class="function_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#getOpt">getOpt</a>&nbsp;(argIn, options)</td>
+	<td class="name" nowrap><a href="#getOpt">getOpt</a>&nbsp;(argIn, options, undefined_options)</td>
 	<td class="summary">Perform argument processing </td>
 	</tr>
 
@@ -182,7 +182,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;(prog)</td>
+	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;(prog, undefined_opts)</td>
 	<td class="summary">Simple getOpt wrapper.</td>
 	</tr>
 
@@ -201,16 +201,6 @@
 
 
 
-<h2>Tables</h2>
-<table class="table_list">
-
-	<tr>
-	<td class="name" nowrap><a href="#Option">Option</a></td>
-	<td class="summary">Object that defines a single Option entry.</td>
-	</tr>
-
-</table>
-
 
 
 <br/>
@@ -224,7 +214,7 @@
 
 
 
-<dt><a name="getOpt"></a><strong>getOpt</strong>&nbsp;(argIn, options)</dt>
+<dt><a name="getOpt"></a><strong>getOpt</strong>&nbsp;(argIn, options, undefined_options)</dt>
 <dd>
 Perform argument processing
 
@@ -238,6 +228,10 @@ Perform argument processing
 	
 	<li>
 	  options: options table
+	</li>
+	
+	<li>
+	  undefined_options: if true, allow and collect undefined options
 	</li>
 	
 </ul>
@@ -291,7 +285,7 @@ Options table constructor: adds lookup tables for the option names
 
 
 
-<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;(prog)</dt>
+<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;(prog, undefined_opts)</dt>
 <dd>
 Simple getOpt wrapper. If the caller didn't supply their own already, adds <code>--version</code>/<code>-V</code> and <code>--help</code>/<code>-h</code> options automatically; stops program if there was an error, or if <code>--help</code> or <code>--version</code> was used.
 
@@ -301,6 +295,10 @@ Simple getOpt wrapper. If the caller didn't supply their own already, adds <code
 	
 	<li>
 	  prog: table of named parameters
+	</li>
+	
+	<li>
+	  undefined_opts: if true, allow and collect undefined options
 	</li>
 	
 </ul>
@@ -382,40 +380,6 @@ formatted string
 
 
 
-
-<h2><a name="tables"></a>Tables</h2>
-<dl class="table">
-
-<dt><a name="Option"></a><strong>Option</strong></dt>
-<dd>Object that defines a single Option entry.
-
-
-<em>Fields</em>
-<ul>
-	
-	<li>
-	  name: list of option names
-	</li>
-	
-	<li>
-	  desc: description of this option
-	</li>
-	
-	<li>
-	  type: type of option argument (if any): <code>Req</code>(uired), <code>Opt</code>(ional)
-	</li>
-	
-	<li>
-	  var: descriptive name for the option argument
-	</li>
-	
-</ul>
-
-
-</dd>
-
-
-</dl>
 
 
 

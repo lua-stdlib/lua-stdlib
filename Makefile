@@ -154,15 +154,15 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/missing aclocal-1.13
+ACLOCAL = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing aclocal-1.13
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 0
-AUTOCONF = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/missing autoconf
-AUTOHEADER = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/missing autoheader
-AUTOMAKE = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/missing automake-1.13
-AWK = awk
+AUTOCONF = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing autoconf
+AUTOHEADER = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing autoheader
+AUTOMAKE = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing automake-1.13
+AWK = gawk
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"stdlib\" -DPACKAGE_TARNAME=\"stdlib\" -DPACKAGE_VERSION=\"33\" -DPACKAGE_STRING=\"stdlib\ 33\" -DPACKAGE_BUGREPORT=\"rrt@sc3d.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"stdlib\" -DVERSION=\"33\"
+DEFS = -DPACKAGE_NAME=\"stdlib\" -DPACKAGE_TARNAME=\"stdlib\" -DPACKAGE_VERSION=\"34\" -DPACKAGE_STRING=\"stdlib\ 34\" -DPACKAGE_BUGREPORT=\"rrt@sc3d.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"stdlib\" -DVERSION=\"34\"
 ECHO_C = \c
 ECHO_N = 
 ECHO_T = 
@@ -180,26 +180,26 @@ LUA_EXEC_PREFIX = ${exec_prefix}
 LUA_MIN_VERSION = 5.1
 LUA_PLATFORM = unknown
 LUA_PREFIX = ${prefix}
-LUA_SHORT_VERSION = 52
-LUA_VERSION = 5.2
-MAKEINFO = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/missing makeinfo
+LUA_SHORT_VERSION = 51
+LUA_VERSION = 5.1
+MAKEINFO = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing makeinfo
 MKDIR_P = build-aux/install-sh -c -d
 PACKAGE = stdlib
 PACKAGE_BUGREPORT = rrt@sc3d.org
 PACKAGE_NAME = stdlib
-PACKAGE_STRING = stdlib 33
+PACKAGE_STRING = stdlib 34
 PACKAGE_TARNAME = stdlib
 PACKAGE_URL = 
-PACKAGE_VERSION = 33
+PACKAGE_VERSION = 34
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 33
-abs_builddir = /Volumes/Home/Devo/lua-stdlib--master--0
-abs_srcdir = /Volumes/Home/Devo/lua-stdlib--master--0
-abs_top_builddir = /Volumes/Home/Devo/lua-stdlib--master--0
-abs_top_srcdir = /Volumes/Home/Devo/lua-stdlib--master--0
+VERSION = 34
+abs_builddir = /Users/gary/Devo/stdlib-release
+abs_srcdir = /Users/gary/Devo/stdlib-release
+abs_top_builddir = /Users/gary/Devo/stdlib-release
+abs_top_srcdir = /Users/gary/Devo/stdlib-release
 am__leading_dot = .
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
@@ -215,13 +215,13 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Volumes/Home/Devo/lua-stdlib--master--0/build-aux/install-sh
+install_sh = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
-luadir = ${prefix}/share/lua/5.2
-luaexecdir = ${exec_prefix}/lib/lua/5.2
+luadir = ${prefix}/share/lua/5.1
+luaexecdir = ${exec_prefix}/lib/lua/5.1
 mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
@@ -241,9 +241,9 @@ top_builddir = .
 top_srcdir = .
 ACLOCAL_AMFLAGS = -I m4
 src_spec = $(abs_srcdir)/src/?.lua
-lib_spec = $(abs_srcdir)/specs/lib/?.lua
 LUA_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
-SPEC_ENV = LUA_PATH="$(lib_spec);$(src_spec);$(LUA_PATH)"
+SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
+SPECL_MIN = 3
 NOTHING_ELSE = 
 SOURCES = \
 	src/base.lua			\
@@ -272,10 +272,10 @@ SOURCES = \
 	$(NOTHING_ELSE)
 
 SPECS = \
-	specs/getopt_spec.lua		\
-	specs/package_ext_spec.lua	\
-	specs/string_ext_spec.lua	\
-	specs/table_ext_spec.lua	\
+	$(srcdir)/specs/getopt_spec.yaml	\
+	$(srcdir)/specs/package_ext_spec.yaml	\
+	$(srcdir)/specs/string_ext_spec.yaml	\
+	$(srcdir)/specs/table_ext_spec.yaml	\
 	$(NOTHING_ELSE)
 
 dist_data_DATA = $(SOURCES)
@@ -288,8 +288,6 @@ dist_files_DATA = $(wildcard $(top_srcdir)/src/files/*.html)
 modulesdir = $(docdir)/modules
 dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
 EXTRA_DIST = \
-	specs/specl			\
-	specs/lib/specl.lua		\
 	src/std.lua.in			\
 	GNUmakefile			\
 	$(SPECS)			\
@@ -777,7 +775,14 @@ $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
 
 check-local:
-	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua
+	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
+	if test "$$v" -lt "$(SPECL_MIN)"; then			\
+	  echo "ERROR: Specl version $$v is too old, please upgrade to at least version $(SPECL_MIN),";\
+	  echo "ERROR: and rerun \`make check\`";		\
+	  exit 1;						\
+	else							\
+	  $(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS);		\
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

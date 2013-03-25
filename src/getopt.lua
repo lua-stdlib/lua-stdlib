@@ -5,13 +5,16 @@
 --     name = <progname>,
 --     [usage = <usage line>,]
 --     [options = {
---        {Option {<names>}, <desc>, [<type>,] [var]},
+--        {{<name>[, ...]}, <desc>, [<type> [, <var>]]},
 --        ...
 --     },]
 --     [banner = <banner string>,]
 --     [purpose = <purpose string>,]
 --     [notes = <additional notes>]
 -- }</code></li>
+-- <li>The <code>type</code> of option argument is one of <code>Req</code>(uired),
+-- <code>Opt</code>(ional)</li>
+-- <li>The <code>var</code>is a descriptive name for the option argument.</li>
 -- <li><code>getopt.processArgs (prog)</code></li>
 -- <li>Options take a single dash, but may have a double dash.</li>
 -- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
@@ -41,10 +44,11 @@ local M = {
 --- Perform argument processing
 -- @param argIn list of command-line args
 -- @param options options table
+-- @param undefined_options if true, allow and collect undefined options
 -- @return table of remaining non-options
 -- @return table of option key-value list pairs
 -- @return table of error messages
-local function getOpt (argIn, options)
+local function getOpt (argIn, options, undefined_options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -70,7 +74,8 @@ local function getOpt (argIn, options)
 
   local function parseOpt (opt, arg)
     local o = options.name[opt]
-    if o ~= nil then
+    if undefined_options or o ~= nil then
+      o = o or {name = {opt}}
       optOut[o.name[1]] = optOut[o.name[1]] or {}
       table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
     else
@@ -94,14 +99,7 @@ local function getOpt (argIn, options)
 end
 
 
---- Object that defines a single Option entry.
--- @class table
--- @name Option
--- @field name list of option names
--- @field desc description of this option
--- @field type type of option argument (if any): <code>Req</code>(uired),
--- <code>Opt</code>(ional)
--- @field var descriptive name for the option argument
+-- Object that defines a single Option entry.
 local Option = Object {_init = {"name", "desc", "type", "var"}}
 
 --- Options table constructor: adds lookup tables for the option names
@@ -109,6 +107,7 @@ local function makeOptions (t)
   local options, name = {}, {}
   local function appendOpt (v, nodupes)
     local dupe = false
+    v = Option (v)
     for s in list.elems (v.name) do
       if name[s] then
 	dupe = true
@@ -125,9 +124,9 @@ local function makeOptions (t)
     appendOpt (v)
   end
   -- Unless they were supplied already, add version and help options
-  appendOpt (Option {{"version", "V"}, "print version information, then exit"},
+  appendOpt ({{"version", "V"}, "print version information, then exit"},
              true)
-  appendOpt (Option {{"help", "h"}, "print this help, then exit"}, true)
+  appendOpt ({{"help", "h"}, "print this help, then exit"}, true)
   options.name = name
   return options
 end
@@ -141,7 +140,7 @@ end
 local function usageInfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- Format the usage info for a single option
-  -- @param opt the Option table
+  -- @param opt the option table
   -- @return options
   -- @return description
   local function fmtOpt (opt)
@@ -243,11 +242,12 @@ end
 -- stops program if there was an error, or if <code>--help</code> or
 -- <code>--version</code> was used.
 -- @param prog table of named parameters
-local function processArgs (prog)
+-- @param undefined_opts if true, allow and collect undefined options
+local function processArgs (prog, undefined_opts)
   local totArgs = #arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getopt.getOpt (arg, prog.options)
+  _G.arg, M.opt, errors = getOpt (arg, prog.options, undefined_opts)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
@@ -276,7 +276,6 @@ end
 -- Public interface
 return table.merge (M, {
   getOpt      = getOpt,
-  Option      = Option,
   processArgs = processArgs,
   usage       = usage,
   usageInfo   = usageInfo,

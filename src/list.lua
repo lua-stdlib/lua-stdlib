@@ -1,7 +1,7 @@
 --- Tables as lists.
 require "base"
-require "table_ext"
 
+local new  -- forward declaration
 
 --- An iterator over the elements of a list.
 -- @param l list to iterate over
@@ -67,7 +67,7 @@ end
 -- @param to end of range (default: <code>#l</code>)
 -- @return <code>{l[from], ..., l[to]}</code>
 local function sub (l, from, to)
-  local r = list.new ()
+  local r = new ()
   local len = #l
   from = from or 1
   to = to or len
@@ -133,7 +133,7 @@ end
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}</code>
 local function concat (...)
-  local r = list.new ()
+  local r = new ()
   for l in elems ({...}) do
     for v in elems (l) do
       table.insert (r, v)
@@ -147,7 +147,7 @@ end
 -- @param n number of times to repeat
 -- @return <code>n</code> copies of <code>l</code> appended together
 local function rep (l, n)
-  local r = list.new ()
+  local r = new ()
   for i = 1, n do
     r = concat (r, l)
   end
@@ -158,7 +158,7 @@ end
 -- @param l list
 -- @return list <code>{l[#l], ..., l[1]}</code>
 local function reverse (l)
-  local r = list.new ()
+  local r = new ()
   for i = #l, 1, -1 do
     table.insert (r, l[i])
   end
@@ -173,9 +173,9 @@ end
 -- @return <code>{{l<sub>1,1</sub>, ..., l<sub>r,1</sub>}, ...,
 -- {l<sub>1,c</sub>, ..., l<sub>r,c</sub>}}</code>
 local function transpose (ls)
-  local rs, len = list.new (), #ls
+  local rs, len = new (), #ls
   for i = 1, math.max (unpack (map (function (l) return #l end, ls))) do
-    rs[i] = list.new ()
+    rs[i] = new ()
     for j = 1, len do
       rs[i][j] = ls[j][i]
     end
@@ -207,7 +207,7 @@ end
 -- @return list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
 -- {i<sub>n</sub>, v<sub>n</sub>}}</code>
 local function enpair (t)
-  local ls = list.new ()
+  local ls = new ()
   for i, v in pairs (t) do
     table.insert (ls, {i, v})
   end
@@ -232,7 +232,7 @@ end
 -- @param l list to flatten
 -- @return flattened list
 local function flatten (l)
-  local r = list.new ()
+  local r = new ()
   for v in ileaves (l) do
     table.insert (r, v)
   end
@@ -281,7 +281,7 @@ local function shape (s, l)
     if d > #s then
       return l[i], i + 1
     else
-      local r = list.new ()
+      local r = new ()
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
@@ -300,7 +300,7 @@ end
 -- @return index <code>{t<sub>1</sub>[f]=1, ...,
 -- t<sub>n</sub>[f]=n}</code>
 local function indexKey (f, l)
-  local r = list.new ()
+  local r = new ()
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -317,7 +317,7 @@ end
 -- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
 -- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
 local function indexValue (f, l)
-  local r = list.new ()
+  local r = new ()
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -393,7 +393,7 @@ local metatable = {
 -- Needed in order to use metamethods.
 -- @param t list (as a table), or nil for empty list
 -- @return list (with list metamethods)
-local function new (l)
+function new (l)
   return setmetatable (l or {}, metatable)
 end
 

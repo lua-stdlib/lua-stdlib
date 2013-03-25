@@ -3,11 +3,12 @@
 ACLOCAL_AMFLAGS = -I m4
 
 src_spec = $(abs_srcdir)/src/?.lua
-lib_spec = $(abs_srcdir)/specs/lib/?.lua
 
 LUA_PATH ?= ;
 LUA_ENV  = LUA_PATH="$(src_spec);$(LUA_PATH)"
-SPEC_ENV = LUA_PATH="$(lib_spec);$(src_spec);$(LUA_PATH)"
+SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
+
+SPECL_MIN = 3
 
 NOTHING_ELSE =
 
@@ -37,11 +38,11 @@ SOURCES = 				\
 	src/xml.lua			\
 	$(NOTHING_ELSE)
 
-SPECS =					\
-	specs/getopt_spec.lua		\
-	specs/package_ext_spec.lua	\
-	specs/string_ext_spec.lua	\
-	specs/table_ext_spec.lua	\
+SPECS =						\
+	$(srcdir)/specs/getopt_spec.yaml	\
+	$(srcdir)/specs/package_ext_spec.yaml	\
+	$(srcdir)/specs/string_ext_spec.yaml	\
+	$(srcdir)/specs/table_ext_spec.yaml	\
 	$(NOTHING_ELSE)
 
 dist_data_DATA = $(SOURCES)
@@ -55,8 +56,6 @@ modulesdir = $(docdir)/modules
 dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
 
 EXTRA_DIST =				\
-	specs/specl			\
-	specs/lib/specl.lua		\
 	src/std.lua.in			\
 	GNUmakefile			\
 	$(SPECS)			\
@@ -75,4 +74,11 @@ $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
 
 check-local:
-	$(AM_V_at)$(SPEC_ENV) $(LUA) $(srcdir)/specs/specl $(srcdir)/specs/*_spec.lua
+	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
+	if test "$$v" -lt "$(SPECL_MIN)"; then			\
+	  echo "ERROR: Specl version $$v is too old, please upgrade to at least version $(SPECL_MIN),";\
+	  echo "ERROR: and rerun \`make check\`";		\
+	  exit 1;						\
+	else							\
+	  $(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS);		\
+	fi

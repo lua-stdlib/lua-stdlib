@@ -13,6 +13,13 @@ Makefile.in:
 
 else
 
+# Use 'make check V=1' for verbose output, or set SPECL_OPTS to
+# pass alternative options to specl command.
+SPECL_OPTS ?= $(specl_verbose_$(V))
+specl_verbose_ = $(specl_verbose_$(AM_DEFAULT_VERBOSITY))
+specl_verbose_0 =
+specl_verbose_1 = --verbose --formatter=report
+
 include Makefile
 
 MKROCKSPECS = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/mkrockspecs.lua
@@ -38,7 +45,7 @@ tag-release:
 
 define unpack-distcheck-release
 	rm -rf $(PACKAGE)-$(VERSION)/ && \
-	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
+	tar zxf ../$(PACKAGE)/$(PACKAGE)-$(VERSION).tar.gz && \
 	cp -a -f $(PACKAGE)-$(VERSION)/* . && \
 	rm -rf $(PACKAGE)-$(VERSION)/ && \
 	echo "unpacked $(PACKAGE)-$(VERSION).tar.gz over current directory" && \
@@ -48,8 +55,7 @@ define unpack-distcheck-release
 endef
 
 check-in-release: distcheck
-	{ $(GIT) checkout -b release 2>/dev/null || $(GIT) checkout release; } && \
-	{ $(GIT) pull origin release || true; } && \
+	cd ../$(PACKAGE)-release && \
 	$(unpack-distcheck-release) && \
 	$(GIT) add . && \
 	$(GIT) commit -a -m "Release v$(VERSION)" && \
@@ -65,7 +71,6 @@ WOGER_ENV = LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec'
 WOGER_OUT = $(WOGER_ENV) $(LUA) -l$(PACKAGE) -e
 
 release: rockspecs
-	current_branch=`$(GIT) symbolic-ref HEAD`; \
 	$(MAKE) tag-release && \
 	$(MAKE) check-in-release && \
 	$(GIT_PUBLISH) push && $(GIT_PUBLISH) push --tags && \
@@ -78,6 +83,5 @@ release: rockspecs
 	  notes=release-notes-$(VERSION) \
 	  home="`$(WOGER_OUT) 'print (description.homepage)'`" \
 	  description="`$(WOGER_OUT) 'print (description.summary)'`"
-	$(GIT) checkout `echo "$$current_branch" | sed 's,.*/,,g'`
 
 endif
