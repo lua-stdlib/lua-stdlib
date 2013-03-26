@@ -5,7 +5,19 @@ local list   = require "list"
 local strbuf = require "strbuf"
 local table  = require "table_ext"
 
-local format -- forward declaration
+--- Extend to work better with one argument.
+-- If only one argument is passed, no formatting is attempted.
+-- @param f format
+-- @param ... arguments to format
+-- @return formatted string
+local _format = string.format
+local function format (f, arg1, ...)
+  if arg1 == nil then
+    return f
+  else
+    return _format (f, arg1, ...)
+  end
+end
 
 --- Extend to allow formatted arguments.
 -- @param v value to assert
@@ -23,7 +35,60 @@ local function assert (v, f, ...)
   return v
 end
 
-local split -- forward declaration
+--- Do find, returning captures as a list.
+-- @param s target string
+-- @param p pattern
+-- @param init start position (default: 1)
+-- @param plain inhibit magic characters (default: nil)
+-- @return start of match, end of match, table of captures
+local function tfind (s, p, init, plain)
+  assert (type (s) == "string",
+          "bad argument #1 to 'tfind' (string expected, got " .. type (s) .. ")")
+  assert (type (p) == "string",
+          "bad argument #2 to 'tfind' (string expected, got " .. type (p) .. ")")
+  local function pack (from, to, ...)
+    return from, to, {...}
+  end
+  return pack (p.find (s, p, init, plain))
+end
+
+--- Do multiple <code>find</code>s on a string.
+-- @param s target string
+-- @param p pattern
+-- @param init start position (default: 1)
+-- @param plain inhibit magic characters (default: nil)
+-- @return list of <code>{from, to; capt = {captures}}</code>
+local function finds (s, p, init, plain)
+  init = init or 1
+  local l = {}
+  local from, to, r
+  repeat
+    from, to, r = tfind (s, p, init, plain)
+    if from ~= nil then
+      table.insert (l, {from, to, capt = r})
+      init = to + 1
+    end
+  until not from
+  return l
+end
+
+--- Split a string at a given separator.
+-- FIXME: Consider Perl and Python versions.
+-- @param s string to split
+-- @param sep separator pattern
+-- @return list of strings
+local function split (s, sep)
+  -- finds gets a list of {from, to, capt = {}} lists; we then
+  -- flatten the result, discarding the captures, and prepend 0 (1
+  -- before the first character) and append 0 (1 after the last
+  -- character), and then read off the result in pairs.
+  local pairs = list.concat ({0}, list.flatten (finds (s, sep)), {0})
+  local l = {}
+  for i = 1, #pairs, 2 do
+    table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
+  end
+  return l
+end
 
 --- Require a module with a particular version
 -- @param module module to require
@@ -337,20 +402,6 @@ local function ordinal_suffix (n)
   end
 end
 
---- Extend to work better with one argument.
--- If only one argument is passed, no formatting is attempted.
--- @param f format
--- @param ... arguments to format
--- @return formatted string
-local _format = string.format
-function format (f, arg1, ...)
-  if arg1 == nil then
-    return f
-  else
-    return _format (f, arg1, ...)
-  end
-end
-
 --- Justify a string.
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w).
@@ -422,62 +473,6 @@ local function numbertosi (n)
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
   return tostring (man) .. s
-end
-
---- Do find, returning captures as a list.
--- @param s target string
--- @param p pattern
--- @param init start position (default: 1)
--- @param plain inhibit magic characters (default: nil)
--- @return start of match, end of match, table of captures
-local function tfind (s, p, init, plain)
-  assert (type (s) == "string",
-          "bad argument #1 to 'tfind' (string expected, got " .. type (s) .. ")")
-  assert (type (p) == "string",
-          "bad argument #2 to 'tfind' (string expected, got " .. type (p) .. ")")
-  local function pack (from, to, ...)
-    return from, to, {...}
-  end
-  return pack (p.find (s, p, init, plain))
-end
-
---- Do multiple <code>find</code>s on a string.
--- @param s target string
--- @param p pattern
--- @param init start position (default: 1)
--- @param plain inhibit magic characters (default: nil)
--- @return list of <code>{from, to; capt = {captures}}</code>
-local function finds (s, p, init, plain)
-  init = init or 1
-  local l = {}
-  local from, to, r
-  repeat
-    from, to, r = tfind (s, p, init, plain)
-    if from ~= nil then
-      table.insert (l, {from, to, capt = r})
-      init = to + 1
-    end
-  until not from
-  return l
-end
-
---- Split a string at a given separator.
--- FIXME: Consider Perl and Python versions.
--- @param s string to split
--- @param sep separator pattern
--- @return list of strings
-function split (s, sep)
-  local list = require "list"
-  -- finds gets a list of {from, to, capt = {}} lists; we then
-  -- flatten the result, discarding the captures, and prepend 0 (1
-  -- before the first character) and append 0 (1 after the last
-  -- character), and then read off the result in pairs.
-  local pairs = list.concat ({0}, list.flatten (finds (s, sep)), {0})
-  local l = {}
-  for i = 1, #pairs, 2 do
-    table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
-  end
-  return l
 end
 
 --- Remove leading matter from a string.
