@@ -34,6 +34,7 @@ specify string_ext:
         for _, api in ipairs (enhancements) do
           extends[api], extends["_" .. api] = M[api], M["_" .. api]
         end
+        for _, api in ipairs (extensions) do extends[api] = M[api] end
     - it does not perturb the global table:
         for _, api in ipairs (extensions) do
           expect (extends[api]).should_be (nil)
