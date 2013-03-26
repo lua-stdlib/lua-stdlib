@@ -22,7 +22,8 @@ specl_verbose_1 = --verbose --formatter=report
 
 include Makefile
 
-MKROCKSPECS = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/mkrockspecs.lua
+ROCKSPEC_ENV	  = $(LUA_ENV)
+MKROCKSPECS 	  = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/mkrockspecs.lua
 ROCKSPEC_TEMPLATE = $(srcdir)/$(PACKAGE)-rockspec.lua
 
 luarocks-config.lua:
