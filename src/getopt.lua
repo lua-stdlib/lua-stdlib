@@ -44,11 +44,11 @@ local M = {
 --- Perform argument processing
 -- @param argIn list of command-line args
 -- @param options options table
--- @param undefined_options if true, allow and collect undefined options
+-- @param stop_at_nonopt if true, stop option processing at first non-option
 -- @return table of remaining non-options
 -- @return table of option key-value list pairs
 -- @return table of error messages
-local function getOpt (argIn, options, undefined_options)
+local function getOpt (argIn, options, stop_at_nonopt)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -74,7 +74,7 @@ local function getOpt (argIn, options, undefined_options)
 
   local function parseOpt (opt, arg)
     local o = options.name[opt]
-    if undefined_options or o ~= nil then
+    if o ~= nil then
       o = o or {name = {opt}}
       optOut[o.name[1]] = optOut[o.name[1]] or {}
       table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
@@ -87,9 +87,12 @@ local function getOpt (argIn, options, undefined_options)
     table.remove (argIn, 1)
     local _, _, dash, opt = string.find (v, "^(%-%-?)([^=-][^=]*)")
     local _, _, arg = string.find (v, "=(.*)$")
+    if not dash and stop_at_nonopt then
+      noProcess = true
+    end
     if v == "--" then
-      noProcess = 1
-    elseif dash == nil or noProcess then -- non-option
+      noProcess = true
+    elseif not dash or noProcess then -- non-option
       table.insert (argOut, v)
     else -- option
       parseOpt (opt, arg)
@@ -242,12 +245,12 @@ end
 -- stops program if there was an error, or if <code>--help</code> or
 -- <code>--version</code> was used.
 -- @param prog table of named parameters
--- @param undefined_opts if true, allow and collect undefined options
-local function processArgs (prog, undefined_opts)
+-- @param ... extra arguments for getOpt
+local function processArgs (prog, ...)
   local totArgs = #arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getOpt (arg, prog.options, undefined_opts)
+  _G.arg, M.opt, errors = getOpt (arg, prog.options, ...)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
