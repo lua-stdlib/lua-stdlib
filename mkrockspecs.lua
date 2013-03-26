@@ -32,7 +32,7 @@ end
 
 for f, spec in pairs (loadfile ("rockspecs.lua") ()) do
   if f ~= "default" then
-    local specfile = package_name.."-"..(f ~= "" and f:lower ().."-" or "")..version.."-1.rockspec"
+    local specfile = package_name.."-"..(f ~= "" and f:lower ().."-" or "")..version.."-2.rockspec"
     h = io.open (specfile, "w")
     assert (h)
     flavour = f -- a global, visible in loadfile
