@@ -13,6 +13,8 @@ specify string_ext:
                      "__index", "_tostring",
                      -- camelCase compatibility:
                      "escapePattern", "escapeShell", "ordinalSuffix" }
+    keywords     = { "assert", "pickle", "prettytostring", "render",
+                     "require_version", "tostring" }
 
     subject = "a string \n\n"
 
@@ -61,6 +63,10 @@ specify string_ext:
         for api in pairs (M) do
           expect (extends[api]).should_be (M[api])
           i = i + 1
+        end
+    - it propagates keywords to the global environment:
+        for _, api in ipairs (keywords) do
+          expect (_G[api]).should_be (M[api])
         end
     - it does not add any other global access points:
         for api in pairs (extends) do

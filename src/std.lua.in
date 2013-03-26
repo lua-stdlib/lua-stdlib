@@ -34,8 +34,8 @@ for _, api in ipairs {
   "require_version",
   "tostring",
 } do
-  _G[api] = _G[api] or list[api]
-  _G[api] = _G[api] or string[api]
+  _G[api] = list[api] or _G[api]
+  _G[api] = string[api] or _G[api]
 end
 
 local M = {
