@@ -97,6 +97,8 @@ specify string_ext:
       expect (f (subject)).should_be (target)
   - it changes only the first letter of each word:
       expect (f "a stRiNg").should_be "A StRiNg"
+  - it is available as a string metamethod:
+      expect (("a stRiNg"):caps ()).should_be "A StRiNg"
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
@@ -109,12 +111,14 @@ specify string_ext:
 - describe chomp:
   - before:
       f = M.chomp
-  - it removes a single trailing newline from a string:
       target = "a string \n"
+  - it removes a single trailing newline from a string:
       expect (f (subject)).should_be (target)
   - it does not change a string with no trailing newline:
       subject = "a string "
       expect (f (subject)).should_be (subject)
+  - it is available as a string metamethod:
+      expect (subject:chomp ()).should_be (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
@@ -127,15 +131,19 @@ specify string_ext:
 - describe escape_pattern:
   - before:
       f = M.escape_pattern
-  - "it inserts a % before any non-alphanumeric in a string":
-      subject, target = "", ""
-      for c = 32, 126 do
-        s = string.char (c)
-        subject = subject .. s
-        if s:match ("%W") then target = target .. "%" end
-        target = target .. s
-      end
-      expect (f (subject)).should_be (target)
+  - context with each printable ASCII char:
+    - before:
+        subject, target = "", ""
+        for c = 32, 126 do
+          s = string.char (c)
+          subject = subject .. s
+          if s:match ("%W") then target = target .. "%" end
+          target = target .. s
+        end
+    - "it inserts a % before any non-alphanumeric in a string":
+        expect (f (subject)).should_be (target)
+    - it is available as a string metamethod:
+        expect (subject:escape_pattern ()).should_be (target)
   - legacy escapePattern call is the same function:
       expect (M.escapePattern).should_be (f)
   - the original subject is not perturbed:
@@ -150,15 +158,19 @@ specify string_ext:
 - describe escape_shell:
   - before:
       f = M.escape_shell
-  - "it inserts a \\ before any shell metacharacters":
-      subject, target = "", ""
-      for c = 32, 126 do
-        s = string.char (c)
-        subject = subject .. s
-        if s:match ("[][ ()\\\"']") then target = target .. "\\" end
-        target = target .. s
-      end
-      expect (f (subject)).should_be (target)
+  - context with each printable ASCII char:
+    - before:
+        subject, target = "", ""
+        for c = 32, 126 do
+          s = string.char (c)
+          subject = subject .. s
+          if s:match ("[][ ()\\\"']") then target = target .. "\\" end
+          target = target .. s
+        end
+    - "it inserts a \\ before any shell metacharacters":
+        expect (f (subject)).should_be (target)
+    - it is available as a string metamethod:
+        expect (subject:escape_shell ()).should_be (target)
   - legacy escapeShell call is the same function:
       expect (M.escapeShell).should_be (f)
   - the original subject is not perturbed:
@@ -174,9 +186,13 @@ specify string_ext:
   - before:
       subject = "abcd"
       f = M.finds
-  - it creates a list of pattern captures:
-      target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
-      expect ({f (subject, "(.)(.)")}).should_equal ({ target })
+  - context given a complex nested list:
+    - before:
+        target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
+    - it creates a list of pattern captures:
+        expect ({f (subject, "(.)(.)")}).should_equal ({ target })
+    - it is available as a string metamethod:
+        expect ({subject:finds ("(.)(.)")}).should_equal ({ target })
   - it creates an empty list where no captures are matched:
       target = {}
       expect ({f (subject, "(x)")}).should_equal ({ target })
@@ -202,6 +218,8 @@ specify string_ext:
       f = M.format
   - it returns a single argument without attempting formatting:
       expect (f (subject)).should_be (subject)
+  - it is available as a string metamethod:
+      expect (subject:format ()).should_be (subject)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
@@ -221,6 +239,9 @@ specify string_ext:
   - it supports custom removal patterns:
       target = "\r\n  a  short  string  \t\r\n   "
       expect (f (subject, "[ \t\n]+")).should_equal (target)
+  - it is available as a string metamethod:
+      target = "\r\n  a  short  string  \t\r\n   "
+      expect (subject:ltrim ("[ \t\n]+")).should_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
@@ -289,6 +310,9 @@ specify string_ext:
         width = -width
         target = "        short string"
         expect (f (subject, width)).should_be (target)
+    - it is available as a string metamethod:
+        target = "short string        "
+        expect (subject:pad (width)).should_be (target)
 
   - context when string is longer than given width:
     - before:
@@ -300,6 +324,9 @@ specify string_ext:
         width = -width
         target = "an twenty characters"
         expect (f (subject, width)).should_be (target)
+    - it is available as a string metamethod:
+        target = "a string that's long"
+        expect (subject:pad (width)).should_be (target)
 
   - the original subject is not perturbed:
       original = subject
@@ -334,6 +361,9 @@ specify string_ext:
   - it supports custom removal patterns:
       target = " \t\r\n  a  short  string  \t\r"
       expect (f (subject, "[ \t\n]+")).should_equal (target)
+  - it is available as a string metamethod:
+      target = " \t\r\n  a  short  string  \t\r"
+      expect (subject:rtrim ("[ \t\n]+")).should_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
@@ -348,8 +378,11 @@ specify string_ext:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
       f = M.split
-  - it makes a table of substrings delimitied by a separator:
+  - it makes a table of substrings delimited by a separator:
       expect (f (subject,  ", ")).should_equal (target)
+  - it is available as a string metamethod:
+      expect (subject:split ", ").should_equal (target)
+      expect (("/foo/bar/baz.quux"):split "/").should_equal {"", "foo", "bar", "baz.quux"}
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "e")
@@ -376,6 +409,9 @@ specify string_ext:
   - it starts the search at a specified index into the subject:
       target = { 8, 10, { "a", "b", "c" } }
       expect ({f ("garbage" .. subject, "(.)(.)(.)", 8)}).should_equal (target)
+  - it is available as a string metamethod:
+      target = { 8, 10, { "a", "b", "c" } }
+      expect ({("garbage" .. subject):tfind ("(.)(.)(.)", 8)}).should_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "...")
@@ -398,6 +434,9 @@ specify string_ext:
   - it supports custom removal patterns:
       target = "\r\n  a  short  string  \t\r"
       expect (f (subject, "[ \t\n]+")).should_equal (target)
+  - it is available as a string metamethod:
+      target = "\r\n  a  short  string  \t\r"
+      expect (subject:trim ("[ \t\n]+")).should_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
@@ -436,13 +475,17 @@ specify string_ext:
         "etails), and released under the MIT license\n        (the " ..
         "same license as Lua itself). There is no warranty."
       expect (f (subject, 72, 8)).should_be (target)
-  - it can indent the first line differently:
-      target = "    This is a collection of Lua libraries for Lua 5" ..
-        ".1 and 5.2.\n  The libraries are copyright by their author" ..
-        "s 2000-2013 (see\n  the AUTHORS file for details), and rel" ..
-        "eased under the MIT\n  license (the same license as Lua it" ..
-        "self). There is no\n  warranty."
-      expect (f (subject, 64, 2, 4)).should_be (target)
+  - context given a long unwrapped string:
+    - before:
+        target = "    This is a collection of Lua libraries for Lua 5" ..
+          ".1 and 5.2.\n  The libraries are copyright by their author" ..
+          "s 2000-2013 (see\n  the AUTHORS file for details), and rel" ..
+          "eased under the MIT\n  license (the same license as Lua it" ..
+          "self). There is no\n  warranty."
+    - it can indent the first line differently:
+        expect (f (subject, 64, 2, 4)).should_be (target)
+    - it is available as a string metamethod:
+        expect (subject:wrap (64, 2, 4)).should_be (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, 55, 5)

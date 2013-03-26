@@ -5,6 +5,8 @@ local list   = require "list"
 local strbuf = require "strbuf"
 local table  = require "table_ext"
 
+local M = {}
+
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
 -- @param f format
@@ -327,11 +329,9 @@ local old__index = getmetatable ("").__index
 getmetatable ("").__index = function (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
-    -- Fall back to old metamethods
-  elseif type (old__index) == "function" then
-    return old__index (s, i)
+    -- Fall back to module metamethods
   else
-    return old__index[i]
+    return M[i]
   end
 end
 
@@ -502,7 +502,7 @@ local function trim (s, r)
 end
 
 
-local M = {
+for k, v in pairs {
   __index        = old__index,
   caps           = caps,
   chomp          = chomp,
@@ -536,7 +536,9 @@ local M = {
   -- Core Lua function implementations.
   _format   = _format,
   _tostring = _tostring,
-}
+} do
+  M[k] = v
+end
 
 for k, v in pairs (string) do
   M[k] = M[k] or v
