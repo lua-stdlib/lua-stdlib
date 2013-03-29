@@ -248,10 +248,10 @@ end
 -- @param prog table of named parameters
 -- @param ... extra arguments for getOpt
 local function processArgs (prog, ...)
-  local totArgs = #arg
+  local totArgs = #_G.arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getOpt (arg, prog.options, ...)
+  _G.arg, M.opt, errors = getOpt (_G.arg, prog.options, ...)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
