@@ -10,7 +10,7 @@ local version_dashed = version:gsub ("%.", "-")
 
 local default = {
   package = package_name,
-  version = version.."-1",
+  version = version.."-2",
   source = {
     url = "git://github.com/rrthomas/lua-stdlib.git",
   },

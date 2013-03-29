@@ -1,5 +1,5 @@
 package="stdlib"
-version="@VERSION@-1"
+version="@VERSION@-2"
 source = {
   url = "git://github.com/rrthomas/lua-stdlib.git",
   branch = "release-v@VERSION@",

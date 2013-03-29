@@ -160,7 +160,7 @@ AM_DEFAULT_VERBOSITY = 0
 AUTOCONF = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing autoconf
 AUTOHEADER = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing autoheader
 AUTOMAKE = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing automake-1.13
-AWK = gawk
+AWK = awk
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"stdlib\" -DPACKAGE_TARNAME=\"stdlib\" -DPACKAGE_VERSION=\"34\" -DPACKAGE_STRING=\"stdlib\ 34\" -DPACKAGE_BUGREPORT=\"rrt@sc3d.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"stdlib\" -DVERSION=\"34\"
 ECHO_C = \c

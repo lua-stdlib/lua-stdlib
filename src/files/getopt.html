@@ -172,7 +172,7 @@
 <table class="function_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#getOpt">getOpt</a>&nbsp;(argIn, options, undefined_options)</td>
+	<td class="name" nowrap><a href="#getOpt">getOpt</a>&nbsp;(argIn, options, stop_at_nonopt)</td>
 	<td class="summary">Perform argument processing </td>
 	</tr>
 
@@ -182,7 +182,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;(prog, undefined_opts)</td>
+	<td class="name" nowrap><a href="#processArgs">processArgs</a>&nbsp;(prog, ...)</td>
 	<td class="summary">Simple getOpt wrapper.</td>
 	</tr>
 
@@ -214,7 +214,7 @@
 
 
 
-<dt><a name="getOpt"></a><strong>getOpt</strong>&nbsp;(argIn, options, undefined_options)</dt>
+<dt><a name="getOpt"></a><strong>getOpt</strong>&nbsp;(argIn, options, stop_at_nonopt)</dt>
 <dd>
 Perform argument processing
 
@@ -231,7 +231,7 @@ Perform argument processing
 	</li>
 	
 	<li>
-	  undefined_options: if true, allow and collect undefined options
+	  stop_at_nonopt: if true, stop option processing at first non-option
 	</li>
 	
 </ul>
@@ -285,7 +285,7 @@ Options table constructor: adds lookup tables for the option names
 
 
 
-<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;(prog, undefined_opts)</dt>
+<dt><a name="processArgs"></a><strong>processArgs</strong>&nbsp;(prog, ...)</dt>
 <dd>
 Simple getOpt wrapper. If the caller didn't supply their own already, adds <code>--version</code>/<code>-V</code> and <code>--help</code>/<code>-h</code> options automatically; stops program if there was an error, or if <code>--help</code> or <code>--version</code> was used.
 
@@ -298,7 +298,7 @@ Simple getOpt wrapper. If the caller didn't supply their own already, adds <code
 	</li>
 	
 	<li>
-	  undefined_opts: if true, allow and collect undefined options
+	  ...: extra arguments for getOpt
 	</li>
 	
 </ul>

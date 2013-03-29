@@ -1,4 +1,4 @@
-version = "git-1"
+version = "git-2"
 source = {
   url = "git://github.com/rrthomas/lua-stdlib.git",
 }
