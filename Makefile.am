@@ -8,6 +8,7 @@ LUA_PATH ?= ;
 LUA_ENV  = LUA_PATH="$(src_spec);$(LUA_PATH)"
 SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
 
+SPECL    ?= specl
 SPECL_MIN = 3
 
 NOTHING_ELSE =
@@ -76,6 +77,8 @@ src/std.lua: src/std.lua.in
 $(dist_doc_DATA): $(SOURCES)
 	cd src && $(LUADOC) *.lua
 
+MULTICHECK = $$HOME/.luamultienv
+
 check-local:
 	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
 	if test "$$v" -lt "$(SPECL_MIN)"; then			\
@@ -83,5 +86,10 @@ check-local:
 	  echo "ERROR: and rerun \`make check\`";		\
 	  exit 1;						\
 	else							\
-	  $(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS);		\
+	  $(SPEC_ENV) $(SPECL) $(SPECL_OPTS) $(SPECS);		\
+	fi
+## Rerun checks with, e.g. https://raw.github.com/rrthomas/lua-stdlib/master/.luamultienv
+	@if test -z "$$LUAMULTIENV" && test -f "$(MULTICHECK)";	\
+	then							\
+	  LUAMULTIENV=loop-me-not $(SHELL) $(MULTICHECK);	\
 	fi
