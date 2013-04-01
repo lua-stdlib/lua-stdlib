@@ -1,6 +1,6 @@
 specify debug_ext:
 - before: |
-    M = require "debug_ext"
+    M = require "std.debug_ext"
 
     extends      = debug
     enhancements = {}

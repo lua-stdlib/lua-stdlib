@@ -1,95 +1,55 @@
-## Process this file with automake to produce Makefile.in
+# Non-recursive Make rules.
+
+
+## ------------ ##
+## Environment. ##
+## ------------ ##
+
+LUA_PATH ?= ;
+
+
+## ---------- ##
+## Bootstrap. ##
+## ---------- ##
 
 ACLOCAL_AMFLAGS = -I m4
 
-src_spec = $(abs_srcdir)/src/?.lua
 
-LUA_PATH ?= ;
-LUA_ENV  = LUA_PATH="$(src_spec);$(LUA_PATH)"
-SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
+## ------------- ##
+## Declarations. ##
+## ------------- ##
 
-SPECL    ?= specl
-SPECL_MIN = 3
+CLEANFILES		=
+DISTCLEANFILES		=
+EXTRA_DIST		=
+MAINTAINERCLEANFILES	=
+NOTHING_ELSE		=
 
-NOTHING_ELSE =
+filesdir		= $(docdir)/files
+modulesdir		= $(docdir)/modules
 
-SOURCES = 				\
-	src/base.lua			\
-	src/bin.lua			\
-	src/debug_ext.lua		\
-	src/debug_init.lua		\
-	src/fstable.lua			\
-	src/getopt.lua			\
-	src/io_ext.lua			\
-	src/lcs.lua			\
-	src/list.lua			\
-	src/math_ext.lua		\
-	src/mbox.lua			\
-	src/modules.lua			\
-	src/object.lua			\
-	src/package_ext.lua		\
-	src/parser.lua			\
-	src/set.lua			\
-	src/std.lua			\
-	src/strbuf.lua			\
-	src/strict.lua			\
-	src/string_ext.lua		\
-	src/table_ext.lua		\
-	src/tree.lua			\
-	src/xml.lua			\
-	$(NOTHING_ELSE)
+check_local		=
+dist_doc_DATA		=
+dist_files_DATA		=
+dist_modules_DATA	=
 
-SPECS =						\
-	$(srcdir)/specs/debug_ext_spec.yaml	\
-	$(srcdir)/specs/getopt_spec.yaml	\
-	$(srcdir)/specs/io_ext_spec.yaml	\
-	$(srcdir)/specs/math_ext_spec.yaml	\
-	$(srcdir)/specs/package_ext_spec.yaml	\
-	$(srcdir)/specs/string_ext_spec.yaml	\
-	$(srcdir)/specs/table_ext_spec.yaml	\
-	$(NOTHING_ELSE)
+include std/std.mk
+include specs/specs.mk
 
-dist_data_DATA = $(SOURCES)
 
-dist_doc_DATA =				\
-	$(top_srcdir)/src/index.html	\
-	$(top_srcdir)/src/luadoc.css
-filesdir = $(docdir)/files
-dist_files_DATA = $(wildcard $(top_srcdir)/src/files/*.html)
-modulesdir = $(docdir)/modules
-dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
+## ------------ ##
+## Local Tests. ##
+## ------------ ##
 
-EXTRA_DIST =				\
-	src/std.lua.in			\
+check-local: $(check_local)
+
+
+## ------------- ##
+## Distribution. ##
+## ------------- ##
+
+EXTRA_DIST +=				\
 	GNUmakefile			\
-	$(SPECS)			\
 	$(NOTHING_ELSE)
 
-DISTCLEANFILES = $(PACKAGE).rockspec
-
-# In order to avoid regenerating std.lua at configure time, which
-# causes the documentation to be rebuilt and hence requires users to
-# have luadoc installed, put src/std.lua in as a Makefile dependency.
-# (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
-src/std.lua: src/std.lua.in
-	./config.status --file=$@
-
-$(dist_doc_DATA): $(SOURCES)
-	cd src && $(LUADOC) *.lua
-
-MULTICHECK = $$HOME/.luamultienv
-
-check-local:
-	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
-	if test "$$v" -lt "$(SPECL_MIN)"; then			\
-	  echo "ERROR: Specl version $$v is too old, please upgrade to at least version $(SPECL_MIN),";\
-	  echo "ERROR: and rerun \`make check\`";		\
-	  exit 1;						\
-	else							\
-	  $(SPEC_ENV) $(SPECL) $(SPECL_OPTS) $(SPECS);		\
-	fi
-## Rerun checks with, e.g. https://raw.github.com/rrthomas/lua-stdlib/master/.luamultienv
-	@if test -z "$$LUAMULTIENV" && test -f "$(MULTICHECK)";	\
-	then							\
-	  LUAMULTIENV=loop-me-not $(SHELL) $(MULTICHECK);	\
-	fi
+DISTCLEANFILES += $(PACKAGE).rockspec

@@ -1,6 +1,6 @@
 specify io_ext:
 - before: |
-    M = require "io_ext"
+    M = require "std.io_ext"
 
     extends      = io
     enhancements = {}

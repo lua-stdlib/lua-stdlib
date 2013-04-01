@@ -1,5 +1,5 @@
 --- Tables as lists.
-require "base"
+require "std.base"
 
 local new  -- forward declaration
 

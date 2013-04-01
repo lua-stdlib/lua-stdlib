@@ -1,7 +1,7 @@
 --- Additions to the io module
 
-local list    = require "list"
-local package = require "package_ext"
+local list    = require "std.list"
+local package = require "std.package_ext"
 
 
 -- Get an input file handle.

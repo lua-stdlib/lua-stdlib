@@ -1,9 +1,9 @@
 --- Additions to the string module
 -- TODO: Pretty printing (use in getopt); see source for details.
 
-local list   = require "list"
-local strbuf = require "strbuf"
-local table  = require "table_ext"
+local list   = require "std.list"
+local strbuf = require "std.strbuf"
+local table  = require "std.table_ext"
 
 local M = {}
 

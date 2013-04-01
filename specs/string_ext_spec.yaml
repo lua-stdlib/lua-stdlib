@@ -1,6 +1,6 @@
 specify string_ext:
 - before: |
-    M = require "string_ext"
+    M = require "std.string_ext"
 
     extends      = string
     enhancements = { "format" }

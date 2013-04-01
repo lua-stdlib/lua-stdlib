@@ -92,7 +92,7 @@
 -- <br>FIXME: Make start_token an optional argument to parse? (swap with
 -- token list) and have it default to the first non-terminal?</p>
 
-local Object = require "object"
+local Object = require "std.object"
 
 
 local Parser = Object {_init = {"grammar"}}

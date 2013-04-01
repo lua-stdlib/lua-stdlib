@@ -2,8 +2,8 @@
 -- @class module
 -- @name xml
 
-require "base"
-local string = require "string_ext"
+require "std.base"
+local string = require "std.string_ext"
 
 
 --- Write a table as XML.

@@ -7,10 +7,10 @@ module ("base", package.seeall)
 -- @name _G.op
 _G.op = {}
 
-local table = require "table_ext"
---local list = require "list"
---require "io_ext" FIXME: allow loops
-local strbuf  = require "strbuf"
+local table = require "std.table_ext"
+--local list = require "std.list"
+--require "std.io_ext" FIXME: allow loops
+local strbuf  = require "std.strbuf"
 
 
 --- Return given metamethod, if any, or nil.

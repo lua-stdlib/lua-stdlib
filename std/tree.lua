@@ -1,5 +1,5 @@
 --- Tables as trees.
-local list = require "list"
+local list = require "std.list"
 
 
 local metatable = {}

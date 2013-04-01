@@ -1,6 +1,6 @@
 specify table_ext:
 - before: |
-    M = require "table_ext"
+    M = require "std.table_ext"
 
     extends      = table
     enhancements = { "sort" }

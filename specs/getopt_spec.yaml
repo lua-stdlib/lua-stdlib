@@ -1,6 +1,6 @@
 specify getopt:
 - before:
-    getopt = require "getopt"
+    getopt = require "std.getopt"
 
 - "describe getopt.getOpt":
   - before: |

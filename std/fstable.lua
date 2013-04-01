@@ -5,9 +5,9 @@
 -- As with disk operations, a table's elements must be set to nil
 -- (deleted) before the table itself can be set to nil.
 
-local io      = require "io_ext"
-local package = require "package_ext"
-local table   = require "table_ext"
+local io      = require "std.io_ext"
+local package = require "std.package_ext"
+local table   = require "std.table_ext"
 
 require "lfs"
 require "posix"

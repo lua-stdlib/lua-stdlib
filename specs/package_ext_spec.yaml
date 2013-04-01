@@ -1,6 +1,6 @@
 specify package_ext:
 - before: |
-    M = require "package_ext"
+    M = require "std.package_ext"
 
     extends      = package
     extensions   = { "dirsep", "pathsep", "path_mark",  "execdir", "igmark" }

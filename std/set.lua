@@ -1,4 +1,4 @@
-local list = require "list"
+local list = require "std.list"
 
 
 -- Primitive methods (know about representation)

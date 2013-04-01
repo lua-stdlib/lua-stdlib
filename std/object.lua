@@ -23,7 +23,7 @@
 --   <li>Add a method: <code>function object:method (...) ... end</code></li>
 -- </li>
 
-local table = require "table_ext"
+local table = require "std.table_ext"
 
 
 --- Root object
