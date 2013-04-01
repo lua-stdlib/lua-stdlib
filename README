@@ -21,8 +21,41 @@ Installation
 The simplest way to install stdlib is with LuaRocks
 (http://www.luarocks.org/ ):
 
-  luarocks install stdlib
+    luarocks install stdlib
 
+To install from a release tarball using luarocks (replacing ?? with
+the release number you want to build):
+
+    wget https://github.com/rrthomas/lua-stdlib/archive/release-v??.tar.gz
+    tar zxf release-v??.tar.gz
+    cd lua-stdlib-release-v??
+    ./configure
+    make rockspecs
+    luarocks make stdlib-??-1.rockspec
+
+If you need access to features not in a luarocks release yet:
+
+    git clone git@github.com:rrthomas/lua-stdlib.git
+    cd lua-stdlib
+    ./configure
+    make rockspecs
+    luarocks make stdlib-git-1.rockspec
+
+You can also install stdlib without luarocks, but you must first check
+that you have all the dependencies installed, because configure assumes
+they are already available. The latest dependencies are listed in the
+dependencies entry of the file stdlib-rockspec.lua.  You will also need
+a working recent autoconf and automake installation for autoreconf to
+generate configure and Makeflie.in correctly:
+
+    git clone git@github.com:rrthomas/lua-stdlib.git
+    cd lua-stdlib
+    autoreconf --force --version --install
+    ./configure --prefix=INSTALLATION-ROOT-DIRECTORY
+    make all check install
+
+Note that the configured installation method installs directly to the
+specified --prefix tree, even if you have luarocks installed too.
 
 Use
 ---
