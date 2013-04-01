@@ -42,7 +42,7 @@ GIT ?= git
 
 tag-release:
 	$(GIT) diff --exit-code && \
-	$(GIT) tag -f -a -m "Release tag" v$(VERSION)-2
+	$(GIT) tag -f -a -m "Release tag" v$(VERSION)
 
 define unpack-distcheck-release
 	rm -rf $(PACKAGE)-$(VERSION)/ && \
@@ -59,8 +59,8 @@ check-in-release: distcheck
 	cd ../$(PACKAGE)-release && \
 	$(unpack-distcheck-release) && \
 	$(GIT) add . && \
-	$(GIT) commit -a -m "Release v$(VERSION)-2" && \
-	$(GIT) tag -f -a -m "Full source release tag" release-v$(VERSION)-2
+	$(GIT) commit -a -m "Release v$(VERSION)" && \
+	$(GIT) tag -f -a -m "Full source release tag" release-v$(VERSION)
 
 
 ## To test the release process without publishing upstream, use:
@@ -68,7 +68,7 @@ check-in-release: distcheck
 GIT_PUBLISH ?= $(GIT)
 WOGER ?= woger
 
-WOGER_ENV = LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-2.rockspec'
+WOGER_ENV = LUA_INIT= LUA_PATH='$(abs_srcdir)/?-git-1.rockspec'
 WOGER_OUT = $(WOGER_ENV) $(LUA) -l$(PACKAGE) -e
 
 release: rockspecs
@@ -76,7 +76,7 @@ release: rockspecs
 	$(MAKE) check-in-release && \
 	$(GIT_PUBLISH) push && $(GIT_PUBLISH) push --tags && \
 	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks \
-	  --tree=$(abs_srcdir)/luarocks build $(PACKAGE)-$(VERSION)-2.rockspec && \
+	  --tree=$(abs_srcdir)/luarocks build $(PACKAGE)-$(VERSION)-1.rockspec && \
 	$(WOGER) lua \
 	  package=$(PACKAGE) \
 	  package_name=$(PACKAGE_NAME) \

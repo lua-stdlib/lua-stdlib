@@ -7,7 +7,7 @@
 --   this also helps to check module dependencies.</li>
 -- <li>TODO: pre-compile.</li>
 -- </ul>
-local version = "General Lua libraries / 34"
+local version = "General Lua libraries / 34.1"
 
 for _, m in ipairs (require "modules") do
   _G[m] = require (m)

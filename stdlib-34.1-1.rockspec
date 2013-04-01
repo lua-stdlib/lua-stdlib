@@ -1,6 +1,6 @@
-version = "34-2"
+version = "34.1-1"
 source = {
-  branch = "release-v34",
+  branch = "release-v34.1",
   url = "git://github.com/rrthomas/lua-stdlib.git",
 }
 package = "stdlib"

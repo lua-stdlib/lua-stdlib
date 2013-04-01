@@ -162,7 +162,7 @@ AUTOHEADER = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing autohead
 AUTOMAKE = ${SHELL} /Users/gary/Devo/stdlib-release/build-aux/missing automake-1.13
 AWK = awk
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"stdlib\" -DPACKAGE_TARNAME=\"stdlib\" -DPACKAGE_VERSION=\"34\" -DPACKAGE_STRING=\"stdlib\ 34\" -DPACKAGE_BUGREPORT=\"rrt@sc3d.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"stdlib\" -DVERSION=\"34\"
+DEFS = -DPACKAGE_NAME=\"stdlib\" -DPACKAGE_TARNAME=\"stdlib\" -DPACKAGE_VERSION=\"34.1\" -DPACKAGE_STRING=\"stdlib\ 34.1\" -DPACKAGE_BUGREPORT=\"rrt@sc3d.org\" -DPACKAGE_URL=\"\" -DPACKAGE=\"stdlib\" -DVERSION=\"34.1\"
 ECHO_C = \c
 ECHO_N = 
 ECHO_T = 
@@ -187,15 +187,15 @@ MKDIR_P = build-aux/install-sh -c -d
 PACKAGE = stdlib
 PACKAGE_BUGREPORT = rrt@sc3d.org
 PACKAGE_NAME = stdlib
-PACKAGE_STRING = stdlib 34
+PACKAGE_STRING = stdlib 34.1
 PACKAGE_TARNAME = stdlib
 PACKAGE_URL = 
-PACKAGE_VERSION = 34
+PACKAGE_VERSION = 34.1
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 34
+VERSION = 34.1
 abs_builddir = /Users/gary/Devo/stdlib-release
 abs_srcdir = /Users/gary/Devo/stdlib-release
 abs_top_builddir = /Users/gary/Devo/stdlib-release
