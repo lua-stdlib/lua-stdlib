@@ -15,8 +15,6 @@ SPECL_ENV = $(LUA_ENV)
 SPECL     ?= specl
 SPECL_MIN  = 3
 
-MULTICHECK = $$HOME/.luamultienv
-
 
 ## ------ ##
 ## Specs. ##
@@ -42,12 +40,7 @@ specs-check-local:
 	    "ERROR: and rerun \`make check\`";				\
 	  exit 1;							\
 	else								\
-	  $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS);	\
-	fi
-## Rerun checks with, e.g. https://raw.github.com/rrthomas/lua-stdlib/master/.luamultienv
-	@if test -z "$$LUAMULTIENV" && test -f "$(MULTICHECK)";		\
-	then								\
-	  LUAMULTIENV=loop-me-not $(SHELL) $(MULTICHECK);		\
+	  $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS);		\
 	fi
 
 
