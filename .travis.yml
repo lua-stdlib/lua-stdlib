@@ -13,6 +13,8 @@ env:
 
 # Tool setup.
 install:
+  # Temporarily for specl-v4, which spuriously regenerates specl.1.in :(
+  - sudo apt-get install help2man
   - sudo apt-get install luajit
   - sudo apt-get install libluajit-5.1-dev
   - sudo apt-get install lua5.1
