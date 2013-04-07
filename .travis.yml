@@ -36,8 +36,10 @@ install:
 script:
   - autoreconf --force --verbose --install
   - ./configure LUA="$LUA"
-  - make LUA_INCDIR="$LUA_INCDIR" all "$LUAROCKS_CONFIG" V=1
+  # Temporarily use Lua 5.1 with system luarocks until luadoc works with Lua 5.2 :(
+  - make LUA=lua5.1 LUADOC="lua5.1 `which luadoc`" all V=1
+  - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG" std/std.lua V=1
   - eval `$LUAROCKS path`; $LUAROCKS install specl
-  - eval `$LUAROCKS path`; make rockspecs V=1
+  - make rockspecs V=1
   - $LUAROCKS make stdlib-git-1.rockspec
   - eval `$LUAROCKS path`; make SPECL=luarocks/bin/specl check V=1
