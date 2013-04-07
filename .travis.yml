@@ -21,6 +21,10 @@ install:
   - sudo apt-get install liblua5.1-dev
   - sudo apt-get install lua5.2
   - sudo apt-get install liblua5.2-dev
+  # Temporarily for luadoc, which only works with Lua 5.1 :(
+  - sudo apt-get install luarocks
+  - sudo luarocks install luadoc
+  # Temporarily until Travis VMs make a Lua 5.2 compatible Luarocks available :(
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
   - cd $LUAROCKS_BASE
