@@ -41,10 +41,12 @@ luarocks-config.lua: GNUmakefile
 	  echo '}';						\
 	} > '$@'
 
-rockspecs: luarocks-config.lua
-	rm -f *.rockspec
-	$(MKROCKSPECS) $(PACKAGE) $(VERSION) $(ROCKSPEC_TEMPLATE)
-	$(MKROCKSPECS) $(PACKAGE) git $(ROCKSPEC_TEMPLATE)
+rockspecs: luarocks-config.lua $(PACKAGE)-$(VERSION)-1.rockspec
+	$(AM_V_at)rm -f *.rockspec
+	@echo "  GEN      $(PACKAGE)-$(VERSION)-1.rockspec"
+	$(AM_V_at)$(MKROCKSPECS) $(PACKAGE) $(VERSION) $(ROCKSPEC_TEMPLATE)
+	@echo "  GEN      $(PACKAGE)-git-1.rockspec"
+	$(AM_V_at)$(MKROCKSPECS) $(PACKAGE) git $(ROCKSPEC_TEMPLATE)
 
 GIT ?= git
 
