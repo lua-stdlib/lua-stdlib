@@ -1,7 +1,9 @@
 Standard Lua libraries
 ======================
 
-by the [stdlib project](http://github.com/rrthomas/lua-stdlib/)
+by the [stdlib project][github]
+
+[github]: http://github.com/rrthomas/lua-stdlib/ "Github repository"
 
 [![travis-ci status](https://secure.travis-ci.org/rrthomas/lua-stdlib.png?branch=master)](http://travis-ci.org/rrthomas/lua-stdlib/builds)
 
@@ -21,44 +23,26 @@ Installation
 ------------
 
 The simplest way to install stdlib is with LuaRocks
-(http://www.luarocks.org/ ):
+(http://www.luarocks.org/ ). To install the latest release
+(recommended):
 
     luarocks install stdlib
 
-To install from a release tarball using luarocks (replacing ?? with
-the release number you want to build):
+To install current git master (for testing):
 
-    wget https://github.com/rrthomas/lua-stdlib/archive/release-v??.tar.gz
-    tar zxf release-v??.tar.gz
-    cd lua-stdlib-release-v??
-    ./configure
-    make rockspecs
-    luarocks make stdlib-??-1.rockspec
+    luarocks install stdlib git-1
 
-If you need access to features not in a luarocks release yet:
+To install without LuaRocks, check out the sources from the
+[repository][github], and then run the following commands: the
+dependencies are listed in the dependencies entry of the file
+`stdlib-rockspec.lua`. You will also need autoconf and automake.
 
-    git clone git@github.com:rrthomas/lua-stdlib.git
-    cd lua-stdlib
-    autoreconf --force --version --install
-    ./configure
-    make rockspecs
-    luarocks make stdlib-git-1.rockspec
-
-You can also install stdlib without luarocks, but you must first check
-that you have all the dependencies installed, because configure assumes
-they are already available. The latest dependencies are listed in the
-dependencies entry of the file stdlib-rockspec.lua.  You will also need
-a working recent autoconf and automake installation for autoreconf to
-generate configure and Makeflie.in correctly:
-
-    git clone git@github.com:rrthomas/lua-stdlib.git
     cd lua-stdlib
     autoreconf --force --version --install
     ./configure --prefix=INSTALLATION-ROOT-DIRECTORY
     make all check install
 
-Note that the configured installation method installs directly to the
-specified --prefix tree, even if you have luarocks installed too.
+See INSTALL for instructions for `configure`.
 
 Use
 ---
@@ -82,6 +66,6 @@ included.
 Bug reports and code contributions
 ----------------------------------
 
-These libraries are maintained and extended by their users. Please
-make bug report and suggestions on GitHub (see URL at top of file).
-Pull requests are especially appreciated.
+These libraries are written and maintained by their users. Please make
+bug report and suggestions on GitHub (see URL at top of file). Pull
+requests are especially appreciated.
