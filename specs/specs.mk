@@ -34,7 +34,7 @@ specl_SPECS =					\
 
 check_local += specs-check-local
 specs-check-local:
-	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;			\
+	@v=`$(SPECL) --version | sed -e 's|^.* ||' -e 1q`;		\
 	if test "$$v" -lt "$(SPECL_MIN)"; then				\
 	  printf "%s%s\n%s\n"						\
 	    "ERROR: Specl version $$v is too old,"			\

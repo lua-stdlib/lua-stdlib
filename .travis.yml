@@ -32,8 +32,8 @@ install:
 script:
   - autoreconf --force --verbose --install
   - ./configure LUA="$LUA"
-  - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG"
+  - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG" V=1
   - eval `$LUAROCKS path`; $LUAROCKS install specl
-  - eval `$LUAROCKS path`; make rockspecs
+  - eval `$LUAROCKS path`; make rockspecs V=1
   - $LUAROCKS make stdlib-git-1.rockspec
   - eval `$LUAROCKS path`; make SPECL=luarocks/bin/specl check V=1
