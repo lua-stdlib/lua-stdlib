@@ -39,6 +39,7 @@ If you need access to features not in a luarocks release yet:
 
     git clone git@github.com:rrthomas/lua-stdlib.git
     cd lua-stdlib
+    autoreconf --force --version --install
     ./configure
     make rockspecs
     luarocks make stdlib-git-1.rockspec
