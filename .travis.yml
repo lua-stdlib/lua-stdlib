@@ -31,7 +31,6 @@ script:
   - autoreconf --force --verbose --install
   - ./configure LUA="$LUA"
   - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG"
-  - $LUAROCKS install ansicolors
   - $LUAROCKS install specl
   - eval `$LUAROCKS path`; make rockspecs
   - $LUAROCKS make stdlib-git-1.rockspec
