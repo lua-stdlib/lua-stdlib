@@ -1,0 +1,36 @@
+# Lua is not officially supported, but an erlang environment will do.
+language: erlang
+
+env:
+  matrix:
+    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
+    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2
+    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0
+  global:
+    - LUAROCKS_CONFIG=luarocks-config.lua
+    - LUAROCKS_BASE=luarocks-2.0.12
+    - LUAROCKS="$LUA $HOME/bin/luarocks"
+
+# Tool setup.
+install:
+  - sudo apt-get install luajit
+  - sudo apt-get install libluajit-5.1-dev
+  - sudo apt-get install lua5.1
+  - sudo apt-get install liblua5.1-dev
+  - sudo apt-get install lua5.2
+  - sudo apt-get install liblua5.2-dev
+  - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
+  - tar zxvpf $LUAROCKS_BASE.tar.gz
+  - cd $LUAROCKS_BASE
+  - ./configure --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1 --with-lua-include="/usr/include/lua5.1"
+  - make all install
+  - cd ..
+
+# Configure, build and test.
+script:
+  - autoreconf --force --verbose --install
+  - ./configure LUA="$LUA"
+  - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG"
+  - eval `$LUAROCKS path`; make rockspecs
+  - $LUAROCKS make stdlib-git-1.rockspec
+  - eval `$LUAROCKS path`; make check V=1

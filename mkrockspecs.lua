@@ -44,6 +44,6 @@ for f, spec in pairs (loadfile ("rockspecs.lua") ()) do
     end
     h:write (s)
     h:close ()
-    os.execute ("luarocks lint " .. specfile)
+    os.execute ("${LUAROCKS-luarocks} lint " .. specfile)
   end
 end
