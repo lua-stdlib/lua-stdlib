@@ -41,7 +41,7 @@ luarocks-config.lua: GNUmakefile
 	  echo '}';						\
 	} > '$@'
 
-rockspecs: luarocks-config.lua $(PACKAGE)-$(VERSION)-1.rockspec
+rockspecs: luarocks-config.lua $(srcdir)/mkrockspecs.lua
 	$(AM_V_at)rm -f *.rockspec
 	@echo "  GEN      $(PACKAGE)-$(VERSION)-1.rockspec"
 	$(AM_V_at)$(MKROCKSPECS) $(PACKAGE) $(VERSION) $(ROCKSPEC_TEMPLATE)
