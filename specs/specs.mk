@@ -5,8 +5,7 @@
 ## Environment. ##
 ## ------------ ##
 
-std_path = $(abs_srcdir)/?.lua;$(abs_srcdir)/std/?.lua
-SPECL_ENV = LUA_PATH="$(std_path);$(LUA_PATH)"
+SPECL_ENV = $(LUA_ENV)
 
 
 ## ------ ##

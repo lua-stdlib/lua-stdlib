@@ -5,7 +5,10 @@
 ## Environment. ##
 ## ------------ ##
 
+std_path = $(abs_srcdir)/?.lua;$(abs_srcdir)/std/?.lua
+
 LUA_PATH ?= ;
+LUA_ENV = LUA_PATH="$(std_path);$(LUA_PATH)"
 
 
 ## ---------- ##
