@@ -3,7 +3,7 @@ Standard Lua libraries
 
 by the [stdlib project](http://github.com/rrthomas/lua-stdlib/)
 
-[![travis-ci status](https://secure.travis-ci.org/rrthomas/lua-stdlib.png)](http://travis-ci.org/rrthomas/lua-stdlib/builds)
+[![travis-ci status](https://secure.travis-ci.org/rrthomas/lua-stdlib.png?branch=master)](http://travis-ci.org/rrthomas/lua-stdlib/builds)
 
 
 This is a collection of Lua libraries for Lua 5.1 and 5.2. The

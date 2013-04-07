@@ -53,6 +53,7 @@ check-local: $(check_local)
 
 EXTRA_DIST +=				\
 	GNUmakefile			\
+	README.md			\
 	$(NOTHING_ELSE)
 
 DISTCLEANFILES += $(PACKAGE).rockspec
