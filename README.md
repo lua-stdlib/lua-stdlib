@@ -43,7 +43,7 @@ dependencies are listed in the dependencies entry of the file
 
 See [INSTALL][] for instructions for `configure`.
 
-[luarcoks]: http://www.luarocks.org "LuaRocks Project"
+[luarocks]: http://www.luarocks.org "LuaRocks Project"
 [install]: https://raw.github.com/rrthomas/lua-stdlib/master/INSTALL
 
 Use
