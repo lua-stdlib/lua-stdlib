@@ -22,15 +22,14 @@ Lua system. The following modules have extra dependencies:
 Installation
 ------------
 
-The simplest way to install stdlib is with LuaRocks
-(http://www.luarocks.org/ ). To install the latest release
-(recommended):
+The simplest way to install stdlib is with [LuaRocks][]. To install the
+latest release (recommended):
 
     luarocks install stdlib
 
 To install current git master (for testing):
 
-    luarocks install stdlib git-1
+    luarocks install https://raw.github.com/rrthomas/lua-stdlib/release/stdlib-git-1.rockspec
 
 To install without LuaRocks, check out the sources from the
 [repository][github], and then run the following commands: the
@@ -42,7 +41,10 @@ dependencies are listed in the dependencies entry of the file
     ./configure --prefix=INSTALLATION-ROOT-DIRECTORY
     make all check install
 
-See INSTALL for instructions for `configure`.
+See [INSTALL][] for instructions for `configure`.
+
+[luarcoks]: http://www.luarocks.org "LuaRocks Project"
+[install]: https://raw.github.com/rrthomas/lua-stdlib/master/INSTALL
 
 Use
 ---
