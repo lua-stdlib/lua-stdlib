@@ -61,8 +61,10 @@ stdlib.
 Documentation
 -------------
 
-The libraries are documented in LuaDoc. Pre-built HTML files are
-included.
+The libraries are [documented in LuaDoc][github.io]. Pre-built HTML
+files are included.
+
+[github.io]: http://rrthomas.github.io/lua-stdlib
 
 
 Bug reports and code contributions
