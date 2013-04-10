@@ -104,8 +104,8 @@ specify string_ext:
       newstring = f (subject)
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe chomp:
@@ -124,8 +124,8 @@ specify string_ext:
       newstring = f (subject)
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe escape_pattern:
@@ -151,8 +151,8 @@ specify string_ext:
       newstring = f (subject)
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe escape_shell:
@@ -178,8 +178,8 @@ specify string_ext:
       newstring = f (subject)
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe finds:
@@ -207,8 +207,8 @@ specify string_ext:
       newstring = f (subject, "...")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 # FIXME: This looks like a misfeature to me, let's remove it!
@@ -225,8 +225,8 @@ specify string_ext:
       newstring = f (subject)
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil, "arg")
-      expect ("string expected").should_error (f, { "a table" }, "arg")
+      expect (f (nil, "arg")).should_error ("string expected")
+      expect (f ({"a table"}, "arg")).should_error ("string expected")
 
 
 - describe ltrim:
@@ -247,8 +247,8 @@ specify string_ext:
       newstring = f (subject, "%W")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe numbertosi:
@@ -266,8 +266,8 @@ specify string_ext:
   - it coerces string arguments to a number:
       expect (f "1000").should_be "1k"
   - "it diagnoses non-numeric arguments":
-      expect ("attempt to perform arithmetic").should_error (f, nil)
-      expect ("number expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("attempt to perform arithmetic")
+      expect (f {"a table"}).should_error ("number expected")
 
 
 - describe ordinal_suffix:
@@ -291,8 +291,8 @@ specify string_ext:
   - it coerces string arguments to a number:
       expect (f "-91").should_be "st"
   - "it diagnoses non-numeric arguments":
-      expect ("number expected").should_error (f, nil)
-      expect ("number expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("number expected")
+      expect (f {"a table"}).should_error ("number expected")
 
 
 - describe pad:
@@ -335,8 +335,8 @@ specify string_ext:
   - "it coerces non-string arguments to a string":
       expect (f ({ "a table" }, width)).should_contain "a table"
   - "it diagnoses non-numeric width arguments":
-      expect ("number expected").should_error (f, subject, nil)
-      expect ("number expected").should_error (f, subject, { "a table" })
+      expect (f (subject, nil)).should_error ("number expected")
+      expect (f (subject, {"a table"})).should_error ("number expected")
 
 
 - describe pickle:
@@ -369,8 +369,8 @@ specify string_ext:
       newstring = f (subject, "%W")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe split:
@@ -388,9 +388,9 @@ specify string_ext:
       newstring = f (subject, "e")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, "a string", nil)
-      expect ("string expected").should_error (f, nil, ",")
-      expect ("string expected").should_error (f, { "a table" }, ",")
+      expect (f ("a string")).should_error ("string expected")
+      expect (f (nil, ",")).should_error ("string expected")
+      expect (f ({"a table"}, ",")).should_error ("string expected")
 
 
 - describe tfind:
@@ -417,8 +417,8 @@ specify string_ext:
       newstring = f (subject, "...")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe tostring:
@@ -442,8 +442,8 @@ specify string_ext:
       newstring = f (subject, "%W")
       expect (subject).should_be (original)
   - "it diagnoses non-string arguments":
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")
 
 
 - describe wrap:
@@ -491,8 +491,8 @@ specify string_ext:
       newstring = f (subject, 55, 5)
       expect (subject).should_be (original)
   - it diagnoses indent greater than line width:
-      expect ("less than the line width").should_error (f, subject, 10, 12)
-      expect ("less than the line width").should_error (f, subject, 99, 99)
+      expect (f (subject, 10, 12)).should_error ("less than the line width")
+      expect (f (subject, 99, 99)).should_error ("less than the line width")
   - it diagnoses non-string arguments:
-      expect ("string expected").should_error (f, nil)
-      expect ("string expected").should_error (f, { "a table" })
+      expect (f ()).should_error ("string expected")
+      expect (f {"a table"}).should_error ("string expected")

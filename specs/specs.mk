@@ -12,8 +12,9 @@ SPECL_ENV = $(LUA_ENV)
 ## Tools. ##
 ## ------ ##
 
+## We're using improved sanity Specl-5 should_error ordering.
 SPECL     ?= specl
-SPECL_MIN  = 3
+SPECL_MIN  = 5
 
 
 ## ------ ##

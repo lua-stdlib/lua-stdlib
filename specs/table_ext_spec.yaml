@@ -74,8 +74,8 @@ specify table_ext:
       expect (subject).should_equal (target)
       expect (subject).should_be (subject)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
 
 - describe clone_rename:
@@ -98,8 +98,8 @@ specify table_ext:
         expect (f ({k1 = "newkey"}, subject).newkey).should_be (subject.k1)
 
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, {}, nil)
-      expect ("table expected").should_error (f, {}, "foo")
+      expect (f {}).should_error ("table expected")
+      expect (f ({}, "foo")).should_error ("table expected")
 
 
 - describe empty:
@@ -113,8 +113,8 @@ specify table_ext:
       expect (f {{}}).should_be (false)
       expect (f {false}).should_be (false)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
 
 - describe invert:
@@ -132,8 +132,8 @@ specify table_ext:
       expect (f (subject)).should_equal (subject)
       expect (f (subject)).should_not_be (subject)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
 
 - describe keys:
@@ -152,8 +152,8 @@ specify table_ext:
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).should_not_equal (subject)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
 
 - describe merge:
@@ -181,8 +181,8 @@ specify table_ext:
       expect (m.k3).should_be (t2.k3)
       expect (m.k3).should_not_be (original.k3)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil, nil)
-      expect ("table expected").should_error (f, "foo", "bar")
+      expect (f ()).should_error ("table expected")
+      expect (f ("foo", "bar")).should_error ("table expected")
 
 
 - describe new:
@@ -219,7 +219,7 @@ specify table_ext:
       t = f (default)
       expect (t[1]).should_be (default)
   - "it diagnoses non-tables/non-nil in the second argument":
-      expect ("table expected").should_error (f, nil, "foo")
+      expect (f (nil, "foo")).should_error ("table expected")
 
 
 - describe size:
@@ -232,8 +232,8 @@ specify table_ext:
   - it counts no keys in an empty table:
       expect (f {}).should_be (0)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
 
 - describe sort:
@@ -248,8 +248,8 @@ specify table_ext:
   - it returns the sorted table:
       expect (f (subject, cmp)).should_equal (target)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, nil)
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
 
   
 - describe values:
@@ -267,5 +267,5 @@ specify table_ext:
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).should_equal (subject)
   - "it diagnoses non-table arguments":
-      expect ("table expected").should_error (f, nil)
-      expect ("table expected").should_error (f, "foo")
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
