@@ -2,7 +2,7 @@
 
 -- Variables to be interpolated:
 --
--- package
+-- package_name
 -- version
 
 local version_dashed = version:gsub ("%.", "-")
@@ -28,8 +28,11 @@ local default = {
   },
   build = {
     type = "command",
-    build_command = "LUA=$(LUA) LUA_INCLUDE=$(LUA_INCDIR) ./configure --prefix=$(PREFIX) --libdir=$(LIBDIR) --datadir=$(LUADIR) && make clean && make",
-    install_command = "make install",
+    build_command = "./configure " ..
+      "LUA_INCLUDE=$(LUA_INCDIR) LUA=$(LUA) CPPFLAGS=-I$(LUA_INCDIR) " ..
+      "--prefix=$(PREFIX) --libdir=$(LIBDIR) --datadir=$(LUADIR) " ..
+      "&& make clean all",
+    install_command = "make install luadir=$(LUADIR)",
     copy_directories = {},
   },
 }
@@ -37,7 +40,7 @@ local default = {
 if version ~= "git" then
   default.source.branch = "release-v"..version_dashed
 else
-  default.build.build_command = "autoreconf -i && " .. default.build.build_command
+  default.build.build_command = "./bootstrap && " .. default.build.build_command
 end
 
 return {default=default, [""]={}}

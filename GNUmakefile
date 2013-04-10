@@ -9,7 +9,7 @@ Makefile: Makefile.in
 	$(MAKE)
 
 Makefile.in:
-	autoreconf --force --verbose --install
+	./bootstrap
 
 else
 
@@ -23,8 +23,8 @@ specl_verbose_1 = --verbose --formatter=report
 include Makefile
 
 ROCKSPEC_ENV	  = $(LUA_ENV)
-MKROCKSPECS 	  = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/mkrockspecs.lua
-ROCKSPEC_TEMPLATE = $(srcdir)/$(PACKAGE)-rockspec.lua
+MKROCKSPECS 	  = $(ROCKSPEC_ENV) $(LUA) $(srcdir)/build-aux/mkrockspecs
+ROCKSPEC_TEMPLATE = $(srcdir)/rockspecs.lua
 
 LUA_BINDIR ?= $(shell which $(LUA) |sed 's|/[^/]*$$||')
 LUA_INCDIR ?= `cd $(LUA_BINDIR)/../include && pwd`
@@ -41,7 +41,7 @@ luarocks-config.lua: GNUmakefile
 	  echo '}';						\
 	} > '$@'
 
-rockspecs: luarocks-config.lua $(srcdir)/mkrockspecs.lua
+rockspecs: luarocks-config.lua $(srcdir)/build-aux/mkrockspecs $(ROCKSPEC_TEMPLATE)
 	$(AM_V_at)rm -f *.rockspec
 	@echo "  GEN      $(PACKAGE)-$(VERSION)-1.rockspec"
 	$(AM_V_at)$(MKROCKSPECS) $(PACKAGE) $(VERSION) $(ROCKSPEC_TEMPLATE)

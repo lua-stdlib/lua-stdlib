@@ -1,14 +1,18 @@
+#!/bin/sh
+A=--[[ exec lua "$0" "$@" # -* mode: lua; -*s ]]A
+--
 -- Generate rockspecs from a prototype with variants
 
 require "std"
 
-if select ("#", ...) < 2 then
-  io.stderr:write "Usage: mkrockspecs PACKAGE VERSION\n"
+if select ("#", ...) < 3 then
+  io.stderr:write "Usage: mkrockspecs PACKAGE VERSION TEMPLATE\n"
   os.exit ()
 end
 
 package_name = select (1, ...)
 version = select (2, ...)
+template = select (3, ...)
 
 function format (x, indent)
   indent = indent or ""
@@ -30,13 +34,15 @@ function format (x, indent)
   end
 end
 
-for f, spec in pairs (loadfile ("rockspecs.lua") ()) do
+local settings = loadfile (template) ()
+local qualified_version = settings.default.version
+for f, spec in pairs (settings) do
   if f ~= "default" then
-    local specfile = package_name.."-"..(f ~= "" and f:lower ().."-" or "")..version.."-1.rockspec"
+    local specfile = package_name.."-"..(f ~= "" and f:lower ().."-" or "")..qualified_version..".rockspec"
     h = io.open (specfile, "w")
     assert (h)
     flavour = f -- a global, visible in loadfile
-    local specs = loadfile ("rockspecs.lua") () -- reload to get current flavour interpolated
+    local specs = loadfile (template) () -- reload to get current flavour interpolated
     local spec = tree.merge (tree.new (specs.default), tree.new (specs[f]))
     local s = ""
     for i, v in pairs (spec) do
