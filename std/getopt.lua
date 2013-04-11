@@ -32,9 +32,10 @@
 -- </ul>
 
 require "std.base"
+local io     = require "std.io_ext"
 local list   = require "std.list"
-local string = require "std.string_ext"
 local Object = require "std.object"
+local string = require "std.string_ext"
 local table  = require "std.table_ext"
 
 local M = {
