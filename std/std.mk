@@ -8,27 +8,21 @@
 ## Use, e.g. `require "std.list"` for individual modules.
 nobase_dist_lua_DATA = 			\
 	std/base.lua			\
-	std/bin.lua			\
 	std/debug_ext.lua		\
 	std/debug_init.lua		\
-	std/fstable.lua			\
 	std/getopt.lua			\
 	std/io_ext.lua			\
-	std/lcs.lua			\
 	std/list.lua			\
 	std/math_ext.lua		\
-	std/mbox.lua			\
 	std/modules.lua			\
 	std/object.lua			\
 	std/package_ext.lua		\
-	std/parser.lua			\
 	std/set.lua			\
 	std/strbuf.lua			\
 	std/strict.lua			\
 	std/string_ext.lua		\
 	std/table_ext.lua		\
 	std/tree.lua			\
-	std/xml.lua			\
 	$(NOTHING_ELSE)
 
 ## But, `require "std"` for core module.

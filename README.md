@@ -13,10 +13,7 @@ libraries are copyright by their authors 2000-2013 (see the AUTHORS
 file for details), and released under the MIT license (the same
 license as Lua itself). There is no warranty.
 
-The standard subset of stdlib has no prerequisites beyond a standard
-Lua system. The following modules have extra dependencies:
-
-    fstable: Lua 5.2, lfs, luaposix
+Stdlib has no prerequisites beyond a standard Lua system.
 
 
 Installation
