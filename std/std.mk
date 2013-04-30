@@ -51,12 +51,12 @@ EXTRA_DIST +=				\
 ## Documentation. ##
 ## -------------- ##
 
-dist_doc_DATA +=				\
-	$(top_srcdir)/std/index.html	\
-	$(top_srcdir)/std/luadoc.css
+dist_doc_DATA +=			\
+	$(srcdir)/std/index.html	\
+	$(srcdir)/std/luadoc.css
 
-dist_files_DATA += $(wildcard $(top_srcdir)/std/files/*.html)
-dist_modules_DATA += $(wildcard $(top_srcdir)/std/modules/*.html)
+dist_files_DATA += $(wildcard $(srcdir)/std/files/*.html)
+dist_modules_DATA += $(wildcard $(srcdir)/std/modules/*.html)
 
 $(dist_doc_DATA): $(nobase_dist_lua_DATA)
-	cd std && $(LUADOC) *.lua
+	cd $(srcdir)/std && $(LUADOC) *.lua
