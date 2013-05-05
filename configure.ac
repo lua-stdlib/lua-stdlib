@@ -21,5 +21,9 @@ AC_PROG_SED
 dnl Generate output files
 SPECL_MIN=5
 SS_CONFIG_TRAVIS([luadoc])
+# ensure we only run luadoc with lua5.1 - it isn't 5.2 compatible yet.
+lua51_only='[s|^exec "[^"]*"|exec lua5.1|]'
+EXTRA_ROCKS="$EXTRA_ROCKS perl -i -pe '$lua51_only' \`which luadoc\`"
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
