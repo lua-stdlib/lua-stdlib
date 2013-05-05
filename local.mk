@@ -12,7 +12,7 @@ LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 ## Bootstrap. ##
 ## ---------- ##
 
-old_NEWS_hash = unknown
+old_NEWS_hash = dfde3c0c6163db72d47538ad8711607c
 
 
 ## ------------- ##
