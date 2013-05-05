@@ -40,7 +40,7 @@ script:
     LUA="$LUA" LUA_INCDIR="$LUA_INCDIR" V=1
     || cat $LUAROCKS_CONFIG config.log
   # lyaml is needed to run the slingshot mkrockspecs script.
-  - $LUAROCKS install @EXTRA_ROCKS@
+  - $LUAROCKS install lyaml
   - eval `$LUAROCKS path`;
     make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
