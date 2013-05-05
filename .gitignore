@@ -1,4 +1,5 @@
 /.autom4te.cfg
+/.gitmodules
 /COPYING
 /ChangeLog
 /GNUmakefile
