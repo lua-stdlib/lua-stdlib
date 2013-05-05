@@ -159,7 +159,7 @@ slingshot_require_slingshot_dotgitmodules ()
         func_verbose "adding slingshot entries to '.gitmodules'"
 
         test -n "$slingshot_path" || slingshot_path=slingshot
-        test -n "$slingshot_url"  || slingshot_url=git@github.com:gvvaughan/slingshot.git
+        test -n "$slingshot_url"  || slingshot_url=git://github.com/gvvaughan/slingshot.git
 
         {
           echo '[submodule "slingshot"]'
