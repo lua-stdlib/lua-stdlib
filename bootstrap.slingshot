@@ -241,12 +241,12 @@ slingshot_require_slingshot_submodule ()
         # FIXME: Solaris /bin/sh will try to execute '-' if any of
         #        these signals are caught after this.
         trap - 1 2 13 15
-      fi
 
-      # Make sure we've checked out the correct revision of slingshot.
-      func_show_eval "$GIT submodule init" \
-        && func_show_eval "$GIT submodule update" \
-        || func_fatal_error "Unable to update slingshot submodule."
+        # Make sure we've checked out the correct revision of slingshot.
+        func_show_eval "$GIT submodule init" \
+          && func_show_eval "$GIT submodule update" \
+          || func_fatal_error "Unable to update slingshot submodule."
+      fi
     fi
 
     require_slingshot_submodule=:

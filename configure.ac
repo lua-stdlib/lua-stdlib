@@ -19,13 +19,7 @@ AC_PROG_EGREP
 AC_PROG_SED
 
 dnl Generate output files
-SPECL_FALSE=
-AS_IF([test -f src/specl.in], [SPECL_FALSE='#'])
-AC_SUBST([SPECL_FALSE])
-AC_SUBST([SPECL_MIN], [5])
-EXTRA_ROCKS='lyaml luadoc'
-AC_SUBST([EXTRA_ROCKS])
-AC_CONFIG_FILES([.travis.yml:travis.yml.in])
-
+SPECL_MIN=5
+SS_CONFIG_TRAVIS([luadoc])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
