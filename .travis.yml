@@ -2,18 +2,20 @@
 language: erlang
 
 env:
+  global:
+    - PACKAGE=stdlib
+    - ROCKSPEC=$PACKAGE-git-1.rockspec
+    - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
+    - LUAROCKS_BASE=luarocks-2.0.13
+    - LUAROCKS="$LUA $HOME/bin/luarocks"
+    - SPECL=bin/specl
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
     - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2
     - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0
-  global:
-    - LUAROCKS_CONFIG=luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.0.12
-    - LUAROCKS="$LUA $HOME/bin/luarocks"
 
 # Tool setup.
 install:
-  # Temporarily for specl-v4, which spuriously regenerates specl.1.in :(
   - sudo apt-get install help2man
   - sudo apt-get install luajit
   - sudo apt-get install libluajit-5.1-dev
@@ -21,26 +23,31 @@ install:
   - sudo apt-get install liblua5.1-dev
   - sudo apt-get install lua5.2
   - sudo apt-get install liblua5.2-dev
-  # Temporarily for luadoc, which only works with Lua 5.1 :(
-  - sudo apt-get install luarocks
-  - sudo luarocks install luadoc
-  # Temporarily until Travis VMs make a Lua 5.2 compatible Luarocks available :(
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
   - cd $LUAROCKS_BASE
-  - ./configure --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1 --with-lua-include="/usr/include/lua5.1"
+  - ./configure
+    --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1
+    --with-lua-include="/usr/include/lua5.1"
   - make all install
   - cd ..
 
-# Configure, build and test.
+# Configure and build.
 script:
-  - autoreconf --force --verbose --install
+  - ./bootstrap
   - ./configure LUA="$LUA"
-  # Temporarily use Lua 5.1 with system luarocks until luadoc works with Lua 5.2 :(
-  - sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > luadoc
-  - make LUADOC="$SHELL `pwd`/luadoc" all V=1
-  - make LUA_INCDIR="$LUA_INCDIR" "$LUAROCKS_CONFIG" std/std.lua V=1
-  - eval `$LUAROCKS path`; $LUAROCKS install specl
-  - make rockspecs V=1
-  - $LUAROCKS make stdlib-git-1.rockspec
-  - eval `$LUAROCKS path`; make SPECL=luarocks/bin/specl check V=1
+  - make $LUAROCKS_CONFIG
+    LUA="$LUA" LUA_INCDIR="$LUA_INCDIR" V=1
+    || cat $LUAROCKS_CONFIG config.log
+  # lyaml is needed to run the slingshot mkrockspecs script.
+  - $LUAROCKS install @EXTRA_ROCKS@
+  - eval `$LUAROCKS path`;
+    make rockspecs LUAROCKS="$LUAROCKS" V=1
+    || { $LUAROCKS path; cat $ROCKSPEC; }
+  # LuaRocks make will fail if dependencies are missing.
+  - $LUAROCKS make $ROCKSPEC
+  # The self tests must pass.
+  - $LUAROCKS install specl
+  # Use bin/specl if we built it, or else the specl rock we just installed.
+  - test -f "$SPECL" || SPECL=luarocks/bin/specl;
+    make check SPECL="$SPECL" V=1

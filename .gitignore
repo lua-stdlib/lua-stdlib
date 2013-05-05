@@ -1,5 +1,8 @@
+/.autom4te.cfg
 /COPYING
 /ChangeLog
+/GNUmakefile
+/Makefile.am
 /Makefile.in
 /Makefile
 /aclocal.m4
@@ -12,4 +15,7 @@
 /luarocks-config.lua
 /release-notes-*
 /stdlib-*.tar.gz
+/travis.yml.in
 /*.rockspec
+/m4/ax_compare_version.m4
+/m4/ax_lua.m4
