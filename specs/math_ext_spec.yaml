@@ -4,7 +4,7 @@ specify math_ext:
 
     extends      = math
     enhancements = { "floor" }
-    extensions   = { "round" } 
+    extensions   = { "round" }
 
 
 - context when required:

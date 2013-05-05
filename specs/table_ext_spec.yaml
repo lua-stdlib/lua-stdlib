@@ -251,7 +251,7 @@ specify table_ext:
       expect (f ()).should_error ("table expected")
       expect (f "foo").should_error ("table expected")
 
-  
+
 - describe values:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }

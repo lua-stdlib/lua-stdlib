@@ -6,7 +6,7 @@
 ## ------ ##
 
 ## Use, e.g. `require "std.list"` for individual modules.
-nobase_dist_lua_DATA = 			\
+nobase_dist_lua_DATA =			\
 	std/base.lua			\
 	std/debug_ext.lua		\
 	std/debug_init.lua		\
