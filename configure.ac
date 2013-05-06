@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script
 
 dnl Initialise autoconf and automake
-AC_INIT([stdlib], [35], [http://github.com/rrthomas/lua-stdlib/issues])
+AC_INIT([lua-stdlib], [35], [http://github.com/rrthomas/lua-stdlib/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
