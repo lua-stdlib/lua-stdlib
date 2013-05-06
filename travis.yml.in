@@ -3,7 +3,7 @@ language: erlang
 
 env:
   global:
-    - PACKAGE=lua-stdlib
+    - PACKAGE=@PACKAGE@
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.0.13
@@ -34,11 +34,11 @@ install:
   - make all install
   - cd ..
   # Luadoc has to be installed separately while it is Lua 5.1 only.
-  - sudo apt-get install luarocks
-  - sudo luarocks install luadoc
-  - mkdir -p luarocks/bin
-  - sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > $LUADOC
-  - chmod a+rx $LUADOC
+  @LUADOC_FALSE@ sudo apt-get install luarocks
+  @LUADOC_FALSE@ sudo luarocks install luadoc
+  @LUADOC_FALSE@ mkdir -p luarocks/bin
+  @LUADOC_FALSE@ sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > $LUADOC
+  @LUADOC_FALSE@ chmod a+rx $LUADOC
 
 # Configure and build.
 script:
@@ -50,7 +50,7 @@ script:
   # Set Lua and Shell paths up for local luarocks tree.
   - eval `$LUAROCKS path`
   - export PATH=`pwd`/luarocks/bin:$PATH
-  - $LUAROCKS install lyaml; $LUAROCKS install specl;
+  @EXTRA_ROCKS@
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
   # LuaRocks make will fail if dependencies are missing.

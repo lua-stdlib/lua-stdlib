@@ -14,6 +14,95 @@
 
 @SET_MAKE@
 
+# Non-recursive Make rules.
+#
+# Copyright (C) 2013 Gary V. Vaughan
+# Written by Gary V. Vaughan, 2013
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Local Make rules.
+
+# lua-stdlib make rules.
+
+# Specl specs make rules.
+
+# Slingshot specl rules for make.
+
+# This file is distributed with Slingshot, and licensed under the
+# terms of the MIT license reproduced below.
+
+# ==================================================================== #
+# Copyright (C) 2013 Gary V. Vaughan                                   #
+#                                                                      #
+# Permission is hereby granted, free of charge, to any person          #
+# obtaining a copy of this software and associated documentation       #
+# files (the "Software"), to deal in the Software without restriction, #
+# including without limitation the rights to use, copy, modify, merge, #
+# publish, distribute, sublicense, and/or sell copies of the Software, #
+# and to permit persons to whom the Software is furnished to do so,    #
+# subject to the following conditions:                                 #
+#                                                                      #
+# The above copyright notice and this permission notice shall be       #
+# included in  all copies or substantial portions of the Software.     #
+#                                                                      #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,      #
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF   #
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGE-   #
+# MENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE   #
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF   #
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION   #
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.      #
+# ==================================================================== #
+
+# To use this file create a list of your spec files in specl_SPECS
+# and then include this make fragment.
+
+# Slingshot rockspec rules for make.
+
+# This file is distributed with Slingshot, and licensed under the
+# terms of the MIT license reproduced below.
+
+# ==================================================================== #
+# Copyright (C) 2013 Reuben Thomas and Gary V. Vaughan                 #
+#                                                                      #
+# Permission is hereby granted, free of charge, to any person          #
+# obtaining a copy of this software and associated documentation       #
+# files (the "Software"), to deal in the Software without restriction, #
+# including without limitation the rights to use, copy, modify, merge, #
+# publish, distribute, sublicense, and/or sell copies of the Software, #
+# and to permit persons to whom the Software is furnished to do so,    #
+# subject to the following conditions:                                 #
+#                                                                      #
+# The above copyright notice and this permission notice shall be       #
+# included in  all copies or substantial portions of the Software.     #
+#                                                                      #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,      #
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF   #
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGE-   #
+# MENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE   #
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF   #
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION   #
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.      #
+# ==================================================================== #
+
+# This file is suitable for use from a portable Makefile, you might
+# include it into the top-level Makefile.am with:
+#
+#   include build-aux/rockspecs.mk
+
+
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -48,43 +137,28 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = .
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/configure $(am__configure_deps) \
-	$(dist_data_DATA) $(dist_doc_DATA) $(dist_files_DATA) \
-	$(dist_modules_DATA) AUTHORS INSTALL README \
+DIST_COMMON = $(srcdir)/local.mk $(srcdir)/std/std.mk \
+	$(srcdir)/specs/specs.mk $(srcdir)/build-aux/specl.mk \
+	$(srcdir)/build-aux/rockspecs.mk $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) $(srcdir)/travis.yml.in $(dist_doc_DATA) \
+	$(dist_files_DATA) $(dist_lua_DATA) $(dist_modules_DATA) \
+	$(nobase_dist_lua_DATA) AUTHORS ChangeLog INSTALL NEWS \
 	build-aux/install-sh build-aux/missing \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/missing
+subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_compare_version.m4 \
-	$(top_srcdir)/m4/ax_lua.m4 $(top_srcdir)/m4/ax_with_prog.m4 \
+	$(top_srcdir)/m4/ax_lua.m4 $(top_srcdir)/m4/slingshot.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = .travis.yml
 CONFIG_CLEAN_VPATH_FILES =
-AM_V_P = $(am__v_P_@AM_V@)
-am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
-am__v_P_0 = false
-am__v_P_1 = :
-AM_V_GEN = $(am__v_GEN_@AM_V@)
-am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
-am__v_GEN_0 = @echo "  GEN     " $@;
-am__v_GEN_1 = 
-AM_V_at = $(am__v_at_@AM_V@)
-am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
-am__v_at_0 = @
-am__v_at_1 = 
-DIST_SOURCES =
-am__can_run_installinfo = \
-  case $$AM_UPDATE_INFO_DIR in \
-    n|no|NO) false;; \
-    *) (install-info --version) >/dev/null 2>&1;; \
-  esac
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -112,31 +186,32 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" \
-	"$(DESTDIR)$(filesdir)" "$(DESTDIR)$(modulesdir)"
-DATA = $(dist_data_DATA) $(dist_doc_DATA) $(dist_files_DATA) \
-	$(dist_modules_DATA)
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" \
+	"$(DESTDIR)$(filesdir)" "$(DESTDIR)$(luadir)" \
+	"$(DESTDIR)$(modulesdir)" "$(DESTDIR)$(luadir)"
+SCRIPTS = $(bin_SCRIPTS)
+AM_V_P = $(am__v_P_@AM_V@)
+am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
+am__v_P_0 = false
+am__v_P_1 = :
+AM_V_GEN = $(am__v_GEN_@AM_V@)
+am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+am__v_GEN_0 = @echo "  GEN     " $@;
+am__v_GEN_1 = 
+AM_V_at = $(am__v_at_@AM_V@)
+am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
+am__v_at_0 = @
+am__v_at_1 = 
+SOURCES =
+DIST_SOURCES =
+am__can_run_installinfo = \
+  case $$AM_UPDATE_INFO_DIR in \
+    n|no|NO) false;; \
+    *) (install-info --version) >/dev/null 2>&1;; \
+  esac
+DATA = $(dist_doc_DATA) $(dist_files_DATA) $(dist_lua_DATA) \
+	$(dist_modules_DATA) $(nobase_dist_lua_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
-# Read a list of newline-separated strings from the standard input,
-# and print each of them once, without duplicates.  Input order is
-# *not* preserved.
-am__uniquify_input = $(AWK) '\
-  BEGIN { nonempty = 0; } \
-  { items[$$0] = 1; nonempty = 1; } \
-  END { if (nonempty) { for (i in items) print i; }; } \
-'
-# Make sure the list of sources is unique.  This is necessary because,
-# e.g., the same source file might be shared among _SOURCES variables
-# for different programs/libraries.
-am__define_uniq_tagged_files = \
-  list='$(am__tagged_files)'; \
-  unique=`for i in $$list; do \
-    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
-  done | $(am__uniquify_input)`
-ETAGS = etags
-CTAGS = ctags
-CSCOPE = cscope
-AM_RECURSIVE_TARGETS = cscope
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -166,6 +241,9 @@ DEFS = @DEFS@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
+EGREP = @EGREP@
+EXTRA_ROCKS = @EXTRA_ROCKS@
+GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -176,8 +254,8 @@ LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 LUA = @LUA@
 LUADOC = @LUADOC@
+LUADOC_FALSE = @LUADOC_FALSE@
 LUA_EXEC_PREFIX = @LUA_EXEC_PREFIX@
-LUA_MIN_VERSION = @LUA_MIN_VERSION@
 LUA_PLATFORM = @LUA_PLATFORM@
 LUA_PREFIX = @LUA_PREFIX@
 LUA_SHORT_VERSION = @LUA_SHORT_VERSION@
@@ -192,8 +270,11 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SPECL = @SPECL@
+SPECL_MIN = @SPECL_MIN@
 STRIP = @STRIP@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
@@ -240,66 +321,87 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-src_spec = $(abs_srcdir)/src/?.lua
-LUA_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
-SPEC_ENV = LUA_PATH="$(src_spec);$(LUA_PATH)"
-SPECL_MIN = 3
+EXTRA_DIST = std/std.lua.in $(NOTHING_ELSE) $(specl_SPECS) \
+	$(NOTHING_ELSE) $(mkrockspecs) $(package_rockspec) \
+	$(rockspec_conf) $(NOTHING_ELSE) README.md $(NOTHING_ELSE)
+CLEANFILES = 
+DISTCLEANFILES = $(luarocks_config) $(NOTHING_ELSE)
+MAINTAINERCLEANFILES = 
 NOTHING_ELSE = 
-SOURCES = \
-	src/base.lua			\
-	src/bin.lua			\
-	src/debug_ext.lua		\
-	src/debug_init.lua		\
-	src/fstable.lua			\
-	src/getopt.lua			\
-	src/io_ext.lua			\
-	src/lcs.lua			\
-	src/list.lua			\
-	src/math_ext.lua		\
-	src/mbox.lua			\
-	src/modules.lua			\
-	src/object.lua			\
-	src/package_ext.lua		\
-	src/parser.lua			\
-	src/set.lua			\
-	src/std.lua			\
-	src/strbuf.lua			\
-	src/strict.lua			\
-	src/string_ext.lua		\
-	src/table_ext.lua		\
-	src/tree.lua			\
-	src/xml.lua			\
+bin_SCRIPTS = 
+check_local = specl-check-local
+install_exec_hooks = 
+man_MANS = 
+std_path = $(abs_srcdir)/?.lua;$(abs_srcdir)/std/?.lua
+LUA_ENV = LUA_PATH="$(std_path);$(LUA_PATH)"
+old_NEWS_hash = dfde3c0c6163db72d47538ad8711607c
+filesdir = $(docdir)/files
+modulesdir = $(docdir)/modules
+dist_doc_DATA = $(srcdir)/std/index.html $(srcdir)/std/luadoc.css
+dist_files_DATA = $(wildcard $(srcdir)/std/files/*.html)
+dist_modules_DATA = $(wildcard $(srcdir)/std/modules/*.html)
+nobase_dist_lua_DATA = \
+	std/base.lua			\
+	std/debug_ext.lua		\
+	std/debug_init.lua		\
+	std/getopt.lua			\
+	std/io_ext.lua			\
+	std/list.lua			\
+	std/math_ext.lua		\
+	std/modules.lua			\
+	std/object.lua			\
+	std/package_ext.lua		\
+	std/set.lua			\
+	std/strbuf.lua			\
+	std/strict.lua			\
+	std/string_ext.lua		\
+	std/table_ext.lua		\
+	std/tree.lua			\
 	$(NOTHING_ELSE)
 
-SPECS = \
+dist_lua_DATA = \
+	std/std.lua			\
+	$(NOTHING_ELSE)
+
+SPECL_ENV = $(LUA_ENV)
+specl_SPECS = \
+	$(srcdir)/specs/debug_ext_spec.yaml	\
 	$(srcdir)/specs/getopt_spec.yaml	\
+	$(srcdir)/specs/io_ext_spec.yaml	\
+	$(srcdir)/specs/math_ext_spec.yaml	\
 	$(srcdir)/specs/package_ext_spec.yaml	\
 	$(srcdir)/specs/string_ext_spec.yaml	\
 	$(srcdir)/specs/table_ext_spec.yaml	\
 	$(NOTHING_ELSE)
 
-dist_data_DATA = $(SOURCES)
-dist_doc_DATA = \
-	$(top_srcdir)/src/index.html	\
-	$(top_srcdir)/src/luadoc.css
+luarocks_config = build-aux/luarocks-config.lua
+rockspec_conf = $(srcdir)/rockspec.conf
+mkrockspecs = $(srcdir)/build-aux/mkrockspecs
+package_rockspec = $(srcdir)/$(PACKAGE)-$(VERSION)-$(rockspec_revision).rockspec
+scm_rockspec = $(PACKAGE)-git-$(rockspec_revision).rockspec
 
-filesdir = $(docdir)/files
-dist_files_DATA = $(wildcard $(top_srcdir)/src/files/*.html)
-modulesdir = $(docdir)/modules
-dist_modules_DATA = $(wildcard $(top_srcdir)/src/modules/*.html)
-EXTRA_DIST = \
-	src/std.lua.in			\
-	GNUmakefile			\
-	$(SPECS)			\
+# If you need a different rockspec revision, override this on the make
+# command line:
+#
+#     make rockspecs rockspec_revision=2
+rockspec_revision = 1
+LUAROCKS = luarocks
+MKROCKSPECS = $(MKROCKSPECS_ENV) $(LUA) $(mkrockspecs)
+ROCKSPECS_DEPS = \
+	$(luarocks_config)			\
+	$(mkrockspecs)				\
+	$(rockspec_conf)			\
 	$(NOTHING_ELSE)
 
-DISTCLEANFILES = $(PACKAGE).rockspec
+set_LUA_BINDIR = LUA_BINDIR=`which $(LUA) |$(SED) 's|/[^/]*$$||'`
+LUA_INCDIR = `cd $$LUA_BINDIR/../include && pwd`
+LUA_LIBDIR = `cd $$LUA_BINDIR/../lib && pwd`
 all: all-am
 
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/local.mk $(srcdir)/std/std.mk $(srcdir)/specs/specs.mk $(srcdir)/build-aux/specl.mk $(srcdir)/build-aux/rockspecs.mk $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -322,6 +424,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
 	esac;
+$(srcdir)/local.mk $(srcdir)/std/std.mk $(srcdir)/specs/specs.mk $(srcdir)/build-aux/specl.mk $(srcdir)/build-aux/rockspecs.mk:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -331,27 +434,43 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-install-dist_dataDATA: $(dist_data_DATA)
+.travis.yml: $(top_builddir)/config.status $(srcdir)/travis.yml.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
+	@list='$(bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(datadir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(datadir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(datadir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(datadir)" || exit $$?; \
-	done
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	     } \
+	; done
 
-uninstall-dist_dataDATA:
+uninstall-binSCRIPTS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
+	@list='$(bin_SCRIPTS)'; test -n "$(bindir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	dir='$(DESTDIR)$(bindir)'; $(am__uninstall_files_from_dir)
 install-dist_docDATA: $(dist_doc_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
@@ -394,6 +513,27 @@ uninstall-dist_filesDATA:
 	@list='$(dist_files_DATA)'; test -n "$(filesdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(filesdir)'; $(am__uninstall_files_from_dir)
+install-dist_luaDATA: $(dist_lua_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_lua_DATA)'; test -n "$(luadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(luadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(luadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(luadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(luadir)" || exit $$?; \
+	done
+
+uninstall-dist_luaDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_lua_DATA)'; test -n "$(luadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(luadir)'; $(am__uninstall_files_from_dir)
 install-dist_modulesDATA: $(dist_modules_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_modules_DATA)'; test -n "$(modulesdir)" || list=; \
@@ -415,65 +555,36 @@ uninstall-dist_modulesDATA:
 	@list='$(dist_modules_DATA)'; test -n "$(modulesdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(modulesdir)'; $(am__uninstall_files_from_dir)
+install-nobase_dist_luaDATA: $(nobase_dist_lua_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(nobase_dist_lua_DATA)'; test -n "$(luadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(luadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(luadir)" || exit 1; \
+	fi; \
+	$(am__nobase_list) | while read dir files; do \
+	  xfiles=; for file in $$files; do \
+	    if test -f "$$file"; then xfiles="$$xfiles $$file"; \
+	    else xfiles="$$xfiles $(srcdir)/$$file"; fi; done; \
+	  test -z "$$xfiles" || { \
+	    test "x$$dir" = x. || { \
+	      echo " $(MKDIR_P) '$(DESTDIR)$(luadir)/$$dir'"; \
+	      $(MKDIR_P) "$(DESTDIR)$(luadir)/$$dir"; }; \
+	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(luadir)/$$dir'"; \
+	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(luadir)/$$dir" || exit $$?; }; \
+	done
 
-ID: $(am__tagged_files)
-	$(am__define_uniq_tagged_files); mkid -fID $$unique
-tags: tags-am
-TAGS: tags
+uninstall-nobase_dist_luaDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nobase_dist_lua_DATA)'; test -n "$(luadir)" || list=; \
+	$(am__nobase_strip_setup); files=`$(am__nobase_strip)`; \
+	dir='$(DESTDIR)$(luadir)'; $(am__uninstall_files_from_dir)
+tags TAGS:
 
-tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
-	set x; \
-	here=`pwd`; \
-	$(am__define_uniq_tagged_files); \
-	shift; \
-	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
-	  test -n "$$unique" || unique=$$empty_fix; \
-	  if test $$# -gt 0; then \
-	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	      "$$@" $$unique; \
-	  else \
-	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	      $$unique; \
-	  fi; \
-	fi
-ctags: ctags-am
+ctags CTAGS:
 
-CTAGS: ctags
-ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
-	$(am__define_uniq_tagged_files); \
-	test -z "$(CTAGS_ARGS)$$unique" \
-	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
-	     $$unique
+cscope cscopelist:
 
-GTAGS:
-	here=`$(am__cd) $(top_builddir) && pwd` \
-	  && $(am__cd) $(top_srcdir) \
-	  && gtags -i $(GTAGS_ARGS) "$$here"
-cscope: cscope.files
-	test ! -s cscope.files \
-	  || $(CSCOPE) -b -q $(AM_CSCOPEFLAGS) $(CSCOPEFLAGS) -i cscope.files $(CSCOPE_ARGS)
-clean-cscope:
-	-rm -f cscope.files
-cscope.files: clean-cscope cscopelist
-cscopelist: cscopelist-am
-
-cscopelist-am: $(am__tagged_files)
-	list='$(am__tagged_files)'; \
-	case "$(srcdir)" in \
-	  [\\/]* | ?:[\\/]*) sdir="$(srcdir)" ;; \
-	  *) sdir=$(subdir)/$(srcdir) ;; \
-	esac; \
-	for i in $$list; do \
-	  if test -f "$$i"; then \
-	    echo "$(subdir)/$$i"; \
-	  else \
-	    echo "$$sdir/$$i"; \
-	  fi; \
-	done >> $(top_builddir)/cscope.files
-
-distclean-tags:
-	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
-	-rm -f cscope.out cscope.in.out cscope.po.out cscope.files
 
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
@@ -634,9 +745,9 @@ distcleancheck: distclean
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-local
 check: check-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(filesdir)" "$(DESTDIR)$(modulesdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(filesdir)" "$(DESTDIR)$(luadir)" "$(DESTDIR)$(modulesdir)" "$(DESTDIR)$(luadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -661,6 +772,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -670,6 +782,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
 clean-am: clean-generic mostlyclean-am
@@ -677,7 +790,7 @@ clean-am: clean-generic mostlyclean-am
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-tags
+distclean-am: clean-am distclean-generic
 
 dvi: dvi-am
 
@@ -691,15 +804,17 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_dataDATA install-dist_docDATA \
-	install-dist_filesDATA install-dist_modulesDATA
+install-data-am: install-dist_docDATA install-dist_filesDATA \
+	install-dist_luaDATA install-dist_modulesDATA \
+	install-nobase_dist_luaDATA
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
-
+install-exec-am: install-binSCRIPTS
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
 
 install-html-am:
@@ -738,51 +853,88 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dist_dataDATA uninstall-dist_docDATA \
-	uninstall-dist_filesDATA uninstall-dist_modulesDATA
+uninstall-am: uninstall-binSCRIPTS uninstall-dist_docDATA \
+	uninstall-dist_filesDATA uninstall-dist_luaDATA \
+	uninstall-dist_modulesDATA uninstall-nobase_dist_luaDATA
 
-.MAKE: check-am install-am install-strip
+.MAKE: check-am install-am install-exec-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am \
-	check-local clean clean-cscope clean-generic cscope \
-	cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+.PHONY: all all-am am--refresh check check-am check-local clean \
+	clean-generic cscopelist-am ctags-am dist dist-all dist-bzip2 \
 	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
-	distcheck distclean distclean-generic distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dist_dataDATA install-dist_docDATA \
-	install-dist_filesDATA install-dist_modulesDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-dist_dataDATA uninstall-dist_docDATA \
-	uninstall-dist_filesDATA uninstall-dist_modulesDATA
+	distcheck distclean distclean-generic distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binSCRIPTS install-data \
+	install-data-am install-dist_docDATA install-dist_filesDATA \
+	install-dist_luaDATA install-dist_modulesDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-exec-hook \
+	install-html install-html-am install-info install-info-am \
+	install-man install-nobase_dist_luaDATA install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am tags-am uninstall uninstall-am \
+	uninstall-binSCRIPTS uninstall-dist_docDATA \
+	uninstall-dist_filesDATA uninstall-dist_luaDATA \
+	uninstall-dist_modulesDATA uninstall-nobase_dist_luaDATA
 
 
 LUA_PATH ?= ;
 
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
-# have luadoc installed, put src/std.lua in as a Makefile dependency.
+# have luadoc installed, put std/std.lua in as a Makefile dependency.
 # (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
-src/std.lua: src/std.lua.in
+std/std.lua: std/std.lua.in
 	./config.status --file=$@
 
-$(dist_doc_DATA): $(SOURCES)
-	cd src && $(LUADOC) *.lua
-
-check-local:
-	@v=`specl --version | sed -e 's|^.* ||' -e 1q`;		\
-	if test "$$v" -lt "$(SPECL_MIN)"; then			\
-	  echo "ERROR: Specl version $$v is too old, please upgrade to at least version $(SPECL_MIN),";\
-	  echo "ERROR: and rerun \`make check\`";		\
-	  exit 1;						\
-	else							\
-	  $(SPEC_ENV) specl $(SPECL_OPTS) $(SPECS);		\
+$(dist_doc_DATA): $(nobase_dist_lua_DATA)
+	cd $(srcdir)/std && $(LUADOC) *.lua
+specl-check-local: $(specl_SPECS)
+	@v=`$(SPECL) --version | sed -e 's|^.* ||' -e 1q`;		\
+	if test "$$v" -lt "$(SPECL_MIN)"; then				\
+	  printf "%s%s\n%s\n"						\
+	    "ERROR: Specl version $$v is too old,"			\
+	    " please upgrade to at least version $(SPECL_MIN),"		\
+	    "ERROR: and rerun \`make check\`";				\
+	  exit 1;							\
+	else								\
+	  $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS);		\
 	fi
+
+$(luarocks_config): Makefile.am
+	@test -d build-aux || mkdir build-aux
+	$(AM_V_GEN){						\
+	  $(set_LUA_BINDIR);					\
+	  echo 'rocks_trees = { "$(abs_srcdir)/luarocks" }';	\
+	  echo 'variables = {';					\
+	  echo '  LUA = "$(LUA)",';				\
+	  echo '  LUA_BINDIR = "'$$LUA_BINDIR'",';		\
+	  echo '  LUA_INCDIR = "'$(LUA_INCDIR)'",';		\
+	  echo '  LUA_LIBDIR = "'$(LUA_LIBDIR)'",';		\
+	  echo '}';						\
+	} > '$@'
+
+$(package_rockspec): $(ROCKSPECS_DEPS)
+	$(AM_V_at)rm -f '$@' 2>/dev/null || :
+	$(AM_V_GEN)test -f '$@' ||				\
+	  $(MKROCKSPECS) $(PACKAGE) $(VERSION) $(rockspec_revision) > '$@'
+	$(AM_V_at)$(LUAROCKS) lint '$@'
+
+$(scm_rockspec): $(ROCKSPECS_DEPS)
+	$(AM_V_at)rm '$@' 2>/dev/null || :
+	$(AM_V_GEN)test -f '$@' ||				\
+	  $(MKROCKSPECS) $(PACKAGE) git 1 > '$@'
+	$(AM_V_at)$(LUAROCKS) lint '$@'
+
+.PHONY: rockspecs
+rockspecs:
+	$(AM_V_at)rm -f *.rockspec
+	$(AM_V_at)$(MAKE) $(package_rockspec) $(scm_rockspec)
+
+check-local: $(check_local)
+
+install-exec-hook: $(install_exec_hooks)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

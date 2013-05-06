@@ -1,0 +1,16 @@
+return {
+  "std.debug_init",
+  --"std.strict",
+  "std.base",
+  "std.package_ext",
+  "std.debug_ext",
+  "std.table_ext",
+  "std.list",
+  "std.tree",
+  "std.string_ext",
+  "std.math_ext",
+  "std.io_ext",
+  "std.getopt",
+  "std.set",
+  "std.strbuf",
+}

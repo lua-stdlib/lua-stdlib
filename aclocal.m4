@@ -653,4 +653,4 @@ AC_SUBST([am__untar])
 
 m4_include([m4/ax_compare_version.m4])
 m4_include([m4/ax_lua.m4])
-m4_include([m4/ax_with_prog.m4])
+m4_include([m4/slingshot.m4])

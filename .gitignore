@@ -1,8 +1,0 @@
-/autom4te.cache
-/config.log
-/config.status
-/luarocks
-/luarocks-config.lua
-/release-notes-*
-/stdlib-*.tar.gz
-/stdlib-*/

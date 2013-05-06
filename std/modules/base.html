@@ -1,0 +1,931 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li><strong>base</strong></li>
+	
+</ul>
+
+
+
+<!-- File list -->
+
+<h1>Files</h1>
+<ul>
+
+	<li>
+		<a href="../files/base.html">base.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/debug_ext.html">debug_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/debug_init.html">debug_init.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/getopt.html">getopt.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/io_ext.html">io_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/list.html">list.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/math_ext.html">math_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/modules.html">modules.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/object.html">object.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/package_ext.html">package_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/set.html">set.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/strbuf.html">strbuf.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/strict.html">strict.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/string_ext.html">string_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/table_ext.html">table_ext.lua</a>
+	</li>
+
+	<li>
+		<a href="../files/tree.html">tree.lua</a>
+	</li>
+
+</ul>
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>base</code></h1>
+
+<p>Adds to the existing global functions</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.bind">_G.bind</a>&nbsp;(f, ...)</td>
+	<td class="summary">Partially apply a function.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.collect">_G.collect</a>&nbsp;(i, ...)</td>
+	<td class="summary">Collect the results of an iterator.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.compose">_G.compose</a>&nbsp;(..., f1...fn)</td>
+	<td class="summary">Compose functions.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.curry">_G.curry</a>&nbsp;(f, n)</td>
+	<td class="summary">Curry a function.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.die">_G.die</a>&nbsp;(...)</td>
+	<td class="summary">Die with error.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.eval">_G.eval</a>&nbsp;(s)</td>
+	<td class="summary">Evaluate a string.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.filter">_G.filter</a>&nbsp;(p, i, ...)</td>
+	<td class="summary">Filter an iterator with a predicate.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.fold">_G.fold</a>&nbsp;(f, d, i, ...)</td>
+	<td class="summary">Fold a binary function into an iterator.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.id">_G.id</a>&nbsp;(...)</td>
+	<td class="summary">Identity function.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.inodes">_G.inodes</a>&nbsp;(tr)</td>
+	<td class="summary">Tree iterator over numbered nodes, in order.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.map">_G.map</a>&nbsp;(f, i, ...)</td>
+	<td class="summary">Map a function over an iterator.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.memoize">_G.memoize</a>&nbsp;(fn)</td>
+	<td class="summary">Memoize a function, by wrapping it in a functable.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.metamethod">_G.metamethod</a>&nbsp;(x, n)</td>
+	<td class="summary">Return given metamethod, if any, or nil.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.nodes">_G.nodes</a>&nbsp;(tr)</td>
+	<td class="summary">Tree iterator.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.pack">_G.pack</a>&nbsp;(...)</td>
+	<td class="summary">Turn a tuple into a list.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.ripairs">_G.ripairs</a>&nbsp;(t)</td>
+	<td class="summary">An iterator like ipairs, but in reverse.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.totable">_G.totable</a>&nbsp;(x)</td>
+	<td class="summary">Turn an object into a table according to __totable metamethod.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.warn">_G.warn</a>&nbsp;(...)</td>
+	<td class="summary">Give warning with the name of program and file (if any).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#tree_Iterator">tree_Iterator</a>&nbsp;(it, tr, n)</td>
+	<td class="summary"> </td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Tables</h2>
+<table class="table_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#_G.op">_G.op</a></td>
+	<td class="summary">Functional forms of infix operators.</td>
+	</tr>
+
+</table>
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="_G.bind"></a><strong>_G.bind</strong>&nbsp;(f, ...)</dt>
+<dd>
+Partially apply a function.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  f: function to apply partially
+	</li>
+	
+	<li>
+	  ...: arguments to bind
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+function with ai already bound
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.collect"></a><strong>_G.collect</strong>&nbsp;(i, ...)</dt>
+<dd>
+Collect the results of an iterator.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  i: iterator
+	</li>
+	
+	<li>
+	  ...: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+results of running the iterator on its arguments
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.compose"></a><strong>_G.compose</strong>&nbsp;(..., f1...fn)</dt>
+<dd>
+Compose functions.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: 
+	</li>
+	
+	<li>
+	  f1...fn: functions to compose
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+composition of f1 ... fn
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.curry"></a><strong>_G.curry</strong>&nbsp;(f, n)</dt>
+<dd>
+Curry a function.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  f: function to curry
+	</li>
+	
+	<li>
+	  n: number of arguments
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+curried version of f
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.die"></a><strong>_G.die</strong>&nbsp;(...)</dt>
+<dd>
+Die with error.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: arguments for format
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.eval"></a><strong>_G.eval</strong>&nbsp;(s)</dt>
+<dd>
+Evaluate a string.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  s: string
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+value of string
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.filter"></a><strong>_G.filter</strong>&nbsp;(p, i, ...)</dt>
+<dd>
+Filter an iterator with a predicate.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  p: predicate
+	</li>
+	
+	<li>
+	  i: iterator
+	</li>
+	
+	<li>
+	  ...: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+result table containing elements e for which p (e)
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.fold"></a><strong>_G.fold</strong>&nbsp;(f, d, i, ...)</dt>
+<dd>
+Fold a binary function into an iterator.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  f: function
+	</li>
+	
+	<li>
+	  d: initial first argument
+	</li>
+	
+	<li>
+	  i: iterator
+	</li>
+	
+	<li>
+	  ...: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+result
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.id"></a><strong>_G.id</strong>&nbsp;(...)</dt>
+<dd>
+Identity function.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+the arguments passed to the function
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.inodes"></a><strong>_G.inodes</strong>&nbsp;(tr)</dt>
+<dd>
+Tree iterator over numbered nodes, in order.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  tr: tree to iterate over
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return values:</h3>
+<ol>
+	
+	<li>iterator function
+	
+	<li>the tree, as above
+	
+</ol>
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/base.html#tree_Iterator">
+		tree_Iterator
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="_G.map"></a><strong>_G.map</strong>&nbsp;(f, i, ...)</dt>
+<dd>
+Map a function over an iterator.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  f: function
+	</li>
+	
+	<li>
+	  i: iterator
+	</li>
+	
+	<li>
+	  ...: 
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+result table
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.memoize"></a><strong>_G.memoize</strong>&nbsp;(fn)</dt>
+<dd>
+Memoize a function, by wrapping it in a functable.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  fn: function that returns a single result
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+memoized function
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.metamethod"></a><strong>_G.metamethod</strong>&nbsp;(x, n)</dt>
+<dd>
+Return given metamethod, if any, or nil.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: object to get metamethod of
+	</li>
+	
+	<li>
+	  n: name of metamethod to get
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+metamethod function or nil if no metamethod or not a function
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.nodes"></a><strong>_G.nodes</strong>&nbsp;(tr)</dt>
+<dd>
+Tree iterator.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  tr: tree to iterate over
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return values:</h3>
+<ol>
+	
+	<li>iterator function
+	
+	<li>the tree, as above
+	
+</ol>
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/base.html#tree_Iterator">
+		tree_Iterator
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="_G.pack"></a><strong>_G.pack</strong>&nbsp;(...)</dt>
+<dd>
+Turn a tuple into a list.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: tuple
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+list
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.ripairs"></a><strong>_G.ripairs</strong>&nbsp;(t)</dt>
+<dd>
+An iterator like ipairs, but in reverse.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  t: table to iterate over
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return values:</h3>
+<ol>
+	
+	<li>iterator function
+	
+	<li>the table, as above
+	
+	<li>#t + 1
+	
+</ol>
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.totable"></a><strong>_G.totable</strong>&nbsp;(x)</dt>
+<dd>
+Turn an object into a table according to __totable metamethod.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: object to turn into a table
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+table or nil
+
+
+
+</dd>
+
+
+
+
+<dt><a name="_G.warn"></a><strong>_G.warn</strong>&nbsp;(...)</dt>
+<dd>
+Give warning with the name of program and file (if any).
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ...: arguments for format
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="tree_Iterator"></a><strong>tree_Iterator</strong>&nbsp;(it, tr, n)</dt>
+<dd>
+
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  it: 
+	</li>
+	
+	<li>
+	  tr: 
+	</li>
+	
+	<li>
+	  n: current node
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return values:</h3>
+<ol>
+	
+	<li>type ("leaf", "branch" (pre-order) or "join" (post-order))
+	
+	<li>path to node ({i1...ik})
+	
+	<li>node
+	
+</ol>
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+<h2><a name="tables"></a>Tables</h2>
+<dl class="table">
+
+<dt><a name="_G.op"></a><strong>_G.op</strong></dt>
+<dd>Functional forms of infix operators. Defined here so that other modules can write to it.
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>
