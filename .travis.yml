@@ -8,6 +8,7 @@ env:
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.0.13
     - LUAROCKS="$LUA $HOME/bin/luarocks"
+    - LUADOC=luarocks/bin/luadoc
     - SPECL=bin/specl
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
@@ -36,7 +37,8 @@ install:
   - sudo apt-get install luarocks
   - sudo luarocks install luadoc
   - mkdir -p luarocks/bin
-  - sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > luarocks/bin/luadoc
+  - sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > $LUADOC
+  - chmod a+rx $LUADOC
 
 # Configure and build.
 script:
