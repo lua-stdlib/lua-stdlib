@@ -14,8 +14,6 @@
 /config.status
 /lua-stdlib-*.tar.gz
 /luarocks
-/luarocks-config.lua
-/release-notes-*
 /travis.yml.in
 /*.rockspec
 /m4/ax_compare_version.m4
