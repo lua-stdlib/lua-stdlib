@@ -1,5 +1,7 @@
 -- Extensions to the table module
 
+local func = require "std.functional"
+
 local _sort = table.sort
 --- Make table.sort return its result.
 -- @param t table
@@ -15,6 +17,13 @@ end
 -- @return <code>true</code> if empty or <code>false</code> otherwise
 local function empty (t)
   return not next (t)
+end
+
+--- Turn a tuple into a list.
+-- @param ... tuple
+-- @return list
+local function pack (...)
+  return {...}
 end
 
 --- Find the number of elements in a table.
@@ -101,6 +110,35 @@ local function merge (t, u)
   return t
 end
 
+--- An iterator like ipairs, but in reverse.
+-- @param t table to iterate over
+-- @return iterator function
+-- @return the table, as above
+-- @return #t + 1
+local function ripairs (t)
+  return function (t, n)
+           n = n - 1
+           if n > 0 then
+             return n, t[n]
+           end
+         end,
+  t, #t + 1
+end
+
+--- Turn an object into a table according to __totable metamethod.
+-- @param x object to turn into a table
+-- @return table or nil
+local function totable (x)
+  local m = func.metamethod (x, "__totable")
+  if m then
+    return m (x)
+  elseif type (x) == "table" then
+    return x
+  else
+    return nil
+  end
+end
+
 --- Make a table with a default value for unset keys.
 -- @param x default entry value (default: <code>nil</code>)
 -- @param t initial table (default: <code>{}</code>)
@@ -120,8 +158,11 @@ local M = {
   keys         = keys,
   merge        = merge,
   new          = new,
+  pack         = pack,
+  ripairs      = ripairs,
   size         = size,
   sort         = sort,
+  totable      = totable,
   values       = values,
 
   -- Core Lua table.sort function.

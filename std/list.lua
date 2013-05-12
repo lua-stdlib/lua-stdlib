@@ -1,23 +1,10 @@
 --- Tables as lists.
-require "std.base"
 
-local new  -- forward declaration
+local base = require "std.base"
+local append, compare, concat, elems, ileaves, new =
+      base.append, base.compare, base.concat, base.elems, base.ileaves, base.new
 
---- An iterator over the elements of a list.
--- @param l list to iterate over
--- @return iterator function which returns successive elements of the list
--- @return the list <code>l</code> as above
--- @return <code>true</code>
-local function elems (l)
-  local n = 0
-  return function (l)
-           n = n + 1
-           if n <= #l then
-             return l[n]
-           end
-         end,
-  l, true
-end
+local func = require "std.functional"
 
 --- An iterator over the elements of a list, in reverse.
 -- @param l list to iterate over
@@ -40,15 +27,15 @@ end
 -- @param l list
 -- @return result list <code>{f (l[1]), ..., f (l[#l])}</code>
 local function map (f, l)
-  return _G.map (f, elems, l)
+  return func.map (f, elems, l)
 end
 
 --- Map a function over a list of lists.
 -- @param f function
 -- @param ls list of lists
 -- @return result list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
-local function mapWith (f, l)
-  return _G.map (compose (f, unpack), elems, l)
+local function map_with (f, l)
+  return func.map (func.compose (f, unpack), elems, l)
 end
 
 --- Filter a list according to a predicate.
@@ -57,7 +44,7 @@ end
 -- @return result list containing elements <code>e</code> of
 --   <code>l</code> for which <code>p (e)</code> is true
 local function filter (p, l)
-  return _G.filter (p, elems, l)
+  return func.filter (p, elems, l)
 end
 
 --- Return a sub-range of a list. (The equivalent of <code>string.sub</code>
@@ -96,7 +83,7 @@ end
 -- @param l list
 -- @return result
 local function foldl (f, e, l)
-  return fold (f, e, elems, l)
+  return func.fold (f, e, elems, l)
 end
 
 --- Fold a binary function through a list right associatively.
@@ -105,8 +92,8 @@ end
 -- @param l list
 -- @return result
 local function foldr (f, e, l)
-  return fold (function (x, y) return f (y, x) end,
-               e, relems, l)
+  return func.fold (function (x, y) return f (y, x) end,
+                    e, relems, l)
 end
 
 --- Prepend an item to a list.
@@ -115,31 +102,6 @@ end
 -- @return <code>{x, unpack (l)}</code>
 local function cons (l, x)
   return {x, unpack (l)}
-end
-
---- Append an item to a list.
--- @param l list
--- @param x item
--- @return <code>{l[1], ..., l[#l], x}</code>
-local function append (l, x)
-  local r = {unpack (l)}
-  table.insert (r, x)
-  return r
-end
-
---- Concatenate lists.
--- @param ... lists
--- @return <code>{l<sub>1</sub>[1], ...,
--- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
--- l<sub>n</sub>[#l<sub>n</sub>]}</code>
-local function concat (...)
-  local r = new ()
-  for l in elems ({...}) do
-    for v in elems (l) do
-      table.insert (r, v)
-    end
-  end
-  return r
 end
 
 --- Repeat a list.
@@ -188,8 +150,8 @@ end
 -- @param ls list of lists
 -- @return <code>{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])</code>
 -- where <code>N = max {map (function (l) return #l end, ls)}</code>
-local function zipWith (f, ls)
-  return mapWith (f, transpose (ls))
+local function zip_with (f, ls)
+  return map_with (f, transpose (ls))
 end
 
 --- Project a list of fields from a list of tables.
@@ -228,35 +190,6 @@ local function depair (ls)
   return t
 end
 
-
-local function _leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
-    end
-  end
-  return coroutine.wrap (visit), tr
-end
-
---- Tree iterator which returns just numbered leaves, in order.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-local function ileaves (tr)
-  return _leaves (ipairs, tr)
-end
-
---- Tree iterator which returns just leaves.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-local function leaves (tr)
-  return _leaves (pairs, tr)
-end
 
 --- Flatten a list.
 -- @param l list to flatten
@@ -329,7 +262,7 @@ end
 -- t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=1, ...,
 -- t<sub>n</sub>[f]=n}</code>
-local function indexKey (f, l)
+local function index_key (f, l)
   local r = new ()
   for i, v in ipairs (l) do
     local k = v[f]
@@ -346,7 +279,7 @@ end
 -- i<sub>n</sub>=t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
 -- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
-local function indexValue (f, l)
+local function index_value (f, l)
   local r = new ()
   for i, v in ipairs (l) do
     local k = v[f]
@@ -356,112 +289,78 @@ local function indexValue (f, l)
   end
   return r
 end
-permuteOn = indexValue
-
---- Compare two lists element by element left-to-right
--- @param l first list
--- @param m second list
--- @return -1 if <code>l</code> is less than <code>m</code>, 0 if they
--- are the same, and 1 if <code>l</code> is greater than <code>m</code>
-local function compare (l, m)
-  for i = 1, math.min (#l, #m) do
-    if l[i] < m[i] then
-      return -1
-    elseif l[i] > m[i] then
-      return 1
-    end
-  end
-  if #l < #m then
-    return -1
-  elseif #l > #m then
-    return 1
-  end
-  return 0
-end
 
 -- Methods for lists
 local methods = {
-  append     = append,
-  compare    = compare,
-  concat     = concat,
-  cons       = cons,
-  depair     = depair,
-  elems      = elems,
-  filter     = function (self, p) return filter (p, self) end,
-  flatten    = flatten,
-  foldl      = function (self, f, e) return foldl (f, e, self) end,
-  foldr      = function (self, f, e) return foldr (f, e, self) end,
-  indexKey   = function (self, f) return indexKey (self, f) end,
-  indexValue = function (self, f) return indexValue (self, f) end,
-  map        = function (self, f) return map (f, self) end,
-  mapWith    = function (self, f) return mapWith (f, self) end,
-  project    = function (self, f) return project (f, self) end,
-  relems     = relems,
-  rep        = rep,
-  reverse    = reverse,
-  shape      = function (self, s) return shape (s, self) end,
-  sub        = sub,
-  tail       = tail,
-  transpose  = transpose,
-  zipWith    = function (self, f) return zipWith (f, self) end,
-}
+  append      = append,
+  compare     = compare,
+  concat      = concat,
+  cons        = cons,
+  depair      = depair,
+  elems       = elems,
+  filter      = function (self, p)    return filter (p, self)      end,
+  flatten     = flatten,
+  foldl       = function (self, f, e) return foldl (f, e, self)    end,
+  foldr       = function (self, f, e) return foldr (f, e, self)    end,
+  index_key   = function (self, f)    return index_key (self, f)   end,
+  index_value = function (self, f)    return index_value (self, f) end,
+  map         = function (self, f)    return map (f, self)         end,
+  map_with    = function (self, f)    return map_with (f, self)    end,
+  project     = function (self, f)    return project (f, self)     end,
+  relems      = relems,
+  rep         = rep,
+  reverse     = reverse,
+  shape       = function (self, s)    return shape (s, self)       end,
+  sub         = sub,
+  tail        = tail,
+  transpose   = transpose,
+  zip_with    = function (self, f)    return zip_with (f, self)    end,
 
--- Metamethods for lists
-local metatable = {
-  -- list .. table = list.concat
-  __concat = concat,
-  -- list == list retains its referential meaning
-  -- list < list = list.compare returns < 0
-  __lt = function (l, m) return compare (l, m) < 0 end,
-  -- list <= list = list.compare returns <= 0
-  __le = function (l, m) return compare (l, m) <= 0 end,
-  __append = append,
-  __index = methods,
+  -- camelCase compatibility.
+  indexKey   = index_key,
+  indexValue = index_value,
+  mapWith    = map_with,
+  zipWith    = zip_with,
 }
-
---- List constructor.
--- Needed in order to use metamethods.
--- @param t list (as a table), or nil for empty list
--- @return list (with list metamethods)
-function new (l)
-  return setmetatable (l or {}, metatable)
-end
 
 -- Function forms of operators
-_G.op[".."] = concat
+func.op[".."] = concat
 
 -- Public interface
 local M = {
-  append     = append,
-  compare    = compare,
-  concat     = concat,
-  cons       = cons,
-  depair     = depair,
-  elems      = elems,
-  enpair     = enpair,
-  filter     = filter,
-  flatten    = flatten,
-  foldl      = foldl,
-  foldr      = foldr,
-  indexKey   = indexKey,
-  indexValue = indexValue,
-  new        = new,
-  map        = map,
-  mapWith    = mapWith,
-  project    = project,
-  relems     = relems,
-  rep        = rep,
-  reverse    = reverse,
-  shape      = shape,
-  slice      = sub, -- backwards compatibility
-  sub        = sub,
-  tail       = tail,
-  transpose  = transpose,
-  zipWith    = zipWith,
+  append      = append,
+  compare     = compare,
+  concat      = concat,
+  cons        = cons,
+  depair      = depair,
+  elems       = elems,
+  enpair      = enpair,
+  filter      = filter,
+  flatten     = flatten,
+  foldl       = foldl,
+  foldr       = foldr,
+  index_key   = index_key,
+  index_value = index_value,
+  new         = new,
+  map         = map,
+  map_with    = map_with,
+  project     = project,
+  relems      = relems,
+  rep         = rep,
+  reverse     = reverse,
+  shape       = shape,
+  slice       = sub, -- backwards compatibility
+  sub         = sub,
+  tail        = tail,
+  transpose   = transpose,
+  zip_with    = zip_with,
 
-  -- APIs that used to be in "base".
-  ileaves    = ileaves,
-  leaves     = leaves,
+  -- camelCase compatibility.
+  indexKey    = index_key,
+  indexValue  = index_value,
+  mapWith     = map_with,
+  permuteOn   = index_value,
+  zipWith     = zip_with,
 }
 
 return M

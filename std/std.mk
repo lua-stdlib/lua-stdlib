@@ -10,6 +10,7 @@ nobase_dist_lua_DATA =			\
 	std/base.lua			\
 	std/debug_ext.lua		\
 	std/debug_init.lua		\
+	std/functional.lua		\
 	std/getopt.lua			\
 	std/io_ext.lua			\
 	std/list.lua			\

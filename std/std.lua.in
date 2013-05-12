@@ -28,17 +28,40 @@ file_metatable.writelines = io.writelines
 
 -- Maintain old global interface access points.
 for _, api in ipairs {
-  "assert",
-  "ileaves",
-  "leaves",
-  "pickle",
-  "prettytostring",
-  "render",
-  "require_version",
-  "tostring",
+  "functional.bind",
+  "functional.collect",
+  "functional.compose",
+  "functional.curry",
+  "functional.eval",
+  "functional.filter",
+  "functional.fold",
+  "functional.id",
+  "functional.map",
+  "functional.memoize",
+  "functional.metamethod",
+  "functional.op",
+
+  "io.die",
+  "io.warn",
+
+  "string.assert",
+  "string.pickle",
+  "string.prettytostring",
+  "string.render",
+  "string.require_version",
+  "string.tostring",
+
+  "table.pack",
+  "table.ripairs",
+  "table.totable",
+
+  "tree.ileaves",
+  "tree.inodes",
+  "tree.leaves",
+  "tree.nodes",
 } do
-  _G[api] = list[api] or _G[api]
-  _G[api] = string[api] or _G[api]
+  local module, method = api:match "^(.*)%.(.-)$"
+  _G[method] = _G[module][method]
 end
 
 local M = {

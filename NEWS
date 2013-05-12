@@ -2,6 +2,12 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - Modules have been refactored so that they can be safely
+   required individually, and without loading themselves or any
+   dependencies on other std modules into the global namespace.
+
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 

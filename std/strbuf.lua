@@ -1,11 +1,5 @@
 --- String buffers
 
---- Create a new string buffer
-local metatable = {}
-local function new ()
-  return setmetatable ({}, metatable)
-end
-
 --- Add a string to a buffer
 -- @param b buffer
 -- @param s string to add
@@ -23,6 +17,18 @@ local function tostring (b)
 end
 
 
+--- Metamethods for string buffers
+local metatable = {
+  __concat   = concat,   -- buffer .. string
+  __tostring = tostring, -- tostring
+}
+
+--- Create a new string buffer
+-- @return strbuf
+local function new ()
+  return setmetatable ({}, metatable)
+end
+
 -- Public interface
 local M = {
   concat   = concat,
@@ -30,12 +36,7 @@ local M = {
   tostring = tostring,
 }
 
---- Metamethods for string buffers
 -- buffer:method ()
 metatable.__index = M
--- buffer .. string
-metatable.__concat = concat
--- tostring
-metatable.__tostring = tostring
 
 return M

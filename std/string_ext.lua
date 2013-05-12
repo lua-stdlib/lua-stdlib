@@ -1,6 +1,7 @@
 --- Additions to the string module
 -- TODO: Pretty printing (use in getopt); see source for details.
 
+local func   = require "std.functional"
 local list   = require "std.list"
 local strbuf = require "std.strbuf"
 local table  = require "std.table_ext"
@@ -160,7 +161,7 @@ local function render (x, open, close, elem, pair, sep, roots)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
   roots = roots or {}
-  if type (x) ~= "table" or metamethod (x, "__tostring") then
+  if type (x) ~= "table" or func.metamethod (x, "__tostring") then
     return elem (x)
   else
     local s = strbuf.new ()
@@ -221,7 +222,7 @@ end
 -- @name tostring
 -- @param x object to convert to string
 -- @return string representation
-local _tostring = tostring
+local _tostring = _G.tostring
 local function tostring (x)
   return render (x,
                  function () return "{" end,

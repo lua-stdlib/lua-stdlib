@@ -1,5 +1,9 @@
 --- Tables as trees.
+local base = require "std.base"
+local ileaves, leaves = base.ileaves, base.leaves
+
 local list = require "std.list"
+local func = require "std.functional"
 
 
 local metatable = {}
@@ -20,7 +24,7 @@ function metatable.__index (tr, i)
   -- FIXME: the following doesn't treat list keys correctly
   --        e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
   if type (i) == "table" and #i > 0 then
-    return list.foldl (op["[]"], tr, i)
+    return list.foldl (func.op["[]"], tr, i)
   else
     return rawget (tr, i)
   end
@@ -78,6 +82,49 @@ local function clone (t, nometa)
   return copy (r, t)
 end
 
+---
+-- @class function
+-- @name tree_Iterator
+-- @param n current node
+-- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @return path to node ({i1...ik})
+-- @return node
+local function _nodes (it, tr)
+  local p = {}
+  local function visit (n)
+    if type (n) == "table" then
+      coroutine.yield ("branch", p, n)
+      for i, v in it (n) do
+        table.insert (p, i)
+        visit (v)
+        table.remove (p)
+      end
+      coroutine.yield ("join", p, n)
+    else
+      coroutine.yield ("leaf", p, n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+--- Tree iterator.
+-- @see tree_Iterator
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+local function nodes (tr)
+  return _nodes (pairs, tr)
+end
+
+--- Tree iterator over numbered nodes, in order.
+-- @see tree_Iterator
+-- @param tr tree to iterate over
+-- @return iterator function
+-- @return the tree, as above
+local function inodes (tr)
+  return _nodes (ipairs, tr)
+end
+
 --- Deep-merge one tree into another. <code>u</code> is merged into
 --- <code>t</code>.
 -- @param t first tree
@@ -95,10 +142,12 @@ end
 -- Public interface
 local M = {
   clone   = clone,
-  ileaves = list.ileaves,
-  leaves  = list.leaves,
+  ileaves = ileaves,
+  inodes  = inodes,
+  leaves  = leaves,
   merge   = merge,
   new     = new,
+  nodes   = nodes,
 }
 
 return M

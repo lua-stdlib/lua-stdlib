@@ -1,16 +1,17 @@
 return {
-  "std.debug_init",
-  --"std.strict",
-  "std.base",
-  "std.package_ext",
-  "std.debug_ext",
-  "std.table_ext",
+  -- topologically sorted by inter-dependencies;
+  -- nearer the top -> fewer inter-dependencies.
+  "std.functional",
+  "std.strbuf",
+  "std.set",
   "std.list",
   "std.tree",
-  "std.string_ext",
   "std.math_ext",
+  "std.package_ext",
+  "std.table_ext",
+  "std.string_ext",
   "std.io_ext",
+  "std.debug_init",
+  "std.debug_ext",
   "std.getopt",
-  "std.set",
-  "std.strbuf",
 }

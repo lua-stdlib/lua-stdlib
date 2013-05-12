@@ -222,6 +222,12 @@ specify table_ext:
       expect (f (nil, "foo")).should_error ("table expected")
 
 
+- describe pack:
+
+
+- describe ripairs:
+
+
 - describe size:
   - before: |
       --          - 1 -  --------- 2 ----------  -- 3 --
@@ -250,6 +256,9 @@ specify table_ext:
   - "it diagnoses non-table arguments":
       expect (f ()).should_error ("table expected")
       expect (f "foo").should_error ("table expected")
+
+
+- describe totable:
 
 
 - describe values:

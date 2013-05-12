@@ -1,5 +1,6 @@
-local list = require "std.list"
+local list = require "std.base"
 
+local new -- forward declaration
 
 -- Primitive methods (know about representation)
 -- The representation is a table whose tags are the elements, and
@@ -26,18 +27,6 @@ end
 -- @param e element
 local function delete (s, e)
   rawset (s.contents, e, nil)
-end
-
---- Make a list into a set
--- @param l list
--- @return set
-local metatable = {}
-local function new (l)
-  local s = setmetatable ({contents={}}, metatable)
-  for e in list.elems (l) do
-    insert (s, e)
-  end
-  return s
 end
 
 --- Iterator for sets
@@ -133,35 +122,43 @@ function equal (s, t)
   return subset (s, t) and subset (t, s)
 end
 
--- Public interface
-local M = {
-  delete       = delete,
-  difference   = difference,
-  elems        = elems,
-  equal        = equal,
-  insert       = insert,
-  intersection = intersection,
-  member       = member,
-  new          = new,
-  subset       = subset,
-  symmetric_difference = symmetric_difference,
-  union        = union,
+--- Metamethods for sets
+local metatable = {
+  __add   = union,		-- set + table = union
+  __sub   = difference,		-- set - table = set difference
+  __mul   = intersection,	-- set * table = intersection
+  __div   = symmetric_difference, -- set / table = symmetric difference
+  __le    = subset,		-- set <= table = subset
+  __lt    = propersubset	-- set < table = proper subset
 }
 
---- Metamethods for sets
+--- Make a list into a set
+-- @param l list
+-- @return set
+local function new (l)
+  local s = setmetatable ({contents={}}, metatable)
+  for e in list.elems (l) do
+    insert (s, e)
+  end
+  return s
+end
+
+-- Public interface
+local M = {
+  delete               = delete,
+  difference           = difference,
+  elems                = elems,
+  equal                = equal,
+  insert               = insert,
+  intersection         = intersection,
+  member               = member,
+  new                  = new,
+  subset               = subset,
+  symmetric_difference = symmetric_difference,
+  union                = union,
+}
+
 -- set:method ()
 metatable.__index = M
--- set + table = union
-metatable.__add = union
--- set - table = set difference
-metatable.__sub = difference
--- set * table = intersection
-metatable.__mul = intersection
--- set / table = symmetric difference
-metatable.__div = symmetric_difference
--- set <= table = subset
-metatable.__le = subset
--- set < table = proper subset
-metatable.__lt = propersubset
 
 return M

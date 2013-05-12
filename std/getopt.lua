@@ -15,23 +15,22 @@
 -- <li>The <code>type</code> of option argument is one of <code>Req</code>(uired),
 -- <code>Opt</code>(ional)</li>
 -- <li>The <code>var</code>is a descriptive name for the option argument.</li>
--- <li><code>getopt.processArgs (prog)</code></li>
+-- <li><code>getopt.processargs (prog)</code></li>
 -- <li>Options take a single dash, but may have a double dash.</li>
 -- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
 -- <li>If an option taking an argument is given multiple times, only the
 -- last value is returned; missing arguments are returned as 1.</li>
 -- </ul>
--- getOpt, usageInfo and usage can be called directly (see
+-- getOpt, usageinfo and usage can be called directly (see
 -- below, and the example at the end). Set _DEBUG.std to a non-nil
 -- value to run the example.
 -- <ul>
--- <li>TODO: Wrap all messages; do all wrapping in processArgs, not
--- usageInfo; use sdoc-like library (see string.format todos).</li>
+-- <li>TODO: Wrap all messages; do all wrapping in processargs, not
+-- usageinfo; use sdoc-like library (see string.format todos).</li>
 -- <li>TODO: Don't require name to be repeated in banner.</li>
 -- <li>TODO: Store version separately (construct banner?).</li>
 -- </ul>
 
-require "std.base"
 local io     = require "std.io_ext"
 local list   = require "std.list"
 local Object = require "std.object"
@@ -50,7 +49,7 @@ local M = {
 -- @return table of remaining non-options
 -- @return table of option key-value list pairs
 -- @return table of error messages
-local function getOpt (argIn, options, stop_at_nonopt)
+local function getopt (argIn, options, stop_at_nonopt)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
@@ -120,7 +119,7 @@ local function makeOptions (t)
       name[s] = v
     end
     if not dupe or nodupes ~= true then
-      if dupe then warn ("duplicate option '%s'", s) end
+      if dupe then io.warn ("duplicate option '%s'", s) end
       for s in list.elems (v.name) do name[s] = v end
       options = list.concat (options, {v})
     end
@@ -142,7 +141,7 @@ end
 -- @param optDesc option descriptors
 -- @param pageWidth width to format to [78]
 -- @return formatted string
-local function usageInfo (header, optDesc, pageWidth)
+local function usageinfo (header, optDesc, pageWidth)
   pageWidth = pageWidth or 78
   -- Format the usage info for a single option
   -- @param opt the option table
@@ -192,8 +191,8 @@ local function usageInfo (header, optDesc, pageWidth)
     cols[1], width = sameLen (cols[1])
     cols[2] = list.map (wrapper (pageWidth, width + 4), cols[2])
     optText = "\n\n" ..
-      table.concat (list.mapWith (paste,
-                                  list.transpose ({sameLen (cols[1]),
+      table.concat (list.map_with (paste,
+                                   list.transpose ({sameLen (cols[1]),
                                                     cols[2]})),
                     "\n")
   end
@@ -226,7 +225,7 @@ local function usage (prog)
     end
   end
   local header = usage .. purpose .. description
-  io.writelines (usageInfo (header, prog.options) .. notes)
+  io.writelines (usageinfo (header, prog.options) .. notes)
 end
 
 
@@ -240,19 +239,19 @@ end
 
 
 
---- Simple getOpt wrapper.
+--- Simple getopt wrapper.
 -- If the caller didn't supply their own already,
 -- adds <code>--version</code>/<code>-V</code> and
 -- <code>--help</code>/<code>-h</code> options automatically;
 -- stops program if there was an error, or if <code>--help</code> or
 -- <code>--version</code> was used.
 -- @param prog table of named parameters
--- @param ... extra arguments for getOpt
-local function processArgs (prog, ...)
+-- @param ... extra arguments for getopt
+local function processargs (prog, ...)
   local totArgs = #_G.arg
   local errors
   prog.options = makeOptions (prog.options)
-  _G.arg, M.opt, errors = getOpt (_G.arg, prog.options, ...)
+  _G.arg, M.opt, errors = getopt (_G.arg, prog.options, ...)
   local opt = M.opt
   if (opt.version or opt.help) and prog.banner then
     io.writelines (prog.banner)
@@ -261,8 +260,8 @@ local function processArgs (prog, ...)
     local name = prog.name
     prog.name = nil
     if #errors > 0 then
-      warn (name .. ": " .. table.concat (errors, "\n"))
-      warn (name .. ": Try '" .. (arg[0] or name) .. " --help' for more help")
+      io.warn (name .. ": " .. table.concat (errors, "\n"))
+      io.warn (name .. ": Try '" .. (arg[0] or name) .. " --help' for more help")
     end
     if #errors > 0 then
       error ()
@@ -280,8 +279,14 @@ end
 
 -- Public interface
 return table.merge (M, {
-  getOpt      = getOpt,
-  processArgs = processArgs,
+  getopt      = getopt,
+  processargs = processargs,
   usage       = usage,
-  usageInfo   = usageInfo,
+  usageinfo   = usageinfo,
+
+  -- camelCase compatibility.
+  getOpt      = getopt,
+  processArgs = processargs,
+  usage       = usage,
+  usageInfo   = usageinfo,
 })

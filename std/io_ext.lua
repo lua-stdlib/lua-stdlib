@@ -1,7 +1,8 @@
 --- Additions to the io module
 
-local list    = require "std.list"
 local package = require "std.package_ext"
+local string  = require "std.string_ext"
+local tree    = require "std.tree"
 
 
 -- Get an input file handle.
@@ -50,7 +51,7 @@ local function writelines (h, ...)
     io.write (h, "\n")
     h = io.output ()
   end
-  for v in list.ileaves ({...}) do
+  for v in tree.ileaves ({...}) do
     h:write (v, "\n")
   end
 end
@@ -105,6 +106,31 @@ local function process_files (f)
   end
 end
 
+--- Give warning with the name of program and file (if any).
+-- @param ... arguments for format
+local function warn (...)
+  if prog.name then
+    io.stderr:write (prog.name .. ":")
+  end
+  if prog.file then
+    io.stderr:write (prog.file .. ":")
+  end
+  if prog.line then
+    io.stderr:write (tostring (prog.line) .. ":")
+  end
+  if prog.name or prog.file or prog.line then
+    io.stderr:write (" ")
+  end
+  writelines (io.stderr, string.format (...))
+end
+
+--- Die with error.
+-- @param ... arguments for format
+local function die (...)
+  warn (...)
+  error ()
+end
+
 
 local M = {
   catdir        = catdir,
@@ -116,7 +142,11 @@ local M = {
   splitdir      = splitdir,
   writelines    = writelines,
 
-  -- camelCase compatibility,
+  -- APIs that used to be in base.
+  die           = die,
+  warn          = warn,
+
+  -- camelCase compatibility.
   processFiles  = process_files,
 }
 
