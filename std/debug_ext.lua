@@ -2,6 +2,7 @@
 
 local init   = require "std.debug_init"
 local io     = require "std.io_ext"
+local list   = require "std.list"
 local string = require "std.string_ext"
 
 --- To activate debugging set _DEBUG either to any true value
@@ -27,7 +28,7 @@ local function say (n, ...)
     ((type (init._DEBUG) == "table" and type (init._DEBUG.level) == "number" and
       init._DEBUG.level >= level)
        or level <= 1) then
-    io.writelines (io.stderr, table.concat (list.map (tostring, arg), "\t"))
+    io.writelines (io.stderr, table.concat (list.map (string.tostring, arg), "\t"))
   end
 end
 
