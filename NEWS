@@ -8,6 +8,10 @@ Stdlib NEWS - User visible changes
    required individually, and without loading themselves or any
    dependencies on other std modules into the global namespace.
 
+** Bug fixes:
+
+ - string_ext.escape_pattern is now Lua 5.2 compatible.
+
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 

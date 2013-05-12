@@ -129,15 +129,22 @@ specify string_ext:
 
 
 - describe escape_pattern:
-  - before:
+  - before: |
       f = M.escape_pattern
+
+      magic = {}
+      meta = "^$()%.[]*+-?"
+      for i = 1, string.len (meta) do
+        magic[meta:sub (i, i)] = true
+      end
+
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
         for c = 32, 126 do
           s = string.char (c)
           subject = subject .. s
-          if s:match ("%W") then target = target .. "%" end
+          if magic[s] then target = target .. "%" end
           target = target .. s
         end
     - "it inserts a % before any non-alphanumeric in a string":

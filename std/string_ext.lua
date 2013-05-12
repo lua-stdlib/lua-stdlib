@@ -374,7 +374,7 @@ end
 -- @return
 --   @param s_: processed string
 local function escape_pattern (s)
-  return (string.gsub (s, "(%W)", "%%%1"))
+  return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
 
 -- Escape a string to be used as a shell token.
