@@ -19,7 +19,7 @@ AC_PROG_EGREP
 AC_PROG_SED
 
 dnl Generate output files
-SPECL_MIN=5
+SPECL_MIN=7
 SS_CONFIG_TRAVIS([luadoc specl])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
