@@ -1,0 +1,105 @@
+before:
+  object = require "std.object"
+  typeof = object.typeof
+
+specify object:
+- describe Object:
+  - it serves as a prototype for new Object instances:
+      obj = object.Object {}
+      expect (obj).should_not_be (object.Object)
+      expect (type (obj)).should_be "table"
+      expect (typeof (obj)).should_be "object"
+
+- describe typeof:
+  - it supports calling the module to create a new instance:
+      obj = object {}
+      expect (obj).should_not_be (object.Object)
+      expect (type (obj)).should_be "table"
+      expect (typeof (obj)).should_be "object"
+  - it supports setting the object type during instantiation:
+      Example = object {_type = "example"}
+      expect (typeof (Example)).should_be "example"
+  - it instantiates additional factory objects:
+      Factory = object {_type = "factory"}
+      obj = Factory {}
+      expect (obj).should_not_be.any_of {object, Factory}
+      expect (typeof (obj)).should_be "factory"
+
+- describe Object instantiation from a prototype:
+  - context when _init is a table of field names:
+    - before:
+        Proto = object {_type = "proto", f1 = "proto1", f2 = "proto2",
+                        _init = {"f1", "f2"}}
+    - it sets user-defined fields during cloning:
+        expect ({Proto.f1, Proto.f2}).should_equal {"proto1", "proto2"}
+    - it sets user-defined fields from positional parameters:
+        instance = Proto {"instance1", "instance2"}
+        expect ({instance.f1, instance.f2}).
+          should_equal {"instance1", "instance2"}
+    - it uses prototype values for missing positional parameters:
+        instance = Proto {"instance1"}
+        expect ({instance.f1, instance.f2}).
+          should_equal {"instance1", "proto2"}
+    - it merges surplus positional parameters into array part of new object:
+        instance = Proto {"instance1", "instance2", "instance3"}
+        expect ({instance.f1, instance.f2, instance[3]}).
+          should_equal {"instance1", "instance2", "instance3"}
+        pending "seems odd to instantiate offset 3 without instantiating 1 and 2?"
+        expect (instance[1]).should_be "instance3"
+        pending "or maybe more idiomatic to discard surplus arguments?"
+        expect (instance {_type = "table"}).should_not_contain "instance3"
+
+  - context when _init is a function:
+    - before:
+        Proto = object { _type = "proto",
+                         f1 = "proto1", f2 = "proto2",
+                         _init = function (self, ...)
+                                   self.args = unpack {...}
+                                   return self
+                                 end,
+                       }
+    - it passes user defined fields to custom _init function:
+        instance = Proto {"param1", "param2"}
+        expect ({instance.f1, instance.f2, instance.args}).
+          should_equal {"proto1", "proto2", {"param1", "param2"}}
+
+- describe object access:
+  - before:
+      Prototype = object    {_type  = "prototype",
+                             _init  = { "field", "method"},
+                             field  = "in prototype",
+                             method = function (self, ...)
+                                        return typeof (self) .. " class, " ..
+                                               table.concat ({...}, ", ")
+                                      end,
+                            }
+      instance  = Prototype {"in object", function (self, ...)
+                                            return typeof (self) .. " instance, " ..
+                                                   table.concat ({...}, ", ")
+                                          end,
+                            }
+
+  - it provides object field access with dot notation:
+      expect (instance.field).should_be "in object"
+  - it provides class field acces with dot notation:
+      expect (Prototype.field).should_be "in prototype"
+  - it provides object method acces with colon notation:
+      expect (instance:method "object method call").
+        should_be "prototype instance, object method call"
+  - it provides class method access with class dot notation:
+      expect (Prototype.method (instance, "class method call")).
+        should_be "prototype class, class method call"
+  - it allows new instance fields to be added:
+      instance.newfield = "new"
+      expect (instance.newfield).should_be "new"
+  - it allows new instance methods to be added:
+      instance.newmethod = function (self)
+                             return typeof (self) .. ", new instance method"
+                           end
+      expect (instance:newmethod ()).should_be "prototype, new instance method"
+  - it allows new class methods to be added:
+      Prototype.newmethod = function (self)
+                              return typeof (self) .. ", new class method"
+                            end
+      expect (Prototype.newmethod (instance)).
+        should_be "prototype, new class method"

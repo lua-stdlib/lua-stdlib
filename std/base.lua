@@ -120,17 +120,60 @@ function new (l)
 end
 
 
+--- Make a shallow copy of a table, including any metatable (for a
+-- deep copy, use tree.clone).
+-- @param t table
+-- @param nometa if non-nil don't copy metatable
+-- @return copy of table
+local function clone (t, nometa)
+  local u = {}
+  if not nometa then
+    setmetatable (u, getmetatable (t))
+  end
+  for i, v in pairs (t) do
+    u[i] = v
+  end
+  return u
+end
+
+--- Clone a table, renaming some keys.
+-- @param map table <code>{old_key=new_key, ...}</code>
+-- @param t table to copy
+-- @return copy of table
+local function clone_rename (map, t)
+  local r = clone (t)
+  for i, v in pairs (map) do
+    r[v] = t[i]
+    r[i] = nil
+  end
+  return r
+end
+
+--- Merge one table into another. <code>u</code> is merged into <code>t</code>.
+-- @param t first table
+-- @param u second table
+-- @return first table
+local function merge (t, u)
+  for i, v in pairs (u) do
+    t[i] = v
+  end
+  return t
+end
+
 local M = {
-  append     = append,
-  compare    = compare,
-  concat     = concat,
-  elems      = elems,
-  ileaves    = ileaves,
-  leaves     = leaves,
-  new        = new,
+  append       = append,
+  clone        = clone,
+  clone_rename = clone_rename,
+  compare      = compare,
+  concat       = concat,
+  elems        = elems,
+  ileaves      = ileaves,
+  leaves       = leaves,
+  merge        = merge,
+  new          = new,
 
   -- list metatable
-  _list_mt   = metatable,
+  _list_mt     = metatable,
 }
 
 return M

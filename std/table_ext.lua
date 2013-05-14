@@ -1,5 +1,6 @@
 -- Extensions to the table module
 
+local base = require "std.base"
 local func = require "std.functional"
 
 local _sort = table.sort
@@ -70,46 +71,6 @@ local function invert (t)
   return u
 end
 
---- Make a shallow copy of a table, including any metatable (for a
--- deep copy, use tree.clone).
--- @param t table
--- @param nometa if non-nil don't copy metatable
--- @return copy of table
-local function clone (t, nometa)
-  local u = {}
-  if not nometa then
-    setmetatable (u, getmetatable (t))
-  end
-  for i, v in pairs (t) do
-    u[i] = v
-  end
-  return u
-end
-
---- Clone a table, renaming some keys.
--- @param map table <code>{old_key=new_key, ...}</code>
--- @param t table to copy
--- @return copy of table
-local function clone_rename (map, t)
-  local r = clone (t)
-  for i, v in pairs (map) do
-    r[v] = t[i]
-    r[i] = nil
-  end
-  return r
-end
-
---- Merge one table into another. <code>u</code> is merged into <code>t</code>.
--- @param t first table
--- @param u second table
--- @return first table
-local function merge (t, u)
-  for i, v in pairs (u) do
-    t[i] = v
-  end
-  return t
-end
-
 --- An iterator like ipairs, but in reverse.
 -- @param t table to iterate over
 -- @return iterator function
@@ -151,12 +112,12 @@ local function new (x, t)
 end
 
 local M = {
-  clone        = clone,
-  clone_rename = clone_rename,
+  clone        = base.clone,
+  clone_rename = base.clone_rename,
   empty        = empty,
   invert       = invert,
   keys         = keys,
-  merge        = merge,
+  merge        = base.merge,
   new          = new,
   pack         = pack,
   ripairs      = ripairs,

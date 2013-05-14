@@ -23,7 +23,7 @@
 --   <li>Add a method: <code>function object:method (...) ... end</code></li>
 -- </li>
 
-local table = require "std.table_ext"
+local table = require "std.base"
 
 
 --- Root object
@@ -34,6 +34,8 @@ local table = require "std.table_ext"
 -- @field _clone object constructor which provides the behaviour for <code>_init</code>
 -- documented above
 local Object = {
+  _type = "object",
+
   _init = {},
 
   _clone = function (self, ...)
@@ -54,4 +56,22 @@ local Object = {
 }
 setmetatable (Object, Object)
 
-return Object
+local function typeof (object)
+  if type (object) == "table" and object._type ~= nil then
+    return object._type
+  end
+  return type (object)
+end
+
+local M = {
+  Object = Object,
+  typeof = typeof,
+}
+
+return setmetatable (M, {
+  -- Sugar to call required module table for object instantiation.
+  -- Use select to replace `self` (this table) with `Object`, the real prototype.
+  __call = function (...)
+    return Object._clone (Object, select (2, ...))
+  end,
+})
