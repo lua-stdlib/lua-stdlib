@@ -8,6 +8,10 @@ Stdlib NEWS - User visible changes
    required individually, and without loading themselves or any
    dependencies on other std modules into the global namespace.
 
+ - strbuf is now derived from std.object, which means that it responds
+   to `std.object.typeof` with "strbuf", and can be used as a prototype
+   for further derived objects or clones.
+
 ** Bug fixes:
 
  - string_ext.escape_pattern is now Lua 5.2 compatible.

@@ -19,6 +19,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/math_ext_spec.yaml	\
 	$(srcdir)/specs/object_spec.yaml	\
 	$(srcdir)/specs/package_ext_spec.yaml	\
+	$(srcdir)/specs/strbuf_spec.yaml	\
 	$(srcdir)/specs/string_ext_spec.yaml	\
 	$(srcdir)/specs/table_ext_spec.yaml	\
 	$(NOTHING_ELSE)

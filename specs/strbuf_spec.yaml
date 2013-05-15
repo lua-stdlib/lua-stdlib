@@ -1,0 +1,47 @@
+before:
+  strbuf = require "std.strbuf"
+  typeof = (require "std.object").typeof
+
+specify strbuf:
+- it constructs a new strbuf from the module table:
+    b = strbuf {}
+    expect (typeof (b)).should_be "strbuf"
+- it initialises strbuf with contructor parameters:
+    b = strbuf {"foo", "bar"}
+    expect (b).should_contain "foo"
+    expect (b).should_contain "bar"
+
+- describe new:
+  - it constructs a new strbuf:
+      b = strbuf.new ()
+      expect (typeof (b)).should_be "strbuf"
+  - it initialises strbuf with constructor parameters:
+      b = strbuf.new ("foo", "bar")
+      expect (b).should_contain "foo"
+      expect (b).should_contain "bar"
+
+- describe tostring:
+  - before: b = strbuf {"foo", "bar"}
+
+  - it can be called from strbuf module:
+      expect (strbuf.tostring (b)).should_be "foobar"
+  - it can be called as a strbuf object method:
+      expect (b:tostring ()).should_be "foobar"
+  - it can be called as a strbuf metabethod:
+      expect (tostring (b)).should_be "foobar"
+
+- describe concat:
+  - before: b = strbuf.new ("foo", "bar")
+
+  - it can be called from strbuf module:
+      b = strbuf.concat (b, "baz")
+      expect (typeof (b)).should_be "strbuf"
+      expect (strbuf.tostring (b)).should_be "foobarbaz"
+  - it can be called as a strbuf object method:
+      b:concat "baz"
+      expect (typeof (b)).should_be "strbuf"
+      expect (b:tostring()).should_be "foobarbaz"
+  - it can be called as a strbuf metamethod:
+      b = b .. "baz"
+      expect (typeof (b)).should_be "strbuf"
+      expect (tostring (b)).should_be "foobarbaz"
