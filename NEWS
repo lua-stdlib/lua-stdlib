@@ -16,6 +16,15 @@ Stdlib NEWS - User visible changes
 
  - string_ext.escape_pattern is now Lua 5.2 compatible.
 
+** Incompatible changes:
+
+ - `std.object.Object` is now `std.object.new` for consistency with
+   the other stdlib types.  Most likely you were already using the
+   `std.object {...}` sugar, as shown below, which is unaffected:
+
+     local Object = require "std.object"
+     local myobject = Object {_init = {"field1", "field2"}}
+
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 

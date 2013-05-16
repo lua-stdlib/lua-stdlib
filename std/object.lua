@@ -27,13 +27,13 @@ local table = require "std.base"
 
 
 --- Root object
--- @class table
--- @name Object
+-- @class functable
+-- @name new
 -- @field _init constructor method or list of fields to be initialised by the
 -- constructor
 -- @field _clone object constructor which provides the behaviour for <code>_init</code>
 -- documented above
-local Object = {
+local new = {
   _type = "object",
 
   _init = {},
@@ -54,7 +54,7 @@ local Object = {
     return (...)._clone (...)
   end,
 }
-setmetatable (Object, Object)
+setmetatable (new, new)
 
 local function typeof (object)
   if type (object) == "table" and object._type ~= nil then
@@ -64,14 +64,14 @@ local function typeof (object)
 end
 
 local M = {
-  Object = Object,
+  new    = new,
   typeof = typeof,
 }
 
 return setmetatable (M, {
-  -- Sugar to call required module table for object instantiation.
-  -- Use select to replace `self` (this table) with `Object`, the real prototype.
+  -- Sugar to call new automatically from module table.
+  -- Use select to replace `self` (this table) with `new`, the real prototype.
   __call = function (...)
-    return Object._clone (Object, select (2, ...))
+    return new._clone (new, select (2, ...))
   end,
 })

@@ -3,10 +3,10 @@ before:
   typeof = object.typeof
 
 specify object:
-- describe Object:
+- describe new:
   - it serves as a prototype for new Object instances:
-      obj = object.Object {}
-      expect (obj).should_not_be (object.Object)
+      obj = object.new {}
+      expect (obj).should_not_be (object.new)
       expect (type (obj)).should_be "table"
       expect (typeof (obj)).should_be "object"
 
