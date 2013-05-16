@@ -9,8 +9,9 @@ Stdlib NEWS - User visible changes
    dependencies on other std modules into the global namespace.
 
  - set and strbuf are now derived from std.object, which means that
-   they responds to `std.object.typeof` with "strbuf", and can be used
-   as a prototype for further derived objects or clones.
+   they responds to `std.object.typeof` with appropriate type names
+   ("set", "strbuf", etc.) and can be used as prototypes for further
+   derived objects or clones.
 
 ** Bug fixes:
 
