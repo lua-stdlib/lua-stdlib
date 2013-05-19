@@ -1,9 +1,9 @@
 --- Additions to the debug module
 
 local init   = require "std.debug_init"
-local io     = require "std.io_ext"
+local io     = require "std.io"
 local list   = require "std.list"
-local string = require "std.string_ext"
+local string = require "std.string"
 
 --- To activate debugging set _DEBUG either to any true value
 -- (equivalent to {level = 1}), or as documented below.

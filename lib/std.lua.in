@@ -9,15 +9,14 @@
 -- </ul>
 local version = "General Lua libraries / @VERSION@"
 
-for _, m in ipairs (require "std.modules") do
-  if m:match "_ext$" ~= nil then
+for m, globally in pairs (require "std.modules") do
+  if globally == true then
     -- Inject stdlib extensions directly into global package namespaces.
-    local t = m:match "std%.(.*)_ext$"
-    for k, v in pairs (require (m)) do
-      _G[t][k] = v
+    for k, v in pairs (require ("std." .. m)) do
+      _G[m][k] = v
     end
   else
-    _G[m:match "std%.(.*)$"] = require (m)
+    _G[m] = require ("std." .. m)
   end
 end
 

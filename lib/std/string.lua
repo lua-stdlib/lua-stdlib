@@ -4,7 +4,7 @@
 local func   = require "std.functional"
 local list   = require "std.list"
 local strbuf = require "std.strbuf"
-local table  = require "std.table_ext"
+local table  = require "std.table"
 
 local M = {}
 
@@ -504,30 +504,28 @@ end
 
 
 for k, v in pairs {
-  __index        = old__index,
-  caps           = caps,
-  chomp          = chomp,
-  escape_pattern = escape_pattern,
-  escape_shell   = escape_shell,
-  finds          = finds,
-  format         = format,
-  ltrim          = ltrim,
-  numbertosi     = numbertosi,
-  ordinal_suffix = ordinal_suffix,
-  pad            = pad,
-  rtrim          = rtrim,
-  split          = split,
-  tfind          = tfind,
-  trim           = trim,
-  wrap           = wrap,
-
-  -- APIs that used to be in "base".
+  __index         = old__index,
   assert          = assert,
+  caps            = caps,
+  chomp           = chomp,
+  escape_pattern  = escape_pattern,
+  escape_shell    = escape_shell,
+  finds           = finds,
+  format          = format,
+  ltrim           = ltrim,
+  numbertosi      = numbertosi,
+  ordinal_suffix  = ordinal_suffix,
+  pad             = pad,
   pickle          = pickle,
   prettytostring  = prettytostring,
   render          = render,
   require_version = require_version,
+  rtrim           = rtrim,
+  split           = split,
+  tfind           = tfind,
   tostring        = tostring,
+  trim            = trim,
+  wrap            = wrap,
 
   -- camelCase compatibility:
   escapePattern  = escape_pattern,

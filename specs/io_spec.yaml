@@ -1,11 +1,12 @@
-specify io_ext:
+specify io:
 - before: |
-    M = require "std.io_ext"
+    M = require "std.io"
 
     extends      = io
     enhancements = {}
-    extensions   = { "catdir", "catfile", "process_files", "readlines",
-                     "shell", "slurp", "splitdir", "writelines",
+    extensions   = { "catdir", "catfile", "die", "process_files",
+                     "readlines", "shell", "slurp", "splitdir", "warn",
+                     "writelines",
                      -- camelCase compatibility:
                      "processFiles" }
 

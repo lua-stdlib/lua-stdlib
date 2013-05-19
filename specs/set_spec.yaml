@@ -2,6 +2,7 @@ before:
   require "spec_helper"
   set = require "std.set"
   typeof = (require "std.object").typeof
+  totable = (require "std.table").totable
 
 specify set:
 - it constructs a new set from the module table:

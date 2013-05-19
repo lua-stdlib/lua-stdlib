@@ -1,20 +1,18 @@
-specify string_ext:
+specify string:
 - before: |
-    M = require "std.string_ext"
+    M = require "std.string"
 
     extends      = string
-    enhancements = { "format" }
-    extensions   = { "assert", "caps", "chomp", "escape_pattern",
-                     "escape_shell", "finds", "ltrim", "numbertosi",
-                     "ordinal_suffix", "pad", "pickle", "prettytostring",
-                     "render", "require_version", "rtrim", "split",
-                     "tostring", "tfind", "trim", "wrap",
+    enhancements = { "assert", "format", "tostring" }
+    extensions   = { "caps", "chomp", "escape_pattern", "escape_shell",
+                     "finds", "ltrim", "numbertosi", "ordinal_suffix",
+                     "pad", "pickle", "prettytostring", "render",
+                     "require_version", "rtrim", "split", "tfind",
+                     "trim", "wrap",
                      -- make these available after require "std"
-                     "__index", "_tostring",
+                     "__index", "_format", "_tostring",
                      -- camelCase compatibility:
                      "escapePattern", "escapeShell", "ordinalSuffix" }
-    keywords     = { "assert", "pickle", "prettytostring", "render",
-                     "require_version", "tostring" }
 
     subject = "a string \n\n"
 
@@ -57,10 +55,6 @@ specify string_ext:
     - it adds extension apis to the global table:
         for api in pairs (M) do
           expect (extends[api]).should_be (M[api])
-        end
-    - it propagates keywords to the global environment:
-        for _, api in ipairs (keywords) do
-          expect (_G[api]).should_be (M[api])
         end
     - it does not add any other global access points:
         for api in pairs (extends) do

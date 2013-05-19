@@ -1,7 +1,7 @@
 --- Additions to the io module
 
-local package = require "std.package_ext"
-local string  = require "std.string_ext"
+local package = require "std.package"
+local string  = require "std.string"
 local tree    = require "std.tree"
 
 
@@ -135,16 +135,14 @@ end
 local M = {
   catdir        = catdir,
   catfile       = catfile,
+  die           = die,
   process_files = process_files,
   readlines     = readlines,
   shell         = shell,
   slurp         = slurp,
   splitdir      = splitdir,
-  writelines    = writelines,
-
-  -- APIs that used to be in base.
-  die           = die,
   warn          = warn,
+  writelines    = writelines,
 
   -- camelCase compatibility.
   processFiles  = process_files,

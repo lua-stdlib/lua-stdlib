@@ -1,11 +1,12 @@
-specify table_ext:
+specify table:
 - before: |
-    M = require "std.table_ext"
+    M = require "std.table"
 
     extends      = table
     enhancements = { "sort" }
     extensions   = { "clone", "clone_rename", "empty", "invert", "keys",
-                     "merge", "new", "size", "values" }
+                     "merge", "new", "pack", "ripairs", "size", "totable",
+                     "values" }
 
 - context when required:
   - before:

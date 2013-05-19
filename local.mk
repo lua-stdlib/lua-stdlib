@@ -41,21 +41,21 @@ luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
 	lib/std/base.lua		\
-	lib/std/debug_ext.lua		\
+	lib/std/debug.lua		\
 	lib/std/debug_init.lua		\
 	lib/std/functional.lua		\
 	lib/std/getopt.lua		\
-	lib/std/io_ext.lua		\
+	lib/std/io.lua			\
 	lib/std/list.lua		\
-	lib/std/math_ext.lua		\
+	lib/std/math.lua		\
 	lib/std/modules.lua		\
 	lib/std/object.lua		\
-	lib/std/package_ext.lua		\
+	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
 	lib/std/strict.lua		\
-	lib/std/string_ext.lua		\
-	lib/std/table_ext.lua		\
+	lib/std/string.lua		\
+	lib/std/table.lua		\
 	lib/std/tree.lua		\
 	$(NOTHING_ELSE)
 

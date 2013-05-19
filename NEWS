@@ -30,6 +30,16 @@ Stdlib NEWS - User visible changes
      local Object = require "std.object"
      local myobject = Object {_init = {"field1", "field2"}}
 
+ - Following on from the Grand Renaming™ change in the last release,
+   `std.debug_ext`, `std.io_ext`, `std.math_ext`, `std.package_ext`,
+   `std.string_ext` and `std.table_ext` no longer have the spurious
+   `_ext` suffix.  Instead, you must now use, e.g.:
+
+      local string = require "std.string"
+
+   These names are now stable, and will be available from here for
+   future releases.
+
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 

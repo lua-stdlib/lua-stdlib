@@ -31,11 +31,11 @@
 -- <li>TODO: Store version separately (construct banner?).</li>
 -- </ul>
 
-local io     = require "std.io_ext"
+local io     = require "std.io"
 local list   = require "std.list"
 local Object = require "std.object"
-local string = require "std.string_ext"
-local table  = require "std.table_ext"
+local string = require "std.string"
+local table  = require "std.table"
 
 local M = {
   opt = {},

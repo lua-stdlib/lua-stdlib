@@ -1,6 +1,6 @@
-specify math_ext:
+specify math:
 - before: |
-    M = require "std.math_ext"
+    M = require "std.math"
 
     extends      = math
     enhancements = { "floor" }
