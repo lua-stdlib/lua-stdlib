@@ -13,6 +13,10 @@ Stdlib NEWS - User visible changes
    ("set", "strbuf", etc.) and can be used as prototypes for further
    derived objects or clones.
 
+ - Can now be installed directly from a release tarball by `luarocks`.
+   No need to run `./configure` or `make`, unless you want to install
+   to a custom location, or do not use LuaRocks.
+
 ** Bug fixes:
 
  - string_ext.escape_pattern is now Lua 5.2 compatible.
