@@ -26,6 +26,9 @@ Stdlib NEWS - User visible changes
    "strbuf", etc.) and can be used as prototypes for further derived
    objects or clones; support object:type (); respond to totable etc.
 
+ - `string.prettytostring` always displays table elements in the same
+   order, as provided by `table.sort`.
+
  - Can now be installed directly from a release tarball by `luarocks`.
    No need to run `./configure` or `make`, unless you want to install to
    a custom location, or do not use LuaRocks.

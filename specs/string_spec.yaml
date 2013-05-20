@@ -344,6 +344,35 @@ specify string:
 
 
 - describe prettytostring:
+  - before:
+      f = M.prettytostring
+  - it renders nil exactly like system tostring:
+      expect (f (nil)).should_be (tostring (nil))
+  - it renders booleans exactly like system tostring:
+      expect (f (true)).should_be (tostring (true))
+      expect (f (false)).should_be (tostring (false))
+  - it renders numbers exactly like system tostring:
+      n = 8723643
+      expect (f (n)).should_be (tostring (n))
+  - it renders functions exactly like system tostring:
+      expect (f (f)).should_be (tostring (f))
+  - it renders strings with format "%q" styling:
+      s = "a string"
+      expect (f (s)).should_be (string.format ("%q", s))
+  - it renders empty tables as a pair of braces:
+      expect (f {}).should_be ("{\n}")
+  - it renders an array prettily:
+      a = {"one", "two", "three"}
+      expect (f (a, "")).
+        should_be '{\n[1] = "one",\n[2] = "two",\n[3] = "three",\n}'
+  - it renders a table prettily:
+      t = { one = true, two = 2, three = {3}}
+      expect (f (t, "")).
+        should_be '{\n["one"] = true,\n["three"] =\n{\n[1] = 3,\n},\n["two"] = 2,\n}'
+  - it renders table keys in table.sort order:
+      t = { one = 3, two = 5, three = 4, four = 2, five = 1 }
+      expect (f (t, "")).
+        should_be '{\n["five"] = 1,\n["four"] = 2,\n["one"] = 3,\n["three"] = 4,\n["two"] = 5,\n}'
 
 
 - describe render:

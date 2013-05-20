@@ -167,8 +167,16 @@ local function render (x, open, close, elem, pair, sep, roots)
     local s = strbuf.new ()
     s = s .. open (x)
     roots[x] = elem (x)
+
+    -- create a sorted list of keys
+    local ord = {}
+    for k, _ in pairs (x) do table.insert (ord, k) end
+    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
+
+    -- render x elements in order
     local i, v = nil, nil
-    for j, w in pairs (x) do
+    for _, j in ipairs (ord) do
+      local w = x[j]
       s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
       i, v = j, w
     end
