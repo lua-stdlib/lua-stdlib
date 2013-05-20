@@ -8,18 +8,31 @@ Stdlib NEWS - User visible changes
    required individually, and without loading themselves or any
    dependencies on other std modules into the global namespace.
 
- - set and strbuf are now derived from std.object, which means that
-   they responds to `std.object.typeof` with appropriate type names
-   ("set", "strbuf", etc.) and can be used as prototypes for further
-   derived objects or clones.
+ - Objects derived from the `std.object` prototype have a new
+   <derived_object>:type () method that returns the contents of the new
+   internal `_type` field.  This can be overridden during cloning with,
+   e.g.:
+
+      local Object = require "std.object"
+      Prototype = Object { _type = "prototype", <other_fields> }
+
+ - Objects derived from the `std.object` prototype return a new table
+   with a shallow copy of all non-internal fields (keys that do not
+   begin with "_") when passed to `table.totable` - unless overridden
+   in the derived object's __totable field.
+
+ - set and strbuf are now derived from std.object, which means that they
+   respond to `object.type` with appropriate type names ("set",
+   "strbuf", etc.) and can be used as prototypes for further derived
+   objects or clones; support object:type (); respond to totable etc.
 
  - Can now be installed directly from a release tarball by `luarocks`.
-   No need to run `./configure` or `make`, unless you want to install
-   to a custom location, or do not use LuaRocks.
+   No need to run `./configure` or `make`, unless you want to install to
+   a custom location, or do not use LuaRocks.
 
 ** Bug fixes:
 
- - string_ext.escape_pattern is now Lua 5.2 compatible.
+ - string.escape_pattern is now Lua 5.2 compatible.
 
 ** Incompatible changes:
 

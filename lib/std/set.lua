@@ -52,7 +52,7 @@ local difference, symmetric_difference, intersection, union, subset, equal
 -- @param t set
 -- @return s with elements of t removed
 function difference (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   local r = new ()
@@ -69,7 +69,7 @@ end
 -- @param t set
 -- @return elements of s and t that are in s or t but not both
 function symmetric_difference (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   return difference (union (s, t), intersection (t, s))
@@ -80,7 +80,7 @@ end
 -- @param t set
 -- @return set intersection of s and t
 function intersection (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   local r = new ()
@@ -97,7 +97,7 @@ end
 -- @param t set or set-like table
 -- @return set union of s and t
 function union (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   local r = new ()
@@ -116,7 +116,7 @@ end
 -- @return <code>true</code> if s is a subset of t, <code>false</code>
 -- otherwise
 function subset (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   for e in elems (s) do
@@ -132,7 +132,7 @@ end
 -- @param t set
 -- @return <code>true</code> if s is a proper subset of t, false otherwise
 function propersubset (s, t)
-  if object.typeof (t) == "table" then
+  if object.type (t) == "table" then
     t = new (unpack (t))
   end
   return subset (s, t) and not subset (t, s)

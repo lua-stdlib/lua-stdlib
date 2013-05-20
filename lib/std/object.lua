@@ -26,6 +26,17 @@
 local table = require "std.base"
 
 
+-- Object methods.
+local M = {
+  type = function (self)
+    if type (self) == "table" and rawget (self, "_type") ~= nil then
+      return self._type
+    end
+    return type (self)
+  end,
+}
+
+
 --- Root object
 -- @class functable
 -- @name new
@@ -48,6 +59,20 @@ local new = {
     return setmetatable (object, object)
   end,
 
+  -- respond to table.totable with a new table containing a copy of all
+  -- elements from object, except any key prefixed with "_".
+  __totable = function (self)
+    local t = {}
+    for k, v in pairs (self) do
+      if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
+	t[k] = v
+      end
+    end
+    return t
+  end,
+
+  __index = M,
+
   -- Sugar instance creation
   __call = function (...)
     -- First (...) gets first element of list
@@ -56,17 +81,8 @@ local new = {
 }
 setmetatable (new, new)
 
-local function typeof (object)
-  if type (object) == "table" and rawget (object, "_type") ~= nil then
-    return object._type
-  end
-  return type (object)
-end
-
-local M = {
-  new    = new,
-  typeof = typeof,
-}
+-- Inject `new` method into public interface.
+M.new = new
 
 return setmetatable (M, {
   -- Sugar to call new automatically from module table.

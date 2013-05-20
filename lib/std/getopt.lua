@@ -41,6 +41,8 @@ local M = {
   opt = {},
 }
 
+local argtype = { Opt = true, Req = true }
+
 
 --- Perform argument processing
 -- @param argIn list of command-line args
@@ -54,7 +56,7 @@ local function getopt (argIn, options, stop_at_nonopt)
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
   local function getArg (o, opt, arg, oldarg)
-    if o.type == nil then
+    if not argtype[o.type] then
       if arg ~= nil then
         table.insert (errors, "option `" .. opt .. "' doesn't take an argument")
       end
@@ -152,12 +154,12 @@ local function usageinfo (header, optDesc, pageWidth)
       return (#o > 1 and "--" or "-") .. o
     end
     local function fmtArg ()
-      if opt.type == nil then
-        return ""
-      elseif opt.type == "Req" then
+      if opt.type == "Req" then
         return "=" .. opt.var
-      else
+      elseif opt.type == "Opt" then
         return "[=" .. opt.var .. "]"
+      else
+        return ""
       end
     end
     local textName = list.reverse (list.map (fmtName, opt.name))

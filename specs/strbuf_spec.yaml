@@ -1,11 +1,11 @@
 before:
   strbuf = require "std.strbuf"
-  typeof = (require "std.object").typeof
+  object = require "std.object"
 
 specify strbuf:
 - it constructs a new strbuf from the module table:
     b = strbuf {}
-    expect (typeof (b)).should_be "strbuf"
+    expect (object.type (b)).should_be "strbuf"
 - it initialises strbuf with contructor parameters:
     b = strbuf {"foo", "bar"}
     expect (b).should_contain "foo"
@@ -14,7 +14,7 @@ specify strbuf:
 - describe new:
   - it constructs a new strbuf:
       b = strbuf.new ()
-      expect (typeof (b)).should_be "strbuf"
+      expect (object.type (b)).should_be "strbuf"
   - it initialises strbuf with constructor parameters:
       b = strbuf.new ("foo", "bar")
       expect (b).should_contain "foo"
@@ -35,13 +35,26 @@ specify strbuf:
 
   - it can be called from strbuf module:
       b = strbuf.concat (b, "baz")
-      expect (typeof (b)).should_be "strbuf"
+      expect (object.type (b)).should_be "strbuf"
       expect (strbuf.tostring (b)).should_be "foobarbaz"
   - it can be called as a strbuf object method:
       b:concat "baz"
-      expect (typeof (b)).should_be "strbuf"
+      expect (object.type (b)).should_be "strbuf"
       expect (b:tostring()).should_be "foobarbaz"
   - it can be called as a strbuf metamethod:
       b = b .. "baz"
-      expect (typeof (b)).should_be "strbuf"
+      expect (object.type (b)).should_be "strbuf"
       expect (tostring (b)).should_be "foobarbaz"
+
+
+- describe __totable:
+  - before:
+      totable = (require "std.table").totable
+      b = strbuf {"foo", "bar"}
+
+  - it returns a table:
+      expect (object.type (totable (b))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (b)).should_contain.all_of {"foo", "bar"}
+  - it does not contain any hidden fields of object:
+      expect (totable (b)).should_equal {"foo", "bar"}

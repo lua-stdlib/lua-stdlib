@@ -1,6 +1,5 @@
 before:
   object = require "std.object"
-  typeof = object.typeof
 
 specify object:
 - describe new:
@@ -8,22 +7,25 @@ specify object:
       obj = object.new {}
       expect (obj).should_not_be (object.new)
       expect (type (obj)).should_be "table"
-      expect (typeof (obj)).should_be "object"
+      expect (object.type (obj)).should_be "object"
 
-- describe typeof:
+- describe type:
   - it supports calling the module to create a new instance:
       obj = object {}
       expect (obj).should_not_be (object.Object)
       expect (type (obj)).should_be "table"
-      expect (typeof (obj)).should_be "object"
+      expect (object.type (obj)).should_be "object"
+  - it creates objects that can report their own type: |
+      obj = object {}
+      expect (obj:type ()).should_be "object"
   - it supports setting the object type during instantiation:
       Example = object {_type = "example"}
-      expect (typeof (Example)).should_be "example"
+      expect (object.type (Example)).should_be "example"
   - it instantiates additional factory objects:
       Factory = object {_type = "factory"}
       obj = Factory {}
       expect (obj).should_not_be.any_of {object, Factory}
-      expect (typeof (obj)).should_be "factory"
+      expect (object.type (obj)).should_be "factory"
 
 - describe Object instantiation from a prototype:
   - context when _init is a table of field names:
@@ -69,12 +71,12 @@ specify object:
                              _init  = { "field", "method"},
                              field  = "in prototype",
                              method = function (self, ...)
-                                        return typeof (self) .. " class, " ..
+                                        return object.type (self) .. " class, " ..
                                                table.concat ({...}, ", ")
                                       end,
                             }
       instance  = Prototype {"in object", function (self, ...)
-                                            return typeof (self) .. " instance, " ..
+                                            return object.type (self) .. " instance, " ..
                                                    table.concat ({...}, ", ")
                                           end,
                             }
@@ -94,12 +96,25 @@ specify object:
       expect (instance.newfield).should_be "new"
   - it allows new instance methods to be added:
       instance.newmethod = function (self)
-                             return typeof (self) .. ", new instance method"
+                             return object.type (self) .. ", new instance method"
                            end
       expect (instance:newmethod ()).should_be "prototype, new instance method"
   - it allows new class methods to be added:
       Prototype.newmethod = function (self)
-                              return typeof (self) .. ", new class method"
+                              return object.type (self) .. ", new class method"
                             end
       expect (Prototype.newmethod (instance)).
         should_be "prototype, new class method"
+
+
+- describe __totable:
+  - before:
+      totable = (require "std.table").totable
+      derived = object {_type = "derived", "one", "two", three = true}
+
+  - it returns a table:
+      expect (object.type (totable (derived))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (derived)).should_contain.all_of {"one", "two", "three"}
+  - it does not contain any hidden fields of object:
+      expect (totable (derived)).should_equal {"one", "two", three = true}

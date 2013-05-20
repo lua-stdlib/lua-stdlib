@@ -1,13 +1,13 @@
 before:
   require "spec_helper"
-  set = require "std.set"
-  typeof = (require "std.object").typeof
+  set     = require "std.set"
+  object  = require "std.object"
   totable = (require "std.table").totable
 
 specify set:
 - it constructs a new set from the module table:
     s = set {}
-    expect (typeof (s)).should_be "set"
+    expect (object.type (s)).should_be "set"
 - it initialises set with contructor parameters:
     s = set {"foo", "bar"}
     expect (s).should_have_member "foo"
@@ -16,13 +16,13 @@ specify set:
     s = set {"foo", "bar"}
     obj = s {}
     expect (type (obj)).should_be "table"
-    expect (typeof (obj)).should_be "set"
+    expect (object.type (obj)).should_be "set"
     expect (totable (obj)).should_equal {"bar", "foo"}
 
 - describe new:
   - it constructs a new set:
       s = set.new ()
-      expect (typeof (s)).should_be "set"
+      expect (object.type (s)).should_be "set"
   - it initialises set with constructor parameters:
       s = set.new ("foo", "bar")
       expect (totable (s)).should_equal {"bar", "foo"}
@@ -69,11 +69,11 @@ specify set:
       expect (totable (r)).should_equal {"foo"}
   - it can be called as a set metamethod:
       r = r - s
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"foo"}
   - it coerces a table argument to a set:
       r = r - {"bar"}
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"baz", "foo"}
 
 
@@ -139,11 +139,11 @@ specify set:
       expect (totable (r)).should_equal {"bar", "baz"}
   - it can be called as a set metamethod:
       r = r * s
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"bar", "baz"}
   - it coerces a table argument to a set:
       r = r * {"bar"}
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"bar"}
 
 
@@ -229,11 +229,11 @@ specify set:
       expect (totable (r)).should_equal {"foo", "quux"}
   - it can be called as a set metamethod:
       r = r / s
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"foo", "quux"}
   - it coerces a table argument to a set:
       r = r / {"bar"}
-      expect (typeof (r)).should_be "set"
+      expect (object.type (r)).should_be "set"
       expect (totable (r)).should_equal {"baz", "foo"}
 
 
@@ -242,17 +242,32 @@ specify set:
 
   - it can be called from set module:
       s = set.union (s, set {"bar"})
-      expect (typeof (s)).should_be "set"
+      expect (object.type (s)).should_be "set"
       expect (totable (s)).should_equal {"bar", "foo"}
   - it can be called as a set object method:
       s = s:union (set {"bar"})
-      expect (typeof (s)).should_be "set"
+      expect (object.type (s)).should_be "set"
       expect (totable (s)).should_equal {"bar", "foo"}
   - it can be called as a set metamethod:
       s = s + set {"bar"}
-      expect (typeof (s)).should_be "set"
+      expect (object.type (s)).should_be "set"
       expect (totable (s)).should_equal {"bar", "foo"}
   - it coerces a table argument to a set:
       s = s + {"bar"}
-      expect (typeof (s)).should_be "set"
+      expect (object.type (s)).should_be "set"
       expect (totable (s)).should_equal {"bar", "foo"}
+
+
+- describe __totable:
+  - before:
+      totable = (require "std.table").totable
+      s = set {"foo", "bar", "baz"}
+
+  - it returns a table:
+      expect (object.type (totable (s))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (s)).should_contain.all_of {"foo", "bar", "baz"}
+  - it contains fields of set in order:
+      expect (totable (s)).should_equal {"bar", "baz", "foo"}
+  - it does not contain any hidden fields of object:
+      expect (totable (s)).should_equal {"bar", "baz", "foo"}
