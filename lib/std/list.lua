@@ -1,10 +1,31 @@
 --- Tables as lists.
 
 local base = require "std.base"
-local append, compare, concat, elems, ileaves, new =
-      base.append, base.compare, base.concat, base.elems, base.ileaves, base.new
+local compare, elems, ileaves = base.compare, base.elems, base.ileaves
 
-local func = require "std.functional"
+local func   = require "std.functional"
+local Object = require "std.object"
+
+local new -- forward declaration
+
+--- Append an item to a list.
+-- @param l list
+-- @param x item
+-- @return <code>{l[1], ..., l[#l], x}</code>
+local function append (l, x)
+  local r = l {}
+  table.insert (r, x)
+  return r
+end
+
+--- Concatenate lists.
+-- @param ... lists
+-- @return <code>{l<sub>1</sub>[1], ...,
+-- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
+-- l<sub>n</sub>[#l<sub>n</sub>]}</code>
+local function concat (...)
+  return new (unpack (base.concat (...)))
+end
 
 --- An iterator over the elements of a list, in reverse.
 -- @param l list to iterate over
@@ -27,7 +48,7 @@ end
 -- @param l list
 -- @return result list <code>{f (l[1]), ..., f (l[#l])}</code>
 local function map (f, l)
-  return func.map (f, elems, l)
+  return new (unpack (func.map (f, elems, l)))
 end
 
 --- Map a function over a list of lists.
@@ -35,7 +56,7 @@ end
 -- @param ls list of lists
 -- @return result list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
 local function map_with (f, l)
-  return func.map (func.compose (f, unpack), elems, l)
+  return new (unpack (func.map (func.compose (f, unpack), elems, l)))
 end
 
 --- Filter a list according to a predicate.
@@ -44,7 +65,7 @@ end
 -- @return result list containing elements <code>e</code> of
 --   <code>l</code> for which <code>p (e)</code> is true
 local function filter (p, l)
-  return func.filter (p, elems, l)
+  return new (unpack (func.filter (p, elems, l)))
 end
 
 --- Return a sub-range of a list. (The equivalent of <code>string.sub</code>
@@ -92,8 +113,8 @@ end
 -- @param l list
 -- @return result
 local function foldr (f, e, l)
-  return func.fold (function (x, y) return f (y, x) end,
-                    e, relems, l)
+  return new (unpack (func.fold (function (x, y) return f (y, x) end,
+                                 e, relems, l)))
 end
 
 --- Prepend an item to a list.
@@ -101,7 +122,7 @@ end
 -- @param x item
 -- @return <code>{x, unpack (l)}</code>
 local function cons (l, x)
-  return {x, unpack (l)}
+  return new (x, unpack (l))
 end
 
 --- Repeat a list.
@@ -171,7 +192,7 @@ end
 local function enpair (t)
   local ls = new ()
   for i, v in pairs (t) do
-    table.insert (ls, {i, v})
+    table.insert (ls, new (i, v))
   end
   return ls
 end
@@ -302,8 +323,8 @@ local methods = {
   flatten     = flatten,
   foldl       = function (self, f, e) return foldl (f, e, self)    end,
   foldr       = function (self, f, e) return foldr (f, e, self)    end,
-  index_key   = function (self, f)    return index_key (self, f)   end,
-  index_value = function (self, f)    return index_value (self, f) end,
+  index_key   = function (self, f)    return index_key (f, self)   end,
+  index_value = function (self, f)    return index_value (f, self) end,
   map         = function (self, f)    return map (f, self)         end,
   map_with    = function (self, f)    return map_with (f, self)    end,
   project     = function (self, f)    return project (f, self)     end,
@@ -322,6 +343,51 @@ local methods = {
   mapWith    = map_with,
   zipWith    = zip_with,
 }
+
+
+-- Lua refuses to call __lt or __le metamethods unless both objects
+-- being compared have the same metatable. Consequently, while std.list
+-- produces Objects, they differ from regular std.object derivatives
+-- in that they are not their own metatable.
+local metalist = Object {
+  _type = "metalist",
+
+  __concat = concat,         -- list .. table
+  __add    = append,         -- list + element
+
+  -- list == list retains its referential meaning
+  --
+  -- list < list = list.compare returns < 0
+  __lt = function (l, m) return compare (l, m) < 0 end,
+
+  -- list <= list = list.compare returns <= 0
+  __le = function (l, m) return compare (l, m) <= 0 end,
+
+  -- list:method ()
+  __index = methods,
+}
+
+
+--- Create a new list
+-- @return list
+function new (...)
+  local list = Object {
+    -- Derived object type.
+    _type = "list",
+
+    -- Initialize.
+    ...
+  }
+
+  -- Adjust object _clone method to set metatable on clones of list.
+  local _clone = list._clone
+  list._clone = function (...)
+    return setmetatable (_clone (...), metalist)
+  end
+
+  -- Set metatable of list itself.
+  return setmetatable (list, metalist)
+end
 
 -- Function forms of operators
 func.op[".."] = concat
@@ -363,4 +429,9 @@ local M = {
   zipWith     = zip_with,
 }
 
-return M
+return setmetatable (M, {
+  -- Sugar to call new automatically from module table.
+  __call = function (self, t)
+    return new (unpack (t))
+  end,
+})

@@ -16,6 +16,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/debug_spec.yaml		\
 	$(srcdir)/specs/getopt_spec.yaml	\
 	$(srcdir)/specs/io_spec.yaml		\
+	$(srcdir)/specs/list_spec.yaml		\
 	$(srcdir)/specs/math_spec.yaml		\
 	$(srcdir)/specs/object_spec.yaml	\
 	$(srcdir)/specs/package_spec.yaml	\

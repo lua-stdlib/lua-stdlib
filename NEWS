@@ -21,8 +21,8 @@ Stdlib NEWS - User visible changes
    begin with "_") when passed to `table.totable` - unless overridden
    in the derived object's __totable field.
 
- - set and strbuf are now derived from std.object, which means that they
-   respond to `object.type` with appropriate type names ("set",
+ - list, set and strbuf are now derived from std.object, which means that
+   they respond to `object.type` with appropriate type names ("set",
    "strbuf", etc.) and can be used as prototypes for further derived
    objects or clones; support object:type (); respond to totable etc.
 
