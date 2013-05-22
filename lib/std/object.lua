@@ -57,7 +57,7 @@ local new = {
 setmetatable (new, new)
 
 local function typeof (object)
-  if type (object) == "table" and object._type ~= nil then
+  if type (object) == "table" and rawget (object, "_type") ~= nil then
     return object._type
   end
   return type (object)
