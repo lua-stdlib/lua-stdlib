@@ -118,3 +118,26 @@ specify object:
       expect (totable (derived)).should_contain.all_of {"one", "two", "three"}
   - it does not contain any hidden fields of object:
       expect (totable (derived)).should_equal {"one", "two", three = true}
+
+
+- describe __tostring:
+  - before:
+      obj = object {_type = "derived", "one", "two", "three"}
+  - it returns a string:
+      expect (type (tostring (obj))).should_be "string"
+  - it contains the type:
+      expect (tostring (object {})).should_contain "object"
+      expect (tostring (obj)).should_contain (object.type (obj))
+  - it contains the ordered array part elements:
+      expect (tostring (obj)).should_contain "one, two, three"
+  - it contains the ordered dictionary part elements:
+      expect (tostring (object {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+      expect (tostring (obj {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+  - it contains a ';' separator only when object has array and dictionary parts:
+      expect (tostring (obj)).should_not_contain ";"
+      expect (tostring (object {one = true, two = true, three = true})).
+        should_not_contain ";"
+      expect (tostring (obj {one = true, two = true, three = true})).
+        should_contain ";"

@@ -23,7 +23,7 @@
 --   <li>Add a method: <code>function object:method (...) ... end</code></li>
 -- </li>
 
-local table = require "std.base"
+local base = require "std.base"
 
 
 -- Object methods.
@@ -50,9 +50,9 @@ local new = {
   _init = {},
 
   _clone = function (self, ...)
-    local object = table.clone (self)
+    local object = base.clone (self)
     if type (self._init) == "table" then
-      table.merge (object, table.clone_rename (self._init, ...))
+      base.merge (object, base.clone_rename (self._init, ...))
     else
       object = self._init (object, ...)
     end
@@ -69,6 +69,31 @@ local new = {
       end
     end
     return t
+  end,
+
+  __tostring = function (self)
+    local array, other, s = self:__totable (), self:__totable (), ""
+    if #other > 0 then
+      for i in ipairs (other) do other[i] = nil end
+    end
+    for k in pairs (other) do array[k] = nil end
+
+    local keys, dict = {}, {}
+    for k in pairs (other) do table.insert (keys, k) end
+    table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
+    for _, k in ipairs (keys) do
+      table.insert (dict, tostring (k) .. "=" .. tostring (other[k]))
+    end
+
+    if #array > 0 then
+      s = s .. table.concat (array, ", ")
+      if next (dict) ~= nil then s = s .. "; " end
+    end
+    if #dict > 0 then
+      s = s .. table.concat (dict, ", ")
+    end
+
+    return self._type .. ": {" .. s .. "}"
   end,
 
   __index = M,

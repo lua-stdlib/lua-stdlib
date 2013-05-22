@@ -271,3 +271,14 @@ specify set:
       expect (totable (s)).should_equal {"bar", "baz", "foo"}
   - it does not contain any hidden fields of object:
       expect (totable (s)).should_equal {"bar", "baz", "foo"}
+
+
+- describe __tostring:
+  - before: s = set.new ("foo", "bar", "baz")
+
+  - it returns a string:
+      expect (type (tostring (s))).should_be "string"
+  - it contains the type:
+      expect (tostring (s)).should_contain "set"
+  - it contains the ordered set elements:
+      expect (tostring (s)).should_contain "bar, baz, foo"

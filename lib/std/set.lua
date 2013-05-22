@@ -187,11 +187,6 @@ function new (...)
 	           return t
 		 end,
 
-    __tostring = function (self)
-	           local t = self:__totable ()
-	           return "[" .. table.concat (t, ", ") .. "]"
-		 end,
-
     -- set:method ()
     __index = M,
 
