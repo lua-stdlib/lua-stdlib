@@ -77,6 +77,7 @@ local new = {
       for i in ipairs (other) do other[i] = nil end
     end
     for k in pairs (other) do array[k] = nil end
+    for i, v in ipairs (array) do array[i] = tostring (v) end
 
     local keys, dict = {}, {}
     for k in pairs (other) do table.insert (keys, k) end
