@@ -72,7 +72,8 @@ local new = {
   end,
 
   __tostring = function (self)
-    local array, other, s = self:__totable (), self:__totable (), ""
+    local __totable = getmetatable (self).__totable
+    local array, other, s = __totable (self), __totable (self), ""
     if #other > 0 then
       for i in ipairs (other) do other[i] = nil end
     end
