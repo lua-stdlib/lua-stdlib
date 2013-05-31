@@ -17,7 +17,7 @@ specify set:
     obj = s {}
     expect (type (obj)).should_be "table"
     expect (object.type (obj)).should_be "set"
-    expect (totable (obj)).should_equal {"bar", "foo"}
+    expect (obj).should_equal (set {"foo", "bar"})
 
 - describe new:
   - it constructs a new set:
@@ -25,29 +25,48 @@ specify set:
       expect (object.type (s)).should_be "set"
   - it initialises set with constructor parameters:
       s = set.new ("foo", "bar")
-      expect (totable (s)).should_equal {"bar", "foo"}
+      expect (s).should_equal (set {"foo", "bar"})
 
 
 - describe delete:
-  - before: s = set.new ("foo", "bar", "baz")
-
-  - it is destructive:
-      s:delete ("baz")
-      expect (s).should_not_have_member "baz"
-  - it returns the modified set:
-      expect (s:delete ("baz")).should_not_have_member "baz"
-  - it ignores removal of non-members: |
-      clone = s {}
-      expect (s:delete ("quux")).should_equal (clone)
-  - it deletes a member from the set:
-      expect (s).should_have_member "bar"
-      set.delete (s, "bar")
-      expect (s).should_not_have_member "bar"
-  - it can be called from the set module:
-      set.delete (s, "foo")
-      expect (s).should_not_have_member "foo"
-  - it can be called as a set object method:
-      expect (s:delete ("bar")).should_not_have_member "bar"
+  - context when called from the set module:
+    - before:
+        s = set.new ("foo", "bar", "baz")
+    - it returns a set object:
+        expect (object.type (set.delete (s, "foo"))).should_be "set"
+    - it is destructive:
+        set.delete (s, "bar")
+        expect (s).should_not_have_member "bar"
+    - it returns the modified set:
+        expect (set.delete (s, "baz")).should_not_have_member "baz"
+    - it ignores removal of non-members:
+        clone = s {}
+        expect (set.delete (s, "quux")).should_equal (clone)
+    - it deletes a member from the set:
+        expect (s).should_have_member "bar"
+        set.delete (s, "bar")
+        expect (s).should_not_have_member "bar"
+    - it works with an empty set:
+        expect (set.delete (set.new (), "quux")).should_equal (set.new ())
+  - context when called as a set object method:
+    - before:
+        s = set {"foo", "bar", "baz"}
+    - it returns a set object:
+        expect (object.type (s:delete ("foo"))).should_be "set"
+    - it is destructive:
+        s:delete ("bar")
+        expect (s).should_not_have_member "bar"
+    - it returns the modified set:
+        expect (s:delete ("baz")).should_not_have_member "baz"
+    - it ignores removal of non-members: |
+        clone = s {}
+        expect (s:delete ("quux")).should_equal (clone)
+    - it deletes a member from the set:
+        expect (s).should_have_member "bar"
+        s:delete ("bar")
+        expect (s).should_not_have_member "bar"
+    - it works with an empty set:
+        expect (set.delete (set {}, "quux")).should_equal (set {})
 
 
 - describe difference:
@@ -55,69 +74,103 @@ specify set:
       r = set.new ("foo", "bar", "baz")
       s = set.new ("bar", "baz", "quux")
 
-  - it is non-destructive:
-      set.difference (r, s)
-      expect (r).should_have_member "baz"
-  - it returns a set containing members of the first that are not in the second:
-      r = set.difference (r, s)
-      expect (totable (r)).should_equal {"foo"}
-  - it can be called from the set module:
-      r = set.difference (r, s)
-      expect (totable (r)).should_equal {"foo"}
-  - it can be called as a set object method:
-      r = r:difference (s)
-      expect (totable (r)).should_equal {"foo"}
-  - it can be called as a set metamethod:
-      r = r - s
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"foo"}
-  - it coerces a table argument to a set:
-      r = r - {"bar"}
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"baz", "foo"}
+  - context when called from the set module:
+    - it returns a set object:
+        expect (object.type (set.difference (r, s))).should_be "set"
+    - it is non-destructive:
+        set.difference (r, s)
+        expect (r).should_equal (set.new ("foo", "bar", "baz"))
+        expect (s).should_equal (set.new ("bar", "baz", "quux"))
+    - it returns a set containing members of the first that are not in the second:
+        expect (set.difference (r, s)).should_equal (set.new ("foo"))
+    - it coerces a table argument to a set:
+        expect (set.difference (r, {"bar"})).should_equal (set.new ("baz", "foo"))
+  - context when called as a set object method:
+    - it returns a set object:
+        expect (object.type (r:difference (s))).should_be "set"
+    - it is non-destructive:
+        r:difference (s)
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members of the first that are not in the second:
+        expect (r:difference (s)).should_equal (set {"foo"})
+    - it coerces a table argument to a set:
+        expect (r:difference {"bar"}).should_equal (set {"baz", "foo"})
+  - context when called as a set metamethod:
+    - it returns a set object:
+        expect (object.type (r - s)).should_be "set"
+    - it is non-destructive:
+        q = r - s
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members of the first that are not in the second:
+        expect (r - s).should_equal (set {"foo"})
+    - it coerces a table argument to a set:
+        expect (r - {"bar"}).should_equal (set {"baz", "foo"})
 
 
 - describe elems:
   - before: s = set.new ("foo", "bar", "baz")
 
-  - it is an iterator over set members:
-      t = {}
-      for e in set.elems (s) do table.insert (t, e) end
-      table.sort (t)
-      expect (t).should_equal (totable (s))
-  - it works for an empty set:
-      t = {}
-      for e in set.elems (set {}) do table.insert (t, e) end
-      expect (t).should_equal {}
-  - it can be called from the set module:
-      t = {}
-      for e in set.elems (s) do table.insert (t, e) end
-      table.sort (t)
-      expect (t).should_equal {"bar", "baz", "foo"}
-  - it can be called as a set object method:
-      t = {}
-      for e in s:elems () do table.insert (t, e) end
-      table.sort (t)
-      expect (t).should_equal {"bar", "baz", "foo"}
+  - context when called from the set module:
+    - it is an iterator over set members:
+        t = {}
+        for e in set.elems (s) do table.insert (t, e) end
+        table.sort (t)
+        expect (t).should_equal (totable (s))
+    - it works for an empty set:
+        t = {}
+        for e in set.elems (set {}) do table.insert (t, e) end
+        expect (t).should_equal {}
+  - context when called as a set object method:
+    - it is an iterator over set members:
+        t = {}
+        for e in s:elems () do table.insert (t, e) end
+        table.sort (t)
+        expect (t).should_equal {"bar", "baz", "foo"}
+    - it works for an empty set:
+        t = {}
+        for e in (set {}):elems () do table.insert (t, e) end
+        expect (t).should_equal {}
 
 
 - describe insert:
-  - before: s = set.new ("foo")
-
-  - it is destructive:
-      s:insert ("baz")
-      expect (s).should_have_member "baz"
-  - it returns the modified set:
-      expect (s:insert ("baz")).should_have_member "baz"
-  - it inserts a new member into the set:
-      expect (s).should_not_have_member "bar"
-      set.insert (s, "bar")
-      expect (s).should_have_member "bar"
-  - it can be called from the set module:
-      set.insert (s, "quux")
-      expect (s).should_have_member "quux"
-  - it can be called as a set object method:
-      expect (s:insert ("bar")).should_have_member "bar"
+  - context when called from the set module:
+    - before:
+        s = set.new ("foo")
+    - it returns a set object:
+        expect (object.type (set.insert (s, "bar"))).should_be "set"
+    - it is destructive:
+        set.insert (s, "bar")
+        expect (s).should_have_member "bar"
+    - it returns the modified set:
+        expect (set.insert (s, "baz")).should_have_member "baz"
+    - it ignores insertion of existing members:
+        expect (set.insert (s, "foo")).should_equal (set.new ("foo"))
+    - it inserts a new member into the set:
+        expect (s).should_not_have_member "bar"
+        set.insert (s, "bar")
+        expect (s).should_have_member "bar"
+    - it works with an empty set:
+        expect (set.insert (set.new (), "foo")).should_equal (s)
+  - context when called as a set object method:
+    - before:
+        s = set {"foo"}
+    - it returns a set object:
+        expect (object.type (s:insert ("bar"))).should_be "set"
+    - it is destructive:
+        s:insert ("bar")
+        expect (s).should_have_member "bar"
+    - it returns the modified set:
+        expect (s:insert ("baz")).should_have_member "baz"
+    - it ignores insertion of existing members:
+        expect (s:insert ("foo")).should_equal (set {"foo"})
+    - it inserts a new member into the set:
+        expect (s).should_not_have_member "bar"
+        s:insert ("bar")
+        expect (s).should_have_member "bar"
+    - it works with an empty set:
+        expect ((set {}):insert ("foo")).should_equal (s)
 
 
 - describe intersection:
@@ -125,64 +178,102 @@ specify set:
       r = set.new ("foo", "bar", "baz")
       s = set.new ("bar", "baz", "quux")
 
-  - it is non-destructive:
-      set.intersection (r, s)
-      expect (r).should_have_member "foo"
-  - it returns a set containing members of the first that are not in the second:
-      r = set.intersection (r, s)
-      expect (totable (r)).should_equal {"bar", "baz"}
-  - it can be called from the set module:
-      r = set.intersection (r, s)
-      expect (totable (r)).should_equal {"bar", "baz"}
-  - it can be called as a set object method:
-      r = r:intersection (s)
-      expect (totable (r)).should_equal {"bar", "baz"}
-  - it can be called as a set metamethod:
-      r = r * s
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"bar", "baz"}
-  - it coerces a table argument to a set:
-      r = r * {"bar"}
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"bar"}
+  - context when called from the set module:
+    - it returns a set object:
+        expect (object.type (set.intersection (r, s))).should_be "set"
+    - it is non-destructive:
+        set.intersection (r, s)
+        expect (r).should_equal (set.new ("foo", "bar", "baz"))
+        expect (s).should_equal (set.new ("bar", "baz", "quux"))
+    - it returns a set containing members common to both arguments:
+        expect (set.intersection (r, s)).
+          should_equal (set.new ("bar", "baz"))
+    - it coerces a table argument to a set:
+        expect (set.intersection (r, {"bar", "quux"})).
+          should_equal (set.new ("bar"))
+  - context when called as a set object method:
+    - it returns a set object:
+        expect (object.type (r:intersection (s))).should_be "set"
+    - it is non-destructive:
+        r:intersection (s)
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members common to both arguments:
+        expect (r:intersection (s)).
+          should_equal (set {"bar", "baz"})
+    - it coerces a table argument to a set:
+        expect (r:intersection ({"bar", "quux"})).
+          should_equal (set {"bar"})
+  - context when called as a set metamethod:
+    - it returns a set object:
+        expect (object.type (r:intersection (r))).should_be "set"
+    - it is non-destructive:
+        q = r * s
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members common to both arguments:
+        expect (r * s).should_equal (set {"bar", "baz"})
+    - it coerces a table argument to a set:
+        expect (r * {"bar", "quux"}).should_equal (set {"bar"})
 
 
 - describe member:
   - before: s = set {"foo", "bar"}
 
-  - it succeeds when set contains the given member:
-      expect (set.member (s, "foo")).should_be (true)
-  - it fails when set does not contain the given member:
-      expect (set.member (s, "baz")).should_be (false)
-  - it can be called from the set module:
-      expect (set.member (s, "bar")).should_be (true)
-  - it can be called as a set object method:
-      expect (s:member "bar").should_be (true)
+  - context when called from the set module:
+    - it succeeds when set contains the given member:
+        expect (set.member (s, "foo")).should_be (true)
+    - it fails when set does not contain the given member:
+        expect (set.member (s, "baz")).should_be (false)
+    - it works with the empty set:
+        expect (set.member (set.new (), "foo")).should_be (false)
+  - context when called as a set object method:
+    - it succeeds when set contains the given member:
+        expect (s:member ("foo")).should_be (true)
+    - it fails when set does not contain the given member:
+        expect (s:member ("baz")).should_be (false)
+    - it works with the empty set:
+        expect ((set {}):member ("foo")).should_be (false)
 
 
-- describe proper_subset:
+- describe propersubset:
   - before:
       r = set.new ("foo", "bar", "baz")
       s = set.new ("bar", "baz")
 
-  - it succeeds when set contains all elements of another:
-      expect (set.propersubset (s, r)).should_be (true)
-  - it fails when two sets are equal:
-      r = s {}
-      expect (set.propersubset (s, r)).should_be (false)
-  - it fails when set does not contain all elements of another:
-      s:insert "quux"
-      expect (set.propersubset (r, s)).should_be (false)
-  - it can be called from the set module:
-      expect (set.propersubset (s, r)).should_be (true)
-  - it can be called as a set object method:
-      expect (s:propersubset (r)).should_be (true)
-  - it can be called as a set metamethod:
-      expect (r <= s).should_be (false)
-      expect (r >= s).should_be (true)
-  - it coerces a table argument to a set:
-      expect (s:propersubset {"foo", "bar", "baz"}).should_be (true)
-      expect (s:propersubset {"foo"}).should_be (false)
+  - context when called from the set module:
+    - it succeeds when set contains all elements of another:
+        expect (set.propersubset (s, r)).should_be (true)
+    - it fails when two sets are equal:
+        r = s {}
+        expect (set.propersubset (s, r)).should_be (false)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (set.propersubset (r, s)).should_be (false)
+    - it coerces a table argument to a set:
+        expect (set.propersubset (s, {"foo", "bar", "baz"})).should_be (true)
+        expect (set.propersubset (s, {"foo"})).should_be (false)
+  - context when called as a set object method:
+    - it succeeds when set contains all elements of another:
+        expect (s:propersubset (r)).should_be (true)
+    - it fails when two sets are equal:
+        r = s {}
+        expect (s:propersubset (r)).should_be (false)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (r:propersubset (s)).should_be (false)
+    - it coerces a table argument to a set:
+        expect (s:propersubset {"foo", "bar", "baz"}).should_be (true)
+        expect (s:propersubset {"foo"}).should_be (false)
+  - context when called as a set metamethod:
+    - it succeeds when set contains all elements of another:
+        expect (s < r).should_be (true)
+    - it fails when two sets are equal:
+        r = s {}
+        expect (s < r).should_be (false)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (r < s).should_be (false)
 
 
 - describe subset:
@@ -190,24 +281,39 @@ specify set:
       r = set.new ("foo", "bar", "baz")
       s = set.new ("bar", "baz")
 
-  - it succeeds when set contains all elements of another:
-      expect (set.subset (s, r)).should_be (true)
-  - it succeeds when two sets are equal:
-      r = s {}
-      expect (set.subset (s, r)).should_be (true)
-  - it fails when set does not contain all elements of another:
-      s:insert "quux"
-      expect (set.subset (r, s)).should_be (false)
-  - it can be called from the set module:
-      expect (set.subset (s, r)).should_be (true)
-  - it can be called as a set object method:
-      expect (s:subset (r)).should_be (true)
-  - it can be called as a set metamethod:
-      expect (r < s).should_be (false)
-      expect (r > s).should_be (true)
-  - it coerces a table argument to a set:
-      expect (s:subset {"foo", "bar", "baz"}).should_be (true)
-      expect (s:subset {"foo"}).should_be (false)
+  - context when called from the set module:
+    - it succeeds when set contains all elements of another:
+        expect (set.subset (s, r)).should_be (true)
+    - it succeeds when two sets are equal:
+        r = s {}
+        expect (set.subset (s, r)).should_be (true)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (set.subset (r, s)).should_be (false)
+    - it coerces a table argument to a set:
+        expect (set.subset (s, {"foo", "bar", "baz"})).should_be (true)
+        expect (set.subset (s, {"foo"})).should_be (false)
+  - context when called as a set object method:
+    - it succeeds when set contains all elements of another:
+        expect (s:subset (r)).should_be (true)
+    - it succeeds when two sets are equal:
+        r = s {}
+        expect (s:subset (r)).should_be (true)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (r:subset (s)).should_be (false)
+    - it coerces a table argument to a set:
+        expect (s:subset {"foo", "bar", "baz"}).should_be (true)
+        expect (s:subset {"foo"}).should_be (false)
+  - context when called as a set metamethod:
+    - it succeeds when set contains all elements of another:
+        expect (s <= r).should_be (true)
+    - it succeeds when two sets are equal:
+        r = s {}
+        expect (s <= r).should_be (true)
+    - it fails when set does not contain all elements of another:
+        s = s + set {"quux"}
+        expect (r <= s).should_be (false)
 
 
 - describe symmetric_difference:
@@ -215,53 +321,94 @@ specify set:
       r = set.new ("foo", "bar", "baz")
       s = set.new ("bar", "baz", "quux")
 
-  - it is non-destructive:
-      set.symmetric_difference (r, s)
-      expect (r).should_have_member "bar"
-  - it returns a set containing members of the first that are not in the second:
-      r = set.symmetric_difference (r, s)
-      expect (totable (r)).should_equal {"foo", "quux"}
-  - it can be called from the set module:
-      r = set.symmetric_difference (r, s)
-      expect (totable (r)).should_equal {"foo", "quux"}
-  - it can be called as a set object method:
-      r = r:symmetric_difference (s)
-      expect (totable (r)).should_equal {"foo", "quux"}
-  - it can be called as a set metamethod:
-      r = r / s
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"foo", "quux"}
-  - it coerces a table argument to a set:
-      r = r / {"bar"}
-      expect (object.type (r)).should_be "set"
-      expect (totable (r)).should_equal {"baz", "foo"}
+  - context when called from the set module:
+    - it returns a set object:
+        expect (object.type (set.symmetric_difference (r, s))).
+          should_be "set"
+    - it is non-destructive:
+        set.symmetric_difference (r, s)
+        expect (r).should_equal (set.new ("foo", "bar", "baz"))
+        expect (s).should_equal (set.new ("bar", "baz", "quux"))
+    - it returns a set containing members in only one argument set:
+        expect (set.symmetric_difference (r, s)).
+          should_equal (set.new ("foo", "quux"))
+    - it coerces a table argument to a set:
+        expect (set.symmetric_difference (r, {"bar"})).
+          should_equal (set.new ("baz", "foo"))
+  - context when called as a set object method:
+    - it returns a set object:
+        expect (object.type (r:symmetric_difference (s))).
+          should_be "set"
+    - it is non-destructive:
+        r:symmetric_difference (s)
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members in only one argument set:
+        expect (r:symmetric_difference (s)).
+          should_equal (set {"foo", "quux"})
+    - it coerces a table argument to a set:
+        expect (r:symmetric_difference {"bar"}).
+          should_equal (set {"baz", "foo"})
+  - context when called as a set metamethod:
+    - it returns a set object:
+        expect (object.type (r / s)).should_be "set"
+    - it is non-destructive:
+        q = r / s
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members in only one argument set:
+        expect (r / s).should_equal (set {"foo", "quux"})
+    - it coerces a table argument to a set:
+        expect (r / {"bar"}).should_equal (set {"baz", "foo"})
 
 
 - describe union:
-  - before: s = set.new ("foo")
+  - before:
+      r = set.new ("foo", "bar", "baz")
+      s = set.new ("bar", "baz", "quux")
 
-  - it can be called from set module:
-      s = set.union (s, set {"bar"})
-      expect (object.type (s)).should_be "set"
-      expect (totable (s)).should_equal {"bar", "foo"}
-  - it can be called as a set object method:
-      s = s:union (set {"bar"})
-      expect (object.type (s)).should_be "set"
-      expect (totable (s)).should_equal {"bar", "foo"}
-  - it can be called as a set metamethod:
-      s = s + set {"bar"}
-      expect (object.type (s)).should_be "set"
-      expect (totable (s)).should_equal {"bar", "foo"}
-  - it coerces a table argument to a set:
-      s = s + {"bar"}
-      expect (object.type (s)).should_be "set"
-      expect (totable (s)).should_equal {"bar", "foo"}
+  - context when called from the set module:
+    - it returns a set object:
+        expect (object.type (set.union (r, s))).should_be "set"
+    - it is non-destructive:
+        set.union (r, s)
+        expect (r).should_equal (set.new ("foo", "bar", "baz"))
+        expect (s).should_equal (set.new ("bar", "baz", "quux"))
+    - it returns a set containing members in only one argument set:
+        expect (set.union (r, s)).
+          should_equal (set.new ("foo", "bar", "baz", "quux"))
+    - it coerces a table argument to a set:
+        expect (set.union (r, {"quux"})).
+          should_equal (set.new ("foo", "bar", "baz", "quux"))
+  - context when called as a set object method:
+    - it returns a set object:
+        expect (object.type (r:union (s))).should_be "set"
+    - it is non-destructive:
+        r:union (s)
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members in only one argument set:
+        expect (r:union (s)).
+          should_equal (set {"foo", "bar", "baz", "quux"})
+    - it coerces a table argument to a set:
+        expect (r:union {"quux"}).
+          should_equal (set {"foo", "bar", "baz", "quux"})
+  - context when called as a set metamethod:
+    - it returns a set object:
+        expect (object.type (r + s)).should_be "set"
+    - it is non-destructive:
+        q = r + s
+        expect (r).should_equal (set {"foo", "bar", "baz"})
+        expect (s).should_equal (set {"bar", "baz", "quux"})
+    - it returns a set containing members in only one argument set:
+        expect (r + s).should_equal (set {"foo", "bar", "baz", "quux"})
+    - it coerces a table argument to a set:
+        expect (r + {"quux"}).
+          should_equal (set {"foo", "bar", "baz", "quux"})
 
 
 - describe __totable:
-  - before:
-      totable = (require "std.table").totable
-      s = set {"foo", "bar", "baz"}
+  - before: s = set {"foo", "bar", "baz"}
 
   - it returns a table:
       expect (object.type (totable (s))).should_be "table"

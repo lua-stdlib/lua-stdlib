@@ -162,15 +162,14 @@ local M = {
   union                = union,
 }
 
---- Make a list into a set
--- @param l list
--- @return set
-function new (...)
-  local s = object {
-    -- Derived object type.
-    _type = "set",
 
-    -- Metamethods.
+-- Lua refuses to call __lt or __le metamethods unless both objects
+-- being compared have the same metatable. Consequently, while std.set
+-- produces Objects, they differ from regular std.object derivatives
+-- in that they are not their own metatable.
+local metaset = object {
+    _type = "metaset",
+
     __add = union,                -- set + table = union
     __sub = difference,           -- set - table = set difference
     __mul = intersection,         -- set * table = intersection
@@ -189,6 +188,16 @@ function new (...)
 
     -- set:method ()
     __index = M,
+}
+
+
+--- Make a list into a set
+-- @param l list
+-- @return set
+function new (...)
+  local s = object {
+    -- Derived object type.
+    _type = "set",
 
     -- Set elements
     contents = {},
@@ -199,7 +208,14 @@ function new (...)
     insert (s, e)
   end
 
-  return s
+  -- Adjust object _clone method to set metatable on clone of set.
+  local _clone = s._clone
+  s._clone = function (...)
+    return setmetatable (_clone (...), metaset)
+  end
+
+  -- Set metatable of set itself.
+  return setmetatable (s, metaset)
 end
 
 -- Inject `new` method into public interface.

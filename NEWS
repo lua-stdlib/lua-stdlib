@@ -37,6 +37,9 @@ Stdlib NEWS - User visible changes
 
  - string.escape_pattern is now Lua 5.2 compatible.
 
+ - all sets now share a metatable, as required for __le and __lt
+   metamethods to work as documented.
+
 ** Incompatible changes:
 
  - `std.object.Object` is now `std.object.new` for consistency with
