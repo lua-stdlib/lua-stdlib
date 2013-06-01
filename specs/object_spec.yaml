@@ -1,21 +1,86 @@
 before:
   object = require "std.object"
+  Object = object.Object
+  obj    = Object {"foo", "bar", baz="quux"}
 
 specify object:
-- describe new:
-  - context when called from the object module:
-    - it returns a new object:
-        obj = object.new {}
-        expect (obj).should_not_be (object.new)
+- describe construction:
+  - context from Object clone method:
+    - it constructs a new object:
+        obj = Object:clone {}
+        expect (obj).should_not_be (Object)
         expect (type (obj)).should_be "table"
         expect (object.type (obj)).should_be "object"
-    - it shares a metatable between all new objects:
-        expect (getmetatable (object.new {})).
-          should_be (getmetatable (object.new {}))
+    - it reuses the object metatable:
+        o = obj:clone {"o"}
+        p = o:clone {"p"}
+        expect (p).should_not_be (o)
+        expect (getmetatable (o)).should_be (getmetatable (p))
     - it sets object fields from arguments:
-        obj = object.new {"foo", "bar", baz="quux"}
+        o = obj:clone {}
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+    - it serves as a prototype for new instances:
+        o = obj:clone {}
+        expect (object.type (o)).should_be "object"
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+        expect (getmetatable (o)).should_be (getmetatable (obj))
+    - it separates '_' prefixed fields:
+        expect (Object:clone {foo="bar", _baz="quux"}).
+          should_equal (Object:clone {foo="bar"})
+    - it puts '_' prefixed fields in a new metatable:
+        obj = Object:clone {foo="bar", _baz="quux"}
+        expect (getmetatable (obj)).should_not_be (getmetatable (Object))
+        expect (getmetatable (obj)._baz).should_be "quux"
+
+  # Object {args} is just syntactic sugar for Object:clone {args}
+  - context from Object prototype:
+    - it constructs a new object:
+        obj = Object {}
+        expect (obj).should_not_be (Object)
+        expect (type (obj)).should_be "table"
         expect (object.type (obj)).should_be "object"
-        expect (obj).should_equal (object.new {"foo", "bar", baz="quux"})
+    - it reuses the object metatable:
+        o, p = Object {"o"}, Object {"p"}
+        expect (getmetatable (o)).should_be (getmetatable (p))
+    - it sets object fields from arguments:
+        o = Object {"foo", "bar", baz="quux"}
+        expect (o).should_equal (obj)
+    - it serves as a prototype for new instances:
+        o = obj {}
+        expect (object.type (o)).should_be "object"
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+        expect (getmetatable (o)).should_be (getmetatable (obj))
+    - it separates '_' prefixed fields:
+        expect (Object {foo="bar", _baz="quux"}).
+          should_equal (Object {foo="bar"})
+    - it puts '_' prefixed fields in a new metatable:
+        obj = Object {foo="bar", _baz="quux"}
+        expect (getmetatable (obj)).should_not_be (getmetatable (Object))
+        expect (getmetatable (obj)._baz).should_be "quux"
+
+  - context using new:
+    - before:
+        obj = object.new {"foo", "bar", baz="quux"}
+    - it constructs a new object:
+        obj = object.new {}
+        expect (obj).should_not_be (Object)
+        expect (type (obj)).should_be "table"
+        expect (object.type (obj)).should_be "object"
+    - it reuses the object metatable:
+        o, p = object.new {"o"}, object.new {"p"}
+        expect (getmetatable (o)).should_be (getmetatable (p))
+    - it sets object fields from arguments:
+        o = object.new {"foo", "bar", baz="quux"}
+        expect (o).should_equal (obj)
+    - it serves as a prototype for new instances:
+        o = obj {}
+        expect (object.type (o)).should_be "object"
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+        expect (getmetatable (o)).should_be (getmetatable (obj))
     - it separates '_' prefixed fields:
         expect (object.new {foo="bar", _baz="quux"}).
           should_equal (object.new {foo="bar"})
@@ -23,19 +88,28 @@ specify object:
         obj = object.new {foo="bar", _baz="quux"}
         expect (getmetatable (obj)).should_not_be (getmetatable (object.new {}))
         expect (getmetatable (obj)._baz).should_be "quux"
-  - context when called from the module table:
-    - it returns a new object:
+
+  # object {args} is just syntactic sugar for object.new {args}
+  - context from module table:
+    - before:
+       obj = object {"foo", "bar", baz="quux"}
+    - it constructs a new object:
         obj = object {}
-        expect (obj).should_not_be (object.new)
+        expect (obj).should_not_be (Object)
         expect (type (obj)).should_be "table"
         expect (object.type (obj)).should_be "object"
-    - it shares a metatable between all new objects:
-        expect (getmetatable (object {})).
-          should_be (getmetatable (object {}))
+    - it reuses the object metatable:
+        o, p = object {"o"}, object {"p"}
+        expect (getmetatable (o)).should_be (getmetatable (p))
     - it sets object fields from arguments:
-        obj = object {"foo", "bar", baz="quux"}
-        expect (object.type (obj)).should_be "object"
-        expect (obj).should_equal (object {"foo", "bar", baz="quux"})
+        o = object {"foo", "bar", baz="quux"}
+        expect (o).should_equal (obj)
+    - it serves as a prototype for new instances:
+        o = obj {}
+        expect (object.type (o)).should_be "object"
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+        expect (getmetatable (o)).should_be (getmetatable (obj))
     - it separates '_' prefixed fields:
         expect (object {foo="bar", _baz="quux"}).
           should_equal (object {foo="bar"})

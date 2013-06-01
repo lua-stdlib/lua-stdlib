@@ -4,7 +4,9 @@ local base = require "std.base"
 local compare, elems, ileaves = base.compare, base.elems, base.ileaves
 
 local func   = require "std.functional"
-local Object = require "std.object"
+local object = require "std.object"
+
+local Object = object.Object
 
 local new -- forward declaration
 
@@ -412,7 +414,7 @@ local M = {
 
 return setmetatable (M, {
   -- Sugar to call new automatically from module table.
-  __call = function (self, t)
-    return new (unpack (t))
+  __call = function (self, ...)
+    return new (...)
   end,
 })

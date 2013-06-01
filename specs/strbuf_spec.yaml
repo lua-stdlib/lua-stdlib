@@ -1,28 +1,87 @@
 before:
-  strbuf = require "std.strbuf"
   object = require "std.object"
+  strbuf = require "std.strbuf"
+  StrBuf = strbuf.StrBuf
+  b      = StrBuf {"foo", "bar"}
 
 specify strbuf:
-- it constructs a new strbuf from the module table:
-    b = strbuf {}
-    expect (object.type (b)).should_be "strbuf"
-- it initialises strbuf with contructor parameters:
-    b = strbuf {"foo", "bar"}
-    expect (b).should_contain "foo"
-    expect (b).should_contain "bar"
+- describe construction:
+  - context from StrBuf clone method:
+    - it constructs a new strbuf:
+        b = StrBuf:clone {}
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "strbuf"
+    - it reuses the StrBuf metatable:
+        a, b = StrBuf:clone {"a"}, StrBuf:clone {"b"}
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = StrBuf:clone {"foo", "bar"}
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b:clone {}
+        expect (object.type (obj)).should_be "strbuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
 
-- describe new:
-  - it constructs a new strbuf:
-      b = strbuf.new ()
-      expect (object.type (b)).should_be "strbuf"
-  - it initialises strbuf with constructor parameters:
-      b = strbuf.new ("foo", "bar")
-      expect (b).should_contain "foo"
-      expect (b).should_contain "bar"
+  # StrBuf {args} is just syntactic sugar for StrBuf:clone {args}
+  - context from StrBuf object prototype:
+    - it constructs a new strbuf:
+        b = StrBuf {}
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "strbuf"
+    - it reuses the StrBuf metatable:
+        a, b = StrBuf {"a"}, StrBuf {"b"}
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = StrBuf:clone {"foo", "bar"}
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b {}
+        expect (object.type (obj)).should_be "strbuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
+
+  - context using new:
+    - before:
+        s = strbuf.new ("foo", "bar")
+    - it constructs a new strbuf:
+        b = strbuf.new ()
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "strbuf"
+    - it reuses the StrBuf metatable:
+        a, b = strbuf.new ("a"), strbuf.new ("b")
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = strbuf.new ("foo", "bar")
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b {}
+        expect (object.type (obj)).should_be "strbuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
+
+  # strbuf {args} is just syntactic sugar for strbuf.new {args}
+  - context from module table:
+    - before:
+        b = strbuf.new ("foo", "bar")
+    - it constructs a new strbuf:
+        b = strbuf.new ()
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "strbuf"
+    - it reuses the StrBuf metatable:
+        a, b = strbuf.new ("a"), strbuf.new ("b")
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = strbuf.new ("foo", "bar")
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b {}
+        expect (object.type (obj)).should_be "strbuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
+
 
 - describe tostring:
-  - before: b = strbuf {"foo", "bar"}
-
   - it can be called from strbuf module:
       expect (strbuf.tostring (b)).should_be "foobar"
   - it can be called as a strbuf object method:
@@ -30,9 +89,10 @@ specify strbuf:
   - it can be called as a strbuf metabethod:
       expect (tostring (b)).should_be "foobar"
 
-- describe concat:
-  - before: b = strbuf.new ("foo", "bar")
 
+- describe concat:
+  - before:
+      b = StrBuf {"foo", "bar"}
   - it can be called from strbuf module:
       b = strbuf.concat (b, "baz")
       expect (object.type (b)).should_be "strbuf"
@@ -50,7 +110,6 @@ specify strbuf:
 - describe __totable:
   - before:
       totable = (require "std.table").totable
-      b = strbuf {"foo", "bar"}
 
   - it returns a table:
       expect (object.type (totable (b))).should_be "table"

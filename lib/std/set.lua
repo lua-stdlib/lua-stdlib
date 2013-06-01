@@ -3,6 +3,8 @@
 local list   = require "std.base"
 local object = require "std.object"
 
+local Object = object.Object
+
 local new -- forward declaration
 
 -- Primitive methods (know about representation)
@@ -15,7 +17,7 @@ local new -- forward declaration
 -- @return <code>true</code> if e is in set, <code>false</code>
 -- otherwise
 local function member (s, e)
-  return rawget (s.contents, e) == true
+  return rawget (s, e) == true
 end
 
 --- Insert an element into a set
@@ -23,7 +25,7 @@ end
 -- @param e element
 -- @return the modified set
 local function insert (s, e)
-  rawset (s.contents, e, true)
+  rawset (s, e, true)
   return s
 end
 
@@ -32,14 +34,14 @@ end
 -- @param e element
 -- @return the modified set
 local function delete (s, e)
-  rawset (s.contents, e, nil)
+  rawset (s, e, nil)
   return s
 end
 
 --- Iterator for sets
 -- TODO: Make the iterator return only the key
 local function elems (s)
-  return pairs (s.contents)
+  return pairs (s)
 end
 
 
@@ -148,60 +150,62 @@ function equal (s, t)
 end
 
 
+local Set = Object {
+  -- Derived object type.
+  _type = "set",
+
+  -- Initialise.
+  _init = function (self, ...)
+    for e in list.elems (...) do
+      insert (self, e)
+    end
+    return self
+  end,
+
+  __add = union,                -- set + table = union
+  __sub = difference,           -- set - table = set difference
+  __mul = intersection,         -- set * table = intersection
+  __div = symmetric_difference, -- set / table = symmetric difference
+  __le  = subset,               -- set <= table = subset
+  __lt  = propersubset,         -- set < table = proper subset
+
+  __totable  = function (self)
+                 local t = {}
+                 for e in elems (self) do
+                   table.insert (t, e)
+                 end
+                 table.sort (t)
+                 return t
+               end,
+
+  -- set:method ()
+  __index = {
+    delete               = delete,
+    difference           = difference,
+    elems                = elems,
+    equal                = equal,
+    insert               = insert,
+    intersection         = intersection,
+    member               = member,
+    propersubset         = propersubset,
+    subset               = subset,
+    symmetric_difference = symmetric_difference,
+    union                = union,
+  },
+}
+
+
 --- Make a list into a set
 -- @param l list
 -- @return set
 function new (...)
-  local s = object {
-    -- Derived object type.
-    _type = "set",
-
-    __add = union,                -- set + table = union
-    __sub = difference,           -- set - table = set difference
-    __mul = intersection,         -- set * table = intersection
-    __div = symmetric_difference, -- set / table = symmetric difference
-    __le  = subset,               -- set <= table = subset
-    __lt  = propersubset,         -- set < table = proper subset
-
-    __totable  = function (self)
-	           local t = {}
-		   for e in elems (self) do
-                     table.insert (t, e)
-                   end
-		   table.sort (t)
-	           return t
-		 end,
-
-    -- set:method ()
-    __index = {
-      delete               = delete,
-      difference           = difference,
-      elems                = elems,
-      equal                = equal,
-      insert               = insert,
-      intersection         = intersection,
-      member               = member,
-      propersubset         = propersubset,
-      subset               = subset,
-      symmetric_difference = symmetric_difference,
-      union                = union,
-    },
-
-    -- Set elements
-    contents = {},
-  }
-
-  -- Initialise.
-  for e in list.elems {...} do
-    insert (s, e)
-  end
-
-  return s
+  return Set {...}
 end
 
 
 -- Public interface
 local M = {
+  Set                  = Set,
   delete               = delete,
   difference           = difference,
   elems                = elems,
@@ -219,7 +223,7 @@ local M = {
 
 return setmetatable (M, {
   -- Sugar to call new automatically from module table.
-  __call = function (self, t)
-    return new (unpack (t))
+  __call = function (self, ...)
+    return new (...)
   end,
 })

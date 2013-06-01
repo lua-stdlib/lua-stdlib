@@ -8,11 +8,30 @@ before:
 
 specify list:
 - describe construction:
+  - context from List clone method:
+    - it constructs a new list:
+        l = List:clone {}
+        expect (l).should_not_be (List)
+        expect (object.type (l)).should_be "list"
+    - it reuses the List metatable:
+        l, m = List:clone {"l"}, List:clone {"m"}
+        expect (getmetatable (l)).should_be (getmetatable (m))
+    - it initialises list with constructor parameters:
+        m = List:clone {"foo", "bar", "baz"}
+        expect (m).should_equal (l)
+    - it serves as a prototype for new instances:
+        obj = l:clone {}
+        expect (object.type (obj)).should_be "list"
+        expect (obj).should_equal (l)
+        expect (getmetatable (obj)).should_be (getmetatable (l))
+
+  # List {args} is just syntactic sugar for List:clone {args}
   - context from List object prototype:
     - it constructs a new list:
         l = List {}
+        expect (l).should_not_be (List)
         expect (object.type (l)).should_be "list"
-    - it reuses the list metatable:
+    - it reuses the List metatable:
         l, m = List {"l"}, List {"m"}
         expect (getmetatable (l)).should_be (getmetatable (m))
     - it initialises list with constructor parameters:
@@ -23,35 +42,39 @@ specify list:
         expect (object.type (obj)).should_be "list"
         expect (obj).should_equal (l)
         expect (getmetatable (obj)).should_be (getmetatable (l))
+
   - context using new:
     - before:
         l = list.new ("foo", "bar", "baz")
     - it constructs a new list:
         l = list.new ()
+        expect (l).should_not_be (List)
         expect (object.type (l)).should_be "list"
-    - it reuses the list metatable:
+    - it reuses the List metatable:
         l, m = list.new ("l"), list.new ("m")
         expect (getmetatable (l)).should_be (getmetatable (m))
     - it initialises list with constructor parameters:
         m = list.new ("foo", "bar", "baz")
         expect (m).should_equal (l)
     - it serves as a prototype for new list instances:
-        m = list.new ("foo", "bar", "baz")
-        obj = m {}
+        obj = l {}
         expect (object.type (obj)).should_be "list"
         expect (obj).should_equal (l)
         expect (getmetatable (obj)).should_be (getmetatable (l))
+
+  # list (args) is just syntactic sugar for list.new (args)
   - context from module table:
     - before:
-        l = list {"foo", "bar", "baz"}
+        l = list ("foo", "bar", "baz")
     - it constructs a new list object:
-        l = list {}
+        l = list ()
+        expect (l).should_not_be (list)
         expect (object.type (l)).should_be "list"
-    - it reuses the list metatable:
-        l, m = list {"l"}, list {"m"}
+    - it reuses the List metatable:
+        l, m = list ("l"), list ("m")
         expect (getmetatable (l)).should_be (getmetatable (m))
     - it initialises list with contructor parameters:
-        m = list {"foo", "bar", "baz"}
+        m = list ("foo", "bar", "baz")
         expect (m).should_equal (l)
     - it serves as a prototype for new list instances:
         obj = l {}
@@ -68,7 +91,7 @@ specify list:
       obj = list.new ("foo", "bar")
       expect (getmetatable (obj)).should_be (getmetatable (l))
   - it reuses the metatable for module table constructed objects:
-      obj = list {"foo", "bar"}
+      obj = list ("foo", "bar")
       expect (getmetatable (obj)).should_be (getmetatable (l))
 
 
@@ -78,69 +101,69 @@ specify list:
         l = list.append (l, "quux")
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.append (l, "quux")).should_equal (list {"quux"})
+        l = List {}
+        expect (list.append (l, "quux")).should_equal (List {"quux"})
     - it appends an item to a list:
         expect (list.append (l, "quux")).
-          should_equal (list {"foo", "bar", "baz", "quux"})
+          should_equal (List {"foo", "bar", "baz", "quux"})
   - context when called as a list object method:
     - it returns a list object:
         l = l:append ("quux")
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:append ("quux")).should_equal (list {"quux"})
+        l = List {}
+        expect (l:append ("quux")).should_equal (List {"quux"})
     - it appends an item to a list:
         expect (l:append ("quux")).
-          should_equal (list {"foo", "bar", "baz", "quux"})
+          should_equal (List {"foo", "bar", "baz", "quux"})
   - context when called as a list metamethod:
     - it returns a list object:
         l = l + "quux"
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l + "quux").should_equal (list {"quux"})
+        l = List {}
+        expect (l + "quux").should_equal (List {"quux"})
     - it appends an item to a list:
         expect (l + "quux").
-          should_equal (list {"foo", "bar", "baz", "quux"})
+          should_equal (List {"foo", "bar", "baz", "quux"})
 
 
 - describe compare:
   - before:
-      a, b = list {"foo", "bar"}, list {"foo", "baz"}
+      a, b = List {"foo", "bar"}, List {"foo", "baz"}
   - context when called from the list module:
     - it returns -1 when the first list is less than the second:
         expect (list.compare ({"foo", "bar"}, {"foo", "baz"})).should_be (-1)
         expect (list.compare (a, b)).should_be (-1)
     - it returns -1 when the second list has additional elements:
         expect (list.compare ({"foo"}, {"foo", "bar"})).should_be (-1)
-        expect (list.compare (list {"foo"}, list {"foo", "bar"})).should_be (-1)
+        expect (list.compare (List {"foo"}, List {"foo", "bar"})).should_be (-1)
     - it returns 0 when two lists are the same:
         expect (list.compare ({"foo", "bar"}, {"foo", "bar"})).should_be (0)
-        expect (list.compare (a, list {"foo", "bar"})).  should_be (0)
+        expect (list.compare (a, List {"foo", "bar"})).  should_be (0)
     - it returns +1 when the first list is greater than the second:
         expect (list.compare ({"foo", "bar"}, {"baz", "quux"})).should_be (1)
-        expect (list.compare (a, list {"baz", "quux"})).should_be (1)
+        expect (list.compare (a, List {"baz", "quux"})).should_be (1)
     - it returns +1 when the first list has additional elements:
         expect (list.compare ({"foo", "bar"}, {"foo"})).should_be (1)
-        expect (list.compare (a, list {"foo"})).should_be (1)
+        expect (list.compare (a, List {"foo"})).should_be (1)
   - context when called as a list object method:
     - it returns -1 when the first list is less than the second: |
         expect (a:compare {"foo", "baz"}).should_be (-1)
-        expect (a:compare (list {"foo", "baz"})).should_be (-1)
+        expect (a:compare (List {"foo", "baz"})).should_be (-1)
     - it returns -1 when the second list has additional elements: |
-        b = list {"foo"}
+        b = List {"foo"}
         expect (b:compare {"foo", "bar"}).should_be (-1)
-        expect (list.compare (list {"foo"}, list {"foo", "bar"})).should_be (-1)
+        expect (list.compare (List {"foo"}, List {"foo", "bar"})).should_be (-1)
     - it returns 0 when two lists are the same: |
         expect (a:compare {"foo", "bar"}).should_be (0)
-        expect (a:compare (list {"foo", "bar"})).should_be (0)
+        expect (a:compare (List {"foo", "bar"})).should_be (0)
     - it returns +1 when the first list is greater than the second: |
         expect (a:compare {"baz", "quux"}).should_be (1)
-        expect (a:compare (list {"baz", "quux"})).should_be (1)
+        expect (a:compare (List {"baz", "quux"})).should_be (1)
     - it returns +1 when the first list has additional elements: |
         expect (a:compare {"foo"}).should_be (1)
-        expect (a:compare (list {"foo"})).should_be (1)
+        expect (a:compare (List {"foo"})).should_be (1)
   - context when called as a '<' list metamethod:
     - it succeeds when the first list is less than the second:
         expect (a < b).should_be (true)
@@ -172,40 +195,40 @@ specify list:
 
   - context when called from list module:
     - it returns a list object:
-        l = list.concat (l, list {"baz"})
+        l = list.concat (l, List {"baz"})
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.concat (l, list {"baz"})).should_equal (list {"baz"})
+        l = List {}
+        expect (list.concat (l, List {"baz"})).should_equal (List {"baz"})
     - it concatenates lists:
-        expect (list.concat (l, list {"baz", "quux"})).
-          should_equal (list {"foo", "bar", "baz", "quux"})
-        expect (list.concat (l, list {"baz"}, list {"quux"})).
-          should_equal (list {"foo", "bar", "baz", "quux"})
+        expect (list.concat (l, List {"baz", "quux"})).
+          should_equal (List {"foo", "bar", "baz", "quux"})
+        expect (list.concat (l, List {"baz"}, List {"quux"})).
+          should_equal (List {"foo", "bar", "baz", "quux"})
   - context when called as a list object method:
     - it returns a list object:
-        l = l:concat (list {"baz"})
+        l = l:concat (List {"baz"})
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:concat (list {"baz"})).should_equal (list {"baz"})
+        l = List {}
+        expect (l:concat (List {"baz"})).should_equal (List {"baz"})
     - it concatenates lists:
-        expect (l:concat (list {"baz", "quux"})).
-          should_equal (list {"foo", "bar", "baz", "quux"})
-        expect (l:concat (list {"baz"}, list {"quux"})).
-          should_equal (list {"foo", "bar", "baz", "quux"})
+        expect (l:concat (List {"baz", "quux"})).
+          should_equal (List {"foo", "bar", "baz", "quux"})
+        expect (l:concat (List {"baz"}, List {"quux"})).
+          should_equal (List {"foo", "bar", "baz", "quux"})
   - context whne called as a list metamethod:
     - it returns a list object:
-        l = l .. list {"baz"}
+        l = l .. List {"baz"}
         expect (object.type (l)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l .. list {"baz"}).should_equal (list {"baz"})
+        l = List {}
+        expect (l .. List {"baz"}).should_equal (List {"baz"})
     - it concatenates lists:
-        expect (l .. list {"baz", "quux"}).
-          should_equal (list {"foo", "bar", "baz", "quux"})
-        expect (l .. list {"baz"} .. list {"quux"}).
-          should_equal (list {"foo", "bar", "baz", "quux"})
+        expect (l .. List {"baz", "quux"}).
+          should_equal (List {"foo", "bar", "baz", "quux"})
+        expect (l .. List {"baz"} .. List {"quux"}).
+          should_equal (List {"foo", "bar", "baz", "quux"})
 
 
 - describe cons:
@@ -214,22 +237,22 @@ specify list:
         l = list.cons (l, "quux")
         expect (object.type (l)).should_be "list"
     - it works for empty lists:
-        l = list {}
+        l = List {}
         expect (list.cons (l, "quux")).
-          should_equal (list {"quux"})
+          should_equal (List {"quux"})
     - it prepends an item to a list:
         expect (list.cons (l, "quux")).
-          should_equal (list {"quux", "foo", "bar", "baz"})
+          should_equal (List {"quux", "foo", "bar", "baz"})
   - context when called as a list object method:
     - it returns a list object:
         l = l:cons "quux"
         expect (object.type (l)).should_be "list"
     - it works for empty lists:
-        l = list {}
-        expect (l:cons "quux").should_equal (list {"quux"})
+        l = List {}
+        expect (l:cons "quux").should_equal (List {"quux"})
     - it prepends an item to a list:
         expect (l:cons "quux").
-          should_equal (list {"quux", "foo", "bar", "baz"})
+          should_equal (List {"quux", "foo", "bar", "baz"})
 
 
 - describe depair:
@@ -242,7 +265,7 @@ specify list:
     - it returns a primitive table:
         expect (object.type (list.depair (l))).should_be "table"
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (list.depair (l)).should_equal {}
     - it is the inverse of enpair:
         expect (list.depair (l)).should_equal (t)
@@ -250,7 +273,7 @@ specify list:
     - it returns a primitive table:
         expect (object.type (l:depair ())).should_be "table"
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (l:depair ()).should_equal {}
     - it is the inverse of enpair:
         expect (l:depair ()).should_equal (t)
@@ -263,7 +286,7 @@ specify list:
       expect (t).should_equal {"foo", "bar", "baz"}
   - it works for an empty list:
       t = {}
-      for e in list.elems (list {}) do table.insert (t, e) end
+      for e in list.elems (List {}) do table.insert (t, e) end
       expect (t).should_equal {}
   - it can be called from the list module:
       t = {}
@@ -284,15 +307,15 @@ specify list:
   - it returns a list object:
       expect (object.type (list.enpair (t))).should_be "list"
   - it works for an empty table:
-      expect (list.enpair {}).should_equal (list {})
+      expect (list.enpair {}).should_equal (List {})
   - it turns a table into a list of pairs:
       expect (list.enpair (t)).
-        should_equal (list {list {1, "first"}, list {2, "second"}, list {"third", 4}})
+        should_equal (List {List {1, "first"}, List {2, "second"}, List {"third", 4}})
 
 
 - describe filter:
   - before:
-      l = list {"foo", "bar", "baz", "quux"}
+      l = List {"foo", "bar", "baz", "quux"}
       p = function (e) return (e:match "a" ~= nil) end
 
   - context when called from the list module:
@@ -300,61 +323,61 @@ specify list:
         m = list.filter (p, l)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.filter (p, l)).should_equal (list {})
+        l = List {}
+        expect (list.filter (p, l)).should_equal (List {})
     - it filters a list according to a predicate:
-        expect (list.filter (p, l)).should_equal (list {"bar", "baz"})
+        expect (list.filter (p, l)).should_equal (List {"bar", "baz"})
   - context when called as a list object method:
     - it returns a list object:
         m = l:filter (p)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:filter (p)).should_equal (list {})
+        l = List {}
+        expect (l:filter (p)).should_equal (List {})
     - it filters a list according to a predicate:
-        expect (l:filter (p)).should_equal (list {"bar", "baz"})
+        expect (l:filter (p)).should_equal (List {"bar", "baz"})
 
 
 - describe flatten:
   - before:
-      l = list {list {list {"one"}}, "two", list {list {"three"}, "four"}}
+      l = List {List {List {"one"}}, "two", List {List {"three"}, "four"}}
 
   - context when called from the list module:
     - it returns a list object:
         m = list.flatten (l)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.flatten (l)).should_equal (list {})
+        l = List {}
+        expect (list.flatten (l)).should_equal (List {})
     - it flattens a list:
         expect (list.flatten (l)).
-          should_equal (list {"one", "two", "three", "four"})
+          should_equal (List {"one", "two", "three", "four"})
   - context when called as a list object method:
     - it returns a list object:
         m = list.flatten (l)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:flatten ()).should_equal (list {})
+        l = List {}
+        expect (l:flatten ()).should_equal (List {})
     - it flattens a list:
         expect (l:flatten ()).
-          should_equal (list {"one", "two", "three", "four"})
+          should_equal (List {"one", "two", "three", "four"})
 
 
 - describe foldl:
   - before:
       op = (require "std.functional").op
-      l = list {1, 10, 100}
+      l = List {1, 10, 100}
 
   - context when called from list module:
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (list.foldl (op["+"], 10000, l)).should_be (10000)
     - it folds a binary function through a list:
         expect (list.foldl (op["+"], 10000, l)).should_be (10111)
   - context when called as a list object method:
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (l:foldl (op["+"], 10000)).should_be (10000)
     - it folds a binary function through a list:
         expect (l:foldl (op["+"], 10000)).should_be (10111)
@@ -363,17 +386,17 @@ specify list:
 - describe foldr:
   - before:
       op = (require "std.functional").op
-      l = list {1, 10, 100}
+      l = List {1, 10, 100}
 
   - context when called from list module:
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (list.foldl (op["/"], 1, l)).should_be (1)
     - it folds a binary function through a list:
         expect (list.foldl (op["/"], 10000, l)).should_be (10)
   - context when called as a list object method:
     - it works with an empty list:
-        l = list {}
+        l = List {}
         expect (l:foldl (op["/"], 1)).should_be (1)
     - it folds a binary function through a list:
         expect (l:foldl (op["/"], 10000)).should_be (10)
@@ -396,31 +419,31 @@ specify list:
         m = list.map (f, l)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.map (f, l)).should_equal (list {})
+        l = List {}
+        expect (list.map (f, l)).should_equal (List {})
     - it creates a new list:
         o = l
         m = list.map (f, l)
         expect (l).should_equal (o)
         expect (m).should_not_equal (o)
-        expect (l).should_equal (list {1, 2, 3, 4, 5})
+        expect (l).should_equal (List {1, 2, 3, 4, 5})
     - it maps a function over a list:
-        expect (list.map (f, l)).should_equal (list {1, 4, 9, 16, 25})
+        expect (list.map (f, l)).should_equal (List {1, 4, 9, 16, 25})
   - context when called as a list object method:
     - it returns a list object:
         m = l:map (f)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:map (f)).should_equal (list {})
+        l = List {}
+        expect (l:map (f)).should_equal (List {})
     - it creates a new list:
         o = l
         m = l:map (f)
         expect (l).should_equal (o)
         expect (m).should_not_equal (o)
-        expect (l).should_equal (list {1, 2, 3, 4, 5})
+        expect (l).should_equal (List {1, 2, 3, 4, 5})
     - it maps a function over a list:
-        expect (l:map (f)).should_equal (list {1, 4, 9, 16, 25})
+        expect (l:map (f)).should_equal (List {1, 4, 9, 16, 25})
 
 
 - describe map_with:
@@ -434,36 +457,36 @@ specify list:
         m = list.map_with (f, l)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.map_with (f, l)).should_equal (list {})
+        l = List {}
+        expect (list.map_with (f, l)).should_equal (List {})
     - it creates a new list:
         o = l
         m = list.map_with (f, l)
         expect (l).should_equal (o)
         expect (m).should_not_equal (o)
-        expect (l).should_equal (list {list {1, 2, 3}, list {4, 5}})
+        expect (l).should_equal (List {List {1, 2, 3}, List {4, 5}})
     - it maps a function over a list of lists:
-        expect (list.map_with (f, l)).should_equal (list {3, 2})
+        expect (list.map_with (f, l)).should_equal (List {3, 2})
   - context when called as a list object method:
     - it returns a list object:
         m = l:map_with (f)
         expect (object.type (m)).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:map_with (f)).should_equal (list {})
+        l = List {}
+        expect (l:map_with (f)).should_equal (List {})
     - it creates a new list:
         o = l
         m = l:map_with (f)
         expect (l).should_equal (o)
         expect (m).should_not_equal (o)
-        expect (l).should_equal (list {list {1, 2, 3}, list {4, 5}})
+        expect (l).should_equal (List {List {1, 2, 3}, List {4, 5}})
     - it maps a function over a list:
-        expect (l:map_with (f)).should_equal (list {3, 2})
+        expect (l:map_with (f)).should_equal (List {3, 2})
 
 
 - describe project:
   - before:
-      l = list {
+      l = List {
         {first = false, second = true, third = true},
         {first = 1, second = 2, third = 3},
         {first = "1st", second = "2nd", third = "3rd"},
@@ -475,29 +498,29 @@ specify list:
         p = list.project ("third", l)
         expect (object.type (p)).should_be "list"
     - it works with an empty list:
-        l = list {}
-        expect (list.project ("third", l)).should_equal (list {})
+        l = List {}
+        expect (list.project ("third", l)).should_equal (List {})
     - it projects a list of fields from a list of tables:
         expect (list.project ("third", l)).
-          should_equal (list {true, 3, "3rd"})
+          should_equal (List {true, 3, "3rd"})
     - it projects fields with a falsey value correctly: |
         pending "see issue #34"
         expect (list.project ("first", l)).
-          should_equal (list {false, 1, "1st"})
+          should_equal (List {false, 1, "1st"})
   - context when called as a list object method:
     - it returns a list object:
         p = l:project ("third")
         expect (object.type (p)).should_be "list"
     - it works with an empty list:
-        l = list {}
-        expect (l:project ("third")).should_equal (list {})
+        l = List {}
+        expect (l:project ("third")).should_equal (List {})
     - it projects a list of fields from a list of tables:
         expect (l:project ("third")).
-          should_equal (list {true, 3, "3rd"})
+          should_equal (List {true, 3, "3rd"})
     - it projects fields with a falsey value correctly: |
         pending "see issue #34"
         expect (l:project ("first")).
-          should_equal (list {false, 1, "1st"})
+          should_equal (List {false, 1, "1st"})
 
 
 - describe relems:
@@ -507,7 +530,7 @@ specify list:
       expect (t).should_equal {"baz", "bar", "foo"}
   - it works for an empty list:
       t = {}
-      for e in list.relems (list {}) do table.insert (t, e) end
+      for e in list.relems (List {}) do table.insert (t, e) end
       expect (t).should_equal {}
   - it can be called from the list module:
       t = {}
@@ -520,54 +543,54 @@ specify list:
 
 
 - describe rep:
-  - before: l = list {"foo", "bar"}
+  - before: l = List {"foo", "bar"}
 
   - context when called from the list module:
     - it returns a list object:
         expect (object.type (list.rep (l, 3))).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.rep (l, 99)).should_equal (list {})
+        l = List {}
+        expect (list.rep (l, 99)).should_equal (List {})
     - it repeats the contents of a list:
         expect (list.rep (l, 3)).
-          should_equal (list {"foo", "bar", "foo", "bar", "foo", "bar"})
+          should_equal (List {"foo", "bar", "foo", "bar", "foo", "bar"})
   - context when called as a list object method:
     - it returns a list object:
         expect (object.type (l:rep (3))).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:rep (99)).should_equal (list {})
+        l = List {}
+        expect (l:rep (99)).should_equal (List {})
     - it repeats the contents of a list:
         expect (l:rep (3)).
-          should_equal (list {"foo", "bar", "foo", "bar", "foo", "bar"})
+          should_equal (List {"foo", "bar", "foo", "bar", "foo", "bar"})
 
 
 - describe reverse:
-  - before: l = list {"foo", "bar", "baz", "quux"}
+  - before: l = List {"foo", "bar", "baz", "quux"}
 
   - context when called from the list module:
     - it returns a list object:
         expect (object.type (list.reverse (l))).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (list.reverse (l)).should_equal (list {})
+        l = List {}
+        expect (list.reverse (l)).should_equal (List {})
     - it makes a new reversed list:
         m = l
         expect (list.reverse (l)).
-          should_equal (list {"quux", "baz", "bar", "foo"})
-        expect (l).should_equal (list {"foo", "bar", "baz", "quux"})
+          should_equal (List {"quux", "baz", "bar", "foo"})
+        expect (l).should_equal (List {"foo", "bar", "baz", "quux"})
         expect (l).should_be (m)
   - context when called as a list object method:
     - it returns a list object:
         expect (object.type (l:reverse ())).should_be "list"
     - it works for an empty list:
-        l = list {}
-        expect (l:reverse ()).should_equal (list {})
+        l = List {}
+        expect (l:reverse ()).should_equal (List {})
     - it makes a new reversed list:
         m = l
         expect (l:reverse ()).
-          should_equal (list {"quux", "baz", "bar", "foo"})
-        expect (l).should_equal (list {"foo", "bar", "baz", "quux"})
+          should_equal (List {"quux", "baz", "bar", "foo"})
+        expect (l).should_equal (List {"foo", "bar", "baz", "quux"})
         expect (l).should_be (m)
 
 
@@ -575,69 +598,69 @@ specify list:
 
 
 - describe sub:
-  - before: l = list {1, 2, 3, 4, 5, 6, 7}
+  - before: l = List {1, 2, 3, 4, 5, 6, 7}
 
   - context when called from the list module:
     - it returns a list object:
         expect (object.type (list.sub (l, 1, 1))).should_be "list"
     - it makes a list from a subrange of another list:
-        expect (list.sub (l, 2, 5)).should_equal (list {2, 3, 4, 5})
+        expect (list.sub (l, 2, 5)).should_equal (List {2, 3, 4, 5})
     - it truncates the result if 'to' argument is too large:
-        expect (list.sub (l, 5, 10)).should_equal (list {5, 6, 7})
+        expect (list.sub (l, 5, 10)).should_equal (List {5, 6, 7})
     - it defaults 'to' to the end of the list:
-        expect (list.sub (l, 5)).should_equal (list {5, 6, 7})
+        expect (list.sub (l, 5)).should_equal (List {5, 6, 7})
     - it defaults 'from' to the beginning of the list:
         expect (list.sub (l)).should_equal (l)
     - it returns an empty list when 'from' is greater than 'to':
-        expect (list.sub (l, 2, 1)).should_equal (list {})
+        expect (list.sub (l, 2, 1)).should_equal (List {})
     - it counts from the end of the list for a negative 'from' argument:
-        expect (list.sub (l, -3)).should_equal (list {5, 6, 7})
+        expect (list.sub (l, -3)).should_equal (List {5, 6, 7})
     - it counts from the end of the list for a negative 'to' argument:
-        expect (list.sub (l, -5, -2)).should_equal (list {3, 4, 5, 6})
+        expect (list.sub (l, -5, -2)).should_equal (List {3, 4, 5, 6})
 
   - context when called as a list object method:
     - it returns a list object: |
         expect (object.type (l:sub (1, 1))).should_be "list"
     - it makes a list from a subrange of another list: |
-        expect (l:sub (2, 5)).should_equal (list {2, 3, 4, 5})
+        expect (l:sub (2, 5)).should_equal (List {2, 3, 4, 5})
     - it truncates the result if 'to' argument is too large: |
-        expect (l:sub (5, 10)).should_equal (list {5, 6, 7})
+        expect (l:sub (5, 10)).should_equal (List {5, 6, 7})
     - it defaults 'to' to the end of the list: |
-        expect (l:sub (5)).should_equal (list {5, 6, 7})
+        expect (l:sub (5)).should_equal (List {5, 6, 7})
     - it defaults 'from' to the beginning of the list: |
         expect (l:sub ()).should_equal (l)
     - it returns an empty list when 'from' is greater than 'to': |
-        expect (l:sub (2, 1)).should_equal (list {})
+        expect (l:sub (2, 1)).should_equal (List {})
     - it counts from the end of the list for a negative 'from' argument: |
-        expect (l:sub (-3)).should_equal (list {5, 6, 7})
+        expect (l:sub (-3)).should_equal (List {5, 6, 7})
     - it counts from the end of the list for a negative 'to' argument: |
-        expect (l:sub (-5, -2)).should_equal (list {3, 4, 5, 6})
+        expect (l:sub (-5, -2)).should_equal (List {3, 4, 5, 6})
 
 
 - describe tail:
-  - before: l = list {1, 2, 3, 4, 5, 6, 7}
+  - before: l = List {1, 2, 3, 4, 5, 6, 7}
 
   - context when called from the list module:
     - it returns a list object:
         expect (object.type (list.tail (l))).should_be "list"
     - it makes a new list with the first element removed:
-        expect (list.tail (l)).should_equal (list {2, 3, 4, 5, 6, 7})
+        expect (list.tail (l)).should_equal (List {2, 3, 4, 5, 6, 7})
     - it works for an empty list:
-        expect (list.tail (list {})).should_equal (list {})
+        expect (list.tail (List {})).should_equal (List {})
     - it returns an empty list when passed a list with one element:
-        expect (list.tail (list {1})).should_equal (list {})
+        expect (list.tail (List {1})).should_equal (List {})
 
   - context when called as a list object method:
     - it returns a list object: |
         expect (object.type (l:tail ())).should_be "list"
     - it makes a new list with the first element removed: |
-        expect (l:tail ()).should_equal (list {2, 3, 4, 5, 6, 7})
+        expect (l:tail ()).should_equal (List {2, 3, 4, 5, 6, 7})
     - it works for an empty list: |
-        l = list {}
-        expect (l:tail ()).should_equal (list {})
+        l = List {}
+        expect (l:tail ()).should_equal (List {})
     - it returns an empty list when passed a list with one element: |
-        l = list {1}
-        expect (l:tail ()).should_equal (list {})
+        l = List {1}
+        expect (l:tail ()).should_equal (List {})
 
 
 - describe transpose:
