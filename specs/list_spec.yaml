@@ -1,35 +1,75 @@
 before:
   require "spec_helper"
-  list    = require "std.list"
   object  = require "std.object"
-  l       = list {"foo", "bar", "baz"}
+  list    = require "std.list"
+  List    = list.List
+  l       = List {"foo", "bar", "baz"}
+
 
 specify list:
-- it constructs a new list from the module table:
-    l = list {}
-    expect (object.type (l)).should_be "list"
-- it initialises list with contructor parameters:
-    expect (l).should_contain.all_of {"foo", "bar", "baz"}
-- it serves as a prototype for new list instances:
-    obj = l {}
-    expect (type (obj)).should_be "table"
-    expect (object.type (obj)).should_be "list"
-    expect (obj).should_equal (list {"foo", "bar", "baz"})
+- describe construction:
+  - context from List object prototype:
+    - it constructs a new list:
+        l = List {}
+        expect (object.type (l)).should_be "list"
+    - it reuses the list metatable:
+        l, m = List {"l"}, List {"m"}
+        expect (getmetatable (l)).should_be (getmetatable (m))
+    - it initialises list with constructor parameters:
+        m = List {"foo", "bar", "baz"}
+        expect (m).should_equal (l)
+    - it serves as a prototype for new instances:
+        obj = l {}
+        expect (object.type (obj)).should_be "list"
+        expect (obj).should_equal (l)
+        expect (getmetatable (obj)).should_be (getmetatable (l))
+  - context using new:
+    - before:
+        l = list.new ("foo", "bar", "baz")
+    - it constructs a new list:
+        l = list.new ()
+        expect (object.type (l)).should_be "list"
+    - it reuses the list metatable:
+        l, m = list.new ("l"), list.new ("m")
+        expect (getmetatable (l)).should_be (getmetatable (m))
+    - it initialises list with constructor parameters:
+        m = list.new ("foo", "bar", "baz")
+        expect (m).should_equal (l)
+    - it serves as a prototype for new list instances:
+        m = list.new ("foo", "bar", "baz")
+        obj = m {}
+        expect (object.type (obj)).should_be "list"
+        expect (obj).should_equal (l)
+        expect (getmetatable (obj)).should_be (getmetatable (l))
+  - context from module table:
+    - before:
+        l = list {"foo", "bar", "baz"}
+    - it constructs a new list object:
+        l = list {}
+        expect (object.type (l)).should_be "list"
+    - it reuses the list metatable:
+        l, m = list {"l"}, list {"m"}
+        expect (getmetatable (l)).should_be (getmetatable (m))
+    - it initialises list with contructor parameters:
+        m = list {"foo", "bar", "baz"}
+        expect (m).should_equal (l)
+    - it serves as a prototype for new list instances:
+        obj = l {}
+        expect (object.type (obj)).should_be "list"
+        expect (obj).should_equal (l)
+        expect (getmetatable (obj)).should_be (getmetatable (l))
 
 
-- describe new:
-  - it constructs a new list:
-      l = list.new ()
-      expect (object.type (l)).should_be "list"
-  - it initialises list with constructor parameters:
-      m = list.new ("foo", "bar", "baz")
-      expect (m).should_equal (l)
-  - it serves as a prototype for new list instances:
-      m = list.new ("foo", "bar", "baz")
-      obj = m {}
-      expect (type (obj)).should_be "table"
-      expect (object.type (obj)).should_be "list"
-      expect (obj).should_equal (list {"foo", "bar", "baz"})
+- describe metatable propagation:
+  - it reuses the metatable for List constructed objects:
+      obj = List {"foo", "bar"}
+      expect (getmetatable (obj)).should_be (getmetatable (l))
+  - it reuses the metatable for new constructed objects:
+      obj = list.new ("foo", "bar")
+      expect (getmetatable (obj)).should_be (getmetatable (l))
+  - it reuses the metatable for module table constructed objects:
+      obj = list {"foo", "bar"}
+      expect (getmetatable (obj)).should_be (getmetatable (l))
 
 
 - describe append:

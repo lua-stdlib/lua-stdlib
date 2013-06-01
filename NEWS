@@ -37,17 +37,10 @@ Stdlib NEWS - User visible changes
 
  - string.escape_pattern is now Lua 5.2 compatible.
 
- - all sets now share a metatable, as required for __le and __lt
-   metamethods to work as documented.
+ - all objects now reuse prototype metatables, as required for __le and
+   __lt metamethods to work as documented.
 
 ** Incompatible changes:
-
- - `std.object.Object` is now `std.object.new` for consistency with
-   the other stdlib types.  Most likely you were already using the
-   `std.object {...}` sugar, as shown below, which is unaffected:
-
-     local Object = require "std.object"
-     local myobject = Object {_init = {"field1", "field2"}}
 
  - Following on from the Grand Renaming™ change in the last release,
    `std.debug_ext`, `std.io_ext`, `std.math_ext`, `std.package_ext`,

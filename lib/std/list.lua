@@ -311,46 +311,10 @@ local function index_value (f, l)
   return r
 end
 
--- Methods for lists
-local methods = {
-  append      = append,
-  compare     = compare,
-  concat      = concat,
-  cons        = cons,
-  depair      = depair,
-  elems       = elems,
-  filter      = function (self, p)    return filter (p, self)      end,
-  flatten     = flatten,
-  foldl       = function (self, f, e) return foldl (f, e, self)    end,
-  foldr       = function (self, f, e) return foldr (f, e, self)    end,
-  index_key   = function (self, f)    return index_key (f, self)   end,
-  index_value = function (self, f)    return index_value (f, self) end,
-  map         = function (self, f)    return map (f, self)         end,
-  map_with    = function (self, f)    return map_with (f, self)    end,
-  project     = function (self, f)    return project (f, self)     end,
-  relems      = relems,
-  rep         = rep,
-  reverse     = reverse,
-  shape       = function (self, s)    return shape (s, self)       end,
-  sub         = sub,
-  tail        = tail,
-  transpose   = transpose,
-  zip_with    = function (self, f)    return zip_with (f, self)    end,
 
-  -- camelCase compatibility.
-  indexKey   = index_key,
-  indexValue = index_value,
-  mapWith    = map_with,
-  zipWith    = zip_with,
-}
-
-
--- Lua refuses to call __lt or __le metamethods unless both objects
--- being compared have the same metatable. Consequently, while std.list
--- produces Objects, they differ from regular std.object derivatives
--- in that they are not their own metatable.
-local metalist = Object {
-  _type = "metalist",
+local List = Object {
+  -- Derived object type.
+  _type = "list",
 
   __concat = concat,         -- list .. table
   __add    = append,         -- list + element
@@ -364,36 +328,53 @@ local metalist = Object {
   __le = function (l, m) return compare (l, m) <= 0 end,
 
   -- list:method ()
-  __index = methods,
+  __index = {
+    append      = append,
+    compare     = compare,
+    concat      = concat,
+    cons        = cons,
+    depair      = depair,
+    elems       = elems,
+    filter      = function (self, p)    return filter (p, self)      end,
+    flatten     = flatten,
+    foldl       = function (self, f, e) return foldl (f, e, self)    end,
+    foldr       = function (self, f, e) return foldr (f, e, self)    end,
+    index_key   = function (self, f)    return index_key (f, self)   end,
+    index_value = function (self, f)    return index_value (f, self) end,
+    map         = function (self, f)    return map (f, self)         end,
+    map_with    = function (self, f)    return map_with (f, self)    end,
+    project     = function (self, f)    return project (f, self)     end,
+    relems      = relems,
+    rep         = rep,
+    reverse     = reverse,
+    shape       = function (self, s)    return shape (s, self)       end,
+    sub         = sub,
+    tail        = tail,
+    transpose   = transpose,
+    zip_with    = function (self, f)    return zip_with (f, self)    end,
+
+    -- camelCase compatibility.
+    indexKey   = index_key,
+    indexValue = index_value,
+    mapWith    = map_with,
+    zipWith    = zip_with,
+  },
 }
 
 
 --- Create a new list
 -- @return list
 function new (...)
-  local list = Object {
-    -- Derived object type.
-    _type = "list",
-
-    -- Initialize.
-    ...
-  }
-
-  -- Adjust object _clone method to set metatable on clones of list.
-  local _clone = list._clone
-  list._clone = function (...)
-    return setmetatable (_clone (...), metalist)
-  end
-
-  -- Set metatable of list itself.
-  return setmetatable (list, metalist)
+  return List {...}
 end
+
 
 -- Function forms of operators
 func.op[".."] = concat
 
 -- Public interface
 local M = {
+  List        = List,
   append      = append,
   compare     = compare,
   concat      = concat,

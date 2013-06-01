@@ -147,28 +147,14 @@ function equal (s, t)
   return subset (s, t) and subset (t, s)
 end
 
--- Public interface
-local M = {
-  delete               = delete,
-  difference           = difference,
-  elems                = elems,
-  equal                = equal,
-  insert               = insert,
-  intersection         = intersection,
-  member               = member,
-  propersubset         = propersubset,
-  subset               = subset,
-  symmetric_difference = symmetric_difference,
-  union                = union,
-}
 
-
--- Lua refuses to call __lt or __le metamethods unless both objects
--- being compared have the same metatable. Consequently, while std.set
--- produces Objects, they differ from regular std.object derivatives
--- in that they are not their own metatable.
-local metaset = object {
-    _type = "metaset",
+--- Make a list into a set
+-- @param l list
+-- @return set
+function new (...)
+  local s = object {
+    -- Derived object type.
+    _type = "set",
 
     __add = union,                -- set + table = union
     __sub = difference,           -- set - table = set difference
@@ -187,17 +173,19 @@ local metaset = object {
 		 end,
 
     -- set:method ()
-    __index = M,
-}
-
-
---- Make a list into a set
--- @param l list
--- @return set
-function new (...)
-  local s = object {
-    -- Derived object type.
-    _type = "set",
+    __index = {
+      delete               = delete,
+      difference           = difference,
+      elems                = elems,
+      equal                = equal,
+      insert               = insert,
+      intersection         = intersection,
+      member               = member,
+      propersubset         = propersubset,
+      subset               = subset,
+      symmetric_difference = symmetric_difference,
+      union                = union,
+    },
 
     -- Set elements
     contents = {},
@@ -208,18 +196,26 @@ function new (...)
     insert (s, e)
   end
 
-  -- Adjust object _clone method to set metatable on clone of set.
-  local _clone = s._clone
-  s._clone = function (...)
-    return setmetatable (_clone (...), metaset)
-  end
-
-  -- Set metatable of set itself.
-  return setmetatable (s, metaset)
+  return s
 end
 
--- Inject `new` method into public interface.
-M.new = new
+
+-- Public interface
+local M = {
+  delete               = delete,
+  difference           = difference,
+  elems                = elems,
+  equal                = equal,
+  insert               = insert,
+  intersection         = intersection,
+  member               = member,
+  new                  = new,
+  propersubset         = propersubset,
+  subset               = subset,
+  symmetric_difference = symmetric_difference,
+  union                = union,
+}
+
 
 return setmetatable (M, {
   -- Sugar to call new automatically from module table.

@@ -26,95 +26,177 @@
 local base = require "std.base"
 
 
--- Object methods.
-local M = {
-  type = function (self)
-    if type (self) == "table" and rawget (self, "_type") ~= nil then
-      return self._type
+-- Return the named entry from x's metatable, if any, else nil.
+local function metaentry (x, n)
+  local ok, f = pcall (function (x)
+                        return getmetatable (x)[n]
+                       end,
+                       x)
+  if not ok then f = nil end
+  return f
+end
+
+
+-- Return the extended object type, if any, else primitive type.
+local function object_type (self)
+  local _type = metaentry (self, "_type")
+  if type (self) == "table" and _type ~= nil then
+    return _type
+  end
+  return type (self)
+end
+
+
+-- Return a new object, cloned from prototype.
+local function clone (prototype, ...)
+  local mt = getmetatable (prototype)
+
+  -- Make a shallow copy of prototype.
+  local object = {}
+  for k, v in pairs (prototype) do
+    object[k] = v
+  end
+
+  -- Map arguments according to _init metamethod.
+  local _init = metaentry (prototype, "_init")
+  if type (_init) == "table" then
+    base.merge (object, base.clone_rename (_init, ...))
+  else
+    object = _init (object, ...)
+  end
+
+  -- Extract any new fields beginning with "_".
+  local object_mt = {}
+  for k, v in pairs (object) do
+    if type (k) == "string" and k:sub (1, 1) == "_" then
+      object_mt[k], object[k] = v, nil
     end
-    return type (self)
-  end,
-}
+  end
+
+  if next (object_mt) == nil then
+    -- Reuse metatable if possible
+    object_mt = getmetatable (prototype)
+  else
+
+    -- Otherwise copy the prototype metatable...
+    local t = {}
+    for k, v in pairs (mt) do
+      t[k] = v
+    end
+    -- ...but give preference to "_" prefixed keys from init table
+    object_mt = base.merge (t, object_mt)
+
+    -- ...and merge object methods from prototype too.
+    if object_mt.__index ~= nil and mt and mt.__index ~= nil then
+      local methods = base.clone (object_mt.__index)
+      for k, v in pairs (mt.__index) do
+        methods[k] = methods[k] or v
+      end
+      object_mt.__index = methods
+    end
+  end
+
+  return setmetatable (object, object_mt)
+end
+
+
+-- Return a stringified version of the contents of object.
+-- First the object type, and then between { and } a list of the array
+-- part of the object table (without numeric keys) followed by the
+-- remaining key-value pairs.
+-- This function doesn't recurse explicity, but relies upon suitable
+-- __tostring metamethods in contained objects.
+local function stringify (object)
+  local totable = getmetatable (object).__totable
+  local array = base.clone (totable (object), "nometa")
+  local other = base.clone (array, "nometa")
+  local s = ""
+  if #other > 0 then
+    for i in ipairs (other) do other[i] = nil end
+  end
+  for k in pairs (other) do array[k] = nil end
+  for i, v in ipairs (array) do array[i] = tostring (v) end
+
+  local keys, dict = {}, {}
+  for k in pairs (other) do table.insert (keys, k) end
+  table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
+  for _, k in ipairs (keys) do
+    table.insert (dict, tostring (k) .. "=" .. tostring (other[k]))
+  end
+
+  if #array > 0 then
+    s = s .. table.concat (array, ", ")
+    if next (dict) ~= nil then s = s .. "; " end
+  end
+  if #dict > 0 then
+    s = s .. table.concat (dict, ", ")
+  end
+
+  return metaentry (object, "_type") .. " {" .. s .. "}"
+end
+
+
+-- Return a new table with a shallow copy of all non-private fields
+-- in object (private fields have keys prefixed with "_").
+local function totable (object)
+  local t = {}
+  for k, v in pairs (object) do
+    if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
+      t[k] = v
+    end
+  end
+  return t
+end
 
 
 --- Root object
 -- @class functable
--- @name new
+-- @name Object
 -- @field _init constructor method or list of fields to be initialised by the
 -- constructor
--- @field _clone object constructor which provides the behaviour for <code>_init</code>
--- documented above
-local new = {
-  _type = "object",
+local Object = {}
 
-  _init = {},
 
-  _clone = function (self, ...)
-    local object = base.clone (self)
-    if type (self._init) == "table" then
-      base.merge (object, base.clone_rename (self._init, ...))
-    else
-      object = self._init (object, ...)
-    end
-    return setmetatable (object, object)
-  end,
+-- Metatable for objects
+-- Normally a cloned object will share its metatable with its prototype,
+-- unless some new fields for the cloned object begin with '_', in which
+-- case they are merged into a copy of the prototype metatable to form
+-- a new metatable for the cloned object (and its clones).
+local metatable = {
+  _type  = "object",
+  _init  = {},
 
-  -- respond to table.totable with a new table containing a copy of all
-  -- elements from object, except any key prefixed with "_".
-  __totable = function (self)
-    local t = {}
-    for k, v in pairs (self) do
-      if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
-	t[k] = v
-      end
-    end
-    return t
-  end,
+  __totable  = totable,
+  __tostring = stringify,
 
-  __tostring = function (self)
-    local __totable = getmetatable (self).__totable
-    local array, other, s = __totable (self), __totable (self), ""
-    if #other > 0 then
-      for i in ipairs (other) do other[i] = nil end
-    end
-    for k in pairs (other) do array[k] = nil end
-    for i, v in ipairs (array) do array[i] = tostring (v) end
-
-    local keys, dict = {}, {}
-    for k in pairs (other) do table.insert (keys, k) end
-    table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
-    for _, k in ipairs (keys) do
-      table.insert (dict, tostring (k) .. "=" .. tostring (other[k]))
-    end
-
-    if #array > 0 then
-      s = s .. table.concat (array, ", ")
-      if next (dict) ~= nil then s = s .. "; " end
-    end
-    if #dict > 0 then
-      s = s .. table.concat (dict, ", ")
-    end
-
-    return self._type .. ": {" .. s .. "}"
-  end,
-
-  __index = M,
+  -- object:method ()
+  __index    = {
+    clone    = clone,
+    tostring = stringify,
+    totable  = totable,
+    type     = object_type,
+  },
 
   -- Sugar instance creation
-  __call = function (...)
-    -- First (...) gets first element of list
-    return (...)._clone (...)
+  __call = function (self, ...)
+    local methods = metaentry (self, "__index")
+    return methods.clone (self, ...)
   end,
 }
-setmetatable (new, new)
 
--- Inject `new` method into public interface.
-M.new = new
+setmetatable (Object, metatable)
+
+-- Public Interface.
+local M = {
+  Object = Object,
+  new    = Object,
+  type   = object_type,
+}
 
 return setmetatable (M, {
   -- Sugar to call new automatically from module table.
-  -- Use select to replace `self` (this table) with `new`, the real prototype.
+  -- Use select to replace `self` (this table) with `Object`, the real prototype.
   __call = function (...)
-    return new._clone (new, select (2, ...))
+    return clone (Object, select (2, ...))
   end,
 })
