@@ -3,7 +3,7 @@
 local list   = require "std.base"
 local Object = require "std.object"
 
-local new -- forward declaration
+local Set -- forward declaration
 
 -- Primitive methods (know about representation)
 -- The representation is a table whose tags are the elements, and
@@ -53,9 +53,9 @@ local difference, symmetric_difference, intersection, union, subset, equal
 -- @return s with elements of t removed
 function difference (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
-  local r = new ()
+  local r = Set {}
   for e in elems (s) do
     if not member (t, e) then
       insert (r, e)
@@ -70,7 +70,7 @@ end
 -- @return elements of s and t that are in s or t but not both
 function symmetric_difference (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
   return difference (union (s, t), intersection (t, s))
 end
@@ -81,9 +81,9 @@ end
 -- @return set intersection of s and t
 function intersection (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
-  local r = new ()
+  local r = Set {}
   for e in elems (s) do
     if member (t, e) then
       insert (r, e)
@@ -98,9 +98,9 @@ end
 -- @return set union of s and t
 function union (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
-  local r = new ()
+  local r = Set {}
   for e in elems (s) do
     insert (r, e)
   end
@@ -117,7 +117,7 @@ end
 -- otherwise
 function subset (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
   for e in elems (s) do
     if not member (t, e) then
@@ -133,7 +133,7 @@ end
 -- @return <code>true</code> if s is a proper subset of t, false otherwise
 function propersubset (s, t)
   if Object.type (t) == "table" then
-    t = new (unpack (t))
+    t = Set (t)
   end
   return subset (s, t) and not subset (t, s)
 end
@@ -148,13 +148,13 @@ function equal (s, t)
 end
 
 
-local Set = Object {
+Set = Object {
   -- Derived object type.
-  _type = "set",
+  _type = "Set",
 
   -- Initialise.
-  _init = function (self, ...)
-    for e in list.elems (...) do
+  _init = function (self, t)
+    for e in list.elems (t) do
       insert (self, e)
     end
     return self
@@ -192,36 +192,4 @@ local Set = Object {
   },
 }
 
-
---- Make a list into a set
--- @param l list
--- @return set
-function new (...)
-  return Set {...}
-end
-
-
--- Public interface
-local M = {
-  Set                  = Set,
-  delete               = delete,
-  difference           = difference,
-  elems                = elems,
-  equal                = equal,
-  insert               = insert,
-  intersection         = intersection,
-  member               = member,
-  new                  = new,
-  propersubset         = propersubset,
-  subset               = subset,
-  symmetric_difference = symmetric_difference,
-  union                = union,
-}
-
-
-return setmetatable (M, {
-  -- Sugar to call new automatically from module table.
-  __call = function (self, ...)
-    return new (...)
-  end,
-})
+return Set
