@@ -4,9 +4,7 @@ local base = require "std.base"
 local compare, elems, ileaves = base.compare, base.elems, base.ileaves
 
 local func   = require "std.functional"
-local object = require "std.object"
-
-local Object = object.Object
+local Object = require "std.object"
 
 local new -- forward declaration
 

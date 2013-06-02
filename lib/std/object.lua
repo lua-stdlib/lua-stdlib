@@ -151,21 +151,13 @@ local function totable (object)
 end
 
 
---- Root object
--- @class functable
--- @name Object
--- @field _init constructor method or list of fields to be initialised by the
--- constructor
-local Object = {}
-
-
 -- Metatable for objects
 -- Normally a cloned object will share its metatable with its prototype,
 -- unless some new fields for the cloned object begin with '_', in which
 -- case they are merged into a copy of the prototype metatable to form
 -- a new metatable for the cloned object (and its clones).
 local metatable = {
-  _type  = "object",
+  _type  = "Object",
   _init  = {},
 
   __totable  = totable,
@@ -185,19 +177,9 @@ local metatable = {
   end,
 }
 
-setmetatable (Object, metatable)
-
--- Public Interface.
-local M = {
-  Object = Object,
-  new    = Object,
-  type   = object_type,
-}
-
-return setmetatable (M, {
-  -- Sugar to call new automatically from module table.
-  -- Use select to replace `self` (this table) with `Object`, the real prototype.
-  __call = function (...)
-    return clone (Object, select (2, ...))
-  end,
-})
+--- Root object
+-- @class functable
+-- @name Object
+-- @field _init constructor method or list of fields to be initialised by the
+-- constructor
+return setmetatable ({}, metatable)

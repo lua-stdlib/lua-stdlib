@@ -14,7 +14,7 @@ Stdlib NEWS - User visible changes
    e.g.:
 
       local Object = require "std.object"
-      Prototype = Object { _type = "prototype", <other_fields> }
+      Prototype = Object { _type = "Prototype", <other_fields> }
 
  - Objects derived from the `std.object` prototype return a new table
    with a shallow copy of all non-internal fields (keys that do not
