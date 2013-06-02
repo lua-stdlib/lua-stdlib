@@ -6,7 +6,7 @@ local compare, elems, ileaves = base.compare, base.elems, base.ileaves
 local func   = require "std.functional"
 local Object = require "std.object"
 
-local new -- forward declaration
+local List -- forward declaration
 
 --- Append an item to a list.
 -- @param l list
@@ -24,7 +24,7 @@ end
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}</code>
 local function concat (...)
-  return new (unpack (base.concat (...)))
+  return List (base.concat (...))
 end
 
 --- An iterator over the elements of a list, in reverse.
@@ -47,16 +47,16 @@ end
 -- @param f function
 -- @param l list
 -- @return result list <code>{f (l[1]), ..., f (l[#l])}</code>
-local function map (f, l)
-  return new (unpack (func.map (f, elems, l)))
+local function map (l, f)
+  return List (func.map (f, elems, l))
 end
 
 --- Map a function over a list of lists.
 -- @param f function
 -- @param ls list of lists
 -- @return result list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
-local function map_with (f, l)
-  return new (unpack (func.map (func.compose (f, unpack), elems, l)))
+local function map_with (l, f)
+  return List (func.map (func.compose (f, unpack), elems, l))
 end
 
 --- Filter a list according to a predicate.
@@ -64,8 +64,8 @@ end
 -- @param l list of lists
 -- @return result list containing elements <code>e</code> of
 --   <code>l</code> for which <code>p (e)</code> is true
-local function filter (p, l)
-  return new (unpack (func.filter (p, elems, l)))
+local function filter (l, p)
+  return List (func.filter (p, elems, l))
 end
 
 --- Return a sub-range of a list. (The equivalent of <code>string.sub</code>
@@ -75,7 +75,7 @@ end
 -- @param to end of range (default: <code>#l</code>)
 -- @return <code>{l[from], ..., l[to]}</code>
 local function sub (l, from, to)
-  local r = new ()
+  local r = List {}
   local len = #l
   from = from or 1
   to = to or len
@@ -103,7 +103,7 @@ end
 -- @param e element to place in left-most position
 -- @param l list
 -- @return result
-local function foldl (f, e, l)
+local function foldl (l, f, e)
   return func.fold (f, e, elems, l)
 end
 
@@ -112,9 +112,9 @@ end
 -- @param e element to place in right-most position
 -- @param l list
 -- @return result
-local function foldr (f, e, l)
-  return new (unpack (func.fold (function (x, y) return f (y, x) end,
-                                 e, relems, l)))
+local function foldr (l, f, e)
+  return List (func.fold (function (x, y) return f (y, x) end,
+                          e, relems, l))
 end
 
 --- Prepend an item to a list.
@@ -122,7 +122,7 @@ end
 -- @param x item
 -- @return <code>{x, unpack (l)}</code>
 local function cons (l, x)
-  return new (x, unpack (l))
+  return List {x, unpack (l)}
 end
 
 --- Repeat a list.
@@ -130,7 +130,7 @@ end
 -- @param n number of times to repeat
 -- @return <code>n</code> copies of <code>l</code> appended together
 local function rep (l, n)
-  local r = new ()
+  local r = List {}
   for i = 1, n do
     r = concat (r, l)
   end
@@ -141,7 +141,7 @@ end
 -- @param l list
 -- @return list <code>{l[#l], ..., l[1]}</code>
 local function reverse (l)
-  local r = new ()
+  local r = List {}
   for i = #l, 1, -1 do
     table.insert (r, l[i])
   end
@@ -156,9 +156,9 @@ end
 -- @return <code>{{l<sub>1,1</sub>, ..., l<sub>r,1</sub>}, ...,
 -- {l<sub>1,c</sub>, ..., l<sub>r,c</sub>}}</code>
 local function transpose (ls)
-  local rs, len = new (), #ls
-  for i = 1, math.max (unpack (map (function (l) return #l end, ls))) do
-    rs[i] = new ()
+  local rs, len = List {}, #ls
+  for i = 1, math.max (unpack (map (ls, function (l) return #l end))) do
+    rs[i] = List {}
     for j = 1, len do
       rs[i][j] = ls[j][i]
     end
@@ -171,16 +171,16 @@ end
 -- @param ls list of lists
 -- @return <code>{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])</code>
 -- where <code>N = max {map (function (l) return #l end, ls)}</code>
-local function zip_with (f, ls)
-  return map_with (f, transpose (ls))
+local function zip_with (ls, f)
+  return map_with (transpose (ls), f)
 end
 
 --- Project a list of fields from a list of tables.
 -- @param f field to project
 -- @param l list of tables
 -- @return list of <code>f</code> fields
-local function project (f, l)
-  return map (function (t) return t[f] end, l)
+local function project (l, f)
+  return map (l, function (t) return t[f] end)
 end
 
 --- Turn a table into a list of pairs.
@@ -190,9 +190,9 @@ end
 -- @return list <code>{{i<sub>1</sub>, v<sub>1</sub>}, ...,
 -- {i<sub>n</sub>, v<sub>n</sub>}}</code>
 local function enpair (t)
-  local ls = new ()
+  local ls = List {}
   for i, v in pairs (t) do
-    table.insert (ls, new (i, v))
+    table.insert (ls, List {i, v})
   end
   return ls
 end
@@ -216,7 +216,7 @@ end
 -- @param l list to flatten
 -- @return flattened list
 local function flatten (l)
-  local r = new ()
+  local r = List {}
   for v in ileaves (l) do
     table.insert (r, v)
   end
@@ -242,7 +242,7 @@ end
 -- @return reshaped list
 -- FIXME: Use ileaves instead of flatten (needs a while instead of a
 -- for in fill function)
-local function shape (s, l)
+local function shape (l, s)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
@@ -265,7 +265,7 @@ local function shape (s, l)
     if d > #s then
       return l[i], i + 1
     else
-      local r = new ()
+      local r = List {}
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
@@ -283,8 +283,8 @@ end
 -- t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=1, ...,
 -- t<sub>n</sub>[f]=n}</code>
-local function index_key (f, l)
-  local r = new ()
+local function index_key (l, f)
+  local r = List {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -300,8 +300,8 @@ end
 -- i<sub>n</sub>=t<sub>n</sub>}</code>
 -- @return index <code>{t<sub>1</sub>[f]=t<sub>1</sub>, ...,
 -- t<sub>n</sub>[f]=t<sub>n</sub>}</code>
-local function index_value (f, l)
-  local r = new ()
+local function index_value (l, f)
+  local r = List {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -312,9 +312,9 @@ local function index_value (f, l)
 end
 
 
-local List = Object {
+List = Object {
   -- Derived object type.
-  _type = "list",
+  _type = "List",
 
   __concat = concat,         -- list .. table
   __add    = append,         -- list + element
@@ -335,23 +335,24 @@ local List = Object {
     cons        = cons,
     depair      = depair,
     elems       = elems,
-    filter      = function (self, p)    return filter (p, self)      end,
+    enpair      = enpair,
+    filter      = filter,
     flatten     = flatten,
-    foldl       = function (self, f, e) return foldl (f, e, self)    end,
-    foldr       = function (self, f, e) return foldr (f, e, self)    end,
-    index_key   = function (self, f)    return index_key (f, self)   end,
-    index_value = function (self, f)    return index_value (f, self) end,
-    map         = function (self, f)    return map (f, self)         end,
-    map_with    = function (self, f)    return map_with (f, self)    end,
-    project     = function (self, f)    return project (f, self)     end,
+    foldl       = foldl,
+    foldr       = foldr,
+    index_key   = index_key,
+    index_value = index_value,
+    map         = map,
+    map_with    = map_with,
+    project     = project,
     relems      = relems,
     rep         = rep,
     reverse     = reverse,
-    shape       = function (self, s)    return shape (s, self)       end,
+    shape       = shape,
     sub         = sub,
     tail        = tail,
     transpose   = transpose,
-    zip_with    = function (self, f)    return zip_with (f, self)    end,
+    zip_with    = zip_with,
 
     -- camelCase compatibility.
     indexKey   = index_key,
@@ -362,57 +363,7 @@ local List = Object {
 }
 
 
---- Create a new list
--- @return list
-function new (...)
-  return List {...}
-end
-
-
 -- Function forms of operators
 func.op[".."] = concat
 
--- Public interface
-local M = {
-  List        = List,
-  append      = append,
-  compare     = compare,
-  concat      = concat,
-  cons        = cons,
-  depair      = depair,
-  elems       = elems,
-  enpair      = enpair,
-  filter      = filter,
-  flatten     = flatten,
-  foldl       = foldl,
-  foldr       = foldr,
-  index_key   = index_key,
-  index_value = index_value,
-  new         = new,
-  map         = map,
-  map_with    = map_with,
-  project     = project,
-  relems      = relems,
-  rep         = rep,
-  reverse     = reverse,
-  shape       = shape,
-  slice       = sub, -- backwards compatibility
-  sub         = sub,
-  tail        = tail,
-  transpose   = transpose,
-  zip_with    = zip_with,
-
-  -- camelCase compatibility.
-  indexKey    = index_key,
-  indexValue  = index_value,
-  mapWith     = map_with,
-  permuteOn   = index_value,
-  zipWith     = zip_with,
-}
-
-return setmetatable (M, {
-  -- Sugar to call new automatically from module table.
-  __call = function (self, ...)
-    return new (...)
-  end,
-})
+return List

@@ -32,7 +32,7 @@
 -- </ul>
 
 local io     = require "std.io"
-local list   = require "std.list"
+local List   = require "std.list"
 local Object = require "std.object"
 local string = require "std.string"
 local table  = require "std.table"
@@ -114,7 +114,7 @@ local function makeOptions (t)
   local function appendOpt (v, nodupes)
     local dupe = false
     v = Option (v)
-    for s in list.elems (v.name) do
+    for s in List.elems (v.name) do
       if name[s] then
 	dupe = true
       end
@@ -122,11 +122,11 @@ local function makeOptions (t)
     end
     if not dupe or nodupes ~= true then
       if dupe then io.warn ("duplicate option '%s'", s) end
-      for s in list.elems (v.name) do name[s] = v end
-      options = list.concat (options, {v})
+      for s in List.elems (v.name) do name[s] = v end
+      options = List.concat (options, {v})
     end
   end
-  for v in list.elems (t or {}) do
+  for v in List.elems (t or {}) do
     appendOpt (v)
   end
   -- Unless they were supplied already, add version and help options
@@ -162,7 +162,7 @@ local function usageinfo (header, optDesc, pageWidth)
         return ""
       end
     end
-    local textName = list.reverse (list.map (fmtName, opt.name))
+    local textName = List.reverse (List.map (opt.name, fmtName))
     textName[#textName] = textName[#textName] .. fmtArg ()
     local indent = ""
     if #opt.name == 1 and #opt.name[1] > 1 then
@@ -172,7 +172,7 @@ local function usageinfo (header, optDesc, pageWidth)
       opt.desc}
   end
   local function sameLen (xs)
-    local n = math.max (unpack (list.map (string.len, xs)))
+    local n = math.max (unpack (List.map (xs, string.len)))
     for i, v in pairs (xs) do
       xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
     end
@@ -188,14 +188,14 @@ local function usageinfo (header, optDesc, pageWidth)
   end
   local optText = ""
   if #optDesc > 0 then
-    local cols = list.transpose (list.map (fmtOpt, optDesc))
+    local cols = List.transpose (List.map (optDesc, fmtOpt))
     local width
     cols[1], width = sameLen (cols[1])
-    cols[2] = list.map (wrapper (pageWidth, width + 4), cols[2])
+    cols[2] = List.map (cols[2], wrapper (pageWidth, width + 4))
     optText = "\n\n" ..
-      table.concat (list.map_with (paste,
-                                   list.transpose ({sameLen (cols[1]),
-                                                    cols[2]})),
+      table.concat (List.map_with (List.transpose ({sameLen (cols[1]),
+                                                    cols[2]}),
+			           paste),
                     "\n")
   end
   return header .. optText
@@ -214,7 +214,7 @@ local function usage (prog)
       purpose = "\n\n" .. prog.purpose
   end
   if prog.description then
-    for para in list.elems (string.split (prog.description, "\n")) do
+    for para in List.elems (string.split (prog.description, "\n")) do
       description = description .. "\n\n" .. string.wrap (para)
     end
   end

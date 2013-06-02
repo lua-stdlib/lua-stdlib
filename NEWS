@@ -52,6 +52,16 @@ Stdlib NEWS - User visible changes
    These names are now stable, and will be available from here for
    future releases.
 
+ - The std.list module, as a consequence of returning an List object
+   prototype rather than a table of functions including a constructor,
+   now always has the list operand as the first argument, whether that
+   function is called with `.` syntax or `:` syntax.  Functions which
+   previously had the list operand in a different position when called
+   with `.` syntax were: list.filter, list.foldl, list.foldr,
+   list.index_key, list.index_value, list.map, list.map_with,
+   list.project, list.shape and list.zip_with.  Calls made as object
+   methods using `:` calling syntax are unchanged.
+
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 
