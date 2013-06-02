@@ -3,7 +3,7 @@
 
 local func   = require "std.functional"
 local list   = require "std.list"
-local strbuf = require "std.strbuf"
+local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
 local M = {}
@@ -164,7 +164,7 @@ local function render (x, open, close, elem, pair, sep, roots)
   if type (x) ~= "table" or func.metamethod (x, "__tostring") then
     return elem (x)
   else
-    local s = strbuf.new ()
+    local s = StrBuf {}
     s = s .. open (x)
     roots[x] = elem (x)
 
@@ -447,7 +447,7 @@ local function wrap (s, w, ind, ind1)
           "the indents must be less than the line width")
   assert (type (s) == "string",
           "bad argument #1 to 'wrap' (string expected, got " .. type (s) .. ")")
-  local r = strbuf.new ():concat (string.rep (" ", ind1))
+  local r = StrBuf { string.rep (" ", ind1) }
   local i, lstart, len = 1, ind1, #s
   while i <= #s do
     local j = i + w - lstart

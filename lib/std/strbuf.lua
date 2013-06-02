@@ -21,9 +21,9 @@ local function tostring (b)
 end
 
 
-local StrBuf = Object {
+return Object {
   -- Derived object type.
-  _type = "strbuf",
+  _type = "StrBuf",
 
   -- Metamethods.
   __concat   = concat,   -- buffer .. string
@@ -35,27 +35,3 @@ local StrBuf = Object {
     tostring = tostring,
   },
 }
-
-
---- Create a new string buffer
--- @return strbuf
-local function new (...)
-  return StrBuf {...}
-end
-
-
--- Public interface
-local M = {
-  StrBuf   = StrBuf,
-  concat   = concat,
-  new      = new,
-  tostring = tostring,
-}
-
-
-return setmetatable (M, {
-  -- Sugar to call new automatically from module table.
-  __call = function (self, ...)
-    return new (...)
-  end,
-})
