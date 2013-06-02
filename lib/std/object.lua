@@ -87,12 +87,14 @@ local function clone (prototype, ...)
     object_mt = base.merge (t, object_mt)
 
     -- ...and merge object methods from prototype too.
-    if object_mt.__index ~= nil and mt and mt.__index ~= nil then
-      local methods = base.clone (object_mt.__index)
-      for k, v in pairs (mt.__index) do
-        methods[k] = methods[k] or v
+    if mt then
+      if type (object_mt.__index) == "table" and type (mt.__index) == "table" then
+        local methods = base.clone (object_mt.__index)
+        for k, v in pairs (mt.__index) do
+          methods[k] = methods[k] or v
+        end
+        object_mt.__index = methods
       end
-      object_mt.__index = methods
     end
   end
 
@@ -179,8 +181,7 @@ local metatable = {
 
   -- Sugar instance creation
   __call = function (self, ...)
-    local methods = metaentry (self, "__index")
-    return methods.clone (self, ...)
+    return self:clone (...)
   end,
 }
 
