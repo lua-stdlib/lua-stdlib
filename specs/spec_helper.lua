@@ -1,5 +1,5 @@
 -- Not local, so that it is available in spec examples.
-totable = (require "std.table_ext").totable
+totable = (require "std.table").totable
 
 
 -- Custom matcher for set membership.
