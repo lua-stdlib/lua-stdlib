@@ -50,12 +50,9 @@ script:
   # Set Lua and Shell paths up for local luarocks tree.
   - eval `$LUAROCKS path`
   - export PATH=`pwd`/luarocks/bin:$PATH
-  - $LUAROCKS install lyaml;
+  - $LUAROCKS install lyaml; $LUAROCKS install specl;
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
-  # Until specl 8 is released, install specl git master
-  - wget http://raw.github.com/gvvaughan/specl/release/specl-git-1.rockspec
-  - $LUAROCKS install specl-git-1.rockspec
   # LuaRocks make will fail if dependencies are missing.
   - $LUAROCKS make $ROCKSPEC
   # Use bin/specl if we built it, or else the specl rock we just installed.
