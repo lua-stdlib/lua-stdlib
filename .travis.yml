@@ -3,7 +3,7 @@ language: erlang
 
 env:
   global:
-    - PACKAGE=lua-stdlib
+    - PACKAGE=stdlib
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.0.13
