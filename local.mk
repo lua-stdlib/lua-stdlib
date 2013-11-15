@@ -4,7 +4,7 @@
 ## Environment. ##
 ## ------------ ##
 
-std_path = $(abs_srcdir)/lib/?.lua
+std_path = $(abs_srcdir)/ext/?.lua
 LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 
 
@@ -34,41 +34,41 @@ include specs/specs.mk
 ## ------ ##
 
 dist_lua_DATA +=			\
-	lib/std.lua			\
+	ext/std.lua			\
 	$(NOTHING_ELSE)
 
 luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
-	lib/std/base.lua		\
-	lib/std/debug.lua		\
-	lib/std/debug_init.lua		\
-	lib/std/functional.lua		\
-	lib/std/getopt.lua		\
-	lib/std/io.lua			\
-	lib/std/list.lua		\
-	lib/std/math.lua		\
-	lib/std/modules.lua		\
-	lib/std/object.lua		\
-	lib/std/package.lua		\
-	lib/std/set.lua			\
-	lib/std/strbuf.lua		\
-	lib/std/strict.lua		\
-	lib/std/string.lua		\
-	lib/std/table.lua		\
-	lib/std/tree.lua		\
+	ext/std/base.lua		\
+	ext/std/debug.lua		\
+	ext/std/debug_init.lua		\
+	ext/std/functional.lua		\
+	ext/std/getopt.lua		\
+	ext/std/io.lua			\
+	ext/std/list.lua		\
+	ext/std/math.lua		\
+	ext/std/modules.lua		\
+	ext/std/object.lua		\
+	ext/std/package.lua		\
+	ext/std/set.lua			\
+	ext/std/strbuf.lua		\
+	ext/std/strict.lua		\
+	ext/std/string.lua		\
+	ext/std/table.lua		\
+	ext/std/tree.lua		\
 	$(NOTHING_ELSE)
 
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
 # have luadoc installed, put std/std.lua in as a Makefile dependency.
 # (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
-lib/std.lua: lib/std.lua.in
+ext/std.lua: ext/std.lua.in
 	./config.status --file=$@
 
 
-## Use a builtin rockspec build with root at $(srcdir)/lib
-mkrockspecs_args = --module-dir $(srcdir)/lib
+## Use a builtin rockspec build with root at $(srcdir)/ext
+mkrockspecs_args = --module-dir $(srcdir)/ext
 
 
 ## ------------- ##
@@ -76,7 +76,7 @@ mkrockspecs_args = --module-dir $(srcdir)/lib
 ## ------------- ##
 
 EXTRA_DIST +=				\
-	lib/std.lua.in			\
+	ext/std.lua.in			\
 	$(NOTHING_ELSE)
 
 
@@ -85,11 +85,11 @@ EXTRA_DIST +=				\
 ## -------------- ##
 
 dist_doc_DATA +=			\
-	$(srcdir)/lib/index.html	\
-	$(srcdir)/lib/luadoc.css
+	$(srcdir)/ext/index.html	\
+	$(srcdir)/ext/luadoc.css
 
-dist_files_DATA += $(wildcard $(srcdir)/lib/files/*.html)
-dist_modules_DATA += $(wildcard $(srcdir)/lib/modules/*.html)
+dist_files_DATA += $(wildcard $(srcdir)/ext/files/*.html)
+dist_modules_DATA += $(wildcard $(srcdir)/ext/modules/*.html)
 
 $(dist_doc_DATA): $(dist_lua_DATA) $(dist_luastd_DATA)
-	cd $(srcdir)/lib && $(LUADOC) *.lua std/*.lua
+	cd $(srcdir)/ext && $(LUADOC) *.lua std/*.lua
