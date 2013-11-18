@@ -58,7 +58,7 @@ stdlib.
 Documentation
 -------------
 
-The libraries are [documented in LuaDoc][github.io]. Pre-built HTML
+The libraries are [documented in LDoc][github.io]. Pre-built HTML
 files are included.
 
 [github.io]: http://rrthomas.github.io/lua-stdlib
