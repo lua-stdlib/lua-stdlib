@@ -238,11 +238,11 @@ end
 
 --- Turn a list of pairs into a table.
 -- @todo Find a better name.
--- @tparam  table    ls list of lists `{{i1, v1}, ..., {in, vn}}`
--- @treturn std.list    a new list containing table `{i1=v1, ..., in=vn}`
+-- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
+-- @treturn table    a new list containing table `{i1=v1, ..., in=vn}`
 -- @see std.list:enpair
 local function depair (ls)
-  local t = List {}
+  local t = {}
   for v in elems (ls) do
     t[v[1]] = v[2]
   end
