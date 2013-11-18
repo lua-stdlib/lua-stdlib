@@ -8,7 +8,7 @@ env:
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.0.13
     - LUAROCKS="$LUA $HOME/bin/luarocks"
-    - GENDOC=luarocks/bin/luadoc
+    - GENDOC=luarocks/bin/ldoc
     - SPECL=bin/specl
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
@@ -26,9 +26,9 @@ install:
   - sudo apt-get install liblua5.2-dev
   # Luadoc and Ldoc work best on Travis with Lua 5.1.
   - sudo apt-get install luarocks
-  - sudo luarocks install luadoc
+  - sudo luarocks install ldoc
   - mkdir -p luarocks/bin
-  - sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > $GENDOC
+  - sed 's|^exec "[^"]*"|exec lua5.1|' `which ldoc` > $GENDOC
   - chmod a+rx $GENDOC
   # Install a recent luarocks release locally for everything else.
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz

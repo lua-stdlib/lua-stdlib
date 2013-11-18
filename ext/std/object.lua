@@ -1,30 +1,50 @@
---- Prototype-based objects
--- <ul>
---   <li>Create an object/class:</li>
---   <ul>
---     <li>Either, if the <code>_init</code> field is a list:
---     <ul>
---       <li><code>object/Class = prototype {value, ...; field = value, ...}</code></li>
---       <li>Named values are assigned to the corresponding fields, and unnamed values
---       to the fields given by <code>_init</code>.</li>
---     </ul>
---     <li>Or, if the <code>_init</code> field is a function:
---     <ul>
---       <li><code>object/Class = prototype (value, ...)</code></li>
---       <li>The given values are passed as arguments to the <code>_init</code> function.</li>
---     </ul>
---     <li>An object's metatable is itself.</li>
---     <li>Private fields and methods start with "<code>_</code>".</li>
---   </ul>
---   <li>Access an object field: <code>object.field</code></li>
---   <li>Call an object method: <code>object:method (...)</code></li>
---   <li>Call a class method: <code>Class.method (object, ...)</code></li>
---   <li>Add a field: <code>object.field = x</code></li>
---   <li>Add a method: <code>function object:method (...) ... end</code></li>
--- </li>
+--[[--
+ Prototype-based objects.
+
+ This module creates the root prototype object from which every other
+ object is descended.  There are no classes as such, rather new objects
+ are created by cloning an existing prototype object, and then changing
+ or adding to it. Further objects can then be made by cloning the changed
+ object, and so on.
+
+ Objects are cloned by simply calling an existing object which then
+ serves as a prototype, from which the new object is copied.
+
+ All valid objects contain a field `_init`, which determines the syntax
+ required to execute the cloning process:
+
+   1. `_init` can be a list of keys; then the unnamed `init_1` through
+      `init_n` values from the argument table are assigned to the
+      corresponding keys in `new_object`;
+
+         new_object = prototype {
+           init_1, ..., init_m;
+           field_1 = value_1,
+           ...
+           field_n = value_n,
+         }
+
+   2. Or it can be a function, in which the arguments passed to the
+      prototype during cloning are simply handed to the `_init` function:
+
+        new_object = prototype (value, ...)
+
+ Field names beginning with "_" are *private*, and moved into the object
+ metatable during cloning. Unless `new_object` changes the metatable this
+ way, then it will share a metatable with `prototype` for efficiency.
+
+ Objects, then, are essentially tables of `field\_n = value\_n` pairs:
+
+   * Access an object field: `object.field`
+   * Call an object method: `object:method (...)`
+   * Call a "class" method: `Class.method (object, ...)`
+   * Add a field: `object.field = x`
+   * Add a method: `function object:method (...) ... end`
+
+ @classmod std.object
+]]
 
 local base = require "std.base"
-
 
 -- Return the named entry from x's metatable, if any, else nil.
 local function metaentry (x, n)
@@ -37,17 +57,45 @@ local function metaentry (x, n)
 end
 
 
--- Return the extended object type, if any, else primitive type.
-local function object_type (self)
-  local _type = metaentry (self, "_type")
-  if type (self) == "table" and _type ~= nil then
+--- Return the extended object type, if any, else primitive type.
+--
+-- It's conventional to organise similar objects according to a string
+-- valued `_type` field, which can then be queried using this function.
+--
+--     Stack = Object {
+--       _type = "Stack",
+--
+--       __tostring = function (self) ... end,
+--
+--       __index = {
+--         push = function (self) ... end,
+--         pop  = function (self) ... end,
+--       },
+--     }
+--     stack = Stack {}
+--
+--     stack:type () --> "Stack"
+--
+-- @function type
+-- @tparam   std.object o  an object
+-- @treturn string         type of the object
+local function object_type (o)
+  local _type = metaentry (o, "_type")
+  if type (o) == "table" and _type ~= nil then
     return _type
   end
-  return type (self)
+  return type (o)
 end
 
 
--- Return a new object, cloned from prototype.
+--- Clone an object.
+--
+-- Prototypes are cloned by calling directly as described above, so this
+-- `clone` method is rarely used explicitly.
+-- @tparam  std.object prototype source object
+-- @param              ...       arguments
+-- @treturn std.object           a clone of `prototype`, adjusted
+-- according to the rules above, and sharing a metatable where possible.
 local function clone (prototype, ...)
   local mt = getmetatable (prototype)
 
@@ -102,15 +150,21 @@ local function clone (prototype, ...)
 end
 
 
--- Return a stringified version of the contents of object.
+--- Return a stringified version of the contents of object.
+--
 -- First the object type, and then between { and } a list of the array
 -- part of the object table (without numeric keys) followed by the
 -- remaining key-value pairs.
+--
 -- This function doesn't recurse explicity, but relies upon suitable
--- __tostring metamethods in contained objects.
-local function stringify (object)
-  local totable = getmetatable (object).__totable
-  local array = base.clone (totable (object), "nometa")
+-- `__tostring` metamethods in contained objects.
+--
+-- @function tostring
+-- @tparam  std.object o  an object
+-- @treturn string        stringified object representation
+local function stringify (o)
+  local totable = getmetatable (o).__totable
+  local array = base.clone (totable (o), "nometa")
   local other = base.clone (array, "nometa")
   local s = ""
   if #other > 0 then
@@ -134,15 +188,19 @@ local function stringify (object)
     s = s .. table.concat (dict, ", ")
   end
 
-  return metaentry (object, "_type") .. " {" .. s .. "}"
+  return metaentry (o, "_type") .. " {" .. s .. "}"
 end
 
 
--- Return a new table with a shallow copy of all non-private fields
--- in object (private fields have keys prefixed with "_").
-local function totable (object)
+--- Return a new table with a shallow copy of all non-private fields
+-- in object.
+--
+-- Where private fields have keys prefixed with "_".
+-- @tparam  std.object o  an object
+-- @treturn table         raw (non-object) table of object fields
+local function totable (o)
   local t = {}
-  for k, v in pairs (object) do
+  for k, v in pairs (o) do
     if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
       t[k] = v
     end
@@ -160,10 +218,23 @@ local metatable = {
   _type  = "Object",
   _init  = {},
 
+  ------
+  -- Return a shallow copy of non-private object fields.
+  --
+  -- This pseudo-metamethod is used during object cloning to make the
+  -- intial new object table, and can be overridden in other objects
+  -- for greater control of which fields are considered non-private.
+  -- @metamethod __totable
+  -- @see std.object:totable
   __totable  = totable,
+
+  ------
+  -- Return a string representation of *object*.
+  -- @metamethod __tostring
+  -- @see std.object:tostring
   __tostring = stringify,
 
-  -- object:method ()
+  --- @export
   __index    = {
     clone    = clone,
     tostring = stringify,
@@ -177,9 +248,4 @@ local metatable = {
   end,
 }
 
---- Root object
--- @class functable
--- @name Object
--- @field _init constructor method or list of fields to be initialised by the
--- constructor
 return setmetatable ({}, metatable)

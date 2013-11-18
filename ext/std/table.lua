@@ -1,24 +1,58 @@
--- Extensions to the table module
+--[[--
+ Extensions to the table module.
+ @module std.table
+]]
 
 local base = require "std.base"
 local func = require "std.functional"
 
+
+--- Make a shallow copy of a table, including any metatable.
+--
+-- To make deep copies, use @{std.tree.clone}.
+-- @function clone
+-- @tparam table   t      source table
+-- @tparam boolean nometa if non-nil don't copy metatable
+-- @return copy of *table*
+local clone = base.clone
+
+
+--- Clone a table, renaming some keys.
+-- @function clone_rename
+-- @tparam table t   source table
+-- @tparam table map table `{old_key=new_key, ...}`
+-- @return copy of *table*
+local clone_rename = base.clone_rename
+
+
+--- Destructively merge another table's fields into *table*.
+-- @function merge
+-- @tparam table t destination table
+-- @tparam table u table with fields to merge
+-- @return table   `t` with fields from `u` merged in
+local merge = base.merge
+
+
+-- Preserve core table sort function.
 local _sort = table.sort
+
 --- Make table.sort return its result.
--- @param t table
--- @param c comparator function
--- @return sorted table
+-- @tparam table    t unsorted table
+-- @tparam function c comparator function
+-- @return `t` with keys sorted accordind to `c`
 local function sort (t, c)
   _sort (t, c)
   return t
 end
 
+
 --- Return whether table is empty.
--- @param t table
--- @return <code>true</code> if empty or <code>false</code> otherwise
+-- @tparam table t any table
+-- @return `true` if `t` is empty, otherwise `false`
 local function empty (t)
   return not next (t)
 end
+
 
 --- Turn a tuple into a list.
 -- @param ... tuple
@@ -27,9 +61,10 @@ local function pack (...)
   return {...}
 end
 
+
 --- Find the number of elements in a table.
--- @param t table
--- @return number of elements in t
+-- @tparam table t any table
+-- @return number of non-nil values in `t`
 local function size (t)
   local n = 0
   for _ in pairs (t) do
@@ -38,44 +73,48 @@ local function size (t)
   return n
 end
 
---- Make the list of keys of a table.
--- @param t table
--- @return list of keys
+
+--- Make the list of keys in table.
+-- @tparam  table t any table
+-- @treturn table   list of keys
 local function keys (t)
-  local u = {}
-  for i, v in pairs (t) do
-    table.insert (u, i)
+  local l = {}
+  for k, _ in pairs (t) do
+    table.insert (l, k)
   end
-  return u
+  return l
 end
+
 
 --- Make the list of values of a table.
--- @param t table
--- @return list of values
+-- @tparam  table t any table
+-- @treturn table   list of values
 local function values (t)
-  local u = {}
-  for i, v in pairs (t) do
-    table.insert (u, v)
+  local l = {}
+  for _, v in pairs (t) do
+    table.insert (l, v)
   end
-  return u
+  return l
 end
+
 
 --- Invert a table.
--- @param t table <code>{i=v, ...}</code>
--- @return inverted table <code>{v=i, ...}</code>
+-- @tparam  table t a table with `{k=v, ...}`
+-- @treturn table   inverted table `{v=k, ...}`
 local function invert (t)
-  local u = {}
-  for i, v in pairs (t) do
-    u[v] = i
+  local i = {}
+  for k, v in pairs (t) do
+    i[v] = k
   end
-  return u
+  return i
 end
 
+
 --- An iterator like ipairs, but in reverse.
--- @param t table to iterate over
--- @return iterator function
--- @return the table, as above
--- @return #t + 1
+-- @tparam  table    t any table
+-- @treturn function   iterator function
+-- @treturn table      the table, `t`
+-- @treturn  number    `#t + 1`
 local function ripairs (t)
   return function (t, n)
            n = n - 1
@@ -86,9 +125,10 @@ local function ripairs (t)
   t, #t + 1
 end
 
+
 --- Turn an object into a table according to __totable metamethod.
--- @param x object to turn into a table
--- @return table or nil
+-- @tparam  std.object x object to turn into a table
+-- @treturn table resulting table or `nil`
 local function totable (x)
   local m = func.metamethod (x, "__totable")
   if m then
@@ -100,10 +140,11 @@ local function totable (x)
   end
 end
 
+
 --- Make a table with a default value for unset keys.
--- @param x default entry value (default: <code>nil</code>)
--- @param t initial table (default: <code>{}</code>)
--- @return table whose unset elements are x
+-- @param         x default entry value (default: `nil`)
+-- @tparam  table t initial table (default: `{}`)
+-- @treturn table   table whose unset elements are x
 local function new (x, t)
   return setmetatable (t or {},
                        {__index = function (t, i)
@@ -111,13 +152,15 @@ local function new (x, t)
                                   end})
 end
 
-local M = {
-  clone        = base.clone,
-  clone_rename = base.clone_rename,
+
+--- @export
+local Table = {
+  clone        = clone,
+  clone_rename = clone_rename,
   empty        = empty,
   invert       = invert,
   keys         = keys,
-  merge        = base.merge,
+  merge        = merge,
   new          = new,
   pack         = pack,
   ripairs      = ripairs,
@@ -126,12 +169,12 @@ local M = {
   totable      = totable,
   values       = values,
 
-  -- Core Lua table.sort function.
+  -- Core Lua table.sort function
   _sort        = _sort,
 }
 
 for k, v in pairs (table) do
-  M[k] = M[k] or v
+  Table[k] = Table[k] or v
 end
 
-return M
+return Table

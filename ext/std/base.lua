@@ -1,20 +1,44 @@
---- Shared functions.
+------
+-- @module std.base
 
---- Append an item to a list.
--- @param l list
--- @param x item
--- @return <code>{l[1], ..., l[#l], x}</code>
+-- Doc-commented in table.lua...
+local function clone (t, nometa)
+  local u = {}
+  if not nometa then
+    setmetatable (u, getmetatable (t))
+  end
+  for i, v in pairs (t) do
+    u[i] = v
+  end
+  return u
+end
+
+-- Doc-commented in table.lua...
+local function clone_rename (map, t)
+  local r = clone (t)
+  for i, v in pairs (map) do
+    r[v] = t[i]
+    r[i] = nil
+  end
+  return r
+end
+
+-- Doc-commented in table.lua...
+local function merge (t, u)
+  for i, v in pairs (u) do
+    t[i] = v
+  end
+  return t
+end
+
+-- Doc-commented in list.lua...
 local function append (l, x)
   local r = {unpack (l)}
   table.insert (r, x)
   return r
 end
 
---- Compare two lists element by element left-to-right
--- @param l first list
--- @param m second list
--- @return -1 if <code>l</code> is less than <code>m</code>, 0 if they
--- are the same, and 1 if <code>l</code> is greater than <code>m</code>
+-- Doc-commented in list.lua...
 local function compare (l, m)
   for i = 1, math.min (#l, #m) do
     if l[i] < m[i] then
@@ -31,11 +55,7 @@ local function compare (l, m)
   return 0
 end
 
---- An iterator over the elements of a list.
--- @param l list to iterate over
--- @return iterator function which returns successive elements of the list
--- @return the list <code>l</code> as above
--- @return <code>true</code>
+-- Doc-commented in list.lua...
 local function elems (l)
   local n = 0
   return function (l)
@@ -49,9 +69,9 @@ end
 
 --- Concatenate lists.
 -- @param ... lists
--- @return <code>{l<sub>1</sub>[1], ...,
+-- @return `{l<sub>1</sub>[1], ...,
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
--- l<sub>n</sub>[#l<sub>n</sub>]}</code>
+-- l<sub>n</sub>[#l<sub>n</sub>]}`
 local function concat (...)
   local r = new ()
   for l in elems ({...}) do
@@ -73,22 +93,6 @@ local function _leaves (it, tr)
     end
   end
   return coroutine.wrap (visit), tr
-end
-
---- Tree iterator which returns just numbered leaves, in order.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-local function ileaves (tr)
-  return _leaves (ipairs, tr)
-end
-
---- Tree iterator which returns just leaves.
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
-local function leaves (tr)
-  return _leaves (pairs, tr)
 end
 
 -- Metamethods for lists
@@ -115,49 +119,19 @@ local metatable = {
 -- Needed in order to use metamethods.
 -- @param t list (as a table), or nil for empty list
 -- @return list (with list metamethods)
-function new (l)
-  return setmetatable (l or {}, metatable)
+function new (t)
+  return setmetatable (t or {}, metatable)
 end
 
 
---- Make a shallow copy of a table, including any metatable (for a
--- deep copy, use tree.clone).
--- @param t table
--- @param nometa if non-nil don't copy metatable
--- @return copy of table
-local function clone (t, nometa)
-  local u = {}
-  if not nometa then
-    setmetatable (u, getmetatable (t))
-  end
-  for i, v in pairs (t) do
-    u[i] = v
-  end
-  return u
+-- Doc-commented in tree.lua...
+local function ileaves (tr)
+  return _leaves (ipairs, tr)
 end
 
---- Clone a table, renaming some keys.
--- @param map table <code>{old_key=new_key, ...}</code>
--- @param t table to copy
--- @return copy of table
-local function clone_rename (map, t)
-  local r = clone (t)
-  for i, v in pairs (map) do
-    r[v] = t[i]
-    r[i] = nil
-  end
-  return r
-end
-
---- Merge one table into another. <code>u</code> is merged into <code>t</code>.
--- @param t first table
--- @param u second table
--- @return first table
-local function merge (t, u)
-  for i, v in pairs (u) do
-    t[i] = v
-  end
-  return t
+-- Doc-commented in tree.lua...
+local function leaves (tr)
+  return _leaves (pairs, tr)
 end
 
 local M = {

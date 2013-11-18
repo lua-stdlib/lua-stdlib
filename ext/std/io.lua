@@ -1,4 +1,7 @@
---- Additions to the io module
+--[[--
+ Additions to the io module.
+ @module std.io
+]]
 
 local package = require "std.package"
 local string  = require "std.string"
@@ -6,7 +9,7 @@ local tree    = require "std.tree"
 
 
 -- Get an input file handle.
--- @param h file handle or name (default: <code>io.input ()</code>)
+-- @param h file handle or name (default: `io.input ()`)
 -- @return file handle, or nil on error
 local function input_handle (h)
   if h == nil then
@@ -18,7 +21,7 @@ local function input_handle (h)
 end
 
 --- Slurp a file handle.
--- @param h file handle or name (default: <code>io.input ()</code>)
+-- @param h file handle or name (default: `io.input ()`)
 -- @return contents of file or handle, or nil if error
 local function slurp (h)
   h = input_handle (h)
@@ -30,7 +33,7 @@ local function slurp (h)
 end
 
 --- Read a file or file handle into a list of lines.
--- @param h file handle or name (default: <code>io.input ()</code>);
+-- @param h file handle or name (default: `io.input ()`);
 -- if h is a handle, the file is closed after reading
 -- @return list of lines
 local function readlines (h)
@@ -44,7 +47,7 @@ local function readlines (h)
 end
 
 --- Write values adding a newline after each.
--- @param h file handle (default: <code>io.output ()</code>
+-- @param h file handle (default: `io.output ()`
 -- @param ... values to write (as for write)
 local function writelines (h, ...)
   if io.type (h) ~= "file" then
@@ -57,7 +60,7 @@ local function writelines (h, ...)
 end
 
 --- Split a directory path into components.
--- Empty components are retained: the root directory becomes <code>{"", ""}</code>.
+-- Empty components are retained: the root directory becomes `{"", ""}`.
 -- @param path path
 -- @return list of path components
 local function splitdir (path)
@@ -86,11 +89,11 @@ local function shell (c)
 end
 
 --- Process files specified on the command-line.
--- If no files given, process <code>io.stdin</code>; in list of files,
--- <code>-</code> means <code>io.stdin</code>.
--- <br>FIXME: Make the file list an argument to the function.
+-- If no files given, process `io.stdin`; in list of files,
+-- `-` means `io.stdin`.
+-- @todo Make the file list an argument to the function.
 -- @param f function to process files with, which is passed
--- <code>(name, arg_no)</code>
+-- `(name, arg_no)`
 local function process_files (f)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
@@ -132,6 +135,7 @@ local function die (...)
 end
 
 
+--- @export
 local M = {
   catdir        = catdir,
   catfile       = catfile,

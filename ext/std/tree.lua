@@ -1,28 +1,46 @@
---- Tables as trees.
-local base = require "std.base"
-local ileaves, leaves = base.ileaves, base.leaves
+--[[--
+ Tables as trees.
+ @module std.tree
+]]
 
+local base = require "std.base"
 local list = require "std.list"
 local func = require "std.functional"
 
-
 local metatable = {}
---- Make a table into a tree
--- @param t table
--- @return tree
+
+
+--- Tree iterator which returns just numbered leaves, in order.
+-- @function ileaves
+-- @tparam  std.tree tr tree table
+-- @treturn function    iterator function
+-- @treturn std.tree    the tree `tr`
+local ileaves = base.ileaves
+
+
+--- Tree iterator which returns just leaves.
+-- @function leaves
+-- @tparam  std.tree tr tree table
+-- @treturn function    iterator function
+-- @treturn std.tree    the tree, `tr`
+local leaves = base.leaves
+
+
+--- Make a table into a tree.
+-- @tparam  table    t any table
+-- @treturn std.tree   a new tree table
 local function new (t)
   return setmetatable (t or {}, metatable)
 end
 
---- Tree <code>__index</code> metamethod.
--- @param tr tree
--- @param i non-table, or list of keys <code>{i<sub>1</sub> ...
--- i<sub>n</sub>}</code>
--- @return <code>tr[i]...[i<sub>n</sub>]</code> if i is a table, or
--- <code>tr[i]</code> otherwise
+
+--- Tree `__index` metamethod.
+-- @metamethod __index
+-- @param i non-table, or list of keys `{i\_1 ... i\_n}`
+-- @return `tr[i]...[i\_n]` if i is a table, or `tr[i]` otherwise
+-- @todo the following doesn't treat list keys correctly
+--       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
 function metatable.__index (tr, i)
-  -- FIXME: the following doesn't treat list keys correctly
-  --        e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
   if type (i) == "table" and #i > 0 then
     return list.foldl (func.op["[]"], tr, i)
   else
@@ -30,12 +48,12 @@ function metatable.__index (tr, i)
   end
 end
 
---- Tree <code>__newindex</code> metamethod.
--- Sets <code>tr[i<sub>1</sub>]...[i<sub>n</sub>] = v</code> if i is a
--- table, or <code>tr[i] = v</code> otherwise
--- @param tr tree
--- @param i non-table, or list of keys <code>{i<sub>1</sub> ...
--- i<sub>n</sub>}</code>
+
+--- Tree `__newindex` metamethod.
+--
+-- Sets `tr[i\_1]...[i\_n] = v` if i is a table, or `tr[i] = v` otherwise
+-- @metamethod __newindex
+-- @param i non-table, or list of keys `{i\_1 ... i\_n}`
 -- @param v value
 function metatable.__newindex (tr, i, v)
   if type (i) == "table" then
@@ -51,10 +69,13 @@ function metatable.__newindex (tr, i, v)
   end
 end
 
---- Make a deep copy of a tree, including any metatables
--- @param t table
--- @param nometa if non-nil don't copy metatables
--- @return copy of table
+
+--- Make a deep copy of a tree, including any metatables.
+--
+-- To make fast shallow copies, use @{std.table.clone}.
+-- @tparam  table   t      table to be cloned
+-- @tparam  boolean nometa if non-nil don't copy metatables
+-- @treturn table          a deep copy of `t`
 local function clone (t, nometa)
   local r = {}
   if not nometa then
@@ -82,13 +103,13 @@ local function clone (t, nometa)
   return copy (r, t)
 end
 
----
--- @class function
--- @name tree_Iterator
--- @param n current node
--- @return type ("leaf", "branch" (pre-order) or "join" (post-order))
--- @return path to node ({i1...ik})
--- @return node
+
+--- Tree iterator.
+-- @tparam  function it iterator function
+-- @tparam  std.tree tr tree
+-- @treturn string   type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @treturn table    path to node ({i\_1...i\_k})
+-- @return           node
 local function _nodes (it, tr)
   local p = {}
   local function visit (n)
@@ -107,29 +128,30 @@ local function _nodes (it, tr)
   return coroutine.wrap (visit), tr
 end
 
---- Tree iterator.
--- @see tree_Iterator
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
+
+--- Tree iterator over all nodes.
+-- @tparam  std.tree tr tree to iterate over
+-- @treturn function    iterator function
+-- @treturn std.tree    the tree, `tr`
 local function nodes (tr)
   return _nodes (pairs, tr)
 end
 
+
 --- Tree iterator over numbered nodes, in order.
--- @see tree_Iterator
--- @param tr tree to iterate over
--- @return iterator function
--- @return the tree, as above
+-- @tparam  std.tree tr tree to iterate over
+-- @treturn function    iterator function
+-- @treturn std.tree    the tree, `t`
 local function inodes (tr)
   return _nodes (ipairs, tr)
 end
 
---- Deep-merge one tree into another. <code>u</code> is merged into
---- <code>t</code>.
--- @param t first tree
--- @param u second tree
--- @return first tree
+
+--- Destructively deep-merge one tree into another.
+-- @tparam  std.tree t destination tree
+-- @tparam  std.tree u tree with nodes to merge
+-- @treturn std.tree   `t` with nodes from `u` merged in
+-- @see std.table.merge
 local function merge (t, u)
   for ty, p, n in nodes (u) do
     if ty == "leaf" then
@@ -139,8 +161,9 @@ local function merge (t, u)
   return t
 end
 
--- Public interface
-local M = {
+
+--- @export
+local Tree = {
   clone   = clone,
   ileaves = ileaves,
   inodes  = inodes,
@@ -150,4 +173,4 @@ local M = {
   nodes   = nodes,
 }
 
-return M
+return Tree

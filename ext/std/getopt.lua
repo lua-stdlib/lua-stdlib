@@ -1,35 +1,38 @@
---- Simplified getopt, based on Svenne Panne's Haskell GetOpt.<br>
+--- Simplified getopt, based on Svenne Panne's Haskell GetOpt.
+--
 -- Usage:
--- <ul>
--- <li><code>prog = {<
---     name = <progname>,
---     [usage = <usage line>,]
---     [options = {
---        {{<name>[, ...]}, <desc>, [<type> [, <var>]]},
---        ...
---     },]
---     [banner = <banner string>,]
---     [purpose = <purpose string>,]
---     [notes = <additional notes>]
--- }</code></li>
--- <li>The <code>type</code> of option argument is one of <code>Req</code>(uired),
--- <code>Opt</code>(ional)</li>
--- <li>The <code>var</code>is a descriptive name for the option argument.</li>
--- <li><code>getopt.processargs (prog)</code></li>
--- <li>Options take a single dash, but may have a double dash.</li>
--- <li>Arguments may be given as <code>-opt=arg</code> or <code>-opt arg</code>.</li>
--- <li>If an option taking an argument is given multiple times, only the
--- last value is returned; missing arguments are returned as 1.</li>
--- </ul>
+--
+--     prog = {<
+--       name = <progname>,
+--       [usage = <usage line>,]
+--       [options = {
+--         {{<name>[, ...]}, <desc>, [<type> [, <var>]]},
+--         ...
+--       },]
+--       [banner = <banner string>,]
+--       [purpose = <purpose string>,]
+--       [notes = <additional notes>]
+--     }
+--
+--   * The `type` of option argument is one of `Req`(uired),
+--     `Opt`(ional)
+--   * The `var`is a descriptive name for the option argument.
+--   * `getopt.processargs (prog)`
+--   * Options take a single dash, but may have a double dash.
+--   * Arguments may be given as `-opt=arg` or `-opt arg`.
+--   * If an option taking an argument is given multiple times, only the
+--     last value is returned; missing arguments are returned as 1.
+--
 -- getOpt, usageinfo and usage can be called directly (see
 -- below, and the example at the end). Set _DEBUG.std to a non-nil
 -- value to run the example.
--- <ul>
--- <li>TODO: Wrap all messages; do all wrapping in processargs, not
--- usageinfo; use sdoc-like library (see string.format todos).</li>
--- <li>TODO: Don't require name to be repeated in banner.</li>
--- <li>TODO: Store version separately (construct banner?).</li>
--- </ul>
+--
+-- @todo Wrap all messages; do all wrapping in processargs, not
+--   usageinfo; use sdoc-like library (see string.format todos).
+-- @todo Don't require name to be repeated in banner.
+-- @todo Store version separately (construct banner?).
+--
+-- @module std.getopt
 
 local io     = require "std.io"
 local List   = require "std.list"
@@ -108,7 +111,7 @@ end
 -- Object that defines a single Option entry.
 local Option = Object {_init = {"name", "desc", "type", "var"}}
 
---- Options table constructor: adds lookup tables for the option names
+- Options table constructor: adds lookup tables for the option names.
 local function makeOptions (t)
   local options, name = {}, {}
   local function appendOpt (v, nodupes)
@@ -138,7 +141,7 @@ local function makeOptions (t)
 end
 
 
---- Produce usage info for the given options
+--- Produce usage info for the given options.
 -- @param header header string
 -- @param optDesc option descriptors
 -- @param pageWidth width to format to [78]
@@ -242,11 +245,10 @@ end
 
 
 --- Simple getopt wrapper.
--- If the caller didn't supply their own already,
--- adds <code>--version</code>/<code>-V</code> and
--- <code>--help</code>/<code>-h</code> options automatically;
--- stops program if there was an error, or if <code>--help</code> or
--- <code>--version</code> was used.
+-- If the caller didn't supply their own already, -- adds `--version`/`-V`
+-- and `--help`/`-h` options automatically;
+-- stops program if there was an error, or if `--help` or `--version` was
+-- used.
 -- @param prog table of named parameters
 -- @param ... extra arguments for getopt
 local function processargs (prog, ...)
@@ -279,8 +281,8 @@ local function processargs (prog, ...)
 end
 
 
--- Public interface
-return table.merge (M, {
+--- @export
+local Getopt = {
   getopt      = getopt,
   processargs = processargs,
   usage       = usage,
@@ -289,6 +291,7 @@ return table.merge (M, {
   -- camelCase compatibility.
   getOpt      = getopt,
   processArgs = processargs,
-  usage       = usage,
   usageInfo   = usageinfo,
-})
+}
+
+return table.merge (M, Getopt)

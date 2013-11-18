@@ -76,6 +76,7 @@ mkrockspecs_args = --module-dir $(srcdir)/ext
 ## ------------- ##
 
 EXTRA_DIST +=				\
+	doc/config.ld			\
 	ext/std.lua.in			\
 	$(NOTHING_ELSE)
 
@@ -85,11 +86,11 @@ EXTRA_DIST +=				\
 ## -------------- ##
 
 dist_doc_DATA +=			\
-	$(srcdir)/ext/index.html	\
-	$(srcdir)/ext/luadoc.css
+	$(srcdir)/doc/index.html	\
+	$(srcdir)/doc/luadoc.css
 
 dist_files_DATA += $(wildcard $(srcdir)/ext/files/*.html)
 dist_modules_DATA += $(wildcard $(srcdir)/ext/modules/*.html)
 
 $(dist_doc_DATA): $(dist_lua_DATA) $(dist_luastd_DATA)
-	cd $(srcdir)/ext && $(LUADOC) *.lua std/*.lua
+	cd $(srcdir) && $(LDOC) -c doc/config.ld .

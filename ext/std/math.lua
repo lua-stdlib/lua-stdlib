@@ -1,11 +1,16 @@
---- Additions to the math module.
+--[[--
+ Additions to the math module.
+ @module std.math
+]]
 
 local _floor = math.floor
 
---- Extend <code>math.floor</code> to take the number of decimal places.
+
+--- Extend `math.floor` to take the number of decimal places.
+-- @function floor
 -- @param n number
 -- @param p number of decimal places to truncate to (default: 0)
--- @return <code>n</code> truncated to <code>p</code> decimal places
+-- @return `n` truncated to `p` decimal places
 local function floor (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
@@ -15,17 +20,19 @@ local function floor (n, p)
   end
 end
 
+
 --- Round a number to a given number of decimal places
+-- @function round
 -- @param n number
 -- @param p number of decimal places to round to (default: 0)
--- @return <code>n</code> rounded to <code>p</code> decimal places
+-- @return `n` rounded to `p` decimal places
 local function round (n, p)
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e
 end
 
 
-local M = {
+local Math = {
   floor  = floor,
   round  = round,
 
@@ -34,7 +41,7 @@ local M = {
 }
 
 for k, v in pairs (math) do
-  M[k] = M[k] or v
+  Math[k] = Math[k] or v
 end
 
-return M
+return Math

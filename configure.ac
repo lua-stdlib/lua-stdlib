@@ -13,13 +13,13 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
 AX_PROG_LUA([5.1], [5.3])
-AC_PATH_PROG([LUADOC], [luadoc], [:])
+AC_PATH_PROG([LDOC], [ldoc], [:])
 AC_PATH_PROG([SPECL], [specl], [:])
 AC_PROG_EGREP
 AC_PROG_SED
 
 dnl Generate output files
 SPECL_MIN=8
-SS_CONFIG_TRAVIS([luadoc specl])
+SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

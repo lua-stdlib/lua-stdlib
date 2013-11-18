@@ -1,3 +1,5 @@
+-- Set of imported modules.
+
 return {
   -- true => module symbols injected into equivalent core namespace
   --         with `require 'std'`:

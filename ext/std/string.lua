@@ -1,19 +1,26 @@
---- Additions to the string module
--- TODO: Pretty printing (use in getopt); see source for details.
+--[[--
+ Additions to the string module.
+ @module std.string
+]]
 
 local func   = require "std.functional"
 local list   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
+local _assert   = _G.assert
+local _format   = string.format
+local _tostring = _G.tostring
+local old__index = getmetatable ("").__index
+
 local M = {}
 
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
 -- @param f format
+-- @param arg1 first argument to format
 -- @param ... arguments to format
 -- @return formatted string
-local _format = string.format
 local function format (f, arg1, ...)
   if arg1 == nil then
     return f
@@ -27,7 +34,6 @@ end
 -- @param f format
 -- @param ... arguments to format
 -- @return value
-local _assert = assert
 local function assert (v, f, ...)
   if not v then
     if f == nil then
@@ -55,12 +61,12 @@ local function tfind (s, p, init, plain)
   return pack (p.find (s, p, init, plain))
 end
 
---- Do multiple <code>find</code>s on a string.
+--- Do multiple `find`s on a string.
 -- @param s target string
 -- @param p pattern
 -- @param init start position (default: 1)
 -- @param plain inhibit magic characters (default: nil)
--- @return list of <code>{from, to; capt = {captures}}</code>
+-- @return list of `{from, to; capt = {captures}}`
 local function finds (s, p, init, plain)
   init = init or 1
   local l = {}
@@ -76,7 +82,7 @@ local function finds (s, p, init, plain)
 end
 
 --- Split a string at a given separator.
--- FIXME: Consider Perl and Python versions.
+-- @todo Consider Perl and Python versions.
 -- @param s string to split
 -- @param sep separator pattern
 -- @return list of strings
@@ -93,12 +99,12 @@ local function split (s, sep)
   return l
 end
 
---- Require a module with a particular version
+--- Require a module with a particular version.
 -- @param module module to require
 -- @param min lowest acceptable version (default: any)
 -- @param too_big lowest version that is too big (default: none)
--- @pattern pattern to match version in <code>module.version</code> or
--- <code>module.VERSION</code> (default: <code>".*[%.%d]+"</code>
+-- @param pattern to match version in `module.version` or
+-- `module.VERSION` (default: `".*[%.%d]+"`
 local function require_version (module, min, too_big, pattern)
   local function version_to_list (v)
     return list.new (split (v, "%."))
@@ -155,6 +161,7 @@ end
 -- @param elem element renderer
 -- @param pair pair renderer
 -- @param sep separator renderer
+-- @param roots accumulates table references to detect recursion
 -- @return string representation
 local function render (x, open, close, elem, pair, sep, roots)
   local function stop_roots (x)
@@ -186,28 +193,22 @@ local function render (x, open, close, elem, pair, sep, roots)
 end
 
 ---
--- @class function
--- @name render_OpenRenderer
+-- @function render_OpenRenderer
 -- @param t table
 -- @return open table string
 
 ---
--- @class function
--- @name render_CloseRenderer
+-- @function render_CloseRenderer
 -- @param t table
 -- @return close table string
 
 ---
--- @class function
--- @name render_ElementRenderer
+-- @function render_ElementRenderer
 -- @param e element
 -- @return element string
 
----
--- @class function
--- @name render_PairRenderer
--- N.B. the function should not try to render i and v, or treat
--- them recursively.
+--- NB. the function should not try to render i and v, or treat them recursively.
+-- @function render_PairRenderer
 -- @param t table
 -- @param i index
 -- @param v value
@@ -216,8 +217,7 @@ end
 -- @return element string
 
 ---
--- @class function
--- @name render_SeparatorRenderer
+-- @function render_SeparatorRenderer
 -- @param t table
 -- @param i preceding index (nil on first call)
 -- @param v preceding value (nil on first call)
@@ -225,12 +225,10 @@ end
 -- @param w following value (nil on last call)
 -- @return separator string
 
---- Extend <code>tostring</code> to work better on tables.
--- @class function
--- @name tostring
+--- Extend `tostring` to work better on tables.
+-- @function tostring
 -- @param x object to convert to string
 -- @return string representation
-local _tostring = _G.tostring
 local function tostring (x)
   return render (x,
                  function () return "{" end,
@@ -309,7 +307,7 @@ end
 
 --- Convert a value to a string.
 -- The string can be passed to dostring to retrieve the value.
--- <br>TODO: Make it work for recursive tables.
+-- @todo Make it work for recursive tables.
 -- @param x object to pickle
 -- @return string such that eval (s) is the same value as x
 local function pickle (x)
@@ -338,9 +336,8 @@ end
 --- Give strings a subscription operator.
 -- @param s string
 -- @param i index
--- @return <code>string.sub (s, i, i)</code> if i is a number, or
+-- @return `string.sub (s, i, i)` if i is a number, or
 -- falls back to any previous metamethod (by default, string methods)
-local old__index = getmetatable ("").__index
 getmetatable ("").__index = function (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
@@ -353,7 +350,7 @@ end
 --- Give strings an append metamethod.
 -- @param s string
 -- @param c character (1-character string)
--- @return <code>s .. c</code>
+-- @return `s .. c`
 getmetatable ("").__append = function (s, c)
   return s .. c
 end
@@ -383,10 +380,9 @@ local function chomp (s)
   return (string.gsub (s, "\n$", ""))
 end
 
---- Escape a string to be used as a pattern
+--- Escape a string to be used as a pattern.
 -- @param s string to process
--- @return
---   @param s_: processed string
+-- @return processed string
 local function escape_pattern (s)
   return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
@@ -423,7 +419,7 @@ end
 -- @param s string to justify
 -- @param w width to justify to (-ve means right-justify; +ve means
 -- left-justify)
--- @param p string to pad with (default: <code>" "</code>)
+-- @param p string to pad with (default: `" "`)
 -- @return justified string
 local function pad (s, w, p)
   p = string.rep (p or " ", math.abs (w))
@@ -492,7 +488,7 @@ end
 
 --- Remove leading matter from a string.
 -- @param s string
--- @param r leading pattern (default: <code>"%s+"</code>)
+-- @param r leading pattern (default: `"%s+"`)
 -- @return string without leading r
 local function ltrim (s, r)
   r = r or "%s+"
@@ -501,7 +497,7 @@ end
 
 --- Remove trailing matter from a string.
 -- @param s string
--- @param r trailing pattern (default: <code>"%s+"</code>)
+-- @param r trailing pattern (default: `"%s+"`)
 -- @return string without trailing r
 local function rtrim (s, r)
   r = r or "%s+"
@@ -510,14 +506,15 @@ end
 
 --- Remove leading and trailing matter from a string.
 -- @param s string
--- @param r leading/trailing pattern (default: <code>"%s+"</code>)
+-- @param r leading/trailing pattern (default: `"%s+"`)
 -- @return string without leading/trailing r
 local function trim (s, r)
   return rtrim (ltrim (s, r), r)
 end
 
 
-for k, v in pairs {
+--- @export
+local String = {
   __index         = old__index,
   assert          = assert,
   caps            = caps,
@@ -549,7 +546,10 @@ for k, v in pairs {
   -- Core Lua function implementations.
   _format   = _format,
   _tostring = _tostring,
-} do
+}
+
+for k, v in pairs (String)
+do
   M[k] = v
 end
 

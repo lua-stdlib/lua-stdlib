@@ -1,6 +1,11 @@
---- Adds to the existing global functions
+--[[--
+ Functional programming.
+ @module std.functional
+]]
 
 local list = require "std.base"
+
+local functional -- forward declaration
 
 
 --- Return given metamethod, if any, or nil.
@@ -19,12 +24,14 @@ local function metamethod (x, n)
   return m
 end
 
+
 --- Identity function.
 -- @param ...
 -- @return the arguments passed to the function
 local function id (...)
   return ...
 end
+
 
 --- Partially apply a function.
 -- @param f function to apply partially
@@ -36,6 +43,7 @@ local function bind (f, ...)
            return f (unpack (list.concat (fix, {...})))
          end
 end
+
 
 --- Curry a function.
 -- @param f function to curry
@@ -51,6 +59,7 @@ local function curry (f, n)
   end
 end
 
+
 --- Compose functions.
 -- @param f1...fn functions to compose
 -- @return composition of f1 ... fn
@@ -65,6 +74,7 @@ local function compose (...)
            return unpack (arg)
          end
 end
+
 
 --- Memoize a function, by wrapping it in a functable.
 -- @param fn function that returns a single result
@@ -83,12 +93,14 @@ local function memoize (fn)
   })
 end
 
+
 --- Evaluate a string.
 -- @param s string
 -- @return value of string
 local function eval (s)
   return loadstring ("return " .. s)()
 end
+
 
 --- Collect the results of an iterator.
 -- @param i iterator
@@ -100,6 +112,7 @@ local function collect (i, ...)
   end
   return t
 end
+
 
 --- Map a function over an iterator.
 -- @param f function
@@ -116,6 +129,7 @@ local function map (f, i, ...)
   return t
 end
 
+
 --- Filter an iterator with a predicate.
 -- @param p predicate
 -- @param i iterator
@@ -130,6 +144,7 @@ local function filter (p, i, ...)
   return t
 end
 
+
 --- Fold a binary function into an iterator.
 -- @param f function
 -- @param d initial first argument
@@ -143,11 +158,35 @@ local function fold (f, d, i, ...)
   return r
 end
 
+--- @export
+functional = {
+  bind       = bind,
+  collect    = collect,
+  compose    = compose,
+  curry      = curry,
+  eval       = eval,
+  filter     = filter,
+  fold       = fold,
+  id         = id,
+  map        = map,
+  memoize    = memoize,
+  metamethod = metamethod,
+}
+
 --- Functional forms of infix operators.
 -- Defined here so that other modules can write to it.
--- @class table
--- @name op
-local op = {
+-- @table op
+-- @field [] dereference table index
+-- @field + addition
+-- @field - subtraction
+-- @field * multiplication
+-- @field / division
+-- @field and logical and
+-- @field or logical or
+-- @field not logical not
+-- @field == equality
+-- @field ~= inequality
+functional.op = {
   ["[]"]  = function (t, s) return t[s]    end,
   ["+"]   = function (a, b) return a + b   end,
   ["-"]   = function (a, b) return a - b   end,
@@ -160,19 +199,4 @@ local op = {
   ["~="]  = function (a, b) return a ~= b  end,
 }
 
-local M = {
-  bind       = bind,
-  collect    = collect,
-  compose    = compose,
-  curry      = curry,
-  eval       = eval,
-  filter     = filter,
-  fold       = fold,
-  id         = id,
-  map        = map,
-  memoize    = memoize,
-  metamethod = metamethod,
-  op         = op,
-}
-
-return M
+return functional

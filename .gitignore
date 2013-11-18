@@ -1,3 +1,4 @@
+.DS_Store
 /*.rockspec
 /.autom4te.cfg
 /.gitmodules
@@ -13,10 +14,11 @@
 /config.log
 /config.status
 /configure
-/ext/files
-/ext/index.html
-/ext/luadoc.css
-/ext/modules
+/doc/classes
+/doc/files
+/doc/index.html
+/doc/luadoc.css
+/doc/modules
 /ext/std.lua
 /stdlib-*.tar.gz
 /luarocks
