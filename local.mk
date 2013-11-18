@@ -61,7 +61,7 @@ dist_luastd_DATA =			\
 
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
-# have luadoc installed, put std/std.lua in as a Makefile dependency.
+# have ldoc installed, put std/std.lua in as a Makefile dependency.
 # (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
 ext/std.lua: ext/std.lua.in
 	./config.status --file=$@
@@ -87,7 +87,7 @@ EXTRA_DIST +=				\
 
 dist_doc_DATA +=			\
 	$(srcdir)/doc/index.html	\
-	$(srcdir)/doc/luadoc.css
+	$(srcdir)/doc/ldoc.css
 
 dist_files_DATA += $(wildcard $(srcdir)/ext/files/*.html)
 dist_modules_DATA += $(wildcard $(srcdir)/ext/modules/*.html)
