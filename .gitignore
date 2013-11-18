@@ -17,7 +17,7 @@
 /doc/classes
 /doc/files
 /doc/index.html
-/doc/luadoc.css
+/doc/ldoc.css
 /doc/modules
 /ext/std.lua
 /stdlib-*.tar.gz
