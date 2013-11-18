@@ -111,7 +111,7 @@ end
 -- Object that defines a single Option entry.
 local Option = Object {_init = {"name", "desc", "type", "var"}}
 
-- Options table constructor: adds lookup tables for the option names.
+--- Options table constructor: adds lookup tables for the option names.
 local function makeOptions (t)
   local options, name = {}, {}
   local function appendOpt (v, nodupes)
