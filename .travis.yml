@@ -18,13 +18,14 @@ env:
 # Tool setup.
 install:
   - sudo apt-get install help2man
-  - sudo apt-get install libyaml-dev
   - sudo apt-get install luajit
   - sudo apt-get install libluajit-5.1-dev
   - sudo apt-get install lua5.1
   - sudo apt-get install liblua5.1-dev
   - sudo apt-get install lua5.2
   - sudo apt-get install liblua5.2-dev
+  # Put back the missing links for libyaml, which are recently missing otherwise
+  - sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
   # Luadoc and Ldoc work best on Travis with Lua 5.1.
   - sudo apt-get install luarocks
   - sudo luarocks install http://raw.github.com/stevedonovan/LDoc/master/ldoc-scm-2.rockspec
