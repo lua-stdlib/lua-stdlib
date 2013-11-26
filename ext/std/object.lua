@@ -77,8 +77,8 @@ end
 --     stack:type () --> "Stack"
 --
 -- @function type
--- @tparam   std.object o  an object
--- @treturn string         type of the object
+-- @tparam  std.object o  an object
+-- @treturn string        type of the object
 local function object_type (o)
   local _type = metaentry (o, "_type")
   if type (o) == "table" and _type ~= nil then
@@ -90,23 +90,23 @@ end
 
 --- Clone an object.
 --
--- Prototypes are cloned by calling directly as described above, so this
--- `clone` method is rarely used explicitly.
--- @tparam  std.object prototype source object
--- @param              ...       arguments
--- @treturn std.object           a clone of `prototype`, adjusted
--- according to the rules above, and sharing a metatable where possible.
-local function clone (prototype, ...)
-  local mt = getmetatable (prototype)
+-- Objects are usually cloned by calling a prototype directly, so this
+-- method is rarely used explicitly.
+-- @param              ... arguments for _init
+-- @treturn std.object     a clone of `prototype`, adjusted
+--   according to the rules above, and sharing a metatable where possible
+-- @see __call
+local function clone (self, ...)
+  local mt = getmetatable (self)
 
   -- Make a shallow copy of prototype.
   local object = {}
-  for k, v in pairs (prototype) do
+  for k, v in pairs (self) do
     object[k] = v
   end
 
   -- Map arguments according to _init metamethod.
-  local _init = metaentry (prototype, "_init")
+  local _init = metaentry (self, "_init")
   if type (_init) == "table" then
     base.merge (object, base.clone_rename (_init, ...))
   else
@@ -123,7 +123,7 @@ local function clone (prototype, ...)
 
   if next (object_mt) == nil then
     -- Reuse metatable if possible
-    object_mt = getmetatable (prototype)
+    object_mt = getmetatable (self)
   else
 
     -- Otherwise copy the prototype metatable...
@@ -160,11 +160,10 @@ end
 -- `__tostring` metamethods in contained objects.
 --
 -- @function tostring
--- @tparam  std.object o  an object
 -- @treturn string        stringified object representation
-local function stringify (o)
-  local totable = getmetatable (o).__totable
-  local array = base.clone (totable (o), "nometa")
+local function stringify (self)
+  local totable = getmetatable (self).__totable
+  local array = base.clone (totable (self), "nometa")
   local other = base.clone (array, "nometa")
   local s = ""
   if #other > 0 then
@@ -188,19 +187,16 @@ local function stringify (o)
     s = s .. table.concat (dict, ", ")
   end
 
-  return metaentry (o, "_type") .. " {" .. s .. "}"
+  return metaentry (self, "_type") .. " {" .. s .. "}"
 end
 
 
 --- Return a new table with a shallow copy of all non-private fields
--- in object.
---
--- Where private fields have keys prefixed with "_".
--- @tparam  std.object o  an object
--- @treturn table         raw (non-object) table of object fields
-local function totable (o)
+-- in object, where private fields have keys prefixed with "_".
+-- @treturn table raw (non-object) table of object fields
+local function totable (self)
   local t = {}
-  for k, v in pairs (o) do
+  for k, v in pairs (self) do
     if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
       t[k] = v
     end
@@ -209,11 +205,17 @@ local function totable (o)
 end
 
 
--- Metatable for objects
--- Normally a cloned object will share its metatable with its prototype,
--- unless some new fields for the cloned object begin with '_', in which
--- case they are merged into a copy of the prototype metatable to form
--- a new metatable for the cloned object (and its clones).
+--- Metatable for objects.
+--
+-- This can't and shouldn't be set directly, because the Object class
+-- manages it transparently during cloning.
+-- @table __metatable
+-- @tfield string _type derived objects can override this for objects
+--   intended to be a prototype for further specialised objects.
+-- @tfield table|function _init Derived objects can override this to be
+--   a set of keys to use for assigning unnamed arguments, or a function
+--   to that will be called with unnamed arguments durict cloning.
+-- @see type
 local metatable = {
   _type  = "Object",
   _init  = {},
@@ -234,6 +236,19 @@ local metatable = {
   -- @see tostring
   __tostring = stringify,
 
+  --- Return a clone of *object*.
+  --
+  -- Normally a cloned object will share its metatable with its prototype,
+  -- unless some new fields for the cloned object begin with '_', in which
+  -- case they are merged into a copy of the prototype metatable to form
+  -- a new metatable for the cloned object (and its clones).
+  -- @metamethod __call
+  -- @param ... arguments for `_init`
+  -- @treturn std.object a clone of the called object.
+  __call = function (self, ...)
+    return self:clone (...)
+  end,
+
   --- @export
   __index    = {
     clone    = clone,
@@ -241,11 +256,6 @@ local metatable = {
     totable  = totable,
     type     = object_type,
   },
-
-  -- Sugar instance creation
-  __call = function (self, ...)
-    return self:clone (...)
-  end,
 }
 
 return setmetatable ({}, metatable)
