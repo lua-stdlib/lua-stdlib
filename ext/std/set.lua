@@ -166,42 +166,42 @@ Set = Object {
   -- Union operator.
   --     set + table = union
   -- @metamethod __add
-  -- @see std.set:union
+  -- @see union
   __add = union,
 
   ------
   -- Difference operator.
   --     set - table = set difference
   -- @metamethod __sub
-  -- @see std.set:difference
+  -- @see difference
   __sub = difference,
 
   ------
   -- Intersection operator.
   --     set * table = intersection
   -- @metamethod __mul
-  -- @see std.set:intersection
+  -- @see intersection
   __mul = intersection,
 
   ------
   -- Symmetric difference operator.
   --     set / table = symmetric difference
   -- @metamethod __div
-  -- @see std.set:symmetric_difference
+  -- @see symmetric_difference
   __div = symmetric_difference,
 
   ------
   -- Subset operator.
   --     set <= table = subset
   -- @metamethod __le
-  -- @see std.set:subset
+  -- @see subset
   __le  = subset,
 
   ------
   -- Proper subset operator.
   --     set < table = proper subset
   -- @metamethod __lt
-  -- @see std.set:propersubset
+  -- @see propersubset
   __lt  = propersubset,
 
   ------

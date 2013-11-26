@@ -226,7 +226,7 @@ end
 -- @todo Find a better name.
 -- @tparam  table    t  a table `{i1=v1, ..., in=vn}`
 -- @treturn std.list    a new list containing `{{i1, v1}, ..., {in, vn}}`
--- @see std.list:depair
+-- @see depair
 local function enpair (t)
   local ls = List {}
   for i, v in pairs (t) do
@@ -240,7 +240,7 @@ end
 -- @todo Find a better name.
 -- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
 -- @treturn table    a new list containing table `{i1=v1, ..., in=vn}`
--- @see std.list:enpair
+-- @see enpair
 local function depair (ls)
   local t = {}
   for v in elems (ls) do
@@ -357,14 +357,14 @@ List = Object {
   -- Concatenate lists.
   --     new = list .. table
   -- @metamethod __concat
-  -- @see std.list:concat
+  -- @see concat
   __concat = concat,
 
   ------
   -- Append to list.
   --     list = list + element
   -- @metamethod __add
-  -- @see std.list:append
+  -- @see append
   __add    = append,
 
   ------

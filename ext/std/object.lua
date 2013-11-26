@@ -225,13 +225,13 @@ local metatable = {
   -- intial new object table, and can be overridden in other objects
   -- for greater control of which fields are considered non-private.
   -- @metamethod __totable
-  -- @see std.object:totable
+  -- @see totable
   __totable  = totable,
 
   ------
   -- Return a string representation of *object*.
   -- @metamethod __tostring
-  -- @see std.object:tostring
+  -- @see tostring
   __tostring = stringify,
 
   --- @export

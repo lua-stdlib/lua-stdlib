@@ -26,7 +26,7 @@ install:
   - sudo apt-get install liblua5.2-dev
   # Luadoc and Ldoc work best on Travis with Lua 5.1.
   - sudo apt-get install luarocks
-  - sudo luarocks install http://stevedonovan.github.io/files/ldoc-1.4.0-1.rockspec
+  - sudo luarocks install http://raw.github.com/stevedonovan/LDoc/master/ldoc-scm-2.rockspec
   - mkdir -p luarocks/bin
   - sed 's|^exec "[^"]*"|exec lua5.1|' `which ldoc` > $GENDOC
   - chmod a+rx $GENDOC

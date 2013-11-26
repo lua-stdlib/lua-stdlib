@@ -33,7 +33,7 @@ return Object {
   -- Support concatenation of StrBuf objects.
   --     buffer = buffer .. str
   -- @metamethod __concat
-  -- @see std.strbuf:concat
+  -- @see concat
   __concat   = concat,
 
 
@@ -41,7 +41,7 @@ return Object {
   -- Support fast conversion to Lua string.
   --     str = tostring (buffer)
   -- @metamethod __tostring
-  -- @see std.strbuf:tostring
+  -- @see tostring
   __tostring = tostring,
 
 
