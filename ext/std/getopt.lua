@@ -245,7 +245,7 @@ end
 
 
 --- Simple getopt wrapper.
--- If the caller didn't supply their own already, -- adds `--version`/`-V`
+-- If the caller didn't supply their own already, adds `--version`/`-V`
 -- and `--help`/`-h` options automatically;
 -- stops program if there was an error, or if `--help` or `--version` was
 -- used.

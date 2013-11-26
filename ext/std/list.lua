@@ -96,7 +96,7 @@ end
 
 
 --- Return a sub-range of a list.
--- (The equivalent of `string.sub` -- on strings; negative list indices
+-- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
 -- @tparam  table    l    a list
 -- @tparam  number   from start of range (default: 1)
