@@ -387,7 +387,7 @@ local function escape_pattern (s)
   return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
 
--- Escape a string to be used as a shell token.
+--- Escape a string to be used as a shell token.
 -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
 -- whitespace.
 -- @param s string to process
