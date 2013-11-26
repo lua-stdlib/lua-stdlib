@@ -37,14 +37,14 @@
 
 
 <h2>Classes</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><strong>std.list</strong></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">debug</a></li>
   <li><a href="../modules/std.functional.html">functional</a></li>
@@ -63,7 +63,6 @@
 <div id="content">
 
 <h1>Class <code>std.list</code></h1>
-
 <p>Tables as lists.</p>
 <p> Every list is also an object, and thus inherits all of the <a href="../classes/std.object.html#">std.object</a>
  methods, particularly use of object cloning for making new list objects.</p>
@@ -88,100 +87,100 @@
 	<td class="summary">List order operator.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:append">std.list:append (l, x)</a></td>
+	<td class="name" nowrap><a href="#std.list.append">std.list.append (l, x)</a></td>
 	<td class="summary">Append an item to a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.concat">std.list.concat (...)</a></td>
+	<td class="summary">Concatenate arguments into a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.cons">std.list.cons (l, x)</a></td>
+	<td class="summary">Prepend an item to a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.depair">std.list.depair (ls)</a></td>
+	<td class="summary">Turn a list of pairs into a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.enpair">std.list.enpair (t)</a></td>
+	<td class="summary">Turn a table into a list of pairs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.filter">std.list.filter (l, p)</a></td>
+	<td class="summary">Filter a list according to a predicate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.flatten">std.list.flatten (l)</a></td>
+	<td class="summary">Flatten a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.foldl">std.list.foldl (l, f, e)</a></td>
+	<td class="summary">Fold a binary function through a list left associatively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.foldr">std.list.foldr (l, f, e)</a></td>
+	<td class="summary">Fold a binary function through a list right associatively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.index_key">std.list.index_key (l, f)</a></td>
+	<td class="summary">Make an index of a list of tables on a given field</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.index_value">std.list.index_value (l, f)</a></td>
+	<td class="summary">Copy a list of tables, indexed on a given field</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.map">std.list.map (l, f)</a></td>
+	<td class="summary">Map a function over a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.map_with">std.list.map_with (ls, f)</a></td>
+	<td class="summary">Map a function over a list of lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.project">std.list.project (l, f)</a></td>
+	<td class="summary">Project a list of fields from a list of tables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.relems">std.list.relems (l)</a></td>
+	<td class="summary">An iterator over the elements of a list, in reverse.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.rep">std.list.rep (l, n)</a></td>
+	<td class="summary">Repeat a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.reverse">std.list.reverse (l)</a></td>
+	<td class="summary">Reverse a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.shape">std.list.shape (l, s)</a></td>
+	<td class="summary">Shape a list according to a list of dimensions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.sub">std.list.sub (l, from, to)</a></td>
+	<td class="summary">Return a sub-range of a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.tail">std.list.tail (l)</a></td>
+	<td class="summary">Return a list with its first element removed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.transpose">std.list.transpose (ls)</a></td>
+	<td class="summary">Transpose a list of lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.zip_with">std.list.zip_with (ls, f)</a></td>
+	<td class="summary">Zip a list of lists together with a function.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.list:compare">std.list:compare (l, m)</a></td>
 	<td class="summary">Compare two lists element-by-element, from left-to-right.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:concat">std.list:concat (...)</a></td>
-	<td class="summary">Concatenate arguments into a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:cons">std.list:cons (l, x)</a></td>
-	<td class="summary">Prepend an item to a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:depair">std.list:depair (ls)</a></td>
-	<td class="summary">Turn a list of pairs into a table.</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#std.list:elems">std.list:elems (l)</a></td>
 	<td class="summary">An iterator over the elements of a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:enpair">std.list:enpair (t)</a></td>
-	<td class="summary">Turn a table into a list of pairs.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:filter">std.list:filter (l, p)</a></td>
-	<td class="summary">Filter a list according to a predicate.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:flatten">std.list:flatten (l)</a></td>
-	<td class="summary">Flatten a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:foldl">std.list:foldl (l, f, e)</a></td>
-	<td class="summary">Fold a binary function through a list left associatively.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:foldr">std.list:foldr (l, f, e)</a></td>
-	<td class="summary">Fold a binary function through a list right associatively.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:index_key">std.list:index_key (l, f)</a></td>
-	<td class="summary">Make an index of a list of tables on a given field</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:index_value">std.list:index_value (l, f)</a></td>
-	<td class="summary">Copy a list of tables, indexed on a given field</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:map">std.list:map (l, f)</a></td>
-	<td class="summary">Map a function over a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:map_with">std.list:map_with (ls, f)</a></td>
-	<td class="summary">Map a function over a list of lists.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:project">std.list:project (l, f)</a></td>
-	<td class="summary">Project a list of fields from a list of tables.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:relems">std.list:relems (l)</a></td>
-	<td class="summary">An iterator over the elements of a list, in reverse.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:rep">std.list:rep (l, n)</a></td>
-	<td class="summary">Repeat a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:reverse">std.list:reverse (l)</a></td>
-	<td class="summary">Reverse a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:shape">std.list:shape (l, s)</a></td>
-	<td class="summary">Shape a list according to a list of dimensions.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:sub">std.list:sub (l, from, to)</a></td>
-	<td class="summary">Return a sub-range of a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:tail">std.list:tail (l)</a></td>
-	<td class="summary">Return a list with its first element removed.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:transpose">std.list:transpose (ls)</a></td>
-	<td class="summary">Transpose a list of lists.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:zip_with">std.list:zip_with (ls, f)</a></td>
-	<td class="summary">Zip a list of lists together with a function.</td>
 	</tr>
 </table>
 
@@ -208,7 +207,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list:append">std.list:append</a>
+         <a href="../classes/std.list.html#std.list.append">append</a>
     </ul>
 
 
@@ -229,7 +228,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list:concat">std.list:concat</a>
+         <a href="../classes/std.list.html#std.list.concat">concat</a>
     </ul>
 
 
@@ -299,8 +298,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:append"></a>
-    <strong>std.list:append (l, x)</strong>
+    <a name = "std.list.append"></a>
+    <strong>std.list.append (l, x)</strong>
     </dt>
     <dd>
     Append an item to a list.
@@ -328,38 +327,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:compare"></a>
-    <strong>std.list:compare (l, m)</strong>
-    </dt>
-    <dd>
-    Compare two lists element-by-element, from left-to-right.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         a list
-        </li>
-        <li><span class="parameter">m</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         another list
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        -1 if <code>l</code> is less than <code>m</code>, 0 if they are the same, and 1
-   if <code>l</code> is greater than <code>m</code>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.list:concat"></a>
-    <strong>std.list:concat (...)</strong>
+    <a name = "std.list.concat"></a>
+    <strong>std.list.concat (...)</strong>
     </dt>
     <dd>
     Concatenate arguments into a list.
@@ -387,8 +356,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:cons"></a>
-    <strong>std.list:cons (l, x)</strong>
+    <a name = "std.list.cons"></a>
+    <strong>std.list.cons (l, x)</strong>
     </dt>
     <dd>
     Prepend an item to a list.
@@ -416,8 +385,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:depair"></a>
-    <strong>std.list:depair (ls)</strong>
+    <a name = "std.list.depair"></a>
+    <strong>std.list.depair (ls)</strong>
     </dt>
     <dd>
     Turn a list of pairs into a table.
@@ -440,45 +409,14 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list:enpair">std.list:enpair</a>
+         <a href="../classes/std.list.html#std.list.enpair">enpair</a>
     </ul>
 
 
 </dd>
     <dt>
-    <a name = "std.list:elems"></a>
-    <strong>std.list:elems (l)</strong>
-    </dt>
-    <dd>
-    An iterator over the elements of a list.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-           a list
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-           <span class="types"><span class="type">function</span></span>
-        iterator function which returns successive elements of <code>self</code></li>
-        <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <code>l</code></li>
-        <li>
-        <code>true</code></li>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.list:enpair"></a>
-    <strong>std.list:enpair (t)</strong>
+    <a name = "std.list.enpair"></a>
+    <strong>std.list.enpair (t)</strong>
     </dt>
     <dd>
     Turn a table into a list of pairs.
@@ -501,14 +439,14 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list:depair">std.list:depair</a>
+         <a href="../classes/std.list.html#std.list.depair">depair</a>
     </ul>
 
 
 </dd>
     <dt>
-    <a name = "std.list:filter"></a>
-    <strong>std.list:filter (l, p)</strong>
+    <a name = "std.list.filter"></a>
+    <strong>std.list.filter (l, p)</strong>
     </dt>
     <dd>
     Filter a list according to a predicate.
@@ -537,8 +475,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:flatten"></a>
-    <strong>std.list:flatten (l)</strong>
+    <a name = "std.list.flatten"></a>
+    <strong>std.list.flatten (l)</strong>
     </dt>
     <dd>
     Flatten a list.
@@ -563,8 +501,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:foldl"></a>
-    <strong>std.list:foldl (l, f, e)</strong>
+    <a name = "std.list.foldl"></a>
+    <strong>std.list.foldl (l, f, e)</strong>
     </dt>
     <dd>
     Fold a binary function through a list left associatively.
@@ -595,8 +533,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:foldr"></a>
-    <strong>std.list:foldr (l, f, e)</strong>
+    <a name = "std.list.foldr"></a>
+    <strong>std.list.foldr (l, f, e)</strong>
     </dt>
     <dd>
     Fold a binary function through a list right associatively.
@@ -627,8 +565,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:index_key"></a>
-    <strong>std.list:index_key (l, f)</strong>
+    <a name = "std.list.index_key"></a>
+    <strong>std.list.index_key (l, f)</strong>
     </dt>
     <dd>
     Make an index of a list of tables on a given field
@@ -656,8 +594,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:index_value"></a>
-    <strong>std.list:index_value (l, f)</strong>
+    <a name = "std.list.index_value"></a>
+    <strong>std.list.index_value (l, f)</strong>
     </dt>
     <dd>
     Copy a list of tables, indexed on a given field
@@ -685,8 +623,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:map"></a>
-    <strong>std.list:map (l, f)</strong>
+    <a name = "std.list.map"></a>
+    <strong>std.list.map (l, f)</strong>
     </dt>
     <dd>
     Map a function over a list.
@@ -715,8 +653,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:map_with"></a>
-    <strong>std.list:map_with (ls, f)</strong>
+    <a name = "std.list.map_with"></a>
+    <strong>std.list.map_with (ls, f)</strong>
     </dt>
     <dd>
     Map a function over a list of lists.
@@ -745,8 +683,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:project"></a>
-    <strong>std.list:project (l, f)</strong>
+    <a name = "std.list.project"></a>
+    <strong>std.list.project (l, f)</strong>
     </dt>
     <dd>
     Project a list of fields from a list of tables.
@@ -774,8 +712,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:relems"></a>
-    <strong>std.list:relems (l)</strong>
+    <a name = "std.list.relems"></a>
+    <strong>std.list.relems (l)</strong>
     </dt>
     <dd>
     An iterator over the elements of a list, in reverse.
@@ -805,8 +743,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:rep"></a>
-    <strong>std.list:rep (l, n)</strong>
+    <a name = "std.list.rep"></a>
+    <strong>std.list.rep (l, n)</strong>
     </dt>
     <dd>
     Repeat a list.
@@ -835,8 +773,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:reverse"></a>
-    <strong>std.list:reverse (l)</strong>
+    <a name = "std.list.reverse"></a>
+    <strong>std.list.reverse (l)</strong>
     </dt>
     <dd>
     Reverse a list.
@@ -861,8 +799,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:shape"></a>
-    <strong>std.list:shape (l, s)</strong>
+    <a name = "std.list.shape"></a>
+    <strong>std.list.shape (l, s)</strong>
     </dt>
     <dd>
     Shape a list according to a list of dimensions. </p>
@@ -902,8 +840,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:sub"></a>
-    <strong>std.list:sub (l, from, to)</strong>
+    <a name = "std.list.sub"></a>
+    <strong>std.list.sub (l, from, to)</strong>
     </dt>
     <dd>
     Return a sub-range of a list.
@@ -941,8 +879,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:tail"></a>
-    <strong>std.list:tail (l)</strong>
+    <a name = "std.list.tail"></a>
+    <strong>std.list.tail (l)</strong>
     </dt>
     <dd>
     Return a list with its first element removed.
@@ -967,8 +905,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:transpose"></a>
-    <strong>std.list:transpose (ls)</strong>
+    <a name = "std.list.transpose"></a>
+    <strong>std.list.transpose (ls)</strong>
     </dt>
     <dd>
     Transpose a list of lists.
@@ -996,8 +934,8 @@
 
 </dd>
     <dt>
-    <a name = "std.list:zip_with"></a>
-    <strong>std.list:zip_with (ls, f)</strong>
+    <a name = "std.list.zip_with"></a>
+    <strong>std.list.zip_with (ls, f)</strong>
     </dt>
     <dd>
     Zip a list of lists together with a function.
@@ -1024,6 +962,67 @@
 <p>   <code>{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])</code>
  where <code>N = max {map (function (l) return #l end, ls)}</code></p>
 
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list:compare"></a>
+    <strong>std.list:compare (l, m)</strong>
+    </dt>
+    <dd>
+    Compare two lists element-by-element, from left-to-right.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a list
+        </li>
+        <li><span class="parameter">m</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         another list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        -1 if <code>l</code> is less than <code>m</code>, 0 if they are the same, and 1
+   if <code>l</code> is greater than <code>m</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list:elems"></a>
+    <strong>std.list:elems (l)</strong>
+    </dt>
+    <dd>
+    An iterator over the elements of a list.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function which returns successive elements of <code>self</code></li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        <code>l</code></li>
+        <li>
+        <code>true</code></li>
     </ol>
 
 

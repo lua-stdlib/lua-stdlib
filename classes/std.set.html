@@ -37,14 +37,14 @@
 
 
 <h2>Classes</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><strong>std.set</strong></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">debug</a></li>
   <li><a href="../modules/std.functional.html">functional</a></li>
@@ -63,7 +63,6 @@
 <div id="content">
 
 <h1>Class <code>std.set</code></h1>
-
 <p>Set object.</p>
 <p>
 
@@ -101,48 +100,48 @@
 	<td class="summary">Object to table conversion.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.set:delete">std.set:delete (s, e)</a></td>
+	<td class="name" nowrap><a href="#std.set.delete">std.set.delete (s, e)</a></td>
 	<td class="summary">Delete an element from a set.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.set:difference">std.set:difference (s, t)</a></td>
+	<td class="name" nowrap><a href="#std.set.difference">std.set.difference (s, t)</a></td>
 	<td class="summary">Find the difference of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.equal">std.set.equal (s, t)</a></td>
+	<td class="summary">Find whether two sets are equal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.insert">std.set.insert (s, e)</a></td>
+	<td class="summary">Insert an element into a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.intersection">std.set.intersection (s, t)</a></td>
+	<td class="summary">Find the intersection of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.member">std.set.member (s, e)</a></td>
+	<td class="summary">Say whether an element is in a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.propersubset">std.set.propersubset (s, t)</a></td>
+	<td class="summary">Find whether one set is a proper subset of another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.subset">std.set.subset (s, t)</a></td>
+	<td class="summary">Find whether one set is a subset of another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.symmetric_difference">std.set.symmetric_difference (s, t)</a></td>
+	<td class="summary">Find the symmetric difference of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.union">std.set.union (s, t)</a></td>
+	<td class="summary">Find the union of two sets.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.set:elems">std.set:elems (s)</a></td>
 	<td class="summary">Iterator for sets.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:equal">std.set:equal (s, t)</a></td>
-	<td class="summary">Find whether two sets are equal.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:insert">std.set:insert (s, e)</a></td>
-	<td class="summary">Insert an element into a set.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:intersection">std.set:intersection (s, t)</a></td>
-	<td class="summary">Find the intersection of two sets.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:member">std.set:member (s, e)</a></td>
-	<td class="summary">Say whether an element is in a set.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:propersubset">std.set:propersubset (s, t)</a></td>
-	<td class="summary">Find whether one set is a proper subset of another.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:subset">std.set:subset (s, t)</a></td>
-	<td class="summary">Find whether one set is a subset of another.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:symmetric_difference">std.set:symmetric_difference (s, t)</a></td>
-	<td class="summary">Find the symmetric difference of two sets.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.set:union">std.set:union (s, t)</a></td>
-	<td class="summary">Find the union of two sets.</td>
 	</tr>
 </table>
 
@@ -169,7 +168,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:union">std.set:union</a>
+         <a href="../classes/std.set.html#std.set.union">union</a>
     </ul>
 
 
@@ -190,7 +189,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:symmetric_difference">std.set:symmetric_difference</a>
+         <a href="../classes/std.set.html#std.set.symmetric_difference">symmetric_difference</a>
     </ul>
 
 
@@ -211,7 +210,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:subset">std.set:subset</a>
+         <a href="../classes/std.set.html#std.set.subset">subset</a>
     </ul>
 
 
@@ -232,7 +231,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:propersubset">std.set:propersubset</a>
+         <a href="../classes/std.set.html#std.set.propersubset">propersubset</a>
     </ul>
 
 
@@ -253,7 +252,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:intersection">std.set:intersection</a>
+         <a href="../classes/std.set.html#std.set.intersection">intersection</a>
     </ul>
 
 
@@ -274,7 +273,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set:difference">std.set:difference</a>
+         <a href="../classes/std.set.html#std.set.difference">difference</a>
     </ul>
 
 
@@ -297,8 +296,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:delete"></a>
-    <strong>std.set:delete (s, e)</strong>
+    <a name = "std.set.delete"></a>
+    <strong>std.set.delete (s, e)</strong>
     </dt>
     <dd>
     Delete an element from a set.
@@ -324,8 +323,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:difference"></a>
-    <strong>std.set:difference (s, t)</strong>
+    <a name = "std.set.difference"></a>
+    <strong>std.set.difference (s, t)</strong>
     </dt>
     <dd>
     Find the difference of two sets.
@@ -351,29 +350,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:elems"></a>
-    <strong>std.set:elems (s)</strong>
-    </dt>
-    <dd>
-    Iterator for sets.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">s</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.set:equal"></a>
-    <strong>std.set:equal (s, t)</strong>
+    <a name = "std.set.equal"></a>
+    <strong>std.set.equal (s, t)</strong>
     </dt>
     <dd>
     Find whether two sets are equal.
@@ -399,8 +377,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:insert"></a>
-    <strong>std.set:insert (s, e)</strong>
+    <a name = "std.set.insert"></a>
+    <strong>std.set.insert (s, e)</strong>
     </dt>
     <dd>
     Insert an element into a set.
@@ -426,8 +404,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:intersection"></a>
-    <strong>std.set:intersection (s, t)</strong>
+    <a name = "std.set.intersection"></a>
+    <strong>std.set.intersection (s, t)</strong>
     </dt>
     <dd>
     Find the intersection of two sets.
@@ -453,8 +431,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:member"></a>
-    <strong>std.set:member (s, e)</strong>
+    <a name = "std.set.member"></a>
+    <strong>std.set.member (s, e)</strong>
     </dt>
     <dd>
     Say whether an element is in a set.
@@ -481,8 +459,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:propersubset"></a>
-    <strong>std.set:propersubset (s, t)</strong>
+    <a name = "std.set.propersubset"></a>
+    <strong>std.set.propersubset (s, t)</strong>
     </dt>
     <dd>
     Find whether one set is a proper subset of another.
@@ -508,8 +486,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:subset"></a>
-    <strong>std.set:subset (s, t)</strong>
+    <a name = "std.set.subset"></a>
+    <strong>std.set.subset (s, t)</strong>
     </dt>
     <dd>
     Find whether one set is a subset of another.
@@ -535,8 +513,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:symmetric_difference"></a>
-    <strong>std.set:symmetric_difference (s, t)</strong>
+    <a name = "std.set.symmetric_difference"></a>
+    <strong>std.set.symmetric_difference (s, t)</strong>
     </dt>
     <dd>
     Find the symmetric difference of two sets.
@@ -562,8 +540,8 @@
 
 </dd>
     <dt>
-    <a name = "std.set:union"></a>
-    <strong>std.set:union (s, t)</strong>
+    <a name = "std.set.union"></a>
+    <strong>std.set.union (s, t)</strong>
     </dt>
     <dd>
     Find the union of two sets.
@@ -583,6 +561,27 @@
 
         set union of s and t
     </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set:elems"></a>
+    <strong>std.set:elems (s)</strong>
+    </dt>
+    <dd>
+    Iterator for sets.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+
+
+
+        </li>
+    </ul>
+
 
 
 

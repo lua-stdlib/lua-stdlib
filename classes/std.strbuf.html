@@ -37,14 +37,14 @@
 
 
 <h2>Classes</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><strong>std.strbuf</strong></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">debug</a></li>
   <li><a href="../modules/std.functional.html">functional</a></li>
@@ -63,7 +63,6 @@
 <div id="content">
 
 <h1>Class <code>std.strbuf</code></h1>
-
 <p>String buffers.</p>
 <p>
 
@@ -81,11 +80,11 @@
 	<td class="summary">Support fast conversion to Lua string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.strbuf:concat">std.strbuf:concat (b, s)</a></td>
+	<td class="name" nowrap><a href="#std.strbuf.concat">std.strbuf.concat (b, s)</a></td>
 	<td class="summary">Add a string to a buffer.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.strbuf:tostring">std.strbuf:tostring (b)</a></td>
+	<td class="name" nowrap><a href="#std.strbuf.tostring">std.strbuf.tostring (b)</a></td>
 	<td class="summary">Convert a buffer to a string.</td>
 	</tr>
 </table>
@@ -113,7 +112,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.strbuf.html#std.strbuf:concat">std.strbuf:concat</a>
+         <a href="../classes/std.strbuf.html#std.strbuf.concat">concat</a>
     </ul>
 
 
@@ -134,14 +133,14 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.strbuf.html#std.strbuf:tostring">std.strbuf:tostring</a>
+         <a href="../classes/std.strbuf.html#std.strbuf.tostring">tostring</a>
     </ul>
 
 
 </dd>
     <dt>
-    <a name = "std.strbuf:concat"></a>
-    <strong>std.strbuf:concat (b, s)</strong>
+    <a name = "std.strbuf.concat"></a>
+    <strong>std.strbuf.concat (b, s)</strong>
     </dt>
     <dd>
     Add a string to a buffer.
@@ -167,8 +166,8 @@
 
 </dd>
     <dt>
-    <a name = "std.strbuf:tostring"></a>
-    <strong>std.strbuf:tostring (b)</strong>
+    <a name = "std.strbuf.tostring"></a>
+    <strong>std.strbuf.tostring (b)</strong>
     </dt>
     <dd>
     Convert a buffer to a string.

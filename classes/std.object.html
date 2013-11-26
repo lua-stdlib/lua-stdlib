@@ -37,14 +37,14 @@
 
 
 <h2>Classes</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><strong>std.object</strong></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">debug</a></li>
   <li><a href="../modules/std.functional.html">functional</a></li>
@@ -63,7 +63,6 @@
 <div id="content">
 
 <h1>Class <code>std.object</code></h1>
-
 <p>Prototype-based objects.</p>
 <p>
 
@@ -119,6 +118,14 @@
 <h2><a href="#Methods">Methods </a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#std.object.__call">std.object.__call</a></td>
+	<td class="summary">Return a clone of <em>object</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.object.__metatable">std.object.__metatable</a></td>
+	<td class="summary">Metatable for objects.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#std.object.__tostring">std.object.__tostring</a></td>
 	<td class="summary">Return a string representation of <em>object</em>.</td>
 	</tr>
@@ -127,17 +134,17 @@
 	<td class="summary">Return a shallow copy of non-private object fields.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.object:clone">std.object:clone (prototype, ...)</a></td>
+	<td class="name" nowrap><a href="#std.object:clone">std.object:clone (...)</a></td>
 	<td class="summary">Clone an object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.object:tostring">std.object:tostring (o)</a></td>
+	<td class="name" nowrap><a href="#std.object:tostring">std.object:tostring ()</a></td>
 	<td class="summary">Return a stringified version of the contents of object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.object:totable">std.object:totable (o)</a></td>
+	<td class="name" nowrap><a href="#std.object:totable">std.object:totable (self)</a></td>
 	<td class="summary">Return a new table with a shallow copy of all non-private fields
- in object.</td>
+ in object, where private fields have keys prefixed with "_".</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object:type">std.object:type (o)</a></td>
@@ -153,6 +160,64 @@
 
     <dl class="function">
     <dt>
+    <a name = "std.object.__call"></a>
+    <strong>std.object.__call</strong>
+    </dt>
+    <dd>
+    Return a clone of <em>object</em>. </p>
+
+<p> Normally a cloned object will share its metatable with its prototype,
+ unless some new fields for the cloned object begin with '_', in which
+ case they are merged into a copy of the prototype metatable to form
+ a new metatable for the cloned object (and its clones).
+
+    <h3>params:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         arguments for <code>_init</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.object.__metatable"></a>
+    <strong>std.object.__metatable</strong>
+    </dt>
+    <dd>
+    Metatable for objects. </p>
+
+<p> This can't and shouldn't be set directly, because the Object class
+ manages it transparently during cloning.
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">_type</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         derived objects can override this for objects
+   intended to be a prototype for further specialised objects.
+        </li>
+        <li><span class="parameter">_init</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+         Derived objects can override this to be
+   a set of keys to use for assigning unnamed arguments, or a function
+   to that will be called with unnamed arguments durict cloning.
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:type">type</a>
+    </ul>
+
+
+</dd>
+    <dt>
     <a name = "std.object.__tostring"></a>
     <strong>std.object.__tostring</strong>
     </dt>
@@ -164,7 +229,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.object.html#std.object:tostring">std.object:tostring</a>
+         <a href="../classes/std.object.html#std.object:tostring">tostring</a>
     </ul>
 
 
@@ -185,32 +250,25 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.object.html#std.object:totable">std.object:totable</a>
+         <a href="../classes/std.object.html#std.object:totable">totable</a>
     </ul>
 
 
 </dd>
     <dt>
     <a name = "std.object:clone"></a>
-    <strong>std.object:clone (prototype, ...)</strong>
+    <strong>std.object:clone (...)</strong>
     </dt>
     <dd>
     Clone an object. </p>
 
-<p> Prototypes are cloned by calling directly as described above, so this
- <code>clone</code> method is rarely used explicitly.
+<p> Objects are usually cloned by calling a prototype directly, so this
+ method is rarely used explicitly.
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">prototype</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-         source object
-        </li>
         <li><span class="parameter">...</span>
-
-<pre><code>   arguments
-</code></pre>
-
+         arguments for _init
         </li>
     </ul>
 
@@ -219,16 +277,20 @@
 
            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
         a clone of <code>prototype</code>, adjusted
- according to the rules above, and sharing a metatable where possible.
+   according to the rules above, and sharing a metatable where possible
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object.__call">__call</a>
+    </ul>
 
 
 </dd>
     <dt>
     <a name = "std.object:tostring"></a>
-    <strong>std.object:tostring (o)</strong>
+    <strong>std.object:tostring ()</strong>
     </dt>
     <dd>
     Return a stringified version of the contents of object. </p>
@@ -238,15 +300,8 @@
  remaining key-value pairs.</p>
 
 <p> This function doesn't recurse explicity, but relies upon suitable
- <code>__tostring</code> metamethods in contained objects.
+ <a href="../classes/std.object.html#std.object.__tostring">__tostring</a>  metamethods in contained objects.
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">o</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-          an object
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -261,19 +316,18 @@
 </dd>
     <dt>
     <a name = "std.object:totable"></a>
-    <strong>std.object:totable (o)</strong>
+    <strong>std.object:totable (self)</strong>
     </dt>
     <dd>
     Return a new table with a shallow copy of all non-private fields
- in object. </p>
-
-<p> Where private fields have keys prefixed with "_".
+ in object, where private fields have keys prefixed with "_".
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">o</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-          an object
+        <li><span class="parameter">self</span>
+
+
+
         </li>
     </ul>
 

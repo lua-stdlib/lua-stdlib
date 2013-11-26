@@ -33,11 +33,12 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
 <h2>Modules</h2>
-<ul class="nowrap">
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">debug</a></li>
   <li><a href="../modules/std.functional.html">functional</a></li>
@@ -51,9 +52,9 @@
   <li><a href="../modules/std.tree.html">tree</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="nowrap">
-  <li><a href="../classes/std.list.html">std.list</a></li>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
 </ul>
@@ -63,7 +64,6 @@
 <div id="content">
 
 <h1>Module <code>std.string</code></h1>
-
 <p>Additions to the string module.</p>
 <p>
 
@@ -87,6 +87,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#escape_pattern">escape_pattern (s)</a></td>
 	<td class="summary">Escape a string to be used as a pattern.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#escape_shell">escape_shell (s)</a></td>
+	<td class="summary">Escape a string to be used as a shell token.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#finds">finds (s, p, init, plain)</a></td>
@@ -181,6 +185,21 @@
 	<td class="summary">Wrap a string into a paragraph.</td>
 	</tr>
 </table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings a subscription operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings an append metamethod.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings a concat metamethod.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
@@ -272,6 +291,32 @@
     </dt>
     <dd>
     Escape a string to be used as a pattern.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        processed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "escape_shell"></a>
+    <strong>escape_shell (s)</strong>
+    </dt>
+    <dd>
+    Escape a string to be used as a shell token.
+ Quotes spaces, parentheses, brackets, quotes, apostrophes and
+ whitespace.
 
     <h3>Parameters:</h3>
     <ul>
@@ -917,6 +962,72 @@
 
         wrapped paragraph
     </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Fields"></a>Fields</h2>
+    <dl class="function">
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings a subscription operator.
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">i</span>
+         index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings an append metamethod.
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">c</span>
+         character (1-character string)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings a concat metamethod.
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">o</span>
+         object
+        </li>
+    </ul>
+
 
 
 
