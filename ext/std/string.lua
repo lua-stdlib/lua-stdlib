@@ -537,7 +537,10 @@ local String = {
   tostring        = tostring,
   trim            = trim,
   wrap            = wrap,
+}
 
+-- Merge non-@export functions:
+for k,v in pairs (table.merge (String, {
   -- camelCase compatibility:
   escapePattern  = escape_pattern,
   escapeShell    = escape_shell,
@@ -546,10 +549,7 @@ local String = {
   -- Core Lua function implementations.
   _format   = _format,
   _tostring = _tostring,
-}
-
-for k, v in pairs (String)
-do
+})) do
   M[k] = v
 end
 

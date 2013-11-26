@@ -287,11 +287,13 @@ local Getopt = {
   processargs = processargs,
   usage       = usage,
   usageinfo   = usageinfo,
+}
 
-  -- camelCase compatibility.
+-- camelCase compatibility.
+Getopt = table.merge (Getopt, {
   getOpt      = getopt,
   processArgs = processargs,
   usageInfo   = usageinfo,
-}
+})
 
 return table.merge (M, Getopt)

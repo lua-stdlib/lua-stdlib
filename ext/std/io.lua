@@ -147,10 +147,10 @@ local M = {
   splitdir      = splitdir,
   warn          = warn,
   writelines    = writelines,
-
-  -- camelCase compatibility.
-  processFiles  = process_files,
 }
+
+-- camelCase compatibility.
+M.processFiles  = process_files
 
 for k, v in pairs (io) do
   M[k] = M[k] or v

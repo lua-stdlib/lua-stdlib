@@ -349,6 +349,35 @@ local function index_value (l, f)
 end
 
 
+--- @export
+local metamethods = {
+  append      = append,
+  compare     = compare,
+  concat      = concat,
+  cons        = cons,
+  depair      = depair,
+  elems       = elems,
+  enpair      = enpair,
+  filter      = filter,
+  flatten     = flatten,
+  foldl       = foldl,
+  foldr       = foldr,
+  index_key   = index_key,
+  index_value = index_value,
+  map         = map,
+  map_with    = map_with,
+  project     = project,
+  relems      = relems,
+  rep         = rep,
+  reverse     = reverse,
+  shape       = shape,
+  sub         = sub,
+  tail        = tail,
+  transpose   = transpose,
+  zip_with    = zip_with,
+}
+
+
 List = Object {
   -- Derived object type.
   _type = "List",
@@ -385,39 +414,13 @@ List = Object {
   -- @see std.list:compare
   __le = function (l, m) return compare (l, m) <= 0 end,
 
-  --- @export
-  __index = {
-    append      = append,
-    compare     = compare,
-    concat      = concat,
-    cons        = cons,
-    depair      = depair,
-    elems       = elems,
-    enpair      = enpair,
-    filter      = filter,
-    flatten     = flatten,
-    foldl       = foldl,
-    foldr       = foldr,
-    index_key   = index_key,
-    index_value = index_value,
-    map         = map,
-    map_with    = map_with,
-    project     = project,
-    relems      = relems,
-    rep         = rep,
-    reverse     = reverse,
-    shape       = shape,
-    sub         = sub,
-    tail        = tail,
-    transpose   = transpose,
-    zip_with    = zip_with,
-
+  __index = base.merge (metamethods, {
     -- camelCase compatibility.
     indexKey   = index_key,
     indexValue = index_value,
     mapWith    = map_with,
     zipWith    = zip_with,
-  },
+  }),
 }
 
 
