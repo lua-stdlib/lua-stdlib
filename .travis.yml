@@ -18,6 +18,7 @@ env:
 # Tool setup.
 install:
   - sudo apt-get install help2man
+  - sudo apt-get install libyaml-dev
   - sudo apt-get install luajit
   - sudo apt-get install libluajit-5.1-dev
   - sudo apt-get install lua5.1
