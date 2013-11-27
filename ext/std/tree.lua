@@ -77,6 +77,8 @@ end
 -- @tparam  boolean nometa if non-nil don't copy metatables
 -- @treturn table          a deep copy of `t`
 local function clone (t, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
   local r = {}
   if not nometa then
     setmetatable (r, getmetatable (t))
@@ -134,6 +136,8 @@ end
 -- @treturn function    iterator function
 -- @treturn std.tree    the tree, `tr`
 local function nodes (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'nodes' (table expected, got " .. type (tr) .. ")")
   return _nodes (pairs, tr)
 end
 
@@ -143,6 +147,8 @@ end
 -- @treturn function    iterator function
 -- @treturn std.tree    the tree, `t`
 local function inodes (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'inodes' (table expected, got " .. type (tr) .. ")")
   return _nodes (ipairs, tr)
 end
 
@@ -153,6 +159,10 @@ end
 -- @treturn std.tree   `t` with nodes from `u` merged in
 -- @see std.table.merge
 local function merge (t, u)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
   for ty, p, n in nodes (u) do
     if ty == "leaf" then
       t[p] = n

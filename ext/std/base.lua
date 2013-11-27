@@ -126,11 +126,15 @@ end
 
 -- Doc-commented in tree.lua...
 local function ileaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
   return _leaves (ipairs, tr)
 end
 
 -- Doc-commented in tree.lua...
 local function leaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
   return _leaves (pairs, tr)
 end
 
