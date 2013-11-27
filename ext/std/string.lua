@@ -39,7 +39,7 @@ local function assert (v, f, ...)
     if f == nil then
       f = ""
     end
-    error (format (f, ...))
+    error (format (f, ...), 2)
   end
   return v
 end
