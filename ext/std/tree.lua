@@ -42,7 +42,7 @@ end
 --       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
 function metatable.__index (tr, i)
   if type (i) == "table" and #i > 0 then
-    return list.foldl (func.op["[]"], tr, i)
+    return list.foldl (i, func.op["[]"], tr)
   else
     return rawget (tr, i)
   end
