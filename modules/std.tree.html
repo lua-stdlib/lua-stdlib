@@ -33,23 +33,22 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Metamethods">Metamethods</a></li>
 </ul>
 
 
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/std.html">std</a></li>
-  <li><a href="../modules/std.debug.html">debug</a></li>
-  <li><a href="../modules/std.functional.html">functional</a></li>
-  <li><a href="../modules/std.getopt.html">getopt</a></li>
-  <li><a href="../modules/std.io.html">io</a></li>
-  <li><a href="../modules/std.math.html">math</a></li>
-  <li><a href="../modules/std.package.html">package</a></li>
-  <li><a href="../modules/std.strict.html">strict</a></li>
-  <li><a href="../modules/std.string.html">string</a></li>
-  <li><a href="../modules/std.table.html">table</a></li>
-  <li><strong>tree</strong></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+  <li><strong>std.tree</strong></li>
 </ul>
 <h2>Classes</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -72,6 +71,14 @@
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#__index">__index (i)</a></td>
+	<td class="summary">Tree <a href="../modules/std.tree.html#__index">__index</a>  metamethod.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__newindex">__newindex (i, v)</a></td>
+	<td class="summary">Tree <a href="../modules/std.tree.html#__newindex">__newindex</a>  metamethod.</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#clone">clone (t, nometa)</a></td>
 	<td class="summary">Make a deep copy of a tree, including any metatables.</td>
@@ -101,17 +108,6 @@
 	<td class="summary">Tree iterator over all nodes.</td>
 	</tr>
 </table>
-<h2><a href="#Metamethods">Metamethods</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#__index">__index</a></td>
-	<td class="summary">Tree <a href="../modules/std.tree.html#__index">__index</a>  metamethod.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#__newindex">__newindex</a></td>
-	<td class="summary">Tree <a href="../modules/std.tree.html#__newindex">__newindex</a>  metamethod.</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
@@ -119,6 +115,54 @@
 
     <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
+    <dt>
+    <a name = "__index"></a>
+    <strong>__index (i)</strong>
+    </dt>
+    <dd>
+    Tree <a href="../modules/std.tree.html#__index">__index</a>  metamethod.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+         non-table, or list of keys <code>{i_1 ... i_n}</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>tr[i]...[i_n]</code> if i is a table, or <code>tr[i]</code> otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "__newindex"></a>
+    <strong>__newindex (i, v)</strong>
+    </dt>
+    <dd>
+    Tree <a href="../modules/std.tree.html#__newindex">__newindex</a>  metamethod. </p>
+
+<p> Sets <code>tr[i_1]...[i_n] = v</code> if i is a table, or <code>tr[i] = v</code> otherwise
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+         non-table, or list of keys <code>{i_1 ... i_n}</code>
+        </li>
+        <li><span class="parameter">v</span>
+         value
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
     <dt>
     <a name = "clone"></a>
     <strong>clone (t, nometa)</strong>
@@ -325,52 +369,6 @@
            <span class="types"><span class="type">std.tree</span></span>
         the tree, <code>tr</code></li>
     </ol>
-
-
-
-
-</dd>
-</dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
-    <dl class="function">
-    <dt>
-    <a name = "__index"></a>
-    <strong>__index</strong>
-    </dt>
-    <dd>
-    Tree <a href="../modules/std.tree.html#__index">__index</a>  metamethod.
-
-    <h3>params:</h3>
-    <ul>
-        <li><span class="parameter">i</span>
-         non-table, or list of keys <code>{i_1 ... i_n}</code>
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "__newindex"></a>
-    <strong>__newindex</strong>
-    </dt>
-    <dd>
-    Tree <a href="../modules/std.tree.html#__newindex">__newindex</a>  metamethod. </p>
-
-<p> Sets <code>tr[i_1]...[i_n] = v</code> if i is a table, or <code>tr[i] = v</code> otherwise
-
-    <h3>params:</h3>
-    <ul>
-        <li><span class="parameter">i</span>
-         non-table, or list of keys <code>{i_1 ... i_n}</code>
-        </li>
-        <li><span class="parameter">v</span>
-         value
-        </li>
-    </ul>
-
 
 
 
