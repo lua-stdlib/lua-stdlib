@@ -132,9 +132,41 @@ end
 
 
 --- Tree iterator over all nodes.
+--
+-- The returned iterator function performs a depth-first traversal of
+-- `tr`, and at each node it returns `{node-type, tree-path, tree-node}`
+-- where `node-type` is `branch`, `join` or `leaf`; `tree-path` is a
+-- list of keys used to reach this node, and `tree-node` is the current
+-- node.
+--
+-- Given a `std.tree` to represent:
+--
+--     + root
+--        +-- node1
+--        |    +-- leaf1
+--        |    '-- leaf2
+--        '-- leaf 3
+--
+--     tree = std.tree { std.tree { "leaf1", "leaf2"}, "leaf3" }
+--
+-- A series of calls to `tree.nodes` will return:
+--
+--     "branch", {},    {{"leaf1", "leaf2"}, "leaf3"}
+--     "branch", {1},   {"leaf1", "leaf"2")
+--     "leaf",   {1,1}, "leaf1"
+--     "leaf",   {1,2}, "leaf2"
+--     "join",   {1},   {"leaf1", "leaf2"}
+--     "leaf",   {2},   "leaf3"
+--     "join",   {},    {{"leaf1", "leaf2"}, "leaf3"}
+--
+-- Note that the `tree-path` reuses the same table on each iteration, so
+-- you must `table.clone` a copy if you want to take a snap-shot of the
+-- current state of the `tree-path` list before the next iteration
+-- changes it.
 -- @tparam  std.tree tr tree to iterate over
 -- @treturn function    iterator function
 -- @treturn std.tree    the tree, `tr`
+-- @see inodes
 local function nodes (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'nodes' (table expected, got " .. type (tr) .. ")")
@@ -143,9 +175,13 @@ end
 
 
 --- Tree iterator over numbered nodes, in order.
+--
+-- The iterator function behaves like @{nodes}, but only traverses the
+-- array part of the nodes of `tr`, ignoring any others.
 -- @tparam  std.tree tr tree to iterate over
 -- @treturn function    iterator function
 -- @treturn std.tree    the tree, `t`
+-- @see nodes
 local function inodes (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'inodes' (table expected, got " .. type (tr) .. ")")
@@ -159,10 +195,10 @@ end
 -- @treturn std.tree   `t` with nodes from `u` merged in
 -- @see std.table.merge
 local function merge (t, u)
-  assert (type (t) == "table",
-          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
-  assert (type (u) == "table",
-          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
+  assert (getmetatable (t) == metatable,
+          "bad argument #1 to 'merge' (tree table expected, got " .. type (t) .. ")")
+  assert (getmetatable (u) == metatable,
+          "bad argument #2 to 'merge' (tree table expected, got " .. type (u) .. ")")
   for ty, p, n in nodes (u) do
     if ty == "leaf" then
       t[p] = n
