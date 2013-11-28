@@ -4,6 +4,24 @@
  Every list is also an object, and thus inherits all of the `std.object`
  methods, particularly use of object cloning for making new list objects.
 
+ In addition to calling methods on list objects in OO style...
+
+     local List = require "std.list"
+     local l = List {1, 2, 3}
+     for e in l:relems () do print (e) end
+       => 3
+       => 2
+       => 1
+ 
+ ...they can also be called as module functions with an explicit argument:
+
+     local List = require "std.list"
+     local l = List {1, 2, 3}
+     for e in List.relems (l) do print (e) end
+       => 3
+       => 2
+       => 1
+
  @classmod std.list
 ]]
 
@@ -13,19 +31,19 @@ local Object  = require "std.object"
 
 
 --- Compare two lists element-by-element, from left-to-right.
+--
+--     if a_list:compare (another_list) == 0 then print "same" end
 -- @function compare
--- @tparam table l a list
--- @tparam table m another list
--- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
---   if `l` is greater than `m`
+-- @tparam table l another list
+-- @return -1 if `self` is less than `l`, 0 if they are the same, and 1
+--   if `self` is greater than `l`
 local compare = base.compare
 
 
 --- An iterator over the elements of a list.
 -- @function elems
--- @tparam  table l   a list
 -- @treturn function  iterator function which returns successive elements of `self`
--- @treturn table     `l`
+-- @treturn table     *list*
 -- @return `true`
 local elems = base.elems
 
@@ -34,46 +52,43 @@ local List -- list prototype object forward declaration
 
 
 --- Append an item to a list.
--- @tparam  table    l  a list
 -- @param            x  item
--- @treturn std.list    new list containing `{l[1], ..., l[#l], x}`
-local function append (l, x)
-  return List (base.append (l, x))
+-- @treturn std.list    new list containing `{self[1], ..., self[#self], x}`
+local function append (self, x)
+  return List (base.append (self, x))
 end
 
 
 --- Concatenate arguments into a list.
 -- @param            ... tuple of lists
 -- @treturn std.list     new list containing
---                       `{l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-local function concat (...)
-  return List (base.concat (...))
+--   `{self[1], ..., self[#self], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
+local function concat (self, ...)
+  return List (base.concat (self, ...))
 end
 
 
 --- An iterator over the elements of a list, in reverse.
--- @tparam  table    l a list
--- @treturn function   iterator function which returns precessive elements of the list
--- @treturn std.list   `l`
+-- @treturn function   iterator function which returns precessive elements of the `self`
+-- @treturn std.list   `self`
 -- @return `true`
-local function relems (l)
-  local n = #l + 1
-  return function (l)
+local function relems (self)
+  local n = #self + 1
+  return function (self)
            n = n - 1
            if n > 0 then
-             return l[n]
+             return self[n]
            end
          end,
-  l, true
+  self, true
 end
 
 
 --- Map a function over a list.
--- @tparam  table    l a list
 -- @tparam  function f map function
--- @treturn std.list new list containing `{f (list[1]), ..., f (list[#list])}`
-local function map (l, f)
-  return List (func.map (f, elems, l))
+-- @treturn std.list new list containing `{f (self[1]), ..., f (self[#self])}`
+local function map (self, f)
+  return List (func.map (f, elems, self))
 end
 
 
@@ -87,24 +102,22 @@ end
 
 
 --- Filter a list according to a predicate.
--- @tparam  table    l a list
 -- @tparam  function p predicate function, of one argument returning a boolean
--- @treturn std.list   new list containing elements `e` of `l` for which `p (e)` is true
-local function filter (l, p)
-  return List (func.filter (p, elems, l))
+-- @treturn std.list   new list containing elements `e` of `self` for which `p (e)` is true
+local function filter (self, p)
+  return List (func.filter (p, elems, self))
 end
 
 
 --- Return a sub-range of a list.
 -- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
--- @tparam  table    l    a list
 -- @tparam  number   from start of range (default: 1)
--- @tparam  number   to   end of range (default: `#list`)
--- @treturn std.list      new list containing `{l[from], ..., l[to]}`
-local function sub (l, from, to)
+-- @tparam  number   to   end of range (default: `#self`)
+-- @treturn std.list      new list containing `{self[from], ..., self[to]}`
+local function sub (self, from, to)
   local r = List {}
-  local len = #l
+  local len = #self
   from = from or 1
   to = to or len
   if from < 0 then
@@ -114,70 +127,64 @@ local function sub (l, from, to)
     to = to + len + 1
   end
   for i = from, to do
-    table.insert (r, l[i])
+    table.insert (r, self[i])
   end
   return r
 end
 
 
 --- Return a list with its first element removed.
--- @tparam  table   l a list
--- @treturn std.list  new list containing `{l[2], ..., l[#l]}`
-local function tail (l)
-  return sub (l, 2)
+-- @treturn std.list  new list containing `{self[2], ..., self[#self]}`
+local function tail (self)
+  return sub (self, 2)
 end
 
 
 --- Fold a binary function through a list left associatively.
--- @tparam  table    l  a list
 -- @tparam  function f  binary function
 -- @param            e  element to place in left-most position
 -- @return result
-local function foldl (l, f, e)
-  return func.fold (f, e, elems, l)
+local function foldl (self, f, e)
+  return func.fold (f, e, elems, self)
 end
 
 
 --- Fold a binary function through a list right associatively.
--- @tparam  table    l  a list
 -- @tparam  function f  binary function
 -- @param            e  element to place in right-most position
 -- @return result
-local function foldr (l, f, e)
+local function foldr (self, f, e)
   return List (func.fold (function (x, y) return f (y, x) end,
-                          e, relems, l))
+                          e, relems, self))
 end
 
 
 --- Prepend an item to a list.
--- @tparam  table    l  a list
 -- @param            x  item
--- @treturn std.list    new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  return List {x, unpack (l)}
+-- @treturn std.list    new list containing `{x, unpack (self)}`
+local function cons (self, x)
+  return List {x, unpack (self)}
 end
 
 
 --- Repeat a list.
--- @tparam  table    l  a list
 -- @tparam  number   n number of times to repeat
--- @treturn std.list `n` copies of `l` appended together
-local function rep (l, n)
+-- @treturn std.list `n` copies of `self` appended together
+local function rep (self, n)
   local r = List {}
   for i = 1, n do
-    r = concat (r, l)
+    r = concat (r, self)
   end
   return r
 end
 
 
 --- Reverse a list.
--- @tparam  table    l  a list
--- @treturn std.list    new list containing `{l[#l], ..., l[1]}`
-local function reverse (l)
+-- @treturn std.list    new list containing `{self[#self], ..., self[1]}`
+local function reverse (self)
   local r = List {}
-  for i = #l, 1, -1 do
-    table.insert (r, l[i])
+  for i = #self, 1, -1 do
+    table.insert (r, self[i])
   end
   return r
 end
@@ -214,11 +221,10 @@ end
 
 
 --- Project a list of fields from a list of tables.
--- @tparam  table    l  a list
 -- @param            f  field to project
 -- @treturn std.list    list of `f` fields
-local function project (l, f)
-  return map (l, function (t) return t[f] end)
+local function project (self, f)
+  return map (self, function (t) return t[f] end)
 end
 
 
@@ -251,11 +257,10 @@ end
 
 
 --- Flatten a list.
--- @tparam  table    l  a list
--- @treturn std.list    flattened list
-local function flatten (l)
+-- @treturn std.list flattened list
+local function flatten (self)
   local r = List {}
-  for v in base.ileaves (l) do
+  for v in base.ileaves (self) do
     table.insert (r, v)
   end
   return r
@@ -278,11 +283,10 @@ end
 --
 -- @todo Use ileaves instead of flatten (needs a while instead of a
 -- for in fill function)
--- @tparam table l a list
 -- @tparam table s `{d1, ..., dn}`
 -- @return reshaped list
-local function shape (l, s)
-  l = flatten (l)
+local function shape (self, s)
+  self = flatten (self)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
   local zero
@@ -298,11 +302,11 @@ local function shape (l, s)
     end
   end
   if zero then
-    s[zero] = math.ceil (#l / size)
+    s[zero] = math.ceil (#self / size)
   end
   local function fill (i, d)
     if d > #s then
-      return l[i], i + 1
+      return self[i], i + 1
     else
       local r = List {}
       for j = 1, s[d] do
@@ -385,34 +389,36 @@ List = Object {
   ------
   -- Concatenate lists.
   --     new = list .. table
-  -- @metamethod __concat
+  -- @function __concat
+  -- @tparam std.list list a list
+  -- @tparam table    table another list, hash part is ignored
   -- @see concat
   __concat = concat,
 
   ------
-  -- Append to list.
+  -- Append element to list.
   --     list = list + element
-  -- @metamethod __add
+  -- @function __add
+  -- @tparam std.list list a list
+  -- @param           element element to append
   -- @see append
   __add    = append,
 
   ------
   -- List order operator.
   --     max = list1 > list2 and list1 or list2
-  -- @metamethod __lt
   -- @tparam std.list list1 a list
   -- @tparam std.list list2 another list
   -- @see std.list:compare
-  __lt = function (l, m) return compare (l, m) < 0 end,
+  __lt = function (list1, list2) return compare (list1, list2) < 0 end,
 
   ------
   -- List equality or order operator.
   --     min = list1 <= list2 and list1 or list2
-  -- @metamethod __le
   -- @tparam std.list list1 a list
   -- @tparam std.list list2 another list
   -- @see std.list:compare
-  __le = function (l, m) return compare (l, m) <= 0 end,
+  __le = function (list1, list2) return compare (list1, list2) <= 0 end,
 
   __index = base.merge (metamethods, {
     -- camelCase compatibility.

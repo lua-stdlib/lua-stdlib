@@ -3,7 +3,6 @@ project = "stdlib"
 description = "Standard Lua Libraries"
 dir = "."
 
-new_type("metamethod", "Metamethods", false, "params")
 file = {
   -- Modules
   "../ext/std.lua",

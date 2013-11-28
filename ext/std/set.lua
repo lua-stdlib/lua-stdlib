@@ -13,36 +13,33 @@ local Set -- forward declaration
 -- whose values are true.
 
 --- Say whether an element is in a set.
--- @param s set
 -- @param e element
 -- @return `true` if e is in set, `false`
 -- otherwise
-local function member (s, e)
-  return rawget (s, e) == true
+local function member (self, e)
+  return rawget (self, e) == true
 end
 
 --- Insert an element into a set.
--- @param s set
 -- @param e element
 -- @return the modified set
-local function insert (s, e)
-  rawset (s, e, true)
-  return s
+local function insert (self, e)
+  rawset (self, e, true)
+  return self
 end
 
 --- Delete an element from a set.
--- @param s set
 -- @param e element
 -- @return the modified set
-local function delete (s, e)
-  rawset (s, e, nil)
-  return s
+local function delete (self, e)
+  rawset (self, e, nil)
+  return self
 end
 
 --- Iterator for sets.
 -- @todo Make the iterator return only the key
-local function elems (s)
-  return pairs (s)
+local function elems (self)
+  return pairs (self)
 end
 
 
@@ -52,77 +49,72 @@ local difference, symmetric_difference, intersection, union, subset, equal
 
 --- Find the difference of two sets.
 -- @param s set
--- @param t set
--- @return s with elements of t removed
-function difference (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @return `self` with elements of s removed
+function difference (self, s)
+  if Object.type (s) == "table" then
+    s = Set (s)
   end
-  local r = Set {}
-  for e in elems (s) do
-    if not member (t, e) then
-      insert (r, e)
+  local t = Set {}
+  for e in elems (self) do
+    if not member (s, e) then
+      insert (t, e)
     end
   end
-  return r
+  return t
 end
 
 --- Find the symmetric difference of two sets.
 -- @param s set
--- @param t set
--- @return elements of s and t that are in s or t but not both
-function symmetric_difference (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @return elements of `self` and `s` that are in `self` or `s` but not both
+function symmetric_difference (self, s)
+  if Object.type (s) == "table" then
+    s = Set (s)
   end
-  return difference (union (s, t), intersection (t, s))
+  return difference (union (self, s), intersection (s, self))
 end
 
 --- Find the intersection of two sets.
 -- @param s set
--- @param t set
--- @return set intersection of s and t
-function intersection (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @return set intersection of `self` and `s`
+function intersection (self, s)
+  if Object.type (s) == "table" then
+    s = Set (s)
   end
-  local r = Set {}
-  for e in elems (s) do
-    if member (t, e) then
-      insert (r, e)
+  local t = Set {}
+  for e in elems (self) do
+    if member (s, e) then
+      insert (t, e)
     end
   end
-  return r
+  return t
 end
 
 --- Find the union of two sets.
--- @param s set
--- @param t set or set-like table
--- @return set union of s and t
-function union (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @param s set or set-like table
+-- @return set union of `self` and `s`
+function union (self, s)
+  if Object.type (s) == "table" then
+    s = Set (s)
   end
-  local r = Set {}
+  local t = Set {}
+  for e in elems (self) do
+    insert (t, e)
+  end
   for e in elems (s) do
-    insert (r, e)
+    insert (t, e)
   end
-  for e in elems (t) do
-    insert (r, e)
-  end
-  return r
+  return t
 end
 
 --- Find whether one set is a subset of another.
 -- @param s set
--- @param t set
--- @return `true` if s is a subset of t, `false` otherwise
-function subset (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @return `true` if `self` is a subset of `s`, `false` otherwise
+function subset (self, s)
+  if Object.type (s) == "table" then
+    s = Set (s)
   end
-  for e in elems (s) do
-    if not member (t, e) then
+  for e in elems (self) do
+    if not member (s, e) then
       return false
     end
   end
@@ -131,21 +123,19 @@ end
 
 --- Find whether one set is a proper subset of another.
 -- @param s set
--- @param t set
--- @return `true` if s is a proper subset of t, false otherwise
-function propersubset (s, t)
-  if Object.type (t) == "table" then
-    t = Set (t)
+-- @return `true` if `self` is a proper subset of `s`, `false` otherwise
+function propersubset (self, s)
+  if Object.type (s) == "table" then
+    t = Set (s)
   end
-  return subset (s, t) and not subset (t, s)
+  return subset (self, s) and not subset (s, self)
 end
 
 --- Find whether two sets are equal.
 -- @param s set
--- @param t set
--- @return `true` if sets are equal, `false` otherwise
-function equal (s, t)
-  return subset (s, t) and subset (t, s)
+-- @return `true` if `self` and `s` are equal, `false` otherwise
+function equal (self, s)
+  return subset (self, s) and subset (s, self)
 end
 
 
@@ -165,49 +155,60 @@ Set = Object {
   ------
   -- Union operator.
   --     set + table = union
-  -- @metamethod __add
+  -- @function __add
+  -- @param set set
+  -- @param table set or set-like table
   -- @see union
   __add = union,
 
   ------
   -- Difference operator.
   --     set - table = set difference
-  -- @metamethod __sub
+  -- @function __sub
+  -- @param set set
+  -- @param table set or set-like table
   -- @see difference
   __sub = difference,
 
   ------
   -- Intersection operator.
   --     set * table = intersection
-  -- @metamethod __mul
+  -- @function __mul
+  -- @param set set
+  -- @param table set or set-like table
   -- @see intersection
   __mul = intersection,
 
   ------
   -- Symmetric difference operator.
   --     set / table = symmetric difference
-  -- @metamethod __div
+  -- @function __div
+  -- @param set set
+  -- @param table set or set-like table
   -- @see symmetric_difference
   __div = symmetric_difference,
 
   ------
   -- Subset operator.
   --     set <= table = subset
-  -- @metamethod __le
+  -- @function __le
+  -- @param set set
+  -- @param table set or set-like table
   -- @see subset
   __le  = subset,
 
   ------
   -- Proper subset operator.
   --     set < table = proper subset
-  -- @metamethod __lt
+  -- @function __lt
+  -- @param set set
+  -- @param table set or set-like table
   -- @see propersubset
   __lt  = propersubset,
 
   ------
   -- Object to table conversion.
   --     table = set:totable ()
-  -- @metamethod __totable
   __totable  = function (self)
                  local t = {}
                  for e in elems (self) do

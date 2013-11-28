@@ -35,16 +35,16 @@ end
 
 
 --- Tree `__index` metamethod.
--- @metamethod __index
+-- @function __index
 -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
 -- @return `tr[i]...[i\_n]` if i is a table, or `tr[i]` otherwise
 -- @todo the following doesn't treat list keys correctly
 --       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
-function metatable.__index (tr, i)
+function metatable.__index (self, i)
   if type (i) == "table" and #i > 0 then
-    return list.foldl (i, func.op["[]"], tr)
+    return list.foldl (i, func.op["[]"], self)
   else
-    return rawget (tr, i)
+    return rawget (self, i)
   end
 end
 
@@ -52,20 +52,20 @@ end
 --- Tree `__newindex` metamethod.
 --
 -- Sets `tr[i\_1]...[i\_n] = v` if i is a table, or `tr[i] = v` otherwise
--- @metamethod __newindex
+-- @function __newindex
 -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
 -- @param v value
-function metatable.__newindex (tr, i, v)
+function metatable.__newindex (self, i, v)
   if type (i) == "table" then
     for n = 1, #i - 1 do
-      if getmetatable (tr[i[n]]) ~= metatable then
-        rawset (tr, i[n], new ())
+      if getmetatable (self[i[n]]) ~= metatable then
+        rawset (self, i[n], new ())
       end
-      tr = tr[i[n]]
+      self = self[i[n]]
     end
-    rawset (tr, i[#i], v)
+    rawset (self, i[#i], v)
   else
-    rawset (tr, i, v)
+    rawset (self, i, v)
   end
 end
 

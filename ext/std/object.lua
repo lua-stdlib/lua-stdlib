@@ -209,7 +209,7 @@ end
 --
 -- This can't and shouldn't be set directly, because the Object class
 -- manages it transparently during cloning.
--- @table __metatable
+-- @table _metatable
 -- @tfield string _type derived objects can override this for objects
 --   intended to be a prototype for further specialised objects.
 -- @tfield table|function _init Derived objects can override this to be
@@ -226,13 +226,13 @@ local metatable = {
   -- This pseudo-metamethod is used during object cloning to make the
   -- intial new object table, and can be overridden in other objects
   -- for greater control of which fields are considered non-private.
-  -- @metamethod __totable
+  -- @function __totable
   -- @see totable
   __totable  = totable,
 
   ------
   -- Return a string representation of *object*.
-  -- @metamethod __tostring
+  -- @function __tostring
   -- @see tostring
   __tostring = stringify,
 
@@ -242,7 +242,7 @@ local metatable = {
   -- unless some new fields for the cloned object begin with '_', in which
   -- case they are merged into a copy of the prototype metatable to form
   -- a new metatable for the cloned object (and its clones).
-  -- @metamethod __call
+  -- @function __call
   -- @param ... arguments for `_init`
   -- @treturn std.object a clone of the called object.
   __call = function (self, ...)

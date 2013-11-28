@@ -25,7 +25,7 @@ local function what ()
 end
 
 --- Detect assignment to undeclared global.
--- @metamethod __newindex
+-- @function __newindex
 mt.__newindex = function (t, n, v)
   if not mt.__declared[n] then
     local w = what ()
@@ -38,7 +38,7 @@ mt.__newindex = function (t, n, v)
 end
 
 --- Detect derefrence of undeclared global.
--- @metamethod __index
+-- @function __index
 mt.__index = function (t, n)
   if not mt.__declared[n] and what () ~= "C" then
     error ("variable '" .. n .. "' is not declared", 2)

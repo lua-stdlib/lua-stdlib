@@ -8,20 +8,18 @@ local Object = require "std.object"
 
 
 --- Add a string to a buffer.
--- @param b buffer
--- @param s string to add
--- @return buffer
-local function concat (b, s)
-  table.insert (b, s)
-  return b
+-- @tparam string s string to add
+-- @treturn std.strbuf modified buffer
+local function concat (self, s)
+  table.insert (self, s)
+  return self
 end
 
 
 --- Convert a buffer to a string.
--- @param b buffer
--- @return string
-local function tostring (b)
-  return table.concat (b)
+-- @treturn string stringified `self`
+local function tostring (self)
+  return table.concat (self)
 end
 
 
@@ -32,7 +30,10 @@ return Object {
   ------
   -- Support concatenation of StrBuf objects.
   --     buffer = buffer .. str
-  -- @metamethod __concat
+  -- @function __concat
+  -- @tparam std.strbuf buffer StrBuf object
+  -- @tparam string str a string or string-like object
+  -- @treturn std.strbuf modified `buffer`
   -- @see concat
   __concat   = concat,
 
@@ -40,7 +41,9 @@ return Object {
   ------
   -- Support fast conversion to Lua string.
   --     str = tostring (buffer)
-  -- @metamethod __tostring
+  -- @function __tostring
+  -- @tparam std.strbuf buffer Strbuf object
+  -- @treturn string concatenation of buffer contents
   -- @see tostring
   __tostring = tostring,
 
