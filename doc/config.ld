@@ -5,23 +5,23 @@ dir = "."
 
 file = {
   -- Modules
-  "../ext/std.lua",
-  "../ext/std/debug.lua",
-  "../ext/std/functional.lua",
-  "../ext/std/getopt.lua",
-  "../ext/std/io.lua",
-  "../ext/std/math.lua",
-  "../ext/std/package.lua",
-  "../ext/std/strict.lua",
-  "../ext/std/string.lua",
-  "../ext/std/table.lua",
-  "../ext/std/tree.lua",
+  "../lib/std.lua",
+  "../lib/std/debug.lua",
+  "../lib/std/functional.lua",
+  "../lib/std/getopt.lua",
+  "../lib/std/io.lua",
+  "../lib/std/math.lua",
+  "../lib/std/package.lua",
+  "../lib/std/strict.lua",
+  "../lib/std/string.lua",
+  "../lib/std/table.lua",
+  "../lib/std/tree.lua",
 
   -- Classes
-  "../ext/std/object.lua",
-  "../ext/std/list.lua",
-  "../ext/std/set.lua",
-  "../ext/std/strbuf.lua",
+  "../lib/std/object.lua",
+  "../lib/std/list.lua",
+  "../lib/std/set.lua",
+  "../lib/std/strbuf.lua",
 }
 
 format = "markdown"

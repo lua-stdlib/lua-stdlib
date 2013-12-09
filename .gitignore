@@ -19,7 +19,7 @@
 /doc/index.html
 /doc/ldoc.css
 /doc/modules
-/ext/std.lua
+/lib/std.lua
 /stdlib-*.tar.gz
 /luarocks
 /m4/ax_compare_version.m4
