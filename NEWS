@@ -29,6 +29,9 @@ Stdlib NEWS - User visible changes
  - `string.prettytostring` always displays table elements in the same
    order, as provided by `table.sort`.
 
+ - `table.totable` now accepts a string, and returns a list of the
+   characters that comprise the string.
+
  - Can now be installed directly from a release tarball by `luarocks`.
    No need to run `./configure` or `make`, unless you want to install to
    a custom location, or do not use LuaRocks.

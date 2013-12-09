@@ -135,6 +135,10 @@ local function totable (x)
     return m (x)
   elseif type (x) == "table" then
     return x
+  elseif type (x) == "string" then
+    local t = {}
+    x:gsub (".", function (c) t[#t + 1] = c end)
+    return t
   else
     return nil
   end
