@@ -241,8 +241,8 @@ specify tree:
       f  = M.merge
 
       -- Additional merge keys which are moderately unusual
-      t1 = M.new { k1 = M.new {"v1"}, k2 = "if", k3 = M.new {"?"} }
-      t2 = M.new { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = M.new {"v1"} }
+      t1 = M.new { k1 = "v1", k2 = "if", k3 = M.new {"?"} }
+      t2 = M.new { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = "v2" }
 
       target = M.clone (t1)
       for ty, p, n in M.nodes (t2) do
