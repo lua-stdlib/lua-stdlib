@@ -17,9 +17,14 @@ Stdlib NEWS - User visible changes
       Prototype = Object { _type = "Prototype", <other_fields> }
 
  - Objects derived from the `std.object` prototype return a new table
-   with a shallow copy of all non-internal fields (keys that do not
+   with a shallow copy of all non-private fields (keys that do not
    begin with "_") when passed to `table.totable` - unless overridden
    in the derived object's __totable field.
+
+ - list and strbuf are now derived from `std.object`, which means that
+   they respond to `object.prototype` with appropriate type names ("List",
+   "StrBuf", etc.) and can be used as prototypes for further derived
+   objects or clones; support object:prototype (); respond to totable etc.
 
  - A new Container module at `std.container` makes separation between
    container objects (which are free to use __index as a "[]" access
@@ -27,10 +32,9 @@ Stdlib NEWS - User visible changes
    (which do have object methods, but) which cannot use the __index
    metamethod for "[]" access to object contents.
 
- - list, set and strbuf are now derived from std.object, which means that
-   they respond to `object.type` with appropriate type names ("set",
-   "strbuf", etc.) and can be used as prototypes for further derived
-   objects or clones; support object:type (); respond to totable etc.
+ - set is now derived from `std.container`, so there are no object
+   methods.  Instead there are a full complement of equivalent prototype
+   functions.  Metamethods continue to work as before.
 
  - `string.prettytostring` always displays table elements in the same
    order, as provided by `table.sort`.
@@ -74,7 +78,7 @@ Stdlib NEWS - User visible changes
    These names are now stable, and will be available from here for
    future releases.
 
- - The std.list module, as a consequence of returning a List object
+ - The `std.list` module, as a consequence of returning a List object
    prototype rather than a table of functions including a constructor,
    now always has the list operand as the first argument, whether that
    function is called with `.` syntax or `:` syntax.  Functions which
@@ -83,6 +87,11 @@ Stdlib NEWS - User visible changes
    list.index_key, list.index_value, list.map, list.map_with,
    list.project, list.shape and list.zip_with.  Calls made as object
    methods using `:` calling syntax are unchanged.
+
+ - The `std.set` module is a `std.container` with no object methods,
+   and now uses prototype functions instead:
+
+     local union = Set.union (set1, set2)
 
 
 * Noteworthy changes in release 35 (2013-05-06) [stable]
