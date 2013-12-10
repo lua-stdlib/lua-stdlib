@@ -41,6 +41,7 @@ luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
 	lib/std/base.lua		\
+	lib/std/container.lua		\
 	lib/std/debug.lua		\
 	lib/std/debug_init.lua		\
 	lib/std/functional.lua		\

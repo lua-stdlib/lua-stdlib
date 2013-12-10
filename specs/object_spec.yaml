@@ -1,6 +1,7 @@
 before:
-  Object = require "std.object"
-  obj    = Object {"foo", "bar", baz="quux"}
+  Object    = require "std.object"
+  obj       = Object {"foo", "bar", baz="quux"}
+  prototype = Object.prototype
 
 specify Object:
 - describe construction:
@@ -9,7 +10,7 @@ specify Object:
         obj = Object:clone {}
         expect (obj).should_not_be (Object)
         expect (type (obj)).should_be "table"
-        expect (Object.type (obj)).should_be "Object"
+        expect (prototype (obj)).should_be "Object"
     - it reuses the Object metatable:
         o = obj:clone {"o"}
         p = o:clone {"p"}
@@ -21,7 +22,7 @@ specify Object:
         expect (o).should_equal (obj)
     - it serves as a prototype for new instances:
         o = obj:clone {}
-        expect (Object.type (o)).should_be "Object"
+        expect (prototype (o)).should_be "Object"
         expect (o).should_not_be (obj)
         expect (o).should_equal (obj)
         expect (getmetatable (o)).should_be (getmetatable (obj))
@@ -33,62 +34,40 @@ specify Object:
         expect (getmetatable (obj)).should_not_be (getmetatable (Object))
         expect (getmetatable (obj)._baz).should_be "quux"
 
-  # Object {args} is just syntactic sugar for Object:clone {args}
-  - context from Object prototype:
-    - it constructs a new object:
-        obj = Object {}
-        expect (obj).should_not_be (Object)
-        expect (type (obj)).should_be "table"
-        expect (Object.type (obj)).should_be "Object"
-    - it reuses the object metatable:
-        o, p = Object {"o"}, Object {"p"}
-        expect (getmetatable (o)).should_be (getmetatable (p))
-    - it sets object fields from arguments:
-        o = Object {"foo", "bar", baz="quux"}
-        expect (o).should_equal (obj)
-    - it serves as a prototype for new instances:
-        o = obj {}
-        expect (Object.type (o)).should_be "Object"
-        expect (o).should_not_be (obj)
-        expect (o).should_equal (obj)
-        expect (getmetatable (o)).should_be (getmetatable (obj))
-    - it separates '_' prefixed fields:
-        expect (Object {foo="bar", _baz="quux"}).
-          should_equal (Object {foo="bar"})
-    - it puts '_' prefixed fields in a new metatable:
-        obj = Object {foo="bar", _baz="quux"}
-        expect (getmetatable (obj)).should_not_be (getmetatable (Object))
-        expect (getmetatable (obj)._baz).should_be "quux"
-
-- describe type:
+- describe prototype:
   - before: o = Object {}
 
   - context when called from the object module:
-    - it reports the type stored in the object's metatable:
-        expect (Object.type (o)).should_be "Object"
+    - it reports the prototype stored in the object's metatable:
+        expect (prototype (o)).should_be "Object"
     - it reports the type of a cloned object:
-        expect (Object.type (o {})).should_be "Object"
-    - it reports the type of a subclassed object:
+        expect (prototype (o {})).should_be "Object"
+    - it reports the type of a derived object:
         Example = Object {_type = "Example"}
-        expect (Object.type (Example)).should_be "Example"
-    - it reports the type of a cloned subclassed object:
+        expect (prototype (Example)).should_be "Example"
+    - it reports the type of a cloned derived object:
         Portal = Object {_type = "Demon"}
         p = Portal {}
-        expect (Object.type (p)).should_be "Demon"
-        expect (Object.type (p {})).should_be "Demon"
+        expect (prototype (p)).should_be "Demon"
+        expect (prototype (p {})).should_be "Demon"
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
-        expect (o:type ()).should_be "Object"
+        expect (o:prototype ()).should_be "Object"
     - it reports the type of a cloned object:
-        expect ((o {}):type ()).should_be "Object"
+        expect ((o {}):prototype ()).should_be "Object"
     - it reports the type of a subclassed object:
         Example = Object {_type = "Example"}
-        expect (Example:type ()).should_be "Example"
+        expect (Example:prototype ()).should_be "Example"
     - it reports the type of a cloned subclassed object:
         Portal = Object {_type = "Demon"}
         p = Portal {}
-        expect (p:type ()).should_be "Demon"
-        expect ((p {}):type ()).should_be "Demon"
+        expect (p:prototype ()).should_be "Demon"
+        expect ((p {}):prototype ()).should_be "Demon"
+  - context backwards compatibility:
+    - it reports the prototype stored in the object's metatable:
+        expect (Object.type (o)).should_be "Object"
+    - it reports the type stored in the object's metatable:
+        expect (o:type ()).should_be "Object"
 
 
 - describe instantiation from a prototype:
@@ -182,12 +161,12 @@ specify Object:
         _init  = { "field", "method"},
         field  = "in prototype",
         method = function (self, ...)
-                   return Object.type (self) .. " class, " ..
+                   return prototype (self) .. " class, " ..
                           table.concat ({...}, ", ")
                  end,
       }
       instance  = Prototype {"in object", function (self, ...)
-                                            return Object.type (self) .. " instance, " ..
+                                            return prototype (self) .. " instance, " ..
                                                    table.concat ({...}, ", ")
                                           end,
                             }
@@ -207,12 +186,12 @@ specify Object:
       expect (instance.newfield).should_be "new"
   - it allows new instance methods to be added:
       instance.newmethod = function (self)
-                             return Object.type (self) .. ", new instance method"
+                             return prototype (self) .. ", new instance method"
                            end
       expect (instance:newmethod ()).should_be "Prototype, new instance method"
   - it allows new class methods to be added:
       Prototype.newmethod = function (self)
-                              return Object.type (self) .. ", new class method"
+                              return prototype (self) .. ", new class method"
                             end
       expect (Prototype.newmethod (instance)).
         should_be "Prototype, new class method"
@@ -220,14 +199,14 @@ specify Object:
 
 - describe object method propagation:
   - context with no custom instance methods:
-    # :type is a method defined by the root object
+    # :prototype is a method defined by the root object
     - it inherits prototype object methods:
         instance = Object {}
-        expect (instance:type ()).should_be "Object"
+        expect (instance:prototype ()).should_be "Object"
     - it propagates prototype methods to derived instances:
         Derived = Object {_type = "Derived"}
         instance = Derived {}
-        expect (instance:type ()).should_be "Derived"
+        expect (instance:prototype ()).should_be "Derived"
   - context with custom object methods:
     - before:
         bag = Object {
@@ -239,12 +218,12 @@ specify Object:
                     end,
           },
         }
-    # :type is a method defined by the root object
+    # :prototype is a method defined by the root object
     - it inherits prototype object methods:
-        expect (bag:type ()).should_be "bag"
+        expect (bag:prototype ()).should_be "bag"
     - it propagates prototype methods to derived instances:
         instance = bag {}
-        expect (instance:type ()).should_be "bag"
+        expect (instance:prototype ()).should_be "bag"
     - it supports method calls:
         expect (bag:add "foo").should_be (bag)
         expect (bag.foo).should_be (1)
@@ -292,7 +271,7 @@ specify Object:
       Derived = Object {_type = "Derived", "one", "two", three = true}
 
   - it returns a table:
-      expect (Object.type (totable (Derived))).should_be "table"
+      expect (prototype (totable (Derived))).should_be "table"
   - it contains all non-hidden fields of object:
       expect (totable (Derived)).should_contain.all_of {"one", "two", "three"}
   - it does not contain any hidden fields of object:
@@ -306,7 +285,7 @@ specify Object:
       expect (type (tostring (obj))).should_be "string"
   - it contains the type:
       expect (tostring (Object {})).should_contain "Object"
-      expect (tostring (obj)).should_contain (Object.type (obj))
+      expect (tostring (obj)).should_contain (prototype (obj))
   - it contains the ordered array part elements:
       expect (tostring (obj)).should_contain "one, two, three"
   - it contains the ordered dictionary part elements:

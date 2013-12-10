@@ -13,6 +13,7 @@ SPECL_ENV = $(LUA_ENV)
 ## ------ ##
 
 specl_SPECS =					\
+	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
 	$(srcdir)/specs/getopt_spec.yaml	\
 	$(srcdir)/specs/io_spec.yaml		\

@@ -18,6 +18,7 @@ file = {
   "../lib/std/tree.lua",
 
   -- Classes
+  "../lib/std/container.lua",
   "../lib/std/object.lua",
   "../lib/std/list.lua",
   "../lib/std/set.lua",
@@ -26,4 +27,3 @@ file = {
 
 format = "markdown"
 sort = true
-

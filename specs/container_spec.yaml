@@ -1,0 +1,108 @@
+before:
+  Container = require "std.container"
+  prototype = (require "std.object").prototype
+
+specify Container:
+- describe construction:
+  - context from Container prototype:
+    - before:
+        things = Container {"foo", "bar", baz="quux"}
+    - it constructs a new container:
+        expect (things).should_not_be (Container)
+        expect (type (things)).should_be "table"
+        expect (prototype (things)).should_be "Container"
+    - it reuses the container metatable:
+        o, p = things {"o"}, things {"p"}
+        expect (getmetatable (o)).should_be (getmetatable (p))
+    - it sets container fields from arguments:
+        o = Container {"foo", "bar", baz="quux"}
+        expect (o).should_equal (things)
+    - it serves as a prototype for new instances:
+        o = things {}
+        expect (prototype (o)).should_be "Container"
+        expect (o).should_not_be (things)
+        expect (o).should_equal (things)
+        expect (getmetatable (o)).should_be (getmetatable (things))
+    - it separates '_' prefixed fields:
+        expect (Container {foo="bar", _baz="quux"}).
+          should_equal (Container {foo="bar"})
+    - it puts '_' prefixed fields in a new metatable:
+        things = Container {foo="bar", _baz="quux"}
+        expect (getmetatable (things)).should_not_be (getmetatable (Container))
+        expect (getmetatable (things)._baz).should_be "quux"
+  - context with module functions:
+    - before:
+        fold = (require "std.functional").fold
+        functions = {
+          count = function (bag)
+            return fold (function (r, k) return r + bag[k] end, 0, pairs, bag)
+          end,
+        }
+        Bag = Container {
+          _type = "Bag", _functions = functions, count = functions.count,
+        }
+    - it does not propagate _functions:
+        things = Bag {}
+        expect (things.count).should_be (nil)
+    - it does not provide object methods: |
+        things = Bag {}
+        expect (things:count ()).should_error "attempt to call method 'count'"
+    - it does retain module functions:
+        things = Bag { apples = 1, oranges = 3 }
+        expect (Bag.count (things)).should_be (4)
+    - it does allow elements named after module functions:
+        things = Bag { count = 1337 }
+        expect (Bag.count (things)).should_be (1337)
+
+
+- describe field access:
+  - before:
+      things = Container {"foo", "bar", baz="quux"}
+  - context with bracket notation:
+    - it provides access to existing contents:
+        expect (things[1]).should_be "foo"
+        expect (things["baz"]).should_be "quux"
+    - it assigns new contents:
+        things["new"] = "value"
+        expect (things["new"]).should_be "value"
+  - context with dot notation:
+    - it provides access to existing contents:
+        expect (things.baz).should_be "quux"
+    - it assigns new contents:
+        things.new = "value"
+        expect (things.new).should_be "value"
+
+
+- describe stringification:
+  - before:
+      things = Container {_type = "Derived", "one", "two", "three"}
+  - it returns a string:
+      expect (type (tostring (things))).should_be "string"
+  - it contains the type:
+      expect (tostring (Container {})).should_contain "Container"
+      expect (tostring (things)).should_contain (prototype (things))
+  - it contains the ordered array part elements:
+      expect (tostring (things)).should_contain "one, two, three"
+  - it contains the ordered dictionary part elements:
+      expect (tostring (Container {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+      expect (tostring (things {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+  - it contains a ';' separator only when container has array and dictionary parts:
+      expect (tostring (things)).should_not_contain ";"
+      expect (tostring (Container {one = true, two = true, three = true})).
+        should_not_contain ";"
+      expect (tostring (things {one = true, two = true, three = true})).
+        should_contain ";"
+
+
+- describe tablification:
+  - before:
+      totable = (require "std.table").totable
+      Derived = Container {_type = "Derived", "one", "two", three = true}
+  - it returns a table:
+      expect (prototype (totable (Derived))).should_be "table"
+  - it contains all non-hidden fields of container:
+      expect (totable (Derived)).should_contain.all_of {"one", "two", "three"}
+  - it does not contain any hidden fields of container:
+      expect (totable (Derived)).should_equal {"one", "two", three = true}

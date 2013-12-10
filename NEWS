@@ -9,9 +9,9 @@ Stdlib NEWS - User visible changes
    dependencies on other std modules into the global namespace.
 
  - Objects derived from the `std.object` prototype have a new
-   <derived_object>:type () method that returns the contents of the new
-   internal `_type` field.  This can be overridden during cloning with,
-   e.g.:
+   <derived_object>:prototype () method that returns the contents of the
+   new internal `_type` field.  This can be overridden during cloning
+   with, e.g.:
 
       local Object = require "std.object"
       Prototype = Object { _type = "Prototype", <other_fields> }
@@ -20,6 +20,12 @@ Stdlib NEWS - User visible changes
    with a shallow copy of all non-internal fields (keys that do not
    begin with "_") when passed to `table.totable` - unless overridden
    in the derived object's __totable field.
+
+ - A new Container module at `std.container` makes separation between
+   container objects (which are free to use __index as a "[]" access
+   metamethod, but) which have no object methods, and regular objects
+   (which do have object methods, but) which cannot use the __index
+   metamethod for "[]" access to object contents.
 
  - list, set and strbuf are now derived from std.object, which means that
    they respond to `object.type` with appropriate type names ("set",
@@ -43,6 +49,19 @@ Stdlib NEWS - User visible changes
  - all objects now reuse prototype metatables, as required for __le and
    __lt metamethods to work as documented.
 
+** Deprecations:
+
+ - To avoid confusion between the builtin Lua `type` function and the
+   method for finding the object prototype names, `std.object.type` is
+   deprecated in favour of `std.object.prototype`. `std.object.type`
+   continues to work for now, but might be removed from a future
+   release.
+
+      local prototype = (require 'std.object').prototype
+
+   ...makes for more readable code, rather than confusion between the
+   different flavours of `type`.
+
 ** Incompatible changes:
 
  - Following on from the Grand Renaming™ change in the last release,
@@ -55,7 +74,7 @@ Stdlib NEWS - User visible changes
    These names are now stable, and will be available from here for
    future releases.
 
- - The std.list module, as a consequence of returning an List object
+ - The std.list module, as a consequence of returning a List object
    prototype rather than a table of functions including a constructor,
    now always has the list operand as the first argument, whether that
    function is called with `.` syntax or `:` syntax.  Functions which
