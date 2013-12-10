@@ -57,6 +57,7 @@
 
 
 local base = require "std.base"
+local func = require "std.functional"
 
 
 --- Return the named entry from x's metatable.
@@ -128,9 +129,10 @@ local metatable = {
   -- @see std.object:__call
   __call = function (self, ...)
     local mt = getmetatable (self)
-    local fn = mt._functions or {}
 
-    -- Make a shallow copy of prototype, skipping _functions.
+    -- Make a shallow copy of prototype, skipping metatable
+    -- _functions.
+    local fn = mt._functions or {}
     local obj = filter (self, function (e) return not fn[e] end)
 
     -- Map arguments according to _init metamethod.
@@ -148,6 +150,11 @@ local metatable = {
         obj_mt[k], obj[k] = v, nil
       end
     end
+
+    -- However, newly passed _functions from _init arguments are
+    -- copied as prototype functions into the object.
+    func.map (function (k) obj[k] = obj_mt._functions[k] end,
+              pairs, obj_mt._functions or {})
 
     -- _functions is not propagated from prototype to clone.
     if next (obj_mt) == nil and mt._functions == nil then

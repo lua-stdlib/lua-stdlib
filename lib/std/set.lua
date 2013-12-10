@@ -2,7 +2,7 @@
  Set container.
 
  Derived from @{std.container}, and inherits Container's metamethods.
- 
+
  Note that Functions listed below are available only available from the
  Set prototype returned by requiring this module, because Container
  objects cannot have object methods.
@@ -170,7 +170,6 @@ function equal (set1, set2)
   return subset (set1, set2) and subset (set2, set1)
 end
 
-
 --- Set prototype object.
 -- @table std.set
 -- @string[opt="Set"] _type type of Set, returned by
@@ -189,17 +188,6 @@ Set = Container {
                  return self
                end,
 
-  delete               = delete,
-  difference           = difference,
-  elems                = elems,
-  equal                = equal,
-  insert               = insert,
-  intersection         = intersection,
-  member               = member,
-  proper_subset        = proper_subset,
-  subset               = subset,
-  symmetric_difference = symmetric_difference,
-  union                = union,
 
   --- Union operator.
   --     union = set + table
