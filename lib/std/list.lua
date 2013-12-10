@@ -12,7 +12,7 @@
        => 3
        => 2
        => 1
- 
+
  ...they can also be called as module functions with an explicit argument:
 
      local List = require "std.list"
