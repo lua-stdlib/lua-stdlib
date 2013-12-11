@@ -32,9 +32,9 @@ Stdlib NEWS - User visible changes
    (which do have object methods, but) which cannot use the __index
    metamethod for "[]" access to object contents.
 
- - set is now derived from `std.container`, so there are no object
-   methods.  Instead there are a full complement of equivalent prototype
-   functions.  Metamethods continue to work as before.
+ - set and tree are now derived from `std.container`, so there are no
+   object methods.  Instead there are a full complement of equivalent
+   module functions.  Metamethods continue to work as before.
 
  - `string.prettytostring` always displays table elements in the same
    order, as provided by `table.sort`.

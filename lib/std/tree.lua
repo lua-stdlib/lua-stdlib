@@ -1,81 +1,50 @@
 --[[--
- Tables as trees.
- @module std.tree
+ Tree container.
+
+ Derived from @{std.container}, and inherits Container's metamethods.
+
+ Note that Functions listed below are only available from the Tree
+ prototype return by requiring this module, because Container objects
+ cannot have object methods.
+
+ @classmod std.tree
+ @see std.container
 ]]
 
-local base = require "std.base"
-local list = require "std.list"
-local func = require "std.functional"
+local base      = require "std.base"
+local Container = require "std.container"
+local list      = require "std.list"
+local func      = require "std.functional"
 
-local metatable = {}
+local prototype = (require "std.object").prototype
+
+local Tree -- forward declaration
 
 
 --- Tree iterator which returns just numbered leaves, in order.
 -- @function ileaves
--- @tparam  std.tree tr tree table
--- @treturn function    iterator function
--- @treturn std.tree    the tree `tr`
+-- @static
+-- @tparam  tree|table tr tree or tree-like table
+-- @treturn function iterator function
+-- @treturn tree|table the tree `tr`
 local ileaves = base.ileaves
 
 
 --- Tree iterator which returns just leaves.
 -- @function leaves
--- @tparam  std.tree tr tree table
--- @treturn function    iterator function
--- @treturn std.tree    the tree, `tr`
+-- @static
+-- @tparam  tree|table tr tree or tree-like table
+-- @treturn function iterator function
+-- @treturn tree|table the tree, `tr`
 local leaves = base.leaves
-
-
---- Make a table into a tree.
--- @tparam  table    t any table
--- @treturn std.tree   a new tree table
-local function new (t)
-  return setmetatable (t or {}, metatable)
-end
-
-
---- Tree `__index` metamethod.
--- @function __index
--- @param i non-table, or list of keys `{i\_1 ... i\_n}`
--- @return `tr[i]...[i\_n]` if i is a table, or `tr[i]` otherwise
--- @todo the following doesn't treat list keys correctly
---       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
-function metatable.__index (self, i)
-  if type (i) == "table" and #i > 0 then
-    return list.foldl (i, func.op["[]"], self)
-  else
-    return rawget (self, i)
-  end
-end
-
-
---- Tree `__newindex` metamethod.
---
--- Sets `tr[i\_1]...[i\_n] = v` if i is a table, or `tr[i] = v` otherwise
--- @function __newindex
--- @param i non-table, or list of keys `{i\_1 ... i\_n}`
--- @param v value
-function metatable.__newindex (self, i, v)
-  if type (i) == "table" then
-    for n = 1, #i - 1 do
-      if getmetatable (self[i[n]]) ~= metatable then
-        rawset (self, i[n], new ())
-      end
-      self = self[i[n]]
-    end
-    rawset (self, i[#i], v)
-  else
-    rawset (self, i, v)
-  end
-end
 
 
 --- Make a deep copy of a tree, including any metatables.
 --
 -- To make fast shallow copies, use @{std.table.clone}.
--- @tparam  table   t      table to be cloned
+-- @tparam  table|tree t table or tree to be cloned
 -- @tparam  boolean nometa if non-nil don't copy metatables
--- @treturn table          a deep copy of `t`
+-- @treturn table|tree a deep copy of `t`
 local function clone (t, nometa)
   assert (type (t) == "table",
           "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
@@ -108,7 +77,7 @@ end
 
 --- Tree iterator.
 -- @tparam  function it iterator function
--- @tparam  std.tree tr tree
+-- @tparam  tree|table tr tree or tree-like table
 -- @treturn string   type ("leaf", "branch" (pre-order) or "join" (post-order))
 -- @treturn table    path to node ({i\_1...i\_k})
 -- @return           node
@@ -139,7 +108,7 @@ end
 -- list of keys used to reach this node, and `tree-node` is the current
 -- node.
 --
--- Given a `std.tree` to represent:
+-- Given a `tree` to represent:
 --
 --     + root
 --        +-- node1
@@ -163,9 +132,9 @@ end
 -- you must `table.clone` a copy if you want to take a snap-shot of the
 -- current state of the `tree-path` list before the next iteration
 -- changes it.
--- @tparam  std.tree tr tree to iterate over
--- @treturn function    iterator function
--- @treturn std.tree    the tree, `tr`
+-- @tparam  tree|table tr tree or tree-like table to iterate over
+-- @treturn function iterator function
+-- @treturn tree|table the tree, `tr`
 -- @see inodes
 local function nodes (tr)
   assert (type (tr) == "table",
@@ -178,9 +147,9 @@ end
 --
 -- The iterator function behaves like @{nodes}, but only traverses the
 -- array part of the nodes of `tr`, ignoring any others.
--- @tparam  std.tree tr tree to iterate over
--- @treturn function    iterator function
--- @treturn std.tree    the tree, `t`
+-- @tparam  tree|table tr tree to iterate over
+-- @treturn function iterator function
+-- @treturn tree|table the tree, `tr`
 -- @see nodes
 local function inodes (tr)
   assert (type (tr) == "table",
@@ -190,15 +159,15 @@ end
 
 
 --- Destructively deep-merge one tree into another.
--- @tparam  std.tree t destination tree
--- @tparam  std.tree u tree with nodes to merge
--- @treturn std.tree   `t` with nodes from `u` merged in
+-- @tparam  tree|table t destination tree or table
+-- @tparam  tree|table u tree or table with nodes to merge
+-- @treturn tree|table `t` with nodes from `u` merged in
 -- @see std.table.merge
 local function merge (t, u)
-  assert (getmetatable (t) == metatable,
-          "bad argument #1 to 'merge' (tree table expected, got " .. type (t) .. ")")
-  assert (getmetatable (u) == metatable,
-          "bad argument #2 to 'merge' (tree table expected, got " .. type (u) .. ")")
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
   for ty, p, n in nodes (u) do
     if ty == "leaf" then
       t[p] = n
@@ -208,15 +177,61 @@ local function merge (t, u)
 end
 
 
---- @export
-local Tree = {
-  clone   = clone,
-  ileaves = ileaves,
-  inodes  = inodes,
-  leaves  = leaves,
-  merge   = merge,
-  new     = new,
-  nodes   = nodes,
+--- Tree prototype object.
+-- @table std.tree
+-- @string[opt="Tree"] _type type of Tree, returned by
+--   @{std.object.prototype}
+-- @tfield[opt={}] table|function _init a table of field names, or
+--   initialisation function, see @{std.object.__call}
+-- @tfield nil|table _functions a table of module functions not copied
+--   by @{std.object.__call}
+Tree = Container {
+  -- Derived object type.
+  _type = "Tree",
+
+  --- Tree `__index` metamethod.
+  -- @function __index
+  -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
+  -- @return `self[i]...[i\_n]` if i is a table, or `self[i]` otherwise
+  -- @todo the following doesn't treat list keys correctly
+  --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
+  __index = function (self, i)
+    if type (i) == "table" and #i > 0 then
+      return list.foldl (i, func.op["[]"], self)
+    else
+      return rawget (self, i)
+    end
+  end,
+
+  --- Tree `__newindex` metamethod.
+  --
+  -- Sets `self[i\_1]...[i\_n] = v` if i is a table, or `self[i] = v` otherwise
+  -- @function __newindex
+  -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
+  -- @param v value
+  __newindex = function (self, i, v)
+    if type (i) == "table" then
+      for n = 1, #i - 1 do
+        if prototype (self[i[n]]) ~= "Tree" then
+          rawset (self, i[n], Tree {})
+        end
+        self = self[i[n]]
+      end
+      rawset (self, i[#i], v)
+    else
+      rawset (self, i, v)
+    end
+  end,
+
+  --- @export
+  _functions = {
+    clone   = clone,
+    ileaves = ileaves,
+    inodes  = inodes,
+    leaves  = leaves,
+    merge   = merge,
+    nodes   = nodes,
+  },
 }
 
 return Tree
