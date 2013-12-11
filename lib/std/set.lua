@@ -176,8 +176,8 @@ end
 --   @{std.object.prototype}
 -- @tfield table|function _init a table of field names, or
 --   initialisation function, see @{std.object.__call}
--- @tfield nil|table|set _functions a table whose keys are the names
---   of module functions not copied by @{std.object.__call}
+-- @tfield nil|table _functions a table of module functions not copied
+--   by @{std.object.__call}
 Set = Container {
   _type      = "Set",
 

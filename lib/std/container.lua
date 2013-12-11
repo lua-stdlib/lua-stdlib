@@ -29,18 +29,20 @@
       ...
 
  To add functions like this to your own prototype objects, pass a table
- whose keys are the names of the module functions, to the `_functions`
- private field before cloning, and the named functions will not be
- inherited by clones.
+ of the module functions in the `_functions` private field before
+ cloning, and those functions will not be inherited by clones.
 
       > Container = require "std.container"
-      > Graph = Container { _type = "Graph" }
-      > Graph.nodes = function (graph)
-      >>   local n = 0
-      >>   for _ in pairs (graph) do n = n + 1 end
-      >>   return n
-      >> end
-      > Graph._functions = { nodes = Graph.nodes }
+      > Graph = Container {
+      >>   _type = "Graph",
+      >>   _functions = {
+      >>     nodes = function (graph)
+      >>       local n = 0
+      >>       for _ in pairs (graph) do n = n + 1 end
+      >>       return n
+      >>     end,
+      >>   },
+      >> }
       > g = Graph { "node1", "node2" }
       > = Graph.nodes (g)
       2
@@ -114,8 +116,8 @@ local functions = {
 --   @{std.object.prototype}
 -- @tfield table|function _init a table of field names, or
 --   initialisation function, used by @{__call}
--- @tfield nil|table|std.set _functions a table whose keys are the names
---   of module functions not copied by @{__call}
+-- @tfield nil|table _functions a table of module functions not copied
+--   by @{std.object.__call}
 local metatable = {
   _type  = "Container",
   _init  = {},

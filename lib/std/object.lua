@@ -69,8 +69,8 @@ local metamethod = (require "std.functional").metamethod
 -- @string[opt="Object"] _type type of Object, returned by @{prototype}
 -- @tfield table|function _init a table of field names, or
 --   initialisation function, used by @{clone}
--- @tfield nil|table|std.set _functions a table whose keys are the names
---   of module functions not copied by @{clone}
+-- @tfield nil|table _functions a table of module functions not copied
+--   by @{std.object.__call}
 return Container {
   _type  = "Object",
 
