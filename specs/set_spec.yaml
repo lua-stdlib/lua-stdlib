@@ -322,7 +322,7 @@ specify Set:
 
   - it returns a string:
       expect (type (tostring (s))).should_be "string"
-  - it contains the type:
+  - it shows the type name:
       expect (tostring (s)).should_contain "Set"
   - it contains the ordered set elements:
       expect (tostring (s)).should_contain "bar, baz, foo"
