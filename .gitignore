@@ -2,12 +2,14 @@
 /*.rockspec
 /.autom4te.cfg
 /.gitmodules
-/COPYING
 /ChangeLog
+/ChangeLog~
 /GNUmakefile
+/INSTALL
 /Makefile
 /Makefile.am
 /Makefile.in
+/README
 /aclocal.m4
 /autom4te.cache
 /build-aux
