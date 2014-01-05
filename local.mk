@@ -41,11 +41,11 @@ update_copyright_env = \
 ## Declarations. ##
 ## ------------- ##
 
-filesdir		= $(docdir)/files
+classesdir		= $(docdir)/classes
 modulesdir		= $(docdir)/modules
 
 dist_doc_DATA		=
-dist_files_DATA		=
+dist_classes_DATA	=
 dist_modules_DATA	=
 
 include specs/specs.mk
@@ -112,8 +112,8 @@ dist_doc_DATA +=			\
 	$(srcdir)/doc/index.html	\
 	$(srcdir)/doc/ldoc.css
 
-dist_files_DATA += $(wildcard $(srcdir)/lib/files/*.html)
-dist_modules_DATA += $(wildcard $(srcdir)/lib/modules/*.html)
+dist_classes_DATA += $(wildcard $(srcdir)/doc/classes/*.html)
+dist_modules_DATA += $(wildcard $(srcdir)/doc/modules/*.html)
 
 $(dist_doc_DATA): $(dist_lua_DATA) $(dist_luastd_DATA)
 	cd $(srcdir) && $(LDOC) -c doc/config.ld .
