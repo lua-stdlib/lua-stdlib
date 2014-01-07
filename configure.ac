@@ -36,7 +36,6 @@ AC_PROG_EGREP
 AC_PROG_SED
 
 dnl Generate output files
-SPECL_MIN=8
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
