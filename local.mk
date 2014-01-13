@@ -108,12 +108,34 @@ EXTRA_DIST +=				\
 ## Documentation. ##
 ## -------------- ##
 
+
 dist_doc_DATA +=			\
 	$(srcdir)/doc/index.html	\
 	$(srcdir)/doc/ldoc.css
 
-dist_classes_DATA += $(wildcard $(srcdir)/doc/classes/*.html)
-dist_modules_DATA += $(wildcard $(srcdir)/doc/modules/*.html)
+dist_classes_DATA +=					\
+	$(srcdir)/doc/classes/std.container.html	\
+	$(srcdir)/doc/classes/std.list.html		\
+	$(srcdir)/doc/classes/std.object.html		\
+	$(srcdir)/doc/classes/std.set.html		\
+	$(srcdir)/doc/classes/std.strbuf.html		\
+	$(srcdir)/doc/classes/std.tree.html		\
+	$(NOTHING_ELSE)
 
-$(dist_doc_DATA): $(dist_lua_DATA) $(dist_luastd_DATA)
+dist_modules_DATA +=					\
+	$(srcdir)/doc/modules/std.html			\
+	$(srcdir)/doc/modules/std.debug.html		\
+	$(srcdir)/doc/modules/std.functional.html	\
+	$(srcdir)/doc/modules/std.getopt.html		\
+	$(srcdir)/doc/modules/std.io.html		\
+	$(srcdir)/doc/modules/std.math.html		\
+	$(srcdir)/doc/modules/std.package.html		\
+	$(srcdir)/doc/modules/std.strict.html		\
+	$(srcdir)/doc/modules/std.string.html		\
+	$(srcdir)/doc/modules/std.table.html		\
+	$(NOTHING_ELSE)
+
+ldoc_DEPS = $(dist_lua_DATA) $(dist_luastd_DATA)
+
+$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
 	cd $(srcdir) && $(LDOC) -c doc/config.ld .
