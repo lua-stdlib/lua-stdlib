@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Metamethods">Metamethods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>std.container</strong></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>std.container</code></h1>
+<p>Container object.</p>
+<p> A container is a <a href="../classes/std.object.html#">std.object</a> with no methods.  It's functionality is
+ instead defined by its <em>meta</em>methods.</p>
+
+<p> Where an Object uses the <code>__index</code> metatable entry to hold object
+ methods, a Container stores its contents using <code>__index</code>, preventing
+ it from having methods in there too.</p>
+
+<p> Although there are no actual methods, Containers are free to use
+ metamethods (<code>__index</code>, <code>__sub</code>, etc) and, like Objects, can supply
+ module functions by listing them in <code>_functions</code>.  Also, since a
+ <a href="../classes/std.container.html#">std.container</a> is a <a href="../classes/std.object.html#">std.object</a>, it can be passed to the
+ <a href="../classes/std.object.html#">std.object</a> module functions, or anywhere else a <a href="../classes/std.object.html#">std.object</a> is
+ expected.</p>
+
+<p> Container derived objects returned directly from a <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a>  statement
+ may also provide module functions, which can be called only from the
+ initial prototype object returned by <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> , but are <strong>not</strong> passed
+ on to derived objects during cloning:</p>
+
+<pre><code>  &gt; Container = require "std.container"
+  &gt; x = Container {}
+  &gt; = Container.prototype (x)
+  Object
+  &gt; = x.prototype (o)
+  stdin:1: attempt to call field 'prototype' (a nil value)
+  ...
+</code></pre>
+
+<p> To add functions like this to your own prototype objects, pass a table
+ of the module functions in the <code>_functions</code> private field before
+ cloning, and those functions will not be inherited by clones.</p>
+
+<pre><code>  &gt; Container = require "std.container"
+  &gt; Graph = Container {
+  &gt;&gt;   _type = "Graph",
+  &gt;&gt;   _functions = {
+  &gt;&gt;     nodes = function (graph)
+  &gt;&gt;       local n = 0
+  &gt;&gt;       for _ in pairs (graph) do n = n + 1 end
+  &gt;&gt;       return n
+  &gt;&gt;     end,
+  &gt;&gt;   },
+  &gt;&gt; }
+  &gt; g = Graph { "node1", "node2" }
+  &gt; = Graph.nodes (g)
+  2
+  &gt; = g.nodes
+  nil
+</code></pre>
+
+<p> When making your own prototypes, start from <a href="../classes/std.container.html#">std.container</a> if you
+ want to access the contents of your objects with the <code>[]</code> operator, or
+ <a href="../classes/std.object.html#">std.object</a> if you want to access the functionality of your objects
+ with named object methods.</p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.container">std.container</a></td>
+	<td class="summary">Container prototype.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.container:__call">std.container:__call (...)</a></td>
+	<td class="summary">Return a clone of this container.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.container:__tostring">std.container:__tostring ()</a></td>
+	<td class="summary">Return a string representation of this container.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.container:__totable">std.container:__totable ()</a></td>
+	<td class="summary">Return a table representation of this container.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.container"></a>
+    <strong>std.container</strong>
+    </dt>
+    <dd>
+    Container prototype.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">_init</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+         a table of field names, or
+   initialisation function, used by <a href="../classes/std.container.html#std.container:__call">__call</a>
+        </li>
+        <li><span class="parameter">_functions</span>
+            <span class="types"><span class="type">nil</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table of module functions not copied
+   by <a href="../classes/std.object.html#std.object:__call">std.object.__call</a>
+        </li>
+        <li><span class="parameter">_type</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         type of Container, returned by
+   <a href="../classes/std.object.html#std.object:prototype">std.object.prototype</a>
+         (<em>default</em> "Container")
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.container:__call"></a>
+    <strong>std.container:__call (...)</strong>
+    </dt>
+    <dd>
+    Return a clone of this container.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         arguments for <code>_init</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.container.html#">std.container</a></span>
+        a clone of the called container.
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:__call">std.object:__call</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.container:__tostring"></a>
+    <strong>std.container:__tostring ()</strong>
+    </dt>
+    <dd>
+    Return a string representation of this container.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        stringified container representation
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:__tostring">std.object.__tostring</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.container:__totable"></a>
+    <strong>std.container:__totable ()</strong>
+    </dt>
+    <dd>
+    Return a table representation of this container.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        a shallow copy of non-private container fields
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:__totable">std.object:__totable</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

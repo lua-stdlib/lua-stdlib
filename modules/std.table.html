@@ -48,10 +48,11 @@
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
   <li><strong>std.table</strong></li>
-  <li><a href="../modules/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
@@ -138,7 +139,8 @@
     <dd>
     Make a shallow copy of a table, including any metatable. </p>
 
-<p> To make deep copies, use <a href="../modules/std.tree.html#clone">std.tree.clone</a>.
+<p> To make deep copies, use <a href="../classes/std.tree.html#std.tree.clone">std.tree.clone</a>.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -172,6 +174,7 @@
     <dd>
     Clone a table, renaming some keys.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -201,6 +204,7 @@
     <dd>
     Return whether table is empty.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -225,6 +229,7 @@
     </dt>
     <dd>
     Invert a table.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -252,6 +257,7 @@
     <dd>
     Make the list of keys in table.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -277,6 +283,7 @@
     </dt>
     <dd>
     Destructively merge another table's fields into <em>table</em>.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -307,6 +314,7 @@
     <dd>
     Make a table with a default value for unset keys.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
@@ -336,6 +344,7 @@
     <dd>
     Turn a tuple into a list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
@@ -359,6 +368,7 @@
     </dt>
     <dd>
     An iterator like ipairs, but in reverse.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -392,6 +402,7 @@
     <dd>
     Find the number of elements in a table.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -416,6 +427,7 @@
     </dt>
     <dd>
     Make table.sort return its result.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -446,6 +458,7 @@
     <dd>
     Turn an object into a table according to __totable metamethod.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
@@ -471,6 +484,7 @@
     </dt>
     <dd>
     Make the list of values of a table.
+
 
     <h3>Parameters:</h3>
     <ul>

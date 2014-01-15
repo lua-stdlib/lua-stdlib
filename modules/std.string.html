@@ -49,10 +49,11 @@
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><strong>std.string</strong></li>
   <li><a href="../modules/std.table.html">std.table</a></li>
-  <li><a href="../modules/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
@@ -214,6 +215,7 @@
     <dd>
     Extend to allow formatted arguments.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">v</span>
@@ -244,6 +246,7 @@
     <dd>
     Capitalise each word in a string.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -268,6 +271,7 @@
     <dd>
     Remove any final newline from a string.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -291,6 +295,7 @@
     </dt>
     <dd>
     Escape a string to be used as a pattern.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -318,6 +323,7 @@
  Quotes spaces, parentheses, brackets, quotes, apostrophes and
  whitespace.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -341,6 +347,7 @@
     </dt>
     <dd>
     Do multiple <code>find</code>s on a string.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -376,6 +383,7 @@
     Extend to work better with one argument.
  If only one argument is passed, no formatting is attempted.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
@@ -406,6 +414,7 @@
     <dd>
     Remove leading matter from a string.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -434,6 +443,7 @@
     Write a number using SI suffixes.
  The number is always written to 3 s.f.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
@@ -457,6 +467,7 @@
     </dt>
     <dd>
     Return the English suffix for an ordinal.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -483,6 +494,7 @@
     Justify a string.
  When the string is longer than w, it is truncated (left or right
  according to the sign of w).
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -516,6 +528,7 @@
     Convert a value to a string.
  The string can be passed to dostring to retrieve the value.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
@@ -539,6 +552,7 @@
     </dt>
     <dd>
     Pretty-print a table.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -571,6 +585,7 @@
     Turn tables into strings with recursion detection.
  N.B. Functions calling render should not recurse, or recursion
  detection will not work.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -624,6 +639,7 @@
     <dd>
 
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -650,6 +666,7 @@
     <dd>
 
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">e</span>
@@ -672,6 +689,7 @@
     <strong>render_OpenRenderer (t)</strong>
     </dt>
     <dd>
+
 
 
     <h3>Parameters:</h3>
@@ -699,6 +717,7 @@
     </dt>
     <dd>
     NB.  the function should not try to render i and v, or treat them recursively.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -738,6 +757,7 @@
     <dd>
 
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -774,6 +794,7 @@
     <dd>
     Require a module with a particular version.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">module</span>
@@ -803,6 +824,7 @@
     <dd>
     Remove trailing matter from a string.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -830,6 +852,7 @@
     <dd>
     Split a string at a given separator.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -856,6 +879,7 @@
     </dt>
     <dd>
     Do find, returning captures as a list.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -890,6 +914,7 @@
     <dd>
     Extend <a href="../modules/std.string.html#tostring">tostring</a>  to work better on tables.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
@@ -913,6 +938,7 @@
     </dt>
     <dd>
     Remove leading and trailing matter from a string.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -940,6 +966,7 @@
     </dt>
     <dd>
     Wrap a string into a paragraph.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -977,6 +1004,7 @@
     <dd>
     Give strings a subscription operator.
 
+
     <ul>
         <li><span class="parameter">s</span>
          string
@@ -998,6 +1026,7 @@
     <dd>
     Give strings an append metamethod.
 
+
     <ul>
         <li><span class="parameter">s</span>
          string
@@ -1018,6 +1047,7 @@
     </dt>
     <dd>
     Give strings a concat metamethod.
+
 
     <ul>
         <li><span class="parameter">s</span>

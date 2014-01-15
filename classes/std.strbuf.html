@@ -32,17 +32,19 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Methods">Methods</a></li>
 <li><a href="#Metamethods">Metamethods</a></li>
+<li><a href="#Methods">Methods</a></li>
 </ul>
 
 
 <h2>Classes</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><strong>std.strbuf</strong></li>
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -56,7 +58,6 @@
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
   <li><a href="../modules/std.table.html">std.table</a></li>
-  <li><a href="../modules/std.tree.html">std.tree</a></li>
 </ul>
 
 </div>
@@ -70,17 +71,6 @@
 </p>
 
 
-<h2><a href="#Methods">Methods</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#std.strbuf:concat">std.strbuf:concat (s)</a></td>
-	<td class="summary">Add a string to a buffer.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.strbuf:tostring">std.strbuf:tostring (self)</a></td>
-	<td class="summary">Convert a buffer to a string.</td>
-	</tr>
-</table>
 <h2><a href="#Metamethods">Metamethods</a></h2>
 <table class="function_list">
 	<tr>
@@ -92,67 +82,22 @@
 	<td class="summary">Support fast conversion to Lua string.</td>
 	</tr>
 </table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:concat">std.strbuf:concat (s)</a></td>
+	<td class="summary">Add a string to a buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:tostring">std.strbuf:tostring (self)</a></td>
+	<td class="summary">Convert a buffer to a string.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
 
 
-    <h2><a name="Methods"></a>Methods</h2>
-    <dl class="function">
-    <dt>
-    <a name = "std.strbuf:concat"></a>
-    <strong>std.strbuf:concat (s)</strong>
-    </dt>
-    <dd>
-    Add a string to a buffer.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         string to add
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
-        modified buffer
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.strbuf:tostring"></a>
-    <strong>std.strbuf:tostring (self)</strong>
-    </dt>
-    <dd>
-    Convert a buffer to a string.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-
-
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        stringified <code>self</code>
-    </ol>
-
-
-
-
-</dd>
-</dl>
     <h2><a name="Metamethods"></a>Metamethods</h2>
     <dl class="function">
     <dt>
@@ -164,6 +109,7 @@
 <p>Support concatenation of StrBuf objects. </p>
 <pre><code> buffer = buffer .. str
 </code></pre>
+
 
 
     <h3>Parameters:</h3>
@@ -204,6 +150,7 @@
 </code></pre>
 
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">buffer</span>
@@ -224,6 +171,64 @@
     <ul>
          <a href="../classes/std.strbuf.html#std.strbuf:tostring">tostring</a>
     </ul>
+
+
+</dd>
+</dl>
+    <h2><a name="Methods"></a>Methods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.strbuf:concat"></a>
+    <strong>std.strbuf:concat (s)</strong>
+    </dt>
+    <dd>
+    Add a string to a buffer.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         string to add
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
+        modified buffer
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.strbuf:tostring"></a>
+    <strong>std.strbuf:tostring (self)</strong>
+    </dt>
+    <dd>
+    Convert a buffer to a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        stringified <code>self</code>
+    </ol>
+
+
 
 
 </dd>

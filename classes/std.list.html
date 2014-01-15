@@ -33,17 +33,19 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Methods">Methods</a></li>
 <li><a href="#Metamethods">Metamethods</a></li>
+<li><a href="#Methods">Methods</a></li>
 </ul>
 
 
 <h2>Classes</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.container.html">std.container</a></li>
   <li><strong>std.list</strong></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
@@ -57,7 +59,6 @@
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
   <li><a href="../modules/std.table.html">std.table</a></li>
-  <li><a href="../modules/std.tree.html">std.tree</a></li>
 </ul>
 
 </div>
@@ -124,6 +125,25 @@
 	<tr>
 	<td class="name" nowrap><a href="#std.list.zip_with">std.list.zip_with (ls, f)</a></td>
 	<td class="summary">Zip a list of lists together with a function.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.list:__add">std.list:__add (list, element)</a></td>
+	<td class="summary">Append element to list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list:__concat">std.list:__concat (list, table)</a></td>
+	<td class="summary">Concatenate lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list:__le">std.list:__le (list1, list2)</a></td>
+	<td class="summary">List equality or order operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list:__lt">std.list:__lt (list1, list2)</a></td>
+	<td class="summary">List order operator.</td>
 	</tr>
 </table>
 <h2><a href="#Methods">Methods</a></h2>
@@ -197,25 +217,6 @@
 	<td class="summary">Return a list with its first element removed.</td>
 	</tr>
 </table>
-<h2><a href="#Metamethods">Metamethods</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#std.list:__add">std.list:__add (list, element)</a></td>
-	<td class="summary">Append element to list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:__concat">std.list:__concat (list, table)</a></td>
-	<td class="summary">Concatenate lists.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:__le">std.list:__le (list1, list2)</a></td>
-	<td class="summary">List equality or order operator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.list:__lt">std.list:__lt (list1, list2)</a></td>
-	<td class="summary">List order operator.</td>
-	</tr>
-</table>
 
 <br/>
 <br/>
@@ -229,6 +230,7 @@
     </dt>
     <dd>
     Turn a list of pairs into a table.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -260,6 +262,7 @@
     <dd>
     Turn a table into a list of pairs.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
@@ -290,6 +293,7 @@
     <dd>
     Make an index of a list of tables on a given field
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
@@ -319,6 +323,7 @@
     <dd>
     Copy a list of tables, indexed on a given field
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
@@ -347,6 +352,7 @@
     </dt>
     <dd>
     Map a function over a list of lists.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -380,6 +386,7 @@
  This function in Lua is equivalent to zip and unzip in more strongly
  typed languages.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">ls</span>
@@ -406,6 +413,7 @@
     </dt>
     <dd>
     Zip a list of lists together with a function.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -436,6 +444,140 @@
 
 </dd>
 </dl>
+    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.list:__add"></a>
+    <strong>std.list:__add (list, element)</strong>
+    </dt>
+    <dd>
+
+<p>Append element to list. </p>
+<pre><code> list = list + element
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">list</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         a list
+        </li>
+        <li><span class="parameter">element</span>
+         element to append
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:append">append</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list:__concat"></a>
+    <strong>std.list:__concat (list, table)</strong>
+    </dt>
+    <dd>
+
+<p>Concatenate lists. </p>
+<pre><code> new = list .. table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">list</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         a list
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         another list, hash part is ignored
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:concat">concat</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list:__le"></a>
+    <strong>std.list:__le (list1, list2)</strong>
+    </dt>
+    <dd>
+
+<p>List equality or order operator. </p>
+<pre><code> min = list1 &lt;= list2 and list1 or list2
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">list1</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         a list
+        </li>
+        <li><span class="parameter">list2</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         another list
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:compare">std.list:compare</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list:__lt"></a>
+    <strong>std.list:__lt (list1, list2)</strong>
+    </dt>
+    <dd>
+
+<p>List order operator. </p>
+<pre><code> max = list1 &gt; list2 and list1 or list2
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">list1</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         a list
+        </li>
+        <li><span class="parameter">list2</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+         another list
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:compare">std.list:compare</a>
+    </ul>
+
+
+</dd>
+</dl>
     <h2><a name="Methods"></a>Methods</h2>
     <dl class="function">
     <dt>
@@ -444,6 +586,7 @@
     </dt>
     <dd>
     Append an item to a list.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -475,6 +618,7 @@
 </code></pre>
 
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
@@ -500,6 +644,7 @@
     </dt>
     <dd>
     Concatenate arguments into a list.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -527,6 +672,7 @@
     <dd>
     Prepend an item to a list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
@@ -553,6 +699,7 @@
     An iterator over the elements of a list.
 
 
+
     <h3>Returns:</h3>
     <ol>
         <li>
@@ -575,6 +722,7 @@
     </dt>
     <dd>
     Filter a list according to a predicate.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -602,6 +750,7 @@
     <dd>
     Flatten a list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
@@ -628,6 +777,7 @@
     </dt>
     <dd>
     Fold a binary function through a list left associatively.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -657,6 +807,7 @@
     <dd>
     Fold a binary function through a list right associatively.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
@@ -685,6 +836,7 @@
     <dd>
     Map a function over a list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
@@ -711,6 +863,7 @@
     <dd>
     Project a list of fields from a list of tables.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
@@ -735,6 +888,7 @@
     </dt>
     <dd>
     An iterator over the elements of a list, in reverse.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -768,6 +922,7 @@
     <dd>
     Repeat a list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
@@ -793,6 +948,7 @@
     </dt>
     <dd>
     Reverse a list.
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -833,6 +989,7 @@
  level is reached at which point add table items instead, using a
  counter to walk the flattened original list.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
@@ -859,6 +1016,7 @@
     Return a sub-range of a list.
  (The equivalent of <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a>  on strings; negative list indices
  count from the end of the list.)
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -890,6 +1048,7 @@
     <dd>
     Return a list with its first element removed.
 
+
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">self</span>
@@ -907,136 +1066,6 @@
     </ol>
 
 
-
-
-</dd>
-</dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
-    <dl class="function">
-    <dt>
-    <a name = "std.list:__add"></a>
-    <strong>std.list:__add (list, element)</strong>
-    </dt>
-    <dd>
-
-<p>Append element to list. </p>
-<pre><code> list = list + element
-</code></pre>
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">list</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         a list
-        </li>
-        <li><span class="parameter">element</span>
-         element to append
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.list.html#std.list:append">append</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "std.list:__concat"></a>
-    <strong>std.list:__concat (list, table)</strong>
-    </dt>
-    <dd>
-
-<p>Concatenate lists. </p>
-<pre><code> new = list .. table
-</code></pre>
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">list</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         a list
-        </li>
-        <li><span class="parameter">table</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         another list, hash part is ignored
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.list.html#std.list:concat">concat</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "std.list:__le"></a>
-    <strong>std.list:__le (list1, list2)</strong>
-    </dt>
-    <dd>
-
-<p>List equality or order operator. </p>
-<pre><code> min = list1 &lt;= list2 and list1 or list2
-</code></pre>
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">list1</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         a list
-        </li>
-        <li><span class="parameter">list2</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         another list
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.list.html#std.list:compare">std.list:compare</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "std.list:__lt"></a>
-    <strong>std.list:__lt (list1, list2)</strong>
-    </dt>
-    <dd>
-
-<p>List order operator. </p>
-<pre><code> max = list1 &gt; list2 and list1 or list2
-</code></pre>
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">list1</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         a list
-        </li>
-        <li><span class="parameter">list2</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-         another list
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.list.html#std.list:compare">std.list:compare</a>
-    </ul>
 
 
 </dd>
