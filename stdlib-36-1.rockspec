@@ -7,7 +7,7 @@ description = {
   summary = "General Lua Libraries",
 }
 source = {
-  dir = "stdlib-release-v36",
+  dir = "lua-stdlib-release-v36",
   url = "http://github.com/rrthomas/lua-stdlib/archive/release-v36.zip",
 }
 dependencies = {
