@@ -43,7 +43,7 @@ endif
 # (i.e., with no $(srcdir) prefix), this definition is careful to
 # remove any $(srcdir) prefix, and to restore what it removes.
 _sc_excl = \
-  $(or $(exclude_file_name_regexp--$@),^build-aux/sanity.mk$$)
+  $(or $(exclude_file_name_regexp--$@),^build-aux/sanity.mk$$|gnulib$$|^slingshot$$)
 VC_LIST_EXCEPT = \
   $(VC_LIST) | sed 's|^$(_dot_escaped_srcdir)/||' \
 	| if test -f $(srcdir)/.x-$@; then grep -vEf $(srcdir)/.x-$@; \
@@ -55,6 +55,8 @@ VC_LIST_EXCEPT = \
 ## --------------- ##
 ## Sanity checks.  ##
 ## --------------- ##
+
+-include $(srcdir)/$(_build-aux)/sanity-cfg.mk
 
 _cfg_mk := $(wildcard $(srcdir)/cfg.mk)
 
@@ -271,7 +273,7 @@ sc_prohibit_strcmp:
 # It may fail to NUL-terminate the destination,
 # and always NUL-pads out to the specified length.
 sc_prohibit_strncpy:
-	@prohibit='\<strncpy *\('					\
+	@prohibit='\<strncpy *\( *[^)]'					\
 	halt='do not use strncpy, period'				\
 	  $(_sc_search_regexp)
 

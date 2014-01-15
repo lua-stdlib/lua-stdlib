@@ -1,0 +1,301 @@
+before:
+  Object    = require "std.object"
+  obj       = Object {"foo", "bar", baz="quux"}
+  prototype = Object.prototype
+
+specify Object:
+- describe construction:
+  - context from Object clone method:
+    - it constructs a new object:
+        obj = Object:clone {}
+        expect (obj).should_not_be (Object)
+        expect (type (obj)).should_be "table"
+        expect (prototype (obj)).should_be "Object"
+    - it reuses the Object metatable:
+        o = obj:clone {"o"}
+        p = o:clone {"p"}
+        expect (p).should_not_be (o)
+        expect (getmetatable (o)).should_be (getmetatable (p))
+    - it sets object fields from arguments:
+        o = obj:clone {}
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+    - it serves as a prototype for new instances:
+        o = obj:clone {}
+        expect (prototype (o)).should_be "Object"
+        expect (o).should_not_be (obj)
+        expect (o).should_equal (obj)
+        expect (getmetatable (o)).should_be (getmetatable (obj))
+    - it separates '_' prefixed fields:
+        expect (Object:clone {foo="bar", _baz="quux"}).
+          should_equal (Object:clone {foo="bar"})
+    - it puts '_' prefixed fields in a new metatable:
+        obj = Object:clone {foo="bar", _baz="quux"}
+        expect (getmetatable (obj)).should_not_be (getmetatable (Object))
+        expect (getmetatable (obj)._baz).should_be "quux"
+
+- describe prototype:
+  - before: o = Object {}
+
+  - context when called from the object module:
+    - it reports the prototype stored in the object's metatable:
+        expect (prototype (o)).should_be "Object"
+    - it reports the type of a cloned object:
+        expect (prototype (o {})).should_be "Object"
+    - it reports the type of a derived object:
+        Example = Object {_type = "Example"}
+        expect (prototype (Example)).should_be "Example"
+    - it reports the type of a cloned derived object:
+        Portal = Object {_type = "Demon"}
+        p = Portal {}
+        expect (prototype (p)).should_be "Demon"
+        expect (prototype (p {})).should_be "Demon"
+  - context when called as an object method:
+    - it reports the type stored in the object's metatable:
+        expect (o:prototype ()).should_be "Object"
+    - it reports the type of a cloned object:
+        expect ((o {}):prototype ()).should_be "Object"
+    - it reports the type of a subclassed object:
+        Example = Object {_type = "Example"}
+        expect (Example:prototype ()).should_be "Example"
+    - it reports the type of a cloned subclassed object:
+        Portal = Object {_type = "Demon"}
+        p = Portal {}
+        expect (p:prototype ()).should_be "Demon"
+        expect ((p {}):prototype ()).should_be "Demon"
+  - context backwards compatibility:
+    - it reports the prototype stored in the object's metatable:
+        expect (Object.type (o)).should_be "Object"
+    - it reports the type stored in the object's metatable:
+        expect (o:type ()).should_be "Object"
+
+
+- describe instantiation from a prototype:
+  - before:
+      totable = (require "std.table").totable
+
+  - context when _init is nil:
+    - before:
+        Array = Object {
+          _type = "Array",
+          "foo", "bar", "baz",
+        }
+        Array._init = nil
+    - it contains user-defined fields:
+        expect (totable (Array)).
+          should_equal {"foo", "bar", "baz"}
+    - it sets array part of instance object from positional parameters:
+        array = Array {"first", "second", "third"}
+        expect (totable (array)).
+          should_equal {"first", "second", "third"}
+    - it uses prototype values for missing positional parameters:
+        array = Array {"first", "second"}
+        expect (totable (array)).
+          should_equal {"first", "second", "baz"}
+    - it merges surplas positional parameters:
+        array = Array {"first", "second", "third", "fourth"}
+        expect (totable (array)).
+          should_equal {"first", "second", "third", "fourth"}
+
+  - context when _init is an empty table:
+    - before:
+        Prototype = Object {
+          _type = "Prototype";
+          _init = {},
+          "first", "second", "third",
+        }
+    - it contains user-defined fields:
+        expect (totable (Prototype)).
+          should_equal {"first", "second", "third"}
+    - it ignores positional parameters: |
+        instance = Prototype {"foo", "bar"}
+        expect (instance).should_not_be (Prototype)
+        pending "see issue #35"
+        expect (instance).should_equal (Prototype)
+
+  - context when _init is a table of field names:
+    - before:
+        Process = Object {
+          _type = "Process",
+          _init = {"status", "output", "errout"},
+          status = -1,
+          output = "empty",
+          errout = "no errors",
+        }
+    - it contains user-defined fields:
+        expect (totable (Process)).
+          should_equal {status = -1, output = "empty", errout = "no errors"}
+    - it sets user-defined fields from positional parameters:
+        proc = Process {0, "output", "diagnostics"}
+        expect (totable (proc)).
+          should_equal {status = 0, output = "output", errout = "diagnostics"}
+    - it uses prototype values for missing positional parameters:
+        proc = Process {0, "output"}
+        expect (totable (proc)).
+          should_equal {status = 0, output = "output", errout = "no errors"}
+    - it merges surplus positional parameters into array part of new object: |
+        proc = Process {0, "output", "diagnostics", "garbage"}
+        pending "see issue #35"
+        expect (totable (proc)).
+          should_equal { status = 0, output = "output", errout = "diagnostics" }
+
+  - context when _init is a function:
+    - before:
+        Prototype = Object {
+          _type = "Prototype",
+          f1 = "proto1", f2 = "proto2",
+          _init = function (self, ...)
+                    self.args = unpack {...}
+                    return self
+                  end,
+        }
+    - it passes user defined fields to custom _init function:
+        instance = Prototype {"param1", "param2"}
+        expect ({instance.f1, instance.f2, instance.args}).
+          should_equal {"proto1", "proto2", {"param1", "param2"}}
+
+- describe field access:
+  - before:
+      Prototype = Object {
+        _type  = "Prototype",
+        _init  = { "field", "method"},
+        field  = "in prototype",
+        method = function (self, ...)
+                   return prototype (self) .. " class, " ..
+                          table.concat ({...}, ", ")
+                 end,
+      }
+      instance  = Prototype {"in object", function (self, ...)
+                                            return prototype (self) .. " instance, " ..
+                                                   table.concat ({...}, ", ")
+                                          end,
+                            }
+
+  - it provides object field access with dot notation:
+      expect (instance.field).should_be "in object"
+  - it provides class field acces with dot notation:
+      expect (Prototype.field).should_be "in prototype"
+  - it provides object method acces with colon notation:
+      expect (instance:method "object method call").
+        should_be "Prototype instance, object method call"
+  - it provides class method access with class dot notation:
+      expect (Prototype.method (instance, "class method call")).
+        should_be "Prototype class, class method call"
+  - it allows new instance fields to be added:
+      instance.newfield = "new"
+      expect (instance.newfield).should_be "new"
+  - it allows new instance methods to be added:
+      instance.newmethod = function (self)
+                             return prototype (self) .. ", new instance method"
+                           end
+      expect (instance:newmethod ()).should_be "Prototype, new instance method"
+  - it allows new class methods to be added:
+      Prototype.newmethod = function (self)
+                              return prototype (self) .. ", new class method"
+                            end
+      expect (Prototype.newmethod (instance)).
+        should_be "Prototype, new class method"
+
+
+- describe object method propagation:
+  - context with no custom instance methods:
+    # :prototype is a method defined by the root object
+    - it inherits prototype object methods:
+        instance = Object {}
+        expect (instance:prototype ()).should_be "Object"
+    - it propagates prototype methods to derived instances:
+        Derived = Object {_type = "Derived"}
+        instance = Derived {}
+        expect (instance:prototype ()).should_be "Derived"
+  - context with custom object methods:
+    - before:
+        bag = Object {
+          _type = "bag",
+          __index = {
+            add   = function (self, item)
+                      self[item] = (self[item] or 0) + 1
+                      return self
+                    end,
+          },
+        }
+    # :prototype is a method defined by the root object
+    - it inherits prototype object methods:
+        expect (bag:prototype ()).should_be "bag"
+    - it propagates prototype methods to derived instances:
+        instance = bag {}
+        expect (instance:prototype ()).should_be "bag"
+    - it supports method calls:
+        expect (bag:add "foo").should_be (bag)
+        expect (bag.foo).should_be (1)
+
+
+# Metatable propagation is an important property of Object cloning,
+# because Lua will only call __lt and __le metamethods when both
+# arguments share the same metatable - i.e. the previous behaviour
+# of making each object its own metatable precluded ever being able
+# to use __lt and __le!
+- describe object metatable propagation:
+  - before: root_mt = getmetatable (Object)
+
+  - context with no custom metamethods:
+    - it inherits prototype object metatable:
+        instance = Object {}
+        expect (getmetatable (instance)).should_be (root_mt)
+    - it propagates prototype metatable to derived instances:
+        Derived = Object {_type = "Derived"}
+        instance = Derived {}
+        expect (getmetatable (Derived)).should_not_be (root_mt)
+        expect (getmetatable (instance)).should_be (getmetatable (Derived))
+  - context with custom metamethods:
+    - before:
+        base = require "std.base"
+        bag = Object {
+          _type = "bag",
+          __lt = function (a, b) return base.compare (a, b) < 0 end,
+        }
+    - it has it's own metatable:
+        expect (getmetatable (bag)).should_not_be (root_mt)
+    - it propagates prototype metatable to derived instances:
+        instance = bag {}
+        expect (getmetatable (instance)).should_be (getmetatable (bag))
+    - it supports __lt calls:
+        a, b = bag {"a"}, bag {"b"}
+        expect (a < b).should_be (true)
+        expect (a < a).should_be (false)
+        expect (a > b).should_be (false)
+
+
+- describe __totable:
+  - before:
+      totable = (require "std.table").totable
+      Derived = Object {_type = "Derived", "one", "two", three = true}
+
+  - it returns a table:
+      expect (prototype (totable (Derived))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (Derived)).should_contain.all_of {"one", "two", "three"}
+  - it does not contain any hidden fields of object:
+      expect (totable (Derived)).should_equal {"one", "two", three = true}
+
+
+- describe __tostring:
+  - before:
+      obj = Object {_type = "Derived", "one", "two", "three"}
+  - it returns a string:
+      expect (type (tostring (obj))).should_be "string"
+  - it contains the type:
+      expect (tostring (Object {})).should_contain "Object"
+      expect (tostring (obj)).should_contain (prototype (obj))
+  - it contains the ordered array part elements:
+      expect (tostring (obj)).should_contain "one, two, three"
+  - it contains the ordered dictionary part elements:
+      expect (tostring (Object {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+      expect (tostring (obj {one = true, two = true, three = true})).
+        should_contain "one=true, three=true, two=true"
+  - it contains a ';' separator only when object has array and dictionary parts:
+      expect (tostring (obj)).should_not_contain ";"
+      expect (tostring (Object {one = true, two = true, three = true})).
+        should_not_contain ";"
+      expect (tostring (obj {one = true, two = true, three = true})).
+        should_contain ";"

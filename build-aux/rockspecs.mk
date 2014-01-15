@@ -4,7 +4,7 @@
 # terms of the MIT license reproduced below.
 
 # ==================================================================== #
-# Copyright (C) 2013 Reuben Thomas and Gary V. Vaughan                 #
+# Copyright (C) 2013-2014 Reuben Thomas and Gary V. Vaughan                 #
 #                                                                      #
 # Permission is hereby granted, free of charge, to any person          #
 # obtaining a copy of this software and associated documentation       #
@@ -77,13 +77,15 @@ $(luarocks_config): Makefile.am
 $(package_rockspec): $(ROCKSPECS_DEPS)
 	$(AM_V_at)rm -f '$@' 2>/dev/null || :
 	$(AM_V_GEN)test -f '$@' ||				\
-	  $(MKROCKSPECS) $(PACKAGE) $(VERSION) $(rockspec_revision) > '$@'
+	  $(MKROCKSPECS) $(mkrockspecs_args)			\
+	    $(PACKAGE) $(VERSION) $(rockspec_revision) > '$@'
 	$(AM_V_at)$(LUAROCKS) lint '$@'
 
 $(scm_rockspec): $(ROCKSPECS_DEPS)
 	$(AM_V_at)rm '$@' 2>/dev/null || :
 	$(AM_V_GEN)test -f '$@' ||				\
-	  $(MKROCKSPECS) $(PACKAGE) git 1 > '$@'
+	  $(MKROCKSPECS) $(mkrockspecs_args)			\
+	    $(PACKAGE) git 1 > '$@'
 	$(AM_V_at)$(LUAROCKS) lint '$@'
 
 .PHONY: rockspecs
@@ -101,6 +103,8 @@ EXTRA_DIST +=						\
 	$(package_rockspec)				\
 	$(rockspec_conf)				\
 	$(NOTHING_ELSE)
+
+save_release_files += $(scm_rockspec)
 
 
 ## ------------ ##

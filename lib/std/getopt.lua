@@ -1,0 +1,299 @@
+--- Simplified getopt, based on Svenne Panne's Haskell GetOpt.
+--
+-- Usage:
+--
+--     prog = {<
+--       name = <progname>,
+--       [usage = <usage line>,]
+--       [options = {
+--         {{<name>[, ...]}, <desc>, [<type> [, <var>]]},
+--         ...
+--       },]
+--       [banner = <banner string>,]
+--       [purpose = <purpose string>,]
+--       [notes = <additional notes>]
+--     }
+--
+--   * The `type` of option argument is one of `Req`(uired),
+--     `Opt`(ional)
+--   * The `var`is a descriptive name for the option argument.
+--   * `getopt.processargs (prog)`
+--   * Options take a single dash, but may have a double dash.
+--   * Arguments may be given as `-opt=arg` or `-opt arg`.
+--   * If an option taking an argument is given multiple times, only the
+--     last value is returned; missing arguments are returned as 1.
+--
+-- getOpt, usageinfo and usage can be called directly (see
+-- below, and the example at the end). Set _DEBUG.std to a non-nil
+-- value to run the example.
+--
+-- @todo Wrap all messages; do all wrapping in processargs, not
+--   usageinfo; use sdoc-like library (see string.format todos).
+-- @todo Don't require name to be repeated in banner.
+-- @todo Store version separately (construct banner?).
+--
+-- @module std.getopt
+
+local io     = require "std.io"
+local List   = require "std.list"
+local Object = require "std.object"
+local string = require "std.string"
+local table  = require "std.table"
+
+local M = {
+  opt = {},
+}
+
+local argtype = { Opt = true, Req = true }
+
+
+--- Perform argument processing
+-- @param argIn list of command-line args
+-- @param options options table
+-- @param stop_at_nonopt if true, stop option processing at first non-option
+-- @return table of remaining non-options
+-- @return table of option key-value list pairs
+-- @return table of error messages
+local function getopt (argIn, options, stop_at_nonopt)
+  local noProcess = nil
+  local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
+  -- get an argument for option opt
+  local function getArg (o, opt, arg, oldarg)
+    if not argtype[o.type] then
+      if arg ~= nil then
+        table.insert (errors, "option `" .. opt .. "' doesn't take an argument")
+      end
+    else
+      if arg == nil and argIn[1] and
+        string.sub (argIn[1], 1, 1) ~= "-" then
+        arg = argIn[1]
+        table.remove (argIn, 1)
+      end
+      if arg == nil and o.type == "Req" then
+        table.insert (errors,  "option `" .. opt ..
+                      "' requires an argument `" .. o.var .. "'")
+        return nil
+      end
+    end
+    return arg or 1 -- make sure arg has a value
+  end
+
+  local function parseOpt (opt, arg)
+    local o = options.name[opt]
+    if o ~= nil then
+      o = o or {name = {opt}}
+      optOut[o.name[1]] = optOut[o.name[1]] or {}
+      table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
+    else
+      table.insert (errors, "unrecognized option `-" .. opt .. "'")
+    end
+  end
+  while argIn[1] do
+    local v = argIn[1]
+    table.remove (argIn, 1)
+    local _, _, dash, opt = string.find (v, "^(%-%-?)([^=-][^=]*)")
+    local _, _, arg = string.find (v, "=(.*)$")
+    if not dash and stop_at_nonopt then
+      noProcess = true
+    end
+    if v == "--" then
+      noProcess = true
+    elseif not dash or noProcess then -- non-option
+      table.insert (argOut, v)
+    else -- option
+      parseOpt (opt, arg)
+    end
+  end
+  return argOut, optOut, errors
+end
+
+
+-- Object that defines a single Option entry.
+local Option = Object {_init = {"name", "desc", "type", "var"}}
+
+--- Options table constructor: adds lookup tables for the option names.
+local function makeOptions (t)
+  local options, name = {}, {}
+  local function appendOpt (v, nodupes)
+    local dupe = false
+    v = Option (v)
+    for s in List.elems (v.name) do
+      if name[s] then
+	dupe = true
+      end
+      name[s] = v
+    end
+    if not dupe or nodupes ~= true then
+      if dupe then io.warn ("duplicate option '%s'", s) end
+      for s in List.elems (v.name) do name[s] = v end
+      options = List.concat (options, {v})
+    end
+  end
+  for v in List.elems (t or {}) do
+    appendOpt (v)
+  end
+  -- Unless they were supplied already, add version and help options
+  appendOpt ({{"version", "V"}, "print version information, then exit"},
+             true)
+  appendOpt ({{"help", "h"}, "print this help, then exit"}, true)
+  options.name = name
+  return options
+end
+
+
+--- Produce usage info for the given options.
+-- @param header header string
+-- @param optDesc option descriptors
+-- @param pageWidth width to format to [78]
+-- @return formatted string
+local function usageinfo (header, optDesc, pageWidth)
+  pageWidth = pageWidth or 78
+  -- Format the usage info for a single option
+  -- @param opt the option table
+  -- @return options
+  -- @return description
+  local function fmtOpt (opt)
+    local function fmtName (o)
+      return (#o > 1 and "--" or "-") .. o
+    end
+    local function fmtArg ()
+      if opt.type == "Req" then
+        return "=" .. opt.var
+      elseif opt.type == "Opt" then
+        return "[=" .. opt.var .. "]"
+      else
+        return ""
+      end
+    end
+    local textName = List.reverse (List.map (opt.name, fmtName))
+    textName[#textName] = textName[#textName] .. fmtArg ()
+    local indent = ""
+    if #opt.name == 1 and #opt.name[1] > 1 then
+      indent = "    "
+    end
+    return {indent .. table.concat ({table.concat (textName, ", ")}, ", "),
+      opt.desc}
+  end
+  local function sameLen (xs)
+    local n = math.max (unpack (List.map (xs, string.len)))
+    for i, v in pairs (xs) do
+      xs[i] = string.sub (v .. string.rep (" ", n), 1, n)
+    end
+    return xs, n
+  end
+  local function paste (x, y)
+    return "  " .. x .. "  " .. y
+  end
+  local function wrapper (w, i)
+    return function (s)
+             return string.wrap (s, w, i, 0)
+           end
+  end
+  local optText = ""
+  if #optDesc > 0 then
+    local cols = List.transpose (List.map (optDesc, fmtOpt))
+    local width
+    cols[1], width = sameLen (cols[1])
+    cols[2] = List.map (cols[2], wrapper (pageWidth, width + 4))
+    optText = "\n\n" ..
+      table.concat (List.map_with (List.transpose ({sameLen (cols[1]),
+                                                    cols[2]}),
+			           paste),
+                    "\n")
+  end
+  return header .. optText
+end
+
+--- Emit a usage message.
+-- @param prog table of named parameters
+local function usage (prog)
+  local usage = "[OPTION]... [FILE]..."
+  local purpose, description, notes = "", "", ""
+  if prog.usage then
+    usage = prog.usage
+  end
+  usage = "Usage: " .. prog.name .. " " .. usage
+  if prog.purpose then
+      purpose = "\n\n" .. prog.purpose
+  end
+  if prog.description then
+    for para in List.elems (string.split (prog.description, "\n")) do
+      description = description .. "\n\n" .. string.wrap (para)
+    end
+  end
+  if prog.notes then
+    notes = "\n\n"
+    if not string.find (prog.notes, "\n") then
+      notes = notes .. string.wrap (prog.notes)
+    else
+      notes = notes .. prog.notes
+    end
+  end
+  local header = usage .. purpose .. description
+  io.writelines (usageinfo (header, prog.options) .. notes)
+end
+
+
+local function version (prog)
+  local version = prog.version or prog.name or "unknown version!"
+  if prog.copyright then
+    version = version .. "\n\n" .. prog.copyright
+  end
+  io.writelines (version)
+end
+
+
+
+--- Simple getopt wrapper.
+-- If the caller didn't supply their own already, adds `--version`/`-V`
+-- and `--help`/`-h` options automatically;
+-- stops program if there was an error, or if `--help` or `--version` was
+-- used.
+-- @param prog table of named parameters
+-- @param ... extra arguments for getopt
+local function processargs (prog, ...)
+  local totArgs = #_G.arg
+  local errors
+  prog.options = makeOptions (prog.options)
+  _G.arg, M.opt, errors = getopt (_G.arg, prog.options, ...)
+  local opt = M.opt
+  if (opt.version or opt.help) and prog.banner then
+    io.writelines (prog.banner)
+  end
+  if #errors > 0 then
+    local name = prog.name
+    prog.name = nil
+    if #errors > 0 then
+      io.warn (name .. ": " .. table.concat (errors, "\n"))
+      io.warn (name .. ": Try '" .. (arg[0] or name) .. " --help' for more help")
+    end
+    if #errors > 0 then
+      error ()
+    end
+  elseif opt.version then
+    version (prog)
+  elseif opt.help then
+    usage (prog)
+  end
+  if opt.version or opt.help then
+    os.exit ()
+  end
+end
+
+
+--- @export
+local Getopt = {
+  getopt      = getopt,
+  processargs = processargs,
+  usage       = usage,
+  usageinfo   = usageinfo,
+}
+
+-- camelCase compatibility.
+Getopt = table.merge (Getopt, {
+  getOpt      = getopt,
+  processArgs = processargs,
+  usageInfo   = usageinfo,
+})
+
+return table.merge (M, Getopt)

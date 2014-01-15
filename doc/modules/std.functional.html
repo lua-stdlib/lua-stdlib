@@ -1,0 +1,501 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><strong>std.functional</strong></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>std.functional</code></h1>
+<p>Functional programming.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#bind">bind (f, ...)</a></td>
+	<td class="summary">Partially apply a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#collect">collect (i)</a></td>
+	<td class="summary">Collect the results of an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#compose">compose ()</a></td>
+	<td class="summary">Compose functions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#curry">curry (f, n)</a></td>
+	<td class="summary">Curry a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#eval">eval (s)</a></td>
+	<td class="summary">Evaluate a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#filter">filter (p, i)</a></td>
+	<td class="summary">Filter an iterator with a predicate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fold">fold (f, d, i)</a></td>
+	<td class="summary">Fold a binary function into an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#id">id (...)</a></td>
+	<td class="summary">Identity function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#map">map (f, i)</a></td>
+	<td class="summary">Map a function over an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#memoize">memoize (fn)</a></td>
+	<td class="summary">Memoize a function, by wrapping it in a functable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#metamethod">metamethod (x, n)</a></td>
+	<td class="summary">Return given metamethod, if any, or nil.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#op">op</a></td>
+	<td class="summary">Functional forms of infix operators.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "bind"></a>
+    <strong>bind (f, ...)</strong>
+    </dt>
+    <dd>
+    Partially apply a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         function to apply partially
+        </li>
+        <li><span class="parameter">...</span>
+         arguments to bind
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        function with ai already bound
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "collect"></a>
+    <strong>collect (i)</strong>
+    </dt>
+    <dd>
+    Collect the results of an iterator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+         iterator
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        results of running the iterator on its arguments
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "compose"></a>
+    <strong>compose ()</strong>
+    </dt>
+    <dd>
+    Compose functions.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        composition of f1 ... fn
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "curry"></a>
+    <strong>curry (f, n)</strong>
+    </dt>
+    <dd>
+    Curry a function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         function to curry
+        </li>
+        <li><span class="parameter">n</span>
+         number of arguments
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        curried version of f
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "eval"></a>
+    <strong>eval (s)</strong>
+    </dt>
+    <dd>
+    Evaluate a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        value of string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "filter"></a>
+    <strong>filter (p, i)</strong>
+    </dt>
+    <dd>
+    Filter an iterator with a predicate.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">p</span>
+         predicate
+        </li>
+        <li><span class="parameter">i</span>
+         iterator
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        result table containing elements e for which p (e)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "fold"></a>
+    <strong>fold (f, d, i)</strong>
+    </dt>
+    <dd>
+    Fold a binary function into an iterator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         function
+        </li>
+        <li><span class="parameter">d</span>
+         initial first argument
+        </li>
+        <li><span class="parameter">i</span>
+         iterator
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        result
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "id"></a>
+    <strong>id (...)</strong>
+    </dt>
+    <dd>
+    Identity function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the arguments passed to the function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "map"></a>
+    <strong>map (f, i)</strong>
+    </dt>
+    <dd>
+    Map a function over an iterator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         function
+        </li>
+        <li><span class="parameter">i</span>
+         iterator
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        result table
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "memoize"></a>
+    <strong>memoize (fn)</strong>
+    </dt>
+    <dd>
+    Memoize a function, by wrapping it in a functable.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+         function that returns a single result
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        memoized function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "metamethod"></a>
+    <strong>metamethod (x, n)</strong>
+    </dt>
+    <dd>
+    Return given metamethod, if any, or nil.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         object to get metamethod of
+        </li>
+        <li><span class="parameter">n</span>
+         name of metamethod to get
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        metamethod function or nil if no metamethod or not a
+ function
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "op"></a>
+    <strong>op</strong>
+    </dt>
+    <dd>
+    Functional forms of infix operators.
+ Defined here so that other modules can write to it.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">dereference</span>
+         table index
+        </li>
+        <li><span class="parameter">addition</span>
+
+
+
+        </li>
+        <li><span class="parameter">subtraction</span>
+
+
+
+        </li>
+        <li><span class="parameter">multiplication</span>
+
+
+
+        </li>
+        <li><span class="parameter">division</span>
+
+
+
+        </li>
+        <li><span class="parameter">and</span>
+         logical and
+        </li>
+        <li><span class="parameter">or</span>
+         logical or
+        </li>
+        <li><span class="parameter">not</span>
+         logical not
+        </li>
+        <li><span class="parameter">equality</span>
+
+
+
+        </li>
+        <li><span class="parameter">inequality</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

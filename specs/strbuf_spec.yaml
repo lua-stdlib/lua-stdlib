@@ -1,0 +1,79 @@
+before:
+  object = require "std.object"
+  StrBuf = require "std.strbuf"
+  b      = StrBuf {"foo", "bar"}
+
+specify StrBuf:
+- describe construction:
+  - context from StrBuf clone method:
+    - it constructs a new strbuf:
+        b = StrBuf:clone {}
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "StrBuf"
+    - it reuses the StrBuf metatable:
+        a, b = StrBuf:clone {"a"}, StrBuf:clone {"b"}
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = StrBuf:clone {"foo", "bar"}
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b:clone {}
+        expect (object.type (obj)).should_be "StrBuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
+
+  # StrBuf {args} is just syntactic sugar for StrBuf:clone {args}
+  - context from StrBuf object prototype:
+    - it constructs a new strbuf:
+        b = StrBuf {}
+        expect (b).should_not_be (StrBuf)
+        expect (object.type (b)).should_be "StrBuf"
+    - it reuses the StrBuf metatable:
+        a, b = StrBuf {"a"}, StrBuf {"b"}
+        expect (getmetatable (a)).should_be (getmetatable (b))
+    - it initialises strbuf with constructor parameters:
+        a = StrBuf:clone {"foo", "bar"}
+        expect (a).should_equal (b)
+    - it serves as a prototype for new instances:
+        obj = b {}
+        expect (object.type (obj)).should_be "StrBuf"
+        expect (obj).should_equal (b)
+        expect (getmetatable (obj)).should_be (getmetatable (b))
+
+
+- describe tostring:
+  - it can be called from strbuf module:
+      expect (StrBuf.tostring (b)).should_be "foobar"
+  - it can be called as a strbuf object method:
+      expect (b:tostring ()).should_be "foobar"
+  - it can be called as a strbuf metabethod:
+      expect (tostring (b)).should_be "foobar"
+
+
+- describe concat:
+  - before:
+      b = StrBuf {"foo", "bar"}
+  - it can be called from strbuf module:
+      b = StrBuf.concat (b, "baz")
+      expect (object.type (b)).should_be "StrBuf"
+      expect (StrBuf.tostring (b)).should_be "foobarbaz"
+  - it can be called as a strbuf object method:
+      b:concat "baz"
+      expect (object.type (b)).should_be "StrBuf"
+      expect (b:tostring()).should_be "foobarbaz"
+  - it can be called as a strbuf metamethod:
+      b = b .. "baz"
+      expect (object.type (b)).should_be "StrBuf"
+      expect (tostring (b)).should_be "foobarbaz"
+
+
+- describe __totable:
+  - before:
+      totable = (require "std.table").totable
+
+  - it returns a table:
+      expect (object.type (totable (b))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (b)).should_contain.all_of {"foo", "bar"}
+  - it does not contain any hidden fields of object:
+      expect (totable (b)).should_equal {"foo", "bar"}

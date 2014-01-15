@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Metamethods">Metamethods</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><strong>std.strbuf</strong></li>
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>std.strbuf</code></h1>
+<p>String buffers.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:__concat">std.strbuf:__concat (buffer, str)</a></td>
+	<td class="summary">Support concatenation of StrBuf objects.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:__tostring">std.strbuf:__tostring (buffer)</a></td>
+	<td class="summary">Support fast conversion to Lua string.</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:concat">std.strbuf:concat (s)</a></td>
+	<td class="summary">Add a string to a buffer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.strbuf:tostring">std.strbuf:tostring (self)</a></td>
+	<td class="summary">Convert a buffer to a string.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.strbuf:__concat"></a>
+    <strong>std.strbuf:__concat (buffer, str)</strong>
+    </dt>
+    <dd>
+
+<p>Support concatenation of StrBuf objects. </p>
+<pre><code> buffer = buffer .. str
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buffer</span>
+            <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
+         StrBuf object
+        </li>
+        <li><span class="parameter">str</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string or string-like object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
+        modified <code>buffer</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.strbuf.html#std.strbuf:concat">concat</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.strbuf:__tostring"></a>
+    <strong>std.strbuf:__tostring (buffer)</strong>
+    </dt>
+    <dd>
+
+<p>Support fast conversion to Lua string. </p>
+<pre><code> str = tostring (buffer)
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">buffer</span>
+            <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
+         Strbuf object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        concatenation of buffer contents
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.strbuf.html#std.strbuf:tostring">tostring</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2><a name="Methods"></a>Methods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.strbuf:concat"></a>
+    <strong>std.strbuf:concat (s)</strong>
+    </dt>
+    <dd>
+    Add a string to a buffer.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         string to add
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.strbuf.html#">std.strbuf</a></span>
+        modified buffer
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.strbuf:tostring"></a>
+    <strong>std.strbuf:tostring (self)</strong>
+    </dt>
+    <dd>
+    Convert a buffer to a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        stringified <code>self</code>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

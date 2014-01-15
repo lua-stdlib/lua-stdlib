@@ -1,0 +1,89 @@
+specify io:
+- before: |
+    M = require "std.io"
+
+    extends      = io
+    enhancements = {}
+    extensions   = { "catdir", "catfile", "die", "process_files",
+                     "readlines", "shell", "slurp", "splitdir", "warn",
+                     "writelines",
+                     -- camelCase compatibility:
+                     "processFiles" }
+
+- context when required:
+  - before:
+      enhanced = {}
+      for _, api in ipairs (enhancements) do enhanced[api] = true end
+
+  - context by name:
+    - before: |
+        function restore (g, m)
+          for _, api in ipairs (enhancements) do
+            g[api], g["_" .. api] = m[api], m["_" .. api]
+          end
+          for _, api in ipairs (extensions) do g[api] = m[api] end
+        end
+
+        for _, api in ipairs (enhancements) do
+          extends[api] = M["_" .. api]
+        end
+        for _, api in ipairs (extensions) do extends[api] = nil end
+    - after:
+        restore (extends, M)
+    - it does not perturb the global table:
+        for _, api in ipairs (extensions) do
+          expect (extends[api]).should_be (nil)
+        end
+        for _, api in ipairs (enhancements) do
+          expect (extends[api]).should_be (M["_" .. api])
+        end
+    - it contains all global access points:
+        for api in pairs (extends) do
+          if enhanced[api] then
+            expect (M[api]).should_not_be (extends[api])
+          else
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+  - context via the std module:
+    - before:
+        require "std"
+    - it adds extension apis to the global table:
+        for api in pairs (M) do
+          expect (extends[api]).should_be (M[api])
+        end
+    - it does not add any other global access points:
+        for api in pairs (extends) do
+          if not enhanced[api] then
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+
+- describe catdir:
+
+
+- describe catfile:
+
+
+- describe process_files:
+  - before:
+      subject = M.process_files
+  - it is the same function as legacy processFiles call:
+      expect (io.processFiles).should_be (subject)
+
+
+- describe readlines:
+
+
+- describe shell:
+
+
+- describe slurp:
+
+
+- describe splitdir:
+
+
+- describe writelines:

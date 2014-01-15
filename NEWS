@@ -1,5 +1,99 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 36 (2014-01-16) [stable]
+
+** New features:
+
+ - Modules have been refactored so that they can be safely
+   required individually, and without loading themselves or any
+   dependencies on other std modules into the global namespace.
+
+ - Objects derived from the `std.object` prototype have a new
+   <derived_object>:prototype () method that returns the contents of the
+   new internal `_type` field.  This can be overridden during cloning
+   with, e.g.:
+
+      local Object = require "std.object"
+      Prototype = Object { _type = "Prototype", <other_fields> }
+
+ - Objects derived from the `std.object` prototype return a new table
+   with a shallow copy of all non-private fields (keys that do not
+   begin with "_") when passed to `table.totable` - unless overridden
+   in the derived object's __totable field.
+
+ - list and strbuf are now derived from `std.object`, which means that
+   they respond to `object.prototype` with appropriate type names ("List",
+   "StrBuf", etc.) and can be used as prototypes for further derived
+   objects or clones; support object:prototype (); respond to totable etc.
+
+ - A new Container module at `std.container` makes separation between
+   container objects (which are free to use __index as a "[]" access
+   metamethod, but) which have no object methods, and regular objects
+   (which do have object methods, but) which cannot use the __index
+   metamethod for "[]" access to object contents.
+
+ - set and tree are now derived from `std.container`, so there are no
+   object methods.  Instead there are a full complement of equivalent
+   module functions.  Metamethods continue to work as before.
+
+ - `string.prettytostring` always displays table elements in the same
+   order, as provided by `table.sort`.
+
+ - `table.totable` now accepts a string, and returns a list of the
+   characters that comprise the string.
+
+ - Can now be installed directly from a release tarball by `luarocks`.
+   No need to run `./configure` or `make`, unless you want to install to
+   a custom location, or do not use LuaRocks.
+
+** Bug fixes:
+
+ - string.escape_pattern is now Lua 5.2 compatible.
+
+ - all objects now reuse prototype metatables, as required for __le and
+   __lt metamethods to work as documented.
+
+** Deprecations:
+
+ - To avoid confusion between the builtin Lua `type` function and the
+   method for finding the object prototype names, `std.object.type` is
+   deprecated in favour of `std.object.prototype`. `std.object.type`
+   continues to work for now, but might be removed from a future
+   release.
+
+      local prototype = (require 'std.object').prototype
+
+   ...makes for more readable code, rather than confusion between the
+   different flavours of `type`.
+
+** Incompatible changes:
+
+ - Following on from the Grand Renaming™ change in the last release,
+   `std.debug_ext`, `std.io_ext`, `std.math_ext`, `std.package_ext`,
+   `std.string_ext` and `std.table_ext` no longer have the spurious
+   `_ext` suffix.  Instead, you must now use, e.g.:
+
+      local string = require "std.string"
+
+   These names are now stable, and will be available from here for
+   future releases.
+
+ - The `std.list` module, as a consequence of returning a List object
+   prototype rather than a table of functions including a constructor,
+   now always has the list operand as the first argument, whether that
+   function is called with `.` syntax or `:` syntax.  Functions which
+   previously had the list operand in a different position when called
+   with `.` syntax were: list.filter, list.foldl, list.foldr,
+   list.index_key, list.index_value, list.map, list.map_with,
+   list.project, list.shape and list.zip_with.  Calls made as object
+   methods using `:` calling syntax are unchanged.
+
+ - The `std.set` module is a `std.container` with no object methods,
+   and now uses prototype functions instead:
+
+     local union = Set.union (set1, set2)
+
+
 * Noteworthy changes in release 35 (2013-05-06) [stable]
 
 ** New features:

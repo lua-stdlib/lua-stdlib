@@ -1,7 +1,7 @@
 # Slingshot release rules for GNU Make.
 
 # ======================================================================
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 # Originally by Jim Meyering, Simon Josefsson, Eric Blake,
 #               Akim Demaille, Gary V. Vaughan, and others.
 # This version by Gary V. Vaughan, 2013.
@@ -91,24 +91,25 @@ gitlog_to_changelog = $(srcdir)/build-aux/gitlog-to-changelog
 dist-hook: ChangeLog
 .PHONY: ChangeLog
 ChangeLog:
-	$(AM_V_GEN)if test -d '$(srcdir)/.git'; then	\
-	  $(gitlog_to_changelog) > '$@T';		\
-	  rm -f '$@'; mv '$@T' '$@';			\
+	$(AM_V_GEN)if test -d '$(srcdir)/.git'; then		\
+	  $(gitlog_to_changelog) $(gitlog_args) > '$@T';	\
+	  rm -f '$@'; mv '$@T' '$@';				\
 	fi
 
 # Override this in GNUmakefile if you don't want to automatically
 # redistribute all the maintainer support files (take care that
 # Travis CI is finicky about this, and will likely need tweaking
 # to cope with missing any of these if you decide to omit them).
+
+_travis_yml ?= .travis.yml travis.yml.in
+
 release_extra_dist ?=					\
 	.autom4te.cfg					\
-	.travis.yml					\
 	GNUmakefile					\
 	bootstrap					\
 	bootstrap.conf					\
-	bootstrap.slingshot				\
 	local.mk					\
-	travis.yml.in					\
+	$(_travis_yml)					\
 	$(NOTHING_ELSE)
 
 EXTRA_DIST +=						\
@@ -117,7 +118,7 @@ EXTRA_DIST +=						\
 	$(release_extra_dist)				\
 	$(NOTHING_ELSE)
 
-all-am: .travis.yml
+all-am: $(_travis_yml)
 
 
 ## -------- ##
@@ -150,8 +151,7 @@ no-submodule-changes:
 	$(AM_V_GEN)if test -d $(srcdir)/.git				\
 		&& git --version >/dev/null 2>&1; then			\
 	  diff=$$(cd $(srcdir) && git submodule -q foreach		\
-		  git diff-index --name-only HEAD)			\
-	    || exit 1;							\
+		  git diff-index --name-only HEAD);			\
 	  case $$diff in '') ;;						\
 	    *) echo '$(ME): submodule files are locally modified:';	\
 		echo "$$diff"; exit 1;; esac;				\
@@ -300,7 +300,7 @@ announcement: NEWS
 # announcement message: else, it would start with " GEN announcement".
 	$(AM_V_at)$(ANNOUNCE_PRINT) 'print (description.summary)'
 	$(AM_V_at)printf '%s\n'	''					\
-	  'I am happy to announce the release of $(PACKAGE_NAME) release $(VERSION).' \
+	  'I am happy to announce release $(VERSION) of $(PACKAGE_NAME).' \
 	  ''
 	$(AM_V_at)$(ANNOUNCE_PRINT)					\
 	  'print ("$(PACKAGE_NAME)'\''s home page is at " .. description.homepage)'
@@ -310,10 +310,10 @@ announcement: NEWS
 	    -e p NEWS |$(SED) -e 1,2d
 	$(AM_V_at)printf '%s\n'						\
 	  'Install it with LuaRocks, using:' ''				\
-	  '  luarocks install $(PACKAGE)-$(VERSION)' ''			\
+	  '    luarocks install $(PACKAGE) $(VERSION)' ''		\
 	  'Until the rocks are available from the official repository in a few days,' \
 	  'you can install directly from the $(PACKAGE) release branch, with:' \
-	  '' '  $$ luarocks install \'
+	  '' '    $$ luarocks install '\\
 	$(AM_V_at)$(ANNOUNCE_PRINT) 'print ($(GITHUB_ROCKSPEC))'
 
 
@@ -340,10 +340,17 @@ grep-clean-files = `printf -- '%s|' $(_save-files) |$(list-to-rexp)`
 # in all the files it creates, and tag that as the next release.
 # Github creates automatic zipballs of tagged git revisions, so we can
 # safely use this tag in the rockspecs we distribute.
+submodule-regexp ?= '^\[submodule "'
+submodule-extract-spec ?= 's|^.*"\([^"]*\)".*$$|\1|'
+
 .PHONY: check-in-release-branch
 check-in-release-branch:
-	$(AM_V_GEN)$(GCO) -b release v1 2>/dev/null || $(GCO) release
+	$(AM_V_GEN)$(GCO) -b release v$(VERSION) 2>/dev/null || $(GCO) release
 	$(AM_V_at)$(GIT) pull origin release 2>/dev/null || true
+	$(AM_V_at)if $(EGREP) $(submodule-regexp) .gitmodules >/dev/null 2>&1; then \
+	    $(EGREP) $(submodule-regexp) .gitmodules			\
+	    | $(SED) $(submodule-extract-spec) | xargs rm -rf;		\
+	fi
 	$(AM_V_at)$(GIT) clean -dfx $(git-clean-files)
 	$(AM_V_at)remove_re=$(grep-clean-files);			\
 	    $(GIT) rm -f `$(GIT) ls-files |$(EGREP) -v "$$remove_re"`
@@ -366,7 +373,7 @@ announce_emails ?= lua-l@lists.lua.org
 rockspec_emails ?= luarocks-developers@lists.sourceforge.net
 
 .PHONY: mail
-mail:
+mail: rockspecs
 	$(AM_V_at)cat ~/announce-$(my_distdir)				\
 	  | mail -s '[ANN] $(PACKAGE) $(VERSION) released' --		\
 	    $(announce_emails)

@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Metamethods">Metamethods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><strong>std.set</strong></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>std.set</code></h1>
+<p>Set container.</p>
+<p> Derived from <a href="../classes/std.container.html#">std.container</a>, and inherits Container's metamethods.</p>
+
+<p> Note that Functions listed below are available only available from the
+ Set prototype returned by requiring this module, because Container
+ objects cannot have object methods.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.set.delete">std.set.delete (set, e)</a></td>
+	<td class="summary">Delete an element from a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.difference">std.set.difference (set1, set2)</a></td>
+	<td class="summary">Find the difference of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.elems">std.set.elems (set)</a></td>
+	<td class="summary">Iterator for sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.equal">std.set.equal (set1, set2)</a></td>
+	<td class="summary">Find whether two sets are equal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.insert">std.set.insert (set, e)</a></td>
+	<td class="summary">Insert an element into a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.intersection">std.set.intersection (set1, set2)</a></td>
+	<td class="summary">Find the intersection of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.member">std.set.member (set, e)</a></td>
+	<td class="summary">Say whether an element is in a set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.proper_subset">std.set.proper_subset (set1, set2)</a></td>
+	<td class="summary">Find whether one set is a proper subset of another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.subset">std.set.subset (set1, set2)</a></td>
+	<td class="summary">Find whether one set is a subset of another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.symmetric_difference">std.set.symmetric_difference (set1, set2)</a></td>
+	<td class="summary">Find the symmetric difference of two sets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.union">std.set.union (set1, set2)</a></td>
+	<td class="summary">Find the union of two sets.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.set">std.set</a></td>
+	<td class="summary">Set prototype object.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__add">std.set.__add (set, table)</a></td>
+	<td class="summary">Union operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__div">std.set.__div (set, table)</a></td>
+	<td class="summary">Symmetric difference operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__le">std.set.__le (set, table)</a></td>
+	<td class="summary">Subset operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__lt">std.set.__lt (set, table)</a></td>
+	<td class="summary">Proper subset operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__mul">std.set.__mul (set, table)</a></td>
+	<td class="summary">Intersection operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.set.__sub">std.set.__sub (set, table)</a></td>
+	<td class="summary">Difference operator.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.set.delete"></a>
+    <strong>std.set.delete (set, e)</strong>
+    </dt>
+    <dd>
+    Delete an element from a set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">e</span>
+         element
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the modified set
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.difference"></a>
+    <strong>std.set.difference (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find the difference of two sets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>set1</code> with elements of s removed
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.elems"></a>
+    <strong>std.set.elems (set)</strong>
+    </dt>
+    <dd>
+    Iterator for sets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.equal"></a>
+    <strong>std.set.equal (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find whether two sets are equal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <code>set1</code> and <code>set2</code> are equal, <code>false</code> otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.insert"></a>
+    <strong>std.set.insert (set, e)</strong>
+    </dt>
+    <dd>
+    Insert an element into a set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">e</span>
+         element
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the modified set
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.intersection"></a>
+    <strong>std.set.intersection (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find the intersection of two sets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        set intersection of <code>set1</code> and <code>set2</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.member"></a>
+    <strong>std.set.member (set, e)</strong>
+    </dt>
+    <dd>
+    Say whether an element is in a set.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">e</span>
+         element
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <code>e</code> is in <a href="../classes/std.set.html#std.set">set</a> , otherwise <code>false</code>
+ otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.proper_subset"></a>
+    <strong>std.set.proper_subset (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find whether one set is a proper subset of another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <code>set1</code> is a proper subset of <code>set2</code>, <code>false</code> otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.subset"></a>
+    <strong>std.set.subset (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find whether one set is a subset of another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <code>set1</code> is a subset of <code>set2</code>, <code>false</code> otherwise
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.symmetric_difference"></a>
+    <strong>std.set.symmetric_difference (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find the symmetric difference of two sets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        elements of <code>set1</code> and <code>set2</code> that are in <code>set1</code> or <code>set2</code> but not both
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.set.union"></a>
+    <strong>std.set.union (set1, set2)</strong>
+    </dt>
+    <dd>
+    Find the union of two sets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set1</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         a set
+        </li>
+        <li><span class="parameter">set2</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set, or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        set union of <code>set1</code> and <code>set2</code>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.set"></a>
+    <strong>std.set</strong>
+    </dt>
+    <dd>
+    Set prototype object.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">_init</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+         a table of field names, or
+   initialisation function, see <a href="../classes/std.object.html#std.object:__call">std.object.__call</a>
+        </li>
+        <li><span class="parameter">_functions</span>
+            <span class="types"><span class="type">nil</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table of module functions not copied
+   by <a href="../classes/std.object.html#std.object:__call">std.object.__call</a>
+        </li>
+        <li><span class="parameter">_type</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         type of Set, returned by
+   <a href="../classes/std.object.html#std.object:prototype">std.object.prototype</a>
+         (<em>default</em> "Set")
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.set.__add"></a>
+    <strong>std.set.__add (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Union operator. </p>
+<pre><code> union = set + table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        union
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.union">union</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.set.__div"></a>
+    <strong>std.set.__div (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Symmetric difference operator. </p>
+<pre><code> symmetric_difference = set / table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        symmetric_difference
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.symmetric_difference">symmetric_difference</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.set.__le"></a>
+    <strong>std.set.__le (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Subset operator. </p>
+<pre><code> set = set &lt;= table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        subset
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.subset">subset</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.set.__lt"></a>
+    <strong>std.set.__lt (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Proper subset operator. </p>
+<pre><code> proper_subset = set &lt; table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        proper_subset
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.proper_subset">proper_subset</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.set.__mul"></a>
+    <strong>std.set.__mul (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Intersection operator. </p>
+<pre><code> intersection = set * table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        intersection
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.intersection">intersection</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.set.__sub"></a>
+    <strong>std.set.__sub (set, table)</strong>
+    </dt>
+    <dd>
+
+<p>Difference operator. </p>
+<pre><code> difference = set - table
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">set</span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         set
+        </li>
+        <li><span class="parameter">table</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <a class="type" href="../classes/std.set.html#std.set">set</a></span>
+         another set or table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set">set</a></span>
+        difference
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.set.html#std.set.difference">difference</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,398 @@
+before:
+  Tree      = require "std.tree"
+  prototype = (require "std.object").prototype
+  totable   = (require "std.table").totable
+  t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
+  tr = Tree (t)
+
+specify tree:
+- describe construction:
+  - it constructs a new tree:
+      tr = Tree {}
+      expect (tr).should_not_be (Tree)
+      expect (prototype (tr)).should_be "Tree"
+  - it turns a table argument into a tree:
+      expect (prototype (Tree (tr))).should_be "Tree"
+  - it does not turn table argument values into sub-Trees:
+      expect (prototype (tr["fnord"])).should_be "table"
+  - it understands branched nodes:
+      expect (tr).should_equal (Tree (t))
+      expect (tr[{"fnord"}]).should_equal (t.fnord)
+      expect (tr[{"fnord", "branch", "bar"}]).should_equal (t.fnord.branch.bar)
+  - it serves as a prototype for new instances:
+      obj = tr {}
+      expect (prototype (obj)).should_be "Tree"
+      expect (obj).should_equal (tr)
+      expect (getmetatable (obj)).should_be (getmetatable (tr))
+
+
+- describe clone:
+  - before:
+      subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
+      f       = Tree.clone
+  - it does not just return the subject:
+      expect (f (subject)).should_not_be (subject)
+  - it does copy the subject:
+      expect (f (subject)).should_equal (subject)
+  - it makes a deep copy:
+      expect (f (subject).k1).should_not_be (subject.k1)
+  - it does not perturb the original subject:
+      target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
+      copy   = f (subject)
+      expect (subject).should_equal (target)
+      expect (subject).should_be (subject)
+  - it diagnoses non-table arguments:
+      expect (f ()).should_error ("table expected")
+      expect (f "foo").should_error ("table expected")
+
+
+- describe ileaves:
+  - before:
+      f = Tree.ileaves
+      l = {}
+  - it iterates over array part of a table argument:
+      for v in f {"first", "second", "3rd"} do l[1+#l]=v end
+      expect (l).should_equal {"first", "second", "3rd"}
+  - it iterates over array parts of nested table argument:
+      for v in f {{"one", {"two"}, {{"three"}, "four"}}, "five"} do
+        l[1+#l]=v
+      end
+      expect (l).should_equal {"one", "two", "three", "four", "five"}
+  - it skips hash part of a table argument:
+      for v in f {"first", "second"; third = "2rd"} do l[1+#l]=v end
+      expect (l).should_equal {"first", "second"}
+  - it skips hash parts of nested table argument:
+      for v in f {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"} do
+        l[1+#l]=v
+      end
+      expect (l).should_equal {"one", "three", "five"}
+  - it works on trees too:
+      for v in f (Tree {Tree {"one",
+                                Tree {two=2},
+                                Tree {Tree {"three"}, four=4}
+                               },
+                         foo="bar", "five"})
+      do
+        l[1+#l]=v
+      end
+      expect (l).should_equal {"one", "three", "five"}
+  - it diagnoses non-table arguments:
+      expect (f ()).should_error ("table expected")
+      expect (f "string").should_error ("table expected")
+
+
+- describe inodes:
+  - before: |
+      f = Tree.inodes
+      local tostring = (require "std.string").tostring
+
+      function traverse (subject)
+        l = {}
+        for ty, p, n in f (subject) do
+           l[1+#l]={ty, Tree.clone (p), n}
+        end
+        return l
+      end
+  - it iterates over array part of a table argument: |
+      subject = {"first", "second", "3rd"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},  subject},                   -- {
+                      {"leaf",   {1}, subject[1]},                --  first,
+                      {"leaf",   {2}, subject[2]},                --  second,
+                      {"leaf",   {3}, subject[3]},                --  3rd,
+                      {"join",   {},  subject}}                   -- }
+  - it iterates over array parts of nested table argument: |
+      subject = {{"one", {"two"}, {{"three"}, "four"}}, "five"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},        subject},             -- {
+                      {"branch", {1},       subject[1]},          --  {
+                      {"leaf",   {1,1},     subject[1][1]},       --   one,
+                      {"branch", {1,2},     subject[1][2]},       --   {
+                      {"leaf",   {1,2,1},   subject[1][2][1]},    --    two,
+                      {"join",   {1,2},     subject[1][2]},       --   },
+                      {"branch", {1,3},     subject[1][3]},       --   {
+                      {"branch", {1,3,1},   subject[1][3][1]},    --    {
+                      {"leaf",   {1,3,1,1}, subject[1][3][1][1]}, --     three,
+                      {"join",   {1,3,1},   subject[1][3][1]},    --    },
+                      {"leaf",   {1,3,2},   subject[1][3][2]},    --    four,
+                      {"join",   {1,3},     subject[1][3]},       --   },
+                      {"join",   {1},       subject[1]},          --  },
+                      {"leaf",   {2},       subject[2]},          --  five,
+                      {"join",   {},        subject}}             -- }
+  - it skips hash part of a table argument: |
+      subject = {"first", "second"; third = "3rd"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},  subject},                   -- {
+                      {"leaf",   {1}, subject[1]},                --  first,
+                      {"leaf",   {2}, subject[2]},                --  second,
+                      {"join",   {},  subject}}                   -- }
+  - it skips hash parts of nested table argument: |
+      subject = {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},        subject},             -- {
+                      {"branch", {1},       subject[1]},          --  {
+                      {"leaf",   {1,1},     subject[1][1]},       --   one,
+                      {"branch", {1,2},     subject[1][2]},       --   {
+                      {"join",   {1,2},     subject[1][2]},       --   },
+                      {"branch", {1,3},     subject[1][3]},       --   {
+                      {"branch", {1,3,1},   subject[1][3][1]},    --    {
+                      {"leaf",   {1,3,1,1}, subject[1][3][1][1]}, --     three,
+                      {"join",   {1,3,1},   subject[1][3][1]},    --    },
+                      {"join",   {1,3},     subject[1][3]},       --   },
+                      {"join",   {1},       subject[1]},          --  },
+                      {"leaf",   {2},       subject[2]},          --  five,
+                      {"join",   {},        subject}}             -- }
+  - it works on trees too: |
+      subject = Tree {Tree {"one",
+                              Tree {two=2},
+                              Tree {Tree {"three"}, four=4}},
+                              foo="bar",
+                              "five"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},        subject},             -- {
+                      {"branch", {1},       subject[1]},          --  {
+                      {"leaf",   {1,1},     subject[1][1]},       --   one,
+                      {"branch", {1,2},     subject[1][2]},       --   {
+                      {"join",   {1,2},     subject[1][2]},       --   },
+                      {"branch", {1,3},     subject[1][3]},       --   {
+                      {"branch", {1,3,1},   subject[1][3][1]},    --    {
+                      {"leaf",   {1,3,1,1}, subject[1][3][1][1]}, --     three,
+                      {"join",   {1,3,1},   subject[1][3][1]},    --    },
+                      {"join",   {1,3},     subject[1][3]},       --   },
+                      {"join",   {1},       subject[1]},          --  },
+                      {"leaf",   {2},       subject[2]},          --  five,
+                      {"join",   {},        subject}}             -- }
+  - it diagnoses non-table arguments:
+      expect (f ()).should_error ("table expected")
+      expect (f "string").should_error ("table expected")
+
+
+- describe leaves:
+  - before:
+      f = Tree.leaves
+      l = {}
+  - it iterates over elements of a table argument:
+      for v in f {"first", "second", "3rd"} do l[1+#l]=v end
+      expect (l).should_equal {"first", "second", "3rd"}
+  - it iterates over elements of a nested table argument:
+      for v in f {{"one", {"two"}, {{"three"}, "four"}}, "five"} do
+        l[1+#l]=v
+      end
+      expect (l).should_equal {"one", "two", "three", "four", "five"}
+  - it includes the hash part of a table argument:
+      for v in f {"first", "second"; third = "3rd"} do l[1+#l]=v end
+      expect (l).should_equal {"first", "second", "3rd"}
+  - it includes hash parts of a nested table argument:
+      for v in f {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"} do
+        l[1+#l]=v
+      end
+      expect (l).should_contain.all_of {"one", 2, "three", 4, "bar", "five"}
+  - it works on trees too:
+      for v in f (Tree {Tree {"one",
+                                Tree {two=2},
+                                Tree {Tree {"three"}, four=4}
+                               },
+                         foo="bar", "five"})
+      do
+        l[1+#l]=v
+      end
+      expect (l).should_contain.all_of {"one", 2, "three", 4, "bar", "five"}
+  - it diagnoses non-table arguments:
+      expect (f ()).should_error ("table expected")
+      expect (f "string").should_error ("table expected")
+
+
+- describe merge:
+  - before: |
+      f  = Tree.merge
+
+      -- Additional merge keys which are moderately unusual
+      t1 = Tree { k1 = "v1", k2 = "if", k3 = Tree {"?"} }
+      t2 = Tree { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = "v2" }
+
+      target = Tree.clone (t1)
+      for ty, p, n in Tree.nodes (t2) do
+        if ty == "leaf" then target[p] = n end
+      end
+  - it does not create a whole new table:
+      expect (f (t1, t2)).should_be (t1)
+  - it does not change t1 when t2 is empty:
+      expect (f (t1, Tree {})).should_be (t1)
+  - it copies t2 when t1 is empty: |
+      expect (f (Tree {}, t1)).should_not_be (t1)
+      expect (f (Tree {}, t1)).should_equal (t1)
+  - it merges keys from t2 into t1: |
+      expect (f (t1, t2)).should_equal (target)
+  - it gives precedence to values from t2:
+      original = Tree.clone (t1)
+      m = f (t1, t2)      -- Merge is destructive, do it once only.
+      expect (m.k3).should_be (t2.k3)
+      expect (m.k3).should_not_be (original.k3)
+  - it diagnoses non-table arguments:
+      expect (f (nil, {})).should_error ("table expected")
+      expect (f ({}, nil)).should_error ("table expected")
+
+
+- describe nodes:
+  - before:
+      f = Tree.nodes
+
+      function traverse (subject)
+        l = {}
+        for ty, p, n in f (subject) do l[1+#l]={ty, Tree.clone (p), n} end
+        return l
+      end
+  - it iterates over the elements of a table argument: |
+      subject = {"first", "second", "3rd"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},  subject},                   -- {
+                      {"leaf",   {1}, subject[1]},                --  first,
+                      {"leaf",   {2}, subject[2]},                --  second,
+                      {"leaf",   {3}, subject[3]},                --  3rd,
+                      {"join",   {},  subject}}                   -- }
+  - it iterates over the elements of nested a table argument: |
+      subject = {{"one", {"two"}, {{"three"}, "four"}}, "five"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},        subject},             -- {
+                      {"branch", {1},       subject[1]},          --  {
+                      {"leaf",   {1,1},     subject[1][1]},       --   one,
+                      {"branch", {1,2},     subject[1][2]},       --   {
+                      {"leaf",   {1,2,1},   subject[1][2][1]},    --    two,
+                      {"join",   {1,2},     subject[1][2]},       --   },
+                      {"branch", {1,3},     subject[1][3]},       --   {
+                      {"branch", {1,3,1},   subject[1][3][1]},    --    {
+                      {"leaf",   {1,3,1,1}, subject[1][3][1][1]}, --     three,
+                      {"join",   {1,3,1},   subject[1][3][1]},    --    },
+                      {"leaf",   {1,3,2},   subject[1][3][2]},    --    four,
+                      {"join",   {1,3},     subject[1][3]},       --   },
+                      {"join",   {1},       subject[1]},          --  },
+                      {"leaf",   {2},       subject[2]},          --  five,
+                      {"join",   {},        subject}}             -- }
+  - it includes the hash part of a table argument: |
+      -- like `pairs`, `nodes` can visit elements in any order, so we cannot
+      -- guarantee the array part is always visited before the hash part, or
+      -- even that the array elements are visited in order!
+      subject = {"first", "second"; third = "3rd"}
+      expect (traverse (subject)).should_contain.
+        all_of {{"branch", {},        subject},             -- {
+                {"leaf",   {1},       subject[1]},          --  first,
+                {"leaf",   {2},       subject[2]},          --  second,
+                {"leaf",   {"third"}, subject["third"]},    --  3rd
+                {"join",   {},        subject}}             -- }
+  - it includes hash parts of a nested table argument: |
+      -- like `pairs`, `nodes` can visit elements in any order, so we cannot
+      -- guarantee the array part is always visited before the hash part, or
+      -- even that the array elements are visited in order!
+      subject = {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"}
+      expect (traverse (subject)).should_contain.
+        all_of {{"branch", {},           subject},               -- {
+                {"branch", {1},          subject[1]},            --  {
+                {"leaf",   {1,1},        subject[1][1]},         --   one,
+                {"branch", {1,2},        subject[1][2]},         --   {
+                {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
+                {"join",   {1,2},        subject[1][2]},         --   },
+                {"branch", {1,3},        subject[1][3]},         --   {
+                {"branch", {1,3,1},      subject[1][3][1]},      --    {
+                {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
+                {"join",   {1,3,1},      subject[1][3][1]},      --    },
+                {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
+                {"join",   {1,3},        subject[1][3]},         --   },
+                {"join",   {1},          subject[1]},            --  },
+                {"leaf",   {2},          subject[2]},            --  five,
+                {"leaf",   {"foo"},      subject["foo"]},        --  bar,
+                {"join",   {},           subject}}               -- }
+  - it works on trees too: |
+      -- like `pairs`, `nodes` can visit elements in any order, so we cannot
+      -- guarantee the array part is always visited before the hash part, or
+      -- even that the array elements are visited in order!
+      subject = Tree {Tree {"one",
+                              Tree {two=2},
+                              Tree {Tree {"three"}, four=4}},
+                              foo="bar",
+                              "five"}
+      expect (traverse (subject)).should_contain.
+        all_of {{"branch", {},           subject},               -- {
+                {"branch", {1},          subject[1]},            --  {
+                {"leaf",   {1,1},        subject[1][1]},         --   one,
+                {"branch", {1,2},        subject[1][2]},         --   {
+                {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
+                {"join",   {1,2},        subject[1][2]},         --   },
+                {"branch", {1,3},        subject[1][3]},         --   {
+                {"branch", {1,3,1},      subject[1][3][1]},      --    {
+                {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
+                {"join",   {1,3,1},      subject[1][3][1]},      --    },
+                {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
+                {"join",   {1,3},        subject[1][3]},         --   },
+                {"join",   {1},          subject[1]},            --  },
+                {"leaf",   {2},          subject[2]},            --  five,
+                {"leaf",   {"foo"},      subject["foo"]},        --  bar,
+                {"join",   {},           subject}}               -- }
+  - it generates path key-lists that are valid __index arguments: |
+      pending "std.tree.__index handling empty list keys"
+      subject = Tree {"first", Tree {"second"}, "3rd"}
+      expect (traverse (subject)).
+        should_equal {{"branch", {},    subject[{}]},    -- {
+                      {"leaf",   {1},   subject[{1}]},   --  first,
+                      {"branch", {2},   subject[{2}]},   --  {
+                      {"leaf",   {2,1}, subject[{2,1}]}, --   second
+                      {"join",   {2},   subject[{2}]},   --  }
+                      {"leaf",   {3},   subject[{3}]},   --  3rd,
+                      {"join",   {},    subject[{}]}}    -- }
+  - it diagnoses non-table arguments:
+      expect (f ()).should_error ("table expected")
+      expect (f "string").should_error ("table expected")
+
+
+- describe __index:
+  - it returns nil for a missing key:
+      expect (tr["no such key"]).should_be (nil)
+  - it returns nil for missing single element key lists:
+      expect (tr[{"no such key"}]).should_be (nil)
+  - it returns nil for missing multi-element key lists: |
+      expect (tr[{"fnord", "foo"}]).should_be (nil)
+      pending "see issue #39"
+      expect (tr[{"no", "such", "key"}]).should_be (nil)
+  - it returns a value for the given key:
+      expect (tr["foo"]).should_be "foo"
+      expect (tr["quux"]).should_be "quux"
+  - it returns values for single element key lists:
+      expect (tr[{"foo"}]).should_be "foo"
+      expect (tr[{"quux"}]).should_be "quux"
+  - it returns values for multi-element key lists:
+      expect (tr[{"fnord", "branch", "bar"}]).should_be "bar"
+      expect (tr[{"fnord", "branch", "baz"}]).should_be "baz"
+
+
+- describe __newindex:
+  - before:
+      tr = Tree {}
+  - it stores values for simple keys:
+      tr["foo"] = "foo"
+      expect (tr).should_equal (Tree {foo="foo"})
+  - it stores values for single element key lists:
+      tr[{"foo"}] = "foo"
+      expect (tr).should_equal (Tree {foo="foo"})
+  - it stores values for multi-element key lists:
+      tr[{"foo", "bar"}] = "baz"
+      expect (tr).should_equal (Tree {foo=Tree {bar="baz"}})
+  - it separates branches for diverging key lists:
+      tr[{"foo", "branch", "bar"}] = "leaf1"
+      tr[{"foo", "branch", "baz"}] = "leaf2"
+      expect (tr).should_equal (Tree {foo=Tree {branch=Tree {bar="leaf1", baz="leaf2"}}})
+
+- describe __totable:
+  - it returns a table:
+      expect (prototype (totable (tr))).should_be "table"
+  - it contains all non-hidden fields of object:
+      expect (totable (tr)).should_contain.
+        all_of {"foo", branch={bar="bar", baz="baz"}, "quux"}
+
+- describe __tostring:
+  - it returns a string:
+      expect (prototype (tostring (tr))).should_be "string"
+  - it shows the type name:
+      expect (tostring (tr)).should_contain "Tree"
+  - it shows the contents in order: |
+      pending "see issue #44"
+      expect (tostring (tr)).
+        should_contain 'fnord={branch={bar=bar, baz=baz}}, foo=foo, quux=quux'

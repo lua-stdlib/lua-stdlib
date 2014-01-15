@@ -1,0 +1,1076 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><strong>std.string</strong></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>std.string</code></h1>
+<p>Additions to the string module.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#assert">assert (v, f, ...)</a></td>
+	<td class="summary">Extend to allow formatted arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#caps">caps (s)</a></td>
+	<td class="summary">Capitalise each word in a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chomp">chomp (s)</a></td>
+	<td class="summary">Remove any final newline from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#escape_pattern">escape_pattern (s)</a></td>
+	<td class="summary">Escape a string to be used as a pattern.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#escape_shell">escape_shell (s)</a></td>
+	<td class="summary">Escape a string to be used as a shell token.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#finds">finds (s, p, init, plain)</a></td>
+	<td class="summary">Do multiple <code>find</code>s on a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#format">format (f, arg1, ...)</a></td>
+	<td class="summary">Extend to work better with one argument.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ltrim">ltrim (s, r)</a></td>
+	<td class="summary">Remove leading matter from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#numbertosi">numbertosi (n)</a></td>
+	<td class="summary">Write a number using SI suffixes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ordinal_suffix">ordinal_suffix (n)</a></td>
+	<td class="summary">Return the English suffix for an ordinal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pad">pad (s, w, p)</a></td>
+	<td class="summary">Justify a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pickle">pickle (x)</a></td>
+	<td class="summary">Convert a value to a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#prettytostring">prettytostring (t, indent, spacing)</a></td>
+	<td class="summary">Pretty-print a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render">render (x, open, close, elem, pair, sep, roots)</a></td>
+	<td class="summary">Turn tables into strings with recursion detection.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_CloseRenderer">render_CloseRenderer (t)</a></td>
+	<td class="summary">
+
+</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_ElementRenderer">render_ElementRenderer (e)</a></td>
+	<td class="summary">
+
+</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_OpenRenderer">render_OpenRenderer (t)</a></td>
+	<td class="summary">
+
+</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_PairRenderer">render_PairRenderer (t, i, v, is, vs)</a></td>
+	<td class="summary">NB.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#render_SeparatorRenderer">render_SeparatorRenderer (t, i, v, j, w)</a></td>
+	<td class="summary">
+
+</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#require_version">require_version (module, min, too_big, pattern)</a></td>
+	<td class="summary">Require a module with a particular version.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rtrim">rtrim (s, r)</a></td>
+	<td class="summary">Remove trailing matter from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#split">split (s, sep)</a></td>
+	<td class="summary">Split a string at a given separator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tfind">tfind (s, p, init, plain)</a></td>
+	<td class="summary">Do find, returning captures as a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tostring">tostring (x)</a></td>
+	<td class="summary">Extend <a href="../modules/std.string.html#tostring">tostring</a>  to work better on tables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trim">trim (s, r)</a></td>
+	<td class="summary">Remove leading and trailing matter from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#wrap">wrap (s, w, ind, ind1)</a></td>
+	<td class="summary">Wrap a string into a paragraph.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings a subscription operator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings an append metamethod.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#s">s</a></td>
+	<td class="summary">Give strings a concat metamethod.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "assert"></a>
+    <strong>assert (v, f, ...)</strong>
+    </dt>
+    <dd>
+    Extend to allow formatted arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">v</span>
+         value to assert
+        </li>
+        <li><span class="parameter">f</span>
+         format
+        </li>
+        <li><span class="parameter">...</span>
+         arguments to format
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        value
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "caps"></a>
+    <strong>caps (s)</strong>
+    </dt>
+    <dd>
+    Capitalise each word in a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        capitalised string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chomp"></a>
+    <strong>chomp (s)</strong>
+    </dt>
+    <dd>
+    Remove any final newline from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        processed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "escape_pattern"></a>
+    <strong>escape_pattern (s)</strong>
+    </dt>
+    <dd>
+    Escape a string to be used as a pattern.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        processed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "escape_shell"></a>
+    <strong>escape_shell (s)</strong>
+    </dt>
+    <dd>
+    Escape a string to be used as a shell token.
+ Quotes spaces, parentheses, brackets, quotes, apostrophes and
+ whitespace.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        processed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "finds"></a>
+    <strong>finds (s, p, init, plain)</strong>
+    </dt>
+    <dd>
+    Do multiple <code>find</code>s on a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         target string
+        </li>
+        <li><span class="parameter">p</span>
+         pattern
+        </li>
+        <li><span class="parameter">init</span>
+         start position (default: 1)
+        </li>
+        <li><span class="parameter">plain</span>
+         inhibit magic characters (default: nil)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        list of <code>{from, to; capt = {captures}}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "format"></a>
+    <strong>format (f, arg1, ...)</strong>
+    </dt>
+    <dd>
+    Extend to work better with one argument.
+ If only one argument is passed, no formatting is attempted.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         format
+        </li>
+        <li><span class="parameter">arg1</span>
+         first argument to format
+        </li>
+        <li><span class="parameter">...</span>
+         arguments to format
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        formatted string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ltrim"></a>
+    <strong>ltrim (s, r)</strong>
+    </dt>
+    <dd>
+    Remove leading matter from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">r</span>
+         leading pattern (default: <code>"%s+"</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string without leading r
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "numbertosi"></a>
+    <strong>numbertosi (n)</strong>
+    </dt>
+    <dd>
+    Write a number using SI suffixes.
+ The number is always written to 3 s.f.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+         number
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ordinal_suffix"></a>
+    <strong>ordinal_suffix (n)</strong>
+    </dt>
+    <dd>
+    Return the English suffix for an ordinal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+         number of the day
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        suffix
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pad"></a>
+    <strong>pad (s, w, p)</strong>
+    </dt>
+    <dd>
+    Justify a string.
+ When the string is longer than w, it is truncated (left or right
+ according to the sign of w).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to justify
+        </li>
+        <li><span class="parameter">w</span>
+         width to justify to (-ve means right-justify; +ve means
+ left-justify)
+        </li>
+        <li><span class="parameter">p</span>
+         string to pad with (default: <code>" "</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        justified string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pickle"></a>
+    <strong>pickle (x)</strong>
+    </dt>
+    <dd>
+    Convert a value to a string.
+ The string can be passed to dostring to retrieve the value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         object to pickle
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string such that eval (s) is the same value as x
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "prettytostring"></a>
+    <strong>prettytostring (t, indent, spacing)</strong>
+    </dt>
+    <dd>
+    Pretty-print a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table to print
+        </li>
+        <li><span class="parameter">indent</span>
+         indent between levels ["\t"]
+        </li>
+        <li><span class="parameter">spacing</span>
+         space before every line
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        pretty-printed string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render"></a>
+    <strong>render (x, open, close, elem, pair, sep, roots)</strong>
+    </dt>
+    <dd>
+    Turn tables into strings with recursion detection.
+ N.B. Functions calling render should not recurse, or recursion
+ detection will not work.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         object to convert to string
+        </li>
+        <li><span class="parameter">open</span>
+         open table renderer
+        </li>
+        <li><span class="parameter">close</span>
+         close table renderer
+        </li>
+        <li><span class="parameter">elem</span>
+         element renderer
+        </li>
+        <li><span class="parameter">pair</span>
+         pair renderer
+        </li>
+        <li><span class="parameter">sep</span>
+         separator renderer
+        </li>
+        <li><span class="parameter">roots</span>
+         accumulates table references to detect recursion
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        string representation</li>
+        <li>
+        open table string</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.string.html#render_OpenRenderer">render_OpenRenderer</a></li>
+         <li><a href="../modules/std.string.html#render_CloseRenderer">render_CloseRenderer</a></li>
+         <li><a href="../modules/std.string.html#render_ElementRenderer">render_ElementRenderer</a></li>
+         <li><a href="../modules/std.string.html#render_PairRenderer">render_PairRenderer</a></li>
+         <li><a href="../modules/std.string.html#render_SeparatorRenderer">render_SeparatorRenderer</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "render_CloseRenderer"></a>
+    <strong>render_CloseRenderer (t)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        close table string</li>
+        <li>
+        element string</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_ElementRenderer"></a>
+    <strong>render_ElementRenderer (e)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">e</span>
+         element
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        element string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_OpenRenderer"></a>
+    <strong>render_OpenRenderer (t)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        open table string</li>
+        <li>
+        close table string</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_PairRenderer"></a>
+    <strong>render_PairRenderer (t, i, v, is, vs)</strong>
+    </dt>
+    <dd>
+    NB.  the function should not try to render i and v, or treat them recursively.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table
+        </li>
+        <li><span class="parameter">i</span>
+         index
+        </li>
+        <li><span class="parameter">v</span>
+         value
+        </li>
+        <li><span class="parameter">is</span>
+         index string
+        </li>
+        <li><span class="parameter">vs</span>
+         value string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        element string</li>
+        <li>
+        separator string</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "render_SeparatorRenderer"></a>
+    <strong>render_SeparatorRenderer (t, i, v, j, w)</strong>
+    </dt>
+    <dd>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         table
+        </li>
+        <li><span class="parameter">i</span>
+         preceding index (nil on first call)
+        </li>
+        <li><span class="parameter">v</span>
+         preceding value (nil on first call)
+        </li>
+        <li><span class="parameter">j</span>
+         following index (nil on last call)
+        </li>
+        <li><span class="parameter">w</span>
+         following value (nil on last call)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        separator string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "require_version"></a>
+    <strong>require_version (module, min, too_big, pattern)</strong>
+    </dt>
+    <dd>
+    Require a module with a particular version.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">module</span>
+         module to require
+        </li>
+        <li><span class="parameter">min</span>
+         lowest acceptable version (default: any)
+        </li>
+        <li><span class="parameter">too_big</span>
+         lowest version that is too big (default: none)
+        </li>
+        <li><span class="parameter">pattern</span>
+         to match version in <code>module.version</code> or
+ <code>module.VERSION</code> (default: <code>".*[%.%d]+"</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "rtrim"></a>
+    <strong>rtrim (s, r)</strong>
+    </dt>
+    <dd>
+    Remove trailing matter from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">r</span>
+         trailing pattern (default: <code>"%s+"</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string without trailing r
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "split"></a>
+    <strong>split (s, sep)</strong>
+    </dt>
+    <dd>
+    Split a string at a given separator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to split
+        </li>
+        <li><span class="parameter">sep</span>
+         separator pattern
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        list of strings
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tfind"></a>
+    <strong>tfind (s, p, init, plain)</strong>
+    </dt>
+    <dd>
+    Do find, returning captures as a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         target string
+        </li>
+        <li><span class="parameter">p</span>
+         pattern
+        </li>
+        <li><span class="parameter">init</span>
+         start position (default: 1)
+        </li>
+        <li><span class="parameter">plain</span>
+         inhibit magic characters (default: nil)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        start of match, end of match, table of captures
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tostring"></a>
+    <strong>tostring (x)</strong>
+    </dt>
+    <dd>
+    Extend <a href="../modules/std.string.html#tostring">tostring</a>  to work better on tables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         object to convert to string
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string representation
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "trim"></a>
+    <strong>trim (s, r)</strong>
+    </dt>
+    <dd>
+    Remove leading and trailing matter from a string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">r</span>
+         leading/trailing pattern (default: <code>"%s+"</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string without leading/trailing r
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "wrap"></a>
+    <strong>wrap (s, w, ind, ind1)</strong>
+    </dt>
+    <dd>
+    Wrap a string into a paragraph.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+         string to wrap
+        </li>
+        <li><span class="parameter">w</span>
+         width to wrap to (default: 78)
+        </li>
+        <li><span class="parameter">ind</span>
+         indent (default: 0)
+        </li>
+        <li><span class="parameter">ind1</span>
+         indent of first line (default: ind)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        wrapped paragraph
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Fields"></a>Fields</h2>
+    <dl class="function">
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings a subscription operator.
+
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">i</span>
+         index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings an append metamethod.
+
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">c</span>
+         character (1-character string)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "s"></a>
+    <strong>s</strong>
+    </dt>
+    <dd>
+    Give strings a concat metamethod.
+
+
+    <ul>
+        <li><span class="parameter">s</span>
+         string
+        </li>
+        <li><span class="parameter">o</span>
+         object
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

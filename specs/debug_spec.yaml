@@ -1,0 +1,69 @@
+specify debug:
+- before: |
+    M = require "std.debug"
+
+    extends      = debug
+    enhancements = {}
+    extensions   = { "say", "trace" }
+
+- context when required:
+  - before:
+      enhanced = {}
+      for _, api in ipairs (enhancements) do enhanced[api] = true end
+
+  - context by name:
+    - before: |
+        function restore (g, m)
+          for _, api in ipairs (enhancements) do
+            g[api], g["_" .. api] = m[api], m["_" .. api]
+          end
+          for _, api in ipairs (extensions) do g[api] = m[api] end
+        end
+
+        for _, api in ipairs (enhancements) do
+          extends[api] = M["_" .. api]
+        end
+        for _, api in ipairs (extensions) do extends[api] = nil end
+    - after:
+        restore (extends, M)
+    - it does not perturb the global table:
+        for _, api in ipairs (extensions) do
+          expect (extends[api]).should_be (nil)
+        end
+        for _, api in ipairs (enhancements) do
+          expect (extends[api]).should_be (M["_" .. api])
+        end
+    - it contains all global access points:
+        for api in pairs (extends) do
+          if enhanced[api] then
+            expect (M[api]).should_not_be (extends[api])
+          else
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+  - context via the std module:
+    - before:
+        require "std"
+    - it adds extension apis to the global table:
+        for api in pairs (M) do
+          expect (extends[api]).should_be (M[api])
+        end
+    - it does not add any other global access points:
+        for api in pairs (extends) do
+          if not enhanced[api] then
+            expect (M[api]).should_be (extends[api])
+          end
+        end
+
+
+- describe _DEBUG:
+
+
+- describe debug:
+
+
+- describe say:
+
+
+- describe trace:

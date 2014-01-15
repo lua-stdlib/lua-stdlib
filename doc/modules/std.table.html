@@ -1,0 +1,518 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><strong>std.table</strong></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>std.table</code></h1>
+<p>Extensions to the table module.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#clone">clone (t, nometa)</a></td>
+	<td class="summary">Make a shallow copy of a table, including any metatable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#clone_rename">clone_rename (t, map)</a></td>
+	<td class="summary">Clone a table, renaming some keys.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#empty">empty (t)</a></td>
+	<td class="summary">Return whether table is empty.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#invert">invert (t)</a></td>
+	<td class="summary">Invert a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#keys">keys (t)</a></td>
+	<td class="summary">Make the list of keys in table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#merge">merge (t, u)</a></td>
+	<td class="summary">Destructively merge another table's fields into <em>table</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#new">new (x, t)</a></td>
+	<td class="summary">Make a table with a default value for unset keys.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pack">pack (...)</a></td>
+	<td class="summary">Turn a tuple into a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ripairs">ripairs (t)</a></td>
+	<td class="summary">An iterator like ipairs, but in reverse.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#size">size (t)</a></td>
+	<td class="summary">Find the number of elements in a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sort">sort (t, c)</a></td>
+	<td class="summary">Make table.sort return its result.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#totable">totable (x)</a></td>
+	<td class="summary">Turn an object into a table according to __totable metamethod.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#values">values (t)</a></td>
+	<td class="summary">Make the list of values of a table.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "clone"></a>
+    <strong>clone (t, nometa)</strong>
+    </dt>
+    <dd>
+    Make a shallow copy of a table, including any metatable. </p>
+
+<p> To make deep copies, use <a href="../classes/std.tree.html#std.tree.clone">std.tree.clone</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+
+<pre><code>  source table
+</code></pre>
+
+        </li>
+        <li><span class="parameter">nometa</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if non-nil don't copy metatable
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        copy of <em>table</em>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "clone_rename"></a>
+    <strong>clone_rename (t, map)</strong>
+    </dt>
+    <dd>
+    Clone a table, renaming some keys.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           source table
+        </li>
+        <li><span class="parameter">map</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table <code>{old<em>key=new</em>key, ...}</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        copy of <em>table</em>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "empty"></a>
+    <strong>empty (t)</strong>
+    </dt>
+    <dd>
+    Return whether table is empty.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         any table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <code>t</code> is empty, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "invert"></a>
+    <strong>invert (t)</strong>
+    </dt>
+    <dd>
+    Invert a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table with <code>{k=v, ...}</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        inverted table <code>{v=k, ...}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "keys"></a>
+    <strong>keys (t)</strong>
+    </dt>
+    <dd>
+    Make the list of keys in table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         any table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of keys
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "merge"></a>
+    <strong>merge (t, u)</strong>
+    </dt>
+    <dd>
+    Destructively merge another table's fields into <em>table</em>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         destination table
+        </li>
+        <li><span class="parameter">u</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table with fields to merge
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table   <code>t</code> with fields from <code>u</code> merged in
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "new"></a>
+    <strong>new (x, t)</strong>
+    </dt>
+    <dd>
+    Make a table with a default value for unset keys.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         default entry value (default: <code>nil</code>)
+        </li>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         initial table (default: <code>{}</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table whose unset elements are x
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pack"></a>
+    <strong>pack (...)</strong>
+    </dt>
+    <dd>
+    Turn a tuple into a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         tuple
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        list
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ripairs"></a>
+    <strong>ripairs (t)</strong>
+    </dt>
+    <dd>
+    An iterator like ipairs, but in reverse.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         any table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        the table, <code>t</code></li>
+        <li>
+           <span class="types"><span class="type">number</span></span>
+        <code>#t + 1</code></li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "size"></a>
+    <strong>size (t)</strong>
+    </dt>
+    <dd>
+    Find the number of elements in a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         any table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number of non-nil values in <code>t</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sort"></a>
+    <strong>sort (t, c)</strong>
+    </dt>
+    <dd>
+    Make table.sort return its result.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         unsorted table
+        </li>
+        <li><span class="parameter">c</span>
+            <span class="types"><span class="type">function</span></span>
+         comparator function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>t</code> with keys sorted accordind to <code>c</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "totable"></a>
+    <strong>totable (x)</strong>
+    </dt>
+    <dd>
+    Turn an object into a table according to __totable metamethod.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
+         object to turn into a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        resulting table or <code>nil</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "values"></a>
+    <strong>values (t)</strong>
+    </dt>
+    <dd>
+    Make the list of values of a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         any table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of values
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
