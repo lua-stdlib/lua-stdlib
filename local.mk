@@ -90,8 +90,9 @@ lib/std.lua: lib/std.lua.in
 	./config.status --file=$@
 
 
-## Use a builtin rockspec build with root at $(srcdir)/lib
-mkrockspecs_args = --module-dir $(srcdir)/lib
+## Use a builtin rockspec build with root at $(srcdir)/lib, and note
+## the github repository doesn't have the same name as the rockspec!
+mkrockspecs_args = --module-dir $(srcdir)/lib --repository lua-stdlib
 
 
 ## ------------- ##
