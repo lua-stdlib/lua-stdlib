@@ -67,12 +67,12 @@ dist_luastd_DATA =			\
 	lib/std/debug.lua		\
 	lib/std/debug_init.lua		\
 	lib/std/functional.lua		\
-	lib/std/getopt.lua		\
 	lib/std/io.lua			\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/modules.lua		\
 	lib/std/object.lua		\
+	lib/std/optparse.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
@@ -118,6 +118,7 @@ dist_classes_DATA +=					\
 	$(srcdir)/doc/classes/std.container.html	\
 	$(srcdir)/doc/classes/std.list.html		\
 	$(srcdir)/doc/classes/std.object.html		\
+	$(srcdir)/doc/classes/std.optparse.html		\
 	$(srcdir)/doc/classes/std.set.html		\
 	$(srcdir)/doc/classes/std.strbuf.html		\
 	$(srcdir)/doc/classes/std.tree.html		\
@@ -127,7 +128,6 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.html			\
 	$(srcdir)/doc/modules/std.debug.html		\
 	$(srcdir)/doc/modules/std.functional.html	\
-	$(srcdir)/doc/modules/std.getopt.html		\
 	$(srcdir)/doc/modules/std.io.html		\
 	$(srcdir)/doc/modules/std.math.html		\
 	$(srcdir)/doc/modules/std.package.html		\

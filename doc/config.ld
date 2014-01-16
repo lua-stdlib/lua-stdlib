@@ -8,7 +8,6 @@ file = {
   "../lib/std.lua",
   "../lib/std/debug.lua",
   "../lib/std/functional.lua",
-  "../lib/std/getopt.lua",
   "../lib/std/io.lua",
   "../lib/std/math.lua",
   "../lib/std/package.lua",
@@ -21,6 +20,7 @@ file = {
   "../lib/std/container.lua",
   "../lib/std/object.lua",
   "../lib/std/list.lua",
+  "../lib/std/optparse.lua",
   "../lib/std/set.lua",
   "../lib/std/strbuf.lua",
 }

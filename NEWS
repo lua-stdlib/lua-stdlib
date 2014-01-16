@@ -2,6 +2,17 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - New `std.optparse` module: A civilised option parser.
+   (L)Documentation distributed in doc/classes/std.optparse.html.
+
+** Incompatible changes:
+
+ - `std.getopt` is no more. It appears to have no users, though if there
+   is a great outcry, it should be easy to make a compatibility api over
+   `std.optparse` in the next release.
+
 
 * Noteworthy changes in release 36 (2014-01-16) [stable]
 

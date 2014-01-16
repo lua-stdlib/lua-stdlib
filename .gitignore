@@ -12,7 +12,8 @@
 /README
 /aclocal.m4
 /autom4te.cache
-/build-aux
+/build-aux/
+!/build-aux/sanity-cfg.mk
 /config.log
 /config.status
 /configure
