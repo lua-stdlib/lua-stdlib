@@ -25,6 +25,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/optparse_spec.yaml	\
 	$(srcdir)/specs/package_spec.yaml	\
 	$(srcdir)/specs/set_spec.yaml		\
+	$(srcdir)/specs/std_spec.yaml		\
 	$(srcdir)/specs/strbuf_spec.yaml	\
 	$(srcdir)/specs/string_spec.yaml	\
 	$(srcdir)/specs/table_spec.yaml		\
