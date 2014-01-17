@@ -14,6 +14,11 @@ SPECL_ENV = $(LUA_ENV)
 
 SPECL_OPTS = --unicode
 
+## For compatibility with Specl < 11, std_spec.yaml has to be
+## last, so that when `require "std"` leaks symbols into the
+## Specl global environment, subsequent example blocks are not
+## affected.
+
 specl_SPECS =					\
 	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
@@ -25,11 +30,11 @@ specl_SPECS =					\
 	$(srcdir)/specs/optparse_spec.yaml	\
 	$(srcdir)/specs/package_spec.yaml	\
 	$(srcdir)/specs/set_spec.yaml		\
-	$(srcdir)/specs/std_spec.yaml		\
 	$(srcdir)/specs/strbuf_spec.yaml	\
 	$(srcdir)/specs/string_spec.yaml	\
 	$(srcdir)/specs/table_spec.yaml		\
 	$(srcdir)/specs/tree_spec.yaml		\
+	$(srcdir)/specs/std_spec.yaml		\
 	$(NOTHING_ELSE)
 
 EXTRA_DIST +=					\
