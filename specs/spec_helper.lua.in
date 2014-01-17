@@ -1,14 +1,10 @@
 local hell = require "specl.shell"
 
-local LUA = "lua"
-
-if _G.arg ~= nil then
-  local i = 0
-  while _G.arg[i - 1] ~= nil do
-    i = i - 1
-    LUA = _G.arg[i]
-  end
-end
+-- Substitute configured LUA so that hell.spawn doesn't pick up
+-- a different Lua binary to the one used by Specl itself.  If
+-- we could rely on luaposix availability `posix.getenv` would
+-- be a nicer way to find this...
+local LUA = "@LUA@"
 
 local function mkscript (code)
   local f = os.tmpname ()

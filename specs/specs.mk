@@ -5,7 +5,8 @@
 ## Environment. ##
 ## ------------ ##
 
-SPECL_ENV = $(LUA_ENV)
+specs_path = $(abs_builddir)/specs/?.lua
+SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)"
 
 
 ## ------ ##
@@ -38,7 +39,7 @@ specl_SPECS =					\
 	$(NOTHING_ELSE)
 
 EXTRA_DIST +=					\
-	$(srcdir)/specs/spec_helper.lua		\
+	$(srcdir)/specs/spec_helper.lua.in	\
 	$(NOTHING_ELSE)
 
 include build-aux/specl.mk
