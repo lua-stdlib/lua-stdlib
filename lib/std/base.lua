@@ -31,6 +31,8 @@ local function merge (t, u)
   return t
 end
 
+local new -- forward declaration
+
 -- Doc-commented in list.lua...
 local function append (l, x)
   local r = {unpack (l)}

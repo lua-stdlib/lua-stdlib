@@ -1,4 +1,119 @@
+2014-01-18  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 37
+	* NEWS: Record release date.
+
+	specs: make sure hell.spawn uses the same Lua as Specl examples.
+	* slingshot: Sync with upstream, for build-aux/specs.mk fix.
+	* configure.ac (AC_CONFIG_FILES): Add specs/spec_helper.lua.
+	* specs/spec_helper.lua: Move from here...
+	* specs/spec_helper.lua.in: ...to here.
+	* .gitignore: Add spec_helper.lua.
+	* specs/specs.mk (SPECL_ENV): Add $builddir/specs to LUA_PATH
+	for generated spec_helper.lua.
+	* specs/spec_helper.lua.in (LUA): Don't dig through `_G.arg`,
+	wait for configure substitution.
+
+	specs: remove duplicate examples.
+	* specs/math_spec.yaml: forgot to remove the old namespace
+	corruption tests from this file when adding new check in 3507e84.
+
+	specs: compatibility with Specl < 11.
+	* specs/specs.mk (specl_SPECS): Move std_spec.yaml to the end of
+	the list, where symbol leaks don't affect subsequent examples.
+
+2014-01-17  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: compensate for table.pack differences between Lua 5.1/5.2.
+	* specs/table_spec (before): Make sure `extend_base` and
+	`enhance_base` reflect whether core table library has a `pack`
+	entry.
+
+	std: lazy load submodules on demand.
+	* specs/std_spec.yaml: New specifications for lazy loading.
+	* specs/specs.mk (specl_SPECS): Add specs/std_spec.yaml.
+	* lib/std.lua.in (std.__index): Implement it.
+	* NEWS: Update.
+
+	doc: add the package name and version to html doc page titles.
+	* doc/config.ld: Move from here...
+	* doc/config.ld.in: ...to here.  Add a title setting incorporating
+	@PACKAGE@ and @VERSION@.
+	* configure.ac (AC_CONFIG_FILES): Add doc/config.ld.
+	* .gitignore: Add doc/config.ld.
+	Suggested by Dirk Laurie <dirk.laurie@gmail.com>
+
+	maint: plug symbol leaks with working specifications.
+	* specs/spec_helper.lua (show_apis): New function. Compare table
+	entries in a sub-process, to support tracking namespace changes
+	when requiring modules by various means.
+	* specs/functional_spec.yaml: New file.  Use it to ensure
+	"std.functional" doesn't leak symbols.
+	* specs/debug_spec.yaml, specs/functional_spec.yaml,
+	specs/io_spec.yaml, specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/object_spec.yaml, specs/optparse_spec.yaml,
+	specs/package_spec.yaml, specs/set_spec.yaml,
+	specs/spec_helper.lua, specs/specs.mk, specs/strbuf_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml,
+	specs/tree_spec.yaml: Rewrite specs that check symbol leaks
+	using show_apis().
+	* lib/std/base.lua (new): Don't forget the forward declaration.
+	* lib/std/set.lua (proper_subset): Likewise.
+	* NEWS: Update.
+	Reported by Dirk Laurie <dirk.laurie@gmail.com>
+
+	rockspecs: update detailed description text.
+	* rockspec.conf (description.detailed): Remove mention of regexps
+	and getopt.  Add mention of civilised option parsing.
+
+	maint: cosmetic fix to imported module list.
+	* lib/std/modules.lua: Replace `getopt` with `optparse`.
+
+	maint: workaround a luarocks bug handling debug_init.lua.
+	LuaRocks misinstalls build.modules entries ending in `init.lua`,
+	so rearrange the source tree and Automake rules so that
+	`require "std.debug_init"` still works as before even though
+	the file ends up in the wrong directory after installation.
+	* lib/std/debug_init.lua: Move from here...
+	* lib/std/debug_init/init.lua: ...to here.
+	* slingshot: upgrade for `.../init.lua` handling in mkrockspecs.
+	* local.mk (dist_luastd_DATA): Remove lib/std/debug_init.lua.
+	(dist_luastddebug_DATA): New installation dir.  Add
+	lib/std/debug_init/init.lua.
+
+	optparse: replace getopt with an easier to use option parser.
+	* specs/optparse_spec.yaml: Specify behaviour for a civilised
+	option parsing API.
+	* lib/std/optparse.lua: New module.
+	* lib/std/getopt.lua: Remove.
+	* doc/config.ld (file), local.mk (dist_luastd_DATA): Adjust.
+	* specs/getopt_spec.yaml: Remove.
+	* local.mk (dist_modules_DATA, dist_classes_DATA): Adjust.
+	* specs/specs.mk (specl_SPECS): Likewise.
+	* build-aux/sanity-cfg.mk: New file.  Don't fail sanity checks on
+	account of 'OptionParser' in optparse.lua error message.
+	* NEWS: Update.
+
+2014-01-17  Reuben Thomas  <rrt@sc3d.org>
+
+	string.lua: fix a missing close paren in a docstring
+
 2014-01-16  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: resync for `mkrockspecs --repository` support.
+	* slingshot: Sync with upstream.
+	* local.mk (mkrockspecs_args): Add `--repository lua-stdlib`.
+	* .travis.yml: Regenerate.
+
+	slingshot: sync with upstream, for bootstrap git detection fix.
+	* slingshot: Sync with upstream.
+	* bootstrap: Sync with slingshot.
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* configure.ac: Bump version number to 37.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 36
 	* NEWS: Record release date.

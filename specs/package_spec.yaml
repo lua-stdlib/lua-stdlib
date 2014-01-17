@@ -1,63 +1,38 @@
-specify package:
-- before: |
-    M = require "std.package"
+before: |
+  require "spec_helper"
 
-    extends      = package
-    extensions   = { "dirsep", "pathsep", "path_mark",  "execdir", "igmark" }
-    enhancements = {}
+  this_module        = "std.package"
 
-    -- Do not try to check all the entries in unextended package,
-    -- because they naturally change as modules are loaded.
-    coreapis   = { "config", "cpath", "loaders", "loadlib", "preload",
-                   "searchers", "searchpath", "seeall" }
+  global_table       = "_G"
+  base_module        = "package"
+  extend_base        = { "dirsep", "pathsep", "path_mark",
+                         "execdir", "igmark" }
 
+  M = require (this_module)
+
+specify std.package:
 - context when required:
-  - before:
-      enhanced = {}
-      for _, api in ipairs (enhancements) do enhanced[api] = true end
-
   - context by name:
-    - before:
-        for _, api in ipairs (enhancements) do
-          extends[api] = M["_" .. api]
-        end
-        for _, api in ipairs (extensions) do extends[api] = nil end
-    - after:
-        for _, api in ipairs (enhancements) do
-          extends[api], extends["_" .. api] = M[api], M["_" .. api]
-        end
-        for _, api in ipairs (extensions) do extends[api] = M[api] end
-    - it does not perturb the global table:
-        for _, api in ipairs (extensions) do
-          expect (extends[api]).should_be (nil)
-        end
-        for _, api in ipairs (enhancements) do
-          expect (extends[api]).should_be (M["_" .. api])
-        end
-    - it contains all global access points:
-        for _, api in ipairs (coreapis) do
-          if enhanced[api] then
-            expect (M[api]).should_not_be (extends[api])
-          else
-            expect (M[api]).should_be (extends[api])
-          end
-        end
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          should_equal {}
+    - it contains apis from the core package table:
+        expect (show_apis {from=base_module, not_in=this_module}).
+          should_contain.a_permutation_of (extend_base)
+    - it replaces no apis from the core package table:
+        expect (show_apis {from=base_module, enhanced_in=this_module}).
+          should_equal {}
 
   - context via the std module:
-    - before:
-        require "std"
-    - it adds extension apis to the global table:
-        for _, api in ipairs (extensions) do
-          expect (extends[api]).should_be (M[api])
-        end
-    - it does not add any other global access points:
-        for _, api in ipairs (coreapis) do
-          if not enhanced[api] then
-            expect (M[api]).should_be (extends[api])
-          end
-        end
+    - it adds apis to the core package table:
+        expect (show_apis {added_to=base_module, by="std"}).
+          should_contain.a_permutation_of (extend_base)
+    - it replaces no apis from the core package table:
+        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
+          should_equal {}
 
-- "it splits package.config up":
+
+- it splits package.config up:
     expect (string.format ("%s\n%s\n%s\n%s\n%s\n",
             M.dirsep, M.pathsep, M.path_mark, M.execdir, M.igmark)
     ).should_contain (package.config)

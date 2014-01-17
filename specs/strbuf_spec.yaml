@@ -1,9 +1,16 @@
 before:
+  require "spec_helper"
   object = require "std.object"
   StrBuf = require "std.strbuf"
   b      = StrBuf {"foo", "bar"}
 
-specify StrBuf:
+specify std.strbuf:
+- describe require:
+  - it does not perturb the global namespace:
+      expect (show_apis {added_to="_G", by="std.strbuf"}).
+        should_equal {}
+
+
 - describe construction:
   - context from StrBuf clone method:
     - it constructs a new strbuf:

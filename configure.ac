@@ -18,7 +18,7 @@ dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dnl Initialise autoconf and automake
-AC_INIT([stdlib], [36], [http://github.com/rrthomas/lua-stdlib/issues])
+AC_INIT([stdlib], [37], [http://github.com/rrthomas/lua-stdlib/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -37,5 +37,5 @@ AC_PROG_SED
 
 dnl Generate output files
 SS_CONFIG_TRAVIS([ldoc specl])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile doc/config.ld specs/spec_helper.lua])
 AC_OUTPUT
