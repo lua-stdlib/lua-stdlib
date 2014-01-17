@@ -104,7 +104,7 @@ end
 -- @param min lowest acceptable version (default: any)
 -- @param too_big lowest version that is too big (default: none)
 -- @param pattern to match version in `module.version` or
--- `module.VERSION` (default: `".*[%.%d]+"`
+-- `module.VERSION` (default: `".*[%.%d]+"`)
 local function require_version (module, min, too_big, pattern)
   local function version_to_list (v)
     return list.new (split (v, "%."))
