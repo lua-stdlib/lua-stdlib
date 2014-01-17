@@ -1,7 +1,8 @@
 before:
+  require "spec_helper"
   hell = require "specl.shell"
 
-specify optparse:
+specify std.optparse:
 - before: |
     OptionParser = require "std.optparse"
 
@@ -38,6 +39,12 @@ specify optparse:
 
     -- strip off the leading whitespace required for YAML
     parser = OptionParser (help:gsub ("^    ", ""))
+
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to="_G", by="std.optparse"}).
+          should_equal {}
 
 - describe OptionParser:
   - it recognises the program name:

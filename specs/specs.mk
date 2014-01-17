@@ -17,6 +17,7 @@ SPECL_OPTS = --unicode
 specl_SPECS =					\
 	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
+	$(srcdir)/specs/functional_spec.yaml	\
 	$(srcdir)/specs/io_spec.yaml		\
 	$(srcdir)/specs/list_spec.yaml		\
 	$(srcdir)/specs/math_spec.yaml		\

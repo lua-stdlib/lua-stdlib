@@ -5,7 +5,13 @@ before:
   l       = List {"foo", "bar", "baz"}
 
 
-specify List:
+specify std.list:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to="_G", by="std.list"}).
+          should_equal {}
+
 - describe construction:
   - context from List clone method:
     - it constructs a new list:

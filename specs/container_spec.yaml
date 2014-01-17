@@ -1,8 +1,15 @@
 before:
+  require "spec_helper"
   Container = require "std.container"
   prototype = (require "std.object").prototype
 
-specify Container:
+specify std.container:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to="_G", by="std.container"}).
+          should_equal {}
+
 - describe construction:
   - context from Container prototype:
     - before:

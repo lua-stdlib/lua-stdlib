@@ -5,7 +5,13 @@ before:
   totable   = (require "std.table").totable
   s         = Set {"foo", "bar", "bar"}
 
-specify Set:
+specify std.set:
+- describe require:
+  - it does not perturb the global namespace:
+      expect (show_apis {added_to="_G", by="std.set"}).
+        should_equal {}
+
+
 - describe construction:
   - it constructs a new set:
       s = Set {}

@@ -63,7 +63,8 @@ end
 
 -- High level methods (representation-independent)
 
-local difference, symmetric_difference, intersection, union, subset, equal
+local difference, symmetric_difference, intersection, union, subset,
+      proper_subset, equal
 
 
 --- Find the difference of two sets.

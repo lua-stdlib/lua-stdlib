@@ -7,6 +7,11 @@ Stdlib NEWS - User visible changes
  - New `std.optparse` module: A civilised option parser.
    (L)Documentation distributed in doc/classes/std.optparse.html.
 
+** Bug fixes:
+
+ - Modules no longer leak `new' and `proper_subset' into the global
+   table.
+
 ** Incompatible changes:
 
  - `std.getopt` is no more. It appears to have no users, though if there

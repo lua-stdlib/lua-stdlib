@@ -1,11 +1,30 @@
-before:
-  Tree      = require "std.tree"
-  prototype = (require "std.object").prototype
-  totable   = (require "std.table").totable
-  t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
-  tr = Tree (t)
+before: |
+  require "spec_helper"
 
-specify tree:
+  global_table = "_G"
+  this_module  = "std.tree"
+  std_globals  = { "ileaves", "inodes", "leaves", "nodes" }
+
+  Tree = require "std.tree"
+
+specify std.tree:
+- before:
+    prototype = (require "std.object").prototype
+    totable   = (require "std.table").totable
+    t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
+    tr = Tree (t)
+
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          should_equal {}
+
+  - context via the std module:
+    - it adds apis to the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          should_contain.all_of (std_globals)
+
 - describe construction:
   - it constructs a new tree:
       tr = Tree {}
