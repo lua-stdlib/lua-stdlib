@@ -1,4 +1,5 @@
 -- -*- lua -*-
+title = "@PACKAGE@ @VERSION@ Reference"
 project = "stdlib"
 description = "Standard Lua Libraries"
 dir = "."
