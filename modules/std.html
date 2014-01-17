@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>stdlib 37 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
+<li><a href="#Metamethods">Metamethods </a></li>
 </ul>
 
 
@@ -42,7 +43,6 @@
   <li><strong>std</strong></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
-  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
@@ -56,6 +56,7 @@
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.optparse.html">std.optparse</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
 </ul>
@@ -192,6 +193,13 @@
 	<tr>
 	<td class="name" nowrap><a href="#std">std</a></td>
 	<td class="summary">Module table.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#__index">__index (name)</a></td>
+	<td class="summary">Lazy loading of stdlib modules.</td>
 	</tr>
 </table>
 
@@ -695,7 +703,16 @@
     <strong>std</strong>
     </dt>
     <dd>
-    Module table.
+
+<p>Module table.
+ Lazy load submodules into <a href="../modules/std.html#">std</a>  on first reference.  On initial
+ load, <a href="../modules/std.html#">std</a>  has the usual single <code>version</code> entry, but the <a href="../modules/std.html#__index">__index</a>
+ metatable will automatically require submodules on first reference:</p>
+
+<pre><code> local std = require "std"
+ local prototype = std.container.prototype
+</code></pre>
+
 
 
     <h3>Fields:</h3>
@@ -705,6 +722,38 @@
         </li>
     </ul>
 
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Metamethods"></a>Metamethods </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "__index"></a>
+    <strong>__index (name)</strong>
+    </dt>
+    <dd>
+    Lazy loading of stdlib modules.
+ Don't load everything on initial startup, wait until first attempt
+ to access a submodule, and then load it on demand.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         submodule name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the submodule that was loaded to satisfy the missing <code>name</code>
+    </ol>
 
 
 
