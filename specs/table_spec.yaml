@@ -8,17 +8,25 @@ before: |
   std_globals         = { "pack", "ripairs", "totable" }
   extend_base         = { "clone", "clone_rename", "empty",
                           "invert", "keys", "merge", "new",
-                          "pack", "ripairs", "size", "totable",
-                          "values",
+                          "ripairs", "size", "totable", "values",
                           -- make these available after require "std"
                           "_sort" }
   enhance_base        = { "sort" }
+
 
   -- 'should_contain' will match keys as well as values :)
   all_apis = {}
   for _, s in ipairs (std_globals)     do all_apis[s] = true end
   for _, s in ipairs (extend_base)     do all_apis[s] = true end
   for _, s in ipairs (enhance_base)    do all_apis[s] = true end
+
+  if table.pack then
+    -- Lua 5.2
+    table.insert (enhance_base, "pack")
+  else
+    -- Lua 5.1
+    table.insert (extend_base, "pack")
+  end
 
   M = require "std.table"
 
