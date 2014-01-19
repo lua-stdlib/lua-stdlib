@@ -31,6 +31,8 @@ Stdlib NEWS - User visible changes
  - `std.list.new`, `std.set.new`, `set.strbuf.new` and `std.tree.new`
    are available again for backwards compatibility.
 
+ - LuaRocks install doesn't copy config.ld and config.ld to $docdir.
+
 ** Incompatible changes:
 
  - `std.getopt` is no more. It appears to have no users, though if there

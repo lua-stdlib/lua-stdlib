@@ -37,5 +37,5 @@ AC_PROG_SED
 
 dnl Generate output files
 SS_CONFIG_TRAVIS([ldoc specl])
-AC_CONFIG_FILES([Makefile doc/config.ld specs/spec_helper.lua])
+AC_CONFIG_FILES([Makefile build-aux/config.ld specs/spec_helper.lua])
 AC_OUTPUT

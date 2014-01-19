@@ -112,7 +112,7 @@ mkrockspecs_args = --module-dir $(srcdir)/lib --repository lua-stdlib
 ## ------------- ##
 
 EXTRA_DIST +=				\
-	doc/config.ld			\
+	build-aux/config.ld.in		\
 	lib/std.lua.in			\
 	$(NOTHING_ELSE)
 
@@ -151,4 +151,5 @@ dist_modules_DATA +=					\
 ldoc_DEPS = $(dist_lua_DATA) $(dist_luastd_DATA)
 
 $(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
-	cd $(srcdir) && $(LDOC) -c doc/config.ld .
+	test -d "$(srcdir)/doc" || mkdir "$(srcdir)/doc"
+	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
