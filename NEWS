@@ -19,6 +19,10 @@ Stdlib NEWS - User visible changes
  - Modules no longer leak `new' and `proper_subset' into the global
    table.
 
+ - Cloned `Object` and `Container` derived types are more aggressive
+   about sharing metatables, where previously the metatable was copied
+   unnecessarily the base object used `_functions` for module functions
+
 ** Incompatible changes:
 
  - `std.getopt` is no more. It appears to have no users, though if there
