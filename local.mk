@@ -29,7 +29,7 @@ LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 ## Bootstrap. ##
 ## ---------- ##
 
-old_NEWS_hash = 7ef01dfb840329db3d8db218bfe9d075
+old_NEWS_hash = 7a7647cb5b2d5d886a18070e1f4ac5fd
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas)' \
@@ -65,14 +65,13 @@ dist_luastd_DATA =			\
 	lib/std/base.lua		\
 	lib/std/container.lua		\
 	lib/std/debug.lua		\
-	lib/std/debug_init.lua		\
 	lib/std/functional.lua		\
-	lib/std/getopt.lua		\
 	lib/std/io.lua			\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/modules.lua		\
 	lib/std/object.lua		\
+	lib/std/optparse.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
@@ -80,6 +79,19 @@ dist_luastd_DATA =			\
 	lib/std/string.lua		\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
+	$(NOTHING_ELSE)
+
+
+# For bugwards compatibility with LuaRocks 2.1, while ensuring that
+# `require "std.debug_init"` continues to work, we have to install
+# the former `$(luadir)/std/debug_init.lua` to `debug_init/init.lua`.
+# When everyone has upgraded to a LuaRocks that works, move this
+# file back to dist_luastd_DATA above and rename to debug_init.lua.
+
+luastddebugdir = $(luastddir)/debug_init
+
+dist_luastddebug_DATA =			\
+	lib/std/debug_init/init.lua	\
 	$(NOTHING_ELSE)
 
 # In order to avoid regenerating std.lua at configure time, which
@@ -90,8 +102,9 @@ lib/std.lua: lib/std.lua.in
 	./config.status --file=$@
 
 
-## Use a builtin rockspec build with root at $(srcdir)/lib
-mkrockspecs_args = --module-dir $(srcdir)/lib
+## Use a builtin rockspec build with root at $(srcdir)/lib, and note
+## the github repository doesn't have the same name as the rockspec!
+mkrockspecs_args = --module-dir $(srcdir)/lib --repository lua-stdlib
 
 
 ## ------------- ##
@@ -117,6 +130,7 @@ dist_classes_DATA +=					\
 	$(srcdir)/doc/classes/std.container.html	\
 	$(srcdir)/doc/classes/std.list.html		\
 	$(srcdir)/doc/classes/std.object.html		\
+	$(srcdir)/doc/classes/std.optparse.html		\
 	$(srcdir)/doc/classes/std.set.html		\
 	$(srcdir)/doc/classes/std.strbuf.html		\
 	$(srcdir)/doc/classes/std.tree.html		\
@@ -126,7 +140,6 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.html			\
 	$(srcdir)/doc/modules/std.debug.html		\
 	$(srcdir)/doc/modules/std.functional.html	\
-	$(srcdir)/doc/modules/std.getopt.html		\
 	$(srcdir)/doc/modules/std.io.html		\
 	$(srcdir)/doc/modules/std.math.html		\
 	$(srcdir)/doc/modules/std.package.html		\

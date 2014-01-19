@@ -1,0 +1,12 @@
+specify std:
+- describe lazy loading:
+  - before:
+      std = require "std"
+  - it has no submodules on initial load:
+      expect (std).should_equal {version = std.version}
+  - it loads submodules on demand:
+      lazy = std.set
+      expect (lazy).should_be (require "std.set")
+  - it loads submodule functions on demand:
+      expect (std.object.prototype (std.set {"Lazy"})).
+        should_be "Set"

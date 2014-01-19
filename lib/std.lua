@@ -19,12 +19,21 @@
  @module std
 ]]
 
+
 --- Module table.
+-- Lazy load submodules into `std` on first reference.  On initial
+-- load, `std` has the usual single `version` entry, but the `__index`
+-- metatable will automatically require submodules on first reference:
+--
+--     local std = require "std"
+--     local prototype = std.container.prototype
 -- @table std
 -- @field version release version string
-local version = "General Lua libraries / 36"
+local version = "General Lua libraries / 37"
 
-for m, globally in pairs (require "std.modules") do
+local modules = require "std.modules"
+
+for m, globally in pairs (modules) do
   if globally == true then
     -- Inject stdlib extensions directly into global package namespaces.
     for k, v in pairs (require ("std." .. m)) do
@@ -193,4 +202,22 @@ local M = {
   version = version,
 }
 
-return M
+
+--- Metamethods
+-- @section Metamethods
+
+return setmetatable (M, {
+  --- Lazy loading of stdlib modules.
+  -- Don't load everything on initial startup, wait until first attempt
+  -- to access a submodule, and then load it on demand.
+  -- @function __index
+  -- @string name submodule name
+  -- @return the submodule that was loaded to satisfy the missing `name`
+  __index = function (self, name)
+              local ok, t = pcall (require, "std." .. name)
+              if ok then
+		rawset (self, name, t)
+		return t
+	      end
+	    end,
+})

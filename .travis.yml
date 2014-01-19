@@ -8,6 +8,7 @@ env:
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.1.1
     - LUAROCKS="$LUA $HOME/bin/luarocks"
+    - LDOC_ROCKSPEC=http://raw.github.com/gvvaughan/LDoc/next/ldoc-next-1.rockspec
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
     - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2     LUA_SUFFIX=5.2
@@ -29,12 +30,11 @@ install:
   # Install a recent luarocks release locally for everything else.
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
-  - cd $LUAROCKS_BASE
-  - ./configure
-    --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
-    --with-lua-include=$LUA_INCDIR
-  - make all install
-  - cd ..
+  - ( cd $LUAROCKS_BASE;
+      ./configure
+      --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
+      --with-lua-include=$LUA_INCDIR;
+      make all install; )
 
 # Configure and build.
 script:
@@ -54,9 +54,9 @@ script:
   # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
   - $LUAROCKS install lyaml; $LUAROCKS install specl;
   # LDoc 1.4.0 is not in luarocks yet, and LDoc master has no rockspec :(
-  - $LUAROCKS install http://raw.github.com/gvvaughan/LDoc/next/ldoc-next-1.rockspec
+  - $LUAROCKS install $LDOC_ROCKSPEC
 
-  # Make git rockspec for this package.
+  # Make git rockspec for this stdlib
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
 
@@ -65,11 +65,7 @@ script:
   - $LUAROCKS make $ROCKSPEC LUA="$LUA"
 
   # Run self-tests in the `luarocks make` build tree.
-  # Use bin/specl if present, or else the specl rock from EXTRA_ROCKS
-  # above.
-  - if test -f luarocks/bin/specl; then export SPECL=luarocks/bin/specl;
-    elif test -f bin/specl; then export SPECL=bin/specl; fi
-  - export LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
-  - export LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
-  - export LUA_INIT=; export LUA_INIT_5_2=
-  - make check SPECL="$SPECL" V=1
+  - LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
+    LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
+    LUA_INIT= LUA_INIT_5_2=
+    make check V=1

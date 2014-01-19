@@ -1,9 +1,16 @@
 before:
+  require "spec_helper"
   Object    = require "std.object"
   obj       = Object {"foo", "bar", baz="quux"}
   prototype = Object.prototype
 
-specify Object:
+specify std.object:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to="_G", by="std.object"}).
+          should_equal {}
+
 - describe construction:
   - context from Object clone method:
     - it constructs a new object:

@@ -13,7 +13,7 @@
 
 local base      = require "std.base"
 local Container = require "std.container"
-local list      = require "std.list"
+local List      = require "std.list"
 local func      = require "std.functional"
 
 local prototype = (require "std.object").prototype
@@ -177,6 +177,17 @@ local function merge (t, u)
 end
 
 
+--- @export
+local _functions = {
+  clone   = clone,
+  ileaves = ileaves,
+  inodes  = inodes,
+  leaves  = leaves,
+  merge   = merge,
+  nodes   = nodes,
+}
+
+
 --- Tree prototype object.
 -- @table std.tree
 -- @string[opt="Tree"] _type type of Tree, returned by
@@ -197,7 +208,7 @@ Tree = Container {
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
     if type (i) == "table" and #i > 0 then
-      return list.foldl (i, func.op["[]"], self)
+      return List.foldl (func.op["[]"], self, i)
     else
       return rawget (self, i)
     end
@@ -223,15 +234,10 @@ Tree = Container {
     end
   end,
 
-  --- @export
-  _functions = {
-    clone   = clone,
-    ileaves = ileaves,
-    inodes  = inodes,
-    leaves  = leaves,
-    merge   = merge,
-    nodes   = nodes,
-  },
+  _functions = base.merge (_functions, {
+    -- backwards compatibility.
+    new = function (t) return Tree (t or {}) end,
+  }),
 }
 
 return Tree

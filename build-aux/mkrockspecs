@@ -113,6 +113,15 @@ local function opterr (msg)
   os.exit (2)
 end
 
+local function setopt (optname, arglist, i)
+  local opt = arglist[i]
+  if i + 1 > #arglist then
+    opterr ("option '" .. opt .. "' requires an argument")
+  end
+  prog.opts[optname] = arglist[i + 1]
+  return i + 1
+end
+
 local function die (msg)
   msg:gsub ("([^\n]+)\n?",
             function ()
@@ -135,16 +144,18 @@ PACKAGE and VERSION are the package name and version number as defined
 by 'configure.ac' or similar. REVISION is only required for a revised
 rockspec if the default "-1" revision was released with errors.
 
+  -b, --branch=BRANCH    make git rockspec use BRANCH
+  -m, --module-dir=ROOT  directory of lua-files for builtin build type
+  -r, --repository=REPO  set the repository name (default=PACKAGE)
       --help             print this help, then exit
       --version          print version number, then exit
-  -m, --module-dir=ROOT  directory of lua-files for builtin build type
 
 Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
     os.exit (0)
 end
 
 prog["--version"] = function ()
-  print [[mkrockspecs (slingshot) 6
+  print [[mkrockspecs (slingshot) 7
 Written by Gary V. Vaughan <gary@gnu.org>, 2013
 
 Copyright (C) 2013, Gary V. Vaughan
@@ -153,17 +164,14 @@ See source files for individual license conditions.]]
   os.exit (0)
 end
 
-prog["--module-dir"] = function (arglist, i)
-  local opt = arglist[i]
-  if i + 1 > #arglist then
-    opterr ("option '" .. opt .. "' requires an argument")
-  end
+prog["-b"] = function (argl, i) return setopt ("branch", argl, i) end
+prog["--branch"] = prog["-b"]
 
-  prog.opts.module_root = arglist[i + 1]
-  return i + 1
-end
+prog["-m"] = function (argl, i) return setopt ("module_root", argl, i) end
+prog["--module-dir"] = prog["-m"]
 
-prog["-m"] = prog["--module-dir"]
+prog["-r"] = function (argl, i) return setopt ("repository", argl, i) end
+prog["--repository"] = prog["-r"]
 
 local nonopts
 local i = 0
@@ -206,6 +214,11 @@ local package  = arg[1]
 local version  = arg[2]
 local revision = arg[3] or "1"
 local conf     = arg[4] or "rockspec.conf"
+
+-- Unless set explicity, assume the repo is named after the package.
+if prog.opts.repository == nil then
+  prog.opts.repository = package
+end
 
 
 --[[ ================= ]]--
@@ -258,7 +271,7 @@ local function loadmap (root)
   tree (root)
   for _, f in ipairs (files) do
     local m = f:match ("^" .. escape_pattern (root) .. "/(.*)%.lua")
-    map [m:gsub ("/", ".")] = f:gsub ("^%./", "")
+    map [m:gsub ("/", "."):gsub ("%.init$", "")] = f:gsub ("^%./", "")
   end
   return map
 end
@@ -355,11 +368,12 @@ spec.source = spec.source or {}
 spec.build  = spec.build  or {}
 if version ~= "scm" and version ~= "git" then
   spec.source.url = "http://" .. url .. "/archive/release-v" .. version .. ".zip"
-  spec.source.dir = package .. "-release-v" .. version
+  spec.source.dir = prog.opts.repository .. "-release-v" .. version
 else
   spec.source.url = "git://" .. url .. ".git"
-  default.build.build_command = "./bootstrap && " .. default.build.build_command
+  spec.source.branch = prog.opts.branch
   spec.build.modules = nil
+  default.build.build_command =  "./bootstrap && " .. default.build.build_command
 end
 
 

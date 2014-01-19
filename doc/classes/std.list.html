@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>Reference</title>
+    <title>stdlib 37 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 <li><a href="#Metamethods">Metamethods</a></li>
 <li><a href="#Methods">Methods</a></li>
 </ul>
@@ -43,6 +44,7 @@
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><strong>std.list</strong></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.optparse.html">std.optparse</a></li>
   <li><a href="../classes/std.set.html">std.set</a></li>
   <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
   <li><a href="../classes/std.tree.html">std.tree</a></li>
@@ -52,7 +54,6 @@
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
-  <li><a href="../modules/std.getopt.html">std.getopt</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
@@ -83,7 +84,9 @@
    =&gt; 1
 </code></pre>
 
-<p> ...they can also be called as module functions with an explicit argument:</p>
+<p> ... some can also be called as module functions with an explicit list
+ argument in the first or last parameter, check the documentation for
+ details:</p>
 
 <pre><code> local List = require "std.list"
  local l = List {1, 2, 3}
@@ -99,24 +102,92 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#std.list.append">std.list.append (l, x)</a></td>
+	<td class="summary">Append an item to a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.compare">std.list.compare (l, m)</a></td>
+	<td class="summary">Compare two lists element-by-element, from left-to-right.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.concat">std.list.concat (l, ...)</a></td>
+	<td class="summary">Concatenate arguments into a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.cons">std.list.cons (l, x)</a></td>
+	<td class="summary">Prepend an item to a list.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#std.list.depair">std.list.depair (ls)</a></td>
 	<td class="summary">Turn a list of pairs into a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.elems">std.list.elems (l)</a></td>
+	<td class="summary">An iterator over the elements of a list.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.list.enpair">std.list.enpair (t)</a></td>
 	<td class="summary">Turn a table into a list of pairs.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list.index_key">std.list.index_key (l, f)</a></td>
+	<td class="name" nowrap><a href="#std.list.filter">std.list.filter (p, l)</a></td>
+	<td class="summary">Filter a list according to a predicate.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.flatten">std.list.flatten (l)</a></td>
+	<td class="summary">Flatten a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.foldl">std.list.foldl (fn, e, l)</a></td>
+	<td class="summary">Fold a binary function through a list left associatively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.foldr">std.list.foldr (fn, e, l)</a></td>
+	<td class="summary">Fold a binary function through a list right associatively.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.index_key">std.list.index_key (f, l)</a></td>
 	<td class="summary">Make an index of a list of tables on a given field</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list.index_value">std.list.index_value (l, f)</a></td>
+	<td class="name" nowrap><a href="#std.list.index_value">std.list.index_value (f, l)</a></td>
 	<td class="summary">Copy a list of tables, indexed on a given field</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list.map_with">std.list.map_with (ls, f)</a></td>
+	<td class="name" nowrap><a href="#std.list.map">std.list.map (fn, l)</a></td>
+	<td class="summary">Map a function over a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.map_with">std.list.map_with (fn, ls)</a></td>
 	<td class="summary">Map a function over a list of lists.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.project">std.list.project (f, l)</a></td>
+	<td class="summary">Project a list of fields from a list of tables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.relems">std.list.relems (l)</a></td>
+	<td class="summary">An iterator over the elements of a list, in reverse.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.rep">std.list.rep (l, n)</a></td>
+	<td class="summary">Repeat a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.reverse">std.list.reverse (l)</a></td>
+	<td class="summary">Reverse a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.shape">std.list.shape (s, l)</a></td>
+	<td class="summary">Shape a list according to a list of dimensions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.sub">std.list.sub (l, from, to)</a></td>
+	<td class="summary">Return a sub-range of a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.list.tail">std.list.tail (l)</a></td>
+	<td class="summary">Return a list with its first element removed.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.list.transpose">std.list.transpose (ls)</a></td>
@@ -125,6 +196,13 @@
 	<tr>
 	<td class="name" nowrap><a href="#std.list.zip_with">std.list.zip_with (ls, f)</a></td>
 	<td class="summary">Zip a list of lists together with a function.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.list.List">std.list.List</a></td>
+	<td class="summary">An Object derived List.</td>
 	</tr>
 </table>
 <h2><a href="#Metamethods">Metamethods</a></h2>
@@ -173,11 +251,11 @@
 	<td class="summary">Filter a list according to a predicate.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:flatten">std.list:flatten (self)</a></td>
+	<td class="name" nowrap><a href="#std.list:flatten">std.list:flatten ()</a></td>
 	<td class="summary">Flatten a list.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:foldl">std.list:foldl (f, e)</a></td>
+	<td class="name" nowrap><a href="#std.list:foldl">std.list:foldl (fn, e)</a></td>
 	<td class="summary">Fold a binary function through a list left associatively.</td>
 	</tr>
 	<tr>
@@ -185,7 +263,7 @@
 	<td class="summary">Fold a binary function through a list right associatively.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:map">std.list:map (f)</a></td>
+	<td class="name" nowrap><a href="#std.list:map">std.list:map (fn)</a></td>
 	<td class="summary">Map a function over a list.</td>
 	</tr>
 	<tr>
@@ -193,7 +271,7 @@
 	<td class="summary">Project a list of fields from a list of tables.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:relems">std.list:relems (self)</a></td>
+	<td class="name" nowrap><a href="#std.list:relems">std.list:relems ()</a></td>
 	<td class="summary">An iterator over the elements of a list, in reverse.</td>
 	</tr>
 	<tr>
@@ -201,7 +279,7 @@
 	<td class="summary">Repeat a list.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:reverse">std.list:reverse (self)</a></td>
+	<td class="name" nowrap><a href="#std.list:reverse">std.list:reverse ()</a></td>
 	<td class="summary">Reverse a list.</td>
 	</tr>
 	<tr>
@@ -213,7 +291,7 @@
 	<td class="summary">Return a sub-range of a list.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#std.list:tail">std.list:tail (self)</a></td>
+	<td class="name" nowrap><a href="#std.list:tail">std.list:tail ()</a></td>
 	<td class="summary">Return a list with its first element removed.</td>
 	</tr>
 </table>
@@ -224,6 +302,133 @@
 
     <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
+    <dt>
+    <a name = "std.list.append"></a>
+    <strong>std.list.append (l, x)</strong>
+    </dt>
+    <dd>
+    Append an item to a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">x</span>
+         item
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{l[1], ..., l[#l], x}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.compare"></a>
+    <strong>std.list.compare (l, m)</strong>
+    </dt>
+    <dd>
+
+<p>Compare two lists element-by-element, from left-to-right. </p>
+
+<pre><code> if a_list:compare (another_list) == 0 then print "same" end
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">m</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         another list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        -1 if <code>l</code> is less than <code>m</code>, 0 if they are the same, and 1
+   if <code>l</code> is greater than <code>m</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.concat"></a>
+    <strong>std.list.concat (l, ...)</strong>
+    </dt>
+    <dd>
+    Concatenate arguments into a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">...</span>
+         tuple of lists
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing
+   <code>{l[1], ..., l[#l], l_1[1], ..., l_1[#l_1], ..., l_n[1], ..., l_n[#l_n]}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.cons"></a>
+    <strong>std.list.cons (l, x)</strong>
+    </dt>
+    <dd>
+    Prepend an item to a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">x</span>
+         item
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{x, unpack (l)}</code>
+    </ol>
+
+
+
+
+</dd>
     <dt>
     <a name = "std.list.depair"></a>
     <strong>std.list.depair (ls)</strong>
@@ -256,6 +461,39 @@
 
 </dd>
     <dt>
+    <a name = "std.list.elems"></a>
+    <strong>std.list.elems (l)</strong>
+    </dt>
+    <dd>
+    An iterator over the elements of a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function which returns successive elements
+   of <code>l</code></li>
+        <li>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        <code>l</code></li>
+        <li>
+        <code>true</code></li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "std.list.enpair"></a>
     <strong>std.list.enpair (t)</strong>
     </dt>
@@ -274,7 +512,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         a new list containing <code>{{i1, v1}, ..., {in, vn}}</code>
     </ol>
 
@@ -287,8 +525,145 @@
 
 </dd>
     <dt>
+    <a name = "std.list.filter"></a>
+    <strong>std.list.filter (p, l)</strong>
+    </dt>
+    <dd>
+    Filter a list according to a predicate.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">p</span>
+            <span class="types"><span class="type">func</span></span>
+         predicate function, of one argument returning a boolean
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing elements <code>e</code> of <code>l</code> for which
+   <code>p (e)</code> is true
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:filter">std.list:filter</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list.flatten"></a>
+    <strong>std.list.flatten (l)</strong>
+    </dt>
+    <dd>
+    Flatten a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        flattened list
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.foldl"></a>
+    <strong>std.list.foldl (fn, e, l)</strong>
+    </dt>
+    <dd>
+    Fold a binary function through a list left associatively.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         binary function
+        </li>
+        <li><span class="parameter">e</span>
+         element to place in left-most position
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        result
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:foldl">std.list:foldl</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list.foldr"></a>
+    <strong>std.list.foldr (fn, e, l)</strong>
+    </dt>
+    <dd>
+    Fold a binary function through a list right associatively.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         binary function
+        </li>
+        <li><span class="parameter">e</span>
+         element to place in right-most position
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        result
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:foldr">std.list:foldr</a>
+    </ul>
+
+
+</dd>
+    <dt>
     <a name = "std.list.index_key"></a>
-    <strong>std.list.index_key (l, f)</strong>
+    <strong>std.list.index_key (f, l)</strong>
     </dt>
     <dd>
     Make an index of a list of tables on a given field
@@ -296,19 +671,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-          list of tables <code>{t1, ..., tn}</code>
-        </li>
         <li><span class="parameter">f</span>
-          field
+         field
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         list of tables <code>{t1, ..., tn}</code>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         index <code>{t1[f]=1, ..., tn[f]=n}</code>
     </ol>
 
@@ -318,7 +693,7 @@
 </dd>
     <dt>
     <a name = "std.list.index_value"></a>
-    <strong>std.list.index_value (l, f)</strong>
+    <strong>std.list.index_value (f, l)</strong>
     </dt>
     <dd>
     Copy a list of tables, indexed on a given field
@@ -326,19 +701,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-          list of tables <code>{i1=t1, ..., in=tn}</code>
-        </li>
         <li><span class="parameter">f</span>
-          field whose value should be used as index
+         field whose value should be used as index
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         list of tables <code>{i1=t1, ..., in=tn}</code>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         index <code>{t1[f]=t1, ..., tn[f]=tn}</code>
     </ol>
 
@@ -347,8 +722,43 @@
 
 </dd>
     <dt>
+    <a name = "std.list.map"></a>
+    <strong>std.list.map (fn, l)</strong>
+    </dt>
+    <dd>
+    Map a function over a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         map function
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{fn (l[1]), ..., fn (l[#l])}</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:map">std.list:map</a>
+    </ul>
+
+
+</dd>
+    <dt>
     <a name = "std.list.map_with"></a>
-    <strong>std.list.map_with (ls, f)</strong>
+    <strong>std.list.map_with (fn, ls)</strong>
     </dt>
     <dd>
     Map a function over a list of lists.
@@ -356,21 +766,256 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">ls</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         a list of lists
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         map function
         </li>
-        <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
-          map function
+        <li><span class="parameter">ls</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list of lists
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-        new list <code>{f (unpack (ls[1]))), ..., f (unpack (ls[#ls]))}</code>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list <code>{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.project"></a>
+    <strong>std.list.project (f, l)</strong>
+    </dt>
+    <dd>
+    Project a list of fields from a list of tables.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+         field to project
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        list of <code>f</code> fields
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:project">std.list:project</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list.relems"></a>
+    <strong>std.list.relems (l)</strong>
+    </dt>
+    <dd>
+    An iterator over the elements of a list, in reverse.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function which returns precessive elements
+   of the <code>l</code></li>
+        <li>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        <code>l</code></li>
+        <li>
+        <code>true</code></li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.rep"></a>
+    <strong>std.list.rep (l, n)</strong>
+    </dt>
+    <dd>
+    Repeat a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         number of times to repeat
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        <code>n</code> copies of <code>l</code> appended together
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.reverse"></a>
+    <strong>std.list.reverse (l)</strong>
+    </dt>
+    <dd>
+    Reverse a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{l[#l], ..., l[1]}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.shape"></a>
+    <strong>std.list.shape (s, l)</strong>
+    </dt>
+    <dd>
+    Shape a list according to a list of dimensions. </p>
+
+<p> Dimensions are given outermost first and items from the original
+ list are distributed breadth first; there may be one 0 indicating
+ an indefinite number. Hence, <code>{0}</code> is a flat list,
+ <code>{1}</code> is a singleton, <code>{2, 0}</code> is a list of
+ two lists, and <code>{0, 2}</code> is a list of pairs.</p>
+
+<p> Algorithm: turn shape into all positive numbers, calculating
+ the zero if necessary and making sure there is at most one;
+ recursively walk the shape, adding empty tables until the bottom
+ level is reached at which point add table items instead, using a
+ counter to walk the flattened original list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         <code>{d1, ..., dn}</code>
+        </li>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        reshaped list
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list:shape">std.list:shape</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.list.sub"></a>
+    <strong>std.list.sub (l, from, to)</strong>
+    </dt>
+    <dd>
+    Return a sub-range of a list.
+ (The equivalent of <a href="http://www.lua.org/manual/5.1/manual.html#pdf-string.sub">string.sub</a>  on strings; negative list indices
+ count from the end of the list.)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+        <li><span class="parameter">from</span>
+            <span class="types"><span class="type">int</span></span>
+         start of range (default: 1)
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><span class="type">int</span></span>
+         end of range (default: <code>#l</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{l[from], ..., l[to]}</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "std.list.tail"></a>
+    <strong>std.list.tail (l)</strong>
+    </dt>
+    <dd>
+    Return a list with its first element removed.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">l</span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+         a list
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing <code>{l[2], ..., l[#l]}</code>
     </ol>
 
 
@@ -398,7 +1043,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing
  <code>{{ls&lt;1,1>, ..., ls&lt;r,1>}, ..., {ls&lt;1,c>, ..., ls&lt;r,c>}}</code>
     </ol>
@@ -430,7 +1075,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
 
 <pre><code>a new list containing
 </code></pre>
@@ -438,6 +1083,23 @@
  where <code>N = max {map (function (l) return #l end, ls)}</code></p>
 
     </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "std.list.List"></a>
+    <strong>std.list.List</strong>
+    </dt>
+    <dd>
+    An Object derived List.
+
+
+
 
 
 
@@ -461,7 +1123,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">list</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          a list
         </li>
         <li><span class="parameter">element</span>
@@ -493,7 +1155,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">list</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          a list
         </li>
         <li><span class="parameter">table</span>
@@ -526,11 +1188,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">list1</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          a list
         </li>
         <li><span class="parameter">list2</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          another list
         </li>
     </ul>
@@ -559,11 +1221,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">list1</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          a list
         </li>
         <li><span class="parameter">list2</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
          another list
         </li>
     </ul>
@@ -591,14 +1253,14 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
-          item
+         item
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing <code>{self[1], ..., self[#self], x}</code>
     </ol>
 
@@ -623,7 +1285,7 @@
     <ul>
         <li><span class="parameter">l</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         another list
+         a list
         </li>
     </ul>
 
@@ -656,7 +1318,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing
    <code>{self[1], ..., self[#self], l_1[1], ..., l_1[#l_1], ..., l_n[1], ..., l_n[#l_n]}</code>
     </ol>
@@ -676,14 +1338,14 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
-          item
+         item
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing <code>{x, unpack (self)}</code>
     </ol>
 
@@ -704,10 +1366,11 @@
     <ol>
         <li>
            <span class="types"><span class="type">function</span></span>
-        iterator function which returns successive elements of <code>self</code></li>
+        iterator function which returns successive
+   elements of <code>self</code></li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>list</em></li>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        <code>self</code></li>
         <li>
         <code>true</code></li>
     </ol>
@@ -727,7 +1390,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">p</span>
-            <span class="types"><span class="type">function</span></span>
+            <span class="types"><span class="type">func</span></span>
          predicate function, of one argument returning a boolean
         </li>
     </ul>
@@ -735,35 +1398,32 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-        new list containing elements <code>e</code> of <code>self</code> for which <code>p (e)</code> is true
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing elements <code>e</code> of <code>self</code> for which
+   <code>p (e)</code> is true
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.filter">std.list.filter</a>
+    </ul>
 
 
 </dd>
     <dt>
     <a name = "std.list:flatten"></a>
-    <strong>std.list:flatten (self)</strong>
+    <strong>std.list:flatten ()</strong>
     </dt>
     <dd>
     Flatten a list.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-
-
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         flattened list
     </ol>
 
@@ -773,7 +1433,7 @@
 </dd>
     <dt>
     <a name = "std.list:foldl"></a>
-    <strong>std.list:foldl (f, e)</strong>
+    <strong>std.list:foldl (fn, e)</strong>
     </dt>
     <dd>
     Fold a binary function through a list left associatively.
@@ -781,12 +1441,12 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
-          binary function
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         binary function
         </li>
         <li><span class="parameter">e</span>
-          element to place in left-most position
+         element to place in left-most position
         </li>
     </ul>
 
@@ -797,6 +1457,10 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.foldl">std.list.foldl</a>
+    </ul>
 
 
 </dd>
@@ -811,8 +1475,8 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
-          binary function
+            <span class="types"><span class="type">func</span></span>
+         binary function
         </li>
         <li><span class="parameter">e</span>
           element to place in right-most position
@@ -826,12 +1490,16 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.foldr">std.list.foldr</a>
+    </ul>
 
 
 </dd>
     <dt>
     <a name = "std.list:map"></a>
-    <strong>std.list:map (f)</strong>
+    <strong>std.list:map (fn)</strong>
     </dt>
     <dd>
     Map a function over a list.
@@ -839,8 +1507,8 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><span class="type">function</span></span>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
          map function
         </li>
     </ul>
@@ -848,11 +1516,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
-        new list containing <code>{f (self[1]), ..., f (self[#self])}</code>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+        new list containing
+   <code>{fn (self[1]), ..., fn (self[#self])}</code>
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.map">std.list.map</a>
+    </ul>
 
 
 </dd>
@@ -867,45 +1540,42 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
-          field to project
+         field to project
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         list of <code>f</code> fields
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.project">std.list.project</a>
+    </ul>
 
 
 </dd>
     <dt>
     <a name = "std.list:relems"></a>
-    <strong>std.list:relems (self)</strong>
+    <strong>std.list:relems ()</strong>
     </dt>
     <dd>
     An iterator over the elements of a list, in reverse.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-
-
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
         <li>
            <span class="types"><span class="type">function</span></span>
-        iterator function which returns precessive elements of the <code>self</code></li>
+        iterator function which returns precessive elements
+   of the <code>self</code></li>
         <li>
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         <code>self</code></li>
         <li>
         <code>true</code></li>
@@ -926,7 +1596,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">int</span></span>
          number of times to repeat
         </li>
     </ul>
@@ -934,7 +1604,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         <code>n</code> copies of <code>self</code> appended together
     </ol>
 
@@ -944,25 +1614,17 @@
 </dd>
     <dt>
     <a name = "std.list:reverse"></a>
-    <strong>std.list:reverse (self)</strong>
+    <strong>std.list:reverse ()</strong>
     </dt>
     <dd>
     Reverse a list.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-
-
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing <code>{self[#self], ..., self[1]}</code>
     </ol>
 
@@ -975,19 +1637,7 @@
     <strong>std.list:shape (s)</strong>
     </dt>
     <dd>
-    Shape a list according to a list of dimensions. </p>
-
-<p> Dimensions are given outermost first and items from the original
- list are distributed breadth first; there may be one 0 indicating
- an indefinite number. Hence, <code>{0}</code> is a flat list,
- <code>{1}</code> is a singleton, <code>{2, 0}</code> is a list of
- two lists, and <code>{0, 2}</code> is a list of pairs.</p>
-
-<p> Algorithm: turn shape into all positive numbers, calculating
- the zero if necessary and making sure there is at most one;
- recursively walk the shape, adding empty tables until the bottom
- level is reached at which point add table items instead, using a
- counter to walk the flattened original list.
+    Shape a list according to a list of dimensions.
 
 
     <h3>Parameters:</h3>
@@ -1005,6 +1655,10 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.list.html#std.list.shape">std.list.shape</a>
+    </ul>
 
 
 </dd>
@@ -1021,19 +1675,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">from</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">int</span></span>
          start of range (default: 1)
         </li>
         <li><span class="parameter">to</span>
-            <span class="types"><span class="type">number</span></span>
-           end of range (default: <code>#self</code>)
+            <span class="types"><span class="type">int</span></span>
+         end of range (default: <code>#self</code>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing <code>{self[from], ..., self[to]}</code>
     </ol>
 
@@ -1043,25 +1697,17 @@
 </dd>
     <dt>
     <a name = "std.list:tail"></a>
-    <strong>std.list:tail (self)</strong>
+    <strong>std.list:tail ()</strong>
     </dt>
     <dd>
     Return a list with its first element removed.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-
-
-
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#">std.list</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
         new list containing <code>{self[2], ..., self[#self]}</code>
     </ol>
 

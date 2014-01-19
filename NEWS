@@ -1,5 +1,43 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 37 (2014-01-19) [stable]
+
+** New features:
+
+ - Lazy loading of submodules into `std` on first reference.  On initial
+   load, `std` has the usual single `version` entry, but the `__index`
+   metatable will automatically require submodules on first reference:
+
+      local std = require "std"
+      local prototype = std.container.prototype
+
+ - New `std.optparse` module: A civilised option parser.
+   (L)Documentation distributed in doc/classes/std.optparse.html.
+
+** Bug fixes:
+
+ - Modules no longer leak `new' and `proper_subset' into the global
+   table.
+
+ - Cloned `Object` and `Container` derived types are more aggressive
+   about sharing metatables, where previously the metatable was copied
+   unnecessarily the base object used `_functions` for module functions
+
+ - The retracted release 36 changed the operand order of many `std.list`
+   module functions unnecessarily.  Now that `_function` support is
+   available, there's no need to be so draconian, so the original v35
+   and earlier operand order works as before again.
+
+ - `std.list.new`, `std.set.new`, `set.strbuf.new` and `std.tree.new`
+   are available again for backwards compatibility.
+
+** Incompatible changes:
+
+ - `std.getopt` is no more. It appears to have no users, though if there
+   is a great outcry, it should be easy to make a compatibility api over
+   `std.optparse` in the next release.
+
+
 * Noteworthy changes in release 36 (2014-01-16) [stable]
 
 ** New features:

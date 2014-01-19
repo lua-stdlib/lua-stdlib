@@ -1,70 +1,73 @@
-specify string:
-- before: |
-    M = require "std.string"
+before: |
+  require "spec_helper"
 
-    extends      = string
-    enhancements = { "assert", "format", "tostring" }
-    extensions   = { "caps", "chomp", "escape_pattern", "escape_shell",
-                     "finds", "ltrim", "numbertosi", "ordinal_suffix",
-                     "pad", "pickle", "prettytostring", "render",
-                     "require_version", "rtrim", "split", "tfind",
-                     "trim", "wrap",
-                     -- make these available after require "std"
-                     "__index", "_format", "_tostring",
-                     -- camelCase compatibility:
-                     "escapePattern", "escapeShell", "ordinalSuffix" }
+  this_module         = "std.string"
 
+  global_table        = "_G"
+  std_globals         = { "pickle", "prettytostring", "render",
+                        "require_version" }
+  enhance_globals     = { "assert", "tostring" }
+
+  base_module         = "string"
+  extend_base         = { "assert", "caps", "chomp", "escape_pattern",
+                          "escape_shell", "finds", "ltrim", "numbertosi",
+                          "ordinal_suffix", "pad", "pickle",
+                          "prettytostring", "render", "require_version",
+                          "rtrim", "split", "tfind", "tostring", "trim",
+                          "wrap",
+                          -- make these available after require "std"
+                          "__index", "_format", "_tostring",
+                          -- camelCase compatibility:
+                          "escapePattern", "escapeShell",
+                          "ordinalSuffix" }
+  enhance_base        = { "format" }
+  extend_metamethods  = { "__append", "__concat" }
+  enhance_metamethods = { "__index" }
+
+  -- 'should_contain' will match keys as well as values :)
+  all_apis = {}
+  for _, s in ipairs (std_globals)     do all_apis[s] = true end
+  for _, s in ipairs (enhance_globals) do all_apis[s] = true end
+  for _, s in ipairs (extend_base)     do all_apis[s] = true end
+  for _, s in ipairs (enhance_base)    do all_apis[s] = true end
+
+  M = require "std.string"
+
+specify std.string:
+- before:
     subject = "a string \n\n"
 
-
 - context when required:
-  - before:
-      enhanced = {}
-      for _, api in ipairs (enhancements) do enhanced[api] = true end
-
   - context by name:
-    - before: |
-        for _, api in ipairs (enhancements) do
-          extends[api] = M["_" .. api]
-        end
-        for _, api in ipairs (extensions) do extends[api] = nil end
-    - after:
-        for _, api in ipairs (enhancements) do
-          extends[api], extends["_" .. api] = M[api], M["_" .. api]
-        end
-        for _, api in ipairs (extensions) do extends[api] = M[api] end
-    - it does not perturb the global table:
-        for _, api in ipairs (extensions) do
-          expect (extends[api]).should_be (nil)
-        end
-        for _, api in ipairs (enhancements) do
-          expect (extends[api]).should_be (M["_" .. api])
-        end
-    - it contains all global access points:
-        for api in pairs (extends) do
-          if enhanced[api] then
-            expect (M[api]).should_not_be (extends[api])
-          else
-            expect (M[api]).should_be (extends[api])
-          end
-        end
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          should_equal {}
+    - it contains apis from the core string table:
+        expect (show_apis {from=base_module, not_in=this_module}).
+          should_contain.a_permutation_of (all_apis)
+    - it enhances some apis from the core string table:
+        expect (show_apis {from=base_module, enhanced_in=this_module}).
+          should_contain.a_permutation_of (enhance_base)
 
   - context via the std module:
-    - before:
-        require "std"
-    - it adds extension apis to the global table:
-        for api in pairs (M) do
-          expect (extends[api]).should_be (M[api])
-        end
-    - it does not add any other global access points:
-        for api in pairs (extends) do
-          if not enhanced[api] then
-            expect (M[api]).should_be (extends[api])
-          end
-        end
+    - it adds apis to the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          should_contain.all_of (std_globals)
+    - it adds apis to the core string table:
+        expect (show_apis {added_to=base_module, by="std"}).
+          should_contain.a_permutation_of (extend_base)
+    - it adds methods to the string metatable:
+        expect (show_apis {added_to="getmetatable ('')", by="std"}).
+          should_contain.a_permutation_of (extend_metamethods)
+    - it replaces some entries in the string metatable:
+        expect (show_apis {from="getmetatable ('')", enhanced_after='require "std"'}).
+          should_contain.a_permutation_of (enhance_metamethods)
+    - it replaces some apis in the core string table:
+        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
+          should_contain.a_permutation_of (enhance_base)
 
 
-- "describe ..":
+- describe ..:
   - it concatenates string arguments:
       target = "a string \n\n another string"
       expect (subject .. " another string").should_be (target)

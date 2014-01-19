@@ -159,7 +159,7 @@ local metatable = {
               pairs, obj_mt._functions or {})
 
     -- _functions is not propagated from prototype to clone.
-    if next (obj_mt) == nil and mt._functions == nil then
+    if next (obj_mt) == nil then
       -- Reuse metatable if possible
       obj_mt = getmetatable (self)
     else

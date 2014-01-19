@@ -4,7 +4,7 @@
 ]]
 
 local func   = require "std.functional"
-local list   = require "std.list"
+local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
@@ -91,7 +91,7 @@ local function split (s, sep)
   -- flatten the result, discarding the captures, and prepend 0 (1
   -- before the first character) and append 0 (1 after the last
   -- character), and then read off the result in pairs.
-  local pairs = list.concat ({0}, list.flatten (finds (s, sep)), {0})
+  local pairs = List.concat ({0}, List.flatten (finds (s, sep)), {0})
   local l = {}
   for i = 1, #pairs, 2 do
     table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
@@ -104,10 +104,10 @@ end
 -- @param min lowest acceptable version (default: any)
 -- @param too_big lowest version that is too big (default: none)
 -- @param pattern to match version in `module.version` or
--- `module.VERSION` (default: `".*[%.%d]+"`
+-- `module.VERSION` (default: `".*[%.%d]+"`)
 local function require_version (module, min, too_big, pattern)
   local function version_to_list (v)
-    return list.new (split (v, "%."))
+    return List (split (v, "%."))
   end
   local function module_version (module, pattern)
     return version_to_list (string.match (module.version or module._VERSION,

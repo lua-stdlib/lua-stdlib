@@ -35,7 +35,7 @@
 
 check_local += specl-check-local
 specl-check-local: $(specl_SPECS)
-	$(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+	$(SPECL_ENV) LUA=$(LUA) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
 
 
 ## ------------- ##

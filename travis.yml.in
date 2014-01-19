@@ -29,12 +29,11 @@ install:
   # Install a recent luarocks release locally for everything else.
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
-  - cd $LUAROCKS_BASE
-  - ./configure
-    --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
-    --with-lua-include=$LUA_INCDIR
-  - make all install
-  - cd ..
+  - ( cd $LUAROCKS_BASE;
+      ./configure
+      --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
+      --with-lua-include=$LUA_INCDIR;
+      make all install; )
 
 # Configure and build.
 script:
@@ -54,7 +53,7 @@ script:
   # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
   @EXTRA_ROCKS@
 
-  # Make git rockspec for this package.
+  # Make git rockspec for this @PACKAGE@
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
 
@@ -63,11 +62,7 @@ script:
   - $LUAROCKS make $ROCKSPEC LUA="$LUA"
 
   # Run self-tests in the `luarocks make` build tree.
-  # Use bin/specl if present, or else the specl rock from EXTRA_ROCKS
-  # above.
-  - if test -f luarocks/bin/specl; then export SPECL=luarocks/bin/specl;
-    elif test -f bin/specl; then export SPECL=bin/specl; fi
-  - export LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
-  - export LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
-  - export LUA_INIT=; export LUA_INIT_5_2=
-  - make check SPECL="$SPECL" V=1
+  - LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
+    LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
+    LUA_INIT= LUA_INIT_5_2=
+    make check V=1

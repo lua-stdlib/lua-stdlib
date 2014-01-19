@@ -1,0 +1,55 @@
+before: |
+  require "spec_helper"
+
+  global_table = "_G"
+  this_module  = "std.functional"
+  std_globals   = { "bind", "collect", "compose", "curry", "eval",
+                   "filter", "fold", "id", "map", "memoize",
+                   "metamethod", "op" }
+
+  M = require (this_module)
+
+specify std.functional:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          should_equal {}
+
+  - context via the std module:
+    - it adds apis to the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          should_contain.all_of (std_globals)
+
+
+- describe bind:
+
+
+- describe collect:
+
+
+- describe compose:
+
+
+- describe curry:
+
+
+- describe eval:
+
+
+- describe filter:
+
+
+- describe fold:
+
+
+- describe id:
+
+
+- describe map:
+
+
+- describe memoize:
+
+
+- describe metamethod:
