@@ -427,6 +427,21 @@ List = Object {
     mapWith    = map_with,
     zipWith    = zip_with,
   }),
+
+  -- backwards compatibility.
+  _functions = {
+    filter     = function (p, l)    return filter (l, p)      end,
+    foldl      = function (f, e, l) return foldl (l, f, e)    end,
+    foldr      = function (f, e, l) return foldr (l, f, e)    end,
+    indexKey   = function (f, l)    return index_key (l, f)   end,
+    indexValue = function (f, l)    return index_value (l, f) end,
+    map        = function (f, l)    return map (l, f)         end,
+    mapWith    = function (f, l)    return map_with (l, f)    end,
+    new        = function (t)       return List (t or {})     end,
+    project    = function (f, l)    return project (l, f)     end,
+    shape      = function (s, l)    return shape (l, s)       end,
+    zipWith    = function (f, l)    return zip_with (l, f)    end,
+  },
 }
 
 

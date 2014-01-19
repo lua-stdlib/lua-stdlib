@@ -171,6 +171,23 @@ function equal (set1, set2)
   return subset (set1, set2) and subset (set2, set1)
 end
 
+
+--- @export
+local _functions = {
+  delete               = delete,
+  difference           = difference,
+  elems                = elems,
+  equal                = equal,
+  insert               = insert,
+  intersection         = intersection,
+  member               = member,
+  proper_subset        = proper_subset,
+  subset               = subset,
+  symmetric_difference = symmetric_difference,
+  union                = union,
+}
+
+
 --- Set prototype object.
 -- @table std.set
 -- @string[opt="Set"] _type type of Set, returned by
@@ -269,20 +286,10 @@ Set = Container {
                end,
 
 
-  --- @export
-  _functions = {
-    delete               = delete,
-    difference           = difference,
-    elems                = elems,
-    equal                = equal,
-    insert               = insert,
-    intersection         = intersection,
-    member               = member,
-    proper_subset        = proper_subset,
-    subset               = subset,
-    symmetric_difference = symmetric_difference,
-    union                = union,
-  },
+  _functions = base.merge (_functions, {
+    -- backwards compatibility.
+    new = function (t) return Set (t or {}) end,
+  }),
 }
 
 return Set

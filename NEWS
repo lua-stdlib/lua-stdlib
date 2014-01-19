@@ -23,6 +23,14 @@ Stdlib NEWS - User visible changes
    about sharing metatables, where previously the metatable was copied
    unnecessarily the base object used `_functions` for module functions
 
+ - The retracted release 36 changed the operand order of many `std.list`
+   module functions unnecessarily.  Now that `_function` support is
+   available, there's no need to be so draconian, so the original v35
+   and earlier operand order works as before again.
+
+ - `std.list.new`, `std.set.new`, `set.strbuf.new` and `std.tree.new`
+   are available again for backwards compatibility.
+
 ** Incompatible changes:
 
  - `std.getopt` is no more. It appears to have no users, though if there
