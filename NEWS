@@ -2,9 +2,6 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
-
-* Noteworthy changes in release 37 (2014-01-18) [stable]
-
 ** New features:
 
  - Lazy loading of submodules into `std` on first reference.  On initial
