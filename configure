@@ -3086,7 +3086,7 @@ $as_echo "$ac_cv_path_SED" >&6; }
   ac_config_files="$ac_config_files .travis.yml:travis.yml.in"
 
 
-ac_config_files="$ac_config_files Makefile doc/config.ld specs/spec_helper.lua"
+ac_config_files="$ac_config_files Makefile build-aux/config.ld specs/spec_helper.lua"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3807,7 +3807,7 @@ do
   case $ac_config_target in
     ".travis.yml") CONFIG_FILES="$CONFIG_FILES .travis.yml:travis.yml.in" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "doc/config.ld") CONFIG_FILES="$CONFIG_FILES doc/config.ld" ;;
+    "build-aux/config.ld") CONFIG_FILES="$CONFIG_FILES build-aux/config.ld" ;;
     "specs/spec_helper.lua") CONFIG_FILES="$CONFIG_FILES specs/spec_helper.lua" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;

@@ -3,6 +3,13 @@
 	Release version 37
 	* NEWS: Record release date.
 
+	doc: keep config.ld out of doc/ for LuaRocks docdir install.
+	* doc/config.ld.in: Move from here...
+	* build-aux/config.ld.in: ...to here.
+	* configure.a (AC_CONFIG_FILES): Adjust.
+	* local.mk ($(dist_lua_DATA)): Adjust.
+	* NEWS: Update.
+
 	refactor: rearrange methods and functions for backwards compatibility.
 	* lib/std/list.lua: Make use of `_function` table to reinstate
 	backwards compatible module functions.

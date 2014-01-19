@@ -185,7 +185,7 @@ DIST_COMMON = $(srcdir)/local.mk $(srcdir)/specs/specs.mk \
 	INSTALL NEWS README AUTHORS ChangeLog $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(srcdir)/travis.yml.in \
-	$(top_srcdir)/doc/config.ld.in \
+	$(top_srcdir)/build-aux/config.ld.in \
 	$(top_srcdir)/specs/spec_helper.lua.in $(dist_bin_SCRIPTS) \
 	$(dist_classes_DATA) $(dist_doc_DATA) $(dist_lua_DATA) \
 	$(dist_luastd_DATA) $(dist_luastddebug_DATA) \
@@ -202,7 +202,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_CLEAN_FILES = .travis.yml doc/config.ld specs/spec_helper.lua
+CONFIG_CLEAN_FILES = .travis.yml build-aux/config.ld \
+	specs/spec_helper.lua
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -370,9 +371,9 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(LUA_INCLUDE)
 EXTRA_DIST = $(srcdir)/specs/spec_helper.lua.in $(NOTHING_ELSE) \
-	$(specl_SPECS) $(NOTHING_ELSE) doc/config.ld lib/std.lua.in \
-	$(NOTHING_ELSE) $(mkrockspecs) $(package_rockspec) \
-	$(rockspec_conf) $(NOTHING_ELSE)
+	$(specl_SPECS) $(NOTHING_ELSE) build-aux/config.ld.in \
+	lib/std.lua.in $(NOTHING_ELSE) $(mkrockspecs) \
+	$(package_rockspec) $(rockspec_conf) $(NOTHING_ELSE)
 EXTRA_LTLIBRARIES = 
 CLEANFILES = 
 DISTCLEANFILES = $(luarocks_config) $(NOTHING_ELSE)
@@ -531,7 +532,7 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 .travis.yml: $(top_builddir)/config.status $(srcdir)/travis.yml.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-doc/config.ld: $(top_builddir)/config.status $(top_srcdir)/doc/config.ld.in
+build-aux/config.ld: $(top_builddir)/config.status $(top_srcdir)/build-aux/config.ld.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 specs/spec_helper.lua: $(top_builddir)/config.status $(top_srcdir)/specs/spec_helper.lua.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -1116,7 +1117,8 @@ lib/std.lua: lib/std.lua.in
 	./config.status --file=$@
 
 $(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
-	cd $(srcdir) && $(LDOC) -c doc/config.ld .
+	test -d "$(srcdir)/doc" || mkdir "$(srcdir)/doc"
+	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
 
 $(luarocks_config): Makefile.am
 	@test -d build-aux || mkdir build-aux
