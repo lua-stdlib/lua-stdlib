@@ -25,8 +25,6 @@
 
      Options:
 
-       -h, --help               display this help, then exit
-           --version            display version information, then exit
        -b                       a short option with no long option
            --long               a long option with no short option
            --another-long       a long option with internal hypen
@@ -35,6 +33,8 @@
        -n, --dryrun, --dry-run  several spellings of the same option
        -u, --name=USER          require an argument
        -o, --output=[FILE]      accept an optional argument
+           --version            display version information, then exit
+       -h, --help               display this help, then exit
        --                       end of options
 
     Footer text.  Several lines or paragraphs are permitted.
