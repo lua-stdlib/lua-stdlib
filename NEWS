@@ -2,6 +2,11 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** Bug fixes:
+
+ - Much improved documentation for `optparse`, so you should be able
+   to use it without reading the source code now!
+
 
 * Noteworthy changes in release 37 (2014-01-19) [stable]
 
