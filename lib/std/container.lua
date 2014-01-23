@@ -121,7 +121,10 @@ local functions = {
 local metatable = {
   _type  = "Container",
   _init  = {},
-  _functions = functions,
+
+  -- Set this to a copy of the table we return as the Container module
+  -- at the end of this file, which has its metatable set.
+  _functions = base.clone (functions, "nometa"),
 
 
   --- Return a clone of this container.

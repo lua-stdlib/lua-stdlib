@@ -7,6 +7,8 @@ Stdlib NEWS - User visible changes
  - Much improved documentation for `optparse`, so you should be able
    to use it without reading the source code now!
 
+ - Fix `getmetatable (container._functions) == getmetatable (container)`,
+   which made tostring on containers misbehave, among other latent bugs.
 
 * Noteworthy changes in release 37 (2014-01-19) [stable]
 
