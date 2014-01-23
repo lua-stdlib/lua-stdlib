@@ -57,6 +57,13 @@
 ]]
 
 
+
+-- Surprise!!  The real root object is Container, which has less
+-- functionality than Object, but that makes the heirarchy hard to
+-- explain, so the documentation pretends this is the root object, and
+-- Container is derived from it.  Confused? ;-)
+
+
 local Container  = require "std.container"
 local metamethod = (require "std.functional").metamethod
 
@@ -81,7 +88,7 @@ return Container {
   __index = {
     --- Clone this Object.
     -- @function clone
-    -- @tparam std.object o an object
+    -- @tparam std.object obj an object
     -- @param ... a list of arguments if `o._init` is a function, or a
     --   single table if `o._init` is a table.
     -- @treturn std.object a clone of `o`
@@ -112,11 +119,38 @@ return Container {
     -- @function prototype
     -- @param x anything
     -- @treturn string type of `x`
-    prototype = Container.prototype,
+    prototype = Container.prototype.call,
+
+
+    --- Return `obj` with references to the fields of `src` merged in.
+    --
+    -- More importantly, split the fields in `src` between `obj` and its
+    -- metatable. If any field names begin with `\_`, attach a metatable
+    -- to `obj` if it doesn't have one yet, and copy the "private" `\_`
+    -- prefixed fields there.
+    --
+    -- You might want to use this function to instantiate your derived
+    -- objct clones when the prototype's `_init` is a function -- when
+    -- `_init` is a table, the default (inherited unless you overwrite
+    -- it) clone method calls `mapfields` automatically.  When you're
+    -- using a function `_init` setting, `clone` doesn't know what to
+    -- copy into a new object from the `_init` function's arguments...
+    -- so you're on your own.  Except that calling `mapfields` inside
+    -- `_init` is safer than manually splitting `src` into `obj` and
+    -- its metatable, because you'll pick up fixes and changes when you
+    -- upgrade stdlib.
+    -- @function mapfields
+    -- @tparam table obj destination object
+    -- @tparam table src fields to copy int clone
+    -- @tparam[opt={}] table map `{old_key=new_key, ...}`
+    -- @treturn table `obj` with non-private fields from `src` merged,
+    --   and a metatable with private fields (if any) merged, both sets
+    --   of keys renamed according to `map`
+    mapfields = Container.mapfields.call,
 
 
     -- Backwards compatibility:
-    type = Container.prototype,
+    type = Container.prototype.call,
   },
 
 
