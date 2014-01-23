@@ -77,24 +77,6 @@ local function metaentry (x, n)
 end
 
 
---- Filter a table with a function.
--- @tparam table t source table
--- @tparam function f a function that takes key and value arguments
---   from calling `pairs` on `t`, and returns non-`nil` for elements
---   that should be in the returned table
--- @treturn table a shallow copy of `t`, with elements removed according
---   to `f`
-local function filter (t, f)
-  local r = {}
-  for k, v in pairs (t) do
-    if f (k, v) then
-      r[k] = v
-    end
-  end
-  return r
-end
-
-
 --- Return whether table is empty.
 -- @tparam table t any table
 -- @return `true` if `t` is empty, otherwise `false`
@@ -272,9 +254,13 @@ local metatable = {
   -- @treturn table a shallow copy of non-private container fields
   -- @see std.object:__totable
   __totable  = function (self)
-    return filter (self, function (e)
-	                   return type (e) ~= "string" or e:sub (1, 1) ~= "_"
-		         end)
+    local t = {}
+    for k, v in pairs (self) do
+      if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
+	t[k] = v
+      end
+    end
+    return t
   end,
 }
 
