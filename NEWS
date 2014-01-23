@@ -33,6 +33,10 @@ Stdlib NEWS - User visible changes
    this release, the same process took 8.15s... and even release 34.1,
    with drastically simpler Objects (19SLOC vs over 120) took 5.45s.
 
+ - `std.object.prototype` is now almost an order of magnitude faster
+   than previous releases, taking about 20% of the time it used to to
+   return its results.
+
 ** Bug fixes:
 
  - Much improved documentation for `optparse`, so you should be able

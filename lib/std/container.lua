@@ -63,20 +63,6 @@ local base = require "std.base"
 local clone, merge = base.clone, base.merge
 
 
---- Return the named entry from x's metatable.
--- @param x anything
--- @tparam string n name of entry
--- @return value associate with `n` in `x`'s metatable, else nil
-local function metaentry (x, n)
-  local ok, f = pcall (function (x)
-                        return getmetatable (x)[n]
-                       end,
-                       x)
-  if not ok then f = nil end
-  return f
-end
-
-
 --- Return whether table is empty.
 -- @tparam table t any table
 -- @return `true` if `t` is empty, otherwise `false`
@@ -151,11 +137,7 @@ end
 -- @treturn string        type of the container
 -- @see std.object.prototype
 local function prototype (o)
-  local _type = metaentry (o, "_type")
-  if type (o) == "table" and _type ~= nil then
-    return _type
-  end
-  return type (o)
+  return (getmetatable (o) or {})._type or type (o)
 end
 
 
@@ -245,7 +227,7 @@ local metatable = {
       s = s .. table.concat (dict, ", ")
     end
 
-    return metaentry (self, "_type") .. " {" .. s .. "}"
+    return prototype (self) .. " {" .. s .. "}"
   end,
 
 
