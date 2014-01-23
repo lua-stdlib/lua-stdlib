@@ -63,15 +63,6 @@ local base = require "std.base"
 local clone, merge = base.clone, base.merge
 
 
---- Return whether table is empty.
--- @tparam table t any table
--- @return `true` if `t` is empty, otherwise `false`
--- @see std.table.empty
-local function empty (t)
-  return not next (t)
-end
-
-
 local ModuleFunction = {
   __tostring = function (self) return tostring (self.call) end,
   __call     = function (self, ...) return self.call (...) end,
@@ -124,7 +115,7 @@ local function mapfields (obj, src, map)
   end
 
   -- Only set non-empty metatable.
-  if not empty (mt) then
+  if next (mt) then
     setmetatable (obj, mt)
   end
   return obj
@@ -182,7 +173,7 @@ local metatable = {
     end
 
     -- If a metatable was set, then merge our fields and use it.
-    if not empty (getmetatable (obj) or {}) then
+    if next (getmetatable (obj) or {}) then
       obj_mt = merge (clone (mt), getmetatable (obj))
 
       -- Merge object methods.
