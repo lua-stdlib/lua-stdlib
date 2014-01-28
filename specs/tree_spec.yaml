@@ -205,7 +205,8 @@ specify std.tree:
       for v in f {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"} do
         l[1+#l]=v
       end
-      expect (l).should_contain.all_of {"one", 2, "three", 4, "bar", "five"}
+      expect (l).should_contain.
+        a_permutation_of {"one", 2, "three", 4, "bar", "five"}
   - it works on trees too:
       for v in f (Tree {Tree {"one",
                                 Tree {two=2},
@@ -215,7 +216,8 @@ specify std.tree:
       do
         l[1+#l]=v
       end
-      expect (l).should_contain.all_of {"one", 2, "three", 4, "bar", "five"}
+      expect (l).should_contain.
+        a_permutation_of {"one", 2, "three", 4, "bar", "five"}
   - it diagnoses non-table arguments:
       expect (f ()).should_error ("table expected")
       expect (f "string").should_error ("table expected")
@@ -293,33 +295,33 @@ specify std.tree:
       -- even that the array elements are visited in order!
       subject = {"first", "second"; third = "3rd"}
       expect (traverse (subject)).should_contain.
-        all_of {{"branch", {},        subject},             -- {
-                {"leaf",   {1},       subject[1]},          --  first,
-                {"leaf",   {2},       subject[2]},          --  second,
-                {"leaf",   {"third"}, subject["third"]},    --  3rd
-                {"join",   {},        subject}}             -- }
+        a_permutation_of {{"branch", {},        subject},             -- {
+                          {"leaf",   {1},       subject[1]},          --  first,
+                          {"leaf",   {2},       subject[2]},          --  second,
+                          {"leaf",   {"third"}, subject["third"]},    --  3rd
+                          {"join",   {},        subject}}             -- }
   - it includes hash parts of a nested table argument: |
       -- like `pairs`, `nodes` can visit elements in any order, so we cannot
       -- guarantee the array part is always visited before the hash part, or
       -- even that the array elements are visited in order!
       subject = {{"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"}
       expect (traverse (subject)).should_contain.
-        all_of {{"branch", {},           subject},               -- {
-                {"branch", {1},          subject[1]},            --  {
-                {"leaf",   {1,1},        subject[1][1]},         --   one,
-                {"branch", {1,2},        subject[1][2]},         --   {
-                {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
-                {"join",   {1,2},        subject[1][2]},         --   },
-                {"branch", {1,3},        subject[1][3]},         --   {
-                {"branch", {1,3,1},      subject[1][3][1]},      --    {
-                {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
-                {"join",   {1,3,1},      subject[1][3][1]},      --    },
-                {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
-                {"join",   {1,3},        subject[1][3]},         --   },
-                {"join",   {1},          subject[1]},            --  },
-                {"leaf",   {2},          subject[2]},            --  five,
-                {"leaf",   {"foo"},      subject["foo"]},        --  bar,
-                {"join",   {},           subject}}               -- }
+        a_permutation_of {{"branch", {},           subject},               -- {
+                          {"branch", {1},          subject[1]},            --  {
+                          {"leaf",   {1,1},        subject[1][1]},         --   one,
+                          {"branch", {1,2},        subject[1][2]},         --   {
+                          {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
+                          {"join",   {1,2},        subject[1][2]},         --   },
+                          {"branch", {1,3},        subject[1][3]},         --   {
+                          {"branch", {1,3,1},      subject[1][3][1]},      --    {
+                          {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
+                          {"join",   {1,3,1},      subject[1][3][1]},      --    },
+                          {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
+                          {"join",   {1,3},        subject[1][3]},         --   },
+                          {"join",   {1},          subject[1]},            --  },
+                          {"leaf",   {2},          subject[2]},            --  five,
+                          {"leaf",   {"foo"},      subject["foo"]},        --  bar,
+                          {"join",   {},           subject}}               -- }
   - it works on trees too: |
       -- like `pairs`, `nodes` can visit elements in any order, so we cannot
       -- guarantee the array part is always visited before the hash part, or
@@ -330,22 +332,22 @@ specify std.tree:
                               foo="bar",
                               "five"}
       expect (traverse (subject)).should_contain.
-        all_of {{"branch", {},           subject},               -- {
-                {"branch", {1},          subject[1]},            --  {
-                {"leaf",   {1,1},        subject[1][1]},         --   one,
-                {"branch", {1,2},        subject[1][2]},         --   {
-                {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
-                {"join",   {1,2},        subject[1][2]},         --   },
-                {"branch", {1,3},        subject[1][3]},         --   {
-                {"branch", {1,3,1},      subject[1][3][1]},      --    {
-                {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
-                {"join",   {1,3,1},      subject[1][3][1]},      --    },
-                {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
-                {"join",   {1,3},        subject[1][3]},         --   },
-                {"join",   {1},          subject[1]},            --  },
-                {"leaf",   {2},          subject[2]},            --  five,
-                {"leaf",   {"foo"},      subject["foo"]},        --  bar,
-                {"join",   {},           subject}}               -- }
+        a_permutation_of {{"branch", {},           subject},               -- {
+                          {"branch", {1},          subject[1]},            --  {
+                          {"leaf",   {1,1},        subject[1][1]},         --   one,
+                          {"branch", {1,2},        subject[1][2]},         --   {
+                          {"leaf",   {1,2,"two"},  subject[1][2]["two"]},  --     2,
+                          {"join",   {1,2},        subject[1][2]},         --   },
+                          {"branch", {1,3},        subject[1][3]},         --   {
+                          {"branch", {1,3,1},      subject[1][3][1]},      --    {
+                          {"leaf",   {1,3,1,1},    subject[1][3][1][1]},   --     three,
+                          {"join",   {1,3,1},      subject[1][3][1]},      --    },
+                          {"leaf",   {1,3,"four"}, subject[1][3]["four"]}, --    4,
+                          {"join",   {1,3},        subject[1][3]},         --   },
+                          {"join",   {1},          subject[1]},            --  },
+                          {"leaf",   {2},          subject[2]},            --  five,
+                          {"leaf",   {"foo"},      subject["foo"]},        --  bar,
+                          {"join",   {},           subject}}               -- }
   - it generates path key-lists that are valid __index arguments: |
       pending "std.tree.__index handling empty list keys"
       subject = Tree {"first", Tree {"second"}, "3rd"}
