@@ -123,28 +123,63 @@ end
 totable = (require "std.table").totable
 
 
--- Custom matcher for set membership.
+do
+  -- Custom matcher for set membership.
 
-local set      = require "std.set"
-local util     = require "specl.util"
-local matchers = require "specl.matchers"
+  local set      = require "std.set"
+  local util     = require "specl.util"
+  local matchers = require "specl.matchers"
 
-local Matcher, matchers, q =
-      matchers.Matcher, matchers.matchers, matchers.stringify
+  local Matcher, matchers, q =
+        matchers.Matcher, matchers.matchers, matchers.stringify
 
-matchers.have_member = Matcher {
-  function (actual, expect)
-    return set.member (actual, expect)
-  end,
+  matchers.have_member = Matcher {
+    function (actual, expect)
+      return set.member (actual, expect)
+    end,
 
-  actual = "set",
+    actual = "set",
 
-  format_expect = function (expect)
-    return " a set containing " .. q (expect) .. ", "
-  end,
+    format_expect = function (expect)
+      return " a set containing " .. q (expect) .. ", "
+    end,
 
-  format_any_of = function (alternatives)
-    return " a set containing any of " ..
-           util.concat (alternatives, util.QUOTED) .. ", "
-  end,
-}
+    format_any_of = function (alternatives)
+      return " a set containing any of " ..
+             util.concat (alternatives, util.QUOTED) .. ", "
+    end,
+  }
+end
+
+
+do
+  --[[ ======================================= ]]--
+  --[[ Remove this after Specl 11 is released. ]]--
+  --[[ ======================================= ]]--
+
+  -- Custom matcher for specl.shell failure with error message.
+
+  local matchers = require "specl.matchers"
+  local Matcher, matchers, reformat =
+        matchers.Matcher, matchers.matchers, matchers.reformat
+
+  matchers.fail_with = matchers.fail_with or Matcher {
+    function (actual, expect)
+      return (actual.status ~= 0) and (actual.errout == expect)
+    end,
+
+    actual_type   = "Process",
+
+    format_actual = function (process)
+      return ":" .. reformat (process.errout)
+    end,
+
+    format_expect = function (expect)
+      return " error output: " .. reformat (expect)
+    end,
+
+    format_alternatives = function (adaptor, alternatives)
+      return " error output:" .. reformat (alternatives, adaptor)
+    end,
+  }
+end
