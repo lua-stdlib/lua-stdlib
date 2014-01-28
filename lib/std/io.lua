@@ -110,23 +110,49 @@ local function process_files (f)
 end
 
 --- Give warning with the name of program and file (if any).
+-- If there is a global `prog` table, prefix the message with
+-- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
+-- if there is a global `opts` table, prefix the message with
+-- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
+-- returns an `opts` table that provides the required `program`
+-- field, as long as you assign it back to `_G.opts`:
+--
+--     local OptionParser = require "std.optparse"
+--     local parser = OptionParser "eg 0\nUsage: eg\n"
+--     _G.arg, _G.opts = parser:parse (_G.arg)
+--     if not _G.opts.keep_going then
+--       require "std.io".warn "oh noes!"
+--     end
+--
 -- @param ... arguments for format
+-- @see std.optparse:parse
 local function warn (...)
   local prefix = ""
   if (prog or {}).name then
     prefix = prog.name .. ":"
+    if prog.line then
+      prefix = prefix .. tostring (prog.line) .. ":"
+    end
   elseif (prog or {}).file then
     prefix = prog.file .. ":"
-  end
-  if #prefix > 0 and (prog or {}).line then
-    prefix = prefix .. tostring (prog.line) .. ":"
+    if prog.line then
+      prefix = prefix .. tostring (prog.line) .. ":"
+    end
+  elseif (opts or {}).program then
+    prefix = opts.program .. ":"
+    if opts.line then
+      prefix = prefix .. tostring (opts.line) .. ":"
+    end
   end
   if #prefix > 0 then prefix = prefix .. " " end
   writelines (io.stderr, prefix .. string.format (...))
 end
 
 --- Die with error.
+-- This function uses the same rules to build a message prefix
+-- as @{std.io.warn}.
 -- @param ... arguments for format
+-- @see std.io.warn
 local function die (...)
   warn (...)
   error ()

@@ -66,6 +66,10 @@
  (`-xyz`), equals separators to long options (`--long=ARG`) are fully
  expanded before any handler is called.
 
+ Note that @{std.io.die} and @{std.io.warn} will only prefix messages
+ with `parser.program` if the parser options are assigned back to
+ `_G.opts` as shown in the example above.
+
  @classmod std.optparse
 ]=]
 
@@ -554,7 +558,9 @@ local function parse (self, arglist)
     end
   end
 
-  return self.unrecognised, self.opts
+  -- metatable allows `io.warn` to find `parser.program` when assigned
+  -- back to _G.opts.
+  return self.unrecognised, setmetatable (self.opts, {__index = self})
 end
 
 
