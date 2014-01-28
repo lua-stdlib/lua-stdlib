@@ -51,6 +51,33 @@ specify std.io:
 
 
 - describe die:
+  - before:
+      script = [[require "std.io".warn "By 'eck!"]]
+  - it outputs a message to stderr:
+      expect (luaproc (script)).should_output_error "By 'eck!\n"
+  - it ignores `prog.line` without `prog.file` or `prog.name`:
+      script = [[prog = { line = 125 };]] .. script
+      expect (luaproc (script)).should_output_error "By 'eck!\n"
+  - it prefixes `prog.name` if any: |
+      script = [[prog = { name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name: By 'eck!\n"
+  - it appends `prog.line` if any, to `prog.name`: |
+      script = [[prog = { line = 125, name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name:125: By 'eck!\n"
+  - it prefixes `prog.file` if any: |
+      script = [[prog = { file = "file" };]] .. script
+      expect (luaproc (script)).should_output_error "file: By 'eck!\n"
+  - it appends `prog.line` if any, to `prog.name`: |
+      script = [[prog = { file = "file", line = 125 };]] .. script
+      expect (luaproc (script)).should_output_error "file:125: By 'eck!\n"
+  - it prefers `prog.name` to `prog.file`: |
+      script = [[prog = { file = "file", name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name: By 'eck!\n"
+  - it appends `prog.line` if any to `prog.name` over `prog.file`: |
+      script = [[
+        prog = { file = "file", line = 125, name = "name" }
+      ]] .. script
+      expect (luaproc (script)).should_output_error "name:125: By 'eck!\n"
 
 
 - describe process_files:
@@ -71,6 +98,33 @@ specify std.io:
 
 
 - describe warn:
+  - before:
+      script = [[require "std.io".warn "Ayup!"]]
+  - it outputs a message to stderr:
+      expect (luaproc (script)).should_output_error "Ayup!\n"
+  - it ignores `prog.line` without `prog.file` or `prog.name`:
+      script = [[prog = { line = 125 };]] .. script
+      expect (luaproc (script)).should_output_error "Ayup!\n"
+  - it prefixes `prog.name` if any: |
+      script = [[prog = { name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name: Ayup!\n"
+  - it appends `prog.line` if any, to `prog.name`: |
+      script = [[prog = { line = 125, name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name:125: Ayup!\n"
+  - it prefixes `prog.file` if any: |
+      script = [[prog = { file = "file" };]] .. script
+      expect (luaproc (script)).should_output_error "file: Ayup!\n"
+  - it appends `prog.line` if any, to `prog.name`: |
+      script = [[prog = { file = "file", line = 125 };]] .. script
+      expect (luaproc (script)).should_output_error "file:125: Ayup!\n"
+  - it prefers `prog.name` to `prog.file`: |
+      script = [[prog = { file = "file", name = "name" };]] .. script
+      expect (luaproc (script)).should_output_error "name: Ayup!\n"
+  - it appends `prog.line` if any to `prog.name` over `prog.file`: |
+      script = [[
+        prog = { file = "file", line = 125, name = "name" }
+      ]] .. script
+      expect (luaproc (script)).should_output_error "name:125: Ayup!\n"
 
 
 - describe writelines:

@@ -112,19 +112,17 @@ end
 --- Give warning with the name of program and file (if any).
 -- @param ... arguments for format
 local function warn (...)
-  if prog.name then
-    io.stderr:write (prog.name .. ":")
+  local prefix = ""
+  if (prog or {}).name then
+    prefix = prog.name .. ":"
+  elseif (prog or {}).file then
+    prefix = prog.file .. ":"
   end
-  if prog.file then
-    io.stderr:write (prog.file .. ":")
+  if #prefix > 0 and (prog or {}).line then
+    prefix = prefix .. tostring (prog.line) .. ":"
   end
-  if prog.line then
-    io.stderr:write (tostring (prog.line) .. ":")
-  end
-  if prog.name or prog.file or prog.line then
-    io.stderr:write (" ")
-  end
-  writelines (io.stderr, string.format (...))
+  if #prefix > 0 then prefix = prefix .. " " end
+  writelines (io.stderr, prefix .. string.format (...))
 end
 
 --- Die with error.

@@ -14,13 +14,18 @@ local function mkscript (code)
   return f
 end
 
-local function tabulate_output (code)
+function luaproc (code)
   local f = mkscript (code)
   local proc = hell.spawn {
     LUA, f;
     env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" },
   }
   os.remove (f)
+  return proc
+end
+
+local function tabulate_output (code)
+  local proc = luaproc (code)
   if proc.status ~= 0 then return error (proc.errout) end
   local r = {}
   proc.output:gsub ("(%S*)[%s]*",
