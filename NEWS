@@ -38,8 +38,8 @@ Stdlib NEWS - User visible changes
    with drastically simpler Objects (19SLOC vs over 120) took 5.45s.
 
  - `std.object.prototype` is now almost an order of magnitude faster
-   than previous releases, taking about 20% of the time it used to to
-   return its results.
+   than previous releases, taking about 20% of the time it previously
+   used to return its results.
 
  - `io.warn` and `io.die` now integrate properly with `std.optparse`,
     provided you save the `opts` return from `parser:parse` back to the
