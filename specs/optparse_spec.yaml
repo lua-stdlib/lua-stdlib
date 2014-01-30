@@ -381,7 +381,7 @@ specify std.optparse:
           ]])
         end
     - it prefers `prog.name` to `opts.program`: |
-        code = [[prog = { file = "file", name = "name" }]] 
+        code = [[prog = { file = "file", name = "name" }]]
         expect (runscript (code)).should_fail_with "name: By 'eck!\n"
     - it prefers `prog.file` to `opts.program`: |
         code = [[prog = { file = "file" }]]
@@ -409,7 +409,7 @@ specify std.optparse:
           ]])
         end
     - it prefers `prog.name` to `opts.program`: |
-        code = [[prog = { file = "file", name = "name" }]] 
+        code = [[prog = { file = "file", name = "name" }]]
         expect (runscript (code)).should_output_error "name: Ayup!\n"
     - it prefers `prog.file` to `opts.program`: |
         code = [[prog = { file = "file" }]]
