@@ -432,11 +432,11 @@ specify std.string:
   - it returns an empty string element when ending with separator:
       expect (f ("xyzyzxy", "zxy")).should_equal {"xyzy", ""}
   - it returns a table of 1-character strings for "" separator:
-      pending "uncomment after fixing infinite loop"
-      -- expect (f ("abcdef", "")).should_equal {"", "a", "b", "c", "d", "e", "f", ""}
+      expect (f ("abcdef", "")).should_equal {"", "a", "b", "c", "d", "e", "f", ""}
   - it is available as a string metamethod:
       expect (subject:split ", ").should_equal (target)
-      expect (("/foo/bar/baz.quux"):split "/").should_equal {"", "foo", "bar", "baz.quux"}
+      expect (("/foo/bar/baz.quux"):split "/").
+        should_equal {"", "foo", "bar", "baz.quux"}
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "e")

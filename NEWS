@@ -61,6 +61,9 @@ Stdlib NEWS - User visible changes
  - `io.warn` and `io.die` no longer crash in the absence of a global
    `prog` table.
 
+ - `string.split` no longer goes into an infinite loop when given an
+   empty separator string.
+
  - Fix `getmetatable (container._functions) == getmetatable (container)`,
    which made tostring on containers misbehave, among other latent bugs.
 
