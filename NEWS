@@ -2,7 +2,11 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
-** New featurs:
+** New features:
+
+ - The separator parameter to `std.string.split` is now optional.  It
+   now splits strings with `%s+` when no separator is specified.  The
+   new implementation is faster too.
 
  - New `std.object.mapfields` method factors out the table field copying
    and mapping performed when cloning a table `_init` style object. This

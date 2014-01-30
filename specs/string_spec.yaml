@@ -445,7 +445,6 @@ specify std.string:
       expect (f (subject, "%s+")).
         should_equal {"first,", "the", "second", "one,", "final", "entry"}
   - it diagnoses non-string arguments:
-      expect (f ("a string")).should_error ("string expected")
       expect (f (nil, ",")).should_error ("string expected")
       expect (f ({"a table"}, ",")).should_error ("string expected")
 

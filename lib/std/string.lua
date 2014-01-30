@@ -84,15 +84,13 @@ end
 --- Split a string at a given separator.
 -- Separator is a Lua pattern, so you have to escape active characters,
 -- `^$()%.[]*+-?` with a `%` prefix to match a literal character in `s`.
--- @todo Consider Perl and Python versions.
--- @param s string to split
--- @param sep separator pattern
+-- @string s to split
+-- @string[opt="%s*"] sep separator pattern
+-- @return list of strings
 -- @return list of strings
 local function split (s, sep)
   assert (type (s) == "string",
           "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
-  assert (type (sep) == "string",
-          "bad argument #2 to 'split' (string expected, got " .. type (sep) .. ")")
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
   if sep == "" then patt = "(.)"; table.insert (t, "") end
   while b <= len do
