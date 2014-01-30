@@ -124,7 +124,7 @@ totable = (require "std.table").totable
 
 
 do
-  -- Custom matcher for set membership.
+  -- Custom matcher for set size and set membership.
 
   local set      = require "std.set"
   local util     = require "specl.util"
@@ -132,6 +132,25 @@ do
 
   local Matcher, matchers, q =
         matchers.Matcher, matchers.matchers, matchers.stringify
+
+  matchers.have_size = Matcher {
+    function (actual, expect)
+      local size = 0
+      for _ in pairs (actual) do size = size + 1 end
+      return size == expect
+    end,
+
+    actual = "table",
+
+    format_expect = function (expect)
+      return " a table containing " .. expect .. " elements, "
+    end,
+
+    format_any_of = function (alternatives)
+      return " a table with any of " ..
+             util.concat (alternatives, util.QUOTED) .. " elements, "
+    end,
+  }
 
   matchers.have_member = Matcher {
     function (actual, expect)
