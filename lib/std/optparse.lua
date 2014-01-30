@@ -1,13 +1,9 @@
---[[--
+--[=[--
  Parse and process command line options.
 
      local OptionParser = require "std.optparse"
-     local parser = OptionParser (spec)
-     _G.arg, opts = parser:parse (_G.arg)
 
- The string `spec` passed to `OptionParser` must be a specially formatted
- help text, of the form:
-
+     local parser = OptionParser [[
      any text VERSION
      Additional lines of text to show when the --version
      option is passed.
@@ -25,38 +21,57 @@
 
      Options:
 
-       -h, --help               display this help, then exit
-           --version            display version information, then exit
        -b                       a short option with no long option
            --long               a long option with no short option
            --another-long       a long option with internal hypen
-           --true               a Lua keyword as an option name
        -v, --verbose            a combined short and long option
        -n, --dryrun, --dry-run  several spellings of the same option
        -u, --name=USER          require an argument
        -o, --output=[FILE]      accept an optional argument
-       --                       end of options
+           --version            display version information, then exit
+           --help               display this help, then exit
 
     Footer text.  Several lines or paragraphs are permitted.
 
     Please report bugs at bug-list@yourhost.com
+    ]]
+
+    _G.arg, _G.opts = parser:parse (_G.arg)
 
  Most often, everything else is handled automatically.  After calling
  `parser:parse` as shown above, `_G.arg` will contain unparsed arguments,
- usually filenames or similar, and `opts` will be a table of parsed
+ usually filenames or similar, and `_G.opts` will be a table of parsed
  option values. The keys to the table are the long-options with leading
  hyphens stripped, and non-word characters turned to `_`.  For example
- if `--another-long` had been found in `_G.arg` then `opts` would
+ if `--another-long` had been found in `_G.arg` then `_G.opts` would
  have a key named `another_long`.  If there is no long option name, then
- the short option is used, e.g. `opts.b` will be set.  The values saved
- in those keys are controlled by the option handler, usually just `true`
- or the option argument string as appropriate.
+ the short option is used, e.g. `_G.opts.b` will be set.  The values
+ saved in those keys are controlled by the option handler, usually just
+ `true` or the option argument string as appropriate.
 
  On those occasions where more complex processing is required, handlers
- can be replaced or added using parser:@{on}.
+ can be replaced or added using parser:@{on}.  A good option to always
+ add, is to make `--` signal the end of processed options, so that any
+ options following `--` on the command line, even if they begin with a
+ hyphen and look like options otherwise, are not processed but instead
+ left in the modified `_G.arg` returned by `parser:parse`:
+
+     parser:on ('--', parser.finished)
+
+ See the documentation for @{std.optparse:on} for more details of how to
+ use this powerful method.
+
+ When writing your own handlers for @{std.optparse:on}, you only need
+ to deal with normalised arguments, because combined short arguments
+ (`-xyz`), equals separators to long options (`--long=ARG`) are fully
+ expanded before any handler is called.
+
+ Note that @{std.io.die} and @{std.io.warn} will only prefix messages
+ with `parser.program` if the parser options are assigned back to
+ `_G.opts` as shown in the example above.
 
  @classmod std.optparse
-]]
+]=]
 
 
 local OptionParser -- forward declaration
@@ -64,7 +79,22 @@ local OptionParser -- forward declaration
 
 ------
 -- Customized parser for your options.
+--
+-- This table is returned by @{OptionParser}, and most importantly has
+-- the @{parse} method you call to fill the `opts` table according to
+-- what command-line options were passed to your program.
 -- @table parser
+-- @string program the first word following `Usage:` in @{OptionParser}
+--   spec string
+-- @string version the last white-space delimited word on the first line
+--   of text in the spec string
+-- @string versiontext everything preceding `Usage:` in the spec string,
+--   and which will be displayed by the @{version} @{on_handler}
+-- @string helptext everything including and following `Usage:` in the
+--   spec string and which will be displayed by the @{help}
+--   @{on_handler}
+-- @func parse see @{parse}
+-- @func on see @{on}
 
 
 --[[ ----------------- ]]--
@@ -78,6 +108,7 @@ local optional, required
 --- Normalise an argument list.
 -- Separate short options, remove `=` separators from
 -- `--long-option=optarg` etc.
+-- @local
 -- @function normalise
 -- @tparam table arglist list of arguments to normalise
 -- @treturn table normalised argument list
@@ -132,6 +163,7 @@ end
 
 
 --- Store `value` with `opt`.
+-- @local
 -- @function set
 -- @string opt option name
 -- @param value option argument value
@@ -157,6 +189,16 @@ end
 --- Option at `arglist[i]` can take an argument.
 -- Argument is accepted only if there is a following entry that does not
 -- begin with a '-'.
+--
+-- This is the handler automatically assigned to options that have
+-- `--opt=[ARG]` style specifications in the @{OptionParser} spec
+-- argument.  You can also pass it as the `handler` argument to @{on} for
+-- options you want to add manually without putting them in the
+-- @{OptionParser} spec.
+--
+-- Like @{required}, this handler will store multiple occurrences of a
+-- command-line option.
+-- @static
 -- @tparam table arglist list of arguments
 -- @int i index of last processed element of `arglist`
 -- @param[opt=true] value either a function to process the option
@@ -179,6 +221,28 @@ end
 
 
 --- Option at `arglist[i}` requires an argument.
+--
+-- This is the handler automatically assigned to options that have
+-- `--opt=ARG` style specifications in the @{OptionParser} spec argument.
+-- You can also pass it as the `handler` argument to @{on} for options
+-- you want to add manually without putting them in the @{OptionParser}
+-- spec.
+--
+-- Normally the value stored in the `opt` table by this handler will be
+-- the string given as the argument to that option on the command line.
+-- However, if the option is given on the command-line multiple times,
+-- `opt["name"]` will end up with all those arguments stored in the
+-- array part of a table:
+--
+--     $ cat ./prog
+--     ...
+--     parser:on ({"-e", "-exec"}, required)
+--     _G.arg, _G.opt = parser:parse (_G.arg)
+--     print std.string.tostring (_G.opt.exec)
+--     ...
+--     $ ./prog -e '(foo bar)' -e '(foo baz)' -- qux
+--     {1=(foo bar),2=(foo baz)}
+-- @static
 -- @tparam table arglist list of arguments
 -- @int i index of last processed element of `arglist`
 -- @param[opt] value either a function to process the option argument,
@@ -203,7 +267,16 @@ end
 
 
 --- Finish option processing
--- Usually indicated by `--` at `arglist[i]`.
+--
+-- This is the handler automatically assigned to the option written as
+-- `--` in the @{OptionParser} spec argument.  You can also pass it as
+-- the `handler` argument to @{on} if you want to manually add an end
+-- of options marker without writing it in the @{OptionParser} spec.
+--
+-- This handler tells the parser to stop processing arguments, so that
+-- anything after it will be an argument even if it otherwise looks
+-- like an option.
+-- @static
 -- @tparam table arglist list of arguments
 -- @int i index of last processed element of `arglist`
 -- @treturn int index of next element of `arglist` to process
@@ -216,24 +289,42 @@ end
 
 
 --- Option at `arglist[i]` is a boolean switch.
+--
+-- This is the handler automatically assigned to options that have
+-- `--long-opt` or `-x` style specifications in the @{OptionParser} spec
+-- argument. You can also pass it as the `handler` argument to @{on} for
+-- options you want to add manually without putting them in the
+-- @{OptionParser} spec.
+--
+-- Beware that, _unlike_ @{required}, this handler will store multiple
+-- occurrences of a command-line option as a table **only** when given a
+-- `value` function.  Automatically assigned handlers do not do this, so
+-- the option will simply be `true` if the option was given one or more
+-- times on the command-line.
+-- @static
 -- @tparam table arglist list of arguments
 -- @int i index of last processed element of `arglist`
 -- @param[opt] value either a function to process the option argument,
 --   or a value to store when this flag is encountered
 -- @treturn int index of next element of `arglist` to process
 local function flag (self, arglist, i, value)
+  local opt = arglist[i]
   if type (value) == "function" then
-    value = value (self, opt, true)
+    set (self, opt, value (self, opt, true))
   elseif value == nil then
-    value = true
+    local key = self[opt].key
+    self.opts[key] = true
   end
 
-  set (self, arglist[i], value)
   return i + 1
 end
 
 
 --- Option should display help text, then exit.
+--
+-- This is the handler automatically assigned tooptions that have
+-- `--help` in the specification, e.g. `-h, -?, --help`.
+-- @static
 -- @function help
 local function help (self)
   print (self.helptext)
@@ -242,6 +333,10 @@ end
 
 
 --- Option should display version text, then exit.
+--
+-- This is the handler automatically assigned tooptions that have
+-- `--version` in the specification, e.g. `-V, --version`.
+-- @static
 -- @function version
 local function version (self)
   print (self.versiontext)
@@ -275,6 +370,11 @@ local boolvals = {
 
 --- Return a Lua boolean equivalent of various `optarg` strings.
 -- Report an option parse error if `optarg` is not recognised.
+--
+-- Pass this as the `value` function to @{on} when you want various
+-- *truthy* or *falsey* option arguments to be coerced to a Lua `true`
+-- or `false` respectively in the options table.
+-- @static
 -- @string opt option name
 -- @string[opt="1"] optarg option argument, must be a key in @{boolvals}
 -- @treturn bool `true` or `false`
@@ -290,7 +390,11 @@ end
 
 --- Report an option parse error unless `optarg` names an
 -- existing file.
+--
+-- Pass this as the `value` function to @{on} when you want to accept
+-- only option arguments that name an existing file.
 -- @fixme this only checks whether the file has read permissions
+-- @static
 -- @string opt option name
 -- @string optarg option argument, must be an existing file
 -- @treturn `optarg`
@@ -311,6 +415,10 @@ end
 
 
 --- Report an option parse error, then exit with status 2.
+--
+-- Use this in your custom option handlers for consistency with the
+-- error output from built-in `optparse` error messages.
+-- @static
 -- @string msg error message
 local function opterr (self, msg)
   local prog = self.program
@@ -332,6 +440,18 @@ end
 
 
 --- Add an option handler.
+--
+-- When the automatically assigned option handlers don't do everything
+-- you require, or when you don't want to put an option into the
+-- @{OptionParser} `spec` argument, use this function to specify custom
+-- behaviour.  If you write the option into the `spec` argument anyway,
+-- calling this function will replace the automatically assigned handler
+-- with your own.
+--
+--     parser:on ("--", parser.finished)
+--     parser:on ("-V", parser.version)
+--     parser:on ("--config-file", parser.required, parser.file)
+--     parser:on ("--enable-nls", parser.optional, parser.boolean)
 -- @function on
 -- @tparam[string|table] opts name of the option, or list of option names
 -- @tparam on_handler handler function to call when any of `opts` is
@@ -376,7 +496,34 @@ end
 
 ------
 -- Parsed options table, with a key for each encountered option, each
--- with value set by that option's @{on_handler}.
+-- with value set by that option's @{on_handler}.  Where an option
+-- has one or more long-options specified, the key will be the first
+-- one of those with leading hyphens stripped and non-alphanumeric
+-- characters replaced with underscores.  For options that can only be
+-- specified by a short option, the key will be the letter of the first
+-- of the specified short options:
+--
+--     {"-e", "--eval-file"} => opts.eval_file
+--     {"-n", "--dryrun", "--dry-run"} => opts.dryrun
+--     {"-t", "-T"} => opts.t
+--
+-- Generally there will be one key for each previously specified
+-- option (either automatically assigned by @{OptionParser} or
+-- added manually with @{on}) containing the value(s) assigned by the
+-- associated @{on_handler}.  For automatically assigned handlers,
+-- that means `true` for straight-forward flags and
+-- optional-argument options for which no argument was given; or else
+-- the string value of the argument passed with an option given only
+-- once; or a table of string values of the same for arguments given
+-- multiple times.
+--
+--     ./prog -x -n -x => opts = { x = true, dryrun = true }
+--     ./prog -e '(foo bar)' -e '(foo baz)'
+--         => opts = {eval_file = {"(foo bar)", "(foo baz)"} }
+--
+-- If you write your own handlers, or otherwise specify custom
+-- handling of options with @{on}, then whatever value those handlers
+-- return will be assigned to the respective keys in `opts`.
 -- @table opts
 
 
@@ -411,7 +558,9 @@ local function parse (self, arglist)
     end
   end
 
-  return self.unrecognised, self.opts
+  -- metatable allows `io.warn` to find `parser.program` when assigned
+  -- back to _G.opts.
+  return self.unrecognised, setmetatable (self.opts, {__index = self})
 end
 
 
@@ -446,7 +595,8 @@ end
 --- Instantiate a new parser.
 -- Read the documented options from `spec` and return a new parser that
 -- can be passed to @{parse} for parsing those options from an argument
--- list.
+-- list.  Options are recognised as lines that begin with at least two
+-- spaces, followed by a hyphen.
 -- @static
 -- @string spec option parsing specification
 -- @treturn parser a parser for options described by `spec`

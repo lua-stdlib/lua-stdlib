@@ -1,5 +1,83 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 38 (2014-01-30) [stable]
+
+** New features:
+
+ - The separator parameter to `std.string.split` is now optional.  It
+   now splits strings with `%s+` when no separator is specified.  The
+   new implementation is faster too.
+
+ - New `std.object.mapfields` method factors out the table field copying
+   and mapping performed when cloning a table `_init` style object. This
+   means you can call it from a function `_init` style object after
+   collecting a table to serve as `src` to support derived objects with
+   normal std.object syntax:
+
+       Proto = Object {
+         _type = "proto"
+         _init = function (self, arg, ...)
+           if type (arg) == "table" then
+             mapfields (self, arg)
+           else
+             -- non-table instantiation code
+           end
+         end,
+       }
+       new = Proto (str, #str)
+       Derived = proto { _type = "Derived", ... }
+
+ - Much faster object cloning; `mapfields` is in imperative style and
+   makes one pass over each table it looks at, where previous releases
+   used functional style (stack frame overhead) and multiple passes over
+   input tables.
+
+   On my 2013 Macbook Air with 1.3GHz Core i5 CPU, I can now create a
+   million std.objects with several assorted fields in 3.2s.  Prior to
+   this release, the same process took 8.15s... and even release 34.1,
+   with drastically simpler Objects (19SLOC vs over 120) took 5.45s.
+
+ - `std.object.prototype` is now almost an order of magnitude faster
+   than previous releases, taking about 20% of the time it previously
+   used to return its results.
+
+ - `io.warn` and `io.die` now integrate properly with `std.optparse`,
+    provided you save the `opts` return from `parser:parse` back to the
+    global namespace where they can access it:
+
+       local OptionParser = require "std.optparse"
+       local parser = OptionParser "eg 0\nUsage: eg\n"
+       _G.arg, _G.opts = parser:parse (_G.arg)
+       if not _G.opts.keep_going then
+         require "std.io".warn "oh noes!"
+       end
+
+    will, when run, output to stderr: "eg: oh noes!"
+
+** Bug fixes:
+
+ - Much improved documentation for `optparse`, so you should be able
+   to use it without reading the source code now!
+
+ - `io.warn` and `io.die` no longer output a line-number when there is
+   no file name to append it to.
+
+ - `io.warn` and `io.die` no longer crash in the absence of a global
+   `prog` table.
+
+ - `string.split` no longer goes into an infinite loop when given an
+   empty separator string.
+
+ - Fix `getmetatable (container._functions) == getmetatable (container)`,
+   which made tostring on containers misbehave, among other latent bugs.
+
+ - `_functions` is never copied into a metatable now, finally solving
+   the conflicted concerns of needing metatables to be shared between
+   all objects of the same `_type` (for `__lt` to work correctly for one
+   thing) and not leaving a dangling `_functions` list in the metatable
+   of cloned objects, which could delete functions with matching names
+   from subsequent clones.
+
 * Noteworthy changes in release 37 (2014-01-19) [stable]
 
 ** New features:

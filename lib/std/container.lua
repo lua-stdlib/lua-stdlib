@@ -59,55 +59,77 @@
 
 
 local base = require "std.base"
-local func = require "std.functional"
+
+local clone, merge = base.clone, base.merge
 
 
---- Return the named entry from x's metatable.
--- @param x anything
--- @tparam string n name of entry
--- @return value associate with `n` in `x`'s metatable, else nil
-local function metaentry (x, n)
-  local ok, f = pcall (function (x)
-                        return getmetatable (x)[n]
-                       end,
-                       x)
-  if not ok then f = nil end
-  return f
-end
-
-
---- Filter a table with a function.
--- @tparam table t source table
--- @tparam function f a function that takes key and value arguments
---   from calling `pairs` on `t`, and returns non-`nil` for elements
---   that should be in the returned table
--- @treturn table a shallow copy of `t`, with elements removed according
---   to `f`
-local function filter (t, f)
-  local r = {}
-  for k, v in pairs (t) do
-    if f (k, v) then
-      r[k] = v
-    end
-  end
-  return r
-end
-
-
-local functions = {
-  -- Type of this container.
-  -- @static
-  -- @tparam  std.container o  an container
-  -- @treturn string        type of the container
-  -- @see std.object.prototype
-  prototype = function (o)
-    local _type = metaentry (o, "_type")
-    if type (o) == "table" and _type ~= nil then
-      return _type
-    end
-    return type (o)
-  end,
+local ModuleFunction = {
+  __tostring = function (self) return tostring (self.call) end,
+  __call     = function (self, ...) return self.call (...) end,
 }
+
+
+--- Mark a function not to be copied into clones.
+--
+-- It responds to `type` with `table`, but otherwise behaves like a
+-- regular function.  Marking uncopied module functions in-situ like this
+-- (as opposed to doing book keeping in the metatable) means that we
+-- don't have to create a new metatable with the book keeping removed for
+-- cloned objects, we can just share our existing metatable directly.
+-- @func fn a function
+-- @treturn functable a callable functable for `fn`
+local function modulefunction (fn)
+  return setmetatable ({_type = "modulefunction", call = fn}, ModuleFunction)
+end
+
+
+--- Return `obj` with references to the fields of `src` merged in.
+-- @static
+-- @tparam table obj destination object
+-- @tparam table src fields to copy int clone
+-- @tparam[opt={}] table map `{old_key=new_key, ...}`
+-- @treturn table `obj` with non-private fields from `src` merged, and
+--   a metatable with private fields (if any) merged, both sets of keys
+--   renamed according to `map`
+-- @see std.object.mapfields
+local function mapfields (obj, src, map)
+  map = map or {}
+  local mt = getmetatable (obj) or {}
+
+  -- Map key pairs.
+  for k, v in pairs (src) do
+    local key, dst = map[k] or k, obj
+    if type (key) == "string" and key:sub (1, 1) == "_" then
+      dst = mt
+    end
+    dst[key] = v
+  end
+
+  -- Quicker to remove this after copying fields than test for it
+  -- it on every iteration above.
+  mt._functions = nil
+
+  -- Inject module functions.
+  for k, v in pairs (src._functions or {}) do
+    obj[k] = modulefunction (v)
+  end
+
+  -- Only set non-empty metatable.
+  if next (mt) then
+    setmetatable (obj, mt)
+  end
+  return obj
+end
+
+
+-- Type of this container.
+-- @static
+-- @tparam  std.container o  an container
+-- @treturn string        type of the container
+-- @see std.object.prototype
+local function prototype (o)
+  return (getmetatable (o) or {})._type or type (o)
+end
 
 
 --- Container prototype.
@@ -119,65 +141,46 @@ local functions = {
 -- @tfield nil|table _functions a table of module functions not copied
 --   by @{std.object.__call}
 local metatable = {
-  _type  = "Container",
-  _init  = {},
-  _functions = functions,
-
+  _type = "Container",
+  _init = {},
 
   --- Return a clone of this container.
   -- @function __call
-  -- @param ... arguments for `_init`
+  -- @param x a table if prototype `_init` is a table, otherwise first
+  --   argument for a function type `_init`
+  -- @param ... any additional arguments for `_init`
   -- @treturn std.container a clone of the called container.
   -- @see std.object:__call
-  __call = function (self, ...)
-    local mt = getmetatable (self)
+  __call = function (self, x, ...)
+    local mt     = getmetatable (self)
+    local obj_mt = mt
+    local obj    = {}
 
-    -- Make a shallow copy of prototype, skipping metatable
-    -- _functions.
-    local fn = mt._functions or {}
-    local obj = filter (self, function (e) return not fn[e] end)
-
-    -- Map arguments according to _init metamethod.
-    local _init = metaentry (self, "_init")
-    if type (_init) == "table" then
-      base.merge (obj, base.clone_rename (_init, ...))
-    else
-      obj = _init (obj, ...)
-    end
-
-    -- Extract any new fields beginning with "_".
-    local obj_mt = {}
-    for k, v in pairs (obj) do
-      if type (k) == "string" and k:sub (1, 1) == "_" then
-        obj_mt[k], obj[k] = v, nil
+    -- This is the slowest part of cloning for any objects that have
+    -- a lot of fields to test and copy.  If you need to clone a lot of
+    -- objects from a prototype with several module functions, it's much
+    -- faster to clone objects from each other than the prototype!
+    for k, v in pairs (self) do
+      if type (v) ~= "table" or v._type ~= "modulefunction" then
+	obj[k] = v
       end
     end
 
-    -- However, newly passed _functions from _init arguments are
-    -- copied as prototype functions into the object.
-    func.map (function (k) obj[k] = obj_mt._functions[k] end,
-              pairs, obj_mt._functions or {})
-
-    -- _functions is not propagated from prototype to clone.
-    if next (obj_mt) == nil then
-      -- Reuse metatable if possible
-      obj_mt = getmetatable (self)
+    if type (mt._init) == "table" then
+      obj = (self.mapfields or mapfields) (obj, x, mt._init)
     else
+      obj = mt._init (obj, x, ...)
+    end
 
-      -- Otherwise copy the prototype metatable...
-      local t = filter (mt, function (e) return e ~= "_functions" end)
-      -- ...but give preference to "_" prefixed keys from init table
-      obj_mt = base.merge (t, obj_mt)
+    -- If a metatable was set, then merge our fields and use it.
+    if next (getmetatable (obj) or {}) then
+      obj_mt = merge (clone (mt), getmetatable (obj))
 
-      -- ...and merge container methods from prototype too.
-      if mt then
-        if type (obj_mt.__index) == "table" and type (mt.__index) == "table" then
-          local methods = base.clone (obj_mt.__index)
-          for k, v in pairs (mt.__index) do
-            methods[k] = methods[k] or v
-          end
-          obj_mt.__index = methods
-        end
+      -- Merge object methods.
+      if type (obj_mt.__index) == "table" and
+        type ((mt or {}).__index) == "table"
+      then
+	obj_mt.__index = merge (clone (mt.__index), obj_mt.__index)
       end
     end
 
@@ -191,8 +194,8 @@ local metatable = {
   -- @see std.object.__tostring
   __tostring = function (self)
     local totable = getmetatable (self).__totable
-    local array = base.clone (totable (self), "nometa")
-    local other = base.clone (array, "nometa")
+    local array = clone (totable (self), "nometa")
+    local other = clone (array, "nometa")
     local s = ""
     if #other > 0 then
       for i in ipairs (other) do other[i] = nil end
@@ -215,7 +218,7 @@ local metatable = {
       s = s .. table.concat (dict, ", ")
     end
 
-    return metaentry (self, "_type") .. " {" .. s .. "}"
+    return prototype (self) .. " {" .. s .. "}"
   end,
 
 
@@ -224,10 +227,22 @@ local metatable = {
   -- @treturn table a shallow copy of non-private container fields
   -- @see std.object:__totable
   __totable  = function (self)
-    return filter (self, function (e)
-	                   return type (e) ~= "string" or e:sub (1, 1) ~= "_"
-		         end)
+    local t = {}
+    for k, v in pairs (self) do
+      if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
+	t[k] = v
+      end
+    end
+    return t
   end,
 }
 
-return setmetatable (functions, metatable)
+return setmetatable ({
+
+  -- Normally, these are set and wrapped automatically during cloning.
+  -- But, we have to bootstrap the first object, so in this one instance
+  -- it has to be done manually.
+
+  mapfields = modulefunction (mapfields),
+  prototype = modulefunction (prototype),
+}, metatable)

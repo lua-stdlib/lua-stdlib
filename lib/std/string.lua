@@ -82,21 +82,23 @@ local function finds (s, p, init, plain)
 end
 
 --- Split a string at a given separator.
--- @todo Consider Perl and Python versions.
--- @param s string to split
--- @param sep separator pattern
+-- Separator is a Lua pattern, so you have to escape active characters,
+-- `^$()%.[]*+-?` with a `%` prefix to match a literal character in `s`.
+-- @string s to split
+-- @string[opt="%s*"] sep separator pattern
+-- @return list of strings
 -- @return list of strings
 local function split (s, sep)
-  -- finds gets a list of {from, to, capt = {}} lists; we then
-  -- flatten the result, discarding the captures, and prepend 0 (1
-  -- before the first character) and append 0 (1 after the last
-  -- character), and then read off the result in pairs.
-  local pairs = List.concat ({0}, List.flatten (finds (s, sep)), {0})
-  local l = {}
-  for i = 1, #pairs, 2 do
-    table.insert (l, string.sub (s, pairs[i] + 1, pairs[i + 1] - 1))
+  assert (type (s) == "string",
+          "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
+  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
+  if sep == "" then patt = "(.)"; table.insert (t, "") end
+  while b <= len do
+    local e, n, m = string.find (s, patt, b + 1)
+    table.insert (t, m or s:sub (b + 1, len))
+    b = n or len + 1
   end
-  return l
+  return t
 end
 
 --- Require a module with a particular version.

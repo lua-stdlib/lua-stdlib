@@ -29,7 +29,7 @@
 --     local prototype = std.container.prototype
 -- @table std
 -- @field version release version string
-local version = "General Lua libraries / 37"
+local version = "General Lua libraries / 38"
 
 local modules = require "std.modules"
 

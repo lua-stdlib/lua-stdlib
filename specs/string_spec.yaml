@@ -415,17 +415,36 @@ specify std.string:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
       f = M.split
+  - it returns a one-element list for an empty string:
+      expect (f ("", ", ")).should_equal {""}
   - it makes a table of substrings delimited by a separator:
       expect (f (subject,  ", ")).should_equal (target)
+  - it returns n+1 elements for n separators:
+      expect (f (subject, "zero")).should_have_size (1)
+      expect (f (subject, "c")).should_have_size (2)
+      expect (f (subject, "s")).should_have_size (3)
+      expect (f (subject, "t")).should_have_size (4)
+      expect (f (subject, "e")).should_have_size (5)
+  - it returns an empty string element for consecutive separators:
+      expect (f ("xyzyzxy", "yz")).should_equal {"x", "", "xy"}
+  - it returns an empty string element when starting with separator:
+      expect (f ("xyzyzxy", "xyz")).should_equal {"", "yzxy"}
+  - it returns an empty string element when ending with separator:
+      expect (f ("xyzyzxy", "zxy")).should_equal {"xyzy", ""}
+  - it returns a table of 1-character strings for "" separator:
+      expect (f ("abcdef", "")).should_equal {"", "a", "b", "c", "d", "e", "f", ""}
   - it is available as a string metamethod:
       expect (subject:split ", ").should_equal (target)
-      expect (("/foo/bar/baz.quux"):split "/").should_equal {"", "foo", "bar", "baz.quux"}
+      expect (("/foo/bar/baz.quux"):split "/").
+        should_equal {"", "foo", "bar", "baz.quux"}
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "e")
       expect (subject).should_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ("a string")).should_error ("string expected")
+  - it takes a Lua pattern as a separator:
+      expect (f (subject, "%s+")).
+        should_equal {"first,", "the", "second", "one,", "final", "entry"}
+  - it diagnoses non-string arguments:
       expect (f (nil, ",")).should_error ("string expected")
       expect (f ({"a table"}, ",")).should_error ("string expected")
 

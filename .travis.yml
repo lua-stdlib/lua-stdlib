@@ -8,7 +8,6 @@ env:
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
     - LUAROCKS_BASE=luarocks-2.1.1
     - LUAROCKS="$LUA $HOME/bin/luarocks"
-    - LDOC_ROCKSPEC=http://raw.github.com/gvvaughan/LDoc/next/ldoc-next-1.rockspec
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
     - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2     LUA_SUFFIX=5.2
@@ -52,9 +51,7 @@ script:
   - export PATH=`pwd`/luarocks/bin:$PATH
 
   # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
-  - $LUAROCKS install lyaml; $LUAROCKS install specl;
-  # LDoc 1.4.0 is not in luarocks yet, and LDoc master has no rockspec :(
-  - $LUAROCKS install $LDOC_ROCKSPEC
+  - $LUAROCKS install lyaml; $LUAROCKS install ldoc; $LUAROCKS install specl;
 
   # Make git rockspec for this stdlib
   - make rockspecs LUAROCKS="$LUAROCKS" V=1

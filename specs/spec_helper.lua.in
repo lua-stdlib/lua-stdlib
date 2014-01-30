@@ -14,13 +14,18 @@ local function mkscript (code)
   return f
 end
 
-local function tabulate_output (code)
+function luaproc (code)
   local f = mkscript (code)
   local proc = hell.spawn {
     LUA, f;
     env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" },
   }
   os.remove (f)
+  return proc
+end
+
+local function tabulate_output (code)
+  local proc = luaproc (code)
   if proc.status ~= 0 then return error (proc.errout) end
   local r = {}
   proc.output:gsub ("(%S*)[%s]*",
@@ -118,28 +123,82 @@ end
 totable = (require "std.table").totable
 
 
--- Custom matcher for set membership.
+do
+  -- Custom matcher for set size and set membership.
 
-local set      = require "std.set"
-local util     = require "specl.util"
-local matchers = require "specl.matchers"
+  local set      = require "std.set"
+  local util     = require "specl.util"
+  local matchers = require "specl.matchers"
 
-local Matcher, matchers, q =
-      matchers.Matcher, matchers.matchers, matchers.stringify
+  local Matcher, matchers, q =
+        matchers.Matcher, matchers.matchers, matchers.stringify
 
-matchers.have_member = Matcher {
-  function (actual, expect)
-    return set.member (actual, expect)
-  end,
+  matchers.have_size = Matcher {
+    function (actual, expect)
+      local size = 0
+      for _ in pairs (actual) do size = size + 1 end
+      return size == expect
+    end,
 
-  actual = "set",
+    actual = "table",
 
-  format_expect = function (expect)
-    return " a set containing " .. q (expect) .. ", "
-  end,
+    format_expect = function (expect)
+      return " a table containing " .. expect .. " elements, "
+    end,
 
-  format_any_of = function (alternatives)
-    return " a set containing any of " ..
-           util.concat (alternatives, util.QUOTED) .. ", "
-  end,
-}
+    format_any_of = function (alternatives)
+      return " a table with any of " ..
+             util.concat (alternatives, util.QUOTED) .. " elements, "
+    end,
+  }
+
+  matchers.have_member = Matcher {
+    function (actual, expect)
+      return set.member (actual, expect)
+    end,
+
+    actual = "set",
+
+    format_expect = function (expect)
+      return " a set containing " .. q (expect) .. ", "
+    end,
+
+    format_any_of = function (alternatives)
+      return " a set containing any of " ..
+             util.concat (alternatives, util.QUOTED) .. ", "
+    end,
+  }
+end
+
+
+do
+  --[[ ======================================= ]]--
+  --[[ Remove this after Specl 11 is released. ]]--
+  --[[ ======================================= ]]--
+
+  -- Custom matcher for specl.shell failure with error message.
+
+  local matchers = require "specl.matchers"
+  local Matcher, matchers, reformat =
+        matchers.Matcher, matchers.matchers, matchers.reformat
+
+  matchers.fail_with = matchers.fail_with or Matcher {
+    function (actual, expect)
+      return (actual.status ~= 0) and (actual.errout == expect)
+    end,
+
+    actual_type   = "Process",
+
+    format_actual = function (process)
+      return ":" .. reformat (process.errout)
+    end,
+
+    format_expect = function (expect)
+      return " error output: " .. reformat (expect)
+    end,
+
+    format_alternatives = function (adaptor, alternatives)
+      return " error output:" .. reformat (alternatives, adaptor)
+    end,
+  }
+end

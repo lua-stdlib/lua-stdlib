@@ -1,4 +1,147 @@
+2014-01-30  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 38
+	* NEWS: Record release date.
+
+	specs: commit new have_size matcher.
+	* specs/spec_helper.lua.in (matchers.have_size): New matcher
+	used by std.string.split specs.
+	* configure.ac (AC_CONFIG_FILES): Remove write permission from
+	generated spec_helper so I don't edit the wrong file next time.
+
+	specs: remove trailing whitespace.
+	* specs/optparse_spec.yaml: Remove trailing whitespace.
+
+	NEWS: reword a doubled 'to' to satisfy sanity checks.
+	* NEWS: Reword a doubled 'to'.
+
+	string: split now splits on consecutive whitespace by default.
+	* lib/std/string.lua (split): Improve LDocs.
+	Remove @todo. We now have whitespace default split pattern unless
+	otherwise specified, just like Python.  I didn't consider Perl,
+	because my brain starts to haemorrhage whenever I do that. :-p
+	* specs/string_spec.yaml (split): Remove spec for string `sep`
+	argument now that it is optional.
+	* NEWS: Update.
+
+	string: simplify and speed up `std.string.split`.
+	* lib/std/string.lua (split): It's a bit more code, but it is
+	much easier to understand, and it's a lot faster now!
+	* specs/string_spec.yaml (split): Uncomment pending infinite loop
+	fix.
+	* NEWS: Update.
+
+	specs: more comprehensive specs for std.string.split.
+	* specs/string_spec.yaml (split): Add a lot more specs.
+	Empty separator causes an infinite loop with the current
+	implementation.
+
+2014-01-28  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: use Specl 10 `a_permutation_of` adaptor for tighter specs.
+	* specs/tree_spec.yaml: Use `a_permutation_of` instead of
+	`all_of` to enforce some reordering of only the specified
+	elements.
+
+	specs: use a custom matcher to specify process status and error.
+	* specs/spec_helper.lua.in (matchers.fail_with): Custom matcher
+	to specify process non-zero exit as well as stderr content.
+	* specs/io_spec.yaml (io.die), specs/optparse_spec.yaml (io.die):
+	Use it to ensure that in addition to the correct error output,
+	the exit status is non-zero.
+
+	optparse: integrate with `io.die` and `io.warn`.
+	* specs/io_spec.yaml: Additional specs for what to do when
+	`opts.program` and/or `opts.line` are set.
+	* specs/optparse_spec.yaml (io.die, io.warn): New specs how to
+	behave when `io.die` or `io.warn` are called after a successful
+	`parser:parse` call.
+	* lib/std/io.lua (warn): Implement specified behaviour for new
+	`opts.line` and `opts.warn` specs.
+	* lib/std/optparse.lua: Add LDocs for new behaviour.
+	(parser:parse): Set a metatable on the returned opts table so
+	than `opts.program` etc. can be found by `io.die` and `io.warn`.
+	* NEWS: Update.
+
+	io: fix actual and latent bugs in `io.die` and `io.warn`.
+	* specs/spec_helper.lua.in (luaproc): Factor out of
+	`tabulate_output`.
+	(tabulate_output): Adjust.
+	* specs/io_spec.lua (die, warn): Add new behaviour examples.
+	* lib/std/io.lua (warn): Adjust to work properly with new specs.
+	* NEWS: Update.
+
+2014-01-24  Gary V. Vaughan  <gary@gnu.org>
+
+	container: inline calls to `empty`.
+	* lib/std/container (mapfields, metatable._init): Replace
+	`not empty` with `next`.
+	(empty): Remove.
+
+	container: drastically simplify and speed up `prototype`.
+	* lib/std/container.lua (prototype): Inline metaentry, and
+	simplify.
+	(metatable.__tostring): Use it.
+	(metaentry): Remove.
+	* NEWS: Update.
+
+	container: inline `filter` to only caller.
+	* lib/std/container.lua (filter): Remove from here.
+	(metatable.__totable): Inline `filter` here.
+
+	container: cleanup, speedup and bonus bugfix.
+	* lib/std/container.lua (mapfields): Factored out of
+	`metatable.__call` and optimised for speed.
+	(metatable.__call): Adjust accordingly.
+	(empty): Copied from table.empty to avoind introducing a require
+	loop.
+	(modulefunction): Wrap argument in a functable for easily
+	recognising what not to copy during cloning.
+	(metatable): Simplify.
+	* lib/std/object.lua: Import mapfields from Containec, but unwrap
+	it along with Container.prototype before saving in the Object
+	metatable for faster access.
+	Add appropriate LDocs.
+	* NEWS: Update.
+
+2014-01-23  Gary V. Vaughan  <gary@gnu.org>
+
+	container: distinguish between the two `functions` tables.
+	One is the core of Container with metatable as its metatable; the
+	other is metatable._functions, and is just a list of unpropagated
+	method functions. We don't want to give the latter a __tostring
+	metamethod or printing gets very weird.
+	* lib/std/container.lua (metatable._functions): Make a nometa
+	clone of the table we return.
+	* NEWS: Update.
+
+2014-01-22  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: update rockspecs in buildreq.
+	* bootstrap.conf (buildreq): LDoc is now available in the required
+	version from the official luarocks repo.
+
+	travis: remove unrelease ldoc workarounds.
+	* .travis.yml: Regenerate, to delete local patches for LDoc.
+
+2014-01-21  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: vastly improve optparse LDocs.
+	* lib/std/optparse.lua: Vastly improve optparse LDocs.
+	* NEWS: Update.
+
+2014-01-21  Reuben Thomas  <rrt@sc3d.org>
+
+	optparse.lua: move "default" options to bottom of help
+	A more standard position.
+
 2014-01-19  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* configure: Bump revision to 38.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 37
 	* NEWS: Record release date.

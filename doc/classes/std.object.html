@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 37 Reference</title>
+    <title>stdlib 38 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -149,8 +149,12 @@
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#std.object:clone">std.object:clone (o, ...)</a></td>
+	<td class="name" nowrap><a href="#std.object:clone">std.object:clone (obj, ...)</a></td>
 	<td class="summary">Clone this Object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.object:mapfields">std.object:mapfields (obj, src[, map={}])</a></td>
+	<td class="summary">Return <code>obj</code> with references to the fields of <code>src</code> merged in.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object:prototype">std.object:prototype (x)</a></td>
@@ -178,17 +182,17 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_init</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a> or <span class="type">function</span></span>
          a table of field names, or
    initialisation function, used by <a href="../classes/std.object.html#std.object:clone">clone</a>
         </li>
         <li><span class="parameter">_functions</span>
-            <span class="types"><span class="type">nil</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><span class="type">nil</span> or <a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          a table of module functions not copied
    by <a href="../classes/std.object.html#std.object:__call">std.object.__call</a>
         </li>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          type of Object, returned by <a href="../classes/std.object.html#std.object:prototype">prototype</a>
          (<em>default</em> "Object")
         </li>
@@ -253,14 +257,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         stringified container representation
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
+         <a href="http://www.lua.org/manual/5.2/manual.html#pdf-tostring">tostring</a>
     </ul>
 
 
@@ -281,7 +285,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         a shallow copy of non-private object fields
     </ol>
 
@@ -298,7 +302,7 @@
     <dl class="function">
     <dt>
     <a name = "std.object:clone"></a>
-    <strong>std.object:clone (o, ...)</strong>
+    <strong>std.object:clone (obj, ...)</strong>
     </dt>
     <dd>
     Clone this Object.
@@ -306,7 +310,7 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">o</span>
+        <li><span class="parameter">obj</span>
             <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
          an object
         </li>
@@ -328,6 +332,60 @@
     <ul>
          <a href="../classes/std.object.html#std.object:__call">__call</a>
     </ul>
+
+
+</dd>
+    <dt>
+    <a name = "std.object:mapfields"></a>
+    <strong>std.object:mapfields (obj, src[, map={}])</strong>
+    </dt>
+    <dd>
+    Return <code>obj</code> with references to the fields of <code>src</code> merged in. </p>
+
+<p> More importantly, split the fields in <code>src</code> between <code>obj</code> and its
+ metatable. If any field names begin with <code>_</code>, attach a metatable
+ to <code>obj</code> if it doesn't have one yet, and copy the "private" <code>_</code>
+ prefixed fields there.</p>
+
+<p> You might want to use this function to instantiate your derived
+ objct clones when the prototype's <code>_init</code> is a function -- when
+ <code>_init</code> is a table, the default (inherited unless you overwrite
+ it) clone method calls <a href="../classes/std.object.html#std.object:mapfields">mapfields</a>  automatically.  When you're
+ using a function <code>_init</code> setting, <a href="../classes/std.object.html#std.object:clone">clone</a>  doesn't know what to
+ copy into a new object from the <code>_init</code> function's arguments...
+ so you're on your own.  Except that calling <a href="../classes/std.object.html#std.object:mapfields">mapfields</a>  inside
+ <code>_init</code> is safer than manually splitting <code>src</code> into <code>obj</code> and
+ its metatable, because you'll pick up fixes and changes when you
+ upgrade stdlib.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         destination object
+        </li>
+        <li><span class="parameter">src</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         fields to copy int clone
+        </li>
+        <li><span class="parameter">map</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         <code>{old<em>key=new</em>key, ...}</code>
+         (<em>default</em> {})
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         <code>obj</code> with non-private fields from <code>src</code> merged,
+   and a metatable with private fields (if any) merged, both sets
+   of keys renamed according to <code>map</code>
+    </ol>
+
+
 
 
 </dd>
@@ -371,7 +429,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         type of <code>x</code>
     </ol>
 
@@ -385,7 +443,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.0</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
