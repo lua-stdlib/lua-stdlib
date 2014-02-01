@@ -7,9 +7,9 @@ specify std.optparse:
     OptionParser = require "std.optparse"
 
     help = [[
-    parseme (specl spec) 0α1
+    parseme (stdlib spec) 0α1
 
-    Copyright © 2013 Gary V. Vaughan
+    Copyright © 2014 Gary V. Vaughan
     This test program comes with ABSOLUTELY NO WARRANTY.
 
     Usage: parseme [<options>] <file>...
@@ -34,7 +34,7 @@ specify std.optparse:
 
     Footer text.
 
-    Please report bugs at <http://github.com/gvvaughan/specl/issues>.
+    Please report bugs at <http://github.com/rrthomas/stdlib/issues>.
     ]]
 
     -- strip off the leading whitespace required for YAML
