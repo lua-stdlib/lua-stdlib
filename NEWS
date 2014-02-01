@@ -2,6 +2,21 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** Bug fixes:
+
+ - `std.optparse` no longer throws an error when it encounters an
+   unhandled option in a combined (i.e. `-xyz`) short option string.
+
+** Incompatible changes:
+
+ - `std.optparse` no longer normalizes unhandled options.  For example,
+   `--unhandled-option=argument` is returned unmolested from `parse`,
+   rather than as two elements split on the `=`; and if a combined
+   short option string contains an unhandled option, then whatever was
+   typed at the command line is returned unmolested, rather than first
+   stripping off and processing handled options, and returning only the
+   unhandled substring.
+
 
 * Noteworthy changes in release 38 (2014-01-30) [stable]
 

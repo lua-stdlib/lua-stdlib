@@ -96,9 +96,6 @@ specify std.optparse:
       end
   - after: os.remove (f)
 
-  - it leaves behind unrecognised options:
-      expect (parse {"--not-an-option"}).
-        should_output "args = { --not-an-option }\n"
   - it responds to --version with version text:
       expect (parse {"--version"}).
         should_match_output "^%s*parseme .*Copyright .*NO WARRANTY%.\n$"
@@ -106,8 +103,13 @@ specify std.optparse:
       expect (parse {"--help"}).
         should_match_output ("^%s*Usage: parseme .*Banner.*Long.*" ..
                               "Options:.*Footer.*/issues>%.\n$")
+  - it leaves behind unrecognised short options:
+      expect (parse {"-x"}).should_output "args = { -x }\n"
   - it recognises short options:
       expect (parse {"-b"}).should_output "opts = { b = true }\n"
+  - it leaves behind unrecognised options:
+      expect (parse {"--not-an-option"}).
+        should_output "args = { --not-an-option }\n"
   - it recognises long options:
       expect (parse {"--long"}).should_output "opts = { long = true }\n"
   - it recognises long options with hyphens:
@@ -124,6 +126,10 @@ specify std.optparse:
       expect (parse {"--dryrun"}).should_output "opts = { dry_run = true }\n"
   - it recognises end of options marker:
       expect (parse {"-- -n"}).should_output "args = { -n }\n"
+  - context given an unhandled long option:
+    - it leaves behind unmangled argument:
+        expect (parse {"--not-an-option=with-an-argument"}).
+          should_output "args = { --not-an-option=with-an-argument }\n"
   - context given an option with a required argument:
     - it records an argument to a long option following an '=' delimiter:
         expect (parse {"--name=Gary"}).
@@ -176,6 +182,24 @@ specify std.optparse:
           should_output "opts = { output = filename, verbose = true }\n"
         expect (parse {"-vobn"}).
           should_output "opts = { output = bn, verbose = true }\n"
+    - it leaves behind unsplittable short options:
+        expect (parse {"-xvb"}).should_output "args = { -xvb }\n"
+        expect (parse {"-vxb"}).should_output "args = { -vxb }\n"
+        expect (parse {"-vbx"}).should_output "args = { -vbx }\n"
+    - it separates short options before unsplittable options:
+        expect (parse {"-vb -xvb"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -xvb }\n"
+        expect (parse {"-vb -vxb"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -vxb }\n"
+        expect (parse {"-vb -vbx"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -vbx }\n"
+    - it separates short options after unsplittable options:
+        expect (parse {"-xvb -vb"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -xvb }\n"
+        expect (parse {"-vxb -vb"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -vxb }\n"
+        expect (parse {"-vbx -vb"}).
+          should_output "opts = { b = true, verbose = true }\nargs = { -vbx }\n"
 
 - describe parser:on:
   - before: |
