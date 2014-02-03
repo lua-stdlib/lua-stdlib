@@ -148,8 +148,10 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.table.html		\
 	$(NOTHING_ELSE)
 
-ldoc_DEPS = $(dist_lua_DATA) $(dist_luastd_DATA)
+$(srcdir)/doc:
+	mkdir $@
+
+ldoc_DEPS = $(srcdir)/doc $(dist_lua_DATA) $(dist_luastd_DATA)
 
 $(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
-	test -d "$(srcdir)/doc" || mkdir "$(srcdir)/doc"
 	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
