@@ -148,10 +148,11 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.table.html		\
 	$(NOTHING_ELSE)
 
-$(srcdir)/doc:
-	mkdir $@
+## Parallel make gets confused when one command ($(LDOC)) produces
+## multiple targets (all the html files above), so use the presence
+## of the doc directory as a sentinel file.
+$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(srcdir)/doc
 
-ldoc_DEPS = $(srcdir)/doc $(dist_lua_DATA) $(dist_luastd_DATA)
-
-$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
+$(srcdir)/doc: $(dist_lua_DATA) $(dist_luastd_DATA)
+	test -d $@ || mkdir $@
 	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
