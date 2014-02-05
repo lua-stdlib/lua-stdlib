@@ -546,10 +546,11 @@ end
 
 --- Parse `arglist`.
 -- @tparam table arglist list of arguments
+-- @tparam[opt] table defaults table of default option values
 -- @treturn table a list of unrecognised `arglist` elements
 -- @treturn opts parsing results
-local function parse (self, arglist)
-  self.unrecognised = {}
+local function parse (self, arglist, defaults)
+  self.unrecognised, self.opts = {}, {}
 
   arglist = normalise (self, arglist)
 
@@ -573,6 +574,11 @@ local function parse (self, arglist)
 
       i = self[opt].handler (self, arglist, i, self[opt].value)
     end
+  end
+
+  -- Merge defaults into user options.
+  for k, v in pairs (defaults or {}) do
+    if self.opts[k] == nil then self.opts[k] = v end
   end
 
   -- metatable allows `io.warn` to find `parser.program` when assigned

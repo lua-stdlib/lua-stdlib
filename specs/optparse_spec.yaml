@@ -201,6 +201,90 @@ specify std.optparse:
         expect (parse {"-vbx -vb"}).
           should_output "opts = { b = true, verbose = true }\nargs = { -vbx }\n"
 
+  - context with option defaults:
+    - before: |
+        function main (arg)
+          local OptionParser = require "std.optparse"
+          local parser = OptionParser ("program 0\nUsage: program\n" ..
+                           "  -x  set x\n" ..
+                           "  -y  set y\n" ..
+                           "  -z  set z\n")
+          local state = { arg = {}, opts = { x={"t"}, y=false }}
+          state.arg, state.opts = parser:parse (arg, state.opts)
+          return state
+        end
+    - it prefers supplied argument:
+        expect (main {"-x", "-y"}).
+          should_equal { arg = {}, opts = { x=true, y=true }}
+        expect (main {"-x", "-y", "-z"}).
+          should_equal { arg = {}, opts = { x=true, y=true, z=true }}
+        expect (main {"-w", "-x", "-y"}).
+          should_equal { arg = {"-w"}, opts = { x=true, y=true }}
+    - it defers to default value:
+        expect (main {}).
+          should_equal { arg = {}, opts = { x={"t"}, y=false }}
+        expect (main {"-z"}).
+          should_equal { arg = {}, opts = { x={"t"}, y=false, z=true }}
+        expect (main {"-w"}).
+          should_equal { arg = {"-w"}, opts = { x={"t"}, y=false }}
+
+  - context with io.die:
+    - before: |
+        runscript = function (code)
+          return luaproc ([[
+            local OptionParser = require "std.optparse"
+            local parser = OptionParser ("program 0\nUsage: program\n")
+            _G.arg, _G.opts = parser:parse (_G.arg)
+            ]] .. code .. [[
+            require "std.io".die "By 'eck!"
+          ]])
+        end
+    - it prefers `prog.name` to `opts.program`: |
+        code = [[prog = { file = "file", name = "name" }]]
+        expect (runscript (code)).should_fail_with "name: By 'eck!\n"
+    - it prefers `prog.file` to `opts.program`: |
+        code = [[prog = { file = "file" }]]
+        expect (runscript (code)).should_fail_with "file: By 'eck!\n"
+    - it appends `prog.line` if any to `prog.file` over using `opts`: |
+        code = [[
+          prog = { file = "file", line = 125 }; opts.line = 99]]
+        expect (runscript (code)).should_fail_with "file:125: By 'eck!\n"
+    - it prefixes `opts.program` if any: |
+        expect (runscript ("")).should_fail_with "program: By 'eck!\n"
+    - it appends `opts.line` if any, to `opts.program`: |
+        code = [[opts.line = 99]]
+        expect (runscript (code)).
+          should_fail_with "program:99: By 'eck!\n"
+
+  - context with io.warn:
+    - before: |
+        runscript = function (code)
+          return luaproc ([[
+            local OptionParser = require "std.optparse"
+            local parser = OptionParser ("program 0\nUsage: program\n")
+            _G.arg, _G.opts = parser:parse (_G.arg)
+            ]] .. code .. [[
+            require "std.io".warn "Ayup!"
+          ]])
+        end
+    - it prefers `prog.name` to `opts.program`: |
+        code = [[prog = { file = "file", name = "name" }]]
+        expect (runscript (code)).should_output_error "name: Ayup!\n"
+    - it prefers `prog.file` to `opts.program`: |
+        code = [[prog = { file = "file" }]]
+        expect (runscript (code)).should_output_error "file: Ayup!\n"
+    - it appends `prog.line` if any to `prog.file` over using `opts`: |
+        code = [[
+          prog = { file = "file", line = 125 }; opts.line = 99]]
+        expect (runscript (code)).
+          should_output_error "file:125: Ayup!\n"
+    - it prefixes `opts.program` if any: |
+        expect (runscript ("")).should_output_error "program: Ayup!\n"
+    - it appends `opts.line` if any, to `opts.program`: |
+        code = [[opts.line = 99]]
+        expect (runscript (code)).
+          should_output_error "program:99: Ayup!\n"
+
 - describe parser:on:
   - before: |
       f = os.tmpname ()
@@ -392,60 +476,3 @@ specify std.optparse:
     - it stops separating at an optional argument option:
         expect (parseargs ([[{"x", "this"}, parser.optional]], {"-bxbit"})).
           should_output "opts = { b = true, this = bit }\n"
-
-  - context with io.die:
-    - before: |
-        runscript = function (code)
-          return luaproc ([[
-            local OptionParser = require "std.optparse"
-            local parser = OptionParser ("program 0\nUsage: program\n")
-            _G.arg, _G.opts = parser:parse (_G.arg)
-            ]] .. code .. [[
-            require "std.io".die "By 'eck!"
-          ]])
-        end
-    - it prefers `prog.name` to `opts.program`: |
-        code = [[prog = { file = "file", name = "name" }]]
-        expect (runscript (code)).should_fail_with "name: By 'eck!\n"
-    - it prefers `prog.file` to `opts.program`: |
-        code = [[prog = { file = "file" }]]
-        expect (runscript (code)).should_fail_with "file: By 'eck!\n"
-    - it appends `prog.line` if any to `prog.file` over using `opts`: |
-        code = [[
-          prog = { file = "file", line = 125 }; opts.line = 99]]
-        expect (runscript (code)).should_fail_with "file:125: By 'eck!\n"
-    - it prefixes `opts.program` if any: |
-        expect (runscript ("")).should_fail_with "program: By 'eck!\n"
-    - it appends `opts.line` if any, to `opts.program`: |
-        code = [[opts.line = 99]]
-        expect (runscript (code)).
-          should_fail_with "program:99: By 'eck!\n"
-
-  - context with io.warn:
-    - before: |
-        runscript = function (code)
-          return luaproc ([[
-            local OptionParser = require "std.optparse"
-            local parser = OptionParser ("program 0\nUsage: program\n")
-            _G.arg, _G.opts = parser:parse (_G.arg)
-            ]] .. code .. [[
-            require "std.io".warn "Ayup!"
-          ]])
-        end
-    - it prefers `prog.name` to `opts.program`: |
-        code = [[prog = { file = "file", name = "name" }]]
-        expect (runscript (code)).should_output_error "name: Ayup!\n"
-    - it prefers `prog.file` to `opts.program`: |
-        code = [[prog = { file = "file" }]]
-        expect (runscript (code)).should_output_error "file: Ayup!\n"
-    - it appends `prog.line` if any to `prog.file` over using `opts`: |
-        code = [[
-          prog = { file = "file", line = 125 }; opts.line = 99]]
-        expect (runscript (code)).
-          should_output_error "file:125: Ayup!\n"
-    - it prefixes `opts.program` if any: |
-        expect (runscript ("")).should_output_error "program: Ayup!\n"
-    - it appends `opts.line` if any, to `opts.program`: |
-        code = [[opts.line = 99]]
-        expect (runscript (code)).
-          should_output_error "program:99: Ayup!\n"

@@ -2,6 +2,11 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - `std.optparse:parse` accepts a second optional parameter, a table of
+   default option values.
+
 ** Bug fixes:
 
  - `std.optparse` no longer throws an error when it encounters an
