@@ -4,6 +4,20 @@ Stdlib NEWS - User visible changes
 
 ** New features:
 
+ - New `std.functional.case` function for rudimentary case statements.
+   The main difference from serial if/elseif/end comparisons is that
+   `with` is evaluated only once, and then the match function is looked
+   up with an O(1) table reference and function call, as opposed to
+   hoisting an expression result into a temporary variable, and O(n)
+   comparisons.
+
+   The function call overhead is much more significant than several
+   comparisons, and so `case` is slower for all but the largest series
+   of if/elseif/end comparisons.  It can make your code more readable,
+   however.
+
+   See LDocs for usage.
+
  - `std.optparse:parse` accepts a second optional parameter, a table of
    default option values.
 

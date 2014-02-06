@@ -45,6 +45,26 @@ local function bind (f, ...)
 end
 
 
+--- A rudimentary case statement.
+-- Match `with` against keys in `branches` table, and return the result
+-- of running the function in the table value for the matching key, or
+-- the first non-key value function if no key matches.
+--
+--     return case (type (object), {
+--       table  = function ()  return something end,
+--       string = function ()  return something else end,
+--                function (s) error ("unhandled type: "..s) end,
+--     })
+--
+-- @param with expression to match
+-- @tparam table branches map possible matches to functions
+-- @return the return value from function with a matching key, or nil.
+local function case (with, branches)
+  local fn = branches[with] or branches[1]
+  if fn then return fn (with) end
+end
+
+
 --- Curry a function.
 -- @param f function to curry
 -- @param n number of arguments
@@ -161,6 +181,7 @@ end
 --- @export
 functional = {
   bind       = bind,
+  case       = case,
   collect    = collect,
   compose    = compose,
   curry      = curry,
