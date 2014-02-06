@@ -5,10 +5,17 @@ before: |
 
   global_table       = "_G"
   base_module        = "package"
-  extend_base        = { "dirsep", "pathsep", "path_mark",
-                         "execdir", "igmark" }
+  extend_base        = { "dirsep", "execdir", "find", "igmark", "insert",
+                         "mappath", "normalize", "pathsep", "path_mark",
+                         "remove" }
 
   M = require (this_module)
+
+  path = M.normalize ("begin", "middle", "end")
+
+  function catfile (...) return table.concat ({...}, M.dirsep) end
+  function catpath (...) return table.concat ({...}, M.pathsep) end
+
 
 specify std.package:
 - context when required:
@@ -30,6 +37,133 @@ specify std.package:
     - it replaces no apis from the core package table:
         expect (show_apis {from=base_module, enhanced_after='require "std"'}).
           should_equal {}
+
+
+- describe find:
+  - before: path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
+  - it diagnoses missing arguments: |
+      expect (M.find ()).should_error "bad argument #1 to find"
+      expect (M.find (path)).should_error "bad argument #2 to find"
+  - it returns nil for unmatched element:
+      expect (M.find (path, "unmatchable")).should_be (nil)
+  - it returns the element index for a matched element:
+      expect (M.find (path, "end")).should_be (3)
+  - it returns the element text for a matched element:
+      i, element = M.find (path, "e.*n")
+      expect ({i, element}).should_equal {1, "begin"}
+  - it accepts a search start element argument:
+      i, element = M.find (path, "e.*n", 2)
+      expect ({i, element}).should_equal {3, "end"}
+  - it works with plain text search strings:
+      expect (M.find (path, "m%ddl.")).should_be (nil)
+      i, element = M.find (path, "%ddl.", 1, ":plain")
+      expect ({i, element}).should_equal {2, "m%ddl."}
+
+
+- describe insert:
+  - it diagnoses missing arguments: |
+      expect (M.insert ()).should_error "bad argument #1 to insert"
+      expect (M.insert (path)).should_error "wrong number of arguments"
+  - it appends by default:
+      expect (M.insert (path, "new")).
+        should_be (M.normalize ("begin", "middle", "end", "new"))
+  - it prepends with pos set to 1:
+      expect (M.insert (path, 1, "new")).
+        should_be (M.normalize ("new", "begin", "middle", "end"))
+  - it can insert in the middle too:
+      expect (M.insert (path, 2, "new")).
+        should_be (M.normalize ("begin", "new", "middle", "end"))
+      expect (M.insert (path, 3, "new")).
+        should_be (M.normalize ("begin", "middle", "new", "end"))
+  - it normalizes the returned path:
+      path = table.concat ({"begin", "middle", "end"}, M.pathsep)
+      expect (M.insert (path, "new")).
+        should_be (M.normalize ("begin", "middle", "end", "new"))
+      expect (M.insert (path, 1, "./x/../end")).
+        should_be (M.normalize ("end", "begin", "middle"))
+
+
+- describe mappath:
+  - before:
+      expected = require "std.string".split (path, M.pathsep)
+  - it diagnoses bad arguments: |
+      expect (M.mappath ()).should_error "bad argument #1 to mappath"
+      expect (M.mappath ("")).should_error "bad argument #2 to mappath"
+  - it calls a function with each path element:
+      t = {}
+      M.mappath (path, function (e) t[#t + 1] = e end)
+      expect (t).should_equal (expected)
+  - it passes additional arguments through: |
+      reversed = {}
+      for i = #expected, 1, -1 do
+        table.insert (reversed, expected[i])
+      end
+      t = {}
+      M.mappath (path, function (e, pos) table.insert (t, pos, e) end, 1)
+      expect (t).should_equal (reversed)
+
+
+- describe normalize:
+  - it diagnoses bad arguments:
+      expect (M.normalize ()).should_error "wrong number of arguments"
+
+  - context with a single element:
+    - it strips redundant . directories:
+        expect (M.normalize "./x/./y/.").should_be (catfile (".", "x", "y"))
+    - it strips redundant .. directories:
+        expect (M.normalize "../x/../y/z/..").should_be (catfile ("..", "y"))
+    - it normalizes / to platform dirsep:
+        expect (M.normalize "/foo/bar").should_be (catfile ("", "foo", "bar"))
+    - it normalizes ? to platform path_mark:
+        expect (M.normalize "?.lua").
+          should_be (catfile (".", M.path_mark .. ".lua"))
+    - it strips redundant trailing /:
+        expect (M.normalize "/foo/bar/").should_be (catfile ("", "foo", "bar"))
+    - it inserts missing ./ for relative paths:
+        for _, path in ipairs {"x", "./x"} do
+          expect (M.normalize (path)).should_be (catfile (".", "x"))
+        end
+
+  - context with multiple elements:
+    - it strips redundant . directories:
+        expect (M.normalize ("./x/./y/.", "x")).
+          should_be (catpath (catfile (".", "x", "y"), catfile (".", "x")))
+    - it strips redundant .. directories:
+        expect (M.normalize ("../x/../y/z/..", "x")).
+          should_be (catpath (catfile ("..", "y"), catfile (".", "x")))
+    - it normalizes / to platform dirsep:
+        expect (M.normalize ("/foo/bar", "x")).
+          should_be (catpath (catfile ("", "foo", "bar"), catfile (".", "x")))
+    - it normalizes ? to platform path_mark:
+        expect (M.normalize ("?.lua", "x")).
+          should_be (catpath (catfile (".", M.path_mark .. ".lua"), catfile (".", "x")))
+    - it strips redundant trailing /:
+        expect (M.normalize ("/foo/bar/", "x")).
+          should_be (catpath (catfile ("", "foo", "bar"), catfile (".", "x")))
+    - it inserts missing ./ for relative paths:
+        for _, path in ipairs {"x", "./x"} do
+          expect (M.normalize (path, "a")).
+            should_be (catpath (catfile (".", "x"), catfile (".", "a")))
+        end
+
+  - it eliminates all but the first equivalent elements:
+      expect (M.normalize (catpath ("1", "x", "2", "./x", "./2", "./x/../x"))).
+        should_be (catpath ("./1", "./x", "./2"))
+
+
+- describe remove:
+  - it diagnoses bad arguments: |
+      expect (M.remove ()).should_error "bad argument #1 to remove"
+  - it removes the last item by default:
+      expect (M.remove (path)).should_be (M.normalize ("begin", "middle"))
+  - it pops the first item with pos set to 1:
+      expect (M.remove (path, 1)).should_be (M.normalize ("middle", "end"))
+  - it can remove from the middle too:
+      expect (M.remove (path, 2)).should_be (M.normalize ("begin", "end"))
+  - it does not normalize the returned path:
+      path = table.concat ({"begin", "middle", "end"}, M.pathsep)
+      expect (M.remove (path)).
+        should_be (table.concat ({"begin", "middle"}, M.pathsep))
 
 
 - it splits package.config up:

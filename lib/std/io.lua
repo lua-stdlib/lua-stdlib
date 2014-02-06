@@ -3,10 +3,12 @@
  @module std.io
 ]]
 
-local package = require "std.package"
 local string  = require "std.string"
 local tree    = require "std.tree"
 
+local package = {
+  dirsep  = string.match (package.config, "^([^\n]+)\n"),
+}
 
 -- Get an input file handle.
 -- @param h file handle or name (default: `io.input ()`)
