@@ -19,8 +19,8 @@ local clone = base.clone
 
 --- Clone a table, renaming some keys.
 -- @function clone_rename
--- @tparam table t   source table
 -- @tparam table map table `{old_key=new_key, ...}`
+-- @tparam table t   source table
 -- @return copy of *table*
 local clone_rename = base.clone_rename
 
