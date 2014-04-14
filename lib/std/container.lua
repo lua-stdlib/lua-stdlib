@@ -86,7 +86,7 @@ end
 --- Return `obj` with references to the fields of `src` merged in.
 -- @static
 -- @tparam table obj destination object
--- @tparam table src fields to copy int clone
+-- @tparam table src fields to copy into clone
 -- @tparam[opt={}] table map `{old_key=new_key, ...}`
 -- @treturn table `obj` with non-private fields from `src` merged, and
 --   a metatable with private fields (if any) merged, both sets of keys
