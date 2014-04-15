@@ -176,7 +176,7 @@ specify std.optparse:
         expect (parse {"-vuname"}).
           should_output "opts = { name = name, verbose = true }\n"
         expect (parse {"-vuob"}).
-          shauld_output "opts = { name = ob, verbose = true }\n"
+          should_output "opts = { name = ob, verbose = true }\n"
     - it stops separating at an optional argument option:
         expect (parse {"-vofilename"}).
           should_output "opts = { output = filename, verbose = true }\n"
