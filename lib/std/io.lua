@@ -49,7 +49,7 @@ local function readlines (h)
 end
 
 --- Write values adding a newline after each.
--- @param h file handle (default: `io.output ()`
+-- @param h file handle (default: `io.output ()`)
 -- @param ... values to write (as for write)
 local function writelines (h, ...)
   if io.type (h) ~= "file" then
