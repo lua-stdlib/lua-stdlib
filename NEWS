@@ -42,7 +42,7 @@ Stdlib NEWS - User visible changes
        package.path = table.concat (paths, package.pathsep)
 
    You can now write just:
-         
+
        package.path = package.normalize ("./lib/?.lua", package.path)
 
  - `std.optparse:parse` accepts a second optional parameter, a table of
