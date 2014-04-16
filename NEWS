@@ -48,6 +48,20 @@ Stdlib NEWS - User visible changes
  - `std.optparse:parse` accepts a second optional parameter, a table of
    default option values.
 
+ - `table.clone` accepts an optional table of key field renames in the
+   form of `{oldkey = newkey, ...}` subsuming the functionality of
+   `table.clone_rename`. The final `nometa` parameter is supported
+   whether or not a rename map is given:
+
+       r = table.clone (t, "nometa")
+       r = table.clone (t, {oldkey = newkey}, "nometa")
+
+** Deprecations:
+
+ - `table.clone_rename` now gives a warning on first call, and will be
+   removed entirely in a few releases.  The functionality has been
+   subsumed by the improvements to `table.clone` described above.
+
 ** Bug fixes:
 
  - `std.optparse` no longer throws an error when it encounters an

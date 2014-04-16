@@ -11,18 +11,22 @@ local func = require "std.functional"
 --
 -- To make deep copies, use @{std.tree.clone}.
 -- @function clone
--- @tparam table   t      source table
+-- @tparam table t source table
+-- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
--- @return copy of *table*
+-- @return copy of *t*, also sharing *t*'s metatable unless *nometa*
+--   is `true`, and with keys renamed according to *map*
 local clone = base.clone
 
 
---- Clone a table, renaming some keys.
+-- DEPRECATED: Remove in first release following 2015-04-15.
+-- Clone a table, renaming some keys.
 -- @function clone_rename
 -- @tparam table map table `{old_key=new_key, ...}`
 -- @tparam table t   source table
 -- @return copy of *table*
-local clone_rename = base.clone_rename
+local clone_rename = base.deprecate (base.clone_rename, nil,
+  "table.clone_rename is deprecated, use the new `map` argument to table.clone instead.")
 
 
 --- Destructively merge another table's fields into *table*.
@@ -160,7 +164,6 @@ end
 --- @export
 local Table = {
   clone        = clone,
-  clone_rename = clone_rename,
   empty        = empty,
   invert       = invert,
   keys         = keys,
@@ -176,6 +179,9 @@ local Table = {
   -- Core Lua table.sort function
   _sort        = _sort,
 }
+
+-- Deprecated and undocumented.
+Table.clone_rename = clone_rename
 
 for k, v in pairs (table) do
   Table[k] = Table[k] or v

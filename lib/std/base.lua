@@ -24,13 +24,19 @@ local function deprecate (fn, name, warnmsg)
 end
 
 -- Doc-commented in table.lua...
-local function clone (t, nometa)
+local function clone (t, map, nometa)
+  map = map or {}
+  if type (map) ~= "table" then
+    -- continue to support `clone (t, "nometa")`
+    map, nometa = {}, map
+  end
+
   local u = {}
   if not nometa then
     setmetatable (u, getmetatable (t))
   end
-  for i, v in pairs (t) do
-    u[i] = v
+  for k, v in pairs (t) do
+    u[map[k] or k] = v
   end
   return u
 end

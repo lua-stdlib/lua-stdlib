@@ -70,6 +70,24 @@ specify std.table:
       copy   = f (subject)
       expect (subject).should_equal (target)
       expect (subject).should_be (subject)
+  - it treats non-table arg2 as nometa parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, true))).should_be (nil)
+  - it treats table arg2 as a map parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}))).should_be (getmetatable (mt))
+  - it supports 3 arguments with nometa as arg3:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}, "nometa"))).should_be (nil)
+
+  - context when renaming some keys:
+    - before:
+        target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
+    - it renames during cloning:
+        expect (f (subject, {k1 = "newkey"})).should_equal (target)
+    - it does not perturb the value in the renamed key field:
+        expect (f (subject, {k1 = "newkey"}).newkey).should_be (subject.k1)
+
   - "it diagnoses non-table arguments":
       expect (f ()).should_error ("table expected")
       expect (f "foo").should_error ("table expected")
