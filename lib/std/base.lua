@@ -1,6 +1,28 @@
 ------
 -- @module std.base
 
+
+--- Write a deprecation warning to stderr on first call.
+-- @func        fn      deprecated function
+-- @string[opt] name    function name for automatic warning message.
+-- @string[opt] warnmsg full specified warning message (overrides *name*)
+-- @return a function to show the warning on first call, and hand off to *fn*
+local function deprecate (fn, name, warnmsg)
+  assert (name or warnmsg,
+          "missing argument to 'deprecate', expecting 2 or 3 parameters")
+  warnmsg = warnmsg or (name .. " is deprecated, and will go away in a future release.")
+  local warnp = true
+  return function (...)
+    if warnp then
+      local _, where = pcall (function () error ("", 4) end)
+      io.stderr:write ((string.gsub (where, "(^w%*%.%w*%:%d+)", "%1")))
+      io.stderr:write (warnmsg .. "\n")
+      warnp = false
+    end
+    return fn (...)
+  end
+end
+
 -- Doc-commented in table.lua...
 local function clone (t, nometa)
   local u = {}
@@ -146,6 +168,7 @@ local M = {
   clone_rename = clone_rename,
   compare      = compare,
   concat       = concat,
+  deprecate    = deprecate,
   elems        = elems,
   ileaves      = ileaves,
   leaves       = leaves,
