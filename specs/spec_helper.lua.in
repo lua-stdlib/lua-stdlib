@@ -1,4 +1,7 @@
 local hell = require "specl.shell"
+local std  = require "specl.std"
+
+package.path = std.package.normalize ("lib/?.lua", package.path)
 
 -- Substitute configured LUA so that hell.spawn doesn't pick up
 -- a different Lua binary to the one used by Specl itself.  If
