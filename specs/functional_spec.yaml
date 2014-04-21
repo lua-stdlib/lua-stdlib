@@ -62,6 +62,9 @@ specify std.functional:
 
 
 - describe compose:
+  - it composes functions in the correct order:
+      expect (M.compose (math.sin, math.cos) (1)).
+        should_equal (math.cos (math.sin (1)))
 
 
 - describe curry:

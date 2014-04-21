@@ -89,13 +89,19 @@ end
 
 --- Compose functions.
 -- @param f1...fn functions to compose
--- @return composition of f1 ... fn
+-- @return composition of fn (... (f1) ...): note that this is the reverse
+-- of what you might expect, but means that code like:
+--
+--     functional.compose (function (x) return f (x) end,
+--                         function (x) return g (x) end))
+--
+-- can be read from top to bottom.
 local function compose (...)
   local arg = {...}
   local fns, n = arg, #arg
   return function (...)
            local arg = {...}
-           for i = n, 1, -1 do
+           for i = 1, n do
              arg = {fns[i] (unpack (arg))}
            end
            return unpack (arg)
