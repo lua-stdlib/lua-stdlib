@@ -35,12 +35,19 @@ end
 
 --- Partially apply a function.
 -- @param f function to apply partially
--- @param ... arguments to bind
--- @return function with ai already bound
+-- @tparam table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
+-- @return function with pi already bound
 local function bind (f, ...)
-  local fix = {...}
+  local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
+  if type (fix[1]) == "table" and fix[2] == nil then
+    fix = fix[1]
+  end
   return function (...)
-           return f (unpack (list.concat (fix, {...})))
+           local arg = {...}
+           for i, v in pairs (fix) do
+             arg[i] = v
+           end
+           return f (unpack (arg))
          end
 end
 

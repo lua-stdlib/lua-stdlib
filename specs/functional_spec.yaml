@@ -23,6 +23,15 @@ specify std.functional:
 
 
 - describe bind:
+  - it does not affect normal operation if no arguments are bound:
+      expect (M.bind (math.min, {}) (2, 3, 4)).
+        should_equal (2)
+  - the extra arguments are taken into account:
+      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
+        should_equal (0)
+  - the extra arguments can be out of order:
+      expect (M.bind (math.pow, {[2] = 3}) (2)).
+        should_equal (8)
 
 
 - describe case:
