@@ -5,7 +5,9 @@
 
 local base = require "std.base"
 local func = require "std.functional"
-local list = require "std.list"
+
+-- No need to pull all of std.list into memory.
+local elems = base.elems
 
 
 --- Make a shallow copy of a table, including any metatable.
@@ -50,7 +52,7 @@ local function clone_select (t, map, nometa)
   if not nometa then
     setmetatable (r, getmetatable (t))
   end
-  for i in list.elems (map) do
+  for i in elems (map) do
     r[i] = t[i]
   end
   return r
