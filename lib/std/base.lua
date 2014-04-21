@@ -27,7 +27,6 @@ end
 local function clone (t, map, nometa)
   map = map or {}
   if type (map) ~= "table" then
-    -- continue to support `clone (t, "nometa")`
     map, nometa = {}, map
   end
 
