@@ -5,8 +5,11 @@
 ## Environment. ##
 ## ------------ ##
 
+## !!WARNING!! When bootstrap.conf:buildreq specl setting requires specl
+##             12 or higher, remove this entire Environment section!
+
 specs_path = $(abs_builddir)/specs/?.lua
-SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)"
+SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)" LUA_INIT= LUA_INIT_5_2=
 
 
 ## ------ ##
