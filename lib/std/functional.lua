@@ -142,7 +142,7 @@ local function map (f, i, ...)
   local t = {}
   for e in i (...) do
     local r = f (e)
-    if r then
+    if r ~= nil then
       table.insert (t, r)
     end
   end

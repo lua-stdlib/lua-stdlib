@@ -344,8 +344,7 @@ specify std.list:
     - it projects a list of fields from a list of tables:
         expect (l:project ("third")).
           should_equal (List {true, 3, "3rd"})
-    - it projects fields with a falsey value correctly: |
-        pending "see issue #34"
+    - it projects fields with a falsey value correctly:
         expect (l:project ("first")).
           should_equal (List {false, 1, "1st"})
 
