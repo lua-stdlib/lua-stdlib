@@ -29,6 +29,33 @@ local clone_rename = base.deprecate (base.clone_rename, nil,
   "table.clone_rename is deprecated, use the new `map` argument to table.clone instead.")
 
 
+--- Make a partial clone of a table.
+--
+-- Like `clone`, but does not copy any fields by default.
+-- @function clone_select
+-- @tparam table t source table
+-- @tparam[opt={}] table selection list of keys to copy
+-- @return copy of fields in *selection* from *t*, also sharing *t*'s
+--   metatable unless *nometa*
+local function clone_select (t, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'clone_select' (table expected, got " .. type (t) .. ")")
+  map = map or {}
+  if type (map) ~= "table" then
+    map, nometa = {}, map
+  end
+
+  local r = {}
+  if not nometa then
+    setmetatable (r, getmetatable (t))
+  end
+  for i in list.elems (map) do
+    r[i] = t[i]
+  end
+  return r
+end
+
+
 --- Destructively merge another table's fields into *table*.
 -- @function merge
 -- @tparam table t destination table
@@ -164,6 +191,7 @@ end
 --- @export
 local Table = {
   clone        = clone,
+  clone_select = clone_select,
   empty        = empty,
   invert       = invert,
   keys         = keys,
