@@ -15,7 +15,7 @@ local func = require "std.functional"
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
 -- @return copy of *t*, also sharing *t*'s metatable unless *nometa*
---   is `true`, and with keys renamed according to *map*
+--   is true, and with keys renamed according to *map*
 local clone = base.clone
 
 
