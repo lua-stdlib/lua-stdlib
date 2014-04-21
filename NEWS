@@ -67,6 +67,11 @@ Stdlib NEWS - User visible changes
  - `std.optparse` no longer throws an error when it encounters an
    unhandled option in a combined (i.e. `-xyz`) short option string.
 
+ - Surplus unmapped fields are now discarded during object cloning, for
+   example when a prototype has `_init` set to `{ "first", "second" }`,
+   and is cloned using `Proto {'one', 'two', 'three'}`, then the
+   unmapped `three` argument is now discarded.
+
 ** Incompatible changes:
 
  - `std.optparse` no longer normalizes unhandled options.  For example,
@@ -76,6 +81,11 @@ Stdlib NEWS - User visible changes
    typed at the command line is returned unmolested, rather than first
    stripping off and processing handled options, and returning only the
    unhandled substring.
+
+ - Setting `_init` to `{}` in a prototype object will now discard all
+   positional parameters passed during cloning, because a table valued
+   `_init` is a list of field names, beyond which surplus arguments (in
+   this case, all arguments!) are discarded.
 
 
 * Noteworthy changes in release 38 (2014-01-30) [stable]

@@ -117,7 +117,6 @@ specify std.object:
     - it ignores positional parameters: |
         instance = Prototype {"foo", "bar"}
         expect (instance).should_not_be (Prototype)
-        pending "see issue #35"
         expect (instance).should_equal (Prototype)
 
   - context when _init is a table of field names:
@@ -140,9 +139,8 @@ specify std.object:
         proc = Process {0, "output"}
         expect (totable (proc)).
           should_equal {status = 0, output = "output", errout = "no errors"}
-    - it merges surplus positional parameters into array part of new object: |
+    - it discards surplus positional parameters:
         proc = Process {0, "output", "diagnostics", "garbage"}
-        pending "see issue #35"
         expect (totable (proc)).
           should_equal { status = 0, output = "output", errout = "diagnostics" }
 
