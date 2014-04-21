@@ -349,7 +349,6 @@ specify std.tree:
                           {"leaf",   {"foo"},      subject["foo"]},        --  bar,
                           {"join",   {},           subject}}               -- }
   - it generates path key-lists that are valid __index arguments: |
-      pending "std.tree.__index handling empty list keys"
       subject = Tree {"first", Tree {"second"}, "3rd"}
       expect (traverse (subject)).
         should_equal {{"branch", {},    subject[{}]},    -- {
@@ -369,12 +368,14 @@ specify std.tree:
       expect (tr["no such key"]).should_be (nil)
   - it returns nil for missing single element key lists:
       expect (tr[{"no such key"}]).should_be (nil)
-  - it returns nil for missing multi-element key lists: |
+  - it returns nil for missing multi-element key lists:
       expect (tr[{"fnord", "foo"}]).should_be (nil)
       expect (tr[{"no", "such", "key"}]).should_be (nil)
   - it returns a value for the given key:
       expect (tr["foo"]).should_be "foo"
       expect (tr["quux"]).should_be "quux"
+  - it returns tree root for empty key list:
+      expect (tr[{}]).should_be (tr)
   - it returns values for single element key lists:
       expect (tr[{"foo"}]).should_be "foo"
       expect (tr[{"quux"}]).should_be "quux"

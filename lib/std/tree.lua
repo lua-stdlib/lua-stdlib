@@ -207,7 +207,7 @@ Tree = Container {
   -- @todo the following doesn't treat list keys correctly
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
-    if type (i) == "table" and #i > 0 then
+    if type (i) == "table" then
       return List.foldl (func.op["[]"], self, i)
     else
       return rawget (self, i)

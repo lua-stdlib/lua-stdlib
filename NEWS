@@ -72,6 +72,12 @@ Stdlib NEWS - User visible changes
    and is cloned using `Proto {'one', 'two', 'three'}`, then the
    unmapped `three` argument is now discarded.
 
+ - The path element returned by `std.tree.nodes` can now always be
+   used as a key list to dereference the root of the tree, particularly
+   `tree[{}]` now returns the root node of `tree`, to match the initial
+   `branch` and final `join` results from a full traversal by
+   `std.tree.nodes (tree)`.
+
 ** Incompatible changes:
 
  - `std.optparse` no longer normalizes unhandled options.  For example,
