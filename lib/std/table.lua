@@ -5,6 +5,7 @@
 
 local base = require "std.base"
 local func = require "std.functional"
+local list = require "std.list"
 
 
 --- Make a shallow copy of a table, including any metatable.
