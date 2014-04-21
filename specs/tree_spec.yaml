@@ -371,7 +371,6 @@ specify std.tree:
       expect (tr[{"no such key"}]).should_be (nil)
   - it returns nil for missing multi-element key lists: |
       expect (tr[{"fnord", "foo"}]).should_be (nil)
-      pending "see issue #39"
       expect (tr[{"no", "such", "key"}]).should_be (nil)
   - it returns a value for the given key:
       expect (tr["foo"]).should_be "foo"

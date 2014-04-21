@@ -208,7 +208,7 @@ functional = {
 -- @field == equality
 -- @field ~= inequality
 functional.op = {
-  ["[]"]  = function (t, s) return t[s]    end,
+  ["[]"]  = function (t, s) return t and t[s] or nil end,
   ["+"]   = function (a, b) return a + b   end,
   ["-"]   = function (a, b) return a - b   end,
   ["*"]   = function (a, b) return a * b   end,
