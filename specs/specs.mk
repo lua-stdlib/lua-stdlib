@@ -46,4 +46,6 @@ EXTRA_DIST +=					\
 	$(srcdir)/specs/spec_helper.lua.in	\
 	$(NOTHING_ELSE)
 
+specl-check-local: specs/spec_helper.lua
+
 include build-aux/specl.mk
