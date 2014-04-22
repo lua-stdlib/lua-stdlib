@@ -129,7 +129,7 @@ totable = (require "std.table").totable
 
 -- Stub inprocess.capture if necessary; new in Specl 12.
 capture = inprocess.capture or
-          function (f, arg) return f (unpack (arg or {})) end
+          function (f, arg) return "", "", f (unpack (arg or {})) end
 
 
 do
