@@ -97,9 +97,12 @@ specify std.table:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       f       = M.clone_rename
-  - it writes a deprecation warning to standard error on first call:
+  - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
-      expect (err).should_contain "clone_rename is deprecated"
+      if err ~= "" then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).should_contain "clone_rename is deprecated"
+      end
       _, err = capture (f, {{}, subject})
       expect (err).should_be (nil)
   - it copies the subject:
