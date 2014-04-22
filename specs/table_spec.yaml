@@ -99,7 +99,7 @@ specify std.table:
       f       = M.clone_rename
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
-      if err ~= "" then
+      if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
         expect (err).should_contain "clone_rename is deprecated"
       end
