@@ -1,5 +1,6 @@
-local hell = require "specl.shell"
-local std  = require "specl.std"
+local hell      = require "specl.shell"
+local inprocess = require "specl.inprocess"
+local std       = require "specl.std"
 
 package.path = std.package.normalize ("lib/?.lua", package.path)
 
@@ -124,6 +125,11 @@ end
 
 -- Not local, so that it is available in spec examples.
 totable = (require "std.table").totable
+
+
+-- Stub inprocess.capture if necessary; new in Specl 12.
+capture = inprocess.capture or
+          function (f, arg) return f (unpack (arg or {})) end
 
 
 do

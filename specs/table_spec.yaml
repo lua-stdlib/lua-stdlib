@@ -97,10 +97,13 @@ specify std.table:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       f       = M.clone_rename
-  - it does not just return the subject:
-      expect (f ({}, subject)).should_not_be (subject)
+  - it writes a deprecation warning to standard error on first call:
+      _, err = capture (f, {{}, subject})
+      expect (err).should_contain "clone_rename is deprecated"
+      _, err = capture (f, {{}, subject})
+      expect (err).should_be (nil)
   - it copies the subject:
-      expect (f ({}, subject)).should_equal (subject)
+      expect (f ({}, subject)).should_copy (subject)
   - it only makes a shallow copy:
       expect (f ({}, subject).k2).should_be (subject.k2)
 
