@@ -26,7 +26,7 @@ latest release (recommended):
 
 To install current git master (for testing):
 
-    luarocks install https://raw.github.com/lua-stdlib/lua-stdlib/release/stdlib-git-1.rockspec
+    luarocks install https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/release/stdlib-git-1.rockspec
 
 To install without LuaRocks, check out the sources from the
 [repository][github], and then run the following commands: the
@@ -41,7 +41,7 @@ dependencies are listed in the dependencies entry of the file
 See [INSTALL][] for instructions for `configure`.
 
 [luarocks]: http://www.luarocks.org "LuaRocks Project"
-[install]: https://raw.github.com/lua-stdlib/lua-stdlib/master/INSTALL
+[install]: https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/INSTALL
 
 Use
 ---
