@@ -29,7 +29,7 @@
 --     local prototype = std.container.prototype
 -- @table std
 -- @field version release version string
-local version = "General Lua libraries / 38"
+local version = "General Lua libraries / 39"
 
 local modules = require "std.modules"
 
@@ -48,6 +48,12 @@ end
 local file_metatable = getmetatable (io.stdin)
 file_metatable.readlines  = io.readlines
 file_metatable.writelines = io.writelines
+
+-- Add string metamethods to the string metatable.
+local string_metatable = getmetatable ""
+string_metatable.__append = string.__append
+string_metatable.__concat = string.__concat
+string_metatable.__index = string.__index
 
 -- Maintain old global interface access points.
 for _, api in ipairs {

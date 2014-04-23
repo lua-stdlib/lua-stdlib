@@ -5,8 +5,11 @@
 ## Environment. ##
 ## ------------ ##
 
+## !!WARNING!! When bootstrap.conf:buildreq specl setting requires specl
+##             12 or higher, remove this entire Environment section!
+
 specs_path = $(abs_builddir)/specs/?.lua
-SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)"
+SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)" LUA_INIT= LUA_INIT_5_2=
 
 
 ## ------ ##
@@ -21,6 +24,7 @@ SPECL_OPTS = --unicode
 ## affected.
 
 specl_SPECS =					\
+	$(srcdir)/specs/base_spec.yaml		\
 	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
 	$(srcdir)/specs/functional_spec.yaml	\
@@ -41,5 +45,7 @@ specl_SPECS =					\
 EXTRA_DIST +=					\
 	$(srcdir)/specs/spec_helper.lua.in	\
 	$(NOTHING_ELSE)
+
+specl-check-local: specs/spec_helper.lua
 
 include build-aux/specl.mk

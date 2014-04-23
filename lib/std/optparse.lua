@@ -113,7 +113,6 @@ local optional, required
 -- @tparam table arglist list of arguments to normalise
 -- @treturn table normalised argument list
 local function normalise (self, arglist)
-  -- First pass: Normalise to long option names, without '=' separators.
   local normal = {}
   local i = 0
   while i < #arglist do
@@ -124,22 +123,37 @@ local function normalise (self, arglist)
     if opt:sub (1, 2) == "--" then
       local x = opt:find ("=", 3, true)
       if x then
-        table.insert (normal, opt:sub (1, x - 1))
-        table.insert (normal, opt:sub (x + 1))
-      else
+        local optname = opt:sub (1, x -1)
+
+	-- Only split recognised long options.
+	if self[optname] then
+          table.insert (normal, optname)
+          table.insert (normal, opt:sub (x + 1))
+	else
+	  x = nil
+	end
+      end
+
+      if x == nil then
+	-- No '=', or substring before '=' is not a known option name.
         table.insert (normal, opt)
       end
 
     elseif opt:sub (1, 1) == "-" and string.len (opt) > 2 then
-      local rest
+      local orig, split, rest = opt, {}
       repeat
         opt, rest = opt:sub (1, 2), opt:sub (3)
 
-        table.insert (normal, opt)
+        table.insert (split, opt)
+
+	-- If there's no handler, the option was a typo, or not supposed
+	-- to be an option at all.
+	if self[opt] == nil then
+	  opt, split = nil, { orig }
 
         -- Split '-xyz' into '-x -yz', and reiterate for '-yz'
-        if self[opt].handler ~= optional and
-           self[opt].handler ~= required then
+        elseif self[opt].handler ~= optional and
+          self[opt].handler ~= required then
 	  if string.len (rest) > 0 then
             opt = "-" .. rest
 	  else
@@ -148,10 +162,13 @@ local function normalise (self, arglist)
 
         -- Split '-xshortargument' into '-x shortargument'.
         else
-          table.insert (normal, rest)
+          table.insert (split, rest)
           opt = nil
         end
       until opt == nil
+
+      -- Append split options to normalised list
+      for _, v in ipairs (split) do table.insert (normal, v) end
     else
       table.insert (normal, opt)
     end
@@ -529,10 +546,11 @@ end
 
 --- Parse `arglist`.
 -- @tparam table arglist list of arguments
+-- @tparam[opt] table defaults table of default option values
 -- @treturn table a list of unrecognised `arglist` elements
 -- @treturn opts parsing results
-local function parse (self, arglist)
-  self.unrecognised = {}
+local function parse (self, arglist, defaults)
+  self.unrecognised, self.opts = {}, {}
 
   arglist = normalise (self, arglist)
 
@@ -556,6 +574,11 @@ local function parse (self, arglist)
 
       i = self[opt].handler (self, arglist, i, self[opt].value)
     end
+  end
+
+  -- Merge defaults into user options.
+  for k, v in pairs (defaults or {}) do
+    if self.opts[k] == nil then self.opts[k] = v end
   end
 
   -- metatable allows `io.warn` to find `parser.program` when assigned

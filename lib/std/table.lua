@@ -6,23 +6,57 @@
 local base = require "std.base"
 local func = require "std.functional"
 
+-- No need to pull all of std.list into memory.
+local elems = base.elems
+
 
 --- Make a shallow copy of a table, including any metatable.
 --
 -- To make deep copies, use @{std.tree.clone}.
 -- @function clone
--- @tparam table   t      source table
+-- @tparam table t source table
+-- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
--- @return copy of *table*
+-- @return copy of *t*, also sharing *t*'s metatable unless *nometa*
+--   is true, and with keys renamed according to *map*
 local clone = base.clone
 
 
---- Clone a table, renaming some keys.
+-- DEPRECATED: Remove in first release following 2015-04-15.
+-- Clone a table, renaming some keys.
 -- @function clone_rename
--- @tparam table t   source table
 -- @tparam table map table `{old_key=new_key, ...}`
+-- @tparam table t   source table
 -- @return copy of *table*
-local clone_rename = base.clone_rename
+local clone_rename = base.deprecate (base.clone_rename, nil,
+  "table.clone_rename is deprecated, use the new `map` argument to table.clone instead.")
+
+
+--- Make a partial clone of a table.
+--
+-- Like `clone`, but does not copy any fields by default.
+-- @function clone_select
+-- @tparam table t source table
+-- @tparam[opt={}] table selection list of keys to copy
+-- @return copy of fields in *selection* from *t*, also sharing *t*'s
+--   metatable unless *nometa*
+local function clone_select (t, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'clone_select' (table expected, got " .. type (t) .. ")")
+  map = map or {}
+  if type (map) ~= "table" then
+    map, nometa = {}, map
+  end
+
+  local r = {}
+  if not nometa then
+    setmetatable (r, getmetatable (t))
+  end
+  for i in elems (map) do
+    r[i] = t[i]
+  end
+  return r
+end
 
 
 --- Destructively merge another table's fields into *table*.
@@ -160,7 +194,7 @@ end
 --- @export
 local Table = {
   clone        = clone,
-  clone_rename = clone_rename,
+  clone_select = clone_select,
   empty        = empty,
   invert       = invert,
   keys         = keys,
@@ -176,6 +210,9 @@ local Table = {
   -- Core Lua table.sort function
   _sort        = _sort,
 }
+
+-- Deprecated and undocumented.
+Table.clone_rename = clone_rename
 
 for k, v in pairs (table) do
   Table[k] = Table[k] or v

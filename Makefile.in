@@ -390,7 +390,7 @@ man_MANS =
 save_release_files = $(scm_rockspec)
 std_path = $(abs_srcdir)/lib/?.lua
 LUA_ENV = LUA_PATH="$(std_path);$(LUA_PATH)"
-old_NEWS_hash = 1a28799a850e021e45c3e98064a746d7
+old_NEWS_hash = 1c4d1bfae2d511327b83800043bc19c7
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas)' \
 	UPDATE_COPYRIGHT_USE_INTERVALS=1 \
@@ -416,9 +416,10 @@ dist_modules_DATA = $(srcdir)/doc/modules/std.html \
 	$(srcdir)/doc/modules/std.string.html \
 	$(srcdir)/doc/modules/std.table.html $(NOTHING_ELSE)
 specs_path = $(abs_builddir)/specs/?.lua
-SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)"
+SPECL_ENV = LUA_PATH="$(specs_path);$(std_path);$(LUA_PATH)" LUA_INIT= LUA_INIT_5_2=
 SPECL_OPTS = --unicode
 specl_SPECS = \
+	$(srcdir)/specs/base_spec.yaml		\
 	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
 	$(srcdir)/specs/functional_spec.yaml	\
@@ -469,7 +470,6 @@ dist_luastddebug_DATA = \
 	$(NOTHING_ELSE)
 
 mkrockspecs_args = --module-dir $(srcdir)/lib --repository lua-stdlib
-ldoc_DEPS = $(dist_lua_DATA) $(dist_luastd_DATA)
 luarocks_config = build-aux/luarocks-config.lua
 rockspec_conf = $(srcdir)/rockspec.conf
 mkrockspecs = $(srcdir)/build-aux/mkrockspecs
@@ -1106,6 +1106,8 @@ uninstall-am: uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
 
 LUA_PATH  ?= ;
 LUA_CPATH ?= ;
+
+specl-check-local: specs/spec_helper.lua
 specl-check-local: $(specl_SPECS)
 	$(SPECL_ENV) LUA=$(LUA) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
 
@@ -1116,8 +1118,10 @@ specl-check-local: $(specl_SPECS)
 lib/std.lua: lib/std.lua.in
 	./config.status --file=$@
 
-$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(ldoc_DEPS)
-	test -d "$(srcdir)/doc" || mkdir "$(srcdir)/doc"
+$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(srcdir)/doc
+
+$(srcdir)/doc: $(dist_lua_DATA) $(dist_luastd_DATA)
+	test -d $@ || mkdir $@
 	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
 
 $(luarocks_config): Makefile.am

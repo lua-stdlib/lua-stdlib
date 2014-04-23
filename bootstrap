@@ -2163,7 +2163,7 @@ Slingshot Options:
         --luarocks-tree=DIR
                       check a non-default tree for prerequisite rocks
         --skip-rock-checks
-                      ignore Lua rocks in bootstrap.conf:buidreq'
+                      ignore Lua rocks in bootstrap.conf:buildreq'
 
     func_quote_for_eval ${1+"$@"}
     slingshot_options_prep_result=$func_quote_for_eval_result

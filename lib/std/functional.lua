@@ -35,13 +35,40 @@ end
 
 --- Partially apply a function.
 -- @param f function to apply partially
--- @param ... arguments to bind
--- @return function with ai already bound
+-- @tparam table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
+-- @return function with pi already bound
 local function bind (f, ...)
-  local fix = {...}
+  local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
+  if type (fix[1]) == "table" and fix[2] == nil then
+    fix = fix[1]
+  end
   return function (...)
-           return f (unpack (list.concat (fix, {...})))
+           local arg = {...}
+           for i, v in pairs (fix) do
+             arg[i] = v
+           end
+           return f (unpack (arg))
          end
+end
+
+
+--- A rudimentary case statement.
+-- Match `with` against keys in `branches` table, and return the result
+-- of running the function in the table value for the matching key, or
+-- the first non-key value function if no key matches.
+--
+--     return case (type (object), {
+--       table  = function ()  return something end,
+--       string = function ()  return something else end,
+--                function (s) error ("unhandled type: "..s) end,
+--     })
+--
+-- @param with expression to match
+-- @tparam table branches map possible matches to functions
+-- @return the return value from function with a matching key, or nil.
+local function case (with, branches)
+  local fn = branches[with] or branches[1]
+  if fn then return fn (with) end
 end
 
 
@@ -62,13 +89,19 @@ end
 
 --- Compose functions.
 -- @param f1...fn functions to compose
--- @return composition of f1 ... fn
+-- @return composition of fn (... (f1) ...): note that this is the reverse
+-- of what you might expect, but means that code like:
+--
+--     functional.compose (function (x) return f (x) end,
+--                         function (x) return g (x) end))
+--
+-- can be read from top to bottom.
 local function compose (...)
   local arg = {...}
   local fns, n = arg, #arg
   return function (...)
            local arg = {...}
-           for i = n, 1, -1 do
+           for i = 1, n do
              arg = {fns[i] (unpack (arg))}
            end
            return unpack (arg)
@@ -122,7 +155,7 @@ local function map (f, i, ...)
   local t = {}
   for e in i (...) do
     local r = f (e)
-    if r then
+    if r ~= nil then
       table.insert (t, r)
     end
   end
@@ -161,6 +194,7 @@ end
 --- @export
 functional = {
   bind       = bind,
+  case       = case,
   collect    = collect,
   compose    = compose,
   curry      = curry,
@@ -187,7 +221,7 @@ functional = {
 -- @field == equality
 -- @field ~= inequality
 functional.op = {
-  ["[]"]  = function (t, s) return t[s]    end,
+  ["[]"]  = function (t, s) return t and t[s] or nil end,
   ["+"]   = function (a, b) return a + b   end,
   ["-"]   = function (a, b) return a - b   end,
   ["*"]   = function (a, b) return a * b   end,

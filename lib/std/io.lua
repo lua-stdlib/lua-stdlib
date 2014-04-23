@@ -3,10 +3,12 @@
  @module std.io
 ]]
 
-local package = require "std.package"
 local string  = require "std.string"
 local tree    = require "std.tree"
 
+local package = {
+  dirsep  = string.match (package.config, "^([^\n]+)\n"),
+}
 
 -- Get an input file handle.
 -- @param h file handle or name (default: `io.input ()`)
@@ -47,7 +49,7 @@ local function readlines (h)
 end
 
 --- Write values adding a newline after each.
--- @param h file handle (default: `io.output ()`
+-- @param h file handle (default: `io.output ()`)
 -- @param ... values to write (as for write)
 local function writelines (h, ...)
   if io.type (h) ~= "file" then

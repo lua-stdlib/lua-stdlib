@@ -1,4 +1,8 @@
-local hell = require "specl.shell"
+local hell      = require "specl.shell"
+local inprocess = require "specl.inprocess"
+local std       = require "specl.std"
+
+package.path = std.package.normalize ("lib/?.lua", package.path)
 
 -- Substitute configured LUA so that hell.spawn doesn't pick up
 -- a different Lua binary to the one used by Specl itself.  If
@@ -123,6 +127,11 @@ end
 totable = (require "std.table").totable
 
 
+-- Stub inprocess.capture if necessary; new in Specl 12.
+capture = inprocess.capture or
+          function (f, arg) return nil, nil, f (unpack (arg or {})) end
+
+
 do
   -- Custom matcher for set size and set membership.
 
@@ -134,7 +143,7 @@ do
         matchers.Matcher, matchers.matchers, matchers.stringify
 
   matchers.have_size = Matcher {
-    function (actual, expect)
+    function (self, actual, expect)
       local size = 0
       for _ in pairs (actual) do size = size + 1 end
       return size == expect
@@ -142,63 +151,30 @@ do
 
     actual = "table",
 
-    format_expect = function (expect)
+    format_expect = function (self, expect)
       return " a table containing " .. expect .. " elements, "
     end,
 
-    format_any_of = function (alternatives)
+    format_any_of = function (self, alternatives)
       return " a table with any of " ..
              util.concat (alternatives, util.QUOTED) .. " elements, "
     end,
   }
 
   matchers.have_member = Matcher {
-    function (actual, expect)
+    function (self, actual, expect)
       return set.member (actual, expect)
     end,
 
     actual = "set",
 
-    format_expect = function (expect)
+    format_expect = function (self, expect)
       return " a set containing " .. q (expect) .. ", "
     end,
 
-    format_any_of = function (alternatives)
+    format_any_of = function (self, alternatives)
       return " a set containing any of " ..
              util.concat (alternatives, util.QUOTED) .. ", "
-    end,
-  }
-end
-
-
-do
-  --[[ ======================================= ]]--
-  --[[ Remove this after Specl 11 is released. ]]--
-  --[[ ======================================= ]]--
-
-  -- Custom matcher for specl.shell failure with error message.
-
-  local matchers = require "specl.matchers"
-  local Matcher, matchers, reformat =
-        matchers.Matcher, matchers.matchers, matchers.reformat
-
-  matchers.fail_with = matchers.fail_with or Matcher {
-    function (actual, expect)
-      return (actual.status ~= 0) and (actual.errout == expect)
-    end,
-
-    actual_type   = "Process",
-
-    format_actual = function (process)
-      return ":" .. reformat (process.errout)
-    end,
-
-    format_expect = function (expect)
-      return " error output: " .. reformat (expect)
-    end,
-
-    format_alternatives = function (adaptor, alternatives)
-      return " error output:" .. reformat (alternatives, adaptor)
     end,
   }
 end

@@ -6,7 +6,7 @@ env:
     - PACKAGE=@PACKAGE@
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.1.1
+    - LUAROCKS_BASE=luarocks-2.1.2
     - LUAROCKS="$LUA $HOME/bin/luarocks"
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
@@ -29,11 +29,13 @@ install:
   # Install a recent luarocks release locally for everything else.
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
+  # LuaRocks configure --with-lua argument is just a prefix!
   - ( cd $LUAROCKS_BASE;
       ./configure
-      --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
-      --with-lua-include=$LUA_INCDIR;
-      make all install; )
+      --prefix=$HOME --with-lua=/usr --lua-version=$LUA_SUFFIX
+      --lua-suffix=$LUA_SUFFIX --with-lua-include=$LUA_INCDIR;
+      make build;
+      make install; )
 
 # Configure and build.
 script:

@@ -1,12 +1,10 @@
 before: |
-  require "spec_helper"
-
   base_module         = "table"
   this_module         = "std.table"
   global_table        = "_G"
 
   std_globals         = { "pack", "ripairs", "totable" }
-  extend_base         = { "clone", "clone_rename", "empty",
+  extend_base         = { "clone", "clone_select", "clone_rename", "empty",
                           "invert", "keys", "merge", "new",
                           "ripairs", "size", "totable", "values",
                           -- make these available after require "std"
@@ -14,7 +12,7 @@ before: |
   enhance_base        = { "sort" }
 
 
-  -- 'should_contain' will match keys as well as values :)
+  -- 'to_contain' will match keys as well as values :)
   all_apis = {}
   for _, s in ipairs (std_globals)     do all_apis[s] = true end
   for _, s in ipairs (extend_base)     do all_apis[s] = true end
@@ -35,24 +33,24 @@ specify std.table:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
     - it contains apis from the core table table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          should_contain.a_permutation_of (all_apis)
+          to_contain.a_permutation_of (all_apis)
     - it enhances some apis from the core table table:
         expect (show_apis {from=base_module, enhanced_in=this_module}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
   - context via the std module:
     - it adds apis to the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          should_contain.all_of (std_globals)
+          to_contain.all_of (std_globals)
     - it adds apis to the core table table:
         expect (show_apis {added_to=base_module, by="std"}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
     - it replaces some apis in the core table table:
         expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
 
 - describe clone:
@@ -60,58 +58,114 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       f       = M.clone
   - it does not just return the subject:
-      expect (f (subject)).should_not_be (subject)
+      expect (f (subject)).not_to_be (subject)
   - it does copy the subject:
-      expect (f (subject)).should_equal (subject)
+      expect (f (subject)).to_equal (subject)
   - it only makes a shallow copy:
-      expect (f (subject).k1).should_be (subject.k1)
+      expect (f (subject).k1).to_be (subject.k1)
   - the original subject is not perturbed:
       target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
       copy   = f (subject)
-      expect (subject).should_equal (target)
-      expect (subject).should_be (subject)
+      expect (subject).to_equal (target)
+      expect (subject).to_be (subject)
+  - it treats non-table arg2 as nometa parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, true))).to_be (nil)
+  - it treats table arg2 as a map parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}))).to_be (getmetatable (mt))
+  - it supports 3 arguments with nometa as arg3:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}, "nometa"))).to_be (nil)
+
+  - context when renaming some keys:
+    - before:
+        target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
+    - it renames during cloning:
+        expect (f (subject, {k1 = "newkey"})).to_equal (target)
+    - it does not perturb the value in the renamed key field:
+        expect (f (subject, {k1 = "newkey"}).newkey).to_be (subject.k1)
+
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe clone_rename:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       f       = M.clone_rename
-  - it does not just return the subject:
-      expect (f ({}, subject)).should_not_be (subject)
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {{}, subject})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "clone_rename is deprecated"
+      end
+      _, err = capture (f, {{}, subject})
+      expect (err).to_be (nil)
   - it copies the subject:
-      expect (f ({}, subject)).should_equal (subject)
+      expect (f ({}, subject)).to_copy (subject)
   - it only makes a shallow copy:
-      expect (f ({}, subject).k2).should_be (subject.k2)
+      expect (f ({}, subject).k2).to_be (subject.k2)
 
   - context when renaming some keys:
     - before:
         target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
     - it renames during cloning:
-        expect (f ({k1 = "newkey"}, subject)).should_equal (target)
+        expect (f ({k1 = "newkey"}, subject)).to_equal (target)
     - it does not perturb the value in the renamed key field:
-        expect (f ({k1 = "newkey"}, subject).newkey).should_be (subject.k1)
+        expect (f ({k1 = "newkey"}, subject).newkey).to_be (subject.k1)
 
   - "it diagnoses non-table arguments":
-      expect (f {}).should_error ("table expected")
-      expect (f ({}, "foo")).should_error ("table expected")
+      expect (f {}).to_error ("table expected")
+      expect (f ({}, "foo")).to_error ("table expected")
+
+
+- describe clone_select:
+  - before:
+      subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
+      f       = M.clone_select
+  - it does not just return the subject:
+      expect (f (subject)).not_to_be (subject)
+  - it copies the keys selected:
+      expect (f (subject, {"k1", "k2"})).to_equal ({ k1 = {"v1"}, k2 = {"v2"} })
+  - it does copy the subject when supplied with a full list of keys:
+      expect (f (subject, {"k1", "k2", "k3"})).to_equal (subject)
+  - it only makes a shallow copy:
+      expect (f (subject, {"k1"}).k1).to_be (subject.k1)
+  - the original subject is not perturbed:
+      target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
+      copy   = f (subject, {"k1", "k2", "k3"})
+      expect (subject).to_equal (target)
+      expect (subject).to_be (subject)
+  - it treats non-table arg2 as nometa parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, true))).to_be (nil)
+  - it treats table arg2 as a map parameter:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}))).to_be (getmetatable (mt))
+  - it supports 3 arguments with nometa as arg3:
+      mt = setmetatable (f (subject, true), {})
+      expect (getmetatable (f (mt, {}, "nometa"))).to_be (nil)
+
+  - "it diagnoses non-table arguments":
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe empty:
   - before:
       f = M.empty
   - it returns true for an empty table:
-      expect (f {}).should_be (true)
-      expect (f {nil}).should_be (true)
+      expect (f {}).to_be (true)
+      expect (f {nil}).to_be (true)
   - "it returns false for a non-empty table":
-      expect (f {"stuff"}).should_be (false)
-      expect (f {{}}).should_be (false)
-      expect (f {false}).should_be (false)
+      expect (f {"stuff"}).to_be (false)
+      expect (f {{}}).to_be (false)
+      expect (f {false}).to_be (false)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe invert:
@@ -119,18 +173,17 @@ specify std.table:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
       f       = M.invert
   - it returns a new table:
-      expect (f (subject)).should_not_be (subject)
+      expect (f (subject)).not_to_be (subject)
   - it inverts keys and values in the returned table:
-      expect (f (subject)).should_equal { "k1", "k2", "k3" }
+      expect (f (subject)).to_equal { "k1", "k2", "k3" }
   - it is reversible:
-      expect (f (f (subject))).should_equal (subject)
+      expect (f (f (subject))).to_equal (subject)
   - "it seems to copy a list of 1..n numbers":
       subject = { 1, 2, 3 }
-      expect (f (subject)).should_equal (subject)
-      expect (f (subject)).should_not_be (subject)
+      expect (f (subject)).to_copy (subject)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe keys:
@@ -138,19 +191,19 @@ specify std.table:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
       f       = M.keys
   - it returns an empty list when subject is empty:
-      expect (f {}).should_equal {}
+      expect (f {}).to_equal {}
   - it makes a list of table keys:
       cmp = function (a, b) return a < b end
-      expect (M.sort (f (subject), cmp)).should_equal {"k1", "k2", "k3"}
+      expect (M.sort (f (subject), cmp)).to_equal {"k1", "k2", "k3"}
   - it does not guarantee stable ordering:
       subject = {}
       -- is this a good test? there is a vanishingly small possibility the
       -- returned table will have all 10000 keys in the same order...
       for i = 10000, 1, -1 do table.insert (subject, i) end
-      expect (f (subject)).should_not_equal (subject)
+      expect (f (subject)).not_to_equal (subject)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe merge:
@@ -164,22 +217,21 @@ specify std.table:
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
   - it does not create a whole new table:
-      expect (f (t1, t2)).should_be (t1)
+      expect (f (t1, t2)).to_be (t1)
   - it does not change t1 when t2 is empty:
-      expect (f (t1, {})).should_be (t1)
+      expect (f (t1, {})).to_be (t1)
   - it copies t2 when t1 is empty:
-      expect (f ({}, t1)).should_not_be (t1)
-      expect (f ({}, t1)).should_equal (t1)
+      expect (f ({}, t1)).to_copy (t1)
   - it merges keys from t2 into t1:
-      expect (f (t1, t2)).should_equal (target)
+      expect (f (t1, t2)).to_equal (target)
   - it gives precedence to values from t2:
       original = M.clone (t1)
       m = f (t1, t2)      -- Merge is destructive, do it once only.
-      expect (m.k3).should_be (t2.k3)
-      expect (m.k3).should_not_be (original.k3)
+      expect (m.k3).to_be (t2.k3)
+      expect (m.k3).not_to_be (original.k3)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f ("foo", "bar")).should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f ("foo", "bar")).to_error ("table expected")
 
 
 - describe new:
@@ -189,34 +241,34 @@ specify std.table:
   - context when not setting a default:
     - before: default = nil
     - it returns a new table when nil is passed:
-        expect (f (default, nil)).should_equal {}
+        expect (f (default, nil)).to_equal {}
     - it returns any table passed in:
         t = { "unique table" }
-        expect (f (default, t)).should_be (t)
+        expect (f (default, t)).to_be (t)
 
   - context when setting a default:
     - before:
         default = "default"
     - it returns a new table when nil is passed:
-        expect (f (default, nil)).should_equal {}
+        expect (f (default, nil)).to_equal {}
     - it returns any table passed in:
         t = { "unique table" }
-        expect (f (default, t)).should_be (t)
+        expect (f (default, t)).to_be (t)
 
   - it returns the stored value for existing keys:
       t = f ("default")
       v = { "unique value" }
       t[1] = v
-      expect (t[1]).should_be (v)
+      expect (t[1]).to_be (v)
   - it returns the constructor default for unset keys:
       t = f ("default")
-      expect (t[1]).should_be "default"
+      expect (t[1]).to_be "default"
   - it returns the actual default object:
       default = { "unique object" }
       t = f (default)
-      expect (t[1]).should_be (default)
+      expect (t[1]).to_be (default)
   - "it diagnoses non-tables/non-nil in the second argument":
-      expect (f (nil, "foo")).should_error ("table expected")
+      expect (f (nil, "foo")).to_error ("table expected")
 
 
 - describe pack:
@@ -231,12 +283,12 @@ specify std.table:
       subject = { "one", { { "two" }, "three" }, four = 5 }
       f = M.size
   - it counts the number of keys in a table:
-      expect (f (subject)).should_be (3)
+      expect (f (subject)).to_be (3)
   - it counts no keys in an empty table:
-      expect (f {}).should_be (0)
+      expect (f {}).to_be (0)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe sort:
@@ -247,12 +299,12 @@ specify std.table:
       f       = M.sort
   - it sorts elements in place:
       f (subject, cmp)
-      expect (subject).should_equal (target)
+      expect (subject).to_equal (target)
   - it returns the sorted table:
-      expect (f (subject, cmp)).should_equal (target)
+      expect (f (subject, cmp)).to_equal (target)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")
 
 
 - describe totable:
@@ -263,15 +315,15 @@ specify std.table:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
       f       = M.values
   - it returns an empty list when subject is empty:
-      expect (f {}).should_equal {}
+      expect (f {}).to_equal {}
   - it makes a list of table values:
       cmp = function (a, b) return a[1] < b[1] end
-      expect (M.sort (f (subject), cmp)).should_equal {{1}, {2}, {3}}
+      expect (M.sort (f (subject), cmp)).to_equal {{1}, {2}, {3}}
   - it does guarantee stable ordering:
       subject = {}
       -- is this a good test? or just requiring an implementation quirk?
       for i = 10000, 1, -1 do table.insert (subject, i) end
-      expect (f (subject)).should_equal (subject)
+      expect (f (subject)).to_equal (subject)
   - "it diagnoses non-table arguments":
-      expect (f ()).should_error ("table expected")
-      expect (f "foo").should_error ("table expected")
+      expect (f ()).to_error ("table expected")
+      expect (f "foo").to_error ("table expected")

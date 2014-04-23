@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   this_module         = "std.string"
 
   global_table        = "_G"
@@ -9,14 +7,13 @@ before: |
   enhance_globals     = { "assert", "tostring" }
 
   base_module         = "string"
-  extend_base         = { "assert", "caps", "chomp", "escape_pattern",
+  extend_base         = { "__append", "__concat", "__index",
+                          "assert", "caps", "chomp", "escape_pattern",
                           "escape_shell", "finds", "ltrim", "numbertosi",
                           "ordinal_suffix", "pad", "pickle",
                           "prettytostring", "render", "require_version",
                           "rtrim", "split", "tfind", "tostring", "trim",
                           "wrap",
-                          -- make these available after require "std"
-                          "__index", "_format", "_tostring",
                           -- camelCase compatibility:
                           "escapePattern", "escapeShell",
                           "ordinalSuffix" }
@@ -24,7 +21,7 @@ before: |
   extend_metamethods  = { "__append", "__concat" }
   enhance_metamethods = { "__index" }
 
-  -- 'should_contain' will match keys as well as values :)
+  -- 'to_contain' will match keys as well as values :)
   all_apis = {}
   for _, s in ipairs (std_globals)     do all_apis[s] = true end
   for _, s in ipairs (enhance_globals) do all_apis[s] = true end
@@ -32,6 +29,8 @@ before: |
   for _, s in ipairs (enhance_base)    do all_apis[s] = true end
 
   M = require "std.string"
+  getmetatable("").__index = M.__index
+  getmetatable ("").__concat = M.__concat
 
 specify std.string:
 - before:
@@ -41,46 +40,46 @@ specify std.string:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
     - it contains apis from the core string table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          should_contain.a_permutation_of (all_apis)
+          to_contain.a_permutation_of (all_apis)
     - it enhances some apis from the core string table:
         expect (show_apis {from=base_module, enhanced_in=this_module}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
   - context via the std module:
     - it adds apis to the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          should_contain.all_of (std_globals)
+          to_contain.all_of (std_globals)
     - it adds apis to the core string table:
         expect (show_apis {added_to=base_module, by="std"}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
     - it adds methods to the string metatable:
         expect (show_apis {added_to="getmetatable ('')", by="std"}).
-          should_contain.a_permutation_of (extend_metamethods)
+          to_contain.a_permutation_of (extend_metamethods)
     - it replaces some entries in the string metatable:
         expect (show_apis {from="getmetatable ('')", enhanced_after='require "std"'}).
-          should_contain.a_permutation_of (enhance_metamethods)
+          to_contain.a_permutation_of (enhance_metamethods)
     - it replaces some apis in the core string table:
         expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
 
 - describe ..:
   - it concatenates string arguments:
       target = "a string \n\n another string"
-      expect (subject .. " another string").should_be (target)
+      expect (subject .. " another string").to_be (target)
   - "it stringifies non-string arguments":
       argument = { "a table" }
-      expect (subject .. argument).should_match (string.format ("%s{1=a table}", subject))
+      expect (subject .. argument).to_match (string.format ("%s%s", subject, M.tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
-      expect (subject .. argument).should_be (string.format ("%s%s", subject, tostring (argument)))
+      expect (subject .. argument).to_be (string.format ("%s%s", subject, M.tostring (argument)))
   - the original subject is not perturbed:
       original = subject
       newstring = subject .. " concatenate something"
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
 
 
 - describe assert:
@@ -91,18 +90,18 @@ specify std.string:
       f = M.caps
   - it capitalises words of a string:
       target = "A String \n\n"
-      expect (f (subject)).should_be (target)
+      expect (f (subject)).to_be (target)
   - it changes only the first letter of each word:
-      expect (f "a stRiNg").should_be "A StRiNg"
+      expect (f "a stRiNg").to_be "A StRiNg"
   - it is available as a string metamethod:
-      expect (("a stRiNg"):caps ()).should_be "A StRiNg"
+      expect (("a stRiNg"):caps ()).to_be "A StRiNg"
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe chomp:
@@ -110,19 +109,19 @@ specify std.string:
       f = M.chomp
       target = "a string \n"
   - it removes a single trailing newline from a string:
-      expect (f (subject)).should_be (target)
+      expect (f (subject)).to_be (target)
   - it does not change a string with no trailing newline:
       subject = "a string "
-      expect (f (subject)).should_be (subject)
+      expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
-      expect (subject:chomp ()).should_be (target)
+      expect (subject:chomp ()).to_be (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_pattern:
@@ -145,18 +144,18 @@ specify std.string:
           target = target .. s
         end
     - "it inserts a % before any non-alphanumeric in a string":
-        expect (f (subject)).should_be (target)
+        expect (f (subject)).to_be (target)
     - it is available as a string metamethod:
-        expect (subject:escape_pattern ()).should_be (target)
+        expect (subject:escape_pattern ()).to_be (target)
   - legacy escapePattern call is the same function:
-      expect (M.escapePattern).should_be (f)
+      expect (M.escapePattern).to_be (f)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_shell:
@@ -172,18 +171,18 @@ specify std.string:
           target = target .. s
         end
     - "it inserts a \\ before any shell metacharacters":
-        expect (f (subject)).should_be (target)
+        expect (f (subject)).to_be (target)
     - it is available as a string metamethod:
-        expect (subject:escape_shell ()).should_be (target)
+        expect (subject:escape_shell ()).to_be (target)
   - legacy escapeShell call is the same function:
-      expect (M.escapeShell).should_be (f)
+      expect (M.escapeShell).to_be (f)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe finds:
@@ -194,25 +193,25 @@ specify std.string:
     - before:
         target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
     - it creates a list of pattern captures:
-        expect ({f (subject, "(.)(.)")}).should_equal ({ target })
+        expect ({f (subject, "(.)(.)")}).to_equal ({ target })
     - it is available as a string metamethod:
-        expect ({subject:finds ("(.)(.)")}).should_equal ({ target })
+        expect ({subject:finds ("(.)(.)")}).to_equal ({ target })
   - it creates an empty list where no captures are matched:
       target = {}
-      expect ({f (subject, "(x)")}).should_equal ({ target })
+      expect ({f (subject, "(x)")}).to_equal ({ target })
   - it creates an empty list for a pattern without captures:
       target = { { 1, 1; capt = {} } }
-      expect ({f (subject, "a")}).should_equal ({ target })
+      expect ({f (subject, "a")}).to_equal ({ target })
   - it starts the search at a specified index into the subject:
       target = { { 8, 9; capt = { "a", "b" } }, { 10, 11; capt = { "c", "d" } } }
-      expect ({f ("garbage" .. subject, "(.)(.)", 8)}).should_equal ({ target })
+      expect ({f ("garbage" .. subject, "(.)(.)", 8)}).to_equal ({ target })
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "...")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 # FIXME: This looks like a misfeature to me, let's remove it!
@@ -221,16 +220,16 @@ specify std.string:
       subject = "string: %s, number: %d"
       f = M.format
   - it returns a single argument without attempting formatting:
-      expect (f (subject)).should_be (subject)
+      expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
-      expect (subject:format ()).should_be (subject)
+      expect (subject:format ()).to_be (subject)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f (nil, "arg")).should_error ("string expected")
-      expect (f ({"a table"}, "arg")).should_error ("string expected")
+      expect (f (nil, "arg")).to_error ("string expected")
+      expect (f ({"a table"}, "arg")).to_error ("string expected")
 
 
 - describe ltrim:
@@ -239,20 +238,20 @@ specify std.string:
       f = M.ltrim
   - it removes whitespace from the start of a string:
       target = "a  short  string  \t\r\n   "
-      expect (f (subject)).should_equal (target)
+      expect (f (subject)).to_equal (target)
   - it supports custom removal patterns:
       target = "\r\n  a  short  string  \t\r\n   "
-      expect (f (subject, "[ \t\n]+")).should_equal (target)
+      expect (f (subject, "[ \t\n]+")).to_equal (target)
   - it is available as a string metamethod:
       target = "\r\n  a  short  string  \t\r\n   "
-      expect (subject:ltrim ("[ \t\n]+")).should_equal (target)
+      expect (subject:ltrim ("[ \t\n]+")).to_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe numbertosi:
@@ -266,12 +265,12 @@ specify std.string:
         m = 10 * (10 ^ n)
         table.insert (subject, f (m))
       end
-      expect (subject).should_equal (target)
+      expect (subject).to_equal (target)
   - it coerces string arguments to a number:
-      expect (f "1000").should_be "1k"
+      expect (f "1000").to_be "1k"
   - "it diagnoses non-numeric arguments":
-      expect (f ()).should_error ("attempt to perform arithmetic")
-      expect (f {"a table"}).should_error ("number expected")
+      expect (f ()).to_error ("attempt to perform arithmetic")
+      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe ordinal_suffix:
@@ -289,14 +288,14 @@ specify std.string:
         table.insert (target, n .. suffix)
         table.insert (subject, n .. f (n))
       end
-      expect (subject).should_equal (target)
+      expect (subject).to_equal (target)
   - legacy ordinalSuffix call is the same function:
-      expect (M.ordinalSuffix).should_be (f)
+      expect (M.ordinalSuffix).to_be (f)
   - it coerces string arguments to a number:
-      expect (f "-91").should_be "st"
+      expect (f "-91").to_be "st"
   - "it diagnoses non-numeric arguments":
-      expect (f ()).should_error ("number expected")
-      expect (f {"a table"}).should_error ("number expected")
+      expect (f ()).to_error ("number expected")
+      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe pad:
@@ -309,38 +308,39 @@ specify std.string:
         subject = "short string"
     - it right pads a string to the given width with spaces:
         target = "short string        "
-        expect (f (subject, width)).should_be (target)
+        expect (f (subject, width)).to_be (target)
     - it left pads a string to the given negative width with spaces:
         width = -width
         target = "        short string"
-        expect (f (subject, width)).should_be (target)
+        expect (f (subject, width)).to_be (target)
     - it is available as a string metamethod:
         target = "short string        "
-        expect (subject:pad (width)).should_be (target)
+        expect (subject:pad (width)).to_be (target)
 
   - context when string is longer than given width:
     - before:
         subject = "a string that's longer than twenty characters"
     - it truncates a string to the given width:
         target = "a string that's long"
-        expect (f (subject, width)).should_be (target)
+        expect (f (subject, width)).to_be (target)
     - it left pads a string to given width with spaces:
         width = -width
         target = "an twenty characters"
-        expect (f (subject, width)).should_be (target)
+        expect (f (subject, width)).to_be (target)
     - it is available as a string metamethod:
         target = "a string that's long"
-        expect (subject:pad (width)).should_be (target)
+        expect (subject:pad (width)).to_be (target)
 
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, width)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it coerces non-string arguments to a string":
-      expect (f ({ "a table" }, width)).should_contain "a table"
+      argument = { "a table " }
+      expect (f (argument, width)).to_contain (M.tostring (argument))
   - "it diagnoses non-numeric width arguments":
-      expect (f (subject, nil)).should_error ("number expected")
-      expect (f (subject, {"a table"})).should_error ("number expected")
+      expect (f (subject, nil)).to_error ("number expected")
+      expect (f (subject, {"a table"})).to_error ("number expected")
 
 
 - describe pickle:
@@ -350,36 +350,36 @@ specify std.string:
   - before:
       f = M.prettytostring
   - it renders nil exactly like system tostring:
-      expect (f (nil)).should_be (tostring (nil))
+      expect (f (nil)).to_be (tostring (nil))
   - it renders booleans exactly like system tostring:
-      expect (f (true)).should_be (tostring (true))
-      expect (f (false)).should_be (tostring (false))
+      expect (f (true)).to_be (tostring (true))
+      expect (f (false)).to_be (tostring (false))
   - it renders numbers exactly like system tostring:
       n = 8723643
-      expect (f (n)).should_be (tostring (n))
+      expect (f (n)).to_be (tostring (n))
   - it renders functions exactly like system tostring:
-      expect (f (f)).should_be (tostring (f))
+      expect (f (f)).to_be (tostring (f))
   - it renders strings with format "%q" styling:
       s = "a string"
-      expect (f (s)).should_be (string.format ("%q", s))
+      expect (f (s)).to_be (string.format ("%q", s))
   - it renders empty tables as a pair of braces:
-      expect (f {}).should_be ("{\n}")
+      expect (f {}).to_be ("{\n}")
   - it renders an array prettily:
       a = {"one", "two", "three"}
       expect (f (a, "")).
-        should_be '{\n[1] = "one",\n[2] = "two",\n[3] = "three",\n}'
+        to_be '{\n[1] = "one",\n[2] = "two",\n[3] = "three",\n}'
   - it renders a table prettily:
       t = { one = true, two = 2, three = {3}}
       expect (f (t, "")).
-        should_be '{\none = true,\nthree =\n{\n[1] = 3,\n},\ntwo = 2,\n}'
+        to_be '{\none = true,\nthree =\n{\n[1] = 3,\n},\ntwo = 2,\n}'
   - it renders table keys in table.sort order:
       t = { one = 3, two = 5, three = 4, four = 2, five = 1 }
       expect (f (t, "")).
-        should_be '{\nfive = 1,\nfour = 2,\none = 3,\nthree = 4,\ntwo = 5,\n}'
+        to_be '{\nfive = 1,\nfour = 2,\none = 3,\nthree = 4,\ntwo = 5,\n}'
   - it renders keys with invalid symbol names in long hand:
       t = { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }
       expect (f (t, "")).
-        should_be '{\n["?"] = 1,\n["[]"] = 1,\n_ = 0,\n["a-key"] = 1,\nword = 0,\n}'
+        to_be '{\n["?"] = 1,\n["[]"] = 1,\n_ = 0,\n["a-key"] = 1,\nword = 0,\n}'
 
 
 - describe render:
@@ -394,20 +394,20 @@ specify std.string:
       f = M.rtrim
   - it removes whitespace from the end of a string:
       target = " \t\r\n  a  short  string"
-      expect (f (subject)).should_equal (target)
+      expect (f (subject)).to_equal (target)
   - it supports custom removal patterns:
       target = " \t\r\n  a  short  string  \t\r"
-      expect (f (subject, "[ \t\n]+")).should_equal (target)
+      expect (f (subject, "[ \t\n]+")).to_equal (target)
   - it is available as a string metamethod:
       target = " \t\r\n  a  short  string  \t\r"
-      expect (subject:rtrim ("[ \t\n]+")).should_equal (target)
+      expect (subject:rtrim ("[ \t\n]+")).to_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe split:
@@ -416,37 +416,37 @@ specify std.string:
       subject = table.concat (target, ", ")
       f = M.split
   - it returns a one-element list for an empty string:
-      expect (f ("", ", ")).should_equal {""}
+      expect (f ("", ", ")).to_equal {""}
   - it makes a table of substrings delimited by a separator:
-      expect (f (subject,  ", ")).should_equal (target)
+      expect (f (subject,  ", ")).to_equal (target)
   - it returns n+1 elements for n separators:
-      expect (f (subject, "zero")).should_have_size (1)
-      expect (f (subject, "c")).should_have_size (2)
-      expect (f (subject, "s")).should_have_size (3)
-      expect (f (subject, "t")).should_have_size (4)
-      expect (f (subject, "e")).should_have_size (5)
+      expect (f (subject, "zero")).to_have_size (1)
+      expect (f (subject, "c")).to_have_size (2)
+      expect (f (subject, "s")).to_have_size (3)
+      expect (f (subject, "t")).to_have_size (4)
+      expect (f (subject, "e")).to_have_size (5)
   - it returns an empty string element for consecutive separators:
-      expect (f ("xyzyzxy", "yz")).should_equal {"x", "", "xy"}
+      expect (f ("xyzyzxy", "yz")).to_equal {"x", "", "xy"}
   - it returns an empty string element when starting with separator:
-      expect (f ("xyzyzxy", "xyz")).should_equal {"", "yzxy"}
+      expect (f ("xyzyzxy", "xyz")).to_equal {"", "yzxy"}
   - it returns an empty string element when ending with separator:
-      expect (f ("xyzyzxy", "zxy")).should_equal {"xyzy", ""}
+      expect (f ("xyzyzxy", "zxy")).to_equal {"xyzy", ""}
   - it returns a table of 1-character strings for "" separator:
-      expect (f ("abcdef", "")).should_equal {"", "a", "b", "c", "d", "e", "f", ""}
+      expect (f ("abcdef", "")).to_equal {"", "a", "b", "c", "d", "e", "f", ""}
   - it is available as a string metamethod:
-      expect (subject:split ", ").should_equal (target)
+      expect (subject:split ", ").to_equal (target)
       expect (("/foo/bar/baz.quux"):split "/").
-        should_equal {"", "foo", "bar", "baz.quux"}
+        to_equal {"", "foo", "bar", "baz.quux"}
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "e")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - it takes a Lua pattern as a separator:
       expect (f (subject, "%s+")).
-        should_equal {"first,", "the", "second", "one,", "final", "entry"}
+        to_equal {"first,", "the", "second", "one,", "final", "entry"}
   - it diagnoses non-string arguments:
-      expect (f (nil, ",")).should_error ("string expected")
-      expect (f ({"a table"}, ",")).should_error ("string expected")
+      expect (f (nil, ",")).to_error ("string expected")
+      expect (f ({"a table"}, ",")).to_error ("string expected")
 
 
 - describe tfind:
@@ -455,26 +455,26 @@ specify std.string:
       f = M.tfind
   - it creates a list of pattern captures:
       target = { 1, 3, { "a", "b", "c" } }
-      expect ({f (subject, "(.)(.)(.)")}).should_equal (target)
+      expect ({f (subject, "(.)(.)(.)")}).to_equal (target)
   - it creates an empty list where no captures are matched:
       target = { nil, nil, {} }
-      expect ({f (subject, "(x)(y)(z)")}).should_equal (target)
+      expect ({f (subject, "(x)(y)(z)")}).to_equal (target)
   - it creates an empty list for a pattern without captures:
       target = { 1, 1, {} }
-      expect ({f (subject, "a")}).should_equal (target)
+      expect ({f (subject, "a")}).to_equal (target)
   - it starts the search at a specified index into the subject:
       target = { 8, 10, { "a", "b", "c" } }
-      expect ({f ("garbage" .. subject, "(.)(.)(.)", 8)}).should_equal (target)
+      expect ({f ("garbage" .. subject, "(.)(.)(.)", 8)}).to_equal (target)
   - it is available as a string metamethod:
       target = { 8, 10, { "a", "b", "c" } }
-      expect ({("garbage" .. subject):tfind ("(.)(.)(.)", 8)}).should_equal (target)
+      expect ({("garbage" .. subject):tfind ("(.)(.)(.)", 8)}).to_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "...")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe tostring:
@@ -486,20 +486,20 @@ specify std.string:
       f = M.trim
   - it removes whitespace from each end of a string:
       target = "a  short  string"
-      expect (f (subject)).should_equal (target)
+      expect (f (subject)).to_equal (target)
   - it supports custom removal patterns:
       target = "\r\n  a  short  string  \t\r"
-      expect (f (subject, "[ \t\n]+")).should_equal (target)
+      expect (f (subject, "[ \t\n]+")).to_equal (target)
   - it is available as a string metamethod:
       target = "\r\n  a  short  string  \t\r"
-      expect (subject:trim ("[ \t\n]+")).should_equal (target)
+      expect (subject:trim ("[ \t\n]+")).to_equal (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, "%W")
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe wrap:
@@ -516,21 +516,21 @@ specify std.string:
         "-2013 (see the AUTHORS file for details), and\nreleased un" ..
         "der the MIT license (the same license as Lua itself). Ther" ..
         "e is no\nwarranty."
-      expect (f (subject)).should_be (target)
+      expect (f (subject)).to_be (target)
   - it honours a column width parameter:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries\nare copyright by their authors 2000" ..
         "-2013 (see the AUTHORS file for\ndetails), and released un" ..
         "der the MIT license (the same license as Lua\nitself). The" ..
         "re is no warranty."
-      expect (f (subject, 72)).should_be (target)
+      expect (f (subject, 72)).to_be (target)
   - it supports indenting by a fixed number of columns:
       target = "        This is a collection of Lua libraries for L" ..
         "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
         "eir authors 2000-2013 (see the\n        AUTHORS file for d" ..
         "etails), and released under the MIT license\n        (the " ..
         "same license as Lua itself). There is no warranty."
-      expect (f (subject, 72, 8)).should_be (target)
+      expect (f (subject, 72, 8)).to_be (target)
   - context given a long unwrapped string:
     - before:
         target = "    This is a collection of Lua libraries for Lua 5" ..
@@ -539,16 +539,16 @@ specify std.string:
           "eased under the MIT\n  license (the same license as Lua it" ..
           "self). There is no\n  warranty."
     - it can indent the first line differently:
-        expect (f (subject, 64, 2, 4)).should_be (target)
+        expect (f (subject, 64, 2, 4)).to_be (target)
     - it is available as a string metamethod:
-        expect (subject:wrap (64, 2, 4)).should_be (target)
+        expect (subject:wrap (64, 2, 4)).to_be (target)
   - the original subject is not perturbed:
       original = subject
       newstring = f (subject, 55, 5)
-      expect (subject).should_be (original)
+      expect (subject).to_be (original)
   - it diagnoses indent greater than line width:
-      expect (f (subject, 10, 12)).should_error ("less than the line width")
-      expect (f (subject, 99, 99)).should_error ("less than the line width")
+      expect (f (subject, 10, 12)).to_error ("less than the line width")
+      expect (f (subject, 99, 99)).to_error ("less than the line width")
   - it diagnoses non-string arguments:
-      expect (f ()).should_error ("string expected")
-      expect (f {"a table"}).should_error ("string expected")
+      expect (f ()).to_error ("string expected")
+      expect (f {"a table"}).to_error ("string expected")

@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   this_module  = "std.math"
 
   global_table = "_G"
@@ -8,7 +6,7 @@ before: |
   extend_base  = { "round", "_floor" }
   enhance_base = { "floor" }
 
-  -- 'should_contain' will match keys as well as values :)
+  -- 'to_contain' will match keys as well as values :)
   all_apis = {}
   for _, s in ipairs (extend_base)     do all_apis[s] = true end
   for _, s in ipairs (enhance_base)    do all_apis[s] = true end
@@ -20,21 +18,21 @@ specify std.math:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
     - it contains apis from the core math table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          should_contain.a_permutation_of (all_apis)
+          to_contain.a_permutation_of (all_apis)
     - it enhances some apis from the core math table:
         expect (show_apis {from=base_module, enhanced_in=this_module}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
   - context via the std module:
     - it adds apis to the core math table:
         expect (show_apis {added_to=base_module, by="std"}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
     - it replaces some apis from the core math table:
         expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          should_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (enhance_base)
 
 
 - describe floor:

@@ -228,7 +228,7 @@ end
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
 local function map_with (fn, ls)
-  return List (func.map (func.compose (fn, unpack), elems, ls))
+  return List (func.map (func.compose (unpack, fn), elems, ls))
 end
 
 

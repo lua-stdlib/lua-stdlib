@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   this_module  = "std.debug"
 
   global_table = "_G"
@@ -15,15 +13,15 @@ specify std.debug:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
     - it contains apis from the core debug table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
     - it adds apis to the core debug table:
         expect (show_apis {added_to=base_module, by="std"}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
 
 
 - describe _DEBUG:

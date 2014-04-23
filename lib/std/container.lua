@@ -86,23 +86,32 @@ end
 --- Return `obj` with references to the fields of `src` merged in.
 -- @static
 -- @tparam table obj destination object
--- @tparam table src fields to copy int clone
+-- @tparam table src fields to copy into clone
 -- @tparam[opt={}] table map `{old_key=new_key, ...}`
 -- @treturn table `obj` with non-private fields from `src` merged, and
 --   a metatable with private fields (if any) merged, both sets of keys
 --   renamed according to `map`
 -- @see std.object.mapfields
 local function mapfields (obj, src, map)
-  map = map or {}
   local mt = getmetatable (obj) or {}
 
   -- Map key pairs.
-  for k, v in pairs (src) do
-    local key, dst = map[k] or k, obj
-    if type (key) == "string" and key:sub (1, 1) == "_" then
-      dst = mt
+  -- Copy all pairs when `map == nil`, but discard unmapped src keys
+  -- when map is provided (i.e. if `map == {}`, copy nothing).
+  if map == nil or next (map) then
+    map = map or {}
+    for k, v in pairs (src) do
+      local key, dst = map[k] or k, obj
+      local kind = type (key)
+      if kind == "string" and key:sub (1, 1) == "_" then
+        dst = mt
+      elseif kind == "number" and #dst + 1 < key then
+        -- When map is given, but has fewer entries than src, stop copying
+        -- fields when map is exhausted.
+        break
+      end
+      dst[key] = v
     end
-    dst[key] = v
   end
 
   -- Quicker to remove this after copying fields than test for it
@@ -142,7 +151,6 @@ end
 --   by @{std.object.__call}
 local metatable = {
   _type = "Container",
-  _init = {},
 
   --- Return a clone of this container.
   -- @function __call
@@ -166,10 +174,10 @@ local metatable = {
       end
     end
 
-    if type (mt._init) == "table" then
-      obj = (self.mapfields or mapfields) (obj, x, mt._init)
-    else
+    if type (mt._init) == "function" then
       obj = mt._init (obj, x, ...)
+    else
+      obj = (self.mapfields or mapfields) (obj, x, mt._init)
     end
 
     -- If a metatable was set, then merge our fields and use it.

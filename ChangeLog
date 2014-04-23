@@ -1,4 +1,271 @@
+2014-04-23  Gary V. Vaughan  <gary@gnu.org>
+
+	Release v39.
+
+	Release version 39
+	* NEWS: Record release date.
+
+	string: leave global string metatable alone.
+	Close #30.
+	* lib/std/string.lua (__append, __concat, __index): Move these
+	metamethods together at the start of the file, and store them in
+	the returned module table rather than setting them in the global
+	string metatable.
+	Improve header comments, to describe namespace issues.
+	* lib/std.lua.in: Set string metatable elements from string module
+	as before.
+	* specs/string_spec.yaml: Adjust to compensate for changes in
+	returned string module table.
+	* NEWS: Update.
+
+	specs: no need to explicitly require spec_helper any more.
+	Since Specl 11, every spec-file automatically loads the
+	spec_helper.lua from the same directory, if any.
+	* specs/container_spec.yaml, specs/debug_spec.yaml,
+	specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/object_spec.yaml, specs/optparse_spec.yaml,
+	specs/package_spec.yaml, specs/set_spec.yaml,
+	specs/strbuf_spec.yaml, specs/string_spec.yaml,
+	specs/table_spec.yaml, specs/tree_spec.yaml: Remove explicit
+	`require "spec_helper"`.
+
+	specs: take advantage of improvements to Specl DSL.
+	* specs/container_spec.yaml, specs/debug_spec.yaml,
+	specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/object_spec.yaml, specs/optparse_spec.yaml,
+	specs/package_spec.yaml, specs/set_spec.yaml,
+	specs/std_spec.yaml, specs/strbuf_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml,
+	specs/tree_spec.yaml: Use `not_to_` instead of `should_not`,
+	`to_` instead of `should_` and `to_copy` instead of
+	`should_equal` plus `should_not_be`.
+
+2014-04-22  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: update raw urls to new github url scheme.
+	* README.md: Use new `raw.githubusercontent.com` url scheme
+	throughout.
+
+	maint: regenerate spec_helper.lua for `make check` if necessary.
+	* specs/specs.mk (specl-check-local): Add dependency on
+	specs/spec_helper.lua, so that it is regenerated before the main
+	`check-local` body is executed if necessary.
+
+	specs: capture stub should return nil to match Specl 12.
+	* specs/spec_helper.lua.in (capture): Return `nil` for stdout
+	and stderr to match Specl 12 API.
+	* specs/table_spec.yaml (clone_rename): Test for `nil`.
+
+	specs: skip deprecation warning expectation when Specl < 12.
+	* specs/table_spec.yaml (clone_rename): Skip deprecation warning
+	expectation when the ""-returning stub is being used.
+
+	specs: return empty out and err values from `capture` stub.
+	* specs/spec_helper.lua.in (table.clone_rename): Return empty
+	strings for stderr and stdout from fallback stubbed `capture`
+	implementation.
+
+	specs: elide clone_rename deprecation warning, with Specl 12.
+	Fix #54.
+	* specs/spec_helper.lua.in (capture): Stub inprocess.capture if
+	installed Specl is too old to implement it.
+	* specs/table_spec.yaml (clone_rename): Wrap clone_rename in
+	inprocess.capture to elide deprecation warning on stderr.
+
+	refactor: restore alphabetical ordering to table specs.
+	* specs/table_spec.yaml (clone_rename): Move back into alpha-
+	betical order.
+
+2014-04-21  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: move repository to its own project.
+	* README.md, configure.ac, rockspec.conf,
+	* specs/optparse_spec.yaml: Replace rrthomas with lua-stdlib.
+
+	specs: ignore local LUA_INIT and LUA_INIT_5_2 settings.
+	Fix #53.
+	* specs/specs.mk (SPECL_ENV): Until the next Specl release is
+	available, manually reset LUA_INIT and LUA_INIT_5_2.
+	* bootstrap.conf (buildreq): Add a reminder to clean up after
+	Specl 12.
+
+2014-04-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Reverse order of arguments to functional.compose; closes #52
+
+2014-04-21  Gary V. Vaughan  <gary@gnu.org>
+
+	tree: return tree root from tree[{}].
+	Fix #41.
+	* specs/tree_spec.yaml (returns tree root for an empty list): New
+	specification.
+	* lib/std/tree.lua (__index): Allow empty list as a valid key.
+	* specs/tree_spec.yaml (std.tree): Remove pending call for
+	newly passing examples.
+	* NEWS: Update.
+
+	table: no need to pull all of std.list into memory.
+	* lib/std/table (elems): Capture base.elems in a local.
+	(clone_select): Use it.
+
+2014-04-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Modify API of functional.bind, and add spec; closes #48
+
+	Add a missing require to table.lua
+
+	Add clone_select, closing #50.
+
+	Don’t imply that clone requires its nometa argument to be the literal `true`, thereby blessing our use of string "nometa" argument.
+
+	Remove comment that gives a false impression that the behaviour is there to support backwards-compatibility, whereas in fact it’s necessary for the current API.
+
+2014-04-21  Gary V. Vaughan  <gary@gnu.org>
+
+	container: discard unmapped positional parameters.
+	Fix #35.
+	* lib/std/container.lua (mapfields): When `map` argument is
+	given, discard unmapped positional parameters.
+	(metatable._init): Remove to imply a `nil` value (copy all
+	fields), because `{}` now discards all positional parameters.
+	(metatable.__call): Reverse type check of `_init`, so that
+	mapfields is still called when _init is `nil`.
+	* specs/object_spec.yaml (std.object): Remove pending call from
+	newly passing examples.
+	* NEWS: Update.
+
+	tree: always return nil for non-existent key path.
+	Fix #39.
+	* lib/std/functional.lua (function.op["[]"]): Return nil instead
+	of dereferencing a nil valued table argument.
+	* specs/tree_spec.yaml (std.tree): Remove pending call prior to
+	newly passing example.
+
+	functional: handle false valued elements correctly in `map`.
+	Fix #34.
+	* lib/std/functional.lua (map): Also insert `false` values into
+	the results table.
+	* specs/list_spec.yaml (std.list): Remove pending call from newly
+	passing example.
+
+2014-04-16  Gary V. Vaughan  <gary@gnu.org>
+
+	table: fold `clone_rename` into `clone`.
+	* specs/table_spec.yaml (std.table): Specify new behaviour with
+	optional `map` argument.
+	* lib/std/base.lua (clone): Implement new behaviours.
+	* lib/std/table.lua (clone_rename): Add deprecation warning, and
+	move out of the LDoc export table.
+	(clone): Update doc-comments.
+	* NEWS: Update.
+
+	base: provide a deprecation mechanism for gentle API upgrades.
+	* specs/base_spec.yaml: New file. Specify behaviour for a
+	deprecation wrapper.
+	* specs/specs.mk (specl_SPECS): Add base_spec.yaml.
+	* lib/std/base.lua (deprecate): New function.  Implement the
+	specification.
+
+	maint: remove trailing whitespace in NEWS.
+	* NEWS: Remove trailing whitespace.
+
+	specs: set package.path for in tree specl calls.
+	Specl 11 works well when called directly in a project root dir,
+	eg. `specl -freport -v1`, but only if the package path is set
+	appropriately in each `spec_helper.lua` or similar.
+	* specs/spec_helper.lua.in: Use `package.normalize` to safely
+	inject ./lib/?.lua into the head of package.path.
+
+2014-04-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix a comment typo
+
+	Fix a comment typo
+
+2014-04-15  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with latest upstream master.
+	* bootstrap: Update from slingshot.
+	* .travis.yml: Regenerate.
+
+	specs: update custom matchers for Specl 11.
+	* bootstrap.conf (buildreq): Bump specl minimum version to 11.
+	* specs/spec_helper.lua (matchers.have_size, matchers.have_member):
+	Matcher object functions require an initial `self` parameter.
+	(matchers.fail_with): Remove.
+
+	specs: fix a typo; there is no 'a' in should_output.
+	* specs/optparse_spec.yaml: Fix a typo.
+
+2014-04-15  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix a comment typo
+
+	Fix documentation of table.clone_rename: the parameters got swapped during the earlier re-org
+
+2014-02-06  Gary V. Vaughan  <gary@gnu.org>
+
+	package: new path management apis.
+	* specs/package_spec.yaml: Specify behaviour of new apis.
+	* lib/std/io.lua (pathsep): Recalculate rather than introduce a
+	require loop with std.package.
+	* lib/std/package.lua (find, insert, mappath, normalize, remove):
+	New functions for maintaining clean pathstrings.
+	* NEWS: Update.
+
+	functional: new `case` module function.
+	* specs/functional_spec.yaml: Add specifications for a `case`
+	function.
+	* lib/std/functional.lua (case): New function.
+	* NEWS: Update.
+
+2014-02-05  Gary V. Vaughan  <gary@gnu.org>
+
+	optparse: simplify default option setting.
+	* specs/optparse_spec.yaml: Specify behaviour of new option
+	defaults parameter.
+	* lib/std/optparse.lua (parser): Add an optional default options
+	parameter.
+	* NEWS: Update.
+
+2014-02-03  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: use a sentinel file for multi-target rules.
+	With thanks to
+	http://stackoverflow.com/questions/17216048/parallel-gnu-make-and-rules-that-create-several-targets-at-once
+	* local.mk (ldoc_DEPS): Remove.
+	$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA):
+	Depend on sentinel file.
+	($(srcdir)/doc): Make and populate doc tree atomically for
+	parallel make.
+
+	configury: be nicer to parallel make.
+	* local.mk ($(srcdir)/doc): Factor out of...
+	($(dist_doc_DATA)): ...here.
+	(ldoc_DEPS): Add $(srcdir)/doc.
+
+2014-02-01  Gary V. Vaughan  <gary@gnu.org>
+
+	optparse: fix a parse error with unhandled opt in combined options.
+	* specs/optparse_spec.yaml: Add specifications for behaviour
+	when encountering unhandled options in various circumstances.
+	* lib/std/optparse.lua (normalise): Meet specifications.
+	* NEWS: Update.
+
+	specs: remove last vestiges of optparse's specl origins.
+	* specs/optparse_spec.yaml (std.optparse): Update category, bug
+	address, and copyright to be stdlib appropriate.
+
 2014-01-30  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* configure.ac (AC_INIT): Bump release number to 39.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 38
 	* NEWS: Record release date.
@@ -71,7 +338,7 @@
 	* lib/std/io.lua (warn): Adjust to work properly with new specs.
 	* NEWS: Update.
 
-2014-01-24  Gary V. Vaughan  <gary@gnu.org>
+2014-01-23  Gary V. Vaughan  <gary@gnu.org>
 
 	container: inline calls to `empty`.
 	* lib/std/container (mapfields, metatable._init): Replace
@@ -104,8 +371,6 @@
 	Add appropriate LDocs.
 	* NEWS: Update.
 
-2014-01-23  Gary V. Vaughan  <gary@gnu.org>
-
 	container: distinguish between the two `functions` tables.
 	One is the core of Container with metatable as its metatable; the
 	other is metatable._functions, and is just a list of unpropagated
@@ -130,7 +395,7 @@
 	* lib/std/optparse.lua: Vastly improve optparse LDocs.
 	* NEWS: Update.
 
-2014-01-21  Reuben Thomas  <rrt@sc3d.org>
+2014-01-20  Reuben Thomas  <rrt@sc3d.org>
 
 	optparse.lua: move "default" options to bottom of help
 	A more standard position.
@@ -403,6 +668,8 @@
 	* specs/set_spec.yaml: Write "shows the type name" instead of
 	"contains the type".
 
+2013-12-10  Gary V. Vaughan  <gary@gnu.org>
+
 	refactor: automatically fill method functions form _functions table.
 	* lib/std/container.lua (metatable.__call): Copy entries from
 	newly passed _functions table to object.
@@ -416,8 +683,6 @@
 	* lib/std/set.lua: Rewrite as a derivative of std.container.
 	Change object methods to Container style prototype functions.
 	* NEWS: Update.
-
-2013-12-10  Gary V. Vaughan  <gary@gnu.org>
 
 	list: remove trailing whitespace.
 	* lib/std/list.lua: Remove trailing whitespace.
@@ -758,7 +1023,7 @@
 	* specs/spec_helper.lua: Fix table_ext reference for name change
 	to straight table.
 
-2013-05-30  Gary V. Vaughan  <gary@gnu.org>
+2013-05-29  Gary V. Vaughan  <gary@gnu.org>
 
 	object: __tostring should call __totable metamethod, not method.
 	* lib/std/object.lua (new.__tostring): Because we have to set a
@@ -767,7 +1032,7 @@
 	__totable (self).  Use the longhand so that __tostring calls the
 	right function in both cases.
 
-2013-05-23  Gary V. Vaughan  <gary@gnu.org>
+2013-05-22  Gary V. Vaughan  <gary@gnu.org>
 
 	travis: use specl from git until specl 8 is released.
 	* .travis.yml: Fetch the rockspec from github. Install it.
@@ -789,8 +1054,6 @@
 	* lib/std/object.lua (new.__tostring): table.concat requires that
 	all elements already be strings, so call tostring on the array
 	part of the object table before passing to table.concat.
-
-2013-05-22  Gary V. Vaughan  <gary@gnu.org>
 
 	object: respond to tostring() with stringified table of non-hidden fields.
 	Rather than add individual __tostring metamethods to every object
@@ -916,6 +1179,8 @@
 	* specs/object_spec.yaml: Adjust.
 	* NEWS: Update.
 
+2013-05-15  Gary V. Vaughan  <gary@gnu.org>
+
 	set: derive from `std.object.Object`.
 	* specs/set_spec.yaml: Describe expected behaviour of set as an
 	Object.
@@ -931,8 +1196,6 @@
 	`new` function.
 	* NEWS: Update.
 
-2013-05-15  Gary V. Vaughan  <gary@gnu.org>
-
 	strbuf: derive from `std.object.Object`.
 	* specs/strbuf_spec.yaml: Describe expected behaviour of strbuf as
 	an Object.
@@ -942,6 +1205,8 @@
 	(M): Return a callable table that forwards module calls to the
 	`new` function.
 	* NEWS: Update.
+
+2013-05-14  Gary V. Vaughan  <gary@gnu.org>
 
 	object: bake in inherited object type names.
 	* specs/object_spec.yaml: New file. Examples of how typed objects
@@ -957,14 +1222,12 @@
 	Return the public interface table, with a `__call`able metatable
 	that delegates to Object for instantiation.
 
-2013-05-14  Gary V. Vaughan  <gary@gnu.org>
-
 	configury: bump minimum specl version to release 7.
 	Specl 6 has a bug in `should_contain` matcher that makes the
 	package_ext checks fail spuriously.
 	* configure.ac (SPECL_MIN): Bump to 7.
 
-2013-05-13  Gary V. Vaughan  <gary@gnu.org>
+2013-05-12  Gary V. Vaughan  <gary@gnu.org>
 
 	string_ext: make escape_pattern compatible with Lua 5.2.
 	Lua 5.2 complains of an illegal character if a non-pattern meta
@@ -973,8 +1236,6 @@
 	* specs/string_ext_spec.yaml (escape_pattern): Adjust example
 	code to match.
 	* NEWS: Update.
-
-2013-05-12  Gary V. Vaughan  <gary@gnu.org>
 
 	refactor: move base.lua methods to more appropriate modules.
 	Move things around to remove more trampling of _G, and break the
@@ -1120,6 +1381,8 @@
 	* .gitignore: Update.
 	* .travis.yml: Regenerate.
 
+2013-05-05  Gary V. Vaughan  <gary@gnu.org>
+
 	slingshot: add slingshot as a git submodule.
 	* .gitmodules: New file.
 	* slingshot: New submodule.
@@ -1144,17 +1407,17 @@
 
 	Remove non-core modules, which go into separate lua-rrtlib for ad-hoc modules
 
-2013-04-12  Gary V. Vaughan  <gary@gnu.org>
+2013-04-11  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: upgrade to Specl 5.
 	* specs/string_ext_spec.yaml, specs/table_ext_spec.yaml: Update
 	all 'should_error' matchers to saner Specl 5 ordering.
 	* specs/specs.mk (SPECL_MIN): Bump to 5.
 
-2013-04-11  Gary V. Vaughan  <gary@gnu.org>
-
 	getopt: also requires io_ext module to be loaded.
 	* std/getopt.lua: Load io_ext into a local table.
+
+2013-04-10  Gary V. Vaughan  <gary@gnu.org>
 
 	configury: install correctly with configure or luarocks.
 	For the classic './configure; make; make install' to work we need
@@ -1325,15 +1588,13 @@
 	* std/std.lua.in: Strip "std." prefix before injecting required
 	symbols into global namespace.
 
-2013-03-30  Gary V. Vaughan  <gary@gnu.org>
+2013-03-29  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: support rerunning check-local in multiple lua environments.
 	* .luamultienv: Example multienv runner.
 	* Makefile.am (SPECL): Allow overriding.
 	(MULTICHECK): Location of multicheck script.
 	(check-local): Run multicheck without looping, if present.
-
-2013-03-29  Gary V. Vaughan  <gary@gnu.org>
 
 	getopt: ensure we find _G.arg from Specl nested setfenv environments.  (issue #27)
 	Although only necessary for Lua 5.1, this fix is harmless for Lua
@@ -1391,6 +1652,8 @@
 	* GNUmakefile (ROCKSPEC_ENV): Default to same value as LUA_ENV.
 	(MKROCKSPECS): Now uses lua-stdlib from the build tree, not the
 	previously installed version.
+
+2013-03-25  Gary V. Vaughan  <gary@gnu.org>
 
 	debug_ext: don't perturb the global environment by default.
 	For backwards compatibility, `require "std"` will still write
@@ -1495,7 +1758,7 @@
 	configury: bump release number to 35.
 	* configure.ac (AC_INIT): Bump release number to 35.
 
-2013-03-25  Gary V. Vaughan  <gary@gnu.org>
+2013-03-24  Gary V. Vaughan  <gary@gnu.org>
 
 	configury: warn if `make check` needs a newer Specl.
 	* Makefile.am (SPECL_MIN): Oldest release capable of running our
@@ -1514,18 +1777,18 @@
 	maint: revert premature merge of pull request #23.
 	Reverse apply 5508adb.
 
-2013-03-24  Reuben Thomas  <rrt@sc3d.org>
+2013-03-23  Reuben Thomas  <rrt@sc3d.org>
 
 	README: make formatting consistent
 
 	GNUmakefile: change to using a separate checkout for release branch
 
-2013-03-16  Reuben Thomas  <rrt@sc3d.org>
+2013-03-15  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #23 from rrthomas/gary/ext-hygiene
 	package_ext: don't perturb the global environment by default.
 
-2013-03-16  Gary V. Vaughan  <gary@gnu.org>
+2013-03-15  Gary V. Vaughan  <gary@gnu.org>
 
 	package_ext: don't perturb the global environment by default.
 	For backwards compatibility, `require "std"` will still write
@@ -1538,8 +1801,6 @@
 	namespace.
 	* specs/package_ext_spec.yaml: Specify new behaviour, being
 	careful about `require "std"` side-effects.
-
-2013-03-15  Gary V. Vaughan  <gary@gnu.org>
 
 	string_ext: fix a bad assumption in a spec example.
 	Running string.format in the expectation `should` uses the core
@@ -1596,6 +1857,8 @@
 	* Makeflie.am (SPECS): Remove old _spec.lua filenames, and add
 	new _spec.yaml filenames.
 
+2013-03-06  Gary V. Vaughan  <gary@gnu.org>
+
 	specs: allow for package.config differences in Lua 5.1.
 	* specs/package_ext_spec.lua (it splits package.config up): Allow
 	for optional trailing \n present in 5.2 but not 5.1.
@@ -1637,7 +1900,7 @@
 	a copy of each file name, so no need to make assumptions about
 	global variables in here.
 
-2013-02-24  Gary V. Vaughan  <gary@gnu.org>
+2013-02-23  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: add a skeleton specl spec for getopt module.
 	* src/getopt.lua (test): Remove.
@@ -1701,7 +1964,7 @@
 
 	string_ext.lua: fix a reference to string.sub.
 
-2013-02-23  Gary V. Vaughan  <gary@gnu.org>
+2013-02-22  Gary V. Vaughan  <gary@gnu.org>
 
 	string_ext: prefer snake_case to camelCase APIs.
 	* src/string_ext.lua (escapePattern, escapeShell, ordinalSuffix):
@@ -1738,13 +2001,13 @@
 	* specs/string_ext_spec.lua (describe string.ordinalSuffix): Make the
 	expectations match reality.
 
-2013-02-23  Reuben Thomas  <rrt@sc3d.org>
+2013-02-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix ordinalSuffix for negative arguments (issue #20).
 
 	string_ext.lua: use Lua terminology "pattern" rather than "regex"
 
-2013-02-23  Gary V. Vaughan  <gary@gnu.org>
+2013-02-22  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: add specl specification for string_ext module.
 	* specs/string_ext_spec.lua: New file. Specl specs for
@@ -1758,8 +2021,6 @@
 	string_ext: don't use math.mod, which doesn't exist in Lua 5.2.
 	* string_ext.lua (ordinalSuffix): Use '%' operator instead of
 	math.mod, which is compatible with Lua 5.1 and 5.2.
-
-2013-02-22  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: move maintainer rules into GNUmakefile.
 	* Makefile.am: Move maintainer rules from here...
@@ -1787,6 +2048,8 @@
 
 	configury: bump release number to 32.
 	* configure.ac (AC_INIT): Bump release number to 32.
+
+2013-02-21  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: add specl specification for package_ext module.
 	* specs/package_ext_spec.lua: New file. Specl specs for
@@ -1925,6 +2188,8 @@
 	of interfaces, per lua 5.2 module style.
 	Adjust all callers.
 
+2013-02-11  Gary V. Vaughan  <gary@gnu.org>
+
 	maint: update mbox to use lua 5.2 style modules.
 	* src/mbox.lua: Declare parse locally, and return a table with a
 	reference, per lua 5.2 module style.
@@ -1962,8 +2227,6 @@
 	* src/set.lua: Declare everything locally, and return a table
 	of interfaces, per lua 5.2 module style.
 
-2013-02-11  Gary V. Vaughan  <gary@gnu.org>
-
 	configury: fix hard dependency on luadocs.
 	* m4/ax_with_prog.m4: New file.
 	* configure.ac (AX_WITH_PROG): Use it to find a luadocs binary.
@@ -1979,11 +2242,9 @@
 	outdated versions from the lua installation.
 	(rockspecs): Run lua with LUA_ENV set.
 
-2013-02-10  Reuben Thomas  <rrt@sc3d.org>
+2013-02-09  Reuben Thomas  <rrt@sc3d.org>
 
 	rockspecs.lua: add luadoc as a dependency for git rockspec.
-
-2013-02-09  Reuben Thomas  <rrt@sc3d.org>
 
 	rockspecs.lua: fix build command for building from git.
 
@@ -1993,19 +2254,19 @@
 
 	tree.lua: add tree.merge.
 
+2013-02-08  Reuben Thomas  <rrt@sc3d.org>
+
 	set.lua: fix broken elems iterator (issue #10)
 
 	strict.lua: tweak formatting to match other modules
 
 	base.lua: note availability of original tostring as _tostring.
 
-2013-02-08  Reuben Thomas  <rrt@sc3d.org>
+2013-02-07  Reuben Thomas  <rrt@sc3d.org>
 
 	set.lua: add missing dependency on list.lua
 
 	Avoid rebuilding documentation in distributed sources, so users don't need luadoc installed.
-
-2013-02-07  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: some more fixups to release-by-git.
 
@@ -2027,13 +2288,15 @@
 
 	Makefile.am: enable building of documentation from git checkout.
 
+2013-02-06  Reuben Thomas  <rrt@sc3d.org>
+
 	Change to building (with LuaRocks) direct from git, not releasing a zip.
 
 	README: update installation instructions and mention GitHub, not LuaForge.
 
 	Update to latest ax_lua.m4.
 
-2013-02-06  Reuben Thomas  <rrt@sc3d.org>
+2013-02-05  Reuben Thomas  <rrt@sc3d.org>
 
 	README: Make Lua 5.2 compatibility definite, and update copyright years.
 
@@ -2041,7 +2304,7 @@
 
 	stdlib.rockspec.in: remove redundant dir setting
 
-2012-10-31  Reuben Thomas  <rrt@sc3d.org>
+2012-10-30  Reuben Thomas  <rrt@sc3d.org>
 
 	.gitignore: add luarocks directory
 
@@ -2065,7 +2328,7 @@
 
 	Bump version to 28, and simplify slightly, requiring automake 1.11
 
-2012-10-16  Reuben Thomas  <rrt@sc3d.org>
+2012-10-15  Reuben Thomas  <rrt@sc3d.org>
 
 	base.lua: move a documentation stanza to a more apt location
 
@@ -2113,30 +2376,30 @@
 
 	set.lua: revert elements iterator to being pairs; leaves is wrong!
 
-2012-09-13  Reuben Thomas  <rrt@sc3d.org>
+2012-09-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Turn on debugging by default and tweak what the global debug function does.
 
-2012-09-13  Reuben Thomas  <rrt@sc3d.org>
+2012-09-12  Reuben Thomas  <rrt@sc3d.org>
 
 	I misunderstood what finds did, and didn't spot that it was needed for split!
 	Revert "string_ext: remove finds; map should be used with string.find instead"
 
 	This reverts commit 5a62e3ee7ad2514b681ff6f348c43b797088b089.
 
-2012-09-12  Reuben Thomas  <rrt@sc3d.org>
+2012-09-11  Reuben Thomas  <rrt@sc3d.org>
 
 	string_ext: remove finds; map should be used with string.find instead
 
-2012-09-07  Reuben Thomas  <rrt@sc3d.org>
+2012-09-06  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove string.gsubs: the order of substitutions was undefined, and map can be used just as well.
 
-2012-07-07  Reuben Thomas  <rrt@sc3d.org>
+2012-07-06  Reuben Thomas  <rrt@sc3d.org>
 
 	build: Check MD5 sum of rockspec against tarball before releasing
 
-2012-06-01  Reuben Thomas  <rrt@sc3d.org>
+2012-05-31  Reuben Thomas  <rrt@sc3d.org>
 
 	object: fix an incorrect simplification in the previous commit.
 
@@ -2155,7 +2418,7 @@
 
 	parser.lua: fix call to renamed method.
 
-2012-05-30  Reuben Thomas  <rrt@sc3d.org>
+2012-05-29  Reuben Thomas  <rrt@sc3d.org>
 
 	object.lua: fix inconsistency and missing HTML close tag in doc comments.
 
@@ -2178,7 +2441,7 @@
 
 	Reformat some code to make lua-mode happier (most of the time, sigh).
 
-2012-02-23  Gary V. Vaughan  <gary@gnu.org>
+2012-02-22  Gary V. Vaughan  <gary@gnu.org>
 
 	AUTHORS: Add myself.
 	* AUTHORS: List the few small contributions I've made.
@@ -2229,11 +2492,13 @@
 
 	string_ext: fix new string.__concat metamethod to run tostring on both args, thus avoiding infinite recursion.
 
+2012-01-17  Reuben Thomas  <rrt@sc3d.org>
+
 	string_ext: add __concat metamethod for strings which runs tostring.
 	Reformat some code to please lua-mode and add some missing quotes in a
 	comment.
 
-2012-01-10  Reuben Thomas  <rrt@sc3d.org>
+2012-01-09  Reuben Thomas  <rrt@sc3d.org>
 
 	io_ext: Add slurp; use it in various places.
 
@@ -2241,7 +2506,7 @@
 
 	Bump version to 26.
 
-2011-12-17  Reuben Thomas  <rrt@sc3d.org>
+2011-12-16  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #1 from gvvaughan/patch-1
 	tree: fix bugs when using a list of tables as keys
@@ -2274,7 +2539,7 @@
 
 	io_ext: unset prog.file at the end of io.processFiles
 
-2011-09-28  Reuben Thomas  <rrt@sc3d.org>
+2011-09-27  Reuben Thomas  <rrt@sc3d.org>
 
 	getopt: improve output and conformance to best practice
 	Make the short option for -version be -V, not -v.
@@ -2303,6 +2568,8 @@
 
 	.gitignore: ignore correct zip name.
 
+2011-09-19  Reuben Thomas  <rrt@sc3d.org>
+
 	configury: rename project to stdlib for consistency and to make luarocks happy.
 
 	Make rockspec on release.
@@ -2311,7 +2578,7 @@
 
 	string_ext.lua: fix old call of findl (is now called tfind).
 
-2011-09-18  Reuben Thomas  <rrt@sc3d.org>
+2011-09-17  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: fix getting summary description, and reminder message output by make release.
 
@@ -2322,19 +2589,19 @@
 
 	Build system: autotoolize and generate rockspec.
 
-2011-09-12  Reuben Thomas  <rrt@sc3d.org>
+2011-09-11  Reuben Thomas  <rrt@sc3d.org>
 
 	Rename findl to tfind to conform to lrexlib.
 	Also fix a bug in the LuaDoc documentation of the return values.
 
-2011-09-08  Reuben Thomas  <rrt@sc3d.org>
+2011-09-07  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove posix_ext module (is going in luaposix instead).
 	Update documentation about LuaDoc.
 
 	Add posix.creat.
 
-2011-09-03  Reuben Thomas  <rrt@sc3d.org>
+2011-09-02  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix typo.
 
@@ -2385,7 +2652,7 @@
 
 	Fix calls to writeLine to be to writeline.
 
-2011-05-03  Reuben Thomas  <rrt@sc3d.org>
+2011-05-02  Reuben Thomas  <rrt@sc3d.org>
 
 	Add readlines and writeline to file handle metatable.
 
@@ -2395,7 +2662,7 @@
 
 	Fixed bug: ldoc used writeLine() rather than writeline().
 
-2011-04-13  Reuben Thomas  <rrt@sc3d.org>
+2011-04-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Always return nil on error, not -1.
 
@@ -2407,7 +2674,7 @@
 
 	Only set _DEBUG to false if it’s not already initialised.
 
-2011-03-20  Reuben Thomas  <rrt@sc3d.org>
+2011-03-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix splitdir.
 
@@ -2417,13 +2684,11 @@
 
 	Shorten a TODO.
 
-2011-03-10  Reuben Thomas  <rrt@sc3d.org>
+2011-03-09  Reuben Thomas  <rrt@sc3d.org>
 
 	Restore modules.lua as holding standard list, to un-break std.lua.
 
 	Allow mk1file to generate customized sets of modules, with the standard set as the default.
-
-2011-03-09  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove unnecessary posix. prefix.
 
@@ -2435,9 +2700,9 @@
 
 	Merge branch 'origin' of github.com:rrthomas/lua-stdlib into origin
 
-	Remove posix_ext and object from standard set.
-
 2011-03-08  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove posix_ext and object from standard set.
 
 	Remove posix prefix from function calls.
 
@@ -2450,7 +2715,7 @@
 	Add __index method to allow OO syntax use of methods.
 	Add delete method.
 
-2011-03-02  Reuben Thomas  <rrt@sc3d.org>
+2011-03-01  Reuben Thomas  <rrt@sc3d.org>
 
 	Reverse order of list methods for convenient OO use.
 
@@ -2484,7 +2749,7 @@
 
 	Improve release target to tag releases.
 
-2011-02-08  Reuben Thomas  <rrt@sc3d.org>
+2011-02-07  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix missing math. prefix, and swap incorrect sign in sub. Thanks to Bob Chapman.
 
@@ -2492,7 +2757,7 @@
 
 	Speed up math.floor for case where p is 0 or absent (thanks, Lukáš Procházka).
 
-2010-12-10  Reuben Thomas  <rrt@sc3d.org>
+2010-12-09  Reuben Thomas  <rrt@sc3d.org>
 
 	Change rules from using CVS to using git.
 
@@ -2502,13 +2767,15 @@
 
 	Point to tree.clone for deep copies.
 
-2010-10-13  Reuben Thomas  <rrt@sc3d.org>
+2010-10-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Restore 'dubious' but used string metamethod fallback.
 
 2010-10-09  Reuben Thomas  <rrt@sc3d.org>
 
 	Move .cvsignore's to .gitignore's.
+
+2010-10-08  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix typo in io.catfile.
 
@@ -2519,8 +2786,6 @@
 	Add posix_ext to list.
 
 	Remove spurious full stop.
-
-2010-10-08  Reuben Thomas  <rrt@sc3d.org>
 
 	Add catfile and fix catdir to return `/' when necessary.
 
@@ -2538,13 +2803,11 @@
 
 	Fix an incompatibility with strict.lua.
 
-2010-06-12  rrt  <rrt>
+2010-06-11  rrt  <rrt>
 
 	Simplify nodes iterator and make it more efficient; thanks to Alistair Turnbull for the hint.
 
 	Simplify, generalise and rename (from treeIter to nodes) tree iterator.
-
-2010-06-11  rrt  <rrt>
 
 	Whitespace correction.
 
@@ -2575,7 +2838,7 @@
 
 	Remove table.subscripts function: it’s easily replaced by subscript plus string.split, as in its definition.
 
-2010-06-08  rrt  <rrt>
+2010-06-07  rrt  <rrt>
 
 	Initialise _DEBUG to nil so stdlib works with strict.lua.
 	Rename debug.traceCall to debug.trace (more Lua-ish).
@@ -2599,11 +2862,11 @@
 
 	Add missing dependency on list.
 
-2009-09-15  rrt  <rrt>
+2009-09-14  rrt  <rrt>
 
 	Improve formatting slightly.
 
-2009-09-08  rrt  <rrt>
+2009-09-07  rrt  <rrt>
 
 	Avoid using removed function io.changeSuffix.
 
@@ -2656,6 +2919,8 @@
 
 	Add support for not cloning metatables.
 
+2009-03-13  rrt  <rrt>
+
 	Check no outstanding changes and tag release.
 
 	Fix typo.
@@ -2678,7 +2943,7 @@
 
 	Update object module to correspond with Lua Gems version.
 
-2008-09-05  rrt  <rrt>
+2008-09-04  rrt  <rrt>
 
 	Fix Diego Nehab's name. Sorry Diego! Thanks to Shmuel Zeigerman for pointing out my error.
 
@@ -2698,9 +2963,9 @@
 
 	Cope with nil values in map.
 
-	Fix elems and relems
-
 2008-07-27  niklas  <niklas>
+
+	Fix elems and relems
 
 	Fix make dist; $REL -> ${REL}, add --exclude for .#*, and no longer exclude template-rrt.lua, which no longer lives in the tree.
 
@@ -2719,7 +2984,7 @@
 
 	Fix a comment typo.
 
-2008-03-29  rrt  <rrt>
+2008-03-28  rrt  <rrt>
 
 	Add some TODOs to make the prog structure a bit more sensible.
 
@@ -2740,6 +3005,8 @@
 	No longer have any sort of dependency on bitlib.
 
 	Remove _INTEGER_BITS and unneeded dependency
+
+2008-03-03  rrt  <rrt>
 
 	Update date and prerequisites.
 
@@ -2787,7 +3054,7 @@
 
 	Clarify TODO.
 
-2007-04-27  rrt  <rrt>
+2007-04-26  rrt  <rrt>
 
 	Tidy length slightly.
 
@@ -2800,8 +3067,6 @@
 
 	Revert to plain implementation of length to avoid using POSIX library which is currently unmaintained.
 
-2007-04-26  rrt  <rrt>
-
 	Clear up uses of old vararg "arg" syntax (thanks Matt).
 
 2007-03-02  rrt  <rrt>
@@ -2810,9 +3075,9 @@
 
 	Add FIXME for commented-out require
 
-	Make join cope with empty lists.
-
 2007-03-01  rrt  <rrt>
+
+	Make join cope with empty lists.
 
 	Remove default separator in string.split, and hence a TODO.
 	Add string.join.
@@ -2846,7 +3111,7 @@
 
 	Make a note to find better names for enpair and depair, which are useful but confusing. Something like pairsToTable and tableToPairs?
 
-2007-01-27  rrt  <rrt>
+2007-01-26  rrt  <rrt>
 
 	Add missing dirname and basename
 
@@ -2886,6 +3151,8 @@
 
 	Note problem with external dependencies.
 
+2006-11-05  rrt  <rrt>
+
 	Sort out adding to module metatables.
 
 	Add a FIXME
@@ -2895,8 +3162,6 @@
 	concat metamethod.
 
 	Remove @module from list of tags to add, as we already have it.
-
-2006-11-05  rrt  <rrt>
 
 	Clarify Reuben's role.
 
@@ -2989,11 +3254,9 @@
 
 	Add deepclone to table from Jamie Webb's code.
 
-2006-10-09  rrt  <rrt>
+2006-10-08  rrt  <rrt>
 
 	Update to match stdlib. Remove revision history as it's in CVS, and replace version number with CVS Revision tag.
-
-2006-10-08  rrt  <rrt>
 
 	table.getn --> #
 
@@ -3009,7 +3272,7 @@
 
 	Fix ordering of deps
 
-2006-07-15  rrt  <rrt>
+2006-07-14  rrt  <rrt>
 
 	Escape quotes and apostrophes in string.escapeShell.
 
@@ -3019,27 +3282,27 @@
 
 	Prepend redefinition of require to the output.
 
+2006-04-25  rrt  <rrt>
+
 	Use string methods rather than functions so that the functions here work on regexs as well. Add a note to make the whole API work properly with regexs as well as Lua patterns.
 
 	Add TODO
 
 	Reformat and improve comments.
 
-2006-04-25  rrt  <rrt>
+2006-04-24  rrt  <rrt>
 
 	Simplify assignment of retry.
 
 	Correct name of table.filterItem (was table.mapItem).
 
-2006-04-16  rrt  <rrt>
+2006-04-15  rrt  <rrt>
 
 	Reformat.
 
 	Use variadic bit.or.
 
 	Add table.filter and table.filterItem. Add list.filterItem and implement list.filter in terms of it.
-
-2006-04-15  rrt  <rrt>
 
 	Fix more bugs, patch from Shmuel Zeigerman.
 	Call rex:flags() to inject flags into rex table.
@@ -3078,7 +3341,7 @@
 
 	Add io.dirname.
 
-2006-04-10  rrt  <rrt>
+2006-04-09  rrt  <rrt>
 
 	Update Lua code from Shmuel's version and write gmatch in Lua.
 
@@ -3087,7 +3350,7 @@
 
 	Update to 5.1 vararg syntax
 
-2006-03-31  rrt  <rrt>
+2006-03-30  rrt  <rrt>
 
 	string.gfind is now string.gmatch.
 
@@ -3098,8 +3361,6 @@
 	Fix mailing list address.
 
 	Update to match reality.
-
-2006-03-30  rrt  <rrt>
 
 	Fix handling of global arg table.
 
@@ -3114,6 +3375,8 @@
 	Rename modules *-ext to *_ext to avoid problem with version number parser in require.
 
 	Simplify adding functions to global table.
+
+2006-03-28  rrt  <rrt>
 
 	Add module calls everywhere, and do some necessary renaming to avoid clashes
 
@@ -3132,7 +3395,7 @@
 
 	Rename sub to cap for clarity (Shmuel Zeigerman).
 
-2006-01-27  rrt  <rrt>
+2006-01-26  rrt  <rrt>
 
 	More fixes from Shmuel to mimic string.gsub better.
 
@@ -3140,9 +3403,9 @@
 
 	Fix endless loop when pattern is .* (bug reported by Shmuel Zeigerman).
 
-	Cope with capture being false (Shmuel Zeigerman).
-
 2006-01-24  rrt  <rrt>
+
+	Cope with capture being false (Shmuel Zeigerman).
 
 	Fix bug when n == 0 (thanks Shmuel Zeigerman), and tidy up.
 
@@ -3154,9 +3417,9 @@
 
 	More bug fixes; thanks to Shmuel Zeigerman for reporting the bugs and in one case giving the fix.
 
-	Fix bugs with %n replacements in rex.gsub
-
 2006-01-21  rrt  <rrt>
+
+	Fix bugs with %n replacements in rex.gsub
 
 	Make rex.gsub a full gsub for rex.
 
@@ -3179,9 +3442,11 @@
 	Remove table.filterItem, as it really only works for lists. Inline the function in list.filter.
 	Add table.map.
 
+2005-11-22  rrt  <rrt>
+
 	Add XML output, assuming Lua tables created by luaexpat.
 
-2005-11-22  rrt  <rrt>
+2005-11-21  rrt  <rrt>
 
 	Add generic printing framework, and use it to add prettytostring.
 
@@ -3193,7 +3458,7 @@
 
 	Add two iterators: ripairs which is like ipairs, but in reverse, and deepipairs, which recurses into nested tables.
 
-2005-11-10  rrt  <rrt>
+2005-11-09  rrt  <rrt>
 
 	Remove import.
 
@@ -3315,15 +3580,15 @@
 
 	Fix tostring to work on self-referential tables.
 
-2004-01-28  rrt  <rrt>
+2004-01-27  rrt  <rrt>
 
 	Corrected misnaming of functions and added documentation.
 
-2004-01-27  rrt  <rrt>
+2004-01-26  rrt  <rrt>
 
 	Add string.format extension to make it not try to format if there is only one argument.
 
-2004-01-26  rrt  <rrt>
+2004-01-25  rrt  <rrt>
 
 	Update to Lua 5. This is an old change which I forgot to check in; ldoc is *not* the way forward for stdlib documentation. This checkin is just for completeness.
 
@@ -3349,9 +3614,9 @@
 	Add "import" from LTN 11 to overcome require's problem with circular dependencies.
 	Remove string.next, as string.gfind provides an equivalent iterator.
 
-	More renaming for consistency, and move more code around. This introduced the first cyclic dependency between modules since I moved to Lua 5, and I've had to cure this with a C include-style trick, since Lua 5 require just overflows the stack when there's a recursive call of require.
-
 2003-10-20  rrt  <rrt>
+
+	More renaming for consistency, and move more code around. This introduced the first cyclic dependency between modules since I moved to Lua 5, and I've had to cure this with a C include-style trick, since Lua 5 require just overflows the stack when there's a recursive call of require.
 
 	Add an iterator for the values in a set, and use it; methods are now organised into those that access the data structure and those that call other methods.
 
@@ -3359,15 +3624,13 @@
 
 	Write methods outside object prototype (i.e. in more consistent form for stdlib).
 
-2003-10-19  rrt  <rrt>
+2003-10-18  rrt  <rrt>
 
 	Rename std.data.logic to std.bit, as it extends the C bit library.
 
 	Make a namespace for list routines.
 
 	Fix bug in curry properly.
-
-2003-10-18  rrt  <rrt>
 
 	Finish renaming in io.io. Update TODO for getopt in std.lua.
 
@@ -3400,7 +3663,7 @@
 	Some other Lua 5-isation has been done, but not much; there's still a
 	lot left to do in std.data in particular.
 
-2003-10-14  rrt  <rrt>
+2003-10-13  rrt  <rrt>
 
 	Fix call to writeLine (now io.writeLine).
 
@@ -3425,6 +3688,8 @@
 2003-09-12  rrt  <rrt>
 
 	More changes to update to Lua 5.0. Nearly there now, I think, as I have several scripts working!
+
+2003-09-11  rrt  <rrt>
 
 	Another few search-and-replace function names to update to Lua 5. Mostly string functions this time.
 
@@ -3464,17 +3729,15 @@
 
 	Merge the two logic modules.
 
-2002-09-29  rrt  <rrt>
+2002-09-28  rrt  <rrt>
 
 	Add tabulate function to use tabulator methods, and use it.
 
-2002-09-11  rrt  <rrt>
+2002-09-10  rrt  <rrt>
 
 	Sigh. New bnot didn't work. Next time I'll think and test rather better before straying from the path of righteousness.
 
 	I was being very dim about bnot. Oops. Roberto pointed it out. I hang my head in shame.
-
-2002-09-10  rrt  <rrt>
 
 	Revert to previous version to avoid losing precision (specifically, LSB).
 
@@ -3493,7 +3756,7 @@
 
 	Improve layout of usage message when no command line options (don't have trailing blank line).
 
-2002-09-06  rrt  <rrt>
+2002-09-05  rrt  <rrt>
 
 	Add withFileOrHandle, which takes a filename, handle or uses a default handle, opens the file if appropriate, and passes the handle to a given function.
 	Use it to generalise readLines and readFile.
@@ -3502,13 +3765,11 @@
 	ambiguous: do we want to write "foo" and "bar" to _OUTPUT, or "bar" to
 	file "foo"?
 
-2002-09-06  rrt  <rrt>
+2002-09-05  rrt  <rrt>
 
 	Make patches work with any version that starts with "Lua 4.0", to cope with 4.0.1 and any future point releases.
 	Replace unpack with a recursive version (based on code from John
 	Belmonte) that copes with any number of values.
-
-2002-09-05  rrt  <rrt>
 
 	Change "key" to "index" everywhere for consistency.
 
@@ -3518,21 +3779,19 @@
 
 	Rename intersect to setintersect for consistency, and define setunion (= merge).
 
-2002-08-29  rrt  <rrt>
+2002-08-28  rrt  <rrt>
 
 	Allow stringifier methods again, but they are now only used by tostring. Allows more cosmetic stringification, while not stopping pickling from working.
 
-2002-08-28  rrt  <rrt>
+2002-08-27  rrt  <rrt>
 
 	Don't need stringify and pickler tables any more, and tostring and pickle can be simplified. They both use tabulator where necessary.
-
-2002-08-27  rrt  <rrt>
 
 	Remove interaction between pickle and tostring, which is no longer needed, as they both now use tabulator methods where necessary.
 
 	Add tabulator method table for turning arbitrary objects (typically tagged userdata) into tables. Use this to finally fix tostring and pickle. Oh, yes.
 
-2002-08-24  rrt  <rrt>
+2002-08-23  rrt  <rrt>
 
 	A last gamble. Then I'll have to sit down and work it out again.
 
@@ -3556,23 +3815,19 @@
 
 	Make pickle work for numbers and nil.
 
-2002-08-23  rrt  <rrt>
-
 	Add tinvert, and update some comments to LDoc format.
 
 2002-08-22  rrt  <rrt>
 
 	Correct call of warn to expand arg list.
 
-2002-08-16  rrt  <rrt>
+2002-08-15  rrt  <rrt>
 
 	Add utility for making zip dist of stdlib.
 
 	Add empty to test whether a table is.
 
 	Fix paths for new directory structure and get rid of one or two gremlins.
-
-2002-08-15  rrt  <rrt>
 
 	Finish editing std.cfg into new form (configuration file with require implementation tacked on the end) and rename it.
 
@@ -3620,6 +3875,8 @@
 
 	Fix spacing in comments.
 
+2002-08-12  rrt  <rrt>
+
 	Allow new tostring methods to be registered.
 
 	*** empty log message ***
@@ -3652,7 +3909,7 @@
 
 	Generalised daySuffix to ordinalSuffix. Still English-specific :-(
 
-2002-07-28  rrt  <rrt>
+2002-07-27  rrt  <rrt>
 
 	Improve comment for mapIter
 
@@ -3666,7 +3923,7 @@
 	This tool is provisional, and subject to improvement. The TODOs in the
 	file indicate some of my first thoughts in that direction.
 
-2002-07-25  rrt  <rrt>
+2002-07-24  rrt  <rrt>
 
 	Move methodify to table.lua where it belongs (it has nothing to do with lists!)
 

@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   this_module        = "std.io"
 
   global_table       = "_G"
@@ -21,27 +19,27 @@ specify std.io:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
     - it contains apis from the core io table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
     - it replaces no apis from the core io table:
         expect (show_apis {from=base_module, enhanced_in=this_module}).
-          should_equal {}
+          to_equal {}
 
   - context via the std module:
     - it adds apis to the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          should_contain.all_of (std_globals)
+          to_contain.all_of (std_globals)
     - it adds apis to the core io table:
         expect (show_apis {added_to=base_module, by="std"}).
-          should_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (extend_base)
     - it adds methods to the file metatable:
         expect (show_apis {added_to="getmetatable (io.stdin)", by="std"}).
-          should_contain.a_permutation_of (extend_metamethods)
+          to_contain.a_permutation_of (extend_metamethods)
     - it replaces no apis from the core io table:
         expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          should_equal {}
+          to_equal {}
 
 
 - describe catdir:
@@ -54,59 +52,59 @@ specify std.io:
   - before:
       script = [[require "std.io".die "By 'eck!"]]
   - it outputs a message to stderr:
-      expect (luaproc (script)).should_fail_with "By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "By 'eck!\n"
   - it ignores `prog.line` without `prog.file` or `prog.name`:
       script = [[prog = { line = 125 };]] .. script
-      expect (luaproc (script)).should_fail_with "By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "By 'eck!\n"
   - it ignores `opts.line` without `opts.program`:
       script = [[opts = { line = 99 };]] .. script
-      expect (luaproc (script)).should_fail_with "By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "By 'eck!\n"
   - it prefixes `prog.name` if any: |
       script = [[prog = { name = "name" };]] .. script
-      expect (luaproc (script)).should_fail_with "name: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "name: By 'eck!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { line = 125, name = "name" };]] .. script
-      expect (luaproc (script)).should_fail_with "name:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "name:125: By 'eck!\n"
   - it prefixes `prog.file` if any: |
       script = [[prog = { file = "file" };]] .. script
-      expect (luaproc (script)).should_fail_with "file: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "file: By 'eck!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { file = "file", line = 125 };]] .. script
-      expect (luaproc (script)).should_fail_with "file:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "file:125: By 'eck!\n"
   - it prefers `prog.name` to `prog.file` or `opts.program`: |
       script = [[
         prog = { file = "file", name = "name" }
         opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_fail_with "name: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "name: By 'eck!\n"
   - it appends `prog.line` if any to `prog.name` over anything else: |
       script = [[
         prog = { file = "file", line = 125, name = "name" }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_fail_with "name:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "name:125: By 'eck!\n"
   - it prefers `prog.file` to `opts.program`: |
       script = [[
         prog = { file = "file" }; opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_fail_with "file: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "file: By 'eck!\n"
   - it appends `prog.line` if any to `prog.file` over using `opts`: |
       script = [[
         prog = { file = "file", line = 125 }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_fail_with "file:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "file:125: By 'eck!\n"
   - it prefixes `opts.program` if any: |
       script = [[opts = { program = "program" };]] .. script
-      expect (luaproc (script)).should_fail_with "program: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "program: By 'eck!\n"
   - it appends `opts.line` if any, to `opts.program`: |
       script = [[opts = { line = 99, program = "program" };]] .. script
-      expect (luaproc (script)).should_fail_with "program:99: By 'eck!\n"
+      expect (luaproc (script)).to_fail_with "program:99: By 'eck!\n"
 
 
 - describe process_files:
   - it is the same function as legacy processFiles call:
-      expect (M.process_files).should_be (M.processFiles)
+      expect (M.process_files).to_be (M.processFiles)
 
 
 - describe readlines:
@@ -125,51 +123,51 @@ specify std.io:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
   - it outputs a message to stderr:
-      expect (luaproc (script)).should_output_error "Ayup!\n"
+      expect (luaproc (script)).to_output_error "Ayup!\n"
   - it ignores `prog.line` without `prog.file`, `prog.name` or `opts.program`:
       script = [[prog = { line = 125 };]] .. script
-      expect (luaproc (script)).should_output_error "Ayup!\n"
+      expect (luaproc (script)).to_output_error "Ayup!\n"
   - it prefixes `prog.name` if any: |
       script = [[prog = { name = "name" };]] .. script
-      expect (luaproc (script)).should_output_error "name: Ayup!\n"
+      expect (luaproc (script)).to_output_error "name: Ayup!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { line = 125, name = "name" };]] .. script
-      expect (luaproc (script)).should_output_error "name:125: Ayup!\n"
+      expect (luaproc (script)).to_output_error "name:125: Ayup!\n"
   - it prefixes `prog.file` if any: |
       script = [[prog = { file = "file" };]] .. script
-      expect (luaproc (script)).should_output_error "file: Ayup!\n"
+      expect (luaproc (script)).to_output_error "file: Ayup!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { file = "file", line = 125 };]] .. script
-      expect (luaproc (script)).should_output_error "file:125: Ayup!\n"
+      expect (luaproc (script)).to_output_error "file:125: Ayup!\n"
   - it prefers `prog.name` to `prog.file` or `opts.program`: |
       script = [[
         prog = { file = "file", name = "name" }
         opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_output_error "name: Ayup!\n"
+      expect (luaproc (script)).to_output_error "name: Ayup!\n"
   - it appends `prog.line` if any to `prog.name` over anything else: |
       script = [[
         prog = { file = "file", line = 125, name = "name" }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_output_error "name:125: Ayup!\n"
+      expect (luaproc (script)).to_output_error "name:125: Ayup!\n"
   - it prefers `prog.file` to `opts.program`: |
       script = [[
         prog = { file = "file" }; opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_output_error "file: Ayup!\n"
+      expect (luaproc (script)).to_output_error "file: Ayup!\n"
   - it appends `prog.line` if any to `prog.file` over using `opts`: |
       script = [[
         prog = { file = "file", line = 125 }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).should_output_error "file:125: Ayup!\n"
+      expect (luaproc (script)).to_output_error "file:125: Ayup!\n"
   - it prefixes `opts.program` if any: |
       script = [[opts = { program = "program" };]] .. script
-      expect (luaproc (script)).should_output_error "program: Ayup!\n"
+      expect (luaproc (script)).to_output_error "program: Ayup!\n"
   - it appends `opts.line` if any, to `opts.program`: |
       script = [[opts = { line = 99, program = "program" };]] .. script
-      expect (luaproc (script)).should_output_error "program:99: Ayup!\n"
+      expect (luaproc (script)).to_output_error "program:99: Ayup!\n"
 
 
 - describe writelines:

@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   global_table = "_G"
   this_module  = "std.functional"
   std_globals   = { "bind", "collect", "compose", "curry", "eval",
@@ -14,21 +12,57 @@ specify std.functional:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
 
   - context via the std module:
     - it adds apis to the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          should_contain.all_of (std_globals)
+          to_contain.all_of (std_globals)
 
 
 - describe bind:
+  - it does not affect normal operation if no arguments are bound:
+      expect (M.bind (math.min, {}) (2, 3, 4)).
+        to_equal (2)
+  - the extra arguments are taken into account:
+      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
+        to_equal (0)
+  - the extra arguments can be out of order:
+      expect (M.bind (math.pow, {[2] = 3}) (2)).
+        to_equal (8)
+
+
+- describe case:
+  - before:
+      yes     = function ()  return true end
+      no      = function ()  return false end
+      default = function (s) return s end
+      branches = { yes = yes, no = no, default }
+  - it matches against branch keys:
+      expect (M.case ("yes", branches)).to_be (true)
+      expect (M.case ("no",  branches)).to_be (false)
+  - it has a default for unmatched keys:
+      expect (M.case ("none", branches)).to_be "none"
+  - it returns nil for unmatched keys with no default:
+      expect (M.case ("none", { yes = yes, no = no })).to_be (nil)
+  - it evaluates `with` exactly once:
+      s = "prince"
+      function acc () s = s .. "s"; return s end
+      expect (M.case (acc (), {
+        prince   = function () return "one" end,
+        princes  = function () return "many" end,
+        princess = function () return "one" end,
+                   function () return "gibberish" end,
+      })).to_be "many"
 
 
 - describe collect:
 
 
 - describe compose:
+  - it composes functions in the correct order:
+      expect (M.compose (math.sin, math.cos) (1)).
+        to_equal (math.cos (math.sin (1)))
 
 
 - describe curry:

@@ -3,9 +3,9 @@ Standard Lua libraries
 
 by the [stdlib project][github]
 
-[github]: http://github.com/rrthomas/lua-stdlib/ "Github repository"
+[github]: http://github.com/lua-stdlib/lua-stdlib/ "Github repository"
 
-[![travis-ci status](https://secure.travis-ci.org/rrthomas/lua-stdlib.png?branch=master)](http://travis-ci.org/rrthomas/lua-stdlib/builds)
+[![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
 
 
 This is a collection of Lua libraries for Lua 5.1 and 5.2. The
@@ -26,7 +26,7 @@ latest release (recommended):
 
 To install current git master (for testing):
 
-    luarocks install https://raw.github.com/rrthomas/lua-stdlib/release/stdlib-git-1.rockspec
+    luarocks install https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/release/stdlib-git-1.rockspec
 
 To install without LuaRocks, check out the sources from the
 [repository][github], and then run the following commands: the
@@ -41,7 +41,7 @@ dependencies are listed in the dependencies entry of the file
 See [INSTALL][] for instructions for `configure`.
 
 [luarocks]: http://www.luarocks.org "LuaRocks Project"
-[install]: https://raw.github.com/rrthomas/lua-stdlib/master/INSTALL
+[install]: https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/INSTALL
 
 Use
 ---
@@ -61,7 +61,7 @@ Documentation
 The libraries are [documented in LDoc][github.io]. Pre-built HTML
 files are included.
 
-[github.io]: http://rrthomas.github.io/lua-stdlib
+[github.io]: http://lua-stdlib.github.io/lua-stdlib
 
 
 Bug reports and code contributions

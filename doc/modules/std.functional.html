@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 38 Reference</title>
+    <title>stdlib 39 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -74,8 +74,12 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#bind">bind (f, ...)</a></td>
+	<td class="name" nowrap><a href="#bind">bind (f, p1)</a></td>
 	<td class="summary">Partially apply a function.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#case">case (with, branches)</a></td>
+	<td class="summary">A rudimentary case statement.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#collect">collect (i)</a></td>
@@ -134,7 +138,7 @@
     <dl class="function">
     <dt>
     <a name = "bind"></a>
-    <strong>bind (f, ...)</strong>
+    <strong>bind (f, p1)</strong>
     </dt>
     <dd>
     Partially apply a function.
@@ -145,15 +149,58 @@
         <li><span class="parameter">f</span>
          function to apply partially
         </li>
-        <li><span class="parameter">...</span>
-         arguments to bind
+        <li><span class="parameter">p1</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        =a1, ..., pn=an} table of parameters to bind to given arguments
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        function with ai already bound
+        function with pi already bound
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "case"></a>
+    <strong>case (with, branches)</strong>
+    </dt>
+    <dd>
+
+<p>A rudimentary case statement.
+ Match <code>with</code> against keys in <code>branches</code> table, and return the result
+ of running the function in the table value for the matching key, or
+ the first non-key value function if no key matches.</p>
+
+<pre><code> return case (type (object), {
+   table  = function ()  return something end,
+   string = function ()  return something else end,
+            function (s) error ("unhandled type: "..s) end,
+ })
+</code></pre>
+
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">with</span>
+         expression to match
+        </li>
+        <li><span class="parameter">branches</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         map possible matches to functions
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the return value from function with a matching key, or nil.
     </ol>
 
 
@@ -197,7 +244,14 @@
     <h3>Returns:</h3>
     <ol>
 
-        composition of f1 ... fn
+         composition of fn (... (f1) ...): note that this is the reverse
+ of what you might expect, but means that code like:</p>
+
+<pre><code> functional.compose (function (x) return f (x) end,
+                     function (x) return g (x) end))
+</code></pre>
+
+<p> can be read from top to bottom.
     </ol>
 
 

@@ -1,5 +1,103 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 39 (2014-04-23) [stable]
+
+** New features:
+
+ - New `std.functional.case` function for rudimentary case statements.
+   The main difference from serial if/elseif/end comparisons is that
+   `with` is evaluated only once, and then the match function is looked
+   up with an O(1) table reference and function call, as opposed to
+   hoisting an expression result into a temporary variable, and O(n)
+   comparisons.
+
+   The function call overhead is much more significant than several
+   comparisons, and so `case` is slower for all but the largest series
+   of if/elseif/end comparisons.  It can make your code more readable,
+   however.
+
+   See LDocs for usage.
+
+ - New pathstring management functions in `std.package`.
+
+   Manage `package.path` with normalization, duplicate removal,
+   insertion & removal of elements and automatic folding of '/' and '?'
+   onto `package.dirsep` and `package.path_mark`, for easy addition of
+   new paths. For example, instead of all this:
+
+       lib = std.io.catfile (".", "lib", package.path_mark .. ".lua")
+       paths = std.string.split (package.path, package.pathsep)
+       for i, path in ipairs (paths) do
+         ... lots of normalization code...
+       end
+       i = 1
+       while i <= #paths do
+         if paths[i] == lib then
+           table.remove (paths, i)
+         else
+           i = i + 1
+         end
+       end
+       table.insert (paths, 1, lib)
+       package.path = table.concat (paths, package.pathsep)
+
+   You can now write just:
+
+       package.path = package.normalize ("./lib/?.lua", package.path)
+
+ - `std.optparse:parse` accepts a second optional parameter, a table of
+   default option values.
+
+ - `table.clone` accepts an optional table of key field renames in the
+   form of `{oldkey = newkey, ...}` subsuming the functionality of
+   `table.clone_rename`. The final `nometa` parameter is supported
+   whether or not a rename map is given:
+
+       r = table.clone (t, "nometa")
+       r = table.clone (t, {oldkey = newkey}, "nometa")
+
+** Deprecations:
+
+ - `table.clone_rename` now gives a warning on first call, and will be
+   removed entirely in a few releases.  The functionality has been
+   subsumed by the improvements to `table.clone` described above.
+
+** Bug fixes:
+
+ - `std.optparse` no longer throws an error when it encounters an
+   unhandled option in a combined (i.e. `-xyz`) short option string.
+
+ - Surplus unmapped fields are now discarded during object cloning, for
+   example when a prototype has `_init` set to `{ "first", "second" }`,
+   and is cloned using `Proto {'one', 'two', 'three'}`, then the
+   unmapped `three` argument is now discarded.
+
+ - The path element returned by `std.tree.nodes` can now always be
+   used as a key list to dereference the root of the tree, particularly
+   `tree[{}]` now returns the root node of `tree`, to match the initial
+   `branch` and final `join` results from a full traversal by
+   `std.tree.nodes (tree)`.
+
+** Incompatible changes:
+
+ - `std.string` no longer sets `__append`, `__concat` and `__index` in
+   the core strings metatable by default, though `require "std"` does
+   continue to do so.  See LDocs for `std.string` for details.
+
+ - `std.optparse` no longer normalizes unhandled options.  For example,
+   `--unhandled-option=argument` is returned unmolested from `parse`,
+   rather than as two elements split on the `=`; and if a combined
+   short option string contains an unhandled option, then whatever was
+   typed at the command line is returned unmolested, rather than first
+   stripping off and processing handled options, and returning only the
+   unhandled substring.
+
+ - Setting `_init` to `{}` in a prototype object will now discard all
+   positional parameters passed during cloning, because a table valued
+   `_init` is a list of field names, beyond which surplus arguments (in
+   this case, all arguments!) are discarded.
+
+
 * Noteworthy changes in release 38 (2014-01-30) [stable]
 
 ** New features:

@@ -1,5 +1,33 @@
 --[[--
  Additions to the string module.
+
+ If you `require "std"`, the contents of this module are all available
+ in the `std.string` table.
+
+ However, this module also contains references to the Lua core string
+ table entries, so it's safe to load it like this:
+
+     local string = require "std.string"
+
+ Of course, if you do that you'll lose references to any core string
+ functions overwritten by `std.string`, so you might want to save any
+ that you want access to before you overwrite them.
+
+ If your code does not `require "std"` anywhere, then you'll also need
+ to manually overwrite string functions in the global namespace if you
+ want to use them from there:
+
+     local assert, tostring = string.assert, string.tostring
+
+ And finally, to use the string metatable improvements with all core
+ strings, you'll need to merge this module's metatable into the core
+ string metatable (again, `require "std"` does this automatically):
+
+     local string_metatable = getmetatable ""
+     string_metatable.__append = string.__append
+     string_metatable.__concat = string.__concat
+     string_metatable.__index = string.__index
+
  @module std.string
 ]]
 
@@ -8,12 +36,42 @@ local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
-local _assert   = _G.assert
 local _format   = string.format
 local _tostring = _G.tostring
-local old__index = getmetatable ("").__index
 
 local M = {}
+
+--- String append operation.
+-- @param s string
+-- @param c character (1-character string)
+-- @return `s .. c`
+local function __append (s, c)
+  return s .. c
+end
+
+--- String concatenation operation.
+-- @param s string
+-- @param o object
+-- @return s .. tostring (o)
+local function __concat (s, o)
+  return M.tostring (s) .. M.tostring (o)
+end
+
+--- String subscript operation.
+-- @param s string
+-- @param i index
+-- @return `s:sub (i, i)` if i is a number, otherwise
+--   fall back to a `std.string` metamethod (if any).
+local function __index (s, i)
+  if type (i) == "number" then
+    return s:sub (i, i)
+  else
+    -- Fall back to module metamethods
+    return M[i]
+  end
+end
+
+
 
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
@@ -335,36 +393,6 @@ local function pickle (x)
 end
 
 
---- Give strings a subscription operator.
--- @param s string
--- @param i index
--- @return `string.sub (s, i, i)` if i is a number, or
--- falls back to any previous metamethod (by default, string methods)
-getmetatable ("").__index = function (s, i)
-  if type (i) == "number" then
-    return s:sub (i, i)
-    -- Fall back to module metamethods
-  else
-    return M[i]
-  end
-end
-
---- Give strings an append metamethod.
--- @param s string
--- @param c character (1-character string)
--- @return `s .. c`
-getmetatable ("").__append = function (s, c)
-  return s .. c
-end
-
---- Give strings a concat metamethod.
--- @param s string
--- @param o object
--- @return s .. tostring (o)
-getmetatable ("").__concat = function (s, o)
-  return tostring (s) .. tostring (o)
-end
-
 --- Capitalise each word in a string.
 -- @param s string
 -- @return capitalised string
@@ -517,7 +545,9 @@ end
 
 --- @export
 local String = {
-  __index         = old__index,
+  __append        = __append,
+  __concat        = __concat,
+  __index         = __index,
   assert          = assert,
   caps            = caps,
   chomp           = chomp,
@@ -547,10 +577,6 @@ for k,v in pairs (table.merge (String, {
   escapePattern  = escape_pattern,
   escapeShell    = escape_shell,
   ordinalSuffix  = ordinal_suffix,
-
-  -- Core Lua function implementations.
-  _format   = _format,
-  _tostring = _tostring,
 })) do
   M[k] = v
 end

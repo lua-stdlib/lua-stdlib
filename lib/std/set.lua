@@ -3,8 +3,8 @@
 
  Derived from @{std.container}, and inherits Container's metamethods.
 
- Note that Functions listed below are available only available from the
- Set prototype returned by requiring this module, because Container
+ Note that Functions listed below are only available from the Set
+ prototype returned by requiring this module, because Container
  objects cannot have object methods.
 
  @classmod std.set
