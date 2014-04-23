@@ -80,6 +80,10 @@ Stdlib NEWS - User visible changes
 
 ** Incompatible changes:
 
+ - `std.string` no longer sets `__append`, `__concat` and `__index` in
+   the core strings metatable by default, though `require "std"` does
+   continue to do so.  See LDocs for `std.string` for details.
+
  - `std.optparse` no longer normalizes unhandled options.  For example,
    `--unhandled-option=argument` is returned unmolested from `parse`,
    rather than as two elements split on the `=`; and if a combined

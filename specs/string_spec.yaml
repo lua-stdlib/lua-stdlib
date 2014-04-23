@@ -7,14 +7,13 @@ before: |
   enhance_globals     = { "assert", "tostring" }
 
   base_module         = "string"
-  extend_base         = { "assert", "caps", "chomp", "escape_pattern",
+  extend_base         = { "__append", "__concat", "__index",
+                          "assert", "caps", "chomp", "escape_pattern",
                           "escape_shell", "finds", "ltrim", "numbertosi",
                           "ordinal_suffix", "pad", "pickle",
                           "prettytostring", "render", "require_version",
                           "rtrim", "split", "tfind", "tostring", "trim",
                           "wrap",
-                          -- make these available after require "std"
-                          "__index", "_format", "_tostring",
                           -- camelCase compatibility:
                           "escapePattern", "escapeShell",
                           "ordinalSuffix" }
@@ -30,6 +29,8 @@ before: |
   for _, s in ipairs (enhance_base)    do all_apis[s] = true end
 
   M = require "std.string"
+  getmetatable("").__index = M.__index
+  getmetatable ("").__concat = M.__concat
 
 specify std.string:
 - before:
@@ -71,10 +72,10 @@ specify std.string:
       expect (subject .. " another string").to_be (target)
   - "it stringifies non-string arguments":
       argument = { "a table" }
-      expect (subject .. argument).to_match (string.format ("%s{1=a table}", subject))
+      expect (subject .. argument).to_match (string.format ("%s%s", subject, M.tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
-      expect (subject .. argument).to_be (string.format ("%s%s", subject, tostring (argument)))
+      expect (subject .. argument).to_be (string.format ("%s%s", subject, M.tostring (argument)))
   - the original subject is not perturbed:
       original = subject
       newstring = subject .. " concatenate something"
@@ -335,7 +336,8 @@ specify std.string:
       newstring = f (subject, width)
       expect (subject).to_be (original)
   - "it coerces non-string arguments to a string":
-      expect (f ({ "a table" }, width)).to_contain "a table"
+      argument = { "a table " }
+      expect (f (argument, width)).to_contain (M.tostring (argument))
   - "it diagnoses non-numeric width arguments":
       expect (f (subject, nil)).to_error ("number expected")
       expect (f (subject, {"a table"})).to_error ("number expected")
