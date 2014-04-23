@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   object = require "std.object"
   StrBuf = require "std.strbuf"
   b      = StrBuf {"foo", "bar"}

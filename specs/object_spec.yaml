@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   Object    = require "std.object"
   obj       = Object {"foo", "bar", baz="quux"}
   prototype = Object.prototype

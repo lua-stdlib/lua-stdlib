@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   this_module  = "std.math"
 
   global_table = "_G"

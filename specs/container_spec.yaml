@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   Container = require "std.container"
   prototype = (require "std.object").prototype
 

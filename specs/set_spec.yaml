@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   Set       = require "std.set"
   prototype = (require "std.object").prototype
   totable   = (require "std.table").totable

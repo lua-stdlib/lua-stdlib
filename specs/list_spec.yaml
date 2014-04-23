@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   Object  = require "std.object"
   List    = require "std.list"
   l       = List {"foo", "bar", "baz"}

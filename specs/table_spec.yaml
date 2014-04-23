@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   base_module         = "table"
   this_module         = "std.table"
   global_table        = "_G"

@@ -1,6 +1,4 @@
 before: |
-  require "spec_helper"
-
   global_table = "_G"
   this_module  = "std.functional"
   std_globals   = { "bind", "collect", "compose", "curry", "eval",

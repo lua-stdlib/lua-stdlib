@@ -1,5 +1,4 @@
 before:
-  require "spec_helper"
   hell = require "specl.shell"
 
 specify std.optparse:
