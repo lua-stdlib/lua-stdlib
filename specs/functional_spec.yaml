@@ -14,24 +14,24 @@ specify std.functional:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          should_equal {}
+          to_equal {}
 
   - context via the std module:
     - it adds apis to the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          should_contain.all_of (std_globals)
+          to_contain.all_of (std_globals)
 
 
 - describe bind:
   - it does not affect normal operation if no arguments are bound:
       expect (M.bind (math.min, {}) (2, 3, 4)).
-        should_equal (2)
+        to_equal (2)
   - the extra arguments are taken into account:
       expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
-        should_equal (0)
+        to_equal (0)
   - the extra arguments can be out of order:
       expect (M.bind (math.pow, {[2] = 3}) (2)).
-        should_equal (8)
+        to_equal (8)
 
 
 - describe case:
@@ -41,12 +41,12 @@ specify std.functional:
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
   - it matches against branch keys:
-      expect (M.case ("yes", branches)).should_be (true)
-      expect (M.case ("no",  branches)).should_be (false)
+      expect (M.case ("yes", branches)).to_be (true)
+      expect (M.case ("no",  branches)).to_be (false)
   - it has a default for unmatched keys:
-      expect (M.case ("none", branches)).should_be "none"
+      expect (M.case ("none", branches)).to_be "none"
   - it returns nil for unmatched keys with no default:
-      expect (M.case ("none", { yes = yes, no = no })).should_be (nil)
+      expect (M.case ("none", { yes = yes, no = no })).to_be (nil)
   - it evaluates `with` exactly once:
       s = "prince"
       function acc () s = s .. "s"; return s end
@@ -55,7 +55,7 @@ specify std.functional:
         princes  = function () return "many" end,
         princess = function () return "one" end,
                    function () return "gibberish" end,
-      })).should_be "many"
+      })).to_be "many"
 
 
 - describe collect:
@@ -64,7 +64,7 @@ specify std.functional:
 - describe compose:
   - it composes functions in the correct order:
       expect (M.compose (math.sin, math.cos) (1)).
-        should_equal (math.cos (math.sin (1)))
+        to_equal (math.cos (math.sin (1)))
 
 
 - describe curry:
