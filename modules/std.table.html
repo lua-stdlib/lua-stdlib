@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 38 Reference</title>
+    <title>stdlib 39 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -73,12 +73,12 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#clone">clone (t, nometa)</a></td>
+	<td class="name" nowrap><a href="#clone">clone (t[, map={}], nometa)</a></td>
 	<td class="summary">Make a shallow copy of a table, including any metatable.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#clone_rename">clone_rename (t, map)</a></td>
-	<td class="summary">Clone a table, renaming some keys.</td>
+	<td class="name" nowrap><a href="#clone_select">clone_select (t[, selection={}])</a></td>
+	<td class="summary">Make a partial clone of a table.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#empty">empty (t)</a></td>
@@ -134,7 +134,7 @@
     <dl class="function">
     <dt>
     <a name = "clone"></a>
-    <strong>clone (t, nometa)</strong>
+    <strong>clone (t[, map={}], nometa)</strong>
     </dt>
     <dd>
     Make a shallow copy of a table, including any metatable. </p>
@@ -146,10 +146,12 @@
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-
-<pre><code>  source table
-</code></pre>
-
+         source table
+        </li>
+        <li><span class="parameter">map</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         table of <code>{old<em>key=new</em>key, ...}</code>
+         (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
             <span class="types"><span class="type">boolean</span></span>
@@ -160,7 +162,8 @@
     <h3>Returns:</h3>
     <ol>
 
-        copy of <em>table</em>
+        copy of <em>t</em>, also sharing <em>t</em>'s metatable unless <em>nometa</em>
+   is true, and with keys renamed according to <em>map</em>
     </ol>
 
 
@@ -168,29 +171,33 @@
 
 </dd>
     <dt>
-    <a name = "clone_rename"></a>
-    <strong>clone_rename (t, map)</strong>
+    <a name = "clone_select"></a>
+    <strong>clone_select (t[, selection={}])</strong>
     </dt>
     <dd>
-    Clone a table, renaming some keys.
+    Make a partial clone of a table. </p>
+
+<p> Like <a href="../modules/std.table.html#clone">clone</a> , but does not copy any fields by default.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-           source table
+         source table
         </li>
-        <li><span class="parameter">map</span>
+        <li><span class="parameter">selection</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         table <code>{old<em>key=new</em>key, ...}</code>
+         list of keys to copy
+         (<em>default</em> {})
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        copy of <em>table</em>
+        copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
+   metatable unless <em>nometa</em>
     </ol>
 
 

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 38 Reference</title>
+    <title>stdlib 39 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -33,7 +33,6 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
-<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
@@ -67,6 +66,37 @@
 <h1>Module <code>std.string</code></h1>
 <p>Additions to the string module.</p>
 <p>
+
+
+<p> If you <code>require "std"</code>, the contents of this module are all available
+ in the <a href="../modules/std.string.html#">std.string</a>  table.</p>
+
+<p> However, this module also contains references to the Lua core string
+ table entries, so it's safe to load it like this:</p>
+
+<pre><code> local string = require "std.string"
+</code></pre>
+
+<p> Of course, if you do that you'll lose references to any core string
+ functions overwritten by <a href="../modules/std.string.html#">std.string</a> , so you might want to save any
+ that you want access to before you overwrite them.</p>
+
+<p> If your code does not <code>require "std"</code> anywhere, then you'll also need
+ to manually overwrite string functions in the global namespace if you
+ want to use them from there:</p>
+
+<pre><code> local assert, tostring = string.assert, string.tostring
+</code></pre>
+
+<p> And finally, to use the string metatable improvements with all core
+ strings, you'll need to merge this module's metatable into the core
+ string metatable (again, <code>require "std"</code> does this automatically):</p>
+
+<pre><code> local string_metatable = getmetatable ""
+ string_metatable.__append = string.__append
+ string_metatable.__concat = string.__concat
+ string_metatable.__index = string.__index
+</code></pre>
 
 </p>
 
@@ -184,21 +214,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#wrap">wrap (s, w, ind, ind1)</a></td>
 	<td class="summary">Wrap a string into a paragraph.</td>
-	</tr>
-</table>
-<h2><a href="#Fields">Fields</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#s">s</a></td>
-	<td class="summary">Give strings a subscription operator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s">s</a></td>
-	<td class="summary">Give strings an append metamethod.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#s">s</a></td>
-	<td class="summary">Give strings a concat metamethod.</td>
 	</tr>
 </table>
 
@@ -852,7 +867,7 @@
     <dd>
     Split a string at a given separator.
  Separator is a Lua pattern, so you have to escape active characters,
- <code>^$()%.[]*+-?</code> with a <code>%</code> prefix to match a literal character in <a href="../modules/std.string.html#s">s</a> .
+ <code>^$()%.[]*+-?</code> with a <code>%</code> prefix to match a literal character in <code>s</code>.
 
 
     <h3>Parameters:</h3>
@@ -996,75 +1011,6 @@
 
         wrapped paragraph
     </ol>
-
-
-
-
-</dd>
-</dl>
-    <h2><a name="Fields"></a>Fields</h2>
-    <dl class="function">
-    <dt>
-    <a name = "s"></a>
-    <strong>s</strong>
-    </dt>
-    <dd>
-    Give strings a subscription operator.
-
-
-    <ul>
-        <li><span class="parameter">s</span>
-         string
-        </li>
-        <li><span class="parameter">i</span>
-         index
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s"></a>
-    <strong>s</strong>
-    </dt>
-    <dd>
-    Give strings an append metamethod.
-
-
-    <ul>
-        <li><span class="parameter">s</span>
-         string
-        </li>
-        <li><span class="parameter">c</span>
-         character (1-character string)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "s"></a>
-    <strong>s</strong>
-    </dt>
-    <dd>
-    Give strings a concat metamethod.
-
-
-    <ul>
-        <li><span class="parameter">s</span>
-         string
-        </li>
-        <li><span class="parameter">o</span>
-         object
-        </li>
-    </ul>
-
 
 
 
