@@ -24,20 +24,30 @@ local function deprecate (fn, name, warnmsg)
 end
 
 -- Doc-commented in table.lua...
-local function clone (t, map, nometa)
+local function merge (t, u, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
   map = map or {}
   if type (map) ~= "table" then
     map, nometa = {}, map
   end
 
-  local u = {}
   if not nometa then
-    setmetatable (u, getmetatable (t))
+    setmetatable (t, getmetatable (u))
   end
-  for k, v in pairs (t) do
-    u[map[k] or k] = v
+  for k, v in pairs (u) do
+    t[map[k] or k] = v
   end
-  return u
+  return t
+end
+
+-- Doc-commented in table.lua...
+local function clone (t, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
+  return merge ({}, t, map, nometa)
 end
 
 -- Doc-commented in table.lua...
@@ -48,14 +58,6 @@ local function clone_rename (map, t)
     r[i] = nil
   end
   return r
-end
-
--- Doc-commented in table.lua...
-local function merge (t, u)
-  for i, v in pairs (u) do
-    t[i] = v
-  end
-  return t
 end
 
 local new -- forward declaration

@@ -10,6 +10,44 @@ local func = require "std.functional"
 local elems = base.elems
 
 
+--- Destructively merge another table's fields into *table*.
+-- @function merge
+-- @tparam table t destination table
+-- @tparam table u table with fields to merge
+-- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
+-- @tparam boolean nometa if non-nil don't copy metatable
+-- @return table   `t` with fields from `u` merged in
+local merge = base.merge
+
+
+--- Destructively merge another table's named fields into *table*.
+--
+-- Like `merge`, but does not merge any fields by default.
+-- @tparam table t destination table
+-- @tparam table u table with fields to merge
+-- @tparam[opt={}] table keys list of keys to copy
+-- @return copy of fields in *selection* from *t*, also sharing *t*'s
+--   metatable unless *nometa*
+local function merge_select (t, u, keys, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge_select' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge_select' (table expected, got " .. type (u) .. ")")
+  keys = keys or {}
+  if type (keys) ~= "table" then
+    keys, nometa = {}, keys
+  end
+
+  if not nometa then
+    setmetatable (t, getmetatable (u))
+  end
+  for k in elems (keys) do
+    t[k] = u[k]
+  end
+  return t
+end
+
+
 --- Make a shallow copy of a table, including any metatable.
 --
 -- To make deep copies, use @{std.tree.clone}.
@@ -37,34 +75,14 @@ local clone_rename = base.deprecate (base.clone_rename, nil,
 -- Like `clone`, but does not copy any fields by default.
 -- @function clone_select
 -- @tparam table t source table
--- @tparam[opt={}] table selection list of keys to copy
+-- @tparam[opt={}] table keys list of keys to copy
 -- @return copy of fields in *selection* from *t*, also sharing *t*'s
 --   metatable unless *nometa*
-local function clone_select (t, map, nometa)
+local function clone_select (t, keys, nometa)
   assert (type (t) == "table",
           "bad argument #1 to 'clone_select' (table expected, got " .. type (t) .. ")")
-  map = map or {}
-  if type (map) ~= "table" then
-    map, nometa = {}, map
-  end
-
-  local r = {}
-  if not nometa then
-    setmetatable (r, getmetatable (t))
-  end
-  for i in elems (map) do
-    r[i] = t[i]
-  end
-  return r
+  return merge_select ({}, t, keys, nometa)
 end
-
-
---- Destructively merge another table's fields into *table*.
--- @function merge
--- @tparam table t destination table
--- @tparam table u table with fields to merge
--- @return table   `t` with fields from `u` merged in
-local merge = base.merge
 
 
 -- Preserve core table sort function.
@@ -199,6 +217,7 @@ local Table = {
   invert       = invert,
   keys         = keys,
   merge        = merge,
+  merge_select = merge_select,
   new          = new,
   pack         = pack,
   ripairs      = ripairs,
