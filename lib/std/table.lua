@@ -26,6 +26,7 @@ local merge = base.merge
 -- @tparam table t destination table
 -- @tparam table u table with fields to merge
 -- @tparam[opt={}] table keys list of keys to copy
+-- @tparam boolean nometa if non-nil don't copy metatable
 -- @return copy of fields in *selection* from *t*, also sharing *t*'s
 --   metatable unless *nometa*
 local function merge_select (t, u, keys, nometa)
