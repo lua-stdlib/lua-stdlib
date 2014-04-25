@@ -31,10 +31,11 @@
  @module std.string
 ]]
 
-local func   = require "std.functional"
 local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
+
+local metamethod = (require "std.base").metamethod
 
 local _format   = string.format
 local _tostring = _G.tostring
@@ -228,7 +229,7 @@ local function render (x, open, close, elem, pair, sep, roots)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
   roots = roots or {}
-  if type (x) ~= "table" or func.metamethod (x, "__tostring") then
+  if type (x) ~= "table" or metamethod (x, "__tostring") then
     return elem (x)
   else
     local s = StrBuf {}

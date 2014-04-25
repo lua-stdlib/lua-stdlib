@@ -10,6 +10,12 @@ Stdlib NEWS - User visible changes
  - New `table.merge_select` function, orthogonal to
    `table.clone_select`.  See LDocs for details.
 
+** Incompatible changes:
+
+ - The `metamethod` call is no longer in `std.functional`, but has moved
+   to `std.table` where it properly belongs.  It is a utility method for
+   tables and has nothing to do with functional programming.
+
 
 * Noteworthy changes in release 39 (2014-04-23) [stable]
 

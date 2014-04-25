@@ -65,7 +65,7 @@
 
 
 local Container  = require "std.container"
-local metamethod = (require "std.functional").metamethod
+local metamethod = (require "std.base").metamethod
 
 
 --- Root object.

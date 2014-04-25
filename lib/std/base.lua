@@ -23,6 +23,20 @@ local function deprecate (fn, name, warnmsg)
   end
 end
 
+
+-- Doc-commented in table.lua...
+local function metamethod (x, n)
+  local _, m = pcall (function (x)
+                        return getmetatable (x)[n]
+                      end,
+                      x)
+  if type (m) ~= "function" then
+    m = nil
+  end
+  return m
+end
+
+
 -- Doc-commented in table.lua...
 local function merge (t, u, map, nometa)
   assert (type (t) == "table",
@@ -161,6 +175,7 @@ local M = {
   ileaves      = ileaves,
   leaves       = leaves,
   merge        = merge,
+  metamethod   = metamethod,
   new          = new,
 
   -- list metatable

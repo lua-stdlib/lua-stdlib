@@ -8,23 +8,6 @@ local list = require "std.base"
 local functional -- forward declaration
 
 
---- Return given metamethod, if any, or nil.
--- @param x object to get metamethod of
--- @param n name of metamethod to get
--- @return metamethod function or nil if no metamethod or not a
--- function
-local function metamethod (x, n)
-  local _, m = pcall (function (x)
-                        return getmetatable (x)[n]
-                      end,
-                      x)
-  if type (m) ~= "function" then
-    m = nil
-  end
-  return m
-end
-
-
 --- Identity function.
 -- @param ...
 -- @return the arguments passed to the function
@@ -204,7 +187,6 @@ functional = {
   id         = id,
   map        = map,
   memoize    = memoize,
-  metamethod = metamethod,
 }
 
 --- Functional forms of infix operators.

@@ -107,11 +107,6 @@ for _, api in ipairs {
   -- @see std.functional.memoize
   "functional.memoize",
 
-  --- Return given metamethod, if any, else nil.
-  -- @function _G.metamethod
-  -- @see std.functional.metamethod
-  "functional.metamethod",
-
   --- Functional forms of infix operators.
   -- @table _G.op
   -- @see std.functional.op
@@ -162,6 +157,11 @@ for _, api in ipairs {
   "string.tostring",
 
 
+
+  --- Return given metamethod, if any, else nil.
+  -- @function _G.metamethod
+  -- @see std.table.metamethod
+  "table.metamethod",
 
   --- Turn a tuple into a list.
   -- @function _G.pack

@@ -5,8 +5,9 @@ before: |
 
   std_globals         = { "pack", "ripairs", "totable" }
   extend_base         = { "clone", "clone_select", "clone_rename", "empty",
-                          "invert", "keys", "merge", "merge_select", "new",
-                          "ripairs", "size", "totable", "values",
+                          "invert", "keys", "merge", "merge_select",
+                          "metamethod", "new", "ripairs", "size", "totable",
+                          "values",
                           -- make these available after require "std"
                           "_sort" }
   enhance_base        = { "sort" }

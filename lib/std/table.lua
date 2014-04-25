@@ -4,7 +4,6 @@
 ]]
 
 local base = require "std.base"
-local func = require "std.functional"
 
 -- No need to pull all of std.list into memory.
 local elems = base.elems
@@ -190,11 +189,20 @@ local function ripairs (t)
 end
 
 
+--- Return given metamethod, if any, or nil.
+-- @function metamethod
+-- @param x object to get metamethod of
+-- @param n name of metamethod to get
+-- @return metamethod function or nil if no metamethod or not a
+-- function
+local metamethod = base.metamethod
+
+
 --- Turn an object into a table according to __totable metamethod.
 -- @tparam  std.object x object to turn into a table
 -- @treturn table resulting table or `nil`
 local function totable (x)
-  local m = func.metamethod (x, "__totable")
+  local m = metamethod (x, "__totable")
   if m then
     return m (x)
   elseif type (x) == "table" then
@@ -230,6 +238,7 @@ local Table = {
   keys         = keys,
   merge        = merge,
   merge_select = merge_select,
+  metamethod   = metamethod,
   new          = new,
   pack         = pack,
   ripairs      = ripairs,
