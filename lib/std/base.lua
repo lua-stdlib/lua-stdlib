@@ -43,23 +43,6 @@ local function merge (t, u, map, nometa)
   return t
 end
 
--- Doc-commented in table.lua...
-local function clone (t, map, nometa)
-  assert (type (t) == "table",
-          "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
-  return merge ({}, t, map, nometa)
-end
-
--- Doc-commented in table.lua...
-local function clone_rename (map, t)
-  local r = clone (t)
-  for i, v in pairs (map) do
-    r[v] = t[i]
-    r[i] = nil
-  end
-  return r
-end
-
 local new -- forward declaration
 
 -- Doc-commented in list.lua...
@@ -171,8 +154,6 @@ end
 
 local M = {
   append       = append,
-  clone        = clone,
-  clone_rename = clone_rename,
   compare      = compare,
   concat       = concat,
   deprecate    = deprecate,

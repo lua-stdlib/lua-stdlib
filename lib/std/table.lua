@@ -58,7 +58,11 @@ end
 -- @tparam boolean nometa if non-nil don't copy metatable
 -- @return copy of *t*, also sharing *t*'s metatable unless *nometa*
 --   is true, and with keys renamed according to *map*
-local clone = base.clone
+local function clone (t, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
+  return base.merge ({}, t, map, nometa)
+end
 
 
 -- DEPRECATED: Remove in first release following 2015-04-15.
@@ -67,7 +71,14 @@ local clone = base.clone
 -- @tparam table map table `{old_key=new_key, ...}`
 -- @tparam table t   source table
 -- @return copy of *table*
-local clone_rename = base.deprecate (base.clone_rename, nil,
+local clone_rename = base.deprecate (function (map, t)
+                                       local r = clone (t)
+                                       for i, v in pairs (map) do
+                                         r[v] = t[i]
+                                         r[i] = nil
+                                       end
+                                       return r
+                                     end, nil,
   "table.clone_rename is deprecated, use the new `map` argument to table.clone instead.")
 
 
