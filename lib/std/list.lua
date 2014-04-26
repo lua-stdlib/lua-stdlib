@@ -386,38 +386,10 @@ local function zip_with (ls, f)
 end
 
 
---- @export
-local _functions = {
-  append      = append,
-  compare     = compare,
-  concat      = concat,
-  cons        = cons,
-  depair      = depair,
-  elems       = elems,
-  enpair      = enpair,
-  filter      = filter,
-  flatten     = flatten,
-  foldl       = foldl,
-  foldr       = foldr,
-  index_key   = index_key,
-  index_value = index_value,
-  map         = map,
-  map_with    = map_with,
-  project     = project,
-  relems      = relems,
-  rep         = rep,
-  reverse     = reverse,
-  shape       = shape,
-  sub         = sub,
-  tail        = tail,
-  transpose   = transpose,
-  zip_with    = zip_with,
-}
-
-
 List = Object {
   -- Derived object type.
   _type = "List",
+
 
   ------
   -- Concatenate lists.
@@ -596,24 +568,39 @@ List = Object {
     depair      = depair,
     index_key   = function (self, f) return index_key (f, self)   end,
     index_value = function (self, f) return index_value (f, self) end,
-    indexKey    = function (self, f) return indexKey (f, self)    end,
-    indexValue  = function (self, f) return indexValue (f, self)  end,
     map_with    = function (self, f) return map_with (f, self)    end,
     transpose   = transpose,
     zip_with    = function (self, f) return zip_with (f, self)    end,
   },
 
-  _functions = (base.merge (_functions, {
-    -- backwards compatibility
-    new         = function (t) return List (t or {}) end,
-    slice       = sub,
 
-    -- camelCase compatibility
-    indexKey    = index_key,
-    indexValue  = index_value,
-    mapWith     = map_with,
-    zipWith     = zip_with,
-  })),
+  --- @export
+  _functions = {
+    append      = append,
+    compare     = compare,
+    concat      = concat,
+    cons        = cons,
+    depair      = depair,
+    elems       = elems,
+    enpair      = enpair,
+    filter      = filter,
+    flatten     = flatten,
+    foldl       = foldl,
+    foldr       = foldr,
+    index_key   = index_key,
+    index_value = index_value,
+    map         = map,
+    map_with    = map_with,
+    project     = project,
+    relems      = relems,
+    rep         = rep,
+    reverse     = reverse,
+    shape       = shape,
+    sub         = sub,
+    tail        = tail,
+    transpose   = transpose,
+    zip_with    = zip_with,
+  },
 }
 
 

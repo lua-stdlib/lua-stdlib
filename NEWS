@@ -44,8 +44,13 @@ Stdlib NEWS - User visible changes
 
  - The following deprecated camelCase names have been removed, you
    should update your code to use the snake_case equivalents:
-   `std.io.processFiles`, `std.string.escapePattern`,
+   `std.io.processFiles`, `std.list.indexKey`, `std.list.indexValue`,
+   `std.list.mapWith`, `std.list.zipWith`, `std.string.escapePattern`,
    `std.string. escapeShell`, `std.string.ordinalSuffix`.
+
+ - The following deprecated function names have been removed:
+   `std.list.new` (call `std.list` directly instead), and
+   `std.list.slice` (use `std.list.sub` instead).
 
 * Noteworthy changes in release 39 (2014-04-23) [stable]
 
