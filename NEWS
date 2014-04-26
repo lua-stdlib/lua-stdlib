@@ -12,10 +12,40 @@ Stdlib NEWS - User visible changes
 
 ** Incompatible changes:
 
+ - Core methods and metamethods are no longer monkey patched by default
+   when you `require "std"` (or `std.io`, `std.math`, `std.string` or
+   `std.table`).  Instead they provide a new `monkey_patch` method you
+   should use when you don't care about interactions with other
+   modules:
+
+     local io = require "std.io".monkey_patch ()
+
+   To install all of stdlib's monkey patches, the `std` module itself
+   has a `monkey_patch` method that loads all submodules with their own
+   `monkey_patch` method and runs them all.
+
+   If you want full compatibility with the previous release, in addition
+   to the global namespace scribbling snippet above, then you need to
+   adjust the first line to:
+
+     local std = require "std".monkey_patch ()
+
+ - The global namespace is no longer clobbered by `require "std"`. To
+   get the old behaviour back:
+
+     local std = require "std".barrel (_G)
+
+   This will execute all available monkey_patch functions, and then
+   scribble all over the `_G` namespace, just like the old days.
+
  - The `metamethod` call is no longer in `std.functional`, but has moved
    to `std.table` where it properly belongs.  It is a utility method for
    tables and has nothing to do with functional programming.
 
+ - The following deprecated camelCase names have been removed, you
+   should update your code to use the snake_case equivalents:
+   `std.io.processFiles`, `std.string.escapePattern`,
+   `std.string. escapeShell`, `std.string.ordinalSuffix`.
 
 * Noteworthy changes in release 39 (2014-04-23) [stable]
 

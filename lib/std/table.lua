@@ -5,6 +5,9 @@
 
 local base = require "std.base"
 
+
+local M -- forward declaration
+
 -- No need to pull all of std.list into memory.
 local elems = base.elems
 
@@ -106,6 +109,21 @@ local _sort = table.sort
 local function sort (t, c)
   _sort (t, c)
   return t
+end
+
+
+--- Overwrite core methods with `std` enhanced versions.
+--
+-- Replaces core `table.sort` with `std.table` version.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+local function monkey_patch (namespace)
+  namespace = namespace or _G
+  assert (type (namespace) == "table",
+          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+
+  namespace.table.sort = sort
+  return M
 end
 
 
@@ -230,7 +248,7 @@ end
 
 
 --- @export
-local Table = {
+M = {
   clone        = clone,
   clone_select = clone_select,
   empty        = empty,
@@ -239,6 +257,7 @@ local Table = {
   merge        = merge,
   merge_select = merge_select,
   metamethod   = metamethod,
+  monkey_patch = monkey_patch,
   new          = new,
   pack         = pack,
   ripairs      = ripairs,
@@ -246,16 +265,13 @@ local Table = {
   sort         = sort,
   totable      = totable,
   values       = values,
-
-  -- Core Lua table.sort function
-  _sort        = _sort,
 }
 
 -- Deprecated and undocumented.
-Table.clone_rename = clone_rename
+M.clone_rename = clone_rename
 
 for k, v in pairs (table) do
-  Table[k] = Table[k] or v
+  M[k] = M[k] or v
 end
 
-return Table
+return M

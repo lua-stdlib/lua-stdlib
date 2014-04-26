@@ -3,27 +3,14 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  std_globals         = { "pack", "ripairs", "totable" }
-  extend_base         = { "clone", "clone_select", "clone_rename", "empty",
+  extend_base         = { "clone", "clone_rename", "clone_select", "empty",
                           "invert", "keys", "merge", "merge_select",
-                          "metamethod", "new", "ripairs", "size", "totable",
-                          "values",
-                          -- make these available after require "std"
-                          "_sort" }
-  enhance_base        = { "sort" }
+                          "metamethod", "monkey_patch", "new", "ripairs",
+                          "size", "sort", "totable", "values" }
 
 
-  -- 'to_contain' will match keys as well as values :)
-  all_apis = {}
-  for _, s in ipairs (std_globals)     do all_apis[s] = true end
-  for _, s in ipairs (extend_base)     do all_apis[s] = true end
-  for _, s in ipairs (enhance_base)    do all_apis[s] = true end
-
+  -- Lua 5.2
   if table.pack then
-    -- Lua 5.2
-    table.insert (enhance_base, "pack")
-  else
-    -- Lua 5.1
     table.insert (extend_base, "pack")
   end
 
@@ -35,23 +22,18 @@ specify std.table:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core table table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core table table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (all_apis)
-    - it enhances some apis from the core table table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
-    - it adds apis to the global table:
-        expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
-    - it adds apis to the core table table:
-        expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it replaces some apis in the core table table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          to_contain.a_permutation_of (enhance_base)
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).to_equal {}
+    - it does not touch the core table table:
+        expect (show_apis {added_to=base_module, by="std"}).to_equal {}
 
 
 - describe clone:
@@ -65,7 +47,7 @@ specify std.table:
       expect (f (subject)).to_equal (subject)
   - it only makes a shallow copy of field values:
       expect (f (subject).k1).to_be (subject.k1)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
       copy   = f (subject)
       expect (subject).to_equal (target)
@@ -137,7 +119,7 @@ specify std.table:
       expect (f (subject, {"k1", "k2", "k3"})).to_equal (subject)
   - it only makes a shallow copy:
       expect (f (subject, {"k1"}).k1).to_be (subject.k1)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
       copy   = f (subject, {"k1", "k2", "k3"})
       expect (subject).to_equal (target)
@@ -312,6 +294,19 @@ specify std.table:
   - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f ("foo", "bar")).to_error ("table expected")
+
+
+- describe monkey_patch:
+  - before:
+      f  = M.monkey_patch
+      t  = {
+        table = {},
+      }
+      f (t)
+  - it installs table.sort function:
+      expect (t.table.sort).to_be (M.sort)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
 
 
 - describe new:

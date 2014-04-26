@@ -1,15 +1,9 @@
 before: |
-  this_module  = "std.math"
-
-  global_table = "_G"
   base_module  = "math"
-  extend_base  = { "round", "_floor" }
-  enhance_base = { "floor" }
+  this_module  = "std.math"
+  global_table = "_G"
 
-  -- 'to_contain' will match keys as well as values :)
-  all_apis = {}
-  for _, s in ipairs (extend_base)     do all_apis[s] = true end
-  for _, s in ipairs (enhance_base)    do all_apis[s] = true end
+  extend_base  = { "floor", "monkey_patch", "round" }
 
   M = require (this_module)
 
@@ -19,23 +13,36 @@ specify std.math:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core math table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core math table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (all_apis)
-    - it enhances some apis from the core math table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
-    - it adds apis to the core math table:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
+    - it does not touch the core math table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it replaces some apis from the core math table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          to_contain.a_permutation_of (enhance_base)
+          to_equal {}
 
 
 - describe floor:
+
+
+- describe monkey_patch:
+  - before:
+      f  = M.monkey_patch
+      t  = {
+        math = {},
+      }
+      f (t)
+  - it installs math.floor function:
+      expect (t.math.floor).to_be (M.floor)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
 
 
 - describe round:

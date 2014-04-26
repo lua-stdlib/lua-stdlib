@@ -1,9 +1,8 @@
 before: |
+  base_module  = "debug"
   this_module  = "std.debug"
-
   global_table = "_G"
 
-  base_module  = "debug"
   extend_base  = { "say", "trace" }
 
   M = require "std.debug"
@@ -14,14 +13,20 @@ specify std.debug:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core debug table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core debug table:
         expect (show_apis {from=base_module, not_in=this_module}).
           to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
-    - it adds apis to the core debug table:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
+    - it does not touch the core debug table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
+          to_equal {}
 
 
 - describe _DEBUG:

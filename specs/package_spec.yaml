@@ -1,8 +1,8 @@
 before: |
-  this_module        = "std.package"
-
-  global_table       = "_G"
   base_module        = "package"
+  this_module        = "std.package"
+  global_table       = "_G"
+
   extend_base        = { "dirsep", "execdir", "find", "igmark", "insert",
                          "mappath", "normalize", "pathsep", "path_mark",
                          "remove" }
@@ -21,19 +21,19 @@ specify std.package:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core package table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core package table:
         expect (show_apis {from=base_module, not_in=this_module}).
           to_contain.a_permutation_of (extend_base)
-    - it replaces no apis from the core package table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_equal {}
 
   - context via the std module:
-    - it adds apis to the core package table:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
+    - it does not touch the core package table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it replaces no apis from the core package table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
           to_equal {}
 
 

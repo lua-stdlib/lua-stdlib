@@ -366,6 +366,32 @@ local function prettytostring (t, indent, spacing)
 end
 
 
+--- Overwrite core methods and metamethods with `std` enhanced versions.
+--
+-- Adds auto-stringification to `..` operator on core strings, and
+-- integer indexing of strings with `[]` dereferencing.
+--
+-- Also replaces core `assert` and `tostring` functions with
+-- `std.string` versions.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+local function monkey_patch (namespace)
+  namespace = namespace or _G
+
+  assert (type (namespace) == "table",
+          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+
+  namespace.assert, namespace.tostring = assert, tostring
+
+  local string_metatable = getmetatable ""
+  string_metatable.__append = __append
+  string_metatable.__concat = __concat
+  string_metatable.__index = __index
+
+  return M
+end
+
+
 --- Convert a value to a string.
 -- The string can be passed to dostring to retrieve the value.
 -- @todo Make it work for recursive tables.
@@ -545,7 +571,7 @@ end
 
 
 --- @export
-local String = {
+M = {
   __append        = __append,
   __concat        = __concat,
   __index         = __index,
@@ -557,6 +583,7 @@ local String = {
   finds           = finds,
   format          = format,
   ltrim           = ltrim,
+  monkey_patch    = monkey_patch,
   numbertosi      = numbertosi,
   ordinal_suffix  = ordinal_suffix,
   pad             = pad,
@@ -571,16 +598,6 @@ local String = {
   trim            = trim,
   wrap            = wrap,
 }
-
--- Merge non-@export functions:
-for k,v in pairs (table.merge (String, {
-  -- camelCase compatibility:
-  escapePattern  = escape_pattern,
-  escapeShell    = escape_shell,
-  ordinalSuffix  = ordinal_suffix,
-})) do
-  M[k] = v
-end
 
 for k, v in pairs (string) do
   M[k] = M[k] or v
