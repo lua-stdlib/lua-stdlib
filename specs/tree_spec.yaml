@@ -411,6 +411,8 @@ specify std.tree:
   - it shows the type name:
       expect (tostring (tr)).to_contain "Tree"
   - it shows the contents in order: |
-      pending "see issue #44"
+      tr = Tree {foo   = "foo",
+                 fnord = Tree {branch = Tree {bar="bar", baz="baz"}},
+                 quux  = "quux"}
       expect (tostring (tr)).
-        to_contain 'fnord={branch={bar=bar, baz=baz}}, foo=foo, quux=quux'
+        to_contain 'fnord=Tree {branch=Tree {bar=bar, baz=baz}}, foo=foo, quux=quux'
