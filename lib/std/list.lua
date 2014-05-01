@@ -155,7 +155,7 @@ end
 -- @treturn List flattened list
 local function flatten (l)
   local r = List {}
-  for v in base.ileaves (l) do
+  for v in base.leaves (ipairs, l) do
     table.insert (r, v)
   end
   return r

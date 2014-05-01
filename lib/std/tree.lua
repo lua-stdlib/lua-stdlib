@@ -27,7 +27,11 @@ local Tree -- forward declaration
 -- @tparam  tree|table tr tree or tree-like table
 -- @treturn function iterator function
 -- @treturn tree|table the tree `tr`
-local ileaves = base.ileaves
+local function ileaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
+  return base.leaves (ipairs, tr)
+end
 
 
 --- Tree iterator which returns just leaves.
@@ -36,7 +40,11 @@ local ileaves = base.ileaves
 -- @tparam  tree|table tr tree or tree-like table
 -- @treturn function iterator function
 -- @treturn tree|table the tree, `tr`
-local leaves = base.leaves
+local function leaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
+  return base.leaves (pairs, tr)
+end
 
 
 --- Make a deep copy of a tree, including any metatables.

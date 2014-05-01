@@ -24,6 +24,34 @@ local function deprecate (fn, name, warnmsg)
 end
 
 
+-- Doc-commented in list.lua...
+local function elems (l)
+  local n = 0
+  return function (l)
+           n = n + 1
+           if n <= #l then
+             return l[n]
+           end
+         end,
+  l, true
+end
+
+
+-- Iterator returning leaf nodes from nested tables.
+local function leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+
 -- Doc-commented in table.lua...
 local function metamethod (x, n)
   local _, m = pcall (function (x)
@@ -37,54 +65,9 @@ local function metamethod (x, n)
 end
 
 
--- Doc-commented in list.lua...
-local function elems (l)
-  local n = 0
-  return function (l)
-           n = n + 1
-           if n <= #l then
-             return l[n]
-           end
-         end,
-  l, true
-end
-
---- Concatenate lists.
--- @param ... lists
--- @return `{l<sub>1</sub>[1], ...,
--- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
--- l<sub>n</sub>[#l<sub>n</sub>]}`
-local function _leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
-    end
-  end
-  return coroutine.wrap (visit), tr
-end
-
--- Doc-commented in tree.lua...
-local function ileaves (tr)
-  assert (type (tr) == "table",
-          "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
-  return _leaves (ipairs, tr)
-end
-
--- Doc-commented in tree.lua...
-local function leaves (tr)
-  assert (type (tr) == "table",
-          "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
-  return _leaves (pairs, tr)
-end
-
 local M = {
   deprecate    = deprecate,
   elems        = elems,
-  ileaves      = ileaves,
   leaves       = leaves,
   metamethod   = metamethod,
 }
