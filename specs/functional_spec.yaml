@@ -1,9 +1,6 @@
 before: |
-  global_table = "_G"
   this_module  = "std.functional"
-  std_globals   = { "bind", "collect", "compose", "curry", "eval",
-                   "filter", "fold", "id", "map", "memoize",
-                   "metamethod", "op" }
+  global_table = "_G"
 
   M = require (this_module)
 
@@ -15,19 +12,19 @@ specify std.functional:
           to_equal {}
 
   - context via the std module:
-    - it adds apis to the global table:
+    - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
+          to_equal {}
 
 
 - describe bind:
   - it does not affect normal operation if no arguments are bound:
       expect (M.bind (math.min, {}) (2, 3, 4)).
         to_equal (2)
-  - the extra arguments are taken into account:
+  - it takes the extra arguments into account:
       expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
         to_equal (0)
-  - the extra arguments can be out of order:
+  - it supports out of order extra arguments:
       expect (M.bind (math.pow, {[2] = 3}) (2)).
         to_equal (8)
 

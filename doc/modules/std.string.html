@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 39 Reference</title>
+    <title>stdlib 40 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -134,6 +134,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#ltrim">ltrim (s, r)</a></td>
 	<td class="summary">Remove leading matter from a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#numbertosi">numbertosi (n)</a></td>
@@ -444,6 +448,40 @@
     <ol>
 
         string without leading r
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "monkey_patch"></a>
+    <strong>monkey_patch ([namespace=_G])</strong>
+    </dt>
+    <dd>
+    Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+
+<p> Adds auto-stringification to <code>..</code> operator on core strings, and
+ integer indexing of strings with <code>[]</code> dereferencing.</p>
+
+<p> Also replaces core <a href="../modules/std.string.html#assert">assert</a>  and <a href="../modules/std.string.html#tostring">tostring</a>  functions with
+ <a href="../modules/std.string.html#">std.string</a>  versions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        the module table
     </ol>
 
 

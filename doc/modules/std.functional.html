@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 39 Reference</title>
+    <title>stdlib 40 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -114,12 +114,12 @@
 	<td class="summary">Map a function over an iterator.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#memoize">memoize (fn)</a></td>
+	<td class="name" nowrap><a href="#memoize">memoize (fn, normalize)</a></td>
 	<td class="summary">Memoize a function, by wrapping it in a functable.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#metamethod">metamethod (x, n)</a></td>
-	<td class="summary">Return given metamethod, if any, or nil.</td>
+	<td class="name" nowrap><a href="#memoize_normalize">memoize_normalize (...)</a></td>
+	<td class="summary">Signature of memoize <code>normalize</code> functions.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -427,16 +427,24 @@
 </dd>
     <dt>
     <a name = "memoize"></a>
-    <strong>memoize (fn)</strong>
+    <strong>memoize (fn, normalize)</strong>
     </dt>
     <dd>
-    Memoize a function, by wrapping it in a functable.
+    Memoize a function, by wrapping it in a functable. </p>
+
+<p> To ensure that memoize always returns the same object for the same
+ arguments, it passes arguments to <code>normalize</code> (std.string.tostring
+ by default). You may need a more sophisticated function if memoize
+ should handle complicated argument equivalencies.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
          function that returns a single result
+        </li>
+        <li><span class="parameter">normalize</span>
+        [opt] function to normalize arguments
         </li>
     </ul>
 
@@ -451,28 +459,25 @@
 
 </dd>
     <dt>
-    <a name = "metamethod"></a>
-    <strong>metamethod (x, n)</strong>
+    <a name = "memoize_normalize"></a>
+    <strong>memoize_normalize (...)</strong>
     </dt>
     <dd>
-    Return given metamethod, if any, or nil.
+    Signature of memoize <code>normalize</code> functions.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">x</span>
-         object to get metamethod of
-        </li>
-        <li><span class="parameter">n</span>
-         name of metamethod to get
+        <li><span class="parameter">...</span>
+         arguments
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        metamethod function or nil if no metamethod or not a
- function
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        normalized arguments
     </ol>
 
 

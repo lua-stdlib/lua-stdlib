@@ -3,28 +3,10 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  std_globals         = { "pack", "ripairs", "totable" }
-  extend_base         = { "clone", "clone_select", "clone_rename", "empty",
-                          "invert", "keys", "merge", "new",
-                          "ripairs", "size", "totable", "values",
-                          -- make these available after require "std"
-                          "_sort" }
-  enhance_base        = { "sort" }
-
-
-  -- 'to_contain' will match keys as well as values :)
-  all_apis = {}
-  for _, s in ipairs (std_globals)     do all_apis[s] = true end
-  for _, s in ipairs (extend_base)     do all_apis[s] = true end
-  for _, s in ipairs (enhance_base)    do all_apis[s] = true end
-
-  if table.pack then
-    -- Lua 5.2
-    table.insert (enhance_base, "pack")
-  else
-    -- Lua 5.1
-    table.insert (extend_base, "pack")
-  end
+  extend_base         = { "clone", "clone_rename", "clone_select", "empty",
+                          "invert", "keys", "merge", "merge_select",
+                          "metamethod", "monkey_patch", "new", "pack",
+                          "ripairs", "size", "sort", "totable", "values" }
 
   M = require "std.table"
 
@@ -34,59 +16,55 @@ specify std.table:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core table table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core table table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (all_apis)
-    - it enhances some apis from the core table table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
-    - it adds apis to the global table:
-        expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
-    - it adds apis to the core table table:
-        expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it replaces some apis in the core table table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          to_contain.a_permutation_of (enhance_base)
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).to_equal {}
+    - it does not touch the core table table:
+        expect (show_apis {added_to=base_module, by="std"}).to_equal {}
 
 
 - describe clone:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
+      withmt  = setmetatable (M.clone (subject), {"meta!"})
       f       = M.clone
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it does copy the subject:
       expect (f (subject)).to_equal (subject)
-  - it only makes a shallow copy:
+  - it only makes a shallow copy of field values:
       expect (f (subject).k1).to_be (subject.k1)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
       copy   = f (subject)
       expect (subject).to_equal (target)
       expect (subject).to_be (subject)
-  - it treats non-table arg2 as nometa parameter:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, true))).to_be (nil)
-  - it treats table arg2 as a map parameter:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, {}))).to_be (getmetatable (mt))
-  - it supports 3 arguments with nometa as arg3:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, {}, "nometa"))).to_be (nil)
+
+  - context with metatables:
+    - it copies the metatable by default:
+        expect (getmetatable (f (withmt))).to_be (getmetatable (withmt))
+    - it treats non-table arg2 as nometa parameter:
+        expect (getmetatable (f (withmt, "nometa"))).to_be (nil)
+    - it treats table arg2 as a map parameter:
+        expect (getmetatable (f (withmt, {}))).to_be (getmetatable (withmt))
+    - it supports 3 arguments with nometa as arg3:
+        expect (getmetatable (f (withmt, {}, "nometa"))).to_be (nil)
 
   - context when renaming some keys:
-    - before:
-        target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
     - it renames during cloning:
+        target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
         expect (f (subject, {k1 = "newkey"})).to_equal (target)
     - it does not perturb the value in the renamed key field:
         expect (f (subject, {k1 = "newkey"}).newkey).to_be (subject.k1)
 
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -116,7 +94,7 @@ specify std.table:
     - it does not perturb the value in the renamed key field:
         expect (f ({k1 = "newkey"}, subject).newkey).to_be (subject.k1)
 
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f {}).to_error ("table expected")
       expect (f ({}, "foo")).to_error ("table expected")
 
@@ -124,7 +102,9 @@ specify std.table:
 - describe clone_select:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
+      withmt  = setmetatable (M.clone (subject), {"meta!"})
       f       = M.clone_select
+
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it copies the keys selected:
@@ -133,22 +113,23 @@ specify std.table:
       expect (f (subject, {"k1", "k2", "k3"})).to_equal (subject)
   - it only makes a shallow copy:
       expect (f (subject, {"k1"}).k1).to_be (subject.k1)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       target = { k1 = subject.k1, k2 = subject.k2, k3 = subject.k3 }
       copy   = f (subject, {"k1", "k2", "k3"})
       expect (subject).to_equal (target)
       expect (subject).to_be (subject)
-  - it treats non-table arg2 as nometa parameter:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, true))).to_be (nil)
-  - it treats table arg2 as a map parameter:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, {}))).to_be (getmetatable (mt))
-  - it supports 3 arguments with nometa as arg3:
-      mt = setmetatable (f (subject, true), {})
-      expect (getmetatable (f (mt, {}, "nometa"))).to_be (nil)
 
-  - "it diagnoses non-table arguments":
+  - context with metatables:
+    - it treats non-table arg2 as nometa parameter:
+        expect (getmetatable (f (withmt, "nometa"))).to_be (nil)
+    - it treats table arg2 as a map parameter:
+        expect (getmetatable (f (withmt, {}))).to_be (getmetatable (withmt))
+        expect (getmetatable (f (withmt, {"k1"}))).to_be (getmetatable (withmt))
+    - it supports 3 arguments with nometa as arg3:
+        expect (getmetatable (f (withmt, {}, "nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, {"k1"}, "nometa"))).to_be (nil)
+
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -159,11 +140,11 @@ specify std.table:
   - it returns true for an empty table:
       expect (f {}).to_be (true)
       expect (f {nil}).to_be (true)
-  - "it returns false for a non-empty table":
+  - it returns false for a non-empty table:
       expect (f {"stuff"}).to_be (false)
       expect (f {{}}).to_be (false)
       expect (f {false}).to_be (false)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -178,10 +159,10 @@ specify std.table:
       expect (f (subject)).to_equal { "k1", "k2", "k3" }
   - it is reversible:
       expect (f (f (subject))).to_equal (subject)
-  - "it seems to copy a list of 1..n numbers":
+  - it seems to copy a list of 1..n numbers:
       subject = { 1, 2, 3 }
       expect (f (subject)).to_copy (subject)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -201,7 +182,7 @@ specify std.table:
       -- returned table will have all 10000 keys in the same order...
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).not_to_equal (subject)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -209,9 +190,10 @@ specify std.table:
 - describe merge:
   - before: |
       -- Additional merge keys which are moderately unusual
-      t1 = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
-      t2 = { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = t1.k1 }
-      f  = M.merge
+      t1   = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
+      t2   = { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = t1.k1 }
+      t1mt = setmetatable (M.clone (t1), {"meta!"})
+      f    = M.merge
 
       target = {}
       for k, v in pairs (t1) do target[k] = v end
@@ -229,9 +211,96 @@ specify std.table:
       m = f (t1, t2)      -- Merge is destructive, do it once only.
       expect (m.k3).to_be (t2.k3)
       expect (m.k3).not_to_be (original.k3)
-  - "it diagnoses non-table arguments":
+  - it only makes a shallow copy of field values:
+      expect (f ({}, t1).k1).to_be (t1.k1)
+
+  - context with metatables:
+    - it copies the metatable by default:
+        expect (getmetatable (f ({}, t1mt))).to_be (getmetatable (t1mt))
+        expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
+    - it treats non-table arg3 as nometa parameter:
+        expect (getmetatable (f ({}, t1mt, "nometa"))).to_be (nil)
+    - it treats table arg3 as a map parameter:
+        expect (getmetatable (f ({}, t1mt, {}))).to_be (getmetatable (t1mt))
+        expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
+    - it supports 4 arguments with nometa as arg4:
+        expect (getmetatable (f ({}, t1mt, {}, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {"k1"}, "nometa"))).to_be (nil)
+
+  - context when renaming some keys:
+    - it renames during merging:
+        target = { newkey = t1.k1, k2 = t1.k2, k3 = t1.k3 }
+        expect (f ({}, t1, {k1 = "newkey"})).to_equal (target)
+    - it does not perturb the value in the renamed key field:
+        expect (f ({}, t1, {k1 = "newkey"}).newkey).to_be (t1.k1)
+
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f ("foo", "bar")).to_error ("table expected")
+
+
+- describe merge_select:
+  - before: |
+      -- Additional merge keys which are moderately unusual
+      tablekey = {"?"}
+      t1       = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
+      t1mt     = setmetatable (M.clone (t1), {"meta!"})
+      t2       = { ["if"] = true, [tablekey] = false, _ = "underscore", k3 = t1.k1 }
+      t2keys   = { "if", tablekey, "_", "k3" }
+      f        = M.merge_select
+
+      target = {}
+      for k, v in pairs (t1) do target[k] = v end
+      for k, v in pairs (t2) do target[k] = v end
+  - it does not create a whole new table:
+      expect (f (t1, t2)).to_be (t1)
+  - it does not change t1 when t2 is empty:
+      expect (f (t1, {})).to_be (t1)
+  - it does not change t1 when key list is empty:
+      expect (f (t1, t2, {})).to_be (t1)
+  - it copies the named fields:
+      expect (f ({}, t2, t2keys)).to_equal (t2)
+  - it makes a shallow copy:
+      expect (f ({}, t1, {"k1"}).k1).to_be (t1.k1)
+  - it copies exactly named fields of t2 when t1 is empty:
+      expect (f ({}, t1, {"k1", "k2", "k3"})).to_copy (t1)
+  - it merges keys from t2 into t1:
+      expect (f (t1, t2, t2keys)).to_equal (target)
+  - it gives precedence to values from t2:
+      original = M.clone (t1)
+      m = f (t1, t2, t2keys)      -- Merge is destructive, do it once only.
+      expect (m.k3).to_be (t2.k3)
+      expect (m.k3).not_to_be (original.k3)
+
+  - context with metatables:
+    - it copies the metatable by default:
+        expect (getmetatable (f ({}, t1mt))).to_be (getmetatable (t1mt))
+        expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
+    - it treats non-table arg3 as nometa parameter:
+        expect (getmetatable (f ({}, t1mt, "nometa"))).to_be (nil)
+    - it treats table arg3 as a map parameter:
+        expect (getmetatable (f ({}, t1mt, {}))).to_be (getmetatable (t1mt))
+        expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
+    - it supports 4 arguments with nometa as arg4:
+        expect (getmetatable (f ({}, t1mt, {}, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {"k1"}, "nometa"))).to_be (nil)
+
+  - it diagnoses non-table arguments:
+      expect (f ()).to_error ("table expected")
+      expect (f ("foo", "bar")).to_error ("table expected")
+
+
+- describe monkey_patch:
+  - before:
+      f  = M.monkey_patch
+      t  = {
+        table = {},
+      }
+      f (t)
+  - it installs table.sort function:
+      expect (t.table.sort).to_be (M.sort)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
 
 
 - describe new:
@@ -267,7 +336,7 @@ specify std.table:
       default = { "unique object" }
       t = f (default)
       expect (t[1]).to_be (default)
-  - "it diagnoses non-tables/non-nil in the second argument":
+  - it diagnoses non-tables/non-nil in the second argument:
       expect (f (nil, "foo")).to_error ("table expected")
 
 
@@ -286,7 +355,7 @@ specify std.table:
       expect (f (subject)).to_be (3)
   - it counts no keys in an empty table:
       expect (f {}).to_be (0)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -302,7 +371,7 @@ specify std.table:
       expect (subject).to_equal (target)
   - it returns the sorted table:
       expect (f (subject, cmp)).to_equal (target)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")
 
@@ -324,6 +393,6 @@ specify std.table:
       -- is this a good test? or just requiring an implementation quirk?
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).to_equal (subject)
-  - "it diagnoses non-table arguments":
+  - it diagnoses non-table arguments:
       expect (f ()).to_error ("table expected")
       expect (f "foo").to_error ("table expected")

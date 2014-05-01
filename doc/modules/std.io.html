@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 39 Reference</title>
+    <title>stdlib 40 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -83,6 +83,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#die">die (...)</a></td>
 	<td class="summary">Die with error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#process_files">process_files (f)</a></td>
@@ -193,6 +197,36 @@
     <ul>
          <a href="../modules/std.io.html#warn">std.io.warn</a>
     </ul>
+
+
+</dd>
+    <dt>
+    <a name = "monkey_patch"></a>
+    <strong>monkey_patch ([namespace=_G])</strong>
+    </dt>
+    <dd>
+    Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+
+<p> Adds <a href="../modules/std.io.html#readlines">readlines</a>  and <a href="../modules/std.io.html#writelines">writelines</a>  metamethods to core file objects.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        the module table
+    </ol>
+
+
 
 
 </dd>

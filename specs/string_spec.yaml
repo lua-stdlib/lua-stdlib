@@ -1,36 +1,20 @@
 before: |
-  this_module         = "std.string"
-
-  global_table        = "_G"
-  std_globals         = { "pickle", "prettytostring", "render",
-                        "require_version" }
-  enhance_globals     = { "assert", "tostring" }
-
   base_module         = "string"
+  this_module         = "std.string"
+  global_table        = "_G"
+
   extend_base         = { "__append", "__concat", "__index",
                           "assert", "caps", "chomp", "escape_pattern",
-                          "escape_shell", "finds", "ltrim", "numbertosi",
-                          "ordinal_suffix", "pad", "pickle",
-                          "prettytostring", "render", "require_version",
-                          "rtrim", "split", "tfind", "tostring", "trim",
-                          "wrap",
-                          -- camelCase compatibility:
-                          "escapePattern", "escapeShell",
-                          "ordinalSuffix" }
-  enhance_base        = { "format" }
-  extend_metamethods  = { "__append", "__concat" }
-  enhance_metamethods = { "__index" }
+                          "escape_shell", "finds", "format", "ltrim",
+                          "monkey_patch", "numbertosi", "ordinal_suffix",
+                          "pad", "pickle", "prettytostring", "render",
+                          "require_version", "rtrim", "split", "tfind",
+                          "tostring", "trim", "wrap" }
 
-  -- 'to_contain' will match keys as well as values :)
-  all_apis = {}
-  for _, s in ipairs (std_globals)     do all_apis[s] = true end
-  for _, s in ipairs (enhance_globals) do all_apis[s] = true end
-  for _, s in ipairs (extend_base)     do all_apis[s] = true end
-  for _, s in ipairs (enhance_base)    do all_apis[s] = true end
-
-  M = require "std.string"
-  getmetatable("").__index = M.__index
+  M = require (this_module)
+  getmetatable ("").__append = M.__append
   getmetatable ("").__concat = M.__concat
+  getmetatable ("").__index = M.__index
 
 specify std.string:
 - before:
@@ -41,42 +25,34 @@ specify std.string:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core string table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core string table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (all_apis)
-    - it enhances some apis from the core string table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_contain.a_permutation_of (enhance_base)
+          to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
-    - it adds apis to the global table:
+    - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
-    - it adds apis to the core string table:
+          to_equal {}
+    - it does not touch the core string table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it adds methods to the string metatable:
-        expect (show_apis {added_to="getmetatable ('')", by="std"}).
-          to_contain.a_permutation_of (extend_metamethods)
-    - it replaces some entries in the string metatable:
-        expect (show_apis {from="getmetatable ('')", enhanced_after='require "std"'}).
-          to_contain.a_permutation_of (enhance_metamethods)
-    - it replaces some apis in the core string table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
-          to_contain.a_permutation_of (enhance_base)
-
+          to_equal {}
 
 - describe ..:
   - it concatenates string arguments:
       target = "a string \n\n another string"
       expect (subject .. " another string").to_be (target)
-  - "it stringifies non-string arguments":
+  - it stringifies non-string arguments:
       argument = { "a table" }
-      expect (subject .. argument).to_match (string.format ("%s%s", subject, M.tostring (argument)))
+      expect (subject .. argument).
+        to_be (string.format ("%s%s", subject, M.tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
-      expect (subject .. argument).to_be (string.format ("%s%s", subject, M.tostring (argument)))
-  - the original subject is not perturbed:
+      expect (subject .. argument).
+        to_be (string.format ("%s%s", subject, M.tostring (argument)))
+  - it does not perturb the original subject:
       original = subject
       newstring = subject .. " concatenate something"
       expect (subject).to_be (original)
@@ -95,7 +71,7 @@ specify std.string:
       expect (f "a stRiNg").to_be "A StRiNg"
   - it is available as a string metamethod:
       expect (("a stRiNg"):caps ()).to_be "A StRiNg"
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
@@ -115,7 +91,7 @@ specify std.string:
       expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
       expect (subject:chomp ()).to_be (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
@@ -147,9 +123,7 @@ specify std.string:
         expect (f (subject)).to_be (target)
     - it is available as a string metamethod:
         expect (subject:escape_pattern ()).to_be (target)
-  - legacy escapePattern call is the same function:
-      expect (M.escapePattern).to_be (f)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
@@ -174,9 +148,7 @@ specify std.string:
         expect (f (subject)).to_be (target)
     - it is available as a string metamethod:
         expect (subject:escape_shell ()).to_be (target)
-  - legacy escapeShell call is the same function:
-      expect (M.escapeShell).to_be (f)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
@@ -205,7 +177,7 @@ specify std.string:
   - it starts the search at a specified index into the subject:
       target = { { 8, 9; capt = { "a", "b" } }, { 10, 11; capt = { "c", "d" } } }
       expect ({f ("garbage" .. subject, "(.)(.)", 8)}).to_equal ({ target })
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
@@ -223,7 +195,7 @@ specify std.string:
       expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
       expect (subject:format ()).to_be (subject)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
@@ -245,13 +217,38 @@ specify std.string:
   - it is available as a string metamethod:
       target = "\r\n  a  short  string  \t\r\n   "
       expect (subject:ltrim ("[ \t\n]+")).to_equal (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
       expect (f ()).to_error ("string expected")
       expect (f {"a table"}).to_error ("string expected")
+
+
+- describe monkey_patch:
+  - before:
+      f  = M.monkey_patch
+      t  = {}
+      f (t)
+  - it installs append metamethod:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ""
+      expect (mt.__append).to_be (M.__append)
+  - it installs concat metamethod:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ""
+      expect (mt.__concat).to_be (M.__concat)
+  - it installs index metamethod:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ""
+      expect (mt.__index).to_be (M.__index)
+  - it installs the assert function:
+      expect (t.assert).to_be (M.assert)
+  - it installs the tostring function:
+      expect (t.tostring).to_be (M.tostring)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
 
 
 - describe numbertosi:
@@ -289,8 +286,6 @@ specify std.string:
         table.insert (subject, n .. f (n))
       end
       expect (subject).to_equal (target)
-  - legacy ordinalSuffix call is the same function:
-      expect (M.ordinalSuffix).to_be (f)
   - it coerces string arguments to a number:
       expect (f "-91").to_be "st"
   - "it diagnoses non-numeric arguments":
@@ -331,7 +326,7 @@ specify std.string:
         target = "a string that's long"
         expect (subject:pad (width)).to_be (target)
 
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, width)
       expect (subject).to_be (original)
@@ -401,7 +396,7 @@ specify std.string:
   - it is available as a string metamethod:
       target = " \t\r\n  a  short  string  \t\r"
       expect (subject:rtrim ("[ \t\n]+")).to_equal (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
@@ -437,7 +432,7 @@ specify std.string:
       expect (subject:split ", ").to_equal (target)
       expect (("/foo/bar/baz.quux"):split "/").
         to_equal {"", "foo", "bar", "baz.quux"}
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "e")
       expect (subject).to_be (original)
@@ -468,7 +463,7 @@ specify std.string:
   - it is available as a string metamethod:
       target = { 8, 10, { "a", "b", "c" } }
       expect ({("garbage" .. subject):tfind ("(.)(.)(.)", 8)}).to_equal (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
@@ -493,7 +488,7 @@ specify std.string:
   - it is available as a string metamethod:
       target = "\r\n  a  short  string  \t\r"
       expect (subject:trim ("[ \t\n]+")).to_equal (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
@@ -542,7 +537,7 @@ specify std.string:
         expect (f (subject, 64, 2, 4)).to_be (target)
     - it is available as a string metamethod:
         expect (subject:wrap (64, 2, 4)).to_be (target)
-  - the original subject is not perturbed:
+  - it does not perturb the original subject:
       original = subject
       newstring = f (subject, 55, 5)
       expect (subject).to_be (original)

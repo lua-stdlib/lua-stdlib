@@ -1,12 +1,114 @@
+before:
+  std = require "std"
+
 specify std:
 - describe lazy loading:
-  - before:
-      std = require "std"
   - it has no submodules on initial load:
-      expect (std).to_equal {version = std.version}
+      expect (std).to_equal {
+        barrel       = std.barrel,
+        monkey_patch = std.monkey_patch,
+        version      = std.version,
+      }
   - it loads submodules on demand:
       lazy = std.set
       expect (lazy).to_be (require "std.set")
   - it loads submodule functions on demand:
       expect (std.object.prototype (std.set {"Lazy"})).
         to_be "Set"
+
+- describe barrel:
+  - before:
+      f = std.barrel
+      io_mt = {}
+      t = {
+        io = {
+          stdin  = setmetatable ({}, io_mt),
+          stdout = setmetatable ({}, io_mt),
+          stderr = setmetatable ({}, io_mt),
+        },
+        math = {},
+        table = {},
+      }
+      f (t)
+  - it installs std.io monkey patches:
+      expect (io_mt.readlines).to_be (std.io.readlines)
+      expect (io_mt.writelines).to_be (std.io.writelines)
+  - it installs std.math monkey patches:
+      expect (t.math.floor).to_be (std.math.floor)
+  - it installs std.string monkey patches:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ""
+      expect (mt.__append).to_be (std.string.__append)
+      expect (mt.__concat).to_be (std.string.__concat)
+      expect (mt.__index).to_be (std.string.__index)
+      expect (t.assert).to_be (std.string.assert)
+      expect (t.tostring).to_be (std.string.tostring)
+  - it installs std.table monkey patches:
+      expect (t.table.sort).to_be (std.table.sort)
+  - it scribbles into the supplied namespace:
+      expect (t).should_equal {
+        assert          = std.string.assert,
+        bind            = std.functional.bind,
+        collect         = std.functional.collect,
+        compose         = std.functional.compose,
+        curry           = std.functional.curry,
+        die             = std.io.die,
+        eval            = std.functional.eval,
+        filter          = std.functional.filter,
+        fold            = std.functional.fold,
+        id              = std.functional.id,
+        ileaves         = std.tree.ileaves,
+        inodes          = std.tree.inodes,
+        io              = t.io,
+        leaves          = std.tree.leaves,
+        map             = std.functional.map,
+        math            = t.math,
+        memoize         = std.functional.memoize,
+        metamethod      = std.table.metamethod,
+        nodes           = std.tree.nodes,
+        op              = std.functional.op,
+        pack            = std.table.pack,
+        pickle          = std.string.pickle,
+        prettytostring  = std.string.prettytostring,
+        render          = std.string.render,
+        require_version = std.string.require_version,
+        ripairs         = std.table.ripairs,
+        table           = t.table,
+        tostring        = std.string.tostring,
+        totable         = std.table.totable,
+        warn            = std.io.warn,
+      }
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
+
+- describe monkey_patch:
+  - before:
+      f = std.monkey_patch
+      io_mt = {}
+      t = {
+        io = {
+          stdin  = setmetatable ({}, io_mt),
+          stdout = setmetatable ({}, io_mt),
+          stderr = setmetatable ({}, io_mt),
+        },
+        math = {},
+        table = {},
+      }
+      f (t)
+  - it installs std.io monkey patches:
+      expect (io_mt.readlines).to_be (std.io.readlines)
+      expect (io_mt.writelines).to_be (std.io.writelines)
+  - it installs std.math monkey patches:
+      expect (t.math.floor).to_be (std.math.floor)
+  - it installs std.string monkey patches:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ""
+      expect (mt.__append).to_be (std.string.__append)
+      expect (mt.__concat).to_be (std.string.__concat)
+      expect (mt.__index).to_be (std.string.__index)
+      expect (t.assert).to_be (std.string.assert)
+      expect (t.tostring).to_be (std.string.tostring)
+  - it installs std.table monkey patches:
+      expect (t.table.sort).to_be (std.table.sort)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"

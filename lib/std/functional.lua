@@ -3,26 +3,7 @@
  @module std.functional
 ]]
 
-local list = require "std.base"
-
 local functional -- forward declaration
-
-
---- Return given metamethod, if any, or nil.
--- @param x object to get metamethod of
--- @param n name of metamethod to get
--- @return metamethod function or nil if no metamethod or not a
--- function
-local function metamethod (x, n)
-  local _, m = pcall (function (x)
-                        return getmetatable (x)[n]
-                      end,
-                      x)
-  if type (m) ~= "function" then
-    m = nil
-  end
-  return m
-end
 
 
 --- Identity function.
@@ -109,13 +90,32 @@ local function compose (...)
 end
 
 
+--- Signature of memoize `normalize` functions.
+-- @function memoize_normalize
+-- @param ... arguments
+-- @treturn string normalized arguments
+
+
 --- Memoize a function, by wrapping it in a functable.
+--
+-- To ensure that memoize always returns the same object for the same
+-- arguments, it passes arguments to `normalize` (std.string.tostring
+-- by default). You may need a more sophisticated function if memoize
+-- should handle complicated argument equivalencies.
 -- @param fn function that returns a single result
+-- @param normalize[opt] function to normalize arguments
 -- @return memoized function
-local function memoize (fn)
+local function memoize (fn, normalize)
+  if normalize == nil then
+    -- Call require here, to avoid pulling in all of 'std.string'
+    -- even when memoize is never called.
+    local stringify = require "std.string".tostring
+    normalize = function (...) return stringify {...} end
+  end
+
   return setmetatable ({}, {
     __call = function (self, ...)
-               local k = tostring ({...})
+               local k = normalize (...)
                local v = self[k]
                if v == nil then
                  v = fn (...)
@@ -141,7 +141,7 @@ end
 local function collect (i, ...)
   local t = {}
   for e in i (...) do
-    table.insert (t, e)
+    t[#t + 1] = e
   end
   return t
 end
@@ -204,7 +204,6 @@ functional = {
   id         = id,
   map        = map,
   memoize    = memoize,
-  metamethod = metamethod,
 }
 
 --- Functional forms of infix operators.

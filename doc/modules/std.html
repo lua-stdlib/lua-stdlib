@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 39 Reference</title>
+    <title>stdlib 40 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -66,130 +66,35 @@
 <div id="content">
 
 <h1>Module <code>std</code></h1>
-<p>Global namespace scribbler.</p>
-<p> For backwards compatibility with older releases, <code>require "std"</code>
- will inject the same functions into the global namespace as it
- has done previously, even though it is now deprecated.</p>
+<p>Submodule lazy loader.</p>
+<p> After requiring this module, simply referencing symbols in the submodule
+ hierarchy will load the necessary modules on demand.</p>
 
-<p> For new code, much better than scribbling all over the global
- namespace, it's more hygienic to explicitly assign the results of
- requiring just the submodules you actually use to a local variable,
- and access its functions via that table.</p>
+<p> Clients of older releases might be surprised by this new-found hygiene,
+ expecting the various changes that used to be automatically installed as
+ global symbols, or monkey patched into the core module tables and
+ metatables.  Sometimes, it's still convenient to do that... when using
+ stdlib from the REPL, or in a prototype where you want to throw caution
+ to the wind and compatibility with other modules be damned, for example.
+ In that case, you can give stdlib permission to scribble all over your
+ namespaces with:</p>
+
+<p>   local std = require "std".monkey_patch ()</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#_G.assert">_G.assert ()</a></td>
-	<td class="summary">Extend to allow formatted arguments.</td>
+	<td class="name" nowrap><a href="#barrel">barrel ([namespace=_G])</a></td>
+	<td class="summary">A <a href="http://dictionary.reference.com/browse/barrel+of+monkeys">barrel of monkey_patches</a>.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#_G.bind">_G.bind ()</a></td>
-	<td class="summary">Partially apply a function.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.collect">_G.collect ()</a></td>
-	<td class="summary">Collect the results of an iterator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.compose">_G.compose ()</a></td>
-	<td class="summary">Compose functions.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.curry">_G.curry ()</a></td>
-	<td class="summary">Curry a function.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.die">_G.die ()</a></td>
-	<td class="summary">Die with an error.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.eval">_G.eval ()</a></td>
-	<td class="summary">Evaluate a string.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.filter">_G.filter ()</a></td>
-	<td class="summary">Filter an iterator with a predicate.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.fold">_G.fold ()</a></td>
-	<td class="summary">Fold a binary function into an iterator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.id">_G.id ()</a></td>
-	<td class="summary">Identity function.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.ileaves">_G.ileaves ()</a></td>
-	<td class="summary">Tree iterator which returns just numbered leaves, in order.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.inodes">_G.inodes ()</a></td>
-	<td class="summary">Tree iterator over numbered nodes, in order.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.leaves">_G.leaves ()</a></td>
-	<td class="summary">Tree iterator which returns just leaves.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.map">_G.map ()</a></td>
-	<td class="summary">Map a function over an iterator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.memoize">_G.memoize ()</a></td>
-	<td class="summary">Memoize a function, by wrapping it in a functable.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.metamethod">_G.metamethod ()</a></td>
-	<td class="summary">Return given metamethod, if any, else nil.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.nodes">_G.nodes ()</a></td>
-	<td class="summary">Tree iterator.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.pack">_G.pack ()</a></td>
-	<td class="summary">Turn a tuple into a list.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.pickle">_G.pickle ()</a></td>
-	<td class="summary">Convert a value to a string.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.prettytostring">_G.prettytostring ()</a></td>
-	<td class="summary">Pretty-print a table.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.render">_G.render ()</a></td>
-	<td class="summary">Turn tables into strings with recursion detection.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.require_version">_G.require_version ()</a></td>
-	<td class="summary">Require a module with a particular version.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.ripairs">_G.ripairs ()</a></td>
-	<td class="summary">An iterator like ipairs, but in reverse.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.tostring">_G.tostring ()</a></td>
-	<td class="summary">Extend <a href="../modules/std.html#_G.tostring">tostring</a>  to work better on tables.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.totable">_G.totable ()</a></td>
-	<td class="summary">Turn an object into a table, according to <code>__totable</code> metamethod.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#_G.warn">_G.warn ()</a></td>
-	<td class="summary">Give a warning with the name of program and file (if any).</td>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#_G.op">_G.op</a></td>
-	<td class="summary">Functional forms of infix operators.</td>
-	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std">std</a></td>
 	<td class="summary">Module table.</td>
@@ -210,470 +115,64 @@
     <h2><a name="Functions"></a>Functions</h2>
     <dl class="function">
     <dt>
-    <a name = "_G.assert"></a>
-    <strong>_G.assert ()</strong>
+    <a name = "barrel"></a>
+    <strong>barrel ([namespace=_G])</strong>
     </dt>
     <dd>
-    Extend to allow formatted arguments.
+    A <a href="http://dictionary.reference.com/browse/barrel+of+monkeys">barrel of monkey_patches</a>. </p>
+
+<p> Scribble all over the given namespace, and apply all available
+ <a href="../modules/std.html#monkey_patch">monkey_patch</a>  functions.
 
 
-
-
-
-    <h3>See also:</h3>
+    <h3>Parameters:</h3>
     <ul>
-         <a href="../modules/std.string.html#assert">std.string.assert</a>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
     </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        module table
+    </ol>
+
+
 
 
 </dd>
     <dt>
-    <a name = "_G.bind"></a>
-    <strong>_G.bind ()</strong>
+    <a name = "monkey_patch"></a>
+    <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Partially apply a function.
+    Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+
+<p> Loads all <a href="../modules/std.html#">std</a>  submodules with a <a href="../modules/std.html#monkey_patch">monkey_patch</a>  method, and runs
+ them.
 
 
-
-
-
-    <h3>See also:</h3>
+    <h3>Parameters:</h3>
     <ul>
-         <a href="../modules/std.functional.html#bind">std.functional.bind</a>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
     </ul>
 
+    <h3>Returns:</h3>
+    <ol>
 
-</dd>
-    <dt>
-    <a name = "_G.collect"></a>
-    <strong>_G.collect ()</strong>
-    </dt>
-    <dd>
-    Collect the results of an iterator.
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        the module table
+    </ol>
 
 
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#collect">std.functional.collect</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.compose"></a>
-    <strong>_G.compose ()</strong>
-    </dt>
-    <dd>
-    Compose functions.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#compose">std.functional.compose</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.curry"></a>
-    <strong>_G.curry ()</strong>
-    </dt>
-    <dd>
-    Curry a function.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#curry">std.functional.curry</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.die"></a>
-    <strong>_G.die ()</strong>
-    </dt>
-    <dd>
-    Die with an error.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.io.html#die">std.io.die</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.eval"></a>
-    <strong>_G.eval ()</strong>
-    </dt>
-    <dd>
-    Evaluate a string.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#eval">std.functional.eval</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.filter"></a>
-    <strong>_G.filter ()</strong>
-    </dt>
-    <dd>
-    Filter an iterator with a predicate.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#filter">std.functional.filter</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.fold"></a>
-    <strong>_G.fold ()</strong>
-    </dt>
-    <dd>
-    Fold a binary function into an iterator.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#fold">std.functional.fold</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.id"></a>
-    <strong>_G.id ()</strong>
-    </dt>
-    <dd>
-    Identity function.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#id">std.functional.id</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.ileaves"></a>
-    <strong>_G.ileaves ()</strong>
-    </dt>
-    <dd>
-    Tree iterator which returns just numbered leaves, in order.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.tree.html#std.tree.ileaves">std.tree.ileaves</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.inodes"></a>
-    <strong>_G.inodes ()</strong>
-    </dt>
-    <dd>
-    Tree iterator over numbered nodes, in order.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.tree.html#std.tree.inodes">std.tree.inodes</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.leaves"></a>
-    <strong>_G.leaves ()</strong>
-    </dt>
-    <dd>
-    Tree iterator which returns just leaves.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.tree.html#std.tree.leaves">std.tree.leaves</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.map"></a>
-    <strong>_G.map ()</strong>
-    </dt>
-    <dd>
-    Map a function over an iterator.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#map">std.functional.map</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.memoize"></a>
-    <strong>_G.memoize ()</strong>
-    </dt>
-    <dd>
-    Memoize a function, by wrapping it in a functable.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#memoize">std.functional.memoize</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.metamethod"></a>
-    <strong>_G.metamethod ()</strong>
-    </dt>
-    <dd>
-    Return given metamethod, if any, else nil.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#metamethod">std.functional.metamethod</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.nodes"></a>
-    <strong>_G.nodes ()</strong>
-    </dt>
-    <dd>
-    Tree iterator.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.tree.html#std.tree.nodes">std.tree.nodes</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.pack"></a>
-    <strong>_G.pack ()</strong>
-    </dt>
-    <dd>
-    Turn a tuple into a list.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.table.html#pack">std.table.pack</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.pickle"></a>
-    <strong>_G.pickle ()</strong>
-    </dt>
-    <dd>
-    Convert a value to a string.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.string.html#pickle">std.string.pickle</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.prettytostring"></a>
-    <strong>_G.prettytostring ()</strong>
-    </dt>
-    <dd>
-    Pretty-print a table.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.string.html#prettytostring">std.string.prettytostring</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.render"></a>
-    <strong>_G.render ()</strong>
-    </dt>
-    <dd>
-    Turn tables into strings with recursion detection.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.string.html#render">std.string.render</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.require_version"></a>
-    <strong>_G.require_version ()</strong>
-    </dt>
-    <dd>
-    Require a module with a particular version.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.string.html#require_version">std.string.require_version</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.ripairs"></a>
-    <strong>_G.ripairs ()</strong>
-    </dt>
-    <dd>
-    An iterator like ipairs, but in reverse.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.table.html#ripairs">std.table.ripairs</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.tostring"></a>
-    <strong>_G.tostring ()</strong>
-    </dt>
-    <dd>
-    Extend <a href="../modules/std.html#_G.tostring">tostring</a>  to work better on tables.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.string.html#tostring">std.string.tostring</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.totable"></a>
-    <strong>_G.totable ()</strong>
-    </dt>
-    <dd>
-    Turn an object into a table, according to <code>__totable</code> metamethod.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.table.html#totable">std.table.totable</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "_G.warn"></a>
-    <strong>_G.warn ()</strong>
-    </dt>
-    <dd>
-    Give a warning with the name of program and file (if any).
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.io.html#warn">std.io.warn</a>
-    </ul>
 
 
 </dd>
@@ -681,31 +180,14 @@
     <h2><a name="Tables"></a>Tables</h2>
     <dl class="function">
     <dt>
-    <a name = "_G.op"></a>
-    <strong>_G.op</strong>
-    </dt>
-    <dd>
-    Functional forms of infix operators.
-
-
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../modules/std.functional.html#op">std.functional.op</a>
-    </ul>
-
-
-</dd>
-    <dt>
     <a name = "std"></a>
     <strong>std</strong>
     </dt>
     <dd>
 
-<p>Module table.
- Lazy load submodules into <a href="../modules/std.html#">std</a>  on first reference.  On initial
+<p>Module table. </p>
+
+<p> Lazy load submodules into <a href="../modules/std.html#">std</a>  on first reference.  On initial
  load, <a href="../modules/std.html#">std</a>  has the usual single <code>version</code> entry, but the <a href="../modules/std.html#__index">__index</a>
  metatable will automatically require submodules on first reference:</p>
 

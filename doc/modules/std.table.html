@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 39 Reference</title>
+    <title>stdlib 40 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -77,7 +77,7 @@
 	<td class="summary">Make a shallow copy of a table, including any metatable.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#clone_select">clone_select (t[, selection={}])</a></td>
+	<td class="name" nowrap><a href="#clone_select">clone_select (t[, keys={}])</a></td>
 	<td class="summary">Make a partial clone of a table.</td>
 	</tr>
 	<tr>
@@ -93,8 +93,20 @@
 	<td class="summary">Make the list of keys in table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#merge">merge (t, u)</a></td>
-	<td class="summary">Destructively merge another table's fields into <em>table</em>.</td>
+	<td class="name" nowrap><a href="#merge">merge (t, u[, map={}], nometa)</a></td>
+	<td class="summary">Destructively merge another table's fields into another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#merge_select">merge_select (t, u[, keys={}], nometa)</a></td>
+	<td class="summary">Destructively merge another table's named fields into <em>table</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#metamethod">metamethod (x, n)</a></td>
+	<td class="summary">Return given metamethod, if any, or nil.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core methods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#new">new (x, t)</a></td>
@@ -172,7 +184,7 @@
 </dd>
     <dt>
     <a name = "clone_select"></a>
-    <strong>clone_select (t[, selection={}])</strong>
+    <strong>clone_select (t[, keys={}])</strong>
     </dt>
     <dd>
     Make a partial clone of a table. </p>
@@ -186,7 +198,7 @@
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          source table
         </li>
-        <li><span class="parameter">selection</span>
+        <li><span class="parameter">keys</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          list of keys to copy
          (<em>default</em> {})
@@ -286,10 +298,10 @@
 </dd>
     <dt>
     <a name = "merge"></a>
-    <strong>merge (t, u)</strong>
+    <strong>merge (t, u[, map={}], nometa)</strong>
     </dt>
     <dd>
-    Destructively merge another table's fields into <em>table</em>.
+    Destructively merge another table's fields into another.
 
 
     <h3>Parameters:</h3>
@@ -302,12 +314,122 @@
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
          table with fields to merge
         </li>
+        <li><span class="parameter">map</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         table of <code>{old<em>key=new</em>key, ...}</code>
+         (<em>default</em> {})
+        </li>
+        <li><span class="parameter">nometa</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if non-nil don't copy metatable
+        </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
         table   <code>t</code> with fields from <code>u</code> merged in
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "merge_select"></a>
+    <strong>merge_select (t, u[, keys={}], nometa)</strong>
+    </dt>
+    <dd>
+    Destructively merge another table's named fields into <em>table</em>. </p>
+
+<p> Like <a href="../modules/std.table.html#merge">merge</a> , but does not merge any fields by default.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         destination table
+        </li>
+        <li><span class="parameter">u</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         table with fields to merge
+        </li>
+        <li><span class="parameter">keys</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         list of keys to copy
+         (<em>default</em> {})
+        </li>
+        <li><span class="parameter">nometa</span>
+            <span class="types"><span class="type">boolean</span></span>
+         if non-nil don't copy metatable
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
+   metatable unless <em>nometa</em>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "metamethod"></a>
+    <strong>metamethod (x, n)</strong>
+    </dt>
+    <dd>
+    Return given metamethod, if any, or nil.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         object to get metamethod of
+        </li>
+        <li><span class="parameter">n</span>
+         name of metamethod to get
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        metamethod function or nil if no metamethod or not a
+ function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "monkey_patch"></a>
+    <strong>monkey_patch ([namespace=_G])</strong>
+    </dt>
+    <dd>
+    Overwrite core methods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+
+<p> Replaces core <a href="../modules/std.table.html#sort">table.sort</a>  with <a href="../modules/std.table.html#">std.table</a>  version.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        the module table
     </ol>
 
 

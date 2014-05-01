@@ -1,16 +1,11 @@
 before: |
-  this_module        = "std.io"
-
-  global_table       = "_G"
-  std_globals        = { "die", "warn" }
-
   base_module        = "io"
-  extend_base        = { "catdir", "catfile", "die", "process_files",
-                         "readlines", "shell", "slurp", "splitdir",
-                         "warn", "writelines",
-                         -- camelCase compatibility:
-                         "processFiles" }
-  extend_metamethods = { "readlines", "writelines" }
+  this_module        = "std.io"
+  global_table       = "_G"
+
+  extend_base        = { "catdir", "catfile", "die", "monkey_patch",
+                         "process_files", "readlines", "shell", "slurp",
+                         "splitdir", "warn", "writelines" }
 
   M = require (this_module)
 
@@ -20,25 +15,19 @@ specify std.io:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+    - it does not touch the core io table:
+        expect (show_apis {added_to=base_module, by=this_module}).
+          to_equal {}
     - it contains apis from the core io table:
         expect (show_apis {from=base_module, not_in=this_module}).
           to_contain.a_permutation_of (extend_base)
-    - it replaces no apis from the core io table:
-        expect (show_apis {from=base_module, enhanced_in=this_module}).
-          to_equal {}
 
   - context via the std module:
-    - it adds apis to the global table:
+    - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
-    - it adds apis to the core io table:
+          to_equal {}
+    - it does not touch the core io table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_contain.a_permutation_of (extend_base)
-    - it adds methods to the file metatable:
-        expect (show_apis {added_to="getmetatable (io.stdin)", by="std"}).
-          to_contain.a_permutation_of (extend_metamethods)
-    - it replaces no apis from the core io table:
-        expect (show_apis {from=base_module, enhanced_after='require "std"'}).
           to_equal {}
 
 
@@ -102,9 +91,28 @@ specify std.io:
       expect (luaproc (script)).to_fail_with "program:99: By 'eck!\n"
 
 
+- describe monkey_patch:
+  - before:
+      f  = M.monkey_patch
+      mt = {}
+      t  = {
+        io = {
+          stdin  = setmetatable ({}, mt),
+          stdout = setmetatable ({}, mt),
+          stderr = setmetatable ({}, mt),
+        },
+      }
+  - it installs readlines metamethod:
+      f (t)
+      expect (mt.readlines).to_be (M.readlines)
+  - it installs writelines metamethod:
+      f (t)
+      expect (mt.writelines).to_be (M.writelines)
+  - it diagnoses non-table argument:
+      expect (f "bad").to_error "table expected"
+
+
 - describe process_files:
-  - it is the same function as legacy processFiles call:
-      expect (M.process_files).to_be (M.processFiles)
 
 
 - describe readlines:

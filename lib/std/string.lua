@@ -31,10 +31,11 @@
  @module std.string
 ]]
 
-local func   = require "std.functional"
 local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
+
+local metamethod = (require "std.base").metamethod
 
 local _format   = string.format
 local _tostring = _G.tostring
@@ -132,7 +133,7 @@ local function finds (s, p, init, plain)
   repeat
     from, to, r = tfind (s, p, init, plain)
     if from ~= nil then
-      table.insert (l, {from, to, capt = r})
+      l[#l + 1] = {from, to, capt = r}
       init = to + 1
     end
   until not from
@@ -150,10 +151,10 @@ local function split (s, sep)
   assert (type (s) == "string",
           "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; table.insert (t, "") end
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
   while b <= len do
     local e, n, m = string.find (s, patt, b + 1)
-    table.insert (t, m or s:sub (b + 1, len))
+    t[#t + 1] = m or s:sub (b + 1, len)
     b = n or len + 1
   end
   return t
@@ -228,7 +229,7 @@ local function render (x, open, close, elem, pair, sep, roots)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
   roots = roots or {}
-  if type (x) ~= "table" or func.metamethod (x, "__tostring") then
+  if type (x) ~= "table" or metamethod (x, "__tostring") then
     return elem (x)
   else
     local s = StrBuf {}
@@ -237,7 +238,7 @@ local function render (x, open, close, elem, pair, sep, roots)
 
     -- create a sorted list of keys
     local ord = {}
-    for k, _ in pairs (x) do table.insert (ord, k) end
+    for k, _ in pairs (x) do ord[#ord + 1] = k end
     table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
 
     -- render x elements in order
@@ -362,6 +363,32 @@ local function prettytostring (t, indent, spacing)
                    end
                    return s
                  end)
+end
+
+
+--- Overwrite core methods and metamethods with `std` enhanced versions.
+--
+-- Adds auto-stringification to `..` operator on core strings, and
+-- integer indexing of strings with `[]` dereferencing.
+--
+-- Also replaces core `assert` and `tostring` functions with
+-- `std.string` versions.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+local function monkey_patch (namespace)
+  namespace = namespace or _G
+
+  assert (type (namespace) == "table",
+          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+
+  namespace.assert, namespace.tostring = assert, tostring
+
+  local string_metatable = getmetatable ""
+  string_metatable.__append = __append
+  string_metatable.__concat = __concat
+  string_metatable.__index = __index
+
+  return M
 end
 
 
@@ -544,7 +571,7 @@ end
 
 
 --- @export
-local String = {
+M = {
   __append        = __append,
   __concat        = __concat,
   __index         = __index,
@@ -556,6 +583,7 @@ local String = {
   finds           = finds,
   format          = format,
   ltrim           = ltrim,
+  monkey_patch    = monkey_patch,
   numbertosi      = numbertosi,
   ordinal_suffix  = ordinal_suffix,
   pad             = pad,
@@ -570,16 +598,6 @@ local String = {
   trim            = trim,
   wrap            = wrap,
 }
-
--- Merge non-@export functions:
-for k,v in pairs (table.merge (String, {
-  -- camelCase compatibility:
-  escapePattern  = escape_pattern,
-  escapeShell    = escape_shell,
-  ordinalSuffix  = ordinal_suffix,
-})) do
-  M[k] = v
-end
 
 for k, v in pairs (string) do
   M[k] = M[k] or v

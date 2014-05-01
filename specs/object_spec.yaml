@@ -248,10 +248,10 @@ specify std.object:
         expect (getmetatable (instance)).to_be (getmetatable (Derived))
   - context with custom metamethods:
     - before:
-        base = require "std.base"
+        compare = require "std.list".compare
         bag = Object {
           _type = "bag",
-          __lt = function (a, b) return base.compare (a, b) < 0 end,
+          __lt = function (a, b) return compare (a, b) < 0 end,
         }
     - it has it's own metatable:
         expect (getmetatable (bag)).not_to_be (root_mt)

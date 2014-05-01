@@ -1,5 +1,68 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 40 (2014-05-01) [stable]
+
+** New features:
+
+ - `functional.memoize` now accepts a user normalization function,
+   falling back on `string.tostring` otherwise.
+
+ - `table.merge` now supports `map` and `nometa` arguments orthogonally
+   to `table.clone`.
+
+ - New `table.merge_select` function, orthogonal to
+   `table.clone_select`.  See LDocs for details.
+
+** Incompatible changes:
+
+ - Core methods and metamethods are no longer monkey patched by default
+   when you `require "std"` (or `std.io`, `std.math`, `std.string` or
+   `std.table`).  Instead they provide a new `monkey_patch` method you
+   should use when you don't care about interactions with other
+   modules:
+
+     local io = require "std.io".monkey_patch ()
+
+   To install all of stdlib's monkey patches, the `std` module itself
+   has a `monkey_patch` method that loads all submodules with their own
+   `monkey_patch` method and runs them all.
+
+   If you want full compatibility with the previous release, in addition
+   to the global namespace scribbling snippet above, then you need to
+   adjust the first line to:
+
+     local std = require "std".monkey_patch ()
+
+ - The global namespace is no longer clobbered by `require "std"`. To
+   get the old behaviour back:
+
+     local std = require "std".barrel (_G)
+
+   This will execute all available monkey_patch functions, and then
+   scribble all over the `_G` namespace, just like the old days.
+
+ - The `metamethod` call is no longer in `std.functional`, but has moved
+   to `std.table` where it properly belongs.  It is a utility method for
+   tables and has nothing to do with functional programming.
+
+ - The following deprecated camelCase names have been removed, you
+   should update your code to use the snake_case equivalents:
+   `std.io.processFiles`, `std.list.indexKey`, `std.list.indexValue`,
+   `std.list.mapWith`, `std.list.zipWith`, `std.string.escapePattern`,
+   `std.string. escapeShell`, `std.string.ordinalSuffix`.
+
+ - The following deprecated function names have been removed:
+   `std.list.new`   (call `std.list` directly instead),
+   `std.list.slice` (use `std.list.sub` instead),
+   `std.set.new`    (call `std.set` directly instead),
+   `std.strbuf.new` (call `std.strbuf` directly instead), and
+   `std.tree.new`   (call `std.tree` directly instead).
+
+** Bug fixes:
+
+ - Allow `std.object` derived tables as `std.tree` keys again.
+
+
 * Noteworthy changes in release 39 (2014-04-23) [stable]
 
 ** New features:

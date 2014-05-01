@@ -10,6 +10,9 @@ local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
+local M -- forward declaration
+
+
 -- Get an input file handle.
 -- @param h file handle or name (default: `io.input ()`)
 -- @return file handle, or nil on error
@@ -42,7 +45,7 @@ local function readlines (h)
   h = input_handle (h)
   local l = {}
   for line in h:lines () do
-    table.insert (l, line)
+    l[#l + 1] = line
   end
   h:close ()
   return l
@@ -59,6 +62,24 @@ local function writelines (h, ...)
   for v in tree.ileaves ({...}) do
     h:write (v, "\n")
   end
+end
+
+--- Overwrite core methods and metamethods with `std` enhanced versions.
+--
+-- Adds `readlines` and `writelines` metamethods to core file objects.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+local function monkey_patch (namespace)
+  namespace = namespace or _G
+
+  assert (type (namespace) == "table",
+          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+
+  local file_metatable = getmetatable (namespace.io.stdin)
+  file_metatable.readlines  = readlines
+  file_metatable.writelines = writelines
+
+  return M
 end
 
 --- Split a directory path into components.
@@ -99,7 +120,7 @@ end
 local function process_files (f)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
-    table.insert (arg, "-")
+    arg[#arg + 1] = "-"
   end
   for i, v in ipairs (arg) do
     if v == "-" then
@@ -162,10 +183,11 @@ end
 
 
 --- @export
-local M = {
+M = {
   catdir        = catdir,
   catfile       = catfile,
   die           = die,
+  monkey_patch  = monkey_patch,
   process_files = process_files,
   readlines     = readlines,
   shell         = shell,
@@ -174,9 +196,6 @@ local M = {
   warn          = warn,
   writelines    = writelines,
 }
-
--- camelCase compatibility.
-M.processFiles  = process_files
 
 for k, v in pairs (io) do
   M[k] = M[k] or v

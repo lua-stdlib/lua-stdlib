@@ -127,8 +127,8 @@ local function normalise (self, arglist)
 
 	-- Only split recognised long options.
 	if self[optname] then
-          table.insert (normal, optname)
-          table.insert (normal, opt:sub (x + 1))
+          normal[#normal + 1] = optname
+          normal[#normal + 1] = opt:sub (x + 1)
 	else
 	  x = nil
 	end
@@ -136,7 +136,7 @@ local function normalise (self, arglist)
 
       if x == nil then
 	-- No '=', or substring before '=' is not a known option name.
-        table.insert (normal, opt)
+        normal[#normal + 1] = opt
       end
 
     elseif opt:sub (1, 1) == "-" and string.len (opt) > 2 then
@@ -144,7 +144,7 @@ local function normalise (self, arglist)
       repeat
         opt, rest = opt:sub (1, 2), opt:sub (3)
 
-        table.insert (split, opt)
+        split[#split + 1] = opt
 
 	-- If there's no handler, the option was a typo, or not supposed
 	-- to be an option at all.
@@ -162,15 +162,15 @@ local function normalise (self, arglist)
 
         -- Split '-xshortargument' into '-x shortargument'.
         else
-          table.insert (split, rest)
+          split[#split + 1] = rest
           opt = nil
         end
       until opt == nil
 
       -- Append split options to normalised list
-      for _, v in ipairs (split) do table.insert (normal, v) end
+      for _, v in ipairs (split) do normal[#normal + 1] = v end
     else
-      table.insert (normal, opt)
+      normal[#normal + 1] = opt
     end
   end
 
@@ -186,11 +186,12 @@ end
 -- @param value option argument value
 local function set (self, opt, value)
   local key = self[opt].key
+  local opts = self.opts[key]
 
-  if type (self.opts[key]) == "table" then
-    table.insert (self.opts[key], value)
-  elseif self.opts[key] ~= nil then
-    self.opts[key] = { self.opts[key], value }
+  if type (opts) == "table" then
+    opts[#opts + 1] = value
+  elseif opts ~= nil then
+    self.opts[key] = { opts, value }
   else
     self.opts[key] = value
   end
@@ -299,7 +300,7 @@ end
 -- @treturn int index of next element of `arglist` to process
 local function finished (self, arglist, i)
   for opt = i + 1, #arglist do
-    table.insert (self.unrecognised, arglist[opt])
+    self.unrecognised[#self.unrecognised + 1] = arglist[opt]
   end
   return 1 + #arglist
 end
@@ -494,10 +495,10 @@ local function on (self, opts, handler, value)
                     if opt:match ("^%-[^%-]+") ~= nil then
                       -- '-xyz' => '-x -y -z'
                       for i = 2, string.len (opt) do
-                        table.insert (normal, "-" .. opt:sub (i, i))
+                        normal[#normal + 1] = "-" .. opt:sub (i, i)
                       end
                     else
-                      table.insert (normal, opt)
+                      normal[#normal + 1] = opt
                     end
                   end)
   end
@@ -559,12 +560,12 @@ local function parse (self, arglist, defaults)
     local opt = arglist[i]
 
     if self[opt] == nil then
-      table.insert (self.unrecognised, opt)
+      self.unrecognised[#self.unrecognised + 1] = opt
       i = i + 1
 
       -- Following non-'-' prefixed argument is an optarg.
       if i <= #arglist and arglist[i]:match "^[^%-]" then
-        table.insert (self.unrecognised, arglist[i])
+        self.unrecognised[#self.unrecognised + 1] = arglist[i]
         i = i + 1
       end
 
@@ -638,7 +639,7 @@ function OptionParser (spec)
   -- by a '-'.
   local specs = {}
   parser.helptext:gsub ("\n  %s*(%-[^\n]+)",
-                        function (spec) table.insert (specs, spec) end)
+                        function (spec) specs[#specs + 1] = spec end)
 
   -- Register option handlers according to the help text.
   for _, spec in ipairs (specs) do
@@ -674,7 +675,7 @@ function OptionParser (spec)
       local _, c = spec:gsub ("^%-([-%w]),?%s+(.*)$",
                               function (opt, rest)
                                 if opt == "-" then opt = "--" end
-                                table.insert (options, opt)
+                                options[#options + 1] = opt
                                 spec = rest
                               end)
 
@@ -684,7 +685,7 @@ function OptionParser (spec)
         -- Consume long option.
         spec:gsub ("^%-%-([%-%w]+),?%s+(.*)$",
                    function (opt, rest)
-                     table.insert (options, opt)
+                     options[#options + 1] = opt
                      spec = rest
                    end)
       end

@@ -3,6 +3,8 @@
  @module std.math
 ]]
 
+local M -- forward declaration
+
 local _floor = math.floor
 
 
@@ -21,6 +23,21 @@ local function floor (n, p)
 end
 
 
+--- Overwrite core methods with `std` enhanced versions.
+--
+-- Replaces core `math.floor` with `std.math` version.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+local function monkey_patch (namespace)
+  namespace = namespace or _G
+  assert (type (namespace) == "table",
+          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+
+  namespace.math.floor = floor
+  return M
+end
+
+
 --- Round a number to a given number of decimal places
 -- @function round
 -- @param n number
@@ -32,16 +49,14 @@ local function round (n, p)
 end
 
 
-local Math = {
-  floor  = floor,
-  round  = round,
-
-  -- Core Lua function implementations.
-  _floor = _floor,
+local M = {
+  floor        = floor,
+  monkey_patch = monkey_patch,
+  round        = round,
 }
 
 for k, v in pairs (math) do
-  Math[k] = Math[k] or v
+  M[k] = M[k] or v
 end
 
-return Math
+return M

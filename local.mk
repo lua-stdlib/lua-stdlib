@@ -29,7 +29,7 @@ LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 ## Bootstrap. ##
 ## ---------- ##
 
-old_NEWS_hash = 1c4d1bfae2d511327b83800043bc19c7
+old_NEWS_hash = 606609f9586288cfe6d9df676719570a
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas)' \
@@ -69,7 +69,6 @@ dist_luastd_DATA =			\
 	lib/std/io.lua			\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
-	lib/std/modules.lua		\
 	lib/std/object.lua		\
 	lib/std/optparse.lua		\
 	lib/std/package.lua		\

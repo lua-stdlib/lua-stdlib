@@ -11,7 +11,7 @@ local Object = require "std.object"
 -- @tparam string s string to add
 -- @treturn std.strbuf modified buffer
 local function concat (self, s)
-  table.insert (self, s)
+  self[#self + 1] = s
   return self
 end
 
@@ -52,10 +52,5 @@ return Object {
   __index = {
     concat   = concat,
     tostring = tostring,
-  },
-
-  -- backwards compatibility.
-  _functions = {
-    new = function () return StrBuf {} end,
   },
 }

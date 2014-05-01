@@ -1,6 +1,167 @@
+2014-05-01  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 40
+	* NEWS: Record release date.
+
+	refactor: remove unused `std.modules`.
+	* lib/std/modules.lua: Remove.
+	* local.mk (dist_luastd_DATA): Adjust.
+
+	refactor: use `t[#t + 1] = v` rather than `table.insert (t, v)`.
+	Save a function call by factoring away calls to table.insert.
+	* lib/std/container.lua, lib/std/functional.lua, lib/std/io.lua,
+	lib/std/list.lua, lib/std/optparse.lua, lib/std/set.lua,
+	lib/std/strbuf.lua, lib/std/string.lua, lib/std/table.lua,
+	lib/std/tree.lua: Substitute accordingly.
+
+	refactor: factor out merge_allfields and merge_namedfields.
+	* lib/std/table (clone, merge): Move shared functionality from
+	here...
+	(merge_allfields): ...to here.
+	(clone_select, merge_select): Move shared funtionality from
+	here...
+	(merge_namedfields): ...to here.
+
+	refactor: move leaves and ileaves from base to tree module.
+	* lib/std/base.lua (ileaves, leaves): Move from here...
+	* lib/std/tree.lua (ileaves, leaves): ...to here.
+	* lib/std/base.lua (_leaves): Rename from this...
+	(leaves): ...to this.
+	* lib/std/list.lua (flatten): Adjust.
+
+	refactor: move unshared methods out of std.base.
+	* lib/std/base.lua (merge): Move from here...
+	* lib/std/table.lua (merge): ...to here.
+	* lib/std/base.lua (append, compare, concat): Move from here...
+	* lib/std/list.lua (append, compare, concat): ...to here.
+	* specs/object_spec.yaml (std.object): Adjust.
+
+	refactor: remove deprecated methods.
+	* lib/std/base.lua (new, metatable): Remove.
+	(concat, M): Simplify accordingly.
+	* lib/std/functional.lua: No need to require std.base.
+	* lib/std/set.lua (_functions): Move into object declaration,
+	removing `new`.
+	* lib/std/strbuf.lua (new): Remove.
+	* lib/std/tree.lua (new): Remove.
+	* NEWS: Update.
+
+	tree: allow objects as keys.
+	* lib/std/tree.lua (Tree.__index): Only fold key list when key
+	parameter is a raw list, and not when it is a std.object derived
+	table.
+	(Tree.__newindex): Only descend the key list creating sub-Trees
+	when key parameter is a raw list, and not when it is a std.object
+	derived table.
+	* NEWS: Update.
+
+	functional: generalize memoize with normalization parameter.
+	* lib/std/functional.lua (memoize): Don't rely on tostring
+	having been monkey-patched to std.string.tostring already, but
+	also don't automatically load all of std.string into memory
+	unless memoize is called without a normalization function.
+	* NEWS: Update.
+
+	list: remove deprecated methods.
+	* lib/std/list.lua: Remove indexKey, indexValue, mapWith, zipWith,
+	new and slice.
+	* NEWS: Update.
+
+	specs: std.table.pack is present for any supported Lua release.
+	* specs/table_spec.yaml (extend_base): List "pack" unconditionally.
+
+	specs: Lua 5.1 does not call tostring on format "%s" arguments.
+	* specs/string_spec.yaml (..): Explicitly stringify nil argument.
+
+2014-04-26  Gary V. Vaughan  <gary@gnu.org>
+
+	std: barrel of monkey(patche)s!
+	Close #56.
+	Segregate monkey patching into module functions that have to
+	be called explicitly.
+	* lib/std.lua.in: Don't clobber any core metatables, or change
+	any global symbols on load.
+	* specs/io_spec.lua (monkey_patch): Specify behaviour of
+	std.io.monkey_patch function.
+	* lib/std/io.lua (monkey_patch): Add readlines and writelines
+	methods to core file objects.
+	(processFiles): Remove.
+	* specs/math_spec.lua (monkey_patch): Specify behaviour of
+	std.math.monkey_patch function.
+	* lib/std/math.lua (monkey_patch): Overwrite core math.floor.
+	* specs/string_spec.lua (monkey_patch): Specify behaviour of
+	std.string.monkey_patch function.
+	* lib/std/string.lua (monkey_patch): Overwrite core assert and
+	tostring functions, and add methods and metamethods to core
+	string objects.
+	(escapePattern, escapeShell, ordinalSuffix): Remove.
+	* specs/table_spec.lua (monkey_patch): Specify behaviour of
+	std.table.monkey_patch function.
+	* lib/std/table.lua (monkey_patch): Overwrite core table.sort.
+	* specs/table_spec.lua (barrel, monkey_patch): Specify behaviour
+	of std.barrel and std.monkey_patch functions.
+	* lib/std.lua.in (monkey_patch): New function for patching core
+	symbols and metatables by calling submodule `monkey_patch`
+	functions.
+	(barrel): New function for scribbling all over the given
+	namespace, as well as installing all std monkey_patches.
+	* specs/debug_spec.yaml, specs/functional_spec.yaml,
+	specs/io_spec.yaml, specs/math_spec.yaml, specs/package_spec.yaml,
+	specs/std_spec.yaml, specs/string_spec.yaml, specs/table_spec.yaml,
+	specs/tree_spec.yaml: Update to reflect removal of default
+	monkey patching.
+
+	refactor: move `metamethod` from `functional` to `table` module.
+	* lib/std/functional.lua (metamethod): Move from here...
+	* lib/std/base.lua (metamethod): ...to here; and...
+	* lib/std/table.lua (metamethod): ...re-export from here.
+	Break dependency on `std.functional`.
+	Adjust all callers.
+	* NEWS: Update.
+
+	refactor: move clone and clone_rename back into std.table.
+	* lib/std/base.lua (clone, clone_rename): Move from here...
+	* lib/std/table.lua (clone, clone_rename): ...to here.
+
+	refactor: break std.container dependency on std.base.
+	* lib/std/container.lua (instantiate): New function; a faster
+	equivalent to `merge (clone (proto), t or {})`.
+	Adjust all callers.
+
+	specs: fix a garbage-in, garbage-out example.
+	Close #44.
+	* specs/tree_spec.yaml (tostring): The assumption that tostring
+	should recurse by itself, or that the Tree constructor should
+	massage subtables on instantiation were both flawed.  Fix the
+	input to be properly nested tree, and `tostring` will indeed
+	output a properly nested tree.
+
+2014-04-25  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: add missing doc for nometa arg of merge_select.
+	* lib/std/table.lua (merge_select): Add missing nometa doc.
+
+	table: add merge_select, and support map and nometa args to merge.
+	Close #56.
+	* specs/table_spec.yaml (extend_base): Add merge_select.
+	(merge): Specify behaviour of new `map` and `nometa` args.
+	(merge_select): Specify behaviour of new `merge_select` api.
+	(clone, clone_select): Refactor for clarity and orthogonality.
+	* lib/std/base.lua (merge): Rewrite to support clone-like `map`
+	and `nometa` parameters, according to improved specifications.
+	(clone): Rewrite as a call to `merge`.
+	* lib/std/table.lua (merge_select): New `clone_select` like api
+	satisfying specs.
+	(clone_select): Rewrite as a call to `merge_select`.
+	* NEWS: Update.
+
 2014-04-23  Gary V. Vaughan  <gary@gnu.org>
 
-	Release v39.
+	maint: post-release administrivia.
+	* configure.ac (AC_INIT): Bump release number to 40.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 39
 	* NEWS: Record release date.

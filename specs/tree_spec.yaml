@@ -1,7 +1,6 @@
 before: |
   global_table = "_G"
   this_module  = "std.tree"
-  std_globals  = { "ileaves", "inodes", "leaves", "nodes" }
 
   Tree = require "std.tree"
 
@@ -19,9 +18,9 @@ specify std.tree:
           to_equal {}
 
   - context via the std module:
-    - it adds apis to the global table:
+    - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_contain.all_of (std_globals)
+          to_equal {}
 
 - describe construction:
   - it constructs a new tree:
@@ -411,6 +410,8 @@ specify std.tree:
   - it shows the type name:
       expect (tostring (tr)).to_contain "Tree"
   - it shows the contents in order: |
-      pending "see issue #44"
+      tr = Tree {foo   = "foo",
+                 fnord = Tree {branch = Tree {bar="bar", baz="baz"}},
+                 quux  = "quux"}
       expect (tostring (tr)).
-        to_contain 'fnord={branch={bar=bar, baz=baz}}, foo=foo, quux=quux'
+        to_contain 'fnord=Tree {branch=Tree {bar=bar, baz=baz}}, foo=foo, quux=quux'

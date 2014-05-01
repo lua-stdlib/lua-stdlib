@@ -43,7 +43,9 @@ local List -- forward declaration
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
-  return List (base.append (l, x))
+  local r = List {unpack (l)}
+  r[#r + 1] = x
+  return r
 end
 
 
@@ -56,25 +58,20 @@ end
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local compare = base.compare
-
-
---- Concatenate arguments into a list.
--- @tparam List l a list
--- @param ... tuple of lists
--- @treturn List new list containing
---   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-local function concat (l, ...)
-  return List (base.concat (l, ...))
-end
-
-
---- Prepend an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  return List {x, unpack (l)}
+local function compare (l, m)
+  for i = 1, math.min (#l, #m) do
+    if l[i] < m[i] then
+      return -1
+    elseif l[i] > m[i] then
+      return 1
+    end
+  end
+  if #l < #m then
+    return -1
+  elseif #l > #m then
+    return 1
+  end
+  return 0
 end
 
 
@@ -87,6 +84,31 @@ end
 -- @treturn List `l`
 -- @return `true`
 local elems = base.elems
+
+
+--- Concatenate arguments into a list.
+-- @tparam List l a list
+-- @param ... tuple of lists
+-- @treturn List new list containing
+--   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
+local function concat (l, ...)
+  local r = List {}
+  for e in elems ({l, ...}) do
+    for v in elems (e) do
+      r[#r + 1] = v
+    end
+  end
+  return r
+end
+
+
+--- Prepend an item to a list.
+-- @tparam List l a list
+-- @param x item
+-- @treturn List new list containing `{x, unpack (l)}`
+local function cons (l, x)
+  return List {x, unpack (l)}
+end
 
 
 --- Turn a list of pairs into a table.
@@ -111,7 +133,7 @@ end
 local function enpair (t)
   local ls = List {}
   for i, v in pairs (t) do
-    table.insert (ls, List {i, v})
+    ls[#ls + 1] = List {i, v}
   end
   return ls
 end
@@ -133,8 +155,8 @@ end
 -- @treturn List flattened list
 local function flatten (l)
   local r = List {}
-  for v in base.ileaves (l) do
-    table.insert (r, v)
+  for v in base.leaves (ipairs, l) do
+    r[#r + 1] = v
   end
   return r
 end
@@ -261,7 +283,7 @@ end
 local function reverse (l)
   local r = List {}
   for i = #l, 1, -1 do
-    table.insert (r, l[i])
+    r[#r + 1] = l[i]
   end
   return r
 end
@@ -314,7 +336,7 @@ local function shape (s, l)
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
-        table.insert (r, e)
+        r[#r + 1] = e
       end
       return r, i
     end
@@ -342,7 +364,7 @@ local function sub (l, from, to)
     to = to + len + 1
   end
   for i = from, to do
-    table.insert (r, l[i])
+    r[#r + 1] = l[i]
   end
   return r
 end
@@ -386,38 +408,10 @@ local function zip_with (ls, f)
 end
 
 
---- @export
-local _functions = {
-  append      = append,
-  compare     = compare,
-  concat      = concat,
-  cons        = cons,
-  depair      = depair,
-  elems       = elems,
-  enpair      = enpair,
-  filter      = filter,
-  flatten     = flatten,
-  foldl       = foldl,
-  foldr       = foldr,
-  index_key   = index_key,
-  index_value = index_value,
-  map         = map,
-  map_with    = map_with,
-  project     = project,
-  relems      = relems,
-  rep         = rep,
-  reverse     = reverse,
-  shape       = shape,
-  sub         = sub,
-  tail        = tail,
-  transpose   = transpose,
-  zip_with    = zip_with,
-}
-
-
 List = Object {
   -- Derived object type.
   _type = "List",
+
 
   ------
   -- Concatenate lists.
@@ -596,24 +590,39 @@ List = Object {
     depair      = depair,
     index_key   = function (self, f) return index_key (f, self)   end,
     index_value = function (self, f) return index_value (f, self) end,
-    indexKey    = function (self, f) return indexKey (f, self)    end,
-    indexValue  = function (self, f) return indexValue (f, self)  end,
     map_with    = function (self, f) return map_with (f, self)    end,
     transpose   = transpose,
     zip_with    = function (self, f) return zip_with (f, self)    end,
   },
 
-  _functions = (base.merge (_functions, {
-    -- backwards compatibility
-    new         = function (t) return List (t or {}) end,
-    slice       = sub,
 
-    -- camelCase compatibility
-    indexKey    = index_key,
-    indexValue  = index_value,
-    mapWith     = map_with,
-    zipWith     = zip_with,
-  })),
+  --- @export
+  _functions = {
+    append      = append,
+    compare     = compare,
+    concat      = concat,
+    cons        = cons,
+    depair      = depair,
+    elems       = elems,
+    enpair      = enpair,
+    filter      = filter,
+    flatten     = flatten,
+    foldl       = foldl,
+    foldr       = foldr,
+    index_key   = index_key,
+    index_value = index_value,
+    map         = map,
+    map_with    = map_with,
+    project     = project,
+    relems      = relems,
+    rep         = rep,
+    reverse     = reverse,
+    shape       = shape,
+    sub         = sub,
+    tail        = tail,
+    transpose   = transpose,
+    zip_with    = zip_with,
+  },
 }
 
 

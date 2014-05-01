@@ -13,7 +13,7 @@
 
 local base      = require "std.base"
 local Container = require "std.container"
-local List      = require "std.list"
+local list      = require "std.list"
 local func      = require "std.functional"
 
 local prototype = (require "std.object").prototype
@@ -27,7 +27,11 @@ local Tree -- forward declaration
 -- @tparam  tree|table tr tree or tree-like table
 -- @treturn function iterator function
 -- @treturn tree|table the tree `tr`
-local ileaves = base.ileaves
+local function ileaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
+  return base.leaves (ipairs, tr)
+end
 
 
 --- Tree iterator which returns just leaves.
@@ -36,7 +40,11 @@ local ileaves = base.ileaves
 -- @tparam  tree|table tr tree or tree-like table
 -- @treturn function iterator function
 -- @treturn tree|table the tree, `tr`
-local leaves = base.leaves
+local function leaves (tr)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
+  return base.leaves (pairs, tr)
+end
 
 
 --- Make a deep copy of a tree, including any metatables.
@@ -87,7 +95,7 @@ local function _nodes (it, tr)
     if type (n) == "table" then
       coroutine.yield ("branch", p, n)
       for i, v in it (n) do
-        table.insert (p, i)
+        p[#p + 1] = i
         visit (v)
         table.remove (p)
       end
@@ -177,17 +185,6 @@ local function merge (t, u)
 end
 
 
---- @export
-local _functions = {
-  clone   = clone,
-  ileaves = ileaves,
-  inodes  = inodes,
-  leaves  = leaves,
-  merge   = merge,
-  nodes   = nodes,
-}
-
-
 --- Tree prototype object.
 -- @table std.tree
 -- @string[opt="Tree"] _type type of Tree, returned by
@@ -207,8 +204,8 @@ Tree = Container {
   -- @todo the following doesn't treat list keys correctly
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
-    if type (i) == "table" then
-      return List.foldl (func.op["[]"], self, i)
+    if prototype (i) == "table" then
+      return list.foldl (func.op["[]"], self, i)
     else
       return rawget (self, i)
     end
@@ -221,7 +218,7 @@ Tree = Container {
   -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
   -- @param v value
   __newindex = function (self, i, v)
-    if type (i) == "table" then
+    if prototype (i) == "table" then
       for n = 1, #i - 1 do
         if prototype (self[i[n]]) ~= "Tree" then
           rawset (self, i[n], Tree {})
@@ -234,10 +231,15 @@ Tree = Container {
     end
   end,
 
-  _functions = base.merge (_functions, {
-    -- backwards compatibility.
-    new = function (t) return Tree (t or {}) end,
-  }),
+  --- @export
+  _functions = {
+    clone   = clone,
+    ileaves = ileaves,
+    inodes  = inodes,
+    leaves  = leaves,
+    merge   = merge,
+    nodes   = nodes,
+  },
 }
 
 return Tree

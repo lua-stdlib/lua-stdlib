@@ -58,9 +58,27 @@
 ]]
 
 
-local base = require "std.base"
-
-local clone, merge = base.clone, base.merge
+-- Instantiate a new object based on *proto*.
+--
+-- This is equivalent to:
+--
+--     base.merge (base.clone (proto), t or {})
+--
+-- But, not typechecking arguments or checking for metatables, is
+-- slightly faster.
+-- @tparam table proto base object to copy from
+-- @tparam[opt={}] table t additional fields to merge in
+-- @treturn table a new table with fields from proto and t merged in.
+local function instantiate (proto, t)
+  local obj = {}
+  for k, v in pairs (proto) do
+    obj[k] = v
+  end
+  for k, v in pairs (t or {}) do
+    obj[k] = v
+  end
+  return obj
+end
 
 
 local ModuleFunction = {
@@ -182,13 +200,13 @@ local metatable = {
 
     -- If a metatable was set, then merge our fields and use it.
     if next (getmetatable (obj) or {}) then
-      obj_mt = merge (clone (mt), getmetatable (obj))
+      obj_mt = instantiate (mt, getmetatable (obj))
 
       -- Merge object methods.
       if type (obj_mt.__index) == "table" and
         type ((mt or {}).__index) == "table"
       then
-	obj_mt.__index = merge (clone (mt.__index), obj_mt.__index)
+	obj_mt.__index = instantiate (mt.__index, obj_mt.__index)
       end
     end
 
@@ -202,8 +220,8 @@ local metatable = {
   -- @see std.object.__tostring
   __tostring = function (self)
     local totable = getmetatable (self).__totable
-    local array = clone (totable (self), "nometa")
-    local other = clone (array, "nometa")
+    local array = instantiate (totable (self))
+    local other = instantiate (array)
     local s = ""
     if #other > 0 then
       for i in ipairs (other) do other[i] = nil end
@@ -212,10 +230,10 @@ local metatable = {
     for i, v in ipairs (array) do array[i] = tostring (v) end
 
     local keys, dict = {}, {}
-    for k in pairs (other) do table.insert (keys, k) end
+    for k in pairs (other) do keys[#keys + 1] = k end
     table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
     for _, k in ipairs (keys) do
-      table.insert (dict, tostring (k) .. "=" .. tostring (other[k]))
+      dict[#dict + 1] = tostring (k) .. "=" .. tostring (other[k])
     end
 
     if #array > 0 then
