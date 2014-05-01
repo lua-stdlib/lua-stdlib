@@ -4,6 +4,9 @@ Stdlib NEWS - User visible changes
 
 ** New features:
 
+ - `functional.memoize` now accepts a user normalization function,
+   falling back on `string.tostring` otherwise.
+
  - `table.merge` now supports `map` and `nometa` arguments orthogonally
    to `table.clone`.
 
