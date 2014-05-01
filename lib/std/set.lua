@@ -263,7 +263,7 @@ Set = Container {
   __totable  = function (self)
                  local t = {}
                  for e in elems (self) do
-                   table.insert (t, e)
+                   t[#t + 1] = e
                  end
                  table.sort (t)
                  return t

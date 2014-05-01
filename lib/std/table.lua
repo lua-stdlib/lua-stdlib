@@ -130,7 +130,7 @@ end
 local function keys (t)
   local l = {}
   for k, _ in pairs (t) do
-    table.insert (l, k)
+    l[#l + 1] = k
   end
   return l
 end
@@ -279,7 +279,7 @@ end
 local function values (t)
   local l = {}
   for _, v in pairs (t) do
-    table.insert (l, v)
+    l[#l + 1] = v
   end
   return l
 end

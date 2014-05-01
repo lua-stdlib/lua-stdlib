@@ -95,7 +95,7 @@ local function _nodes (it, tr)
     if type (n) == "table" then
       coroutine.yield ("branch", p, n)
       for i, v in it (n) do
-        table.insert (p, i)
+        p[#p + 1] = i
         visit (v)
         table.remove (p)
       end

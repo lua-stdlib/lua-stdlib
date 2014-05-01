@@ -133,7 +133,7 @@ local function finds (s, p, init, plain)
   repeat
     from, to, r = tfind (s, p, init, plain)
     if from ~= nil then
-      table.insert (l, {from, to, capt = r})
+      l[#l + 1] = {from, to, capt = r}
       init = to + 1
     end
   until not from
@@ -151,10 +151,10 @@ local function split (s, sep)
   assert (type (s) == "string",
           "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; table.insert (t, "") end
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
   while b <= len do
     local e, n, m = string.find (s, patt, b + 1)
-    table.insert (t, m or s:sub (b + 1, len))
+    t[#t + 1] = m or s:sub (b + 1, len)
     b = n or len + 1
   end
   return t
@@ -238,7 +238,7 @@ local function render (x, open, close, elem, pair, sep, roots)
 
     -- create a sorted list of keys
     local ord = {}
-    for k, _ in pairs (x) do table.insert (ord, k) end
+    for k, _ in pairs (x) do ord[#ord + 1] = k end
     table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
 
     -- render x elements in order

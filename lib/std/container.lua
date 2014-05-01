@@ -230,10 +230,10 @@ local metatable = {
     for i, v in ipairs (array) do array[i] = tostring (v) end
 
     local keys, dict = {}, {}
-    for k in pairs (other) do table.insert (keys, k) end
+    for k in pairs (other) do keys[#keys + 1] = k end
     table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
     for _, k in ipairs (keys) do
-      table.insert (dict, tostring (k) .. "=" .. tostring (other[k]))
+      dict[#dict + 1] = tostring (k) .. "=" .. tostring (other[k])
     end
 
     if #array > 0 then

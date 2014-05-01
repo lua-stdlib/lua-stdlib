@@ -44,7 +44,7 @@ local List -- forward declaration
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
   local r = List {unpack (l)}
-  table.insert (r, x)
+  r[#r + 1] = x
   return r
 end
 
@@ -95,7 +95,7 @@ local function concat (l, ...)
   local r = List {}
   for e in elems ({l, ...}) do
     for v in elems (e) do
-      table.insert (r, v)
+      r[#r + 1] = v
     end
   end
   return r
@@ -133,7 +133,7 @@ end
 local function enpair (t)
   local ls = List {}
   for i, v in pairs (t) do
-    table.insert (ls, List {i, v})
+    ls[#ls + 1] = List {i, v}
   end
   return ls
 end
@@ -156,7 +156,7 @@ end
 local function flatten (l)
   local r = List {}
   for v in base.leaves (ipairs, l) do
-    table.insert (r, v)
+    r[#r + 1] = v
   end
   return r
 end
@@ -283,7 +283,7 @@ end
 local function reverse (l)
   local r = List {}
   for i = #l, 1, -1 do
-    table.insert (r, l[i])
+    r[#r + 1] = l[i]
   end
   return r
 end
@@ -336,7 +336,7 @@ local function shape (s, l)
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
-        table.insert (r, e)
+        r[#r + 1] = e
       end
       return r, i
     end
@@ -364,7 +364,7 @@ local function sub (l, from, to)
     to = to + len + 1
   end
   for i = from, to do
-    table.insert (r, l[i])
+    r[#r + 1] = l[i]
   end
   return r
 end

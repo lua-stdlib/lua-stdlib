@@ -141,7 +141,7 @@ end
 local function collect (i, ...)
   local t = {}
   for e in i (...) do
-    table.insert (t, e)
+    t[#t + 1] = e
   end
   return t
 end

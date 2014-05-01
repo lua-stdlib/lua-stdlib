@@ -45,7 +45,7 @@ local function readlines (h)
   h = input_handle (h)
   local l = {}
   for line in h:lines () do
-    table.insert (l, line)
+    l[#l + 1] = line
   end
   h:close ()
   return l
@@ -120,7 +120,7 @@ end
 local function process_files (f)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
-    table.insert (arg, "-")
+    arg[#arg + 1] = "-"
   end
   for i, v in ipairs (arg) do
     if v == "-" then
