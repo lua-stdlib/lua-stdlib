@@ -12,18 +12,13 @@ local M -- forward declaration
 local elems = base.elems
 
 
---- Destructively merge another table's fields into *table*.
--- @function merge
+--- Merge one table's fields into another.
 -- @tparam table t destination table
 -- @tparam table u table with fields to merge
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
 -- @return table   `t` with fields from `u` merged in
-local function merge (t, u, map, nometa)
-  assert (type (t) == "table",
-          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
-  assert (type (u) == "table",
-          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
+local function merge_allfields (t, u, map, nometa)
   map = map or {}
   if type (map) ~= "table" then
     map, nometa = {}, map
@@ -39,20 +34,14 @@ local function merge (t, u, map, nometa)
 end
 
 
---- Destructively merge another table's named fields into *table*.
---
--- Like `merge`, but does not merge any fields by default.
+--- Merge one table's named fields into another.
 -- @tparam table t destination table
 -- @tparam table u table with fields to merge
 -- @tparam[opt={}] table keys list of keys to copy
 -- @tparam boolean nometa if non-nil don't copy metatable
 -- @return copy of fields in *selection* from *t*, also sharing *t*'s
 --   metatable unless *nometa*
-local function merge_select (t, u, keys, nometa)
-  assert (type (t) == "table",
-          "bad argument #1 to 'merge_select' (table expected, got " .. type (t) .. ")")
-  assert (type (u) == "table",
-          "bad argument #2 to 'merge_select' (table expected, got " .. type (u) .. ")")
+local function merge_namedfields (t, u, keys, nometa)
   keys = keys or {}
   if type (keys) ~= "table" then
     keys, nometa = {}, keys
@@ -71,7 +60,6 @@ end
 --- Make a shallow copy of a table, including any metatable.
 --
 -- To make deep copies, use @{std.tree.clone}.
--- @function clone
 -- @tparam table t source table
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
@@ -80,7 +68,7 @@ end
 local function clone (t, map, nometa)
   assert (type (t) == "table",
           "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
-  return merge ({}, t, map, nometa)
+  return merge_allfields ({}, t, map, nometa)
 end
 
 
@@ -112,7 +100,129 @@ local clone_rename = base.deprecate (function (map, t)
 local function clone_select (t, keys, nometa)
   assert (type (t) == "table",
           "bad argument #1 to 'clone_select' (table expected, got " .. type (t) .. ")")
-  return merge_select ({}, t, keys, nometa)
+  return merge_namedfields ({}, t, keys, nometa)
+end
+
+
+--- Return whether table is empty.
+-- @tparam table t any table
+-- @return `true` if `t` is empty, otherwise `false`
+local function empty (t)
+  return not next (t)
+end
+
+
+--- Invert a table.
+-- @tparam  table t a table with `{k=v, ...}`
+-- @treturn table   inverted table `{v=k, ...}`
+local function invert (t)
+  local i = {}
+  for k, v in pairs (t) do
+    i[v] = k
+  end
+  return i
+end
+
+
+--- Make the list of keys in table.
+-- @tparam  table t any table
+-- @treturn table   list of keys
+local function keys (t)
+  local l = {}
+  for k, _ in pairs (t) do
+    table.insert (l, k)
+  end
+  return l
+end
+
+
+--- Destructively merge another table's fields into another.
+-- @tparam table t destination table
+-- @tparam table u table with fields to merge
+-- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
+-- @tparam boolean nometa if non-nil don't copy metatable
+-- @return table   `t` with fields from `u` merged in
+local function merge (t, u, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
+  return merge_allfields (t, u, map, nometa)
+end
+
+
+--- Destructively merge another table's named fields into *table*.
+--
+-- Like `merge`, but does not merge any fields by default.
+-- @tparam table t destination table
+-- @tparam table u table with fields to merge
+-- @tparam[opt={}] table keys list of keys to copy
+-- @tparam boolean nometa if non-nil don't copy metatable
+-- @return copy of fields in *selection* from *t*, also sharing *t*'s
+--   metatable unless *nometa*
+local function merge_select (t, u, keys, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge_select' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge_select' (table expected, got " .. type (u) .. ")")
+  return merge_namedfields (t, u, keys, nometa)
+end
+
+
+--- Return given metamethod, if any, or nil.
+-- @function metamethod
+-- @param x object to get metamethod of
+-- @param n name of metamethod to get
+-- @return metamethod function or nil if no metamethod or not a
+-- function
+local metamethod = base.metamethod
+
+
+--- Make a table with a default value for unset keys.
+-- @param         x default entry value (default: `nil`)
+-- @tparam  table t initial table (default: `{}`)
+-- @treturn table   table whose unset elements are x
+local function new (x, t)
+  return setmetatable (t or {},
+                       {__index = function (t, i)
+                                    return x
+                                  end})
+end
+
+
+--- Turn a tuple into a list.
+-- @param ... tuple
+-- @return list
+local function pack (...)
+  return {...}
+end
+
+
+--- An iterator like ipairs, but in reverse.
+-- @tparam  table    t any table
+-- @treturn function   iterator function
+-- @treturn table      the table, `t`
+-- @treturn  number    `#t + 1`
+local function ripairs (t)
+  return function (t, n)
+           n = n - 1
+           if n > 0 then
+             return n, t[n]
+           end
+         end,
+  t, #t + 1
+end
+
+
+--- Find the number of elements in a table.
+-- @tparam table t any table
+-- @return number of non-nil values in `t`
+local function size (t)
+  local n = 0
+  for _ in pairs (t) do
+    n = n + 1
+  end
+  return n
 end
 
 
@@ -144,95 +254,6 @@ local function monkey_patch (namespace)
 end
 
 
---- Return whether table is empty.
--- @tparam table t any table
--- @return `true` if `t` is empty, otherwise `false`
-local function empty (t)
-  return not next (t)
-end
-
-
---- Turn a tuple into a list.
--- @param ... tuple
--- @return list
-local function pack (...)
-  return {...}
-end
-
-
---- Find the number of elements in a table.
--- @tparam table t any table
--- @return number of non-nil values in `t`
-local function size (t)
-  local n = 0
-  for _ in pairs (t) do
-    n = n + 1
-  end
-  return n
-end
-
-
---- Make the list of keys in table.
--- @tparam  table t any table
--- @treturn table   list of keys
-local function keys (t)
-  local l = {}
-  for k, _ in pairs (t) do
-    table.insert (l, k)
-  end
-  return l
-end
-
-
---- Make the list of values of a table.
--- @tparam  table t any table
--- @treturn table   list of values
-local function values (t)
-  local l = {}
-  for _, v in pairs (t) do
-    table.insert (l, v)
-  end
-  return l
-end
-
-
---- Invert a table.
--- @tparam  table t a table with `{k=v, ...}`
--- @treturn table   inverted table `{v=k, ...}`
-local function invert (t)
-  local i = {}
-  for k, v in pairs (t) do
-    i[v] = k
-  end
-  return i
-end
-
-
---- An iterator like ipairs, but in reverse.
--- @tparam  table    t any table
--- @treturn function   iterator function
--- @treturn table      the table, `t`
--- @treturn  number    `#t + 1`
-local function ripairs (t)
-  return function (t, n)
-           n = n - 1
-           if n > 0 then
-             return n, t[n]
-           end
-         end,
-  t, #t + 1
-end
-
-
---- Return given metamethod, if any, or nil.
--- @function metamethod
--- @param x object to get metamethod of
--- @param n name of metamethod to get
--- @return metamethod function or nil if no metamethod or not a
--- function
-local metamethod = base.metamethod
-
-
 --- Turn an object into a table according to __totable metamethod.
 -- @tparam  std.object x object to turn into a table
 -- @treturn table resulting table or `nil`
@@ -252,15 +273,15 @@ local function totable (x)
 end
 
 
---- Make a table with a default value for unset keys.
--- @param         x default entry value (default: `nil`)
--- @tparam  table t initial table (default: `{}`)
--- @treturn table   table whose unset elements are x
-local function new (x, t)
-  return setmetatable (t or {},
-                       {__index = function (t, i)
-                                    return x
-                                  end})
+--- Make the list of values of a table.
+-- @tparam  table t any table
+-- @treturn table   list of values
+local function values (t)
+  local l = {}
+  for _, v in pairs (t) do
+    table.insert (l, v)
+  end
+  return l
 end
 
 
