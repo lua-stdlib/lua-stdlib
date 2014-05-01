@@ -53,9 +53,4 @@ return Object {
     concat   = concat,
     tostring = tostring,
   },
-
-  -- backwards compatibility.
-  _functions = {
-    new = function () return StrBuf {} end,
-  },
 }

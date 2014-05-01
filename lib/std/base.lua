@@ -57,8 +57,6 @@ local function merge (t, u, map, nometa)
   return t
 end
 
-local new -- forward declaration
-
 -- Doc-commented in list.lua...
 local function append (l, x)
   local r = {unpack (l)}
@@ -101,7 +99,7 @@ end
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}`
 local function concat (...)
-  local r = new ()
+  local r = {}
   for l in elems ({...}) do
     for v in elems (l) do
       table.insert (r, v)
@@ -122,35 +120,6 @@ local function _leaves (it, tr)
   end
   return coroutine.wrap (visit), tr
 end
-
--- Metamethods for lists
--- It would be nice to define this in `list.lua`, but then we
--- couldn't keep `new` here, and other modules that really only
--- need `list.new` (as opposed to the entire `std.list` API) get
--- caught in a dependency loop.
-local metatable = {
-  -- list .. table = list.concat
-  __concat = concat,
-
-  -- list == list retains its referential meaning
-  --
-  -- list < list = list.compare returns < 0
-  __lt = function (l, m) return compare (l, m) < 0 end,
-
-  -- list <= list = list.compare returns <= 0
-  __le = function (l, m) return compare (l, m) <= 0 end,
-
-  __append = append,
-}
-
---- List constructor.
--- Needed in order to use metamethods.
--- @param t list (as a table), or nil for empty list
--- @return list (with list metamethods)
-function new (t)
-  return setmetatable (t or {}, metatable)
-end
-
 
 -- Doc-commented in tree.lua...
 local function ileaves (tr)
@@ -176,10 +145,6 @@ local M = {
   leaves       = leaves,
   merge        = merge,
   metamethod   = metamethod,
-  new          = new,
-
-  -- list metatable
-  _list_mt     = metatable,
 }
 
 return M

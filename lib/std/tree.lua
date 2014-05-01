@@ -177,17 +177,6 @@ local function merge (t, u)
 end
 
 
---- @export
-local _functions = {
-  clone   = clone,
-  ileaves = ileaves,
-  inodes  = inodes,
-  leaves  = leaves,
-  merge   = merge,
-  nodes   = nodes,
-}
-
-
 --- Tree prototype object.
 -- @table std.tree
 -- @string[opt="Tree"] _type type of Tree, returned by
@@ -234,10 +223,15 @@ Tree = Container {
     end
   end,
 
-  _functions = base.merge (_functions, {
-    -- backwards compatibility.
-    new = function (t) return Tree (t or {}) end,
-  }),
+  --- @export
+  _functions = {
+    clone   = clone,
+    ileaves = ileaves,
+    inodes  = inodes,
+    leaves  = leaves,
+    merge   = merge,
+    nodes   = nodes,
+  },
 }
 
 return Tree

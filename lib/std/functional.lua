@@ -3,8 +3,6 @@
  @module std.functional
 ]]
 
-local list = require "std.base"
-
 local functional -- forward declaration
 
 

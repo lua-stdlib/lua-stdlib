@@ -52,8 +52,11 @@ Stdlib NEWS - User visible changes
    `std.string. escapeShell`, `std.string.ordinalSuffix`.
 
  - The following deprecated function names have been removed:
-   `std.list.new` (call `std.list` directly instead), and
-   `std.list.slice` (use `std.list.sub` instead).
+   `std.list.new`   (call `std.list` directly instead),
+   `std.list.slice` (use `std.list.sub` instead),
+   `std.set.new`    (call `std.set` directly instead),
+   `std.strbuf.new` (call `std.strbuf` directly instead), and
+   `std.tree.new`   (call `std.tree` directly instead).
 
 ** Bug fixes:
 
