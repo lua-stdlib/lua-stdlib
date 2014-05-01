@@ -51,7 +51,7 @@ specify std.string:
   - it stringifies nil arguments:
       argument = nil
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, argument))
+        to_be (string.format ("%s%s", subject, M.tostring (argument)))
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. " concatenate something"
