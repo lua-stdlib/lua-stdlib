@@ -5,14 +5,8 @@ before: |
 
   extend_base         = { "clone", "clone_rename", "clone_select", "empty",
                           "invert", "keys", "merge", "merge_select",
-                          "metamethod", "monkey_patch", "new", "ripairs",
-                          "size", "sort", "totable", "values" }
-
-
-  -- Lua 5.2
-  if table.pack then
-    table.insert (extend_base, "pack")
-  end
+                          "metamethod", "monkey_patch", "new", "pack",
+                          "ripairs", "size", "sort", "totable", "values" }
 
   M = require "std.table"
 
