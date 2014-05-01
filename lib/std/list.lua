@@ -43,7 +43,9 @@ local List -- forward declaration
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
-  return List (base.append (l, x))
+  local r = List {unpack (l)}
+  table.insert (r, x)
+  return r
 end
 
 
@@ -56,25 +58,20 @@ end
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local compare = base.compare
-
-
---- Concatenate arguments into a list.
--- @tparam List l a list
--- @param ... tuple of lists
--- @treturn List new list containing
---   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-local function concat (l, ...)
-  return List (base.concat (l, ...))
-end
-
-
---- Prepend an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  return List {x, unpack (l)}
+local function compare (l, m)
+  for i = 1, math.min (#l, #m) do
+    if l[i] < m[i] then
+      return -1
+    elseif l[i] > m[i] then
+      return 1
+    end
+  end
+  if #l < #m then
+    return -1
+  elseif #l > #m then
+    return 1
+  end
+  return 0
 end
 
 
@@ -87,6 +84,31 @@ end
 -- @treturn List `l`
 -- @return `true`
 local elems = base.elems
+
+
+--- Concatenate arguments into a list.
+-- @tparam List l a list
+-- @param ... tuple of lists
+-- @treturn List new list containing
+--   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
+local function concat (l, ...)
+  local r = List {}
+  for e in elems ({l, ...}) do
+    for v in elems (e) do
+      table.insert (r, v)
+    end
+  end
+  return r
+end
+
+
+--- Prepend an item to a list.
+-- @tparam List l a list
+-- @param x item
+-- @treturn List new list containing `{x, unpack (l)}`
+local function cons (l, x)
+  return List {x, unpack (l)}
+end
 
 
 --- Turn a list of pairs into a table.

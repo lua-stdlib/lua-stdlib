@@ -37,50 +37,6 @@ local function metamethod (x, n)
 end
 
 
--- Doc-commented in table.lua...
-local function merge (t, u, map, nometa)
-  assert (type (t) == "table",
-          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
-  assert (type (u) == "table",
-          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
-  map = map or {}
-  if type (map) ~= "table" then
-    map, nometa = {}, map
-  end
-
-  if not nometa then
-    setmetatable (t, getmetatable (u))
-  end
-  for k, v in pairs (u) do
-    t[map[k] or k] = v
-  end
-  return t
-end
-
--- Doc-commented in list.lua...
-local function append (l, x)
-  local r = {unpack (l)}
-  table.insert (r, x)
-  return r
-end
-
--- Doc-commented in list.lua...
-local function compare (l, m)
-  for i = 1, math.min (#l, #m) do
-    if l[i] < m[i] then
-      return -1
-    elseif l[i] > m[i] then
-      return 1
-    end
-  end
-  if #l < #m then
-    return -1
-  elseif #l > #m then
-    return 1
-  end
-  return 0
-end
-
 -- Doc-commented in list.lua...
 local function elems (l)
   local n = 0
@@ -98,16 +54,6 @@ end
 -- @return `{l<sub>1</sub>[1], ...,
 -- l<sub>1</sub>[#l<sub>1</sub>], ..., l<sub>n</sub>[1], ...,
 -- l<sub>n</sub>[#l<sub>n</sub>]}`
-local function concat (...)
-  local r = {}
-  for l in elems ({...}) do
-    for v in elems (l) do
-      table.insert (r, v)
-    end
-  end
-  return r
-end
-
 local function _leaves (it, tr)
   local function visit (n)
     if type (n) == "table" then
@@ -136,14 +82,10 @@ local function leaves (tr)
 end
 
 local M = {
-  append       = append,
-  compare      = compare,
-  concat       = concat,
   deprecate    = deprecate,
   elems        = elems,
   ileaves      = ileaves,
   leaves       = leaves,
-  merge        = merge,
   metamethod   = metamethod,
 }
 

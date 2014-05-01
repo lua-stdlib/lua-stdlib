@@ -19,7 +19,24 @@ local elems = base.elems
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @tparam boolean nometa if non-nil don't copy metatable
 -- @return table   `t` with fields from `u` merged in
-local merge = base.merge
+local function merge (t, u, map, nometa)
+  assert (type (t) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
+  assert (type (u) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
+  map = map or {}
+  if type (map) ~= "table" then
+    map, nometa = {}, map
+  end
+
+  if not nometa then
+    setmetatable (t, getmetatable (u))
+  end
+  for k, v in pairs (u) do
+    t[map[k] or k] = v
+  end
+  return t
+end
 
 
 --- Destructively merge another table's named fields into *table*.
@@ -63,7 +80,7 @@ end
 local function clone (t, map, nometa)
   assert (type (t) == "table",
           "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
-  return base.merge ({}, t, map, nometa)
+  return merge ({}, t, map, nometa)
 end
 
 
