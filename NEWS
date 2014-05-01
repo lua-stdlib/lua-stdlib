@@ -55,6 +55,11 @@ Stdlib NEWS - User visible changes
    `std.list.new` (call `std.list` directly instead), and
    `std.list.slice` (use `std.list.sub` instead).
 
+** Bug fixes:
+
+ - Allow `std.object` derived tables as `std.tree` keys again.
+
+
 * Noteworthy changes in release 39 (2014-04-23) [stable]
 
 ** New features:

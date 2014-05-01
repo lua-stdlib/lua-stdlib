@@ -13,7 +13,7 @@
 
 local base      = require "std.base"
 local Container = require "std.container"
-local List      = require "std.list"
+local list      = require "std.list"
 local func      = require "std.functional"
 
 local prototype = (require "std.object").prototype
@@ -207,8 +207,8 @@ Tree = Container {
   -- @todo the following doesn't treat list keys correctly
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
-    if type (i) == "table" then
-      return List.foldl (func.op["[]"], self, i)
+    if prototype (i) == "table" then
+      return list.foldl (func.op["[]"], self, i)
     else
       return rawget (self, i)
     end
@@ -221,7 +221,7 @@ Tree = Container {
   -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
   -- @param v value
   __newindex = function (self, i, v)
-    if type (i) == "table" then
+    if prototype (i) == "table" then
       for n = 1, #i - 1 do
         if prototype (self[i[n]]) ~= "Tree" then
           rawset (self, i[n], Tree {})
