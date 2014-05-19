@@ -18,6 +18,8 @@ Stdlib NEWS - User visible changes
 
  - Removed LDocs for unused `_DEBUG.std` field.
 
+ - `debug.trace` works with Lua 5.2.x again.
+
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]
 

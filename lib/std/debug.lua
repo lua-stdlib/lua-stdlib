@@ -93,7 +93,7 @@ local function trace (event)
   if t ~= nil and t.currentline >= 0 then
     s = s .. t.short_src .. ":" .. t.currentline .. " "
   end
-  t = getinfo (2)
+  t = debug.getinfo (2)
   if event == "call" then
     level = level + 1
   else
