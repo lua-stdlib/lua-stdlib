@@ -62,6 +62,7 @@ dist_lua_DATA +=			\
 luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
+	lib/std/alien.lua		\
 	lib/std/base.lua		\
 	lib/std/container.lua		\
 	lib/std/debug.lua		\
@@ -137,6 +138,7 @@ dist_classes_DATA +=					\
 
 dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.html			\
+	$(srcdir)/doc/modules/std.alien.html		\
 	$(srcdir)/doc/modules/std.debug.html		\
 	$(srcdir)/doc/modules/std.functional.html	\
 	$(srcdir)/doc/modules/std.io.html		\

@@ -7,6 +7,7 @@ dir = "."
 file = {
   -- Modules
   "../lib/std.lua",
+  "../lib/std/alien.lua",
   "../lib/std/debug.lua",
   "../lib/std/functional.lua",
   "../lib/std/io.lua",
