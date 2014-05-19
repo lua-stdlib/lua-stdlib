@@ -1,20 +1,64 @@
 --[[--
- Additions to the debug module
+ Additions to the debug module.
+
+ The behaviour of the functions in this module are controlled by the value
+ of the global `_DEBUG`.  Not setting `_DEBUG` prior to requiring any of
+ stdlib's modules is equivalent to having `_DEBUG = true`.
+
+ The first line of Lua code in production quality projects that use stdlib
+ should be either:
+
+     _DEBUG = false
+
+ or alternatively, if you need to be careful not to damage the global
+ environment:
+
+     local init = require "std.debug_init"
+     init._DEBUG = false
+
+ This mitigates almost all of the overhead of argument typechecking in
+ stdlib API functions.
+
  @module std.debug
 ]]
 
 local init   = require "std.debug_init"
 local io     = require "std.io"
 local list   = require "std.list"
+local Object = require "std.object"
 local string = require "std.string"
 
---- To activate debugging set _DEBUG either to any true value
+local prototype = Object.prototype
+local typeof    = type
+
+
+--- Control std.debug function behaviour.
+-- To activate debugging set _DEBUG either to any true value
 -- (equivalent to {level = 1}), or as documented below.
 -- @class table
 -- @name _DEBUG
--- @field level debugging level
+-- @field argcheck honor argcheck and argscheck calls
 -- @field call do call trace debugging
--- @field std do standard library debugging (run examples & test code)
+-- @field level debugging level
+
+
+--- Concatenate a table of strings using ", " and " or " delimiters.
+-- @tparam table alternatives a table of strings
+-- @treturn string string of elements from alternatives delimited by ", "
+--   and " or "
+local function concat (alternatives)
+  local t, i = {}, 1
+  while i < #alternatives do
+    t[i] = alternatives[i]
+    i = i + 1
+  end
+  if #alternatives > 1 then
+    t[#t] = t[#t] .. " or " .. alternatives[#alternatives]
+  else
+    t = alternatives
+  end
+  return table.concat (t, ", ")
+end
 
 
 --- Print a debugging message.
@@ -75,17 +119,138 @@ if type (init._DEBUG) == "table" and init._DEBUG.call then
   debug.sethook (trace, "cr")
 end
 
+
+--- Raise a bad argument error.
+-- Equivalent to luaL_argerror in the Lua C API. This function does not
+-- return.  The `level` argument behaves just like the core `error`
+-- function.
+-- @string name function to callout in error message
+-- @int i argument number
+-- @string[opt] extramsg additional text to append to message inside parentheses
+-- @int[opt=1] level call stack level to blame for the error
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad argument #%d to '%s'", i, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  return error (s, level + 1)
+end
+
+
+--- Check the type of an argument against expected types.
+-- Equivalent to luaL_argcheck in the Lua C API.
+-- Argument `actual` must match one of the types from in `expected`, each
+-- of which can be the name of a primitive Lua type, a stdlib object type,
+-- or one of the special options below:
+--
+--    #table    accept any non-empty table
+--    list      accept a table with a non-empty array part
+--    object    accept any std.Object derived type
+--    any       accept any argument type
+--
+-- Call `argerror` if there is a type mismatch.
+--
+-- Normally, you should not need to use the `level` parameter, as the
+-- default is to blame the caller of the function using `argcheck` in
+-- error messages; which is almost certainly what you want.
+-- @string name function to blame in error message
+-- @int i argument number to blame in error message
+-- @tparam table|string expected a list of acceptable argument types
+-- @param actual argument passed
+-- @int[opt=2] level call stack level to blame for the error
+local function argcheck (name, i, expected, actual, level)
+  level = level or 2
+  if prototype (expected) ~= "table" then expected = {expected} end
+
+  -- Check actual has one of the types from expected
+  local ok, actualtype = false, prototype (actual)
+  for _, check in ipairs (expected) do
+    if check == "any" then
+      ok = true
+
+    elseif check == "#table" then
+      if actualtype == "table" and next (actual) then
+        ok = true
+      end
+
+    elseif check == "list" then
+      if typeof (actual) == "table" and #actual > 0 then
+	ok = true
+      end
+
+    elseif check == "object" then
+      if actualtype ~= "table" and typeof (actual) == "table" then
+        ok = true
+      end
+
+    elseif check == actualtype then
+      ok = true
+    end
+
+    if ok then break end
+  end
+
+  if not ok then
+    if actualtype == "nil" then
+      actualtype = "no value"
+    elseif actualtype == "table" and next (actual) == nil then
+      actualtype = "empty table"
+    elseif actualtype == "List" and #actual == 0 then
+      actualtype = "empty List"
+    end
+    expected = concat (expected):gsub ("#table", "non-empty table")
+    return argerror (name, i, expected .. " expected, got " .. actualtype, level)
+  end
+end
+
+
+--- Check that all arguments match specified types.
+-- @string name function to blame in error message
+-- @tparam table|string expected a list of lists of acceptable argument types
+-- @tparam table|any actual argument value, or table of argument values
+local function argscheck (name, expected, actual)
+  if typeof (expected) ~= "table" then expected = {expected} end
+  if typeof (actual) ~= "table" then actual = {actual} end
+
+  for i, v in ipairs (expected) do
+    if v ~= "any" then
+      argcheck (name, i, expected[i], actual[i], 3)
+    end
+  end
+end
+
+
 --- @export
 local M = {
-  say   = say,
-  trace = trace,
+  argcheck  = argcheck,
+  argerror  = argerror,
+  argscheck = argscheck,
+  say       = say,
+  trace     = trace,
 }
+
+
+-- Turn off argument checking if _DEBUG is false, or a table containing
+-- a false valued `argcheck` field.
+
+local _ARGCHECK = init._DEBUG
+if type (init._DEBUG) == "table" then
+  _ARGCHECK = init._DEBUG.argcheck
+  if _ARGCHECK == nil then _ARGCHECK= true end
+end
+
+if not _ARGCHECK then
+  M.argcheck  = function () end
+  M.argscheck = function () end
+end
+
 
 for k, v in pairs (debug) do
   M[k] = M[k] or v
 end
 
---- The global function `debug` is an abbreviation for `debug.say (1, ...)`
+--- Equivalent to calling `debug.say (1, ...)`
 -- @function debug
 -- @see say
 local metatable = {

@@ -2,6 +2,22 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - New `debug.argerror` and `debug.argcheck` functions that provide Lua
+   equivalents of `luaL_argerror` and `luaL_argcheck`.
+
+ - New `debug.argscheck` function for checking all function paramater
+   types with a single function call in the common case.
+
+ - New `_DEBUG.argcheck` field that disables `debug.argcheck` (and
+   `debug.argscheck`) for production code.  Similarly `_DEBUG = false`
+   disables those functions too.
+
+** Bug fixes:
+
+ - Removed LDocs for unused `_DEBUG.std` field.
+
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]
 

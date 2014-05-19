@@ -3,7 +3,7 @@ before: |
   this_module  = "std.debug"
   global_table = "_G"
 
-  extend_base  = { "say", "trace" }
+  extend_base  = { "argcheck", "argerror", "argscheck", "say", "trace" }
 
   M = require "std.debug"
 
@@ -30,6 +30,255 @@ specify std.debug:
 
 
 - describe _DEBUG:
+
+
+- describe argerror:
+  - before: |
+      fn = M.argerror
+      function mkstack (level)
+        return string.format ([[
+          _DEBUG = true                           -- line 1
+          local debug = require "std.debug"       -- line 2
+          function ohnoes ()                      -- line 3
+            debug.argerror ("ohnoes", 1, nil, %s) -- line 4
+          end                                     -- line 5
+          function caller ()                      -- line 6
+            local r = ohnoes ()                   -- line 7
+            return "not a tail call"              -- line 8
+          end                                     -- line 9
+          caller ()                               -- line 10
+        ]], tostring (level))
+      end
+  - it raises a bad argument error: |
+      expect (fn ('expect', 1)).
+        to_error "bad argument #1 to 'expect'"
+  - it blames the call site by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":4: bad argument"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+  - it reports the calling function name:
+      expect (fn ('expect', 1)).to_error "'expect'"
+  - it reports the argument number: |
+      expect (fn ('expect', 12345)).to_error "#12345"
+  - it reports extra message in parentheses:
+      expect (fn ('expect', 1, "extramsg")).to_error " (extramsg)"
+
+
+- describe argcheck:
+  - before: |
+      Object = require 'std.object'
+      List = require "std.list"
+      Foo = Object { _type = "Foo" }
+
+      function fn (...) return M.argcheck ('expect', 1, ...) end
+
+      function mkstack (level, debugp)
+        return string.format ([[
+          _DEBUG = %s                                    -- line 1
+          local debug = require "std.debug"              -- line 2
+          function ohnoes (t)                            -- line 3
+            debug.argcheck ("ohnoes", 1, "table", t, %s) -- line 4
+          end                                            -- line 5
+          function caller ()                             -- line 6
+            local r = ohnoes "not a table"               -- line 7
+            return "not a tail call"                     -- line 8
+          end                                            -- line 9
+          caller ()                                      -- line 10
+        ]], tostring (debugp), tostring (level))
+      end
+  - it blames the calling function by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+      expect (luaproc (mkstack (3))).to_contain_error ":10: bad argument"
+  - it can be disabled by setting _DEBUG to false:
+      expect (luaproc (mkstack (nil, false))).
+        not_to_contain_error "bad argument"
+  - it can be disabled by setting _DEBUG.argcheck to false:
+      expect (luaproc (mkstack (nil, "{ argcheck = false }"))).
+        not_to_contain_error "bad argument"
+  - it is not disabled by setting _DEBUG.argcheck to true:
+      expect (luaproc (mkstack (nil, "{ argcheck = true }"))).
+        to_contain_error "bad argument"
+  - it is not disabled by leaving _DEBUG.argcheck unset:
+      expect (luaproc (mkstack (nil, "{}"))).
+        to_contain_error "bad argument"
+  - it diagnoses missing primitive types:
+      expect (fn ("boolean", nil)).to_error "boolean expected, got no value"
+      expect (fn ("number", nil)).to_error "number expected, got no value"
+      expect (fn ("string", nil)).to_error "string expected, got no value"
+      expect (fn ("function", nil)).to_error "function expected, got no value"
+      expect (fn ("table", nil)).to_error "table expected, got no value"
+  - it diagnoses mismatched primitive types:
+      expect (fn ("boolean", {0})).to_error "boolean expected, got table"
+      expect (fn ("number", {0})).to_error "number expected, got table"
+      expect (fn ("string", {0})).to_error "string expected, got table"
+      expect (fn ("function", {0})).to_error "function expected, got table"
+      expect (fn ("table", false)).to_error "table expected, got boolean"
+      expect (fn ("table", require "std.object")).
+        to_error "table expected, got Object"
+  - it matches primitive Lua types:
+      expect (fn ("boolean", true)).not_to_error ()
+      expect (fn ("number", 1)).not_to_error ()
+      expect (fn ("string", "s")).not_to_error ()
+      expect (fn ("function", function () end)).not_to_error ()
+      expect (fn ("table", {})).not_to_error ()
+  - it diagnoses missing non-empty table types:
+      expect (fn ("#table", nil)).
+        to_error "non-empty table expected, got no value"
+  - it diagnoses mismatched non-empty table types:
+      expect (fn ("#table", false)).
+        to_error "non-empty table expected, got boolean"
+      expect (fn ("#table", {})).
+        to_error "non-empty table expected, got empty table"
+  - it matches non-empty table types:
+      expect (fn ("#table", {0})).not_to_error ()
+  - it diagnonses missing list types:
+      expect (fn ("list", nil)).
+        to_error "list expected, got no value"
+  - it diagnoses mismatched list types:
+      expect (fn ("list", false)).
+        to_error "list expected, got boolean"
+      expect (fn ("list", {})).
+        to_error "list expected, got empty table"
+      expect (fn ("list", {foo=1})).
+        to_error "list expected, got table"
+      expect (fn ("list", Object)).
+        to_error "list expected, got Object"
+      expect (fn ("list", List {})).
+        to_error "list expected, got empty List"
+  - it matches list types:
+      expect (fn ("list", {1})).not_to_error ()
+      expect (fn ("list", List {1})).not_to_error ()
+  - it diagnoses missing object types:
+      expect (fn ("object", nil)).to_error "object expected, got no value"
+      expect (fn ("Object", nil)).to_error "Object expected, got no value"
+      expect (fn ("Foo", nil)).to_error "Foo expected, got no value"
+  - it diagnoses mismatched object types:
+      expect (fn ("object", {0})).to_error "object expected, got table"
+      expect (fn ("Object", {0})).to_error "Object expected, got table"
+      expect (fn ("object", {_type="Object"})).to_error "object expected, got table"
+      expect (fn ("Object", {_type="Object"})).to_error "Object expected, got table"
+      expect (fn ("Object", Foo)).to_error "Object expected, got Foo"
+      expect (fn ("Foo", {0})).to_error "Foo expected, got table"
+      expect (fn ("Foo", Object)).to_error "Foo expected, got Object"
+  - it matches object types:
+      expect (fn ("object", Object)).not_to_error ()
+      expect (fn ("object", Object {})).not_to_error ()
+      expect (fn ("object", Foo)).not_to_error ()
+      expect (fn ("object", Foo {})).not_to_error ()
+  - it matches anything:
+      expect (fn ("any", nil)).not_to_error ()
+      expect (fn ("any", true)).not_to_error ()
+      expect (fn ("any", {})).not_to_error ()
+      expect (fn ("any", Object)).not_to_error ()
+      expect (fn ("any", Foo {})).not_to_error ()
+  - context with a list of valid types:
+    - it diagnoses missing elements:
+        expect (fn ({"string", "table"}, nil)).
+          to_error "string or table expected, got no value"
+        expect (fn ({"string", "list", "#table"}, nil)).
+          to_error "string, list or non-empty table expected, got no value"
+        expect (fn ({"string", "number", "list", "object"}, nil)).
+          to_error "string, number, list or object expected, got no value"
+    - it diagnoses mismatched elements:
+        expect (fn ({"string", "table"}, false)).
+          to_error "string or table expected, got boolean"
+        expect (fn ({"string", "list", "#table"}, {})).
+          to_error "string, list or non-empty table expected, got empty table"
+        expect (fn ({"string", "number", "list", "object"}, {})).
+          to_error "string, number, list or object expected, got empty table"
+    - it matches any type from a list:
+        expect (fn ({"string", "table"}, "foo")).not_to_error ()
+        expect (fn ({"string", "table"}, {})).not_to_error ()
+        expect (fn ({"string", "table"}, {0})).not_to_error ()
+        expect (fn ({"table", "#table"}, {})).not_to_error ()
+        expect (fn ({"#table", "table"}, {})).not_to_error ()
+
+
+- describe argscheck:
+  - before: |
+      function fn (...) return M.argscheck ('expect', ...) end
+
+      function mkstack (debugp)
+        return string.format ([[
+          _DEBUG = %s                                               -- line 1
+          local debug = require "std.debug"                         -- line 2
+          function ohnoes (t, n)                                    -- line 3
+            debug.argscheck ("ohnoes", {"table", "number"}, {t, n}) -- line 4
+          end                                                       -- line 5
+          function caller ()                                        -- line 6
+            local r = ohnoes ({}, "not a number")                   -- line 7
+            return "not a tail call"                                -- line 8
+          end                                                       -- line 9
+          caller ()                                                 -- line 10
+        ]], tostring (debugp))
+      end
+  - it blames the calling function: |
+      expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
+  - it can be disabled by setting _DEBUG to false:
+      expect (luaproc (mkstack (false))).
+        not_to_contain_error "bad argument"
+  - it can be disabled by setting _DEBUG.argcheck to false:
+      expect (luaproc (mkstack ("{ argcheck = false }"))).
+        not_to_contain_error "bad argument"
+  - it is not disabled by setting _DEBUG.argcheck to true:
+      expect (luaproc (mkstack ("{ argcheck = true }"))).
+        to_contain_error "bad argument"
+  - it is not disabled by leaving _DEBUG.argcheck unset:
+      expect (luaproc (mkstack ("{}"))).
+        to_contain_error "bad argument"
+  - context with single non-table specs:
+    - it diagnoses missing argument:
+        expect (fn ("boolean", nil)).
+          to_error "boolean expected, got no value"
+    - it reports the correct missing argument number:
+        expect (fn ("boolean", nil)).to_error "#1 "
+    - it diagnoses mismatched argument:
+        expect (fn ("boolean", "false")).
+          to_error "boolean expected, got string"
+    - it reports the correct mismatched argument number:
+        expect (fn ("boolean", "false")).to_error "#1 "
+    - it matches argument type:
+        expect (fn ("boolean", false)).not_to_error ()
+  - context with single argument table:
+    - it diagnoses missing argument:
+        expect (fn ({"boolean"}, {nil})).
+          to_error "boolean expected, got no value"
+    - it reports the correct missing argument number:
+        expect (fn ({"boolean"}, {nil})).to_error "#1 "
+    - it diagnoses mismatched argument:
+        expect (fn ({"boolean"}, {"false"})).
+          to_error "boolean expected, got string"
+    - it reports the correct mismatched argument number:
+        expect (fn ({"boolean"}, {"false"})).to_error "#1 "
+    - it matches argument type:
+        expect (fn ({"boolean"}, {false})).not_to_error ()
+  - context with multi-argument table:
+    - it diagnoses missing argument:
+        expect (fn ({"boolean", "table"}, {false, nil})).
+          to_error "table expected, got no value"
+        expect (fn ({"boolean", "table", "string"}, {false, nil, "nil"})).
+          to_error "table expected, got no value"
+    - it reports the correct missing argument number:
+        expect (fn ({"boolean", "table"}, {false, nil})).to_error "#2 "
+        expect (fn ({"boolean", "table", "string"}, {false, nil, "nil"})).
+          to_error "#2 "
+    - it diagnoses mismatched argument:
+        expect (fn ({"boolean", "table"}, {false, "false"})).
+          to_error "table expected, got string"
+        expect (fn ({"boolean", "table", "string"}, {false, "nil", "nil"})).
+          to_error "table expected, got string"
+    - it reports the correct mismatched argument number:
+        expect (fn ({"boolean", "table"}, {false, "false"})).to_error "#2 "
+        expect (fn ({"boolean", "table", "string"}, {false, "nil", "nil"})).
+          to_error "#2 "
+    - it matches argument type:
+        expect (fn ({"boolean", "table"}, {false, {}})).not_to_error ()
+        expect (fn ({"boolean", "table", "string"}, {false, {}, "{}"})).
+          not_to_error ()
 
 
 - describe debug:
