@@ -36,12 +36,29 @@ local argcheck, argscheck = debug.argcheck, debug.argscheck
 local Object = require "std.object"
 local prototype = Object.prototype
 
-local have_alien, alien = pcall (require, "alien")
-if not have_alien then
-  alien = require "std.alien"
-end
-local calloc, memmove, memset = alien.array, alien.memmove, alien.memset
+local alien_type = {}
 
+local have_alien, alien = pcall (require, "alien")
+if have_alien then
+
+  -- Element types to be managed by alien:
+  for e in require "std.base".elems {
+    "byte", "char", "short", "ushort", "int", "uint", "long", "ulong",
+    "ptrdiff_t", "size_t", "float", "double", "pointer",
+    "ref char", "ref int", "ref uint", "ref double",
+    "longlong", "ulonglong"}
+  do
+      alien_type[e] = true
+  end
+
+else
+
+  -- Fallback to Lua implementation.
+  alien = require "std.alien"
+
+end
+local calloc, memmove, memset, sizeof =
+      alien.array, alien.memmove, alien.memset, alien.sizeof
 local typeof = type
 
 
@@ -50,9 +67,10 @@ local element_chunk_size = 16
 
 --- Convert an array element index into a pointer.
 -- @tparam alien.array array an array
--- @int i an index into array
+-- @int i[opt=1] an index into array
 -- @treturn alien.buffer.pointer suitable for memmove or memset
 local function topointer (array, i)
+  i = i or 1
   return array.buffer:topointer ((i - 1) * array.size + 1)
 end
 
@@ -64,19 +82,35 @@ end
 -- @treturn alien.array array
 local function setzero (array, from, n)
   if n > 0 then
-    memset (topointer (array, from), 0, n * array.size)
+    if alien_type[array.type] then
+      memset (topointer (array, from), 0, n * array.size)
+    else
+      for i = from, from + n - 1 do
+        array.buffer[i] = 0
+      end
+    end
   end
   return array
 end
 
 
---- Fast move of a block of elements within an array.
--- @tparam alien.array array an array
--- @int to index of first destination element
--- @int from index of first source element
--- @int n number of elements to move
-local function move (array, to, from, n)
-  memmove (topointer (array, to), topointer (array, from), n * array.size)
+--- Clone the elements of an array.
+-- @param self object with in progress clone
+-- @string type element type
+-- @int required number of elements required in clone
+-- @treturn alien.array a clone of `self.array`
+local function clone (self, type, required)
+  local parray, pused = self.array, self.length
+  local a = calloc (type, required)
+
+  if alien_type[type] and sizeof (type) == sizeof (parray.type) then
+    local bytes   = math.min (required, pused) * parray.size
+    memmove (topointer (a), topointer (parray), bytes)
+  else
+    local a, b = a.buffer, parray.buffer
+    for i = 1, math.min (required, pused) do a[i] = b[i] end
+  end
+  return setzero  (a, pused + 1, required - pused)
 end
 
 
@@ -165,9 +199,16 @@ local _functions = {
     local n = self.length - 1
     if n >= 0 then
       local a = self.array
-      local elem = a[1]
-      move (a, 1, 2, n)
-      self:realloc (n)
+      local elem
+      if alien_type[a.type] then
+        elem = a[1]
+        memmove (topointer (a, 1), topointer (a, 2), n * a.size)
+        self:realloc (n)
+      else
+        elem = table.remove (a.buffer, 1)
+        self.length = n
+        a.length = n
+      end
       return elem
     end
     return nil
@@ -182,23 +223,18 @@ local _functions = {
     argscheck ("unshift", {"Array", "number"}, {self, elem})
 
     local a, n = self.array, self.length
-    self:realloc (n + 1)
-    move (a, 2, 1, n)
-    a[1] = elem
+    if alien_type[a.type] then
+      self:realloc (n + 1)
+      memmove (topointer (a, 2), topointer (a, 1), n * a.size)
+      a[1] = elem
+    else
+      table.insert (a.buffer, 1, elem)
+      self.length = n + 1
+      a.length = n + 1
+    end
     return elem
   end,
 }
-
-
---- Copy an alien.array.
--- @tparam alien.array array array to be copied
--- @treturn alien.array a new array identical to `array`
-local function copy (array)
-  local a = calloc (array.type, array.length)
-  local n = array.size * array.length
-  memmove (a.buffer:topointer (1), array.buffer:topointer (1), n)
-  return a
-end
 
 
 ------
@@ -220,8 +256,12 @@ local Array = Object {
 
 
   --- Instantiate a newly cloned Array.
+  -- If not specified, `type` will be the same as the prototype array being
+  -- cloned; otherwise, it can be any string.  Only valid alien accepted by
+  -- `alien.array` will use the fast `alien.array` managed memory buffer for
+  -- Array contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
-  -- @string[opt] type the C type of each element
+
   -- @tparam[opt] int|table init initial size or list of initial elements
   -- @treturn Array a new Array object
   _init = function (self, type, init)
@@ -234,46 +274,22 @@ local Array = Object {
       argcheck ("Array", 1, {"number", "string", "table"}, type)
     end
 
-    local parray, pused  = self.array, self.length
-    local plength, ptype = parray.length, parray.type
-
     -- Non-string argument 1 is really an init argument.
     if typeof (type) ~= "string" then type, init = nil, type end
 
     -- New array type is copied from prototype if not specified.
-    if type == nil then type = ptype end
+    local parray = self.array
+    if type == nil then type = parray.type end
 
     local a
     if init == nil then
-      -- 1a. A fast clone of prototype's array memory.
-      if type == ptype then
-        a = copy (parray)
-
-      -- 1b. Size of elements changed, so we have to manually copy them
-      --     over where they are type coerced by underlying C code.
-      else
-        a = calloc (type, plength)
-        for i = 1, plength do
-          a[i] = parray[i]
-        end
-      end
+      -- 1. A clone of prototype array.
+      a = clone (self, type, parray.length)
 
     elseif typeof (init) == "number" then
-      -- 2a. Clone a number of elements from the prototype, padding with
-      --     zeros if we have more elements than the prototype.
-      if type == ptype then
-        a = copy (parray)
-        a:realloc (init) -- alien.array.realloc, not std.array.realloc!!
-
-      -- 2b. Same, but element-wise copying with a different sized type.
-      else
-        a = calloc (type, init)
-        for i = 1, math.min (init, plength) do
-          a[i] = parray[i]
-        end
-      end
-
-      setzero (a, pused + 1, init - pused)
+      -- 2. Clone a number of elements from the prototype, padding with
+      --    zeros if we have more elements than the prototype.
+      a = clone (self, type, init)
       self.length = init
 
     elseif typeof (init) == "table" then
