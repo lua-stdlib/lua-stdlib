@@ -200,7 +200,7 @@ local function argcheck (name, i, expected, actual, level)
       actualtype = "empty List"
     end
     expected = concat (expected):gsub ("#table", "non-empty table")
-    return argerror (name, i, expected .. " expected, got " .. actualtype, level)
+    argerror (name, i, expected .. " expected, got " .. actualtype, level + 1)
   end
 end
 
