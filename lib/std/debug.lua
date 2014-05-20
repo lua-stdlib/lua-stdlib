@@ -134,7 +134,7 @@ local function argerror (name, i, extramsg, level)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
-  return error (s, level + 1)
+  error (s, level + 1)
 end
 
 
