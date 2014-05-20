@@ -14,6 +14,9 @@ Stdlib NEWS - User visible changes
    `debug.argscheck`) for production code.  Similarly `_DEBUG = false`
    disables those functions too.
 
+ - New `std.array` object, for clean and fast queue-like or stack-like
+   container management.
+
 ** Bug fixes:
 
  - Removed LDocs for unused `_DEBUG.std` field.
