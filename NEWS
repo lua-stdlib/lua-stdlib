@@ -23,6 +23,8 @@ Stdlib NEWS - User visible changes
 
  - `debug.trace` works with Lua 5.2.x again.
 
+ - `optparse.on` now works with `std.strict` enabled.
+
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]
 

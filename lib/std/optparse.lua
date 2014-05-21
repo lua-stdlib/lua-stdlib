@@ -479,7 +479,7 @@ local function on (self, opts, handler, value)
   if type (opts) == "string" then opts = { opts } end
   handler = handler or flag -- unspecified options behave as flags
 
-  normal = {}
+  local normal = {}
   for _, optspec in ipairs (opts) do
     optspec:gsub ("(%S+)",
                   function (opt)
