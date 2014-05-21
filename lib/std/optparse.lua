@@ -504,7 +504,7 @@ local function on (self, opts, handler, value)
   end
 
   -- strip leading '-', and convert non-alphanums to '_'
-  key = normal[#normal]:match ("^%-*(.*)$"):gsub ("%W", "_")
+  local key = normal[#normal]:match ("^%-*(.*)$"):gsub ("%W", "_")
 
   for _, opt in ipairs (normal) do
     self[opt] = { key = key, handler = handler, value = value }
