@@ -26,30 +26,30 @@ specify Array:
     - it constructs an empty array:
         array = Array ()
         expect (array.length).to_be (0)
-        expect (array.array.type).to_be (Array.array.type)
+        expect (array.type).to_be (Array.type)
     - it constructs a sized array:
         array = Array (100)
         expect (array.length).to_be (100)
-        expect (array.array.type).to_be (Array.array.type)
+        expect (array.type).to_be (Array.type)
     - it sets uninitialised elements to zero:
         array = Array (100)
         for i = 1, 100 do
           expect (array[i]).to_be (0)
         end
-        expect (array.array.type).to_be (Array.array.type)
+        expect (array.type).to_be (Array.type)
     - it initialises values from a table:
         array = Array {1, 4, 9, 16, 25, 36, 49, 64, 81}
         expect (array.length).to_be (9)
         for i = 1, array.length do
           expect (array[i]).to_be (i * i)
         end
-        expect (array.array.type).to_be (Array.array.type)
+        expect (array.type).to_be (Array.type)
     - it contains values from prototype array:
         a = array ()
         for i = 3, array.length do
           expect (a[i]).to_be (a[i - 1] + a[i - 2])
         end
-        expect (a.array.type).to_be (array.array.type)
+        expect (a.type).to_be (array.type)
     - it truncates copied prototype values:
         c = math.floor (array.length / 2)
         a = array (c)
@@ -57,7 +57,7 @@ specify Array:
         for i = 3, a.length do
           expect (a[i]).to_be (a[i - 1] + a[i - 2])
         end
-        expect (a.array.type).to_be (array.array.type)
+        expect (a.type).to_be (array.type)
     - it zero pads copied prototype values:
         a = array (array.length * 2)
         expect (a.length).to_be (array.length * 2)
@@ -67,35 +67,35 @@ specify Array:
         for i = array.length + 1, a.length do
           expect (a[i]).to_be (0)
         end
-        expect (a.array.type).to_be (array.array.type)
+        expect (a.type).to_be (array.type)
   - context with specified element type:
     - it constructs an empty array:
         array = Array "double"
         expect (array.length).to_be (0)
-        expect (array.array.type).to_be "double"
+        expect (array.type).to_be "double"
     - it constructs a sized array:
         array = Array ("double", 100)
         expect (array.length).to_be (100)
-        expect (array.array.type).to_be "double"
+        expect (array.type).to_be "double"
     - it sets uninitialised elements to zero:
         array = Array ("double", 100)
         for i = 1, 100 do
           expect (array[i]).to_be (0)
         end
-        expect (array.array.type).to_be "double"
+        expect (array.type).to_be "double"
     - it initialises values from a table:
         array = Array ("double", {1, 4, 9, 16, 25, 36, 49, 64, 81})
         expect (array.length).to_be (9)
         for i = 1, array.length do
           expect (array[i]).to_be (i * i)
         end
-        expect (array.array.type).to_be "double"
+        expect (array.type).to_be "double"
     - it contains values from prototype array:
         a = array "double"
         for i = 3, array.length do
           expect (a[i]).to_be (a[i - 1] + a[i - 2])
         end
-        expect (a.array.type).to_be "double"
+        expect (a.type).to_be "double"
     - it truncates copied prototype values:
         c = math.floor (array.length / 2)
         a = array ("double", c)
@@ -103,7 +103,7 @@ specify Array:
         for i = 3, a.length do
           expect (a[i]).to_be (a[i - 1] + a[i - 2])
         end
-        expect (a.array.type).to_be "double"
+        expect (a.type).to_be "double"
     - it zero pads copied prototype values:
         a = array ("double", array.length * 2)
         expect (a.length).to_be (array.length * 2)
@@ -113,7 +113,57 @@ specify Array:
         for i = array.length + 1, a.length do
           expect (a[i]).to_be (0)
         end
-        expect (a.array.type).to_be "double"
+        expect (a.type).to_be "double"
+  - context with non-alien element type:
+    - before:
+        array = Array ("table", {
+          {v=1}, {v=1}, {v=2}, {v=3}, {v=5}, {v=8}, {v=13}, {v=21}, {v=34}
+        })
+    - it constructs an empty array:
+        array = Array "table"
+        expect (array.length).to_be (0)
+        expect (array.type).to_be (nil)
+    - it constructs a sized array:
+        array = Array ("table", 100)
+        expect (array.length).to_be (100)
+        expect (array.type).to_be (nil)
+    - it sets uninitialised elements to zero:
+        array = Array ("table", 100)
+        for i = 1, 100 do
+          expect (array[i]).to_be (0)
+        end
+        expect (array.type).to_be (nil)
+    - it initialises values from a table:
+        array = Array ("table", {{v=1}, {v=4}, {v=9}, {v=16}, {v=25}})
+        expect (array.length).to_be (5)
+        for i = 1, array.length do
+          expect (array[i].v).to_be (i * i)
+        end
+        expect (array.type).to_be (nil)
+    - it contains values from prototype array:
+        a = array ()
+        for i = 3, array.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        expect (a.type).to_be (nil)
+    - it truncates copied prototype values:
+        c = math.floor (array.length / 2)
+        a = array ("table", c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        expect (a.type).to_be (nil)
+    - it zero pads copied prototype values:
+        a = array ("table", array.length * 2)
+        expect (a.length).to_be (array.length * 2)
+        for i = 3, array.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        for i = array.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+        expect (a.type).to_be (nil)
 
 - describe __len:
   - it returns the number of elements stored:
@@ -163,7 +213,7 @@ specify Array:
       for _, i in ipairs {array.length * -2, -1 - array.length, 0,
                           array.length + 1, array.length * 2} do
         expect ((function () array[i] = i end) ()).
-          to_error "array access out of bounds"
+          to_error "out of bounds"
       end
 
 - describe __tostring:
@@ -306,7 +356,6 @@ specify Array:
         array = Array (100)
         Array.realloc (array, 50)
         expect (array.length).to_be (50)
-        expect (array.array.length >= 50).to_be (true)
     - it truncates existing elements when reducing size:
         a = array (100)
         Array.realloc (a, 50)
@@ -317,7 +366,6 @@ specify Array:
         array = Array (50)
         Array.realloc (array, 100)
         expect (array.length).to_be (100)
-        expect (array.array.length >= 100).to_be (true)
     - it does not perturb existing element values:
         a = array (50)
         Array.realloc (a, 100)
@@ -340,7 +388,6 @@ specify Array:
     - it reduces the number of usable elements:
         array = Array (100):realloc (50)
         expect (array.length).to_be (50)
-        expect (array.array.length >= 50).to_be (true)
     - it truncates existing elements when reducing size:
         a = array (100):realloc (50)
         for i = 3, a.length do
@@ -349,7 +396,6 @@ specify Array:
     - it increases the number of usable elements:
         array = Array (50):realloc (100)
         expect (array.length).to_be (100)
-        expect (array.array.length >= 100).to_be (true)
     - it does not perturb existing element values:
         a = array (50):realloc (100)
         for i = 3, 50 do

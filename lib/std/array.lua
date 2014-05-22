@@ -7,9 +7,9 @@
  Create a new Array with:
 
      > Array = require "std.array"
-     > array = Array ("int", 0xdead, 0xbeef, 0xfeed)
-     > =array[1], array[2], array[3], array[-1]
-     57005	48879	65261	65261
+     > array = Array ("int", {0xdead, 0xbeef, 0xfeed})
+     > =array[1], array[2], array[3], array[-3], array[-4]
+     57005	48879	65261	57005	nil
 
  All the indices passed to methods use 1-based counting.
 
@@ -36,29 +36,15 @@ local argcheck, argscheck = debug.argcheck, debug.argscheck
 local Object = require "std.object"
 local prototype = Object.prototype
 
-local alien_type = {}
+local BaseArray = require "std.base_array"
 
 local have_alien, alien = pcall (require, "alien")
+local buffer, memmove, memset
 if have_alien then
-
-  -- Element types to be managed by alien:
-  for e in require "std.base".elems {
-    "byte", "char", "short", "ushort", "int", "uint", "long", "ulong",
-    "ptrdiff_t", "size_t", "float", "double", "pointer",
-    "ref char", "ref int", "ref uint", "ref double",
-    "longlong", "ulonglong"}
-  do
-      alien_type[e] = true
-  end
-
+  buffer, memmove, memset = alien.buffer, alien.memmove, alien.memset
 else
-
-  -- Fallback to Lua implementation.
-  alien = require "std.alien"
-
+  buffer = function () return {} end
 end
-local calloc, memmove, memset, sizeof =
-      alien.array, alien.memmove, alien.memset, alien.sizeof
 local typeof = type
 
 
@@ -66,51 +52,21 @@ local element_chunk_size = 16
 
 
 --- Convert an array element index into a pointer.
--- @tparam alien.array array an array
+-- @tparam std.array self an array
 -- @int i[opt=1] an index into array
 -- @treturn alien.buffer.pointer suitable for memmove or memset
-local function topointer (array, i)
+local function topointer (self, i)
   i = i or 1
-  return array.buffer:topointer ((i - 1) * array.size + 1)
+  return self.buffer:topointer ((i - 1) * self.size + 1)
 end
 
 
---- Fast zeroing of a contiguous block of array elements.
--- @tparam alien.array array an array
+--- Fast zeroing of a contiguous block of array elements for `alien.buffer`s.
+-- @tparam std.array self an array
 -- @int from index of first element to zero out
 -- @int n number of elements to zero out
--- @treturn alien.array array
-local function setzero (array, from, n)
-  if n > 0 then
-    if alien_type[array.type] then
-      memset (topointer (array, from), 0, n * array.size)
-    else
-      for i = from, from + n - 1 do
-        array.buffer[i] = 0
-      end
-    end
-  end
-  return array
-end
-
-
---- Clone the elements of an array.
--- @param self object with in progress clone
--- @string type element type
--- @int required number of elements required in clone
--- @treturn alien.array a clone of `self.array`
-local function clone (self, type, required)
-  local parray, pused = self.array, self.length
-  local a = calloc (type, required)
-
-  if alien_type[type] and sizeof (type) == sizeof (parray.type) then
-    local bytes   = math.min (required, pused) * parray.size
-    memmove (topointer (a), topointer (parray), bytes)
-  else
-    local a, b = a.buffer, parray.buffer
-    for i = 1, math.min (required, pused) do a[i] = b[i] end
-  end
-  return setzero  (a, pused + 1, required - pused)
+local function setzero (self, from, n)
+  if n > 0 then memset (topointer (self, from), 0, n * self.size) end
 end
 
 
@@ -123,8 +79,7 @@ local _functions = {
 
     local used = self.length
     if used > 0 then
-      local a = self.array
-      local elem = a[used]
+      local elem = self[used]
       self:realloc (used - 1)
       return elem
     end
@@ -139,9 +94,9 @@ local _functions = {
   push = function (self, elem)
     argscheck ("push", {"Array", "number"}, {self, elem})
 
-    local a, used = self.array, self.length + 1
+    local used = self.length + 1
     self:realloc (used)
-    a[used] = elem
+    self[used] = elem
     return elem
   end,
 
@@ -153,15 +108,16 @@ local _functions = {
   realloc = function (self, n)
     argscheck ("realloc", {"Array", "number"}, {self, n})
 
-    local a, used = self.array, self.length
-    if n > a.length or n < a.length / 2 then
-      a:realloc (n + element_chunk_size)
+    if n > self.allocated or n < self.allocated / 2 then
+      self.allocated = n + element_chunk_size
+      self.buffer:realloc (self.allocated * self.size)
     end
 
     -- Zero padding for uninitialised elements.
-    setzero (a, used + 1, n - used)
-
+    local used = self.length
     self.length = n
+    setzero (self, used + 1, n - used)
+
     return self
   end,
 
@@ -180,9 +136,9 @@ local _functions = {
     if from < 0 then from = from + used + 1 end
     assert (from > 0 and from <= used)
 
-    local a, i = self.array, from + n - 1
+    local i = from + n - 1
     while i >= from do
-      a[i] = v
+      self[i] = v
       i = i - 1
     end
     return self
@@ -198,17 +154,9 @@ local _functions = {
 
     local n = self.length - 1
     if n >= 0 then
-      local a = self.array
-      local elem
-      if alien_type[a.type] then
-        elem = a[1]
-        memmove (topointer (a, 1), topointer (a, 2), n * a.size)
-        self:realloc (n)
-      else
-        elem = table.remove (a.buffer, 1)
-        self.length = n
-        a.length = n
-      end
+      local elem = self[1]
+      memmove (topointer (self), topointer (self, 2), n * self.size)
+      self:realloc (n)
       return elem
     end
     return nil
@@ -222,19 +170,22 @@ local _functions = {
   unshift = function (self, elem)
     argscheck ("unshift", {"Array", "number"}, {self, elem})
 
-    local a, n = self.array, self.length
-    if alien_type[a.type] then
-      self:realloc (n + 1)
-      memmove (topointer (a, 2), topointer (a, 1), n * a.size)
-      a[1] = elem
-    else
-      table.insert (a.buffer, 1, elem)
-      self.length = n + 1
-      a.length = n + 1
-    end
+    local n = self.length
+    self:realloc (n + 1)
+    memmove (topointer (self, 2), topointer (self), n * self.size)
+    self[1] = elem
     return elem
   end,
 }
+
+
+--- Number of bytes needed in an alien.buffer for each `type` element.
+-- @string type name of an element type
+-- @treturn int bytes per `type`, or 0 if alien.buffer cannot store `type`s
+local function sizeof (type)
+  local ok, size = pcall ((alien or {}).sizeof, type)
+  return ok and size or 0
+end
 
 
 ------
@@ -247,8 +198,11 @@ local Array = Object {
 
 
   -- Prototype initial values.
-  length = 0,
-  array  = calloc ("int", {0}),
+  allocated = 1,
+  buffer    = buffer (sizeof "int"),
+  length    = 0,
+  size      = sizeof "int",
+  type      = "int",
 
 
   -- Module functions.
@@ -261,13 +215,13 @@ local Array = Object {
   -- `alien.array` will use the fast `alien.array` managed memory buffer for
   -- Array contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
-
+  -- @string type element type name
   -- @tparam[opt] int|table init initial size or list of initial elements
   -- @treturn Array a new Array object
-  _init = function (self, type, init)
+  __call = function (self, type, init)
     if init ~= nil then
       -- When called with 2 arguments:
-      argcheck ("Array", 1, {"string"}, type)
+      argcheck ("Array", 1, "string", type)
       argcheck ("Array", 2, {"number", "table"}, init)
     elseif type ~= nil then
       -- When called with 1 argument:
@@ -277,29 +231,50 @@ local Array = Object {
     -- Non-string argument 1 is really an init argument.
     if typeof (type) ~= "string" then type, init = nil, type end
 
-    -- New array type is copied from prototype if not specified.
-    local parray = self.array
-    if type == nil then type = parray.type end
+    type = type or self.type
+    init = init or self.length
 
-    local a
-    if init == nil then
-      -- 1. A clone of prototype array.
-      a = clone (self, type, parray.length)
-
-    elseif typeof (init) == "number" then
-      -- 2. Clone a number of elements from the prototype, padding with
-      --    zeros if we have more elements than the prototype.
-      a = clone (self, type, init)
-      self.length = init
-
-    elseif typeof (init) == "table" then
-      -- 3. With an initialisation table, ignore prototype elements.
-      a = calloc (type, init)
-      self.length = #init
+    -- If type cannot be managed by an alien.buffer, revert to a table
+    -- based BaseArray object instead.
+    local size = sizeof (type)
+    if size == 0 then
+      return BaseArray (init)
     end
 
-    self.array = a
-    return self
+    -- This will become the cloned Array object.
+    local obj = {}
+
+    for k, v in pairs (self) do
+      if typeof (v) ~= "table" or v._type ~= "modulefunction" then
+        obj[k] = v
+      end
+    end
+    obj.size = size
+    obj.type = type
+
+    if typeof (init) == "table" then
+      obj.length = #init
+      obj.allocated = #init
+      obj.buffer = buffer (size * #init)
+      for i = 1, #init do
+        obj.buffer:set ((i - 1) * size + 1, init[i], type)
+      end
+    else
+      obj.length = init
+      obj.allocated = math.max (init or 0, 1)
+      obj.buffer = buffer (size * obj.allocated)
+
+      if size == self.size then
+        local bytes = math.min (init, self.length) * size
+        memmove (obj.buffer:topointer (), self.buffer:topointer (), bytes)
+      else
+        local a, b = obj.buffer, self.buffer
+        for i = 1, math.min (init, self.length) do a[i] = b[i] end
+      end
+      setzero (obj, self.length + 1, init - self.length)
+    end
+
+    return setmetatable (obj, getmetatable (self))
   end,
 
 
@@ -322,7 +297,7 @@ local Array = Object {
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
       if n > 0 and n <= self.length then
-        return self.array[n]
+        return self.buffer:get ((n - 1) * self.size + 1, self.type)
       end
     else
       return _functions[n]
@@ -339,12 +314,12 @@ local Array = Object {
     argscheck ("__newindex", {"Array", "number", "number"}, {self, n, elem})
 
     if typeof (n) == "number" then
-      local a, used = self.array, self.length
+      local used = self.length
       if n == 0 or math.abs (n) > used then
-	return a[0] -- guaranteed to be out of bounds
+	error ("array access " .. n .. " out of bounds: 0 < n <= " .. tostring (self.length), 2)
       end
       if n < 0 then n = n + used + 1 end
-      a[n] = elem
+      self.buffer:set ((n - 1) * self.size + 1, elem, self.type)
     else
       rawset (self, n, elem)
     end
@@ -358,12 +333,11 @@ local Array = Object {
   __tostring = function (self)
     argscheck ("__tostring", {"Array"}, {self})
 
-    local a = self.array
     local t = {}
     for i = 1, self.length do
-      t[#t + 1] = tostring (a[i])
+      t[#t + 1] = tostring (self[i])
     end
-    t = { '"' .. a.type .. '"', "{" .. table.concat (t, ", ") .. "}" }
+    t = { '"' .. self.type .. '"', "{" .. table.concat (t, ", ") .. "}" }
     return prototype (self) .. " (" .. table.concat (t, ", ") .. ")"
   end,
 }

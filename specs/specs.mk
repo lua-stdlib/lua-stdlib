@@ -24,7 +24,6 @@ SPECL_OPTS = --unicode
 ## affected.
 
 specl_SPECS =					\
-	$(srcdir)/specs/alien_spec.yaml		\
 	$(srcdir)/specs/array_spec.yaml		\
 	$(srcdir)/specs/base_spec.yaml		\
 	$(srcdir)/specs/base_array_spec.yaml	\
