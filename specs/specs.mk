@@ -27,6 +27,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/alien_spec.yaml		\
 	$(srcdir)/specs/array_spec.yaml		\
 	$(srcdir)/specs/base_spec.yaml		\
+	$(srcdir)/specs/base_array_spec.yaml	\
 	$(srcdir)/specs/container_spec.yaml	\
 	$(srcdir)/specs/debug_spec.yaml		\
 	$(srcdir)/specs/functional_spec.yaml	\

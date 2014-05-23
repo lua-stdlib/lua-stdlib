@@ -1,0 +1,546 @@
+before:
+  Object = require "std.object"
+  Array  = require "std.base_array"
+
+  prototype = Object.prototype
+
+specify Array:
+- before: |
+    array = Array {1, 1}
+    -- append fibonacci numbers until long word overflows
+    repeat
+      array:push (array[-1] + array[-2])
+    until array.length > 50 or array[-1] < array[-2]
+    -- discard overflowed element
+    array:pop ()
+
+- describe __call:
+  - it diagnoses wrong argument types: |
+      expect (Array (1, 2)).
+        to_error "bad argument #1 to 'Array' (string expected, got number)"
+      expect (Array (function () end)).
+        to_error "bad argument #1 to 'Array' (number, string or table expected, got function)"
+      expect (Array ("int", function () end)).
+        to_error "bad argument #2 to 'Array' (number or table expected, got function)"
+  - context with inherited element type:
+    - it constructs an empty array:
+        array = Array ()
+        expect (array.length).to_be (0)
+    - it constructs a sized array:
+        array = Array (100)
+        expect (array.length).to_be (100)
+    - it sets uninitialised elements to zero:
+        array = Array (100)
+        for i = 1, 100 do
+          expect (array[i]).to_be (0)
+        end
+    - it initialises values from a table:
+        array = Array {1, 4, 9, 16, 25, 36, 49, 64, 81}
+        expect (array.length).to_be (9)
+        for i = 1, array.length do
+          expect (array[i]).to_be (i * i)
+        end
+    - it contains values from prototype array:
+        a = array ()
+        for i = 3, array.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it truncates copied prototype values:
+        c = math.floor (array.length / 2)
+        a = array (c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it zero pads copied prototype values:
+        a = array (array.length * 2)
+        expect (a.length).to_be (array.length * 2)
+        for i = 3, array.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        for i = array.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+  - context with specified element type:
+    - it constructs an empty array:
+        array = Array ()
+        expect (array.length).to_be (0)
+        array = Array {}
+        expect (array.length).to_be (0)
+    - it constructs a sized array:
+        array = Array (100)
+        expect (array.length).to_be (100)
+    - it sets uninitialised elements to zero:
+        array = Array (100)
+        for i = 1, 100 do
+          expect (array[i]).to_be (0)
+        end
+    - it initialises values from a table:
+        array = Array {1, 4, 9, 16, 25, 36, 49, 64, 81}
+        expect (array.length).to_be (9)
+        for i = 1, array.length do
+          expect (array[i]).to_be (i * i)
+        end
+    - it contains values from prototype array:
+        a = array ()
+        for i = 3, array.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it truncates copied prototype values:
+        c = math.floor (array.length / 2)
+        a = array (c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it zero pads copied prototype values:
+        a = array (array.length * 2)
+        expect (a.length).to_be (array.length * 2)
+        for i = 3, array.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        for i = array.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+
+- describe __len:
+  - it returns the number of elements stored:
+      array = Array ()
+      expect (array.length).to_be (0)
+      array = Array {1, 2, 3}
+      expect (array.length).to_be (3)
+
+- describe __index:
+  - it returns nil for an empty array:
+      array = Array ()
+      expect (array[1]).to_be (nil)
+      expect (array[-1]).to_be (nil)
+  - it retrieves a value stored at that index:
+      expect (array[1]).to_be (1)
+      expect (array[2]).to_be (1)
+      expect (array[3]).to_be (2)
+      expect (array[4]).to_be (3)
+      expect (array[5]).to_be (5)
+  - it retrieves negative indices counting from the right:
+      expect (array[-1]).to_be (array[array.length])
+      expect (array[-2]).to_be (array[array.length - 1])
+      expect (array[-(array.length - 1)]).to_be (array[2])
+      expect (array[-(array.length)]).to_be (array[1])
+  - it returns nil for out of bounds indices:
+      expect (array[-(array.length * 2)]).to_be (nil)
+      expect (array[-(array.length + 1)]).to_be (nil)
+      expect (array[0]).to_be (nil)
+      expect (array[array.length + 1]).to_be (nil)
+      expect (array[array.length * 2]).to_be (nil)
+  - it retrieves method names:
+      expect (type (array.push)).to_be "function"
+      expect (type (array.pop)).to_be "function"
+  - it diagnoses undefined methods:
+      expect (array.notamethod ()).to_error "attempt to call field 'notamethod'"
+
+- describe __newindex:
+  - it sets a new value at that index:
+      array[2] = 2
+      expect (array[2]).to_be (2)
+  - it sets negative indexed elements counting from the right:
+      for i = 1, array.length do array[-i] = array.length - i + 1 end
+      for i = 1, array.length do
+        expect (array[i]).to_be (i)
+      end
+  - it diagnoses out of bounds indices:
+      for _, i in ipairs {array.length * -2, -1 - array.length, 0,
+                          array.length + 1, array.length * 2} do
+        expect ((function () array[i] = i end) ()).
+          to_error "out of bounds"
+      end
+
+- describe __tostring:
+  - it renders all elements of the array:
+      array = Array {1, 4, 9, 16, 25}
+      expect (tostring (array)).to_be 'Array {1, 4, 9, 16, 25}'
+      expect (tostring (Array ())).to_be 'Array {}'
+
+- describe pop:
+  - before:
+      array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+  - context when called as a module function:
+    - it diagnoses missing arguments: |
+        expect (Array.pop ()).
+          to_error "bad argument #1 to 'pop' (Array expected, got no value)"
+    - it returns nil for an empty array:
+        array = Array ()
+        expect (Array.pop (array)).to_be (nil)
+    - it removes an element from the array:
+        count = array.length
+        repeat
+          expect (array.length).to_be (count)
+          count = count - 1
+        until Array.pop (array) == nil
+        expect (array.length).to_be (0)
+    - it returns the removed element:
+        while array.length > 2 do
+          expect (Array.pop (array)).to_be (array[-1] + array[-2])
+        end
+    - it does not perturb existing elements:
+        Array.pop (array)
+        for i = 3, array.length do
+          expect (array[i]).to_be (array[i -1] + array[i - 2])
+        end
+  - context when called as an object method:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it returns nil for an empty array:
+        array = Array ()
+        expect (array:pop ()).to_be (nil)
+    - it removes an element from the array:
+        count = array.length
+        repeat
+          expect (array.length).to_be (count)
+          count = count - 1
+        until array:pop () == nil
+        expect (array.length).to_be (0)
+    - it returns the removed element:
+        while array.length > 2 do
+          expect (array:pop ()).to_be (array[-1] + array[-2])
+        end
+    - it does not perturb existing elements:
+        array:pop ()
+        for i = 3, array.length do
+          expect (array[i]).to_be (array[i -1] + array[i - 2])
+        end
+
+- describe push:
+  - context when called as a module function:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it diagnoses missing arguments: |
+        expect (Array.push ()).
+          to_error "bad argument #1 to 'push' (Array expected, got no value)"
+        expect (Array.push (Array)).
+          to_error "bad argument #2 to 'push' (any value expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Array.push (1234)).
+          to_error "bad argument #1 to 'push' (Array expected, got number)"
+    - it adds a single element to an empty array:
+        array = Array ()
+        Array.push (array, 42)
+        expect (array[1]).to_be (array[-1])
+    - it adds an element to an array:
+        count = array.length
+        Array.push (array, 42)
+        expect (array[-1]).to_be (42)
+        expect (array.length).to_be (count + 1)
+        Array.push (array, -273)
+        expect (array[-1]).to_be (-273)
+        expect (array.length).to_be (count + 2)
+    - it does not perturb existing elements:
+        Array.push (array, 42)
+        for i = 3, array.length - 1 do
+          expect (array[i]).to_be (array[i - 1] + array[i - 2])
+        end
+  - context when called as an object method:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it diagnoses missing arguments: |
+        expect (array:push ()).
+          to_error "bad argument #2 to 'push' (any value expected, got no value)"
+    - it adds a single element to an empty array:
+        array = Array ()
+        array:push (42)
+        expect (array[1]).to_be (array[-1])
+    - it adds an element to an array:
+        count = array.length
+        array:push (42)
+        expect (array[-1]).to_be (42)
+        expect (array.length).to_be (count + 1)
+        array:push (-273)
+        expect (array[-1]).to_be (-273)
+        expect (array.length).to_be (count + 2)
+    - it returns pushed value:
+        expect (array:push (42)).to_be (42)
+        expect (array:push (-273)).to_be (-273)
+    - it does not perturb existing elements:
+        array:push (42)
+        for i = 3, array.length - 1 do
+          expect (array[i]).to_be (array[i - 1] + array[i -2])
+        end
+
+- describe realloc:
+  - context when called as a module function:
+    - it diagnoses missing arguments: |
+        expect (Array.realloc ()).
+          to_error "bad argument #1 to 'realloc' (Array expected, got no value)"
+        expect (Array.realloc (array)).
+          to_error "bad argument #2 to 'realloc' (number expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Array.realloc (1234)).
+          to_error "bad argument #1 to 'realloc' (Array expected, got number)"
+        expect (Array.realloc (array, "string")).
+          to_error "bad argument #2 to 'realloc' (number expected, got string)"
+    - it reduces the number of usable elements:
+        array = Array (100)
+        Array.realloc (array, 50)
+        expect (array.length).to_be (50)
+    - it truncates existing elements when reducing size:
+        a = array (100)
+        Array.realloc (a, 50)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it increases the number of usable elements:
+        array = Array (50)
+        Array.realloc (array, 100)
+        expect (array.length).to_be (100)
+    - it does not perturb existing element values:
+        a = array (50)
+        Array.realloc (a, 100)
+        for i = 3, 50 do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it sets new elements to zero:
+        a = array (50)
+        Array.realloc (a, 100)
+        for i = 51, a.length do
+          expect (a[i]).to_be (0)
+        end
+  - context when called as an object method:
+    - it diagnoses missing arguments: |
+        expect (array:realloc ()).
+          to_error "bad argument #2 to 'realloc' (number expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (array:realloc "string").
+          to_error "bad argument #2 to 'realloc' (number expected, got string)"
+    - it reduces the number of usable elements:
+        array = Array (100):realloc (50)
+        expect (array.length).to_be (50)
+    - it truncates existing elements when reducing size:
+        a = array (100):realloc (50)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it increases the number of usable elements:
+        array = Array (50):realloc (100)
+        expect (array.length).to_be (100)
+    - it does not perturb existing element values:
+        a = array (50):realloc (100)
+        for i = 3, 50 do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it sets new elements to zero:
+        a = array (50):realloc (100)
+        for i = 51, a.length do
+          expect (a[i]).to_be (0)
+        end
+
+- describe set:
+  - context when called as a module function:
+    - it diagnoses missing arguments: |
+        expect (Array.set ()).
+          to_error "bad argument #1 to 'set' (Array expected, got no value)"
+        expect (Array.set (array)).
+          to_error "bad argument #2 to 'set' (number expected, got no value)"
+        expect (Array.set (array, 1)).
+          to_error "bad argument #3 to 'set' (any value expected, got no value)"
+        expect (Array.set (array, 1, 0)).
+          to_error "bad argument #4 to 'set' (number expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Array.set (100)).
+          to_error "bad argument #1 to 'set' (Array expected, got number)"
+        expect (Array.set (array, "bogus")).
+          to_error "bad argument #2 to 'set' (number expected, got string)"
+        expect (Array.set (array, 1, 0, function () end)).
+          to_error "bad argument #4 to 'set' (number expected, got function)"
+    - it changes the value of a subsequence of elements:
+        array = Array (100)
+        Array.set (array, 25, 1, 50)
+        for i = 1, array.length do
+          if i >= 25 and i < 75 then
+            expect (array[i]).to_be (1)
+          else
+            expect (array[i]).to_be (0)
+          end
+        end
+    - it understands negative from index:
+        array = Array (100)
+        Array.set (array, -50, 1, 50)
+        for i = 1, array.length do
+          if i <= 50 then
+            expect (array[i]).to_be (0)
+          else
+            expect (array[i]).to_be (1)
+          end
+        end
+    - it does not affect the prototype array elements:
+        a = array (100)
+        Array.set (a, 25, 1, 50)
+        for i = 3, array.length do
+          expect (array[i]).to_be (array[i - 1] + array[i - 2])
+        end
+    - it does not affect elements outside range being set:
+        a = array (100)
+        Array.set (a, 25, 1, 50)
+        for i = 1, a.length do
+          if i >= 25 and i < 75 then
+            expect (a[i]).to_be (1)
+          elseif i <= array.length then
+            expect (a[i]).to_be (array[i])
+          else
+            expect (a[i]).to_be (0)
+          end
+        end
+  - context when called as an object method:
+    - it diagnoses missing arguments: |
+        expect (array:set ()).
+          to_error "bad argument #2 to 'set' (number expected, got no value)"
+        expect (array:set (1)).
+          to_error "bad argument #3 to 'set' (any value expected, got no value)"
+        expect (array:set (1, 0)).
+          to_error "bad argument #4 to 'set' (number expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (array:set "bogus").
+          to_error "bad argument #2 to 'set' (number expected, got string)"
+        expect (array:set (1, 0, function () end)).
+          to_error "bad argument #4 to 'set' (number expected, got function)"
+    - it changes the value of a subsequence of elements:
+        array = Array (100):set (25, 1, 50)
+        for i = 1, array.length do
+          if i >= 25 and i < 75 then
+            expect (array[i]).to_be (1)
+          else
+            expect (array[i]).to_be (0)
+          end
+        end
+    - it understands negative from index:
+        array = Array (100):set (-50, 1, 50)
+        for i = 1, array.length do
+          if i <= 50 then
+            expect (array[i]).to_be (0)
+          else
+            expect (array[i]).to_be (1)
+          end
+        end
+    - it does not affect the prototype array elements:
+        a = array (100):set (25, 1, 50)
+        for i = 3, array.length do
+          expect (array[i]).to_be (array[i - 1] + array[i - 2])
+        end
+    - it does not affect elements outside range being set:
+        a = array (100):set (25, 1, 50)
+        for i = 1, a.length do
+          if i >= 25 and i < 75 then
+            expect (a[i]).to_be (1)
+          elseif i <= array.length then
+            expect (a[i]).to_be (array[i])
+          else
+            expect (a[i]).to_be (0)
+          end
+        end
+
+- describe shift:
+  - context when called as a module function:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it diagnoses missing arguments: |
+        expect (Array.shift ()).
+          to_error "bad argument #1 to 'shift' (Array expected, got no value)"
+    - it returns nil for an empty array:
+        array = Array ()
+        expect (Array.shift (array)).to_be (nil)
+    - it removes an element from the array:
+        count = array.length
+        repeat
+          expect (array.length).to_be (count)
+          count = count - 1
+        until Array.shift (array) == nil
+        expect (array.length).to_be (0)
+    - it returns the removed element:
+        while array.length > 2 do
+          expect (Array.shift (array)).to_be (array[2] - array[1])
+        end
+    - it shifts existing elements one position left:
+        shiftme = array ()
+        Array.shift (shiftme)
+        for i = 1, shiftme.length do
+          expect (shiftme[i]).to_be (array[i + 1])
+        end
+  - context when called as an object method:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it returns nil for an empty array:
+        array = Array ()
+        expect (array:shift ()).to_be (nil)
+    - it removes an element from the array:
+        count = array.length
+        repeat
+          expect (array.length).to_be (count)
+          count = count - 1
+        until array:shift () == nil
+        expect (array.length).to_be (0)
+    - it returns the removed element:
+        while array.length > 2 do
+          expect (array:shift ()).to_be (array[2] - array[1])
+        end
+    - it shifts existing elements one position left:
+        shiftme = array ()
+        shiftme:shift ()
+        for i = 1, shiftme.length do
+          expect (shiftme[i]).to_be (array[i + 1])
+        end
+
+- describe unshift:
+  - context when called as a module function:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it diagnoses missing arguments: |
+        expect (Array.unshift ()).
+          to_error "bad argument #1 to 'unshift' (Array expected, got no value)"
+        expect (Array.unshift (array)).
+          to_error "bad argument #2 to 'unshift' (any value expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Array.unshift (1234)).
+          to_error "bad argument #1 to 'unshift' (Array expected, got number)"
+    - it adds a single element to an empty array:
+        array = Array ()
+        Array.unshift (array, 42)
+        expect (array[1]).to_be (array[-1])
+    - it inserts an element into an array:
+        count = array.length
+        Array.unshift (array, 42)
+        expect (array[1]).to_be (42)
+        expect (array.length).to_be (count + 1)
+        Array.unshift (array, -273)
+        expect (array[1]).to_be (-273)
+        expect (array.length).to_be (count + 2)
+    - it shifts existing elements one position right:
+        unshiftme = array ()
+        Array.unshift (unshiftme, 42)
+        for i = 1, array.length do
+          expect (unshiftme[i + 1]).to_be (array[i])
+        end
+  - context when called as an object method:
+    - before:
+        array = Array {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89}
+    - it diagnoses missing arguments: |
+        expect (array:unshift ()).
+          to_error "bad argument #2 to 'unshift' (any value expected, got no value)"
+    - it adds a single element to an empty array:
+        array = Array ()
+        array:unshift (42)
+        expect (array[1]).to_be (array[-1])
+    - it adds an element to an array:
+        count = array.length
+        array:unshift (42)
+        expect (array[1]).to_be (42)
+        expect (array.length).to_be (count + 1)
+        array:unshift (-273)
+        expect (array[1]).to_be (-273)
+        expect (array.length).to_be (count + 2)
+    - it returns unshifted value:
+        expect (array:unshift (42)).to_be (42)
+        expect (array:unshift (-273)).to_be (-273)
+    - it shifts existing elements one position right:
+        unshiftme = array ()
+        unshiftme:unshift (42)
+        for i = 1, array.length do
+          expect (unshiftme[i + 1]).to_be (array[i])
+        end
