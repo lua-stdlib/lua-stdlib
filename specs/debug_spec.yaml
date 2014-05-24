@@ -156,6 +156,7 @@ specify std.debug:
       expect (fn ("object", nil)).to_error "object expected, got no value"
       expect (fn ("Object", nil)).to_error "Object expected, got no value"
       expect (fn ("Foo", nil)).to_error "Foo expected, got no value"
+      expect (fn ("any", nil)).to_error "any value expected, got no value"
   - it diagnoses mismatched object types:
       expect (fn ("object", {0})).to_error "object expected, got table"
       expect (fn ("Object", {0})).to_error "Object expected, got table"
@@ -170,7 +171,6 @@ specify std.debug:
       expect (fn ("object", Foo)).not_to_error ()
       expect (fn ("object", Foo {})).not_to_error ()
   - it matches anything:
-      expect (fn ("any", nil)).not_to_error ()
       expect (fn ("any", true)).not_to_error ()
       expect (fn ("any", {})).not_to_error ()
       expect (fn ("any", Object)).not_to_error ()

@@ -147,7 +147,7 @@ end
 --    #table    accept any non-empty table
 --    list      accept a table with a non-empty array part
 --    object    accept any std.Object derived type
---    any       accept any argument type
+--    any       accept any non-nil argument type
 --
 -- Call `argerror` if there is a type mismatch.
 --
@@ -165,9 +165,12 @@ local function argcheck (name, i, expected, actual, level)
 
   -- Check actual has one of the types from expected
   local ok, actualtype = false, prototype (actual)
-  for _, check in ipairs (expected) do
+  for i, check in ipairs (expected) do
     if check == "any" then
-      ok = true
+      expected[i] = "any value"
+      if actual ~= nil then
+        ok = true
+      end
 
     elseif check == "#table" then
       if actualtype == "table" and next (actual) then
@@ -214,9 +217,7 @@ local function argscheck (name, expected, actual)
   if typeof (actual) ~= "table" then actual = {actual} end
 
   for i, v in ipairs (expected) do
-    if v ~= "any" then
-      argcheck (name, i, expected[i], actual[i], 3)
-    end
+    argcheck (name, i, expected[i], actual[i], 3)
   end
 end
 
