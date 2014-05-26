@@ -75,7 +75,7 @@ specify std.object:
 
 - describe instantiation from a prototype:
   - before:
-      totable = (require "std.table").totable
+      totable = require "std.table".totable
 
   - context when _init is nil:
     - before:
@@ -267,7 +267,7 @@ specify std.object:
 
 - describe __totable:
   - before:
-      totable = (require "std.table").totable
+      totable = require "std.table".totable
       Derived = Object {_type = "Derived", "one", "two", three = true}
 
   - it returns a table:

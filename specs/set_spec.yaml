@@ -1,7 +1,7 @@
 before:
   Set       = require "std.set"
-  prototype = (require "std.object").prototype
-  totable   = (require "std.table").totable
+  prototype = require "std.object".prototype
+  totable   = require "std.table".totable
   s         = Set {"foo", "bar", "bar"}
 
 specify std.set:

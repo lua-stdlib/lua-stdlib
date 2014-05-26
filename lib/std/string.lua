@@ -35,7 +35,7 @@ local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
-local metamethod = (require "std.base").metamethod
+local metamethod = require "std.base".metamethod
 
 local _format   = string.format
 local _tostring = _G.tostring

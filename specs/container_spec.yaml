@@ -1,6 +1,6 @@
 before:
   Container = require "std.container"
-  prototype = (require "std.object").prototype
+  prototype = require "std.object".prototype
 
 specify std.container:
 - context when required:
@@ -37,7 +37,7 @@ specify std.container:
         expect (getmetatable (things)._baz).to_be "quux"
   - context with module functions:
     - before:
-        fold = (require "std.functional").fold
+        fold = require "std.functional".fold
         functions = {
           count = function (bag)
             return fold (function (r, k) return r + bag[k] end, 0, pairs, bag)
@@ -103,7 +103,7 @@ specify std.container:
 
 - describe tablification:
   - before:
-      totable = (require "std.table").totable
+      totable = require "std.table".totable
       Derived = Container {_type = "Derived", "one", "two", three = true}
   - it returns a table:
       expect (prototype (totable (Derived))).to_be "table"

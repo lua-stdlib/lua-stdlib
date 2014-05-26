@@ -65,7 +65,7 @@ local base = require "std.base"
 --
 -- This is equivalent to:
 --
---     base.merge (base.clone (proto), t or {})
+--     table.merge (table.clone (proto), t or {})
 --
 -- But, not typechecking arguments or checking for metatables, is
 -- slightly faster.
@@ -152,10 +152,10 @@ local function mapfields (obj, src, map)
 end
 
 
--- Type of this container.
+-- Type of an object.
 -- @static
--- @tparam  std.container o  an container
--- @treturn string        type of the container
+-- @tparam std.object obj an object
+-- @treturn string type of the object
 -- @see std.object.prototype
 local prototype = base.prototype
 

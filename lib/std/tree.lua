@@ -16,7 +16,7 @@ local Container = require "std.container"
 local list      = require "std.list"
 local func      = require "std.functional"
 
-local prototype = (require "std.object").prototype
+local prototype = require "std.object".prototype
 
 local Tree -- forward declaration
 

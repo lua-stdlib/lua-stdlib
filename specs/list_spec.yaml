@@ -255,7 +255,7 @@ specify std.list:
 
 - describe foldl:
   - before:
-      op = (require "std.functional").op
+      op = require "std.functional".op
       l = List {1, 10, 100}
 
   - context when called as a list object method:
@@ -268,7 +268,7 @@ specify std.list:
 
 - describe foldr:
   - before:
-      op = (require "std.functional").op
+      op = require "std.functional".op
       l = List {1, 10, 100}
 
   - context when called as a list object method:

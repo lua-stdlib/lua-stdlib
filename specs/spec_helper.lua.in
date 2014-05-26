@@ -124,7 +124,7 @@ end
 
 
 -- Not local, so that it is available in spec examples.
-totable = (require "std.table").totable
+totable = require "std.table".totable
 
 
 -- Stub inprocess.capture if necessary; new in Specl 12.

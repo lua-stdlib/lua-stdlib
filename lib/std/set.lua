@@ -13,7 +13,7 @@
 
 local base      = require "std.base"
 local Container = require "std.container"
-local prototype = (require "std.object").prototype
+local prototype = require "std.object".prototype
 
 
 local Set -- forward declaration
