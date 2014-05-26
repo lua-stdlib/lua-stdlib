@@ -58,6 +58,9 @@
 ]]
 
 
+local base = require "std.base"
+
+
 -- Instantiate a new object based on *proto*.
 --
 -- This is equivalent to:
@@ -154,9 +157,7 @@ end
 -- @tparam  std.container o  an container
 -- @treturn string        type of the container
 -- @see std.object.prototype
-local function prototype (o)
-  return (getmetatable (o) or {})._type or type (o)
-end
+local prototype = base.prototype
 
 
 --- Container prototype.

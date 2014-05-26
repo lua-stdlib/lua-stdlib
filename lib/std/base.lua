@@ -1,6 +1,129 @@
 ------
 -- @module std.base
 
+local typeof = type
+
+-- Doc-commented in container.lua
+local function prototype (o)
+  return (getmetatable (o) or {})._type or type (o)
+end
+
+
+local init = require "std.debug_init"
+
+local _ARGCHECK = init._DEBUG
+if type (init._DEBUG) == "table" then
+  _ARGCHECK = init._DEBUG.argcheck
+  if _ARGCHECK == nil then _ARGCHECK= true end
+end
+
+local argcheck, argerror, argscheck
+
+if not _ARGCHECK then
+
+  local function nop () end
+
+  -- Turn off argument checking if _DEBUG is false, or a table containing
+  -- a false valued `argcheck` field.
+
+  argcheck  = nop
+  argscheck = nop
+
+else
+
+  --- Concatenate a table of strings using ", " and " or " delimiters.
+  -- @tparam table alternatives a table of strings
+  -- @treturn string string of elements from alternatives delimited by ", "
+  --   and " or "
+  local function concat (alternatives)
+    local t, i = {}, 1
+    while i < #alternatives do
+      t[i] = alternatives[i]
+      i = i + 1
+    end
+    if #alternatives > 1 then
+      t[#t] = t[#t] .. " or " .. alternatives[#alternatives]
+    else
+      t = alternatives
+    end
+    return table.concat (t, ", ")
+  end
+
+
+  -- Doc-commented in debug.lua
+  function argcheck (name, i, expected, actual, level)
+    level = level or 2
+    if prototype (expected) ~= "table" then expected = {expected} end
+
+    -- Check actual has one of the types from expected
+    local ok, actualtype = false, prototype (actual)
+    for i, check in ipairs (expected) do
+      if check == "any" then
+        expected[i] = "any value"
+        if actual ~= nil then
+          ok = true
+        end
+
+      elseif check == "#table" then
+        if actualtype == "table" and next (actual) then
+          ok = true
+        end
+
+      elseif check == "list" then
+        if typeof (actual) == "table" and #actual > 0 then
+	  ok = true
+        end
+
+      elseif check == "object" then
+        if actualtype ~= "table" and typeof (actual) == "table" then
+          ok = true
+        end
+
+      elseif check == actualtype then
+        ok = true
+      end
+
+      if ok then break end
+    end
+
+    if not ok then
+      if actualtype == "nil" then
+        actualtype = "no value"
+      elseif actualtype == "table" and next (actual) == nil then
+        actualtype = "empty table"
+      elseif actualtype == "List" and #actual == 0 then
+        actualtype = "empty List"
+      end
+      expected = concat (expected):gsub ("#table", "non-empty table")
+      argerror (name, i, expected .. " expected, got " .. actualtype, level + 1)
+    end
+  end
+
+
+  -- Doc-commented in debug.lua
+  function argscheck (name, expected, actual)
+    if typeof (expected) ~= "table" then expected = {expected} end
+    if typeof (actual) ~= "table" then actual = {actual} end
+
+    for i, v in ipairs (expected) do
+      argcheck (name, i, expected[i], actual[i], 3)
+    end
+  end
+
+end
+
+
+-- Doc-commented in debug.lua...
+-- This function is not disabled by setting _DEBUG.
+function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad argument #%d to '%s'", i, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
+end
+
 
 --- Write a deprecation warning to stderr on first call.
 -- @func        fn      deprecated function
@@ -66,10 +189,15 @@ end
 
 
 local M = {
-  deprecate    = deprecate,
-  elems        = elems,
-  leaves       = leaves,
-  metamethod   = metamethod,
+  argcheck   = argcheck,
+  argerror   = argerror,
+  argscheck  = argscheck,
+  deprecate  = deprecate,
+  elems      = elems,
+  leaves     = leaves,
+  metamethod = metamethod,
+  prototype  = prototype,
 }
+
 
 return M
