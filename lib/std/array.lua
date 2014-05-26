@@ -30,8 +30,8 @@
 ]]
 
 
-local debug  = require "std.debug"
-local argcheck, argscheck = debug.argcheck, debug.argscheck
+local base = require "std.base"
+local argcheck, argscheck = base.argcheck, base.argscheck
 
 local Object = require "std.object"
 local prototype = Object.prototype
