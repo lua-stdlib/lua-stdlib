@@ -182,6 +182,12 @@ specify std.list:
 
 
 - describe elems:
+  - it diagnoses missing arguments: |
+      expect (List.elems ()).
+        to_error "bad argument #1 to 'std.list.elems' (List or table expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (List.elems (false)).
+        to_error "bad argument #1 to 'std.list.elems' (List or table expected, got boolean)"
   - it is an iterator over list members:
       t = {}
       for e in List.elems (l) do table.insert (t, e) end

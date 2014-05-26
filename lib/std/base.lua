@@ -126,13 +126,19 @@ end
 
 
 --- Write a deprecation warning to stderr on first call.
--- @func        fn      deprecated function
--- @string[opt] name    function name for automatic warning message.
+-- @func fn deprecated function
+-- @string[opt] name function name for automatic warning message.
 -- @string[opt] warnmsg full specified warning message (overrides *name*)
 -- @return a function to show the warning on first call, and hand off to *fn*
+-- @usage funcname = deprecate (function (...) ... end, "funcname")
 local function deprecate (fn, name, warnmsg)
-  assert (name or warnmsg,
-          "missing argument to 'deprecate', expecting 2 or 3 parameters")
+  argscheck ("std.base.deprecate",
+             {"function", {"string", "nil"}, {"string", "nil"}},
+             {fn, name, warnmsg})
+  if not (name or warnmsg) then
+    error ("missing argument to 'std.base.deprecate' (2 or 3 arguments expected)", 2)
+  end
+
   warnmsg = warnmsg or (name .. " is deprecated, and will go away in a future release.")
   local warnp = true
   return function (...)
@@ -149,6 +155,8 @@ end
 
 -- Doc-commented in list.lua...
 local function elems (l)
+  argcheck ("std.list.elems", 1, {"List", "table"}, l)
+
   local n = 0
   return function (l)
            n = n + 1
@@ -160,7 +168,11 @@ local function elems (l)
 end
 
 
--- Iterator returning leaf nodes from nested tables.
+--- Iterator returning leaf nodes from nested tables.
+-- @tparam function it table iterator function
+-- @tparam tree|table tr tree or tree-like table
+-- @treturn function iterator function
+-- @treturn tree|table the tree `tr`
 local function leaves (it, tr)
   local function visit (n)
     if type (n) == "table" then
@@ -177,6 +189,8 @@ end
 
 -- Doc-commented in table.lua...
 local function metamethod (x, n)
+  argscheck ("std.table.metamethod", {{"object", "table"}, "string"}, {x, n})
+
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
                       end,

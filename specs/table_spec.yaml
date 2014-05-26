@@ -290,6 +290,33 @@ specify std.table:
       expect (f ("foo", "bar")).to_error ("table expected")
 
 
+- describe metamethod:
+  - before:
+      f = M.metamethod
+      Object = require "std.object"
+      objmethod = function () end
+      obj = Object {
+        _type = "DerivedObject",
+        _method = objmethod,
+      }
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.table.metamethod' (object or table expected, got no value)"
+      expect (f (obj)).
+        to_error "bad argument #2 to 'std.table.metamethod' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.table.metamethod' (object or table expected, got boolean)"
+      expect (f (obj, false)).
+        to_error "bad argument #2 to 'std.table.metamethod' (string expected, got boolean)"
+  - it returns nil for missing metamethods:
+      expect (f (obj, "not a method on obj")).to_be (nil)
+  - it returns nil for non-function metatable entries:
+      expect (f (obj, "_type")).to_be (nil)
+  - it returns a method from the metatable:
+      expect (f (obj, "_method")).to_be (objmethod)
+
+
 - describe monkey_patch:
   - before:
       f  = M.monkey_patch

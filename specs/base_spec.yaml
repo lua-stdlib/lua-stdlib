@@ -14,10 +14,13 @@ specify std.base:
           "('" .. table.concat (args or {}, "', '") .. "')"
         )
       end
-  - it diagnoses missing arguments:
-      expect (deprecate ()).to_error "missing argument"
+  - it diagnoses missing arguments: |
+      expect (deprecate ()).
+        to_error "bad argument #1 to 'std.base.deprecate' (function expected, got no value)"
+      expect (deprecate (function () end)).
+        to_error "missing argument to 'std.base.deprecate' (2 or 3 arguments expected)"
   - it returns a function:
-      f = deprecate (base.clone_rename, "clone_rename")
+      f = deprecate (function () end, "clone_rename")
       expect (type (f)).to_be "function"
   - context with deprecated function:
     - it executes the deprecated function:
