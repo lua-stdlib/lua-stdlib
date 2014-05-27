@@ -17,6 +17,23 @@ Stdlib NEWS - User visible changes
  - New `std.array` object, for clean and fast queue-like or stack-like
    container management.
 
+** Incompatible changes:
+
+ - `functional.bind` sets fixed positional arguments when called as
+   before, but when the newly bound function is called, those arguments
+   fill remaining unfixed positions rather than being overwritten by
+   original fixed arguments.  For example, where this would have caused
+   an error previously, it now prints "100" as expected.
+
+     local function add (a, b) return a + b end
+     local incr = functional.bind (add, 1)
+     print (incr (99))
+
+   If you have any code that calls functions returned from `bind`, you
+   need to remove the previously ignored arguments that correspond to
+   the fixed argument positions in the `bind` invocation. 
+     
+
 ** Bug fixes:
 
  - Removed LDocs for unused `_DEBUG.std` field.

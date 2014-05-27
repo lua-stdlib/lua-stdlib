@@ -25,14 +25,20 @@ specify std.functional:
       expect (M.bind (false)).
         to_error "bad argument #1 to 'std.functional.bind' (function expected, got boolean)"
   - it does not affect normal operation if no arguments are bound:
-      expect (M.bind (math.min, {}) (2, 3, 4)).
-        to_equal (2)
+      expect (M.bind (math.min) (2, 3, 4)).to_be (2)
   - it takes the extra arguments into account:
-      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
-        to_equal (0)
+      expect (M.bind (math.min, 1, 0) (2, 3, 4)).to_be (0)
+  - it appends final call arguments:
+      expect (M.bind (math.max, 2, 3) (4, 5, 1)).to_be (5)
+  - it does not require all arguments in final call:
+      div = function (a, b) return a / b end
+      expect (M.bind (div, 100) (25)).to_be (4)
   - it supports out of order extra arguments:
-      expect (M.bind (math.pow, {[2] = 3}) (2)).
-        to_equal (8)
+      expect (M.bind (math.pow, nil, 3) (2)).to_be (8)
+  - it supports the legacy api:
+      expect (M.bind (math.min, {}) (2, 3, 4)).to_be (2)
+      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).to_be (0)
+      expect (M.bind (math.pow, {[2] = 3}) (2)).to_be (8)
 
 
 - describe case:

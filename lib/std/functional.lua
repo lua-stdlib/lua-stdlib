@@ -29,8 +29,13 @@ local function bind (f, ...)
     fix = fix[1]
   end
   return function (...)
-           local arg = {...}
+           local arg = {}
            for i, v in pairs (fix) do
+             arg[i] = v
+           end
+           local i = 1
+           for _, v in pairs {...} do
+             while arg[i] ~= nil do i = i + 1 end
              arg[i] = v
            end
            return f (unpack (arg))
