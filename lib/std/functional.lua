@@ -3,6 +3,9 @@
  @module std.functional
 ]]
 
+local base = require "std.base"
+local argcheck, argscheck = base.argcheck, base.argscheck
+
 local functional -- forward declaration
 
 
@@ -19,6 +22,8 @@ end
 -- @tparam t table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
 -- @return function with pi already bound
 local function bind (f, ...)
+  argscheck ("std.functional.bind", "function", f)
+
   local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
@@ -48,6 +53,8 @@ end
 -- @tparam table branches map possible matches to functions
 -- @return the return value from function with a matching key, or nil.
 local function case (with, branches)
+  argcheck ("std.functional.case", 2, "#table", branches)
+
   local fn = branches[with] or branches[1]
   if fn then return fn (with) end
 end
@@ -58,6 +65,8 @@ end
 -- @param n number of arguments
 -- @return curried version of f
 local function curry (f, n)
+  argscheck ("std.functional.curry", {"function", "number"}, {f, n})
+
   if n <= 1 then
     return f
   else
@@ -79,6 +88,13 @@ end
 -- can be read from top to bottom.
 local function compose (...)
   local arg = {...}
+  if #arg < 1 then
+    argcheck ("std.functional.compose", 1, "function", nil)
+  end
+  for i in ipairs (arg) do
+    argcheck ("std.functional.compose", i, "function", arg[i])
+  end
+
   local fns, n = arg, #arg
   return function (...)
            local arg = {...}
@@ -106,6 +122,9 @@ end
 -- @param normalize[opt] function to normalize arguments
 -- @return memoized function
 local function memoize (fn, normalize)
+  argscheck ("std.functional.memoize", {"function", {"function", "nil"}},
+             {fn, normalize})
+
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -131,6 +150,7 @@ end
 -- @param s string
 -- @return value of string
 local function eval (s)
+  argscheck ("std.functional.eval", "string", s)
   return loadstring ("return " .. s)()
 end
 
@@ -139,6 +159,8 @@ end
 -- @param i iterator
 -- @return results of running the iterator on its arguments
 local function collect (i, ...)
+  argcheck ("std.functional.collect", 1, "function", i)
+
   local t = {}
   for e in i (...) do
     t[#t + 1] = e
@@ -152,6 +174,8 @@ end
 -- @param i iterator
 -- @return result table
 local function map (f, i, ...)
+  argscheck ("std.functional.map", {"function", "function"}, {f, i})
+
   local t = {}
   for e in i (...) do
     local r = f (e)
@@ -168,6 +192,8 @@ end
 -- @param i iterator
 -- @return result table containing elements e for which p (e)
 local function filter (p, i, ...)
+  argscheck ("std.functional.filter", {"function", "function"}, {p, i})
+
   local t = {}
   for e in i (...) do
     if p (e) then
@@ -184,6 +210,8 @@ end
 -- @param i iterator
 -- @return result
 local function fold (f, d, i, ...)
+  argscheck ("std.functional.fold", {"function", "any", "function"}, {f, d, i})
+
   local r = d
   for e in i (...) do
     r = f (r, e)

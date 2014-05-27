@@ -18,6 +18,12 @@ specify std.functional:
 
 
 - describe bind:
+  - it diagnoses missing arguments: |
+      expect (M.bind ()).
+        to_error "bad argument #1 to 'std.functional.bind' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.bind (false)).
+        to_error "bad argument #1 to 'std.functional.bind' (function expected, got boolean)"
   - it does not affect normal operation if no arguments are bound:
       expect (M.bind (math.min, {}) (2, 3, 4)).
         to_equal (2)
@@ -35,6 +41,12 @@ specify std.functional:
       no      = function ()  return false end
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
+  - it diagnoses missing arguments: |
+      expect (M.case (nil)).
+        to_error "bad argument #2 to 'std.functional.case' (non-empty table expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.case ("no", false)).
+        to_error "bad argument #2 to 'std.functional.case' (non-empty table expected, got boolean)"
   - it matches against branch keys:
       expect (M.case ("yes", branches)).to_be (true)
       expect (M.case ("no",  branches)).to_be (false)
@@ -54,33 +66,100 @@ specify std.functional:
 
 
 - describe collect:
+  - it diagnoses missing arguments: |
+      expect (M.collect ()).
+        to_error "bad argument #1 to 'std.functional.collect' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.collect (false)).
+        to_error "bad argument #1 to 'std.functional.collect' (function expected, got boolean)"
 
 
 - describe compose:
+  - it diagnoses missing arguments: |
+      expect (M.compose ()).
+        to_error "bad argument #1 to 'std.functional.compose' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.compose (false)).
+        to_error "bad argument #1 to 'std.functional.compose' (function expected, got boolean)"
+      expect (M.compose (M.id, false)).
+        to_error "bad argument #2 to 'std.functional.compose' (function expected, got boolean)"
   - it composes functions in the correct order:
       expect (M.compose (math.sin, math.cos) (1)).
         to_equal (math.cos (math.sin (1)))
 
 
 - describe curry:
+  - it diagnoses missing arguments: |
+      expect (M.curry ()).
+        to_error "bad argument #1 to 'std.functional.curry' (function expected, got no value)"
+      expect (M.curry (M.id)).
+        to_error "bad argument #2 to 'std.functional.curry' (number expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.curry (false)).
+        to_error "bad argument #1 to 'std.functional.curry' (function expected, got boolean)"
+      expect (M.curry (M.id, false)).
+        to_error "bad argument #2 to 'std.functional.curry' (number expected, got boolean)"
 
 
 - describe eval:
+  - it diagnoses missing arguments: |
+      expect (M.eval ()).
+        to_error "bad argument #1 to 'std.functional.eval' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.eval (false)).
+        to_error "bad argument #1 to 'std.functional.eval' (string expected, got boolean)"
 
 
 - describe filter:
+  - it diagnoses missing arguments: |
+      expect (M.filter ()).
+        to_error "bad argument #1 to 'std.functional.filter' (function expected, got no value)"
+      expect (M.filter (M.id)).
+        to_error "bad argument #2 to 'std.functional.filter' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.filter (false)).
+        to_error "bad argument #1 to 'std.functional.filter' (function expected, got boolean)"
+      expect (M.filter (M.id, false)).
+        to_error "bad argument #2 to 'std.functional.filter' (function expected, got boolean)"
 
 
 - describe fold:
+  - it diagnoses missing arguments: |
+      expect (M.fold ()).
+        to_error "bad argument #1 to 'std.functional.fold' (function expected, got no value)"
+      expect (M.fold (M.id)).
+        to_error "bad argument #2 to 'std.functional.fold' (any value expected, got no value)"
+      expect (M.fold (M.id, 1)).
+        to_error "bad argument #3 to 'std.functional.fold' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.fold (false)).
+        to_error "bad argument #1 to 'std.functional.fold' (function expected, got boolean)"
+      expect (M.fold (M.id, 1, false)).
+        to_error "bad argument #3 to 'std.functional.fold' (function expected, got boolean)"
 
 
 - describe id:
 
 
 - describe map:
+  - it diagnoses missing arguments: |
+      expect (M.map ()).
+        to_error "bad argument #1 to 'std.functional.map' (function expected, got no value)"
+      expect (M.map (M.id)).
+        to_error "bad argument #2 to 'std.functional.map' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.map (false)).
+        to_error "bad argument #1 to 'std.functional.map' (function expected, got boolean)"
+      expect (M.map (M.id, false)).
+        to_error "bad argument #2 to 'std.functional.map' (function expected, got boolean)"
 
 
 - describe memoize:
-
-
-- describe metamethod:
+  - it diagnoses missing arguments: |
+      expect (M.memoize ()).
+        to_error "bad argument #1 to 'std.functional.memoize' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.memoize (false)).
+        to_error "bad argument #1 to 'std.functional.memoize' (function expected, got boolean)"
+      expect (M.memoize (M.id, false)).
+        to_error "bad argument #2 to 'std.functional.memoize' (function or nil expected, got boolean)"
