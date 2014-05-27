@@ -78,6 +78,8 @@ specify std.functional:
   - it diagnoses wrong argument types: |
       expect (M.collect (false)).
         to_error "bad argument #1 to 'std.functional.collect' (function expected, got boolean)"
+  - it collects iterator results:
+      expect (M.collect (ipairs, {"a", "b", "c"})).to_equal {1, 2, 3}
 
 
 - describe compose:
@@ -89,9 +91,11 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.compose' (function expected, got boolean)"
       expect (M.compose (M.id, false)).
         to_error "bad argument #2 to 'std.functional.compose' (function expected, got boolean)"
+  - it composes a single function correctly:
+      expect (M.compose (M.id) (1)).to_be (1)
   - it composes functions in the correct order:
       expect (M.compose (math.sin, math.cos) (1)).
-        to_equal (math.cos (math.sin (1)))
+        to_be (math.cos (math.sin (1)))
 
 
 - describe curry:
@@ -105,6 +109,18 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.curry' (function expected, got boolean)"
       expect (M.curry (M.id, false)).
         to_error "bad argument #2 to 'std.functional.curry' (number expected, got boolean)"
+  - it returns a zero argument function uncurried:
+      expect (M.curry (M.id, 0)).to_be (M.id)
+  - it returns a one argument function uncurried:
+      expect (M.curry (M.id, 1)).to_be (M.id)
+  - it curries a two argument function:
+      expect (M.curry (M.id, 2)).not_to_be (M.id)
+  - it evaluates intermediate arguments one at a time:
+      expect (M.curry (math.min, 3) (2) (3) (4)).to_equal (2)
+  - it returns a curried function that can be partially applied:
+      bin = M.curry (math.pow, 2) (2)
+      expect (bin (2)).to_be (math.pow (2, 2))
+      expect (bin (10)).to_be (math.pow (2, 10))
 
 
 - describe eval:
@@ -114,9 +130,17 @@ specify std.functional:
   - it diagnoses wrong argument types: |
       expect (M.eval (false)).
         to_error "bad argument #1 to 'std.functional.eval' (string expected, got boolean)"
+  - it diagnoses invalid lua:
+      # Some internal error when eval tries to call uncompilable "=" code.
+      expect (M.eval "=").to_error ()
+  - it evaluates a string of lua code:
+      expect (M.eval "math.pow (2, 10)").to_be (math.pow (2, 10))
 
 
 - describe filter:
+  - before:
+     elements = {"a", "b", "c", "d", "e"}
+     inverse  = require "std.table".invert (elements)
   - it diagnoses missing arguments: |
       expect (M.filter ()).
         to_error "bad argument #1 to 'std.functional.filter' (function expected, got no value)"
@@ -127,9 +151,25 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.filter' (function expected, got boolean)"
       expect (M.filter (M.id, false)).
         to_error "bad argument #2 to 'std.functional.filter' (function expected, got boolean)"
+  - it iterates through element keys:
+      expect (M.filter (M.id, ipairs, elements)).
+        to_equal {1, 2, 3, 4, 5}
+      expect (M.filter (M.id, pairs, inverse)).
+        to_contain.a_permutation_of (elements)
+  - it passes each iterated element to filter function:
+      t = {}
+      M.filter (function (e) t[#t + 1] = e end, pairs, inverse)
+      expect (t).to_contain.a_permutation_of (elements)
+  - it returns a table of filtered keys:
+      expect (M.filter (function (e) return e % 2 == 0 end, ipairs, elements)).
+        to_equal {2, 4}
+      expect (M.filter (function (e) return e:match "[aeiou]" end, pairs, inverse)).
+        to_contain.a_permutation_of {"a", "e"}
 
 
 - describe fold:
+  - before:
+      list = require "std.list"
   - it diagnoses missing arguments: |
       expect (M.fold ()).
         to_error "bad argument #1 to 'std.functional.fold' (function expected, got no value)"
@@ -142,12 +182,28 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.fold' (function expected, got boolean)"
       expect (M.fold (M.id, 1, false)).
         to_error "bad argument #3 to 'std.functional.fold' (function expected, got boolean)"
+  - it calls a binary function over element keys:
+      expect (M.fold (M.op["+"], 2, list.elems, {3})).
+        to_be (2 + 3)
+      expect (M.fold (M.op["*"], 2, list.elems, {3, 4})).
+        to_be (2 * 3 * 4)
+  - it folds elements from left to right:
+      expect (M.fold (math.pow, 2, list.elems, {3, 4})).
+        to_be (math.pow (math.pow (2, 3), 4))
 
 
 - describe id:
+  - it returns argument unchanged:
+      expect (M.id (true)).to_be (true)
+      expect (M.id {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
+  - it returns multiple arguments unchanged:
+      expect ({M.id (1, "two", false)}).to_equal {1, "two", false}
 
 
 - describe map:
+  - before:
+     elements = {"a", "b", "c", "d", "e"}
+     inverse  = require "std.table".invert (elements)
   - it diagnoses missing arguments: |
       expect (M.map ()).
         to_error "bad argument #1 to 'std.functional.map' (function expected, got no value)"
@@ -158,9 +214,25 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.map' (function expected, got boolean)"
       expect (M.map (M.id, false)).
         to_error "bad argument #2 to 'std.functional.map' (function expected, got boolean)"
+  - it iterates through element keys:
+      expect (M.map (M.id, ipairs, elements)).
+        to_equal {1, 2, 3, 4, 5}
+      expect (M.map (M.id, pairs, inverse)).
+        to_contain.a_permutation_of (elements)
+  - it passes each iterated element to map function:
+      t = {}
+      M.map (function (e) t[#t + 1] = e end, pairs, inverse)
+      expect (t).to_contain.a_permutation_of (elements)
+  - it returns a table of mapped keys:
+      expect (M.map (function (e) return e % 2 end, ipairs, elements)).
+        to_equal {1, 0, 1, 0, 1}
+      expect (M.map (function (e) return e .. "x" end, pairs, inverse)).
+        to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
 
 
 - describe memoize:
+  - before:
+      memfn = M.memoize (function (x) return {x} end)
   - it diagnoses missing arguments: |
       expect (M.memoize ()).
         to_error "bad argument #1 to 'std.functional.memoize' (function expected, got no value)"
@@ -169,3 +241,24 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.memoize' (function expected, got boolean)"
       expect (M.memoize (M.id, false)).
         to_error "bad argument #2 to 'std.functional.memoize' (function or nil expected, got boolean)"
+  - it returns the same object for the same arguments:
+      t = memfn (1)
+      expect (memfn (1)).to_be (t)
+  - it returns a different object for different arguments:
+      expect (memfn (1)).not_to_be (memfn (2))
+  - it returns the same object for table valued arguments:
+      t = memfn {1, 2, 3}
+      expect (memfn {1, 2, 3}).to_be (t)
+      t = memfn {foo = "bar", baz = "quux"}
+      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
+      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
+  - it returns a different object for different table arguments:
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
+  - it accepts alternative normalization function:
+      normalize = function (...) return select ("#", ...) end
+      memfn = M.memoize (function (x) return {x} end, normalize)
+      expect (memfn "same").to_be (memfn "not same")
+      expect (memfn (1, 2)).to_be (memfn (false, "x"))
+      expect (memfn "one").not_to_be (memfn ("one", "two"))

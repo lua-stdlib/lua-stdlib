@@ -21,6 +21,10 @@ end
 -- @param f function to apply partially
 -- @tparam t table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
 -- @return function with pi already bound
+-- @usage
+-- > cube = bind (math.pow, {[2] = 3})
+-- > =cube (2)
+-- 8
 local function bind (f, ...)
   argscheck ("std.functional.bind", "function", f)
 
@@ -47,16 +51,15 @@ end
 -- Match `with` against keys in `branches` table, and return the result
 -- of running the function in the table value for the matching key, or
 -- the first non-key value function if no key matches.
---
---     return case (type (object), {
---       table  = function ()  return something end,
---       string = function ()  return something else end,
---                function (s) error ("unhandled type: "..s) end,
---     })
---
 -- @param with expression to match
 -- @tparam table branches map possible matches to functions
 -- @return the return value from function with a matching key, or nil.
+-- @usage
+-- return case (type (object), {
+--   table  = function ()  return something end,
+--   string = function ()  return something else end,
+--            function (s) error ("unhandled type: "..s) end,
+-- })
 local function case (with, branches)
   argcheck ("std.functional.case", 2, "#table", branches)
 
@@ -69,6 +72,11 @@ end
 -- @param f function to curry
 -- @param n number of arguments
 -- @return curried version of f
+-- @usage
+-- > add = curry (function (x, y) return x + y end, 2)
+-- > incr, decr = add (1), add (-1)
+-- > =incr (99), decr (99)
+-- 100     98
 local function curry (f, n)
   argscheck ("std.functional.curry", {"function", "number"}, {f, n})
 
@@ -83,7 +91,7 @@ end
 
 
 --- Compose functions.
--- @param f1...fn functions to compose
+-- @tparam function ... functions to compose
 -- @return composition of fn (... (f1) ...): note that this is the reverse
 -- of what you might expect, but means that code like:
 --
@@ -91,6 +99,12 @@ end
 --                         function (x) return g (x) end))
 --
 -- can be read from top to bottom.
+-- @usage
+-- > vpairs = compose (table.invert, pairs)
+-- > for v in vpairs {"a", "b", "c"} do print (v) end
+-- b
+-- c
+-- a
 local function compose (...)
   local arg = {...}
   if #arg < 1 then
@@ -152,8 +166,9 @@ end
 
 
 --- Evaluate a string.
--- @param s string
--- @return value of string
+-- @string s string of Lua code
+-- @return result of evaluating `s`
+-- @usage eval "math.pow (2, 10)"
 local function eval (s)
   argscheck ("std.functional.eval", "string", s)
   return loadstring ("return " .. s)()
@@ -161,8 +176,14 @@ end
 
 
 --- Collect the results of an iterator.
--- @param i iterator
--- @return results of running the iterator on its arguments
+-- @tparam function i iterator
+-- @param ... arguments
+-- @return results of running the iterator on *arguments
+-- @see filter
+-- @see map
+-- @usage
+-- > =collect (std.list.relems, {"a", "b", "c"})
+-- {"c", "b", "a"}
 local function collect (i, ...)
   argcheck ("std.functional.collect", 1, "function", i)
 
@@ -175,9 +196,13 @@ end
 
 
 --- Map a function over an iterator.
--- @param f function
--- @param i iterator
+-- @tparam function f function
+-- @tparam function i iterator
 -- @return result table
+-- @see filter
+-- @usage
+-- > map (function (e) return e % 2 end, std.list.elements, {1, 2, 3, 4})
+-- {1, 0, 1, 0}
 local function map (f, i, ...)
   argscheck ("std.functional.map", {"function", "function"}, {f, i})
 
@@ -196,6 +221,10 @@ end
 -- @param p predicate
 -- @param i iterator
 -- @return result table containing elements e for which p (e)
+-- @see collect
+-- @usage
+-- > filter (function (e) return e % 2 == 0 end, std.list.elements, {1, 2, 3, 4})
+-- {2, 4}
 local function filter (p, i, ...)
   argscheck ("std.functional.filter", {"function", "function"}, {p, i})
 
@@ -214,6 +243,9 @@ end
 -- @param d initial first argument
 -- @param i iterator
 -- @return result
+-- @see std.list.foldl
+-- @see std.list.foldr
+-- @usage fold (math.pow, 1, std.list.elems, {2, 3, 4})
 local function fold (f, d, i, ...)
   argscheck ("std.functional.fold", {"function", "any", "function"}, {f, d, i})
 
