@@ -16,7 +16,7 @@ end
 
 --- Partially apply a function.
 -- @param f function to apply partially
--- @tparam table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
+-- @tparam t table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
 -- @return function with pi already bound
 local function bind (f, ...)
   local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
