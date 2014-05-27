@@ -79,6 +79,13 @@ else
           ok = true
         end
 
+      elseif check == "function" then
+        if actualtype == "function" or
+            (getmetatable (actual) or {}).__call ~= nil
+        then
+           ok = true
+        end
+
       elseif check == actualtype then
         ok = true
       end
