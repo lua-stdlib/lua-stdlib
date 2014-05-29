@@ -1,8 +1,8 @@
 --[[--
- Efficient array of homogenous objects.
+ Array of homogenous objects.
 
- An Array is a block of contiguous memory, divided into equal sized
- elements that can be indexed quickly.
+ An Array is usually a block of contiguous memory, divided into equal
+ sized elements that can be indexed quickly.
 
  Create a new Array with:
 
@@ -11,18 +11,18 @@
      > =array[1], array[2], array[3], array[-3], array[-4]
      57005	48879	65261	57005	nil
 
- All the indices passed to methods use 1-based counting.
+ All the indices passed to Array methods use 1-based counting.
 
  If the Lua alien module is installed, and the `type` argument passed
- when cloning an Array object is suitable (i.e. the name of a numeric
- C type that alien.array understands), then the array contents are
- managed in an alien.array.
+ when cloning a new Array object is suitable (i.e. the name of a numeric
+ C type that `alien.sizeof` understands), then the array contents are
+ managed in an `alien.buffer`.
 
  If alien is not installed, or does not understand the `type` argument
- it is given, then a much slower (but API compatible) Lua table is used
- to manage elements.
+ given when cloning, then a much slower (but API compatible) Lua table
+ is transparently used to manage elements instead.
 
- In either case, std.array provides a means for managing collections
+ In either case, `std.array` provides a means for managing collections
  of homogenous Lua objects with a vector-like, stack-like or queue-like
  API.
 
@@ -33,10 +33,8 @@
 local base = require "std.base"
 local argcheck, argscheck = base.argcheck, base.argscheck
 
-local Object = require "std.object"
-local prototype = Object.prototype
-
-local BaseArray = require "std.base_array"
+local Container = require "std.container"
+local prototype = Container.prototype
 
 local have_alien, alien = pcall (require, "alien")
 local buffer, memmove, memset
@@ -48,7 +46,110 @@ end
 local typeof = type
 
 
-local element_chunk_size = 16
+
+-- Initial Array prototype object, plus any derived object containing --
+-- elements that don't fit in alien buffers use `core_functions` to   --
+-- find object methods and `core_metatable` for metamethods.          --
+
+
+local core_functions = {
+  --- Remove the right-most element.
+  -- @function pop
+  -- @return the right-most element
+  pop = function (self)
+    argcheck ("pop", 1, "Array", self)
+
+    self.length = math.max (self.length - 1, 0)
+    return table.remove (self.buffer)
+  end,
+
+
+  --- Add elem as the new right-most element.
+  -- @function push
+  -- @param elem new element to be pushed
+  -- @return elem
+  push = function (self, elem)
+    argscheck ("push", {"Array", "any"}, {self, elem})
+
+    local length = self.length + 1
+    self.buffer[length] = elem
+    self.length = length
+    return elem
+  end,
+
+
+  --- Change the number of elements allocated to be at least `n`.
+  -- @function realloc
+  -- @int n the number of elements required
+  -- @treturn Array the array
+  realloc = function (self, n)
+    argscheck ("realloc", {"Array", "number"}, {self, n})
+
+    -- Zero padding for uninitialised elements.
+    for i = self.length + 1, n do
+      self.buffer[i] = 0
+    end
+    self.length = n
+
+    return self
+  end,
+
+
+  --- Set `n` elements starting at `from` to `v`.
+  -- @function set
+  -- @int from index of first element to set
+  -- @param v value to store
+  -- @int n number of elements to set
+  -- @treturn Array the array
+  set = function (self, from, v, n)
+    argscheck ("set", {"Array", "number", "any", "number"},
+               {self, from, v, n})
+
+    local length = self.length
+    if from < 0 then from = from + length + 1 end
+    assert (from > 0 and from <= length)
+
+    for i = from, from + n - 1 do
+      self[i] = v
+    end
+
+    return self
+  end,
+
+
+  --- Shift the whole array to the left by removing the left-most element.
+  -- This makes the array 1 element shorter than it was before the shift.
+  -- @function shift
+  -- @return the removed element.
+  shift = function (self)
+    argcheck ("shift", 1, "Array", self)
+
+    self.length = math.max (self.length - 1, 0)
+    return table.remove (self.buffer, 1)
+  end,
+
+
+  --- Shift the whole array to the right by inserting a new left-most element.
+  -- @function unshift
+  -- @param elem new element to be pushed
+  -- @treturn elem
+  unshift = function (self, elem)
+    argscheck ("unshift", {"Array", "any"}, {self, elem})
+
+    self.length = self.length + 1
+    table.insert (self.buffer, 1, elem)
+    return elem
+  end,
+}
+
+
+--- Number of bytes needed in an alien.buffer for each `type` element.
+-- @string type name of an element type
+-- @treturn int bytes per `type`, or 0 if alien.buffer cannot store `type`s
+local function sizeof (type)
+  local ok, size = pcall ((alien or {}).sizeof, type)
+  return ok and size or 0
+end
 
 
 --- Convert an array element index into a pointer.
@@ -70,150 +171,17 @@ local function setzero (self, from, n)
 end
 
 
-local _functions = {
-  --- Remove the right-most element.
-  -- @function pop
-  -- @return the right-most element
-  pop = function (self)
-    argscheck ("pop", {"Array"}, {self})
+local core_metatable, alien_metatable -- forward declarations
 
-    local used = self.length
-    if used > 0 then
-      local elem = self[used]
-      self:realloc (used - 1)
-      return elem
-    end
-    return nil
-  end,
-
-
-  --- Add elem as the new right-most element.
-  -- @function push
-  -- @param elem new element to be pushed
-  -- @return elem
-  push = function (self, elem)
-    argscheck ("push", {"Array", "number"}, {self, elem})
-
-    local used = self.length + 1
-    self:realloc (used)
-    self[used] = elem
-    return elem
-  end,
-
-
-  --- Change the number of elements allocated to be at least `n`.
-  -- @function realloc
-  -- @int n the number of elements required
-  -- @treturn Array the array
-  realloc = function (self, n)
-    argscheck ("realloc", {"Array", "number"}, {self, n})
-
-    if n > self.allocated or n < self.allocated / 2 then
-      self.allocated = n + element_chunk_size
-      self.buffer:realloc (self.allocated * self.size)
-    end
-
-    -- Zero padding for uninitialised elements.
-    local used = self.length
-    self.length = n
-    setzero (self, used + 1, n - used)
-
-    return self
-  end,
-
-
-  --- Set `n` elements starting at `from` to `v`.
-  -- @function set
-  -- @int from index of first element to set
-  -- @int v value to store
-  -- @int n number of elements to set
-  -- @treturn Array the array
-  set = function (self, from, v, n)
-    argscheck ("set", {"Array", "number", "number", "number"},
-               {self, from, v, n})
-
-    local used = self.length
-    if from < 0 then from = from + used + 1 end
-    assert (from > 0 and from <= used)
-
-    local i = from + n - 1
-    while i >= from do
-      self[i] = v
-      i = i - 1
-    end
-    return self
-  end,
-
-
-  --- Shift the whole array to the left by removing the left-most element.
-  -- This makes the array 1 element shorter than it was before the shift.
-  -- @function shift
-  -- @return the removed element.
-  shift = function (self)
-    argscheck ("shift", {"Array"}, {self})
-
-    local n = self.length - 1
-    if n >= 0 then
-      local elem = self[1]
-      memmove (topointer (self), topointer (self, 2), n * self.size)
-      self:realloc (n)
-      return elem
-    end
-    return nil
-  end,
-
-
-  --- Shift the whole array to the right by inserting a new left-most element.
-  -- @function unshift
-  -- @param elem new element to be pushed
-  -- @treturn elem
-  unshift = function (self, elem)
-    argscheck ("unshift", {"Array", "number"}, {self, elem})
-
-    local n = self.length
-    self:realloc (n + 1)
-    memmove (topointer (self, 2), topointer (self), n * self.size)
-    self[1] = elem
-    return elem
-  end,
-}
-
-
---- Number of bytes needed in an alien.buffer for each `type` element.
--- @string type name of an element type
--- @treturn int bytes per `type`, or 0 if alien.buffer cannot store `type`s
-local function sizeof (type)
-  local ok, size = pcall ((alien or {}).sizeof, type)
-  return ok and size or 0
-end
-
-
-------
--- An efficient array of homogenous objects.
--- @table Array
--- @int length number of elements currently allocated
--- @tfield alien.array array a block of indexable memory
-local Array = Object {
+core_metatable = {
   _type = "Array",
-
-
-  -- Prototype initial values.
-  allocated = 1,
-  buffer    = buffer (sizeof "int"),
-  length    = 0,
-  size      = sizeof "int",
-  type      = "int",
-
-
-  -- Module functions.
-  _functions = _functions,
 
 
   --- Instantiate a newly cloned Array.
   -- If not specified, `type` will be the same as the prototype array being
-  -- cloned; otherwise, it can be any string.  Only valid alien accepted by
-  -- `alien.array` will use the fast `alien.array` managed memory buffer for
-  -- Array contents; otherwise, a much slower Lua emulation is used.
+  -- cloned; otherwise, it can be any string.  Only a type name accepted by
+  -- `alien.sizeof` will use the fast `alien.buffer` managed memory buffer
+  -- for Array contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
   -- @string type element type name
   -- @tparam[opt] int|table init initial size or list of initial elements
@@ -234,13 +202,6 @@ local Array = Object {
     type = type or self.type
     init = init or self.length
 
-    -- If type cannot be managed by an alien.buffer, revert to a table
-    -- based BaseArray object instead.
-    local size = sizeof (type)
-    if size == 0 then
-      return BaseArray (init)
-    end
-
     -- This will become the cloned Array object.
     local obj = {}
 
@@ -249,41 +210,68 @@ local Array = Object {
         obj[k] = v
       end
     end
-    obj.size = size
+
+    local size = sizeof (type)
+    obj.size = size -- setzero uses self.size for byte calculations
+
+    if size == 0 then
+
+      -- Either alien is not installed, or it cannot handle elements
+      -- of `type`, so we'll use Lua tables and core_metatable:
+      local b = {}
+      if typeof (init) == "table" then
+        for i = 1, #init do
+          b[i] = init[i]
+        end
+      else
+        local plength = self.length
+        local length = init or plength
+        for i = 1, math.min (plength, length) do
+          b[i] = self.buffer[i]
+        end
+        for i = plength + 1, length do
+          b[i] = 0
+        end
+      end
+      obj.allocated = 0
+      obj.buffer    = b
+      obj.length    = #b
+
+      setmetatable (obj, core_metatable)
+
+    else
+
+      -- We have alien, and it knows how to manage elements of `type`,
+      -- so we'll use an alien.buffer and alien_metatable:
+      if typeof (init) == "table" then
+        obj.allocated = #init
+        obj.buffer    = buffer (size * #init)
+        obj.length    = #init
+
+        for i = 1, #init do
+          obj.buffer:set ((i - 1) * size + 1, init[i], type)
+        end
+      else
+        obj.allocated = math.max (init or 0, 1)
+        obj.buffer    = buffer (size * obj.allocated)
+        obj.length    = init
+
+        if size == self.size then
+          local bytes = math.min (init, self.length) * size
+          memmove (obj.buffer:topointer (), self.buffer:topointer (), bytes)
+        else
+          local a, b = obj.buffer, self.buffer
+          for i = 1, math.min (init, self.length) do a[i] = b[i] end
+        end
+        setzero (obj, self.length + 1, init - self.length)
+      end
+
+      setmetatable (obj, alien_metatable)
+
+    end
     obj.type = type
 
-    if typeof (init) == "table" then
-      obj.length = #init
-      obj.allocated = #init
-      obj.buffer = buffer (size * #init)
-      for i = 1, #init do
-        obj.buffer:set ((i - 1) * size + 1, init[i], type)
-      end
-    else
-      obj.length = init
-      obj.allocated = math.max (init or 0, 1)
-      obj.buffer = buffer (size * obj.allocated)
-
-      if size == self.size then
-        local bytes = math.min (init, self.length) * size
-        memmove (obj.buffer:topointer (), self.buffer:topointer (), bytes)
-      else
-        local a, b = obj.buffer, self.buffer
-        for i = 1, math.min (init, self.length) do a[i] = b[i] end
-      end
-      setzero (obj, self.length + 1, init - self.length)
-    end
-
-    return setmetatable (obj, getmetatable (self))
-  end,
-
-
-  --- Return the number of elements in this Array.
-  -- @function __len
-  -- @treturn int number of elements
-  __len = function (self)
-    argscheck ("__len", {"Array"}, {self})
-    return self.length
+    return obj
   end,
 
 
@@ -297,10 +285,10 @@ local Array = Object {
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
       if n > 0 and n <= self.length then
-        return self.buffer:get ((n - 1) * self.size + 1, self.type)
+        return self.buffer[n]
       end
     else
-      return _functions[n]
+      return core_functions[n]
     end
   end,
 
@@ -310,6 +298,157 @@ local Array = Object {
   -- @int n 1-based index
   -- @param elem value to store at index n
   -- @treturn Array the array
+  __newindex = function (self, n, elem)
+    argscheck ("__newindex", {"Array", "number", "any"}, {self, n, elem})
+
+    if typeof (n) == "number" then
+      local used = self.length
+      if n == 0 or math.abs (n) > used then
+	error ("array access " .. n .. " out of bounds: 0 < abs (n) <= " ..
+               tostring (self.length), 2)
+      end
+      if n < 0 then n = n + used + 1 end
+      self.buffer[n] = elem
+    else
+      rawset (self, n, elem)
+    end
+    return self
+  end,
+
+
+  --- Return the number of elements in this Array.
+  -- @function __len
+  -- @treturn int number of elements
+  __len = function (self)
+    argcheck ("__len", 1, "Array", self)
+    return self.length
+  end,
+
+
+  --- Return a string representation of the contents of this Array.
+  -- @function __tostring
+  -- @treturn string string representation
+  __tostring = function (self)
+    argcheck ("__tostring", 1, "Array", self)
+
+    local t = {}
+    for i = 1, self.length do
+      t[#t + 1] = tostring (self[i])
+    end
+    return prototype (self) .. ' ("' .. self.type ..
+           '", {' .. table.concat (t, ", ") .. "})"
+  end,
+}
+
+
+-- Cloned Array objects with elements managed by an alien buffer use  --
+-- `alien_functions` to find object methods and `alien_metatable`     --
+-- for metamethods.                                                   --
+
+
+local element_chunk_size = 16
+
+
+local alien_functions = {
+  pop = function (self)
+    argscheck ("pop", {"Array"}, {self})
+
+    local used = self.length
+    if used > 0 then
+      local elem = self[used]
+      self:realloc (used - 1)
+      return elem
+    end
+    return nil
+  end,
+
+
+  push = function (self, elem)
+    argscheck ("push", {"Array", "number"}, {self, elem})
+
+    local used = self.length + 1
+    self:realloc (used)
+    self[used] = elem
+    return elem
+  end,
+
+
+  realloc = function (self, n)
+    argscheck ("realloc", {"Array", "number"}, {self, n})
+
+    if n > self.allocated or n < self.allocated / 2 then
+      self.allocated = n + element_chunk_size
+      self.buffer:realloc (self.allocated * self.size)
+    end
+
+    -- Zero padding for uninitialised elements.
+    local used = self.length
+    self.length = n
+    setzero (self, used + 1, n - used)
+
+    return self
+  end,
+
+
+  set = function (self, from, v, n)
+    argscheck ("set", {"Array", "number", "number", "number"},
+               {self, from, v, n})
+
+    local used = self.length
+    if from < 0 then from = from + used + 1 end
+    assert (from > 0 and from <= used)
+
+    local i = from + n - 1
+    while i >= from do
+      self[i] = v
+      i = i - 1
+    end
+    return self
+  end,
+
+
+  shift = function (self)
+    argscheck ("shift", {"Array"}, {self})
+
+    local n = self.length - 1
+    if n >= 0 then
+      local elem = self[1]
+      memmove (topointer (self), topointer (self, 2), n * self.size)
+      self:realloc (n)
+      return elem
+    end
+    return nil
+  end,
+
+
+  unshift = function (self, elem)
+    argscheck ("unshift", {"Array", "number"}, {self, elem})
+
+    local n = self.length
+    self:realloc (n + 1)
+    memmove (topointer (self, 2), topointer (self), n * self.size)
+    self[1] = elem
+    return elem
+  end,
+}
+
+
+alien_metatable = {
+  _type = "Array",
+
+  __index = function (self, n)
+    argscheck ("__index", {"Array", {"number", "string"}}, {self, n})
+
+    if typeof (n) == "number" then
+      if n < 0 then n = n + self.length + 1 end
+      if n > 0 and n <= self.length then
+        return self.buffer:get ((n - 1) * self.size + 1, self.type)
+      end
+    else
+      return alien_functions[n]
+    end
+  end,
+
   __newindex = function (self, n, elem)
     argscheck ("__newindex", {"Array", "number", "number"}, {self, n, elem})
 
@@ -326,20 +465,72 @@ local Array = Object {
     return self
   end,
 
-
-  --- Return a string representation of the contents of this Array.
-  -- @function __tostring
-  -- @treturn string string representation
-  __tostring = function (self)
-    argscheck ("__tostring", {"Array"}, {self})
-
-    local t = {}
-    for i = 1, self.length do
-      t[#t + 1] = tostring (self[i])
-    end
-    t = { '"' .. self.type .. '"', "{" .. table.concat (t, ", ") .. "}" }
-    return prototype (self) .. " (" .. table.concat (t, ", ") .. ")"
-  end,
+  __call     = core_metatable.__call,
+  __len      = core_metatable.__len,
+  __tostring = core_metatable.__tostring,
 }
+
+
+
+--- Return a function that dispatches to a virtual function table.
+-- The __call metamethod ensures that cloned Array objects are assigned
+-- a metatable and method table optimised for the element storage method
+-- (either alien buffer, or Lua table element containers), but the Array
+-- prototype returned by this module needs to dispatch to the correct
+-- function according to the element type at run-time, because we want
+-- to support passing either object as an argument to a module function.
+-- @string name method name to dispatch
+-- @treturn function call `alien_function[name]` or -- `core_function[name]`
+--  as appropriate to the element manager of array
+local function dispatch (name)
+  return function (array, ...)
+    argcheck (name, 1, "Array", array)
+    local vfns = array.size > 0 and alien_functions or core_functions
+    return vfns[name] (array, ...)
+  end
+end
+
+
+
+------
+-- An efficient array of homogenous objects.
+-- @table Array
+-- @int allocated number of allocated element slots, for `alien.buffer`
+--  managed elements
+-- @tfield alien.buffer|table buffer a block of indexable memory
+-- @int length number of elements currently stored
+-- @int size length of each stored element, or 0 when `alien.buffer` is
+--  not managing this Array
+-- @string type type name for elements
+local Array = Container {
+  _type = "Array",
+
+
+  -- Prototype initial values.
+  allocated = 0,
+  buffer    = {},
+  length    = 0,
+  size      = 0,
+  type      = "any",
+
+
+  _functions = {
+    pop     = dispatch "pop",
+    push    = dispatch "push",
+    realloc = dispatch "realloc",
+    set     = dispatch "set",
+    shift   = dispatch "shift",
+    unshift = dispatch "unshift",
+  },
+
+
+  __index    = dispatch "__index",
+  __newindex = dispatch "__newindex",
+
+  __call     = core_metatable.__call,
+  __len      = core_metatable.__len,
+  __tostring = core_metatable.__tostring,
+}
+
 
 return Array

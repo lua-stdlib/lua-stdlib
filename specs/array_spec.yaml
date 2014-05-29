@@ -14,6 +14,9 @@ specify Array:
     -- discard overflowed element
     array:pop ()
 
+    local aliens = Array ("int", {42})
+    have_alien = aliens.allocated > 0
+
 - describe __call:
   - it diagnoses wrong argument types: |
       expect (Array (1, 2)).
@@ -69,6 +72,19 @@ specify Array:
         end
         expect (a.type).to_be (array.type)
   - context with specified element type:
+    - it constructs an alien managed array when possible:
+        if have_alien then
+          a = array ("int", {1, 1, 2, 3, 5})
+          expect (a.allocated).not_to_be (0)
+          b = a ("int", {1, 4, 9, 16, 25})
+          expect (b.allocated).not_to_be (0)
+        end
+    - it constructs a tabular array when necessary:
+        aliens = Array ("int", {1, 1, 2, 3, 5})
+        a = aliens ("table", {1, 2, 5})
+        expect (a.allocated).to_be (0)
+        b = a ("table", {1, 4, 9, 16, 25})
+        expect (a.allocated).to_be (0)
     - it constructs an empty array:
         array = Array "double"
         expect (array.length).to_be (0)
@@ -119,33 +135,46 @@ specify Array:
         array = Array ("table", {
           {v=1}, {v=1}, {v=2}, {v=3}, {v=5}, {v=8}, {v=13}, {v=21}, {v=34}
         })
+    - it constructs an alien managed array when possible:
+        if have_alien then
+          a = array ("int", {1, 1, 2, 3, 5})
+          expect (a.allocated).not_to_be (0)
+          b = array ("int", {1, 4, 9, 16, 25})
+          expect (a.allocated).not_to_be (0)
+        end
+    - it constructs a tabular array when necessary:
+        aliens = Array ("int", {1, 1, 2, 3, 5})
+        a = aliens ("table", {1, 2, 5})
+        expect (a.allocated).to_be (0)
+        b = a ("table", {1, 4, 9, 16, 25})
+        expect (a.allocated).to_be (0)
     - it constructs an empty array:
         array = Array "table"
         expect (array.length).to_be (0)
-        expect (array.type).to_be (nil)
+        expect (array.allocated).to_be (0)
     - it constructs a sized array:
         array = Array ("table", 100)
         expect (array.length).to_be (100)
-        expect (array.type).to_be (nil)
+        expect (array.allocated).to_be (0)
     - it sets uninitialised elements to zero:
         array = Array ("table", 100)
         for i = 1, 100 do
           expect (array[i]).to_be (0)
         end
-        expect (array.type).to_be (nil)
+        expect (array.allocated).to_be (0)
     - it initialises values from a table:
         array = Array ("table", {{v=1}, {v=4}, {v=9}, {v=16}, {v=25}})
         expect (array.length).to_be (5)
         for i = 1, array.length do
           expect (array[i].v).to_be (i * i)
         end
-        expect (array.type).to_be (nil)
+        expect (array.allocated).to_be (0)
     - it contains values from prototype array:
         a = array ()
         for i = 3, array.length do
           expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
         end
-        expect (a.type).to_be (nil)
+        expect (a.allocated).to_be (0)
     - it truncates copied prototype values:
         c = math.floor (array.length / 2)
         a = array ("table", c)
@@ -153,7 +182,7 @@ specify Array:
         for i = 3, a.length do
           expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
         end
-        expect (a.type).to_be (nil)
+        expect (a.allocated).to_be (0)
     - it zero pads copied prototype values:
         a = array ("table", array.length * 2)
         expect (a.length).to_be (array.length * 2)
@@ -163,14 +192,26 @@ specify Array:
         for i = array.length + 1, a.length do
           expect (a[i]).to_be (0)
         end
-        expect (a.type).to_be (nil)
+        expect (a.allocated).to_be (0)
 
 - describe __len:
-  - it returns the number of elements stored:
-      array = Array "char"
-      expect (array.length).to_be (0)
-      array = Array ("short", {1, 2, 3})
-      expect (array.length).to_be (3)
+  - before: |
+      -- Some luajit releases, and PUC RIO 5.1 don't respect __len
+      -- metamethod for # operator.
+      local t = setmetatable ({}, {__len = function () return 42 end })
+      meta__len = #t == 42
+  - it returns the number of elements stored: |
+      empty = Array "char"
+      trio = Array ("short", {1, 2, 3})
+      if meta__len then
+        -- __len metamethod support available
+        expect (#empty).to_be (0)
+        expect (#trio).to_be (3)
+      else
+        -- have to get the length explicitly
+        expect (empty.length).to_be (0)
+        expect (trio.length).to_be (3)
+      end
 
 - describe __index:
   - it returns nil for an empty array:
@@ -284,13 +325,18 @@ specify Array:
     - it diagnoses missing arguments: |
         expect (Array.push ()).
           to_error "bad argument #1 to 'push' (Array expected, got no value)"
-        expect (Array.push (array)).
-          to_error "bad argument #2 to 'push' (number expected, got no value)"
+        if array.allocated > 0 then
+          -- non-alien managed arrays don't require number valued argument #2
+          expect (Array.push (array)).
+            to_error "bad argument #2 to 'push' (number expected, got no value)"
+        end
     - it diagnoses wrong argument types: |
         expect (Array.push (1234)).
           to_error "bad argument #1 to 'push' (Array expected, got number)"
-        expect (Array.push (array, "short")).
-          to_error "bad argument #2 to 'push' (number expected, got string)"
+        if array.allocated > 0 then
+          expect (Array.push (array, "short")).
+            to_error "bad argument #2 to 'push' (number expected, got string)"
+        end
     - it adds a single element to an empty array:
         array = Array "int"
         Array.push (array, 42)
@@ -314,11 +360,15 @@ specify Array:
         # use an intentionally short array for this example.
         array = Array ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
-        expect (array:push ()).
-          to_error "bad argument #2 to 'push' (number expected, got no value)"
+        if array.allocated > 0 then
+          expect (array:push ()).
+            to_error "bad argument #2 to 'push' (number expected, got no value)"
+        end
     - it diagnoses wrong argument type: |
-        expect (array:push ("short")).
-          to_error "bad argument #2 to 'push' (number expected, got string)"
+        if array.allocated > 0 then
+          expect (array:push ("short")).
+            to_error "bad argument #2 to 'push' (number expected, got string)"
+        end
     - it adds a single element to an empty array:
         array = Array "int"
         array:push (42)
@@ -414,8 +464,10 @@ specify Array:
           to_error "bad argument #1 to 'set' (Array expected, got no value)"
         expect (Array.set (array)).
           to_error "bad argument #2 to 'set' (number expected, got no value)"
-        expect (Array.set (array, 1)).
-          to_error "bad argument #3 to 'set' (number expected, got no value)"
+        if array.allocated > 0 then
+          expect (Array.set (array, 1)).
+            to_error "bad argument #3 to 'set' (number expected, got no value)"
+        end
         expect (Array.set (array, 1, 0)).
           to_error "bad argument #4 to 'set' (number expected, got no value)"
     - it diagnoses wrong argument types: |
@@ -423,8 +475,10 @@ specify Array:
           to_error "bad argument #1 to 'set' (Array expected, got number)"
         expect (Array.set (array, "bogus")).
           to_error "bad argument #2 to 'set' (number expected, got string)"
-        expect (Array.set (array, 1, {0})).
-          to_error "bad argument #3 to 'set' (number expected, got table)"
+        if array.allocated > 0 then
+          expect (Array.set (array, 1, {0})).
+            to_error "bad argument #3 to 'set' (number expected, got table)"
+        end
         expect (Array.set (array, 1, 0, function () end)).
           to_error "bad argument #4 to 'set' (number expected, got function)"
     - it changes the value of a subsequence of elements:
@@ -469,15 +523,19 @@ specify Array:
     - it diagnoses missing arguments: |
         expect (array:set ()).
           to_error "bad argument #2 to 'set' (number expected, got no value)"
-        expect (array:set (1)).
-          to_error "bad argument #3 to 'set' (number expected, got no value)"
+        if array.allocated > 0 then
+          expect (array:set (1)).
+            to_error "bad argument #3 to 'set' (number expected, got no value)"
+        end
         expect (array:set (1, 0)).
           to_error "bad argument #4 to 'set' (number expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (array:set "bogus").
           to_error "bad argument #2 to 'set' (number expected, got string)"
-        expect (array:set (1, {0})).
-          to_error "bad argument #3 to 'set' (number expected, got table)"
+        if array.allocated > 0 then
+          expect (array:set (1, {0})).
+            to_error "bad argument #3 to 'set' (number expected, got table)"
+        end
         expect (array:set (1, 0, function () end)).
           to_error "bad argument #4 to 'set' (number expected, got function)"
     - it changes the value of a subsequence of elements:
@@ -579,13 +637,17 @@ specify Array:
     - it diagnoses missing arguments: |
         expect (Array.unshift ()).
           to_error "bad argument #1 to 'unshift' (Array expected, got no value)"
-        expect (Array.unshift (array)).
-          to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        if array.allocated > 0 then
+          expect (Array.unshift (array)).
+            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        end
     - it diagnoses wrong argument types: |
         expect (Array.unshift (1234)).
           to_error "bad argument #1 to 'unshift' (Array expected, got number)"
-        expect (Array.unshift (array, "short")).
-          to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        if array.allocated > 0 then
+          expect (Array.unshift (array, "short")).
+            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        end
     - it adds a single element to an empty array:
         array = Array "int"
         Array.unshift (array, 42)
@@ -610,11 +672,15 @@ specify Array:
         # use an intentionally short array for this example.
         array = Array ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
-        expect (array:unshift ()).
-          to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        if array.allocated > 0 then
+          expect (array:unshift ()).
+            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        end
     - it diagnoses wrong argument type: |
-        expect (array:unshift ("short")).
-          to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        if array.allocated > 0 then
+          expect (array:unshift ("short")).
+            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        end
     - it adds a single element to an empty array:
         array = Array "int"
         array:unshift (42)

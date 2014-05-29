@@ -15,7 +15,8 @@ Stdlib NEWS - User visible changes
    disables those functions too.
 
  - New `std.array` object, for clean and fast queue-like or stack-like
-   container management.
+   container management.  When alien is installed, and element types
+   are compatible, use alien.buffers for efficient element management.
 
 ** Incompatible changes:
 
@@ -31,8 +32,8 @@ Stdlib NEWS - User visible changes
 
    If you have any code that calls functions returned from `bind`, you
    need to remove the previously ignored arguments that correspond to
-   the fixed argument positions in the `bind` invocation. 
-     
+   the fixed argument positions in the `bind` invocation.
+
 
 ** Bug fixes:
 
