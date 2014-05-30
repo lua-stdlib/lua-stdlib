@@ -27,7 +27,7 @@ Stdlib NEWS - User visible changes
    an error previously, it now prints "100" as expected.
 
      local function add (a, b) return a + b end
-     local incr = functional.bind (add, 1)
+     local incr = functional.bind (add, {1})
      print (incr (99))
 
    If you have any code that calls functions returned from `bind`, you
