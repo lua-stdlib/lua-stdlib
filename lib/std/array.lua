@@ -275,6 +275,20 @@ core_metatable = {
   end,
 
 
+  --- Iterate consecutively over all elements with `ipairs (array)`.
+  -- @function __ipairs
+  -- @treturn function iterator function
+  __ipairs = function (self)
+    local i, n = 0, self.length
+    return function ()
+      i = i + 1
+      if i <= n then
+        return i, self.buffer[i]
+      end
+    end
+  end,
+
+
   --- Return the `n`th character in this Array.
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
@@ -435,6 +449,16 @@ local alien_functions = {
 
 alien_metatable = {
   _type = "Array",
+
+  __ipairs = function (self)
+    local i, n = 0, self.length
+    return function ()
+      i = i + 1
+      if i <= n then
+        return i, self.buffer:get ((i - 1) * self.size + 1, self.type)
+      end
+    end
+  end,
 
   __index = function (self, n)
     argscheck ("__index", {"Array", {"number", "string"}}, {self, n})
