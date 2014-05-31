@@ -3,8 +3,8 @@
  @module std.io
 ]]
 
+local base    = require "std.base"
 local string  = require "std.string"
-local tree    = require "std.tree"
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
@@ -59,7 +59,7 @@ local function writelines (h, ...)
     io.write (h, "\n")
     h = io.output ()
   end
-  for v in tree.ileaves ({...}) do
+  for v in base.leaves (ipairs, {...}) do
     h:write (v, "\n")
   end
 end
