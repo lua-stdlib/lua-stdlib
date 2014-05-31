@@ -118,10 +118,11 @@ local argerror = base.argerror
 -- or one of the special options below:
 --
 --    #table    accept any non-empty table
+--    any       accept any non-nil argument type
+--    file      accept an open file object
 --    function  accept a function, or object with a __call metamethod
 --    list      accept a table with a non-empty array part
 --    object    accept any std.Object derived type
---    any       accept any non-nil argument type
 --
 -- Call `argerror` if there is a type mismatch.
 --

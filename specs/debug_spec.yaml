@@ -107,11 +107,13 @@ specify std.debug:
         to_contain_error "bad argument"
   - it diagnoses missing primitive types:
       expect (fn ("boolean", nil)).to_error "boolean expected, got no value"
+      expect (fn ("file", nil)).to_error "file expected, got no value"
       expect (fn ("number", nil)).to_error "number expected, got no value"
       expect (fn ("string", nil)).to_error "string expected, got no value"
       expect (fn ("table", nil)).to_error "table expected, got no value"
   - it diagnoses mismatched primitive types:
       expect (fn ("boolean", {0})).to_error "boolean expected, got table"
+      expect (fn ("file", {0})).to_error "file expected, got table"
       expect (fn ("number", {0})).to_error "number expected, got table"
       expect (fn ("string", {0})).to_error "string expected, got table"
       expect (fn ("table", false)).to_error "table expected, got boolean"
@@ -119,6 +121,7 @@ specify std.debug:
         to_error "table expected, got Object"
   - it matches primitive Lua types:
       expect (fn ("boolean", true)).not_to_error ()
+      expect (fn ("file", io.stderr)).not_to_error ()
       expect (fn ("number", 1)).not_to_error ()
       expect (fn ("string", "s")).not_to_error ()
       expect (fn ("table", {})).not_to_error ()

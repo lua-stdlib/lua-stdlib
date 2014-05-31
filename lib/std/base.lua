@@ -58,15 +58,27 @@ else
     -- Check actual has one of the types from expected
     local ok, actualtype = false, prototype (actual)
     for i, check in ipairs (expected) do
-      if check == "any" then
+      if check == "#table" then
+        if actualtype == "table" and next (actual) then
+          ok = true
+        end
+
+      elseif check == "any" then
         expected[i] = "any value"
         if actual ~= nil then
           ok = true
         end
 
-      elseif check == "#table" then
-        if actualtype == "table" and next (actual) then
+      elseif check == "file" then
+        if io.type (actual) == "file" then
           ok = true
+        end
+
+      elseif check == "function" then
+        if actualtype == "function" or
+            (getmetatable (actual) or {}).__call ~= nil
+        then
+           ok = true
         end
 
       elseif check == "list" then
@@ -77,13 +89,6 @@ else
       elseif check == "object" then
         if actualtype ~= "table" and typeof (actual) == "table" then
           ok = true
-        end
-
-      elseif check == "function" then
-        if actualtype == "function" or
-            (getmetatable (actual) or {}).__call ~= nil
-        then
-           ok = true
         end
 
       elseif check == actualtype then
