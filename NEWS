@@ -4,6 +4,9 @@ Stdlib NEWS - User visible changes
 
 ** New features:
 
+ - `object.prototype` now reports "file" for open file handles, and
+   "closed file" for closed file handles.
+
  - New `debug.argerror` and `debug.argcheck` functions that provide Lua
    equivalents of `luaL_argerror` and `luaL_argcheck`.
 

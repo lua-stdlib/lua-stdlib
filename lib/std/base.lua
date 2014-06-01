@@ -3,9 +3,9 @@
 
 local typeof = type
 
--- Doc-commented in container.lua
+-- Doc-commented in object.lua
 local function prototype (o)
-  return (getmetatable (o) or {})._type or type (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 
 

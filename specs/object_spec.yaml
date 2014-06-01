@@ -53,6 +53,18 @@ specify std.object:
         p = Portal {}
         expect (prototype (p)).to_be "Demon"
         expect (prototype (p {})).to_be "Demon"
+    - it recognizes a file object:
+        h = io.open (os.tmpname ())
+        expect (prototype (h)).to_be "file"
+        h:close ()
+        expect (prototype (h)).to_be "closed file"
+    - it recognizes a primitive object:
+        expect (prototype (nil)).to_be "nil"
+        expect (prototype (false)).to_be "boolean"
+        expect (prototype (0.0)).to_be "number"
+        expect (prototype "0.0").to_be "string"
+        expect (prototype (function () end)).to_be "function"
+        expect (prototype {}).to_be "table"
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:prototype ()).to_be "Object"

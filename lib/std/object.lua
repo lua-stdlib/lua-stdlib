@@ -102,23 +102,33 @@ return Container {
     -- string valued `_type` field, which can then be queried using this
     -- function.
     --
-    --     Stack = Object {
-    --       _type = "Stack",
-    --
-    --       __tostring = function (self) ... end,
-    --
-    --       __index = {
-    --         push = function (self) ... end,
-    --         pop  = function (self) ... end,
-    --       },
-    --     }
-    --     stack = Stack {}
-    --
-    --     stack:prototype () --> "Stack"
+    -- Additionally, this function returns the results of `io.type` for
+    -- file objects, or `type` otherwise.
     --
     -- @function prototype
     -- @param x anything
     -- @treturn string type of `x`
+    -- @usage
+    --   local Stack = Object {
+    --     _type = "Stack",
+    --
+    --     __tostring = function (self) ... end,
+    --
+    --     __index = {
+    --       push = function (self) ... end,
+    --       pop  = function (self) ... end,
+    --     },
+    --   }
+    --   local stack = Stack {}
+    --   assert (stack:prototype () == getmetatable (stack)._type)
+    --
+    --   local prototype = Object.prototype
+    --   assert (prototype (stack) == getmetatable (stack)._type)
+    --
+    --   local h = io.open (os.tmpname (), "w")
+    --   assert (prototype (h) == io.type (h))
+    --
+    --   assert (prototype {} == type {})
     prototype = Container.prototype.call,
 
 
