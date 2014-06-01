@@ -10,11 +10,13 @@ local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
+local argcheck = base.argcheck
+
 local M -- forward declaration
 
 
 -- Get an input file handle.
--- @param h file handle or name (default: `io.input ()`)
+-- @tparam[opt=io.input()] file|string h file handle or name
 -- @return file handle, or nil on error
 local function input_handle (h)
   if h == nil then
@@ -25,10 +27,13 @@ local function input_handle (h)
   return h
 end
 
+
 --- Slurp a file handle.
--- @param h file handle or name (default: `io.input ()`)
+-- @tparam[opt=io.input()] file|string h file handle or name
 -- @return contents of file or handle, or nil if error
 local function slurp (h)
+  argcheck ("std.io.slurp", 1, {"file", "string", "nil"}, h)
+
   h = input_handle (h)
   if h then
     local s = h:read ("*a")
@@ -37,11 +42,14 @@ local function slurp (h)
   end
 end
 
+
 --- Read a file or file handle into a list of lines.
--- @param h file handle or name (default: `io.input ()`);
--- if h is a handle, the file is closed after reading
+-- @tparam[opt=io.input()] file|string h file handle or name
+-- if h is a file, that file is closed after reading
 -- @return list of lines
 local function readlines (h)
+  argcheck ("std.io.readlines", 1, {"file", "string", "nil"}, h)
+
   h = input_handle (h)
   local l = {}
   for line in h:lines () do
@@ -51,10 +59,13 @@ local function readlines (h)
   return l
 end
 
+
 --- Write values adding a newline after each.
--- @param h file handle (default: `io.output ()`)
+-- @tparam[opt=io.output()] file|string h file handle or name
 -- @param ... values to write (as for write)
 local function writelines (h, ...)
+  argcheck ("std.io.writelines", 1, {"file", "string", "nil"}, h)
+
   if io.type (h) ~= "file" then
     io.write (h, "\n")
     h = io.output ()
@@ -64,12 +75,15 @@ local function writelines (h, ...)
   end
 end
 
+
 --- Overwrite core methods and metamethods with `std` enhanced versions.
 --
 -- Adds `readlines` and `writelines` metamethods to core file objects.
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 local function monkey_patch (namespace)
+  argcheck ("std.io.monkey_patch", 1, "table", namespace)
+
   namespace = namespace or _G
 
   assert (type (namespace) == "table",
@@ -82,42 +96,63 @@ local function monkey_patch (namespace)
   return M
 end
 
+
 --- Split a directory path into components.
 -- Empty components are retained: the root directory becomes `{"", ""}`.
 -- @param path path
 -- @return list of path components
 local function splitdir (path)
+  argcheck ("std.io.splitdir", 1, "string", path)
+
   return string.split (path, package.dirsep)
 end
 
+
 --- Concatenate one or more directories and a filename into a path.
--- @param ... path components
--- @return path
+-- @string ... path components
+-- @treturn string path
 local function catfile (...)
-  return table.concat ({...}, package.dirsep)
+  local t = {...}
+  for i, v in ipairs (t) do
+    argcheck ("std.io.catfile", i, "string", v)
+  end
+
+  return table.concat (t, package.dirsep)
 end
+
 
 --- Concatenate two or more directories into a path, removing the trailing slash.
 -- @param ... path components
 -- @return path
 local function catdir (...)
-  return (string.gsub (catfile (...), "^$", package.dirsep))
+  t = {...}
+  for i, v in ipairs (t) do
+    argcheck ("std.io.catdir", i, "string", v)
+  end
+
+  return (string.gsub (table.concat (t, package.dirsep), "^$", package.dirsep))
 end
+
 
 --- Perform a shell command and return its output.
 -- @param c command
 -- @return output, or nil if error
 local function shell (c)
+  argcheck ("std.io.shell", 1, "string", c)
+
   return slurp (io.popen (c))
 end
+
 
 --- Process files specified on the command-line.
 -- If no files given, process `io.stdin`; in list of files,
 -- `-` means `io.stdin`.
 -- @todo Make the file list an argument to the function.
--- @param f function to process files with, which is passed
+-- @tparam function f function to process files with, which is passed
 -- `(name, arg_no)`
 local function process_files (f)
+  argcheck ("std.io.process_files", 1, "function", f)
+
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
     arg[#arg + 1] = "-"
@@ -131,6 +166,7 @@ local function process_files (f)
     f (v, i)
   end
 end
+
 
 --- Give warning with the name of program and file (if any).
 -- If there is a global `prog` table, prefix the message with
@@ -147,9 +183,12 @@ end
 --       require "std.io".warn "oh noes!"
 --     end
 --
--- @param ... arguments for format
+-- @string msg format string
+-- @param ... additional arguments to plug format string specifiers
 -- @see std.optparse:parse
-local function warn (...)
+local function warn (msg, ...)
+  argcheck ("std.io.warn", 1, "string", msg)
+
   local prefix = ""
   if (prog or {}).name then
     prefix = prog.name .. ":"
@@ -168,16 +207,20 @@ local function warn (...)
     end
   end
   if #prefix > 0 then prefix = prefix .. " " end
-  writelines (io.stderr, prefix .. string.format (...))
+  writelines (io.stderr, prefix .. string.format (msg, ...))
 end
+
 
 --- Die with error.
 -- This function uses the same rules to build a message prefix
 -- as @{std.io.warn}.
--- @param ... arguments for format
+-- @string msg format string
+-- @param ... additional arguments to plug format string specifiers
 -- @see std.io.warn
-local function die (...)
-  warn (...)
+local function die (msg, ...)
+  argcheck ("std.io.die", 1, "string", msg)
+
+  warn (msg, ...)
   error ()
 end
 

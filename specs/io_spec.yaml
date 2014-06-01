@@ -32,14 +32,34 @@ specify std.io:
 
 
 - describe catdir:
+  - it diagnoses wrong argument types: |
+      expect (M.catdir (false)).
+        to_error "bad argument #1 to 'std.io.catdir' (string expected, got boolean)"
+      expect (M.catdir ("", false)).
+        to_error "bad argument #2 to 'std.io.catdir' (string expected, got boolean)"
+      expect (M.catdir ("", "false", false)).
+        to_error "bad argument #3 to 'std.io.catdir' (string expected, got boolean)"
 
 
 - describe catfile:
+  - it diagnoses wrong argument types: |
+      expect (M.catfile (false)).
+        to_error "bad argument #1 to 'std.io.catfile' (string expected, got boolean)"
+      expect (M.catfile ("", false)).
+        to_error "bad argument #2 to 'std.io.catfile' (string expected, got boolean)"
+      expect (M.catfile ("", "false", false)).
+        to_error "bad argument #3 to 'std.io.catfile' (string expected, got boolean)"
 
 
 - describe die:
   - before:
       script = [[require "std.io".die "By 'eck!"]]
+  - it diagnoses missing arguments: |
+      expect (M.die ()).
+        to_error "bad argument #1 to 'std.io.die' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.die (false)).
+        to_error "bad argument #1 to 'std.io.die' (string expected, got boolean)"
   - it outputs a message to stderr:
       expect (luaproc (script)).to_fail_with "By 'eck!\n"
   - it ignores `prog.line` without `prog.file` or `prog.name`:
@@ -102,6 +122,12 @@ specify std.io:
           stderr = setmetatable ({}, mt),
         },
       }
+  - it diagnoses missing arguments: |
+      expect (M.monkey_patch ()).
+        to_error "bad argument #1 to 'std.io.monkey_patch' (table expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.monkey_patch (false)).
+        to_error "bad argument #1 to 'std.io.monkey_patch' (table expected, got boolean)"
   - it installs readlines metamethod:
       f (t)
       expect (mt.readlines).to_be (M.readlines)
@@ -113,23 +139,53 @@ specify std.io:
 
 
 - describe process_files:
+  - it diagnoses missing arguments: |
+      expect (M.process_files ()).
+        to_error "bad argument #1 to 'std.io.process_files' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.process_files (false)).
+        to_error "bad argument #1 to 'std.io.process_files' (function expected, got boolean)"
 
 
 - describe readlines:
+  - it diagnoses wrong argument types: |
+      expect (M.readlines (false)).
+        to_error "bad argument #1 to 'std.io.readlines' (file, string or nil expected, got boolean)"
 
 
 - describe shell:
+  - it diagnoses missing arguments: |
+      expect (M.shell ()).
+        to_error "bad argument #1 to 'std.io.shell' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.shell (false)).
+        to_error "bad argument #1 to 'std.io.shell' (string expected, got boolean)"
 
 
 - describe slurp:
+  - it diagnoses wrong argument types: |
+      expect (M.slurp (false)).
+        to_error "bad argument #1 to 'std.io.slurp' (file, string or nil expected, got boolean)"
 
 
 - describe splitdir:
+  - it diagnoses missing arguments: |
+      expect (M.splitdir ()).
+        to_error "bad argument #1 to 'std.io.splitdir' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.splitdir (false)).
+        to_error "bad argument #1 to 'std.io.splitdir' (string expected, got boolean)"
 
 
 - describe warn:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
+  - it diagnoses missing arguments: |
+      expect (M.warn ()).
+        to_error "bad argument #1 to 'std.io.warn' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.warn (false)).
+        to_error "bad argument #1 to 'std.io.warn' (string expected, got boolean)"
   - it outputs a message to stderr:
       expect (luaproc (script)).to_output_error "Ayup!\n"
   - it ignores `prog.line` without `prog.file`, `prog.name` or `opts.program`:
@@ -179,3 +235,6 @@ specify std.io:
 
 
 - describe writelines:
+  - it diagnoses wrong argument types: |
+      expect (M.writelines (false)).
+        to_error "bad argument #1 to 'std.io.writelines' (file, string or nil expected, got boolean)"
