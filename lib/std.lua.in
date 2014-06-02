@@ -11,9 +11,7 @@
  stdlib from the REPL, or in a prototype where you want to throw caution
  to the wind and compatibility with other modules be damned, for example.
  In that case, you can give stdlib permission to scribble all over your
- namespaces with:
-
-   local std = require "std".monkey_patch ()
+ namespaces with the various `monkey_patch` calls in the library.
 
  @todo Write a style guide (indenting/wrapping, capitalisation,
    function and variable names); library functions should call
@@ -34,6 +32,7 @@ local M -- forward declaration
 -- @function monkey_patch
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
+-- @usage local std = require "std".monkey_patch ()
 local function monkey_patch (namespace)
   namespace = namespace or _G
 
@@ -56,6 +55,7 @@ end
 -- @function barrel
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table module table
+-- @usage local std = require "std".barrel ()
 local function barrel (namespace)
   namespace = namespace or _G
 
@@ -91,10 +91,7 @@ end
 --
 -- Lazy load submodules into `std` on first reference.  On initial
 -- load, `std` has the usual single `version` entry, but the `__index`
--- metatable will automatically require submodules on first reference:
---
---     local std = require "std"
---     local prototype = std.container.prototype
+-- metatable will automatically require submodules on first reference.
 -- @table std
 -- @field version release version string
 local version = "General Lua libraries / @VERSION@"
@@ -117,6 +114,9 @@ return setmetatable (M, {
   -- @function __index
   -- @string name submodule name
   -- @return the submodule that was loaded to satisfy the missing `name`
+  -- @usage
+  -- local std = require "std"
+  -- local prototype = std.object.prototype
   __index = function (self, name)
               local ok, t = pcall (require, "std." .. name)
               if ok then
