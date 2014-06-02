@@ -1,5 +1,5 @@
 --[[--
- Additions to the debug module.
+ Additions to the core debug module.
 
  The behaviour of the functions in this module are controlled by the value
  of the global `_DEBUG`.  Not setting `_DEBUG` prior to requiring any of
@@ -38,11 +38,20 @@ local string = require "std.string"
 -- @field argcheck honor argcheck and argscheck calls
 -- @field call do call trace debugging
 -- @field level debugging level
+-- @usage _DEBUG = { argcheck = false, level = 9 }
 
 
---- Print a debugging message.
--- @param n debugging level, defaults to 1
+--- Print a debugging message to `io.stderr`.
+-- Display arguments passed through `std.string.tostring` and separated by tab
+-- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
+-- is a number greater than or equal to *n*.  If `_DEBUG` is false or
+-- nil, nothing is written.
+-- @int[opt=1] n debugging level, smaller is higher priority
 -- @param ... objects to print (as for print)
+-- @usage
+-- local _DEBUG = require "std.debug_init"._DEBUG
+-- _DEBUG.level = 3
+-- say (2, "_DEBUG table contents:", _DEBUG)
 local function say (n, ...)
   local level = 1
   local arg = {n, ...}
@@ -58,14 +67,17 @@ local function say (n, ...)
   end
 end
 
+
+local level = 0
+
 --- Trace function calls.
 -- Use as debug.sethook (trace, "cr"), which is done automatically
--- when _DEBUG.call is set.
+-- when `_DEBUG.call` is set.
 -- Based on test/trace-calls.lua from the Lua distribution.
--- @class function
--- @name trace
--- @param event event causing the call
-local level = 0
+-- @string event event causing the call
+-- @usage
+-- _DEBUG = { call = true }
+-- local debug = require "std.debug"
 local function trace (event)
   local t = debug.getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
@@ -108,6 +120,11 @@ end
 -- @int i argument number
 -- @string[opt] extramsg additional text to append to message inside parentheses
 -- @int[opt=1] level call stack level to blame for the error
+-- @usage
+-- local function slurp (file)
+--   local h, err = input_handle (file)
+--   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+--   ...
 local argerror = base.argerror
 
 
@@ -135,6 +152,10 @@ local argerror = base.argerror
 -- @tparam table|string expected a list of acceptable argument types
 -- @param actual argument passed
 -- @int[opt=2] level call stack level to blame for the error
+-- @usage
+-- local function case (with, branches)
+--   argcheck ("std.functional.case", 2, "#table", branches)
+--   ...
 local argcheck = base.argcheck
 
 
@@ -143,6 +164,10 @@ local argcheck = base.argcheck
 -- @string name function to blame in error message
 -- @tparam table|string expected a list of lists of acceptable argument types
 -- @tparam table|any actual argument value, or table of argument values
+-- @usage
+-- local function curry (f, n)
+--   argscheck ("std.functional.curry", {"function", "number"}, {f, n})
+--   ...
 local argscheck = base.argscheck
 
 
@@ -163,6 +188,9 @@ end
 --- Equivalent to calling `debug.say (1, ...)`
 -- @function debug
 -- @see say
+-- @usage
+-- local debug = require "std.debug"
+-- debug "oh noes!"
 local metatable = {
   __call = function (self, ...)
              say (1, ...)
