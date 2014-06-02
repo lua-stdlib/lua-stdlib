@@ -18,15 +18,40 @@ local function mkscript (code)
   return f
 end
 
-function luaproc (code)
+
+--- Run some Lua code with the given arguments and input.
+-- @string code valid Lua code
+-- @tparam[opt={}] string|table arg single argument, or table of
+--   arguments for the script invocation.
+-- @string[opt] stdin standard input contents for the script process
+-- @treturn specl.shell.Process|nil status of resulting process if
+--   execution was successful, otherwise nil
+function luaproc (code, arg, stdin)
   local f = mkscript (code)
-  local proc = hell.spawn {
-    LUA, f;
-    env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" },
-  }
+  if type (arg) ~= "table" then arg = {arg} end
+  local cmd = {LUA, f, unpack (arg)}
+  -- inject env and stdin keys separately to avoid truncating `...` in
+  -- cmd constructor
+  cmd.env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" }
+  cmd.stdin = stdin
+  local proc = hell.spawn (cmd)
   os.remove (f)
   return proc
 end
+
+
+--- Concatenate the contents of listed existing files.
+-- @string ... names of existing files
+-- @treturn string concatenated contents of those files
+function concat_file_content (...)
+  local t = {}
+  for _, name in ipairs {...} do
+    h = io.open (name)
+    t[#t + 1] = h:read "*a"
+  end
+  return table.concat (t)
+end
+
 
 local function tabulate_output (code)
   local proc = luaproc (code)

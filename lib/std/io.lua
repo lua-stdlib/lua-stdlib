@@ -10,31 +10,36 @@ local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
-local argcheck = base.argcheck
+local argcheck, argerror = base.argcheck, base.argerror
 
 local M -- forward declaration
 
 
--- Get an input file handle.
+--- Get an input file handle.
 -- @tparam[opt=io.input()] file|string h file handle or name
 -- @return file handle, or nil on error
 local function input_handle (h)
   if h == nil then
-    h = io.input ()
+    return io.input ()
   elseif type (h) == "string" then
-    h = io.open (h)
+    return io.open (h)
   end
   return h
 end
 
 
 --- Slurp a file handle.
--- @tparam[opt=io.input()] file|string h file handle or name
+-- @tparam[opt=io.input()] file|string file file handle or name
+--   if file is a file handle, that file is closed after reading
 -- @return contents of file or handle, or nil if error
-local function slurp (h)
-  argcheck ("std.io.slurp", 1, {"file", "string", "nil"}, h)
+-- @see std.io.process_files
+-- @usage contents = slurp (filename)
+local function slurp (file)
+  argcheck ("std.io.slurp", 1, {"file", "string", "nil"}, file)
 
-  h = input_handle (h)
+  local h, err = input_handle (file)
+  if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+
   if h then
     local s = h:read ("*a")
     h:close ()
@@ -44,13 +49,16 @@ end
 
 
 --- Read a file or file handle into a list of lines.
--- @tparam[opt=io.input()] file|string h file handle or name
--- if h is a file, that file is closed after reading
+-- @tparam[opt=io.input()] file|string file file handle or name
+--   if file is a file handle, that file is closed after reading
 -- @return list of lines
-local function readlines (h)
-  argcheck ("std.io.readlines", 1, {"file", "string", "nil"}, h)
+-- @usage list = readlines "/etc/passwd"
+local function readlines (file)
+  argcheck ("std.io.readlines", 1, {"file", "string", "nil"}, file)
 
-  h = input_handle (h)
+  local h, err = input_handle (file)
+  if h == nil then argerror ("std.io.readlines", 1, err, 2) end
+
   local l = {}
   for line in h:lines () do
     l[#l + 1] = line
@@ -61,8 +69,10 @@ end
 
 
 --- Write values adding a newline after each.
--- @tparam[opt=io.output()] file|string h file handle or name
+-- @tparam[opt=io.output()] file h file handle or name
+--   the file is **not** closed after writing
 -- @param ... values to write (as for write)
+-- @usage writelines (io.stdout, "first line", "next line")
 local function writelines (h, ...)
   argcheck ("std.io.writelines", 1, {"file", "string", "nil"}, h)
 
@@ -81,6 +91,7 @@ end
 -- Adds `readlines` and `writelines` metamethods to core file objects.
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
+-- @usage local io = require "std.io".monkey_patch ()
 local function monkey_patch (namespace)
   argcheck ("std.io.monkey_patch", 1, "table", namespace)
 
@@ -101,6 +112,8 @@ end
 -- Empty components are retained: the root directory becomes `{"", ""}`.
 -- @param path path
 -- @return list of path components
+-- @see std.io.catdir
+-- @usage dir_components = splitdir (filepath)
 local function splitdir (path)
   argcheck ("std.io.splitdir", 1, "string", path)
 
@@ -111,8 +124,14 @@ end
 --- Concatenate one or more directories and a filename into a path.
 -- @string ... path components
 -- @treturn string path
+-- @see std.io.catdir
+-- @see std.io.splitdir
+-- @usage filepath = catfile ("relative", "path", "filename")
 local function catfile (...)
   local t = {...}
+  if #t == 0 then
+    argcheck ("std.io.catfile", 1, "string", nil)
+  end
   for i, v in ipairs (t) do
     argcheck ("std.io.catfile", i, "string", v)
   end
@@ -121,9 +140,11 @@ local function catfile (...)
 end
 
 
---- Concatenate two or more directories into a path, removing the trailing slash.
+--- Concatenate directory names into a path.
 -- @param ... path components
--- @return path
+-- @return path without trailing separator
+-- @see std.io.catfile
+-- @usage dirpath = catdir ("", "absolute", "directory")
 local function catdir (...)
   t = {...}
   for i, v in ipairs (t) do
@@ -135,8 +156,11 @@ end
 
 
 --- Perform a shell command and return its output.
--- @param c command
--- @return output, or nil if error
+-- @string c command
+-- @treturn string output, or nil if error
+-- @see std.io.slurp
+-- @see os.execute
+-- @usage users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
 local function shell (c)
   argcheck ("std.io.shell", 1, "string", c)
 
@@ -144,14 +168,28 @@ local function shell (c)
 end
 
 
+------
+-- Signature of `process_files` callback function.
+-- @function process_files_callback
+-- @string[opt] filename filename
+-- @int[opt] i argument number of *filename*
+
+
 --- Process files specified on the command-line.
--- If no files given, process `io.stdin`; in list of files,
--- `-` means `io.stdin`.
+-- Each filename is made the default input source with `io.input`, and
+-- then the filename and argument number are passed to the callback
+-- function. In list of filenames, `-` means `io.stdin`.  If no
+-- filenames were given, behave as if a single `-` was passed.
 -- @todo Make the file list an argument to the function.
--- @tparam function f function to process files with, which is passed
--- `(name, arg_no)`
-local function process_files (f)
-  argcheck ("std.io.process_files", 1, "function", f)
+-- @tparam process_files_callback fn callback function for each file
+--  argument
+-- @see std.io.process_files_callback
+-- @usage #! /usr/bin/env lua
+-- -- minimal cat command
+-- local io = require "std.io"
+-- io.process_files (function () io.write (io.slurp ()) end)
+local function process_files (fn)
+  argcheck ("std.io.process_files", 1, "function", fn)
 
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
@@ -163,7 +201,7 @@ local function process_files (f)
     else
       io.input (v)
     end
-    f (v, i)
+    fn (v, i)
   end
 end
 
@@ -174,18 +212,18 @@ end
 -- if there is a global `opts` table, prefix the message with
 -- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
 -- returns an `opts` table that provides the required `program`
--- field, as long as you assign it back to `_G.opts`:
---
---     local OptionParser = require "std.optparse"
---     local parser = OptionParser "eg 0\nUsage: eg\n"
---     _G.arg, _G.opts = parser:parse (_G.arg)
---     if not _G.opts.keep_going then
---       require "std.io".warn "oh noes!"
---     end
---
+-- field, as long as you assign it back to `_G.opts`.
 -- @string msg format string
 -- @param ... additional arguments to plug format string specifiers
 -- @see std.optparse:parse
+-- @see std.io.die
+-- @usage
+--   local OptionParser = require "std.optparse"
+--   local parser = OptionParser "eg 0\nUsage: eg\n"
+--   _G.arg, _G.opts = parser:parse (_G.arg)
+--   if not _G.opts.keep_going then
+--     require "std.io".warn "oh noes!"
+--   end
 local function warn (msg, ...)
   argcheck ("std.io.warn", 1, "string", msg)
 
@@ -217,6 +255,7 @@ end
 -- @string msg format string
 -- @param ... additional arguments to plug format string specifiers
 -- @see std.io.warn
+-- @usage die ("oh noes! (%s)", tostring (obj))
 local function die (msg, ...)
   argcheck ("std.io.die", 1, "string", msg)
 

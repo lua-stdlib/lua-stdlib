@@ -32,6 +32,8 @@ specify std.io:
 
 
 - describe catdir:
+  - before:
+      dirsep = string.match (package.config, "^([^\n]+)\n")
   - it diagnoses wrong argument types: |
       expect (M.catdir (false)).
         to_error "bad argument #1 to 'std.io.catdir' (string expected, got boolean)"
@@ -39,9 +41,26 @@ specify std.io:
         to_error "bad argument #2 to 'std.io.catdir' (string expected, got boolean)"
       expect (M.catdir ("", "false", false)).
         to_error "bad argument #3 to 'std.io.catdir' (string expected, got boolean)"
+  - it treats no arguments as root directory:
+      expect (M.catdir ()).to_be (dirsep)
+  - it treats initial empty string as root directory:
+      expect (M.catdir ("")).to_be (dirsep)
+      expect (M.catdir ("", "")).to_be (dirsep)
+      expect (M.catdir ("", "root")).to_be (dirsep .. "root")
+  - it returns a single argument unchanged:
+      expect (M.catdir ("hello")).to_be "hello"
+  - it joins multiple arguments with platform directory separator:
+      expect (M.catdir ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (M.catdir ("1", "2", "3", "4", "5")).
+        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe catfile:
+  - before:
+      dirsep = string.match (package.config, "^([^\n]+)\n")
+  - it diagnoses missing arguments: |
+      expect (M.catfile ()).
+        to_error "bad argument #1 to 'std.io.catfile' (string expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (M.catfile (false)).
         to_error "bad argument #1 to 'std.io.catfile' (string expected, got boolean)"
@@ -49,6 +68,16 @@ specify std.io:
         to_error "bad argument #2 to 'std.io.catfile' (string expected, got boolean)"
       expect (M.catfile ("", "false", false)).
         to_error "bad argument #3 to 'std.io.catfile' (string expected, got boolean)"
+  - it treats initial empty string as root directory:
+      expect (M.catfile ("", "")).to_be (dirsep)
+      expect (M.catfile ("", "root")).to_be (dirsep .. "root")
+  - it returns a single argument unchanged:
+      expect (M.catfile ("")).to_be ""
+      expect (M.catfile ("hello")).to_be "hello"
+  - it joins multiple arguments with platform directory separator:
+      expect (M.catfile ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (M.catfile ("1", "2", "3", "4", "5")).
+        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe die:
@@ -139,18 +168,77 @@ specify std.io:
 
 
 - describe process_files:
+  - before:
+      name = "specs/spec_helper.lua"
+      names = {"Makefile", "config.log", "config.status", "specs/spec_helper.lua"}
+      ascript = [[
+        require "std.io".process_files (function (a) print (a) end)
+      ]]
+      iscript = [[
+        require "std.io".process_files (function (_, i) print (i) end)
+      ]]
+      catscript = [[
+        require "std.io".process_files (function () io.write (io.input ():read "*a") end)
+      ]]
   - it diagnoses missing arguments: |
       expect (M.process_files ()).
         to_error "bad argument #1 to 'std.io.process_files' (function expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (M.process_files (false)).
         to_error "bad argument #1 to 'std.io.process_files' (function expected, got boolean)"
+      expect (luaproc (ascript, "not-an-existing-file")).
+        to_contain_error "cannot open file 'not-an-existing-file'"
+  - it defaults to `-` if no arguments were passed:
+      expect (luaproc (ascript)).to_output "-\n"
+  - it iterates over arguments with supplied function:
+      expect (luaproc (ascript, name)).to_output (name .. "\n")
+      expect (luaproc (ascript, names)).
+        to_output (table.concat (names, "\n") .. "\n")
+  - it passes argument numbers to supplied function:
+      expect (luaproc (iscript, names)).to_output "1\n2\n3\n4\n"
+  - it sets each file argument as the default input:
+      expect (luaproc (catscript, name)).to_output (concat_file_content (name))
+      expect (luaproc (catscript, names)).
+        to_output (concat_file_content (unpack (names)))
+  - it processes io.stdin if no arguments were passed:
+      ## FIXME: where does that closing newline come from??
+      expect (luaproc (catscript, nil, "some\nlines\nof input")).to_output "some\nlines\nof input\n"
+  - it processes io.stdin for `-` argument:
+      ## FIXME: where does that closing newline come from??
+      expect (luaproc (catscript, "-", "some\nlines\nof input")).to_output "some\nlines\nof input\n"
 
 
 - describe readlines:
+  - before: |
+      name = "specs/spec_helper.lua"
+      h = io.open (name)
+      lines = {} for l in h:lines () do lines[#lines + 1] = l end
+      h:close ()
+
+      defaultin = io.input ()
+  - after:
+      if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
   - it diagnoses wrong argument types: |
       expect (M.readlines (false)).
         to_error "bad argument #1 to 'std.io.readlines' (file, string or nil expected, got boolean)"
+      expect (M.readlines "not-an-existing-file").
+        to_error "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
+  - it diagnoses closed file argument: |
+      closed = io.open (name, "r") closed:close ()
+      expect (M.readlines (closed)).
+        to_error "bad argument #1 to 'std.io.readlines' (file, string or nil expected, got closed file)"
+  - it closes file handle upon completion:
+      h = io.open (name)
+      expect (io.type (h)).not_to_be "closed file"
+      M.readlines (h)
+      expect (io.type (h)).to_be "closed file"
+  - it reads lines from an existing named file:
+      expect (M.readlines (name)).to_equal (lines)
+  - it reads lines from an open file handle:
+      expect (M.readlines (io.open (name))).to_equal (lines)
+  - it reads from default input stream with no arguments:
+      io.input (name)
+      expect (M.readlines ()).to_equal (lines)
 
 
 - describe shell:
@@ -160,21 +248,58 @@ specify std.io:
   - it diagnoses wrong argument types: |
       expect (M.shell (false)).
         to_error "bad argument #1 to 'std.io.shell' (string expected, got boolean)"
+  - it returns the output from a shell command string:
+      expect (M.shell [[printf '%s\n' 'foo' 'bar']]).to_be "foo\nbar\n"
 
 
 - describe slurp:
+  - before: |
+      name = "specs/spec_helper.lua"
+      h = io.open (name)
+      content = h:read "*a"
+      h:close ()
+
+      defaultin = io.input ()
+  - after:
+      if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
   - it diagnoses wrong argument types: |
       expect (M.slurp (false)).
         to_error "bad argument #1 to 'std.io.slurp' (file, string or nil expected, got boolean)"
+      expect (M.slurp "not-an-existing-file").
+        to_error "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+  - it reads content from an existing named file:
+      expect (M.slurp (name)).to_be (content)
+  - it reads content from an open file handle:
+      expect (M.slurp (io.open (name))).to_be (content)
+  - it closes file handle upon completion:
+      h = io.open (name)
+      expect (io.type (h)).not_to_be "closed file"
+      M.slurp (h)
+      expect (io.type (h)).to_be "closed file"
+  - it reads from default input stream with no arguments:
+      io.input (name)
+      expect (M.slurp ()).to_be (content)
 
 
 - describe splitdir:
+  - before:
+      dirsep = string.match (package.config, "^([^\n]+)\n")
   - it diagnoses missing arguments: |
       expect (M.splitdir ()).
         to_error "bad argument #1 to 'std.io.splitdir' (string expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (M.splitdir (false)).
         to_error "bad argument #1 to 'std.io.splitdir' (string expected, got boolean)"
+  - it returns a filename as a one element list:
+      expect (M.splitdir ("hello")).to_equal {"hello"}
+  - it splits root directory in two empty elements:
+      expect (M.splitdir (dirsep)).to_equal {"", ""}
+  - it returns initial empty string for absolute path:
+      expect (M.splitdir (dirsep .. "root")).to_equal {"", "root"}
+  - it returns multiple components split at platform directory separator:
+      expect (M.splitdir ("one" .. dirsep .. "two")).to_equal {"one", "two"}
+      expect (M.splitdir (table.concat ({"1", "2", "3", "4", "5"}, dirsep))).
+        to_equal {"1", "2", "3", "4", "5"}
 
 
 - describe warn:
@@ -235,6 +360,33 @@ specify std.io:
 
 
 - describe writelines:
+  - before: |
+      name = os.tmpname ()
+      h = io.open (name, "w")
+      lines = M.readlines (io.open "specs/spec_helper.lua")
+
+      defaultout = io.output ()
+  - after:
+      if io.type (defaultout) ~= "closed file" then io.output (defaultout) end
+      h:close ()
+      os.remove (name)
   - it diagnoses wrong argument types: |
       expect (M.writelines (false)).
         to_error "bad argument #1 to 'std.io.writelines' (file, string or nil expected, got boolean)"
+  - it diagnoses closed file argument: |
+      closed = io.open (name) closed:close ()
+      expect (M.writelines (closed)).
+        to_error "bad argument #1 to 'std.io.writelines' (file, string or nil expected, got closed file)"
+  - it does not close the file handle upon completion:
+      expect (io.type (h)).not_to_be "closed file"
+      M.writelines (h, "foo")
+      expect (io.type (h)).not_to_be "closed file"
+  - it writes lines to an open file handle:
+      M.writelines (h, unpack (lines))
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal (lines)
+  - it writes to default output stream with non-file first argument:
+      io.output (h)
+      M.writelines (unpack (lines))
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal (lines)
