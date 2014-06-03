@@ -4,9 +4,14 @@
  @module std.math
 ]]
 
-local M -- forward declaration
+local base = require "std.base"
+
 
 local _floor = math.floor
+local argscheck = base.argscheck
+
+
+local M -- forward declaration
 
 
 --- Extend `math.floor` to take the number of decimal places.
@@ -15,6 +20,8 @@ local _floor = math.floor
 -- @treturn number `n` truncated to `p` decimal places
 -- @usage tenths = floor (magnitude, 1)
 local function floor (n, p)
+  argscheck ("std.math.floor", {"number", {"int", "nil"}}, {n, p})
+
   if p and p ~= 0 then
     local e = 10 ^ p
     return _floor (n * e) / e
@@ -46,6 +53,8 @@ end
 -- @treturn number `n` rounded to `p` decimal places
 -- @usage roughly = round (exactly, 2)
 local function round (n, p)
+  argscheck ("std.math.floor", {"number", {"int", "nil"}}, {n, p})
+
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e
 end
