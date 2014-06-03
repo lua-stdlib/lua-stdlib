@@ -186,8 +186,10 @@ specify std.io:
   - it diagnoses wrong argument types: |
       expect (M.process_files (false)).
         to_error "bad argument #1 to 'std.io.process_files' (function expected, got boolean)"
-      expect (luaproc (ascript, "not-an-existing-file")).
-        to_contain_error "cannot open file 'not-an-existing-file'"
+      expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
+        "cannot open file 'not-an-existing-file'",            -- Lua 5.2
+        "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
+      }
   - it defaults to `-` if no arguments were passed:
       expect (luaproc (ascript)).to_output "-\n"
   - it iterates over arguments with supplied function:
