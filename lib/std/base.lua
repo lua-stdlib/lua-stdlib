@@ -1,5 +1,18 @@
-------
--- @module std.base
+--[[--
+ Prevent dependency loops with key function implementations.
+
+ A few key functions are used in several stdlib modules; we implement those
+ functions in this internal module to prevent dependency loops in the first
+ instance, and to minimise coupling between modules where the use of one of
+ these functions might otherwise load a whole selection of other supporting
+ modules unnecessarily.
+
+ Although the implementations are here for logistical reasons, we re-export
+ them from their respective logical modules so that the api is not affected
+ as far as client code is concerned.
+
+ @module std.base
+]]
 
 local typeof = type
 
