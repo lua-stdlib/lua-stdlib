@@ -42,6 +42,7 @@ local _tostring = _G.tostring
 
 local M = {}
 
+
 --- String append operation.
 -- @param s string
 -- @param c character (1-character string)
@@ -50,6 +51,7 @@ local function __append (s, c)
   return s .. c
 end
 
+
 --- String concatenation operation.
 -- @param s string
 -- @param o object
@@ -57,6 +59,7 @@ end
 local function __concat (s, o)
   return M.tostring (s) .. M.tostring (o)
 end
+
 
 --- String subscript operation.
 -- @param s string
@@ -73,7 +76,6 @@ local function __index (s, i)
 end
 
 
-
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
 -- @param f format
@@ -87,6 +89,7 @@ local function format (f, arg1, ...)
     return _format (f, arg1, ...)
   end
 end
+
 
 --- Extend to allow formatted arguments.
 -- @param v value to assert
@@ -102,6 +105,7 @@ local function assert (v, f, ...)
   end
   return v
 end
+
 
 --- Do find, returning captures as a list.
 -- @param s target string
@@ -119,6 +123,7 @@ local function tfind (s, p, init, plain)
   end
   return pack (p.find (s, p, init, plain))
 end
+
 
 --- Do multiple `find`s on a string.
 -- @param s target string
@@ -140,9 +145,11 @@ local function finds (s, p, init, plain)
   return l
 end
 
+
 --- Split a string at a given separator.
 -- Separator is a Lua pattern, so you have to escape active characters,
 -- `^$()%.[]*+-?` with a `%` prefix to match a literal character in `s`.
+-- @function split
 -- @string s to split
 -- @string[opt="%s*"] sep separator pattern
 -- @return list of strings
@@ -159,6 +166,7 @@ local function split (s, sep)
   end
   return t
 end
+
 
 --- Require a module with a particular version.
 -- @param module module to require
@@ -253,20 +261,24 @@ local function render (x, open, close, elem, pair, sep, roots)
   end
 end
 
+
 ---
 -- @function render_OpenRenderer
 -- @param t table
 -- @return open table string
+
 
 ---
 -- @function render_CloseRenderer
 -- @param t table
 -- @return close table string
 
+
 ---
 -- @function render_ElementRenderer
 -- @param e element
 -- @return element string
+
 
 --- NB. the function should not try to render i and v, or treat them recursively.
 -- @function render_PairRenderer
@@ -277,6 +289,7 @@ end
 -- @param vs value string
 -- @return element string
 
+
 ---
 -- @function render_SeparatorRenderer
 -- @param t table
@@ -285,6 +298,7 @@ end
 -- @param j following index (nil on last call)
 -- @param w following value (nil on last call)
 -- @return separator string
+
 
 --- Extend `tostring` to work better on tables.
 -- @function tostring
@@ -430,6 +444,7 @@ local function caps (s)
                       end))
 end
 
+
 --- Remove any final newline from a string.
 -- @param s string to process
 -- @return processed string
@@ -437,12 +452,14 @@ local function chomp (s)
   return (string.gsub (s, "\n$", ""))
 end
 
+
 --- Escape a string to be used as a pattern.
 -- @param s string to process
 -- @return processed string
 local function escape_pattern (s)
   return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
+
 
 --- Escape a string to be used as a shell token.
 -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
@@ -452,6 +469,7 @@ end
 local function escape_shell (s)
   return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
 end
+
 
 --- Return the English suffix for an ordinal.
 -- @param n number of the day
@@ -470,6 +488,7 @@ local function ordinal_suffix (n)
   end
 end
 
+
 --- Justify a string.
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w).
@@ -485,6 +504,7 @@ local function pad (s, w, p)
   end
   return string.sub (s .. p, 1, w)
 end
+
 
 --- Wrap a string into a paragraph.
 -- @param s string to wrap
@@ -521,6 +541,7 @@ local function wrap (s, w, ind, ind1)
   return r:tostring ()
 end
 
+
 --- Write a number using SI suffixes.
 -- The number is always written to 3 s.f.
 -- @param n number
@@ -543,6 +564,7 @@ local function numbertosi (n)
   return tostring (man) .. s
 end
 
+
 --- Remove leading matter from a string.
 -- @param s string
 -- @param r leading pattern (default: `"%s+"`)
@@ -552,6 +574,7 @@ local function ltrim (s, r)
   return (string.gsub (s, "^" .. r, ""))
 end
 
+
 --- Remove trailing matter from a string.
 -- @param s string
 -- @param r trailing pattern (default: `"%s+"`)
@@ -560,6 +583,7 @@ local function rtrim (s, r)
   r = r or "%s+"
   return (string.gsub (s, r .. "$", ""))
 end
+
 
 --- Remove leading and trailing matter from a string.
 -- @param s string

@@ -159,6 +159,7 @@ M = {
   remove    = remove,
 }
 
+
 --- Make named constants for `package.config`
 -- (undocumented in 5.1; see luaconf.h for C equivalents).
 -- @table package

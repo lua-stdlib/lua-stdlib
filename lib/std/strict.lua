@@ -19,10 +19,12 @@ end
 
 mt.__declared = {}
 
+
 local function what ()
   local d = getinfo (3, "S")
   return d and d.what or "C"
 end
+
 
 --- Detect assignment to undeclared global.
 -- @function __newindex
@@ -36,6 +38,7 @@ mt.__newindex = function (t, n, v)
   end
   rawset (t, n, v)
 end
+
 
 --- Detect derefrence of undeclared global.
 -- @function __index
