@@ -147,8 +147,17 @@ local argerror = base.argerror
 --    any       accept any non-nil argument type
 --    file      accept an open file object
 --    function  accept a function, or object with a __call metamethod
+--    int       accept an integer valued number
 --    list      accept a table with a non-empty array part
 --    object    accept any std.Object derived type
+--    :foo      accept only the exact string ":foo", works for any :-prefixed string
+--
+-- The `:foo` format allows for type-checking of self-documenting
+-- boolean-like constant string parameters predicated on `nil` versus
+-- `:option` instead of `false` versus `true`.  Or you could support
+-- both:
+--
+--    argcheck ("table.copy", 2, {"boolean", ":nometa"}, nometa)
 --
 -- Call `argerror` if there is a type mismatch.
 --

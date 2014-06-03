@@ -133,6 +133,14 @@ specify std.debug:
       expect (fn ("int", 1.0)).not_to_error ()
       expect (fn ("int", 0x1234)).not_to_error ()
       expect (fn ("int", 1.234e3)).not_to_error ()
+  - it diagnoses missing constant string types:
+      expect (fn (":foo", nil)).to_error ":foo expected, got no value"
+  - it diagnoses mismatched constant string types:
+      expect (fn (":foo", false)).to_error ":foo expected, got boolean"
+      expect (fn (":foo", ":bar")).to_error ":foo expected, got :bar"
+      expect (fn (":foo", "foo")).to_error ":foo expected, got string"
+  - it matches constant string types:
+      expect (fn (":foo", ":foo")).not_to_error ()
   - it diagnoses missing callable types:
       expect (fn ("function", nil)).to_error "function expected, got no value"
   - it diagnoses mismatched callable types:

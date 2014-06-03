@@ -109,6 +109,13 @@ else
           ok = true
         end
 
+      elseif typeof (check) == "string" and check:sub (1, 1) == ":" then
+	if check == actual then
+	  ok = true
+	elseif actualtype == "string" and actual:sub (1, 1) == ":" then
+	  actualtype = actual
+	end
+
       elseif check == actualtype then
         ok = true
       end
