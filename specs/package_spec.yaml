@@ -40,8 +40,19 @@ specify std.package:
 - describe find:
   - before: path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
   - it diagnoses missing arguments: |
-      expect (M.find ()).to_error "bad argument #1 to find"
-      expect (M.find (path)).to_error "bad argument #2 to find"
+      expect (M.find ()).
+        to_error "bad argument #1 to 'std.package.find' (string expected, got no value)"
+      expect (M.find (path)).
+        to_error "bad argument #2 to 'std.package.find' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.find (false)).
+        to_error "bad argument #1 to 'std.package.find' (string expected, got boolean)"
+      expect (M.find (path, false)).
+        to_error "bad argument #2 to 'std.package.find' (string expected, got boolean)"
+      expect (M.find (path, "foo", false)).
+        to_error "bad argument #3 to 'std.package.find' (int or nil expected, got boolean)"
+      expect (M.find (path, "foo", 1, 2)).
+        to_error "bad argument #4 to 'std.package.find' (boolean, :plain or nil expected, got number)"
   - it returns nil for unmatched element:
       expect (M.find (path, "unmatchable")).to_be (nil)
   - it returns the element index for a matched element:
@@ -60,8 +71,17 @@ specify std.package:
 
 - describe insert:
   - it diagnoses missing arguments: |
-      expect (M.insert ()).to_error "bad argument #1 to insert"
-      expect (M.insert (path)).to_error "wrong number of arguments"
+      expect (M.insert ()).
+        to_error "bad argument #1 to 'std.package.insert' (string expected, got no value)"
+      expect (M.insert (path)).
+        to_error "bad argument #2 to 'std.package.insert' (int or string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.insert (false)).
+        to_error "bad argument #1 to 'std.package.insert' (string expected, got boolean)"
+      expect (M.insert (path, false)).
+        to_error "bad argument #2 to 'std.package.insert' (string expected, got boolean)"
+      expect (M.insert (path, 1, false)).
+        to_error "bad argument #3 to 'std.package.insert' (string expected, got boolean)"
   - it appends by default:
       expect (M.insert (path, "new")).
         to_be (M.normalize ("begin", "middle", "end", "new"))
@@ -84,9 +104,16 @@ specify std.package:
 - describe mappath:
   - before:
       expected = require "std.string".split (path, M.pathsep)
-  - it diagnoses bad arguments: |
-      expect (M.mappath ()).to_error "bad argument #1 to mappath"
-      expect (M.mappath ("")).to_error "bad argument #2 to mappath"
+  - it diagnoses missing arguments: |
+      expect (M.mappath ()).
+        to_error "bad argument #1 to 'std.package.mappath' (string expected, got no value)"
+      expect (M.mappath ("")).
+        to_error "bad argument #2 to 'std.package.mappath' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.mappath (false)).
+        to_error "bad argument #1 to 'std.package.mappath' (string expected, got boolean)"
+      expect (M.mappath ("", false)).
+        to_error "bad argument #2 to 'std.package.mappath' (function expected, got boolean)"
   - it calls a function with each path element:
       t = {}
       M.mappath (path, function (e) t[#t + 1] = e end)
@@ -102,8 +129,14 @@ specify std.package:
 
 
 - describe normalize:
-  - it diagnoses bad arguments:
-      expect (M.normalize ()).to_error "wrong number of arguments"
+  - it diagnoses missing arguments: |
+      expect (M.normalize ()).
+        to_error "bad argument #1 to 'std.package.normalize' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.normalize (false)).
+        to_error "bad argument #1 to 'std.package.normalize' (string expected, got boolean)"
+      expect (M.normalize ("", false)).
+        to_error "bad argument #2 to 'std.package.normalize' (string expected, got boolean)"
 
   - context with a single element:
     - it strips redundant . directories:
@@ -150,8 +183,14 @@ specify std.package:
 
 
 - describe remove:
-  - it diagnoses bad arguments: |
-      expect (M.remove ()).to_error "bad argument #1 to remove"
+  - it diagnoses missing arguments: |
+      expect (M.remove ()).
+        to_error "bad argument #1 to 'std.package.remove' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.remove (false)).
+        to_error "bad argument #1 to 'std.package.remove' (string expected, got boolean)"
+      expect (M.remove ("", false)).
+        to_error "bad argument #2 to 'std.package.remove' (int or nil expected, got boolean)"
   - it removes the last item by default:
       expect (M.remove (path)).to_be (M.normalize ("begin", "middle"))
   - it pops the first item with pos set to 1:

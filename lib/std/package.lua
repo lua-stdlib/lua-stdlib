@@ -1,5 +1,6 @@
 --[[--
- Additions to the package module.
+ Additions to the core package module.
+
  @module std.package
 ]]
 
@@ -7,9 +8,14 @@
 local M  -- forward declaration
 
 
-local string = require "std.string"
+local base           = require "std.base"
+local case           = require "std.functional".case
+local catfile        = require "std.io".catfile
+local invert         = require "std.table".invert
+local escape_pattern = require "std.string".escape_pattern
 
-local split, escape_pattern = string.split, string.escape_pattern
+local argcheck, argscheck, split =
+      base.argcheck, base.argscheck, base.split
 
 
 --- Look for a path segment match of `patt` in `pathstrings`.
@@ -22,11 +28,12 @@ local split, escape_pattern = string.split, string.escape_pattern
 --   must be given as well.
 -- @return the matching element number (not byte index!) and full text
 --   of the matching element, if any; otherwise nil
+-- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
 local function find (pathstrings, patt, init, plain)
-  assert (type (pathstrings) == "string",
-    "bad argument #1 to find (string expected, got " .. type (pathstrings) .. ")")
-  assert (type (patt) == "string",
-    "bad argument #2 to find (string expected, got " .. type (patt) .. ")")
+  argscheck ("std.package.find",
+    {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+    {pathstrings, patt, init, plain})
+
   local paths = split (pathstrings, M.pathsep)
   if plain then patt = escape_pattern (patt) end
   init = init or 1
@@ -36,8 +43,6 @@ local function find (pathstrings, patt, init, plain)
   end
 end
 
-
-local case    = require "std.functional".case
 
 --- Substitute special characters in a path string.
 -- Characters prefixed with `%` have the `%` stripped, but are not
@@ -56,9 +61,6 @@ local function pathsub (path)
 end
 
 
-local catfile = require "std.io".catfile
-local invert  = require "std.table".invert
-
 --- Normalize a path list.
 -- Removing redundant `.` and `..` directories, and keep only the first
 -- instance of duplicate elements.  Each argument can contain any number
@@ -67,9 +69,15 @@ local invert  = require "std.table".invert
 -- `path_mark` (unless immediately preceded by a `%` character).
 -- @param ... path elements
 -- @treturn string a single normalized `pathsep` delimited paths string
+-- @usage package.path = normalize (user_paths, sys_paths, package.path)
 local function normalize (...)
-  assert (select ("#", ...) > 0, "wrong number of arguments to 'normalize'")
-  local i, paths, pathstrings = 1, {}, table.concat ({...}, M.pathsep)
+  local t = {...}
+  if #t < 1 then argcheck ("std.package.normalize", 1, "string") end
+  for i, v in ipairs (t) do
+    argcheck ("std.package.normalize", i, "string", v)
+  end
+
+  local i, paths, pathstrings = 1, {}, table.concat (t, M.pathsep)
   for _, path in ipairs (split (pathstrings, M.pathsep)) do
     path = pathsub (path):
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
@@ -98,12 +106,22 @@ end
 --   the number of elements prior to insertion
 -- @string value new path element to insert
 -- @treturn string a new string with the new element inserted
+-- @usage
+-- package.path = insert (package.path, 1, install_dir .. "/?.lua")
 
 local unpack = unpack or table.unpack
 
 local function insert (pathstrings, ...)
-  assert (type (pathstrings) == "string",
-    "bad argument #1 to insert (string expected, got " .. type (pathstrings) .. ")")
+  local args, types = {pathstrings, ...}
+  if #args == 1 then
+    types = {"string", {"int", "string"}}
+  elseif #args == 2 then
+    types = {"string", "string"}
+  else
+    types = {"string", "int", "string"}
+  end
+  argscheck ("std.package.insert", types, args)
+
   local paths = split (pathstrings, M.pathsep)
   table.insert (paths, ...)
   return normalize (unpack (paths))
@@ -124,11 +142,11 @@ end
 -- @tparam mappath_callback callback function to call for each element
 -- @param ... additional arguments passed to `callback`
 -- @return nil, or first non-nil returned by `callback`
+-- @usage mappath (package.path, searcherfn, transformfn)
 local function mappath (pathstrings, callback, ...)
-  assert (type (pathstrings) == "string",
-    "bad argument #1 to mappath (string expected, got " .. type (pathstrings) .. ")")
-  assert (type (callback) == "function",
-    "bad argument #2 to mappath (function expected, got " .. type (pathstrings) .. ")")
+  argscheck ("std.package.mappath",
+             {"string", "function"}, {pathstrings, callback})
+
   for _, path in ipairs (split (pathstrings, M.pathsep)) do
     local r = callback (path, ...)
     if r ~= nil then return r end
@@ -141,9 +159,11 @@ end
 -- @int[opt=n] pos element index from which to remove an item, where `n`
 --   is the number of elements prior to removal
 -- @treturn string a new string with given element removed
+-- @usage package.path = remove (package.path)
 local function remove (pathstrings, pos)
-  assert (type (pathstrings) == "string",
-    "bad argument #1 to remove (string expected, got " .. type (pathstrings) .. ")")
+  argscheck ("std.package.remove",
+             {"string", {"int", "nil"}}, {pathstrings, pos})
+
   local paths = split (pathstrings, M.pathsep)
   table.remove (paths, pos)
   return table.concat (paths, M.pathsep)
