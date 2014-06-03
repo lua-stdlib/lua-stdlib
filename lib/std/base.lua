@@ -214,6 +214,21 @@ local function metamethod (x, n)
 end
 
 
+-- Doc-commented in string.lua...
+local function split (s, sep)
+  assert (type (s) == "string",
+          "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
+  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
+  while b <= len do
+    local e, n, m = string.find (s, patt, b + 1)
+    t[#t + 1] = m or s:sub (b + 1, len)
+    b = n or len + 1
+  end
+  return t
+end
+
+
 local M = {
   argcheck   = argcheck,
   argerror   = argerror,
@@ -223,6 +238,7 @@ local M = {
   leaves     = leaves,
   metamethod = metamethod,
   prototype  = prototype,
+  split      = split,
 }
 
 

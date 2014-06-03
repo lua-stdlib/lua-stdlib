@@ -4,13 +4,13 @@
 ]]
 
 local base    = require "std.base"
-local string  = require "std.string"
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
-local argcheck, argerror = base.argcheck, base.argerror
+local argcheck, argerror, leaves, split =
+      base.argcheck, base.argerror, base.leaves, base.split
 
 local M -- forward declaration
 
@@ -80,7 +80,7 @@ local function writelines (h, ...)
     io.write (h, "\n")
     h = io.output ()
   end
-  for v in base.leaves (ipairs, {...}) do
+  for v in leaves (ipairs, {...}) do
     h:write (v, "\n")
   end
 end
@@ -117,7 +117,7 @@ end
 local function splitdir (path)
   argcheck ("std.io.splitdir", 1, "string", path)
 
-  return string.split (path, package.dirsep)
+  return split (path, package.dirsep)
 end
 
 

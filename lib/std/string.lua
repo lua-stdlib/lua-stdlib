@@ -31,11 +31,12 @@
  @module std.string
 ]]
 
+local base   = require "std.base"
 local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
-local metamethod = require "std.base".metamethod
+local metamethod, split = base.metamethod, base.split
 
 local _format   = string.format
 local _tostring = _G.tostring
@@ -154,18 +155,6 @@ end
 -- @string[opt="%s*"] sep separator pattern
 -- @return list of strings
 -- @return list of strings
-local function split (s, sep)
-  assert (type (s) == "string",
-          "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
-  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
-  while b <= len do
-    local e, n, m = string.find (s, patt, b + 1)
-    t[#t + 1] = m or s:sub (b + 1, len)
-    b = n or len + 1
-  end
-  return t
-end
 
 
 --- Require a module with a particular version.
