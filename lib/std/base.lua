@@ -94,6 +94,11 @@ else
            ok = true
         end
 
+      elseif check == "int" then
+        if actualtype == "number" and actual == math.floor (actual) then
+          ok = true
+        end
+
       elseif check == "list" then
         if typeof (actual) == "table" and #actual > 0 then
 	  ok = true

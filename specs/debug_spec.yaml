@@ -122,6 +122,17 @@ specify std.debug:
       expect (fn ("number", 1)).not_to_error ()
       expect (fn ("string", "s")).not_to_error ()
       expect (fn ("table", {})).not_to_error ()
+  - it diagnoses missing int types:
+      expect (fn ("int", nil)).to_error "int expected, got no value"
+  - it diagnoses mismatched int types:
+      expect (fn ("int", false)).to_error "int expected, got boolean"
+      expect (fn ("int", 1.234)).to_error "int expected, got number"
+      expect (fn ("int", 1234e-3)).to_error "int expected, got number"
+  - it matches int types:
+      expect (fn ("int", 1)).not_to_error ()
+      expect (fn ("int", 1.0)).not_to_error ()
+      expect (fn ("int", 0x1234)).not_to_error ()
+      expect (fn ("int", 1.234e3)).not_to_error ()
   - it diagnoses missing callable types:
       expect (fn ("function", nil)).to_error "function expected, got no value"
   - it diagnoses mismatched callable types:
