@@ -22,12 +22,10 @@
  @module std.debug
 ]]
 
-local base   = require "std.base"
-local init   = require "std.debug_init"
-local io     = require "std.io"
-local list   = require "std.list"
-local Object = require "std.object"
-local string = require "std.string"
+local base       = require "std.base"
+local init       = require "std.debug_init"
+local functional = require "std.functional"
+local string     = require "std.string"
 
 
 --- Control std.debug function behaviour.
@@ -39,6 +37,17 @@ local string = require "std.string"
 -- @field call do call trace debugging
 -- @field level debugging level
 -- @usage _DEBUG = { argcheck = false, level = 9 }
+
+
+--- Stringify a list of objects, then tabulate the resulting list of strings.
+-- @tparam table list of elements
+-- @treturn string tab delimited string
+-- @usage s = tabify {...}
+local tabify = functional.compose (
+        -- map (elementfn, iterfn, unnbound_table_arg)
+        functional.bind (functional.map, {string.tostring, base.elems}),
+        -- table.concat (unbound_strbuf_table, "\t")
+        functional.bind (table.concat, {[2] = "\t"}))
 
 
 --- Print a debugging message to `io.stderr`.
@@ -63,7 +72,7 @@ local function say (n, ...)
     ((type (init._DEBUG) == "table" and type (init._DEBUG.level) == "number" and
       init._DEBUG.level >= level)
        or level <= 1) then
-    io.writelines (io.stderr, table.concat (list.map (string.tostring, arg), "\t"))
+    io.stderr:write (tabify (arg) .. "\n")
   end
 end
 
@@ -102,7 +111,7 @@ local function trace (event)
   else
     s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
-  io.writelines (io.stderr, s)
+  io.stderr:write (s .. "\n")
 end
 
 -- Set hooks according to init._DEBUG
