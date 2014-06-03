@@ -83,7 +83,7 @@ local core_functions = {
   -- @int n the number of elements required
   -- @treturn Array the array
   realloc = function (self, n)
-    argscheck ("realloc", {"Array", "number"}, {self, n})
+    argscheck ("realloc", {"Array", "int"}, {self, n})
 
     -- Zero padding for uninitialised elements.
     for i = self.length + 1, n do
@@ -102,7 +102,7 @@ local core_functions = {
   -- @int n number of elements to set
   -- @treturn Array the array
   set = function (self, from, v, n)
-    argscheck ("set", {"Array", "number", "any", "number"},
+    argscheck ("set", {"Array", "int", "any", "int"},
                {self, from, v, n})
 
     local length = self.length
@@ -190,10 +190,10 @@ core_metatable = {
     if init ~= nil then
       -- When called with 2 arguments:
       argcheck ("Array", 1, "string", type)
-      argcheck ("Array", 2, {"number", "table"}, init)
+      argcheck ("Array", 2, {"int", "table"}, init)
     elseif type ~= nil then
       -- When called with 1 argument:
-      argcheck ("Array", 1, {"number", "string", "table"}, type)
+      argcheck ("Array", 1, {"int", "string", "table"}, type)
     end
 
     -- Non-string argument 1 is really an init argument.
@@ -294,7 +294,7 @@ core_metatable = {
   -- @int n 1-based index, or negative to index starting from the right
   -- @treturn string the element at index `n`
   __index = function (self, n)
-    argscheck ("__index", {"Array", {"number", "string"}}, {self, n})
+    argscheck ("__index", {"Array", {"int", "string"}}, {self, n})
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
@@ -313,7 +313,7 @@ core_metatable = {
   -- @param elem value to store at index n
   -- @treturn Array the array
   __newindex = function (self, n, elem)
-    argscheck ("__newindex", {"Array", "number", "any"}, {self, n, elem})
+    argscheck ("__newindex", {"Array", "int", "any"}, {self, n, elem})
 
     if typeof (n) == "number" then
       local used = self.length
@@ -388,7 +388,7 @@ local alien_functions = {
 
 
   realloc = function (self, n)
-    argscheck ("realloc", {"Array", "number"}, {self, n})
+    argscheck ("realloc", {"Array", "int"}, {self, n})
 
     if n > self.allocated or n < self.allocated / 2 then
       self.allocated = n + element_chunk_size
@@ -405,7 +405,7 @@ local alien_functions = {
 
 
   set = function (self, from, v, n)
-    argscheck ("set", {"Array", "number", "number", "number"},
+    argscheck ("set", {"Array", "int", "number", "int"},
                {self, from, v, n})
 
     local used = self.length
@@ -461,7 +461,7 @@ alien_metatable = {
   end,
 
   __index = function (self, n)
-    argscheck ("__index", {"Array", {"number", "string"}}, {self, n})
+    argscheck ("__index", {"Array", {"int", "string"}}, {self, n})
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
@@ -474,7 +474,7 @@ alien_metatable = {
   end,
 
   __newindex = function (self, n, elem)
-    argscheck ("__newindex", {"Array", "number", "number"}, {self, n, elem})
+    argscheck ("__newindex", {"Array", "int", "number"}, {self, n, elem})
 
     if typeof (n) == "number" then
       local used = self.length

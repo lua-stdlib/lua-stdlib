@@ -103,12 +103,12 @@ specify std.functional:
       expect (M.curry ()).
         to_error "bad argument #1 to 'std.functional.curry' (function expected, got no value)"
       expect (M.curry (M.id)).
-        to_error "bad argument #2 to 'std.functional.curry' (number expected, got no value)"
+        to_error "bad argument #2 to 'std.functional.curry' (int expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (M.curry (false)).
         to_error "bad argument #1 to 'std.functional.curry' (function expected, got boolean)"
-      expect (M.curry (M.id, false)).
-        to_error "bad argument #2 to 'std.functional.curry' (number expected, got boolean)"
+      expect (M.curry (M.id, 1.234)).
+        to_error "bad argument #2 to 'std.functional.curry' (int expected, got number)"
   - it returns a zero argument function uncurried:
       expect (M.curry (M.id, 0)).to_be (M.id)
   - it returns a one argument function uncurried:

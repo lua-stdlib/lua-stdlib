@@ -78,7 +78,7 @@ end
 -- > =incr (99), decr (99)
 -- 100     98
 local function curry (f, n)
-  argscheck ("std.functional.curry", {"function", "number"}, {f, n})
+  argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 
   if n <= 1 then
     return f

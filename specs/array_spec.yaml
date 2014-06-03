@@ -22,9 +22,9 @@ specify Array:
       expect (Array (1, 2)).
         to_error "bad argument #1 to 'Array' (string expected, got number)"
       expect (Array (function () end)).
-        to_error "bad argument #1 to 'Array' (number, string or table expected, got function)"
+        to_error "bad argument #1 to 'Array' (int, string or table expected, got function)"
       expect (Array ("int", function () end)).
-        to_error "bad argument #2 to 'Array' (number or table expected, got function)"
+        to_error "bad argument #2 to 'Array' (int or table expected, got function)"
   - context with inherited element type:
     - it constructs an empty array:
         array = Array ()
@@ -431,12 +431,12 @@ specify Array:
         expect (Array.realloc ()).
           to_error "bad argument #1 to 'realloc' (Array expected, got no value)"
         expect (Array.realloc (array)).
-          to_error "bad argument #2 to 'realloc' (number expected, got no value)"
+          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (Array.realloc (1234)).
           to_error "bad argument #1 to 'realloc' (Array expected, got number)"
         expect (Array.realloc (array, "string")).
-          to_error "bad argument #2 to 'realloc' (number expected, got string)"
+          to_error "bad argument #2 to 'realloc' (int expected, got string)"
     - it reduces the number of usable elements:
         array = Array (100)
         Array.realloc (array, 50)
@@ -466,10 +466,10 @@ specify Array:
   - context when called as an object method:
     - it diagnoses missing arguments: |
         expect (array:realloc ()).
-          to_error "bad argument #2 to 'realloc' (number expected, got no value)"
+          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (array:realloc "string").
-          to_error "bad argument #2 to 'realloc' (number expected, got string)"
+          to_error "bad argument #2 to 'realloc' (int expected, got string)"
     - it reduces the number of usable elements:
         array = Array (100):realloc (50)
         expect (array.length).to_be (50)
@@ -498,24 +498,24 @@ specify Array:
         expect (Array.set ()).
           to_error "bad argument #1 to 'set' (Array expected, got no value)"
         expect (Array.set (array)).
-          to_error "bad argument #2 to 'set' (number expected, got no value)"
+          to_error "bad argument #2 to 'set' (int expected, got no value)"
         if array.allocated > 0 then
           expect (Array.set (array, 1)).
             to_error "bad argument #3 to 'set' (number expected, got no value)"
         end
         expect (Array.set (array, 1, 0)).
-          to_error "bad argument #4 to 'set' (number expected, got no value)"
+          to_error "bad argument #4 to 'set' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (Array.set (100)).
           to_error "bad argument #1 to 'set' (Array expected, got number)"
         expect (Array.set (array, "bogus")).
-          to_error "bad argument #2 to 'set' (number expected, got string)"
+          to_error "bad argument #2 to 'set' (int expected, got string)"
         if array.allocated > 0 then
           expect (Array.set (array, 1, {0})).
             to_error "bad argument #3 to 'set' (number expected, got table)"
         end
         expect (Array.set (array, 1, 0, function () end)).
-          to_error "bad argument #4 to 'set' (number expected, got function)"
+          to_error "bad argument #4 to 'set' (int expected, got function)"
     - it changes the value of a subsequence of elements:
         array = Array (100)
         Array.set (array, 25, 1, 50)
@@ -557,22 +557,22 @@ specify Array:
   - context when called as an object method:
     - it diagnoses missing arguments: |
         expect (array:set ()).
-          to_error "bad argument #2 to 'set' (number expected, got no value)"
+          to_error "bad argument #2 to 'set' (int expected, got no value)"
         if array.allocated > 0 then
           expect (array:set (1)).
             to_error "bad argument #3 to 'set' (number expected, got no value)"
         end
         expect (array:set (1, 0)).
-          to_error "bad argument #4 to 'set' (number expected, got no value)"
+          to_error "bad argument #4 to 'set' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (array:set "bogus").
-          to_error "bad argument #2 to 'set' (number expected, got string)"
+          to_error "bad argument #2 to 'set' (int expected, got string)"
         if array.allocated > 0 then
           expect (array:set (1, {0})).
             to_error "bad argument #3 to 'set' (number expected, got table)"
         end
         expect (array:set (1, 0, function () end)).
-          to_error "bad argument #4 to 'set' (number expected, got function)"
+          to_error "bad argument #4 to 'set' (int expected, got function)"
     - it changes the value of a subsequence of elements:
         array = Array (100):set (25, 1, 50)
         for i = 1, array.length do

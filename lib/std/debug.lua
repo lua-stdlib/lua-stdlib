@@ -166,7 +166,7 @@ local argcheck = base.argcheck
 -- @tparam table|any actual argument value, or table of argument values
 -- @usage
 -- local function curry (f, n)
---   argscheck ("std.functional.curry", {"function", "number"}, {f, n})
+--   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 --   ...
 local argscheck = base.argscheck
 
