@@ -1,6 +1,12 @@
 --[[--
  Additions to the core package module.
 
+ The module table returned by `std.package` also contains all of the entries
+ from the core package table.  An hygienic way to import this module, then, is
+ simply to override the core `package` locally:
+
+    local package = require "std.package"
+
  @module std.package
 ]]
 

@@ -1,5 +1,12 @@
 --[[--
- Extensions to the table module.
+ Extensions to the core table module.
+
+ The module table returned by `std.io` also contains all of the entries from
+ the core table module.  An hygienic way to import this module, then, is simply
+ to override the core `table` locally:
+
+    local table = require "std.table"
+
  @module std.table
 ]]
 

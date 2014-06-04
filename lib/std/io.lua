@@ -1,5 +1,12 @@
 --[[--
- Additions to the io module.
+ Additions to the core io module.
+
+ The module table returned by `std.io` also contains all of the entries from
+ the core io table.  An hygienic way to import this module, then, is simply
+ to override the core `io` locally:
+
+    local io = require "std.io"
+
  @module std.io
 ]]
 

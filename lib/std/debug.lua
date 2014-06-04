@@ -1,8 +1,14 @@
 --[[--
  Additions to the core debug module.
 
+ The module table returned by `std.debug` also contains all of the entries
+ from the core debug table.  An hygienic way to import this module, then, is
+ simply to override the core `debug` locally:
+
+    local debug = require "std.debug"
+
  The behaviour of the functions in this module are controlled by the value
- of the global `_DEBUG`.  Not setting `_DEBUG` prior to requiring any of
+ of the global `_DEBUG`.  Not setting `_DEBUG` prior to requiring **any** of
  stdlib's modules is equivalent to having `_DEBUG = true`.
 
  The first line of Lua code in production quality projects that use stdlib

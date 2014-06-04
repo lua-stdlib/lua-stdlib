@@ -1,6 +1,12 @@
 --[[--
  Additions to the core math module.
 
+ The module table returned by `std.io` also contains all of the entries from
+ the core math table.  An hygienic way to import this module, then, is simply
+ to override the core `math` locally:
+
+    local math = require "std.math"
+
  @module std.math
 ]]
 

@@ -1,32 +1,11 @@
 --[[--
- Additions to the string module.
+ Additions to the core string module.
 
- If you `require "std"`, the contents of this module are all available
- in the `std.string` table.
+ The module table returned by `std.string` also contains all of the entries
+ from the core string table.  An hygienic way to import this module, then, is
+ simply to override the core `string` locally:
 
- However, this module also contains references to the Lua core string
- table entries, so it's safe to load it like this:
-
-     local string = require "std.string"
-
- Of course, if you do that you'll lose references to any core string
- functions overwritten by `std.string`, so you might want to save any
- that you want access to before you overwrite them.
-
- If your code does not `require "std"` anywhere, then you'll also need
- to manually overwrite string functions in the global namespace if you
- want to use them from there:
-
-     local assert, tostring = string.assert, string.tostring
-
- And finally, to use the string metatable improvements with all core
- strings, you'll need to merge this module's metatable into the core
- string metatable (again, `require "std"` does this automatically):
-
-     local string_metatable = getmetatable ""
-     string_metatable.__append = string.__append
-     string_metatable.__concat = string.__concat
-     string_metatable.__index = string.__index
+    local string = require "std.string"
 
  @module std.string
 ]]
