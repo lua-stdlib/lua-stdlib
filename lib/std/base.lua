@@ -24,15 +24,9 @@ end
 
 local init = require "std.debug_init"
 
-local _ARGCHECK = init._DEBUG
-if type (init._DEBUG) == "table" then
-  _ARGCHECK = init._DEBUG.argcheck
-  if _ARGCHECK == nil then _ARGCHECK= true end
-end
-
 local argcheck, argerror, argscheck
 
-if not _ARGCHECK then
+if not init._ARGCHECK then
 
   local function nop () end
 
