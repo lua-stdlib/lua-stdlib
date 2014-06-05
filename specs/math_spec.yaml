@@ -62,10 +62,11 @@ specify std.math:
         math = {},
       }
       f (t)
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.math.monkey_patch' (table or nil expected, got boolean)"
   - it installs math.floor function:
       expect (t.math.floor).to_be (M.floor)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 
 - describe round:

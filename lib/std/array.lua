@@ -36,6 +36,8 @@ local argcheck, argscheck = base.argcheck, base.argscheck
 local Container = require "std.container"
 local prototype = Container.prototype
 
+local debug = require "std.debug_init"
+
 local have_alien, alien = pcall (require, "alien")
 local buffer, memmove, memset
 if have_alien then
@@ -187,13 +189,15 @@ core_metatable = {
   -- @tparam[opt] int|table init initial size or list of initial elements
   -- @treturn Array a new Array object
   __call = function (self, type, init)
-    if init ~= nil then
-      -- When called with 2 arguments:
-      argcheck ("Array", 1, "string", type)
-      argcheck ("Array", 2, {"int", "table"}, init)
-    elseif type ~= nil then
-      -- When called with 1 argument:
-      argcheck ("Array", 1, {"int", "string", "table"}, type)
+    if debug._ARGCHECK then
+      if init ~= nil then
+        -- When called with 2 arguments:
+        argcheck ("Array", 1, "string", type)
+        argcheck ("Array", 2, {"int", "table"}, init)
+      elseif type ~= nil then
+        -- When called with 1 argument:
+        argcheck ("Array", 1, {"int", "string", "table"}, type)
+      end
     end
 
     -- Non-string argument 1 is really an init argument.

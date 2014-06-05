@@ -14,7 +14,7 @@ local base = require "std.base"
 
 
 local _floor = math.floor
-local argscheck = base.argscheck
+local argcheck, argscheck = base.argcheck, base.argscheck
 
 
 local M -- forward declaration
@@ -44,9 +44,8 @@ end
 -- @treturn table the module table
 -- @usage require "std.math".monkey_patch ()
 local function monkey_patch (namespace)
+  argcheck ("std.math.monkey_patch", 1, {"table", "nil"}, namespace)
   namespace = namespace or _G
-  assert (type (namespace) == "table",
-          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
 
   namespace.math.floor = floor
   return M

@@ -22,11 +22,11 @@ local function prototype (o)
 end
 
 
-local init = require "std.debug_init"
+local debug = require "std.debug_init"
 
 local argcheck, argerror, argscheck
 
-if not init._ARGCHECK then
+if not debug._ARGCHECK then
 
   local function nop () end
 
@@ -235,8 +235,8 @@ end
 
 -- Doc-commented in string.lua...
 local function split (s, sep)
-  assert (type (s) == "string",
-          "bad argument #1 to 'split' (string expected, got " .. type (s) .. ")")
+  argscheck ("std.string.split", {"string", {"string", "nil"}}, {s, sep})
+
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
   if sep == "" then patt = "(.)"; t[#t + 1] = "" end
   while b <= len do

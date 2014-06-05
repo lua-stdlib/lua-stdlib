@@ -15,6 +15,7 @@ local M  -- forward declaration
 
 
 local base           = require "std.base"
+local debug          = require "std.debug_init"
 local case           = require "std.functional".case
 local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
@@ -78,9 +79,11 @@ end
 -- @usage package.path = normalize (user_paths, sys_paths, package.path)
 local function normalize (...)
   local t = {...}
-  if #t < 1 then argcheck ("std.package.normalize", 1, "string") end
-  for i, v in ipairs (t) do
-    argcheck ("std.package.normalize", i, "string", v)
+  if debug._ARGCHECK then
+    if #t < 1 then argcheck ("std.package.normalize", 1, "string") end
+    for i, v in ipairs (t) do
+      argcheck ("std.package.normalize", i, "string", v)
+    end
   end
 
   local i, paths, pathstrings = 1, {}, table.concat (t, M.pathsep)
@@ -119,14 +122,16 @@ local unpack = unpack or table.unpack
 
 local function insert (pathstrings, ...)
   local args, types = {pathstrings, ...}
-  if #args == 1 then
-    types = {"string", {"int", "string"}}
-  elseif #args == 2 then
-    types = {"string", "string"}
-  else
-    types = {"string", "int", "string"}
+  if debug._ARGCHECK then
+    if #args == 1 then
+      types = {"string", {"int", "string"}}
+    elseif #args == 2 then
+      types = {"string", "string"}
+    else
+      types = {"string", "int", "string"}
+    end
+    argscheck ("std.package.insert", types, args)
   end
-  argscheck ("std.package.insert", types, args)
 
   local paths = split (pathstrings, M.pathsep)
   table.insert (paths, ...)

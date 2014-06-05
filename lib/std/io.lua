@@ -11,6 +11,7 @@
 ]]
 
 local base    = require "std.base"
+local debug   = require "std.debug_init"
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
@@ -136,11 +137,13 @@ end
 -- @usage filepath = catfile ("relative", "path", "filename")
 local function catfile (...)
   local t = {...}
-  if #t == 0 then
-    argcheck ("std.io.catfile", 1, "string", nil)
-  end
-  for i, v in ipairs (t) do
-    argcheck ("std.io.catfile", i, "string", v)
+  if debug._ARGCHECK then
+    if #t == 0 then
+      argcheck ("std.io.catfile", 1, "string", nil)
+    end
+    for i, v in ipairs (t) do
+      argcheck ("std.io.catfile", i, "string", v)
+    end
   end
 
   return table.concat (t, package.dirsep)
@@ -153,9 +156,11 @@ end
 -- @see std.io.catfile
 -- @usage dirpath = catdir ("", "absolute", "directory")
 local function catdir (...)
-  t = {...}
-  for i, v in ipairs (t) do
-    argcheck ("std.io.catdir", i, "string", v)
+  local t = {...}
+  if debug._ARGCHECK then
+    for i, v in ipairs (t) do
+      argcheck ("std.io.catdir", i, "string", v)
+    end
   end
 
   return (string.gsub (table.concat (t, package.dirsep), "^$", package.dirsep))
