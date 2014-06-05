@@ -13,7 +13,6 @@
 
 local base      = require "std.base"
 local Container = require "std.container"
-local list      = require "std.list"
 local func      = require "std.functional"
 
 local prototype = require "std.object".prototype
@@ -223,7 +222,7 @@ Tree = Container {
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
     if prototype (i) == "table" then
-      return list.foldl (func.op["[]"], self, i)
+      return func.fold (func.op["[]"], self, base.elems, i)
     else
       return rawget (self, i)
     end
