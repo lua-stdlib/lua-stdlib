@@ -3,7 +3,7 @@ before: |
   this_module         = "std.string"
   global_table        = "_G"
 
-  extend_base         = { "__append", "__concat", "__index",
+  extend_base         = { "__concat", "__index",
                           "assert", "caps", "chomp", "escape_pattern",
                           "escape_shell", "finds", "format", "ltrim",
                           "monkey_patch", "numbertosi", "ordinal_suffix",
@@ -12,7 +12,6 @@ before: |
                           "tostring", "trim", "wrap" }
 
   M = require (this_module)
-  getmetatable ("").__append = M.__append
   getmetatable ("").__concat = M.__concat
   getmetatable ("").__index = M.__index
 
@@ -231,10 +230,6 @@ specify std.string:
       f  = M.monkey_patch
       t  = {}
       f (t)
-  - it installs append metamethod:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
-      expect (mt.__append).to_be (M.__append)
   - it installs concat metamethod:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""

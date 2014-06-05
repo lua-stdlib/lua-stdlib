@@ -29,15 +29,6 @@ local M = {}
 --[[ ============ ]]--
 
 
---- String append operation.
--- @param s string
--- @param c character (1-character string)
--- @return `s .. c`
-local function __append (s, c)
-  return s .. c
-end
-
-
 --- String concatenation operation.
 -- @param s string
 -- @param o object
@@ -378,7 +369,6 @@ local function monkey_patch (namespace)
   namespace.assert, namespace.tostring = assert, tostring
 
   local string_metatable = getmetatable ""
-  string_metatable.__append = __append
   string_metatable.__concat = __concat
   string_metatable.__index = __index
 
@@ -576,7 +566,6 @@ end
 
 --- @export
 M = {
-  __append        = __append,
   __concat        = __concat,
   __index         = __index,
   assert          = assert,
