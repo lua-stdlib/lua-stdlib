@@ -18,7 +18,14 @@ local prototype = require "std.object".prototype
 
 local Set -- forward declaration
 
--- Primitive methods (know about representation)
+
+
+--[[ ==================== ]]--
+--[[ Primitive Functions. ]]--
+--[[ ==================== ]]--
+
+
+-- These functions know about internal implementatation.
 -- The representation is a table whose tags are the elements, and
 -- whose values are true.
 
@@ -61,7 +68,14 @@ local function elems (set)
 end
 
 
--- High level methods (representation-independent)
+
+--[[ ===================== ]]--
+--[[ High Level Functions. ]]--
+--[[ ===================== ]]--
+
+
+-- These functions are independent of the internal implementation.
+
 
 local difference, symmetric_difference, intersection, union, subset,
       proper_subset, equal
@@ -170,6 +184,12 @@ end
 function equal (set1, set2)
   return subset (set1, set2) and subset (set2, set1)
 end
+
+
+
+--[[ =========== ]]--
+--[[ Set Object. ]]--
+--[[ =========== ]]--
 
 
 --- Set prototype object.

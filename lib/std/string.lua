@@ -23,6 +23,12 @@ local _tostring = _G.tostring
 local M = {}
 
 
+
+--[[ ============ ]]--
+--[[ Metamethods. ]]--
+--[[ ============ ]]--
+
+
 --- String append operation.
 -- @param s string
 -- @param c character (1-character string)
@@ -54,6 +60,12 @@ local function __index (s, i)
     return M[i]
   end
 end
+
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Extend to work better with one argument.

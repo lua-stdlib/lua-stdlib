@@ -11,9 +11,6 @@
 ]]
 
 
-local M  -- forward declaration
-
-
 local base           = require "std.base"
 local debug          = require "std.debug_init"
 local case           = require "std.functional".case
@@ -23,6 +20,37 @@ local escape_pattern = require "std.string".escape_pattern
 
 local argcheck, argscheck, split =
       base.argcheck, base.argscheck, base.split
+
+local M  -- forward declaration
+
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Substitute special characters in a path string.
+-- Characters prefixed with `%` have the `%` stripped, but are not
+-- subject to further substitution.
+-- @string path a path element with explicit `/` and `?` as necessary
+-- @treturn string `path` with `dirsep` and `path_mark` substituted
+--   for `/` and `?`
+local function pathsub (path)
+  return path:gsub ("%%?.", function (capture)
+    return case (capture, {
+           ["?"] = function ()  return M.path_mark end,
+           ["/"] = function ()  return M.dirsep end,
+                   function (s) return s:gsub ("^%%", "", 1) end,
+    })
+  end)
+end
+
+
+
+--[[ ============== ]]--
+--[[ API Functions. ]]--
+--[[ ============== ]]--
 
 
 --- Look for a path segment match of `patt` in `pathstrings`.
@@ -48,23 +76,6 @@ local function find (pathstrings, patt, init, plain)
   for i = init, #paths do
     if paths[i]:find (patt) then return i, paths[i] end
   end
-end
-
-
---- Substitute special characters in a path string.
--- Characters prefixed with `%` have the `%` stripped, but are not
--- subject to further substitution.
--- @string path a path element with explicit `/` and `?` as necessary
--- @treturn string `path` with `dirsep` and `path_mark` substituted
---   for `/` and `?`
-local function pathsub (path)
-  return path:gsub ("%%?.", function (capture)
-    return case (capture, {
-           ["?"] = function ()  return M.path_mark end,
-           ["/"] = function ()  return M.dirsep end,
-                   function (s) return s:gsub ("^%%", "", 1) end,
-    })
-  end)
 end
 
 

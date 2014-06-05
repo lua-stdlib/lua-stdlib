@@ -16,8 +16,13 @@ local init = require "std.debug_init"
 
 local M -- forward declaration
 
--- No need to pull all of std.list into memory.
 local argcheck, argscheck, elems = base.argcheck, base.argscheck, base.elems
+
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Merge one table's fields into another.
@@ -63,6 +68,12 @@ local function merge_namedfields (t, u, keys, nometa)
   end
   return t
 end
+
+
+
+--[[ ============== ]]--
+--[[ API Functions. ]]--
+--[[ ============== ]]--
 
 
 --- Make a shallow copy of a table, including any metatable.

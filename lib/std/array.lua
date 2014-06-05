@@ -45,13 +45,55 @@ if have_alien then
 else
   buffer = function () return {} end
 end
+
 local typeof = type
 
 
 
--- Initial Array prototype object, plus any derived object containing --
--- elements that don't fit in alien buffers use `core_functions` to   --
--- find object methods and `core_metatable` for metamethods.          --
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Number of bytes needed in an alien.buffer for each `type` element.
+-- @string type name of an element type
+-- @treturn int bytes per `type`, or 0 if alien.buffer cannot store `type`s
+local function sizeof (type)
+  local ok, size = pcall ((alien or {}).sizeof, type)
+  return ok and size or 0
+end
+
+
+--- Convert an array element index into a pointer.
+-- @tparam std.array self an array
+-- @int i[opt=1] an index into array
+-- @treturn alien.buffer.pointer suitable for memmove or memset
+local function topointer (self, i)
+  i = i or 1
+  return self.buffer:topointer ((i - 1) * self.size + 1)
+end
+
+
+--- Fast zeroing of a contiguous block of array elements for `alien.buffer`s.
+-- @tparam std.array self an array
+-- @int from index of first element to zero out
+-- @int n number of elements to zero out
+local function setzero (self, from, n)
+  if n > 0 then memset (topointer (self, from), 0, n * self.size) end
+end
+
+
+
+--[[ ================== ]]--
+--[[ Lua Table Manager. ]]--
+--[[ ================== ]]--
+
+
+-- Initial Array prototype object, plus any derived object containing
+-- elements that don't fit in alien buffers use `core_functions` to
+-- find object methods and `core_metatable` for metamethods.
+
+local core_metatable, alien_metatable -- forward declarations
 
 
 local core_functions = {
@@ -136,36 +178,6 @@ local core_functions = {
   end,
 }
 
-
---- Number of bytes needed in an alien.buffer for each `type` element.
--- @string type name of an element type
--- @treturn int bytes per `type`, or 0 if alien.buffer cannot store `type`s
-local function sizeof (type)
-  local ok, size = pcall ((alien or {}).sizeof, type)
-  return ok and size or 0
-end
-
-
---- Convert an array element index into a pointer.
--- @tparam std.array self an array
--- @int i[opt=1] an index into array
--- @treturn alien.buffer.pointer suitable for memmove or memset
-local function topointer (self, i)
-  i = i or 1
-  return self.buffer:topointer ((i - 1) * self.size + 1)
-end
-
-
---- Fast zeroing of a contiguous block of array elements for `alien.buffer`s.
--- @tparam std.array self an array
--- @int from index of first element to zero out
--- @int n number of elements to zero out
-local function setzero (self, from, n)
-  if n > 0 then memset (topointer (self, from), 0, n * self.size) end
-end
-
-
-local core_metatable, alien_metatable -- forward declarations
 
 core_metatable = {
   _type = "Array",
@@ -352,9 +364,15 @@ core_metatable = {
 }
 
 
--- Cloned Array objects with elements managed by an alien buffer use  --
--- `alien_functions` to find object methods and `alien_metatable`     --
--- for metamethods.                                                   --
+
+--[[ ===================== ]]--
+--[[ Alien Buffer Manager. ]]--
+--[[ ===================== ]]--
+
+
+-- Cloned Array objects with elements managed by an alien buffer use
+-- `alien_functions` to find object methods and `alien_metatable`
+-- for metamethods.
 
 
 local element_chunk_size = 16
@@ -490,6 +508,11 @@ alien_metatable = {
 
 
 
+--[[ ========================= ]]--
+--[[ Public Dispatcher Object. ]]--
+--[[ ========================= ]]--
+
+
 --- Return a function that dispatches to a virtual function table.
 -- The __call metamethod ensures that cloned Array objects are assigned
 -- a metatable and method table optimised for the element storage method
@@ -507,7 +530,6 @@ local function dispatch (name)
     return vfns[name] (array, ...)
   end
 end
-
 
 
 ------

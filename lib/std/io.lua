@@ -23,6 +23,12 @@ local argcheck, argerror, leaves, split =
 local M -- forward declaration
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
 --- Get an input file handle.
 -- @tparam[opt=io.input()] file|string h file handle or name
 -- @return file handle, or nil on error
@@ -34,6 +40,12 @@ local function input_handle (h)
   end
   return h
 end
+
+
+
+--[[ ============== ]]--
+--[[ API Functions. ]]--
+--[[ ============== ]]--
 
 
 --- Slurp a file handle.

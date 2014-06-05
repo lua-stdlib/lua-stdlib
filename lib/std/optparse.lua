@@ -97,9 +97,9 @@ local OptionParser -- forward declaration
 -- @func on see @{on}
 
 
---[[ ----------------- ]]--
+--[[ ================= ]]--
 --[[ Helper Functions. ]]--
---[[ ----------------- ]]--
+--[[ ================= ]]--
 
 
 local optional, required

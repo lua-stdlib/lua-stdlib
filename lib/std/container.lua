@@ -61,6 +61,12 @@
 local base = require "std.base"
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
 -- Instantiate a new object based on *proto*.
 --
 -- This is equivalent to:
@@ -102,6 +108,12 @@ local ModuleFunction = {
 local function modulefunction (fn)
   return setmetatable ({_type = "modulefunction", call = fn}, ModuleFunction)
 end
+
+
+
+--[[ ================= ]]--
+--[[ Container Object. ]]--
+--[[ ================= ]]--
 
 
 --- Return `obj` with references to the fields of `src` merged in.

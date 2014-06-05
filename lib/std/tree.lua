@@ -21,6 +21,43 @@ local prototype = require "std.object".prototype
 local Tree -- forward declaration
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Tree iterator.
+-- @tparam  function it iterator function
+-- @tparam  tree|table tr tree or tree-like table
+-- @treturn string   type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @treturn table    path to node ({i\_1...i\_k})
+-- @return           node
+local function _nodes (it, tr)
+  local p = {}
+  local function visit (n)
+    if type (n) == "table" then
+      coroutine.yield ("branch", p, n)
+      for i, v in it (n) do
+        p[#p + 1] = i
+        visit (v)
+        table.remove (p)
+      end
+      coroutine.yield ("join", p, n)
+    else
+      coroutine.yield ("leaf", p, n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+
+
+--[[ ============== ]]--
+--[[ API Functions. ]]--
+--[[ ============== ]]--
+
+
 --- Tree iterator which returns just numbered leaves, in order.
 -- @function ileaves
 -- @static
@@ -80,31 +117,6 @@ local function clone (t, nometa)
     return o
   end
   return copy (r, t)
-end
-
-
---- Tree iterator.
--- @tparam  function it iterator function
--- @tparam  tree|table tr tree or tree-like table
--- @treturn string   type ("leaf", "branch" (pre-order) or "join" (post-order))
--- @treturn table    path to node ({i\_1...i\_k})
--- @return           node
-local function _nodes (it, tr)
-  local p = {}
-  local function visit (n)
-    if type (n) == "table" then
-      coroutine.yield ("branch", p, n)
-      for i, v in it (n) do
-        p[#p + 1] = i
-        visit (v)
-        table.remove (p)
-      end
-      coroutine.yield ("join", p, n)
-    else
-      coroutine.yield ("leaf", p, n)
-    end
-  end
-  return coroutine.wrap (visit), tr
 end
 
 
@@ -183,6 +195,12 @@ local function merge (t, u)
   end
   return t
 end
+
+
+
+--[[ ============ ]]--
+--[[ Tree Object. ]]--
+--[[ ============ ]]--
 
 
 --- Tree prototype object.
