@@ -512,7 +512,6 @@ alien_metatable = {
 --  as appropriate to the element manager of array
 local function dispatch (name)
   return function (array, ...)
-    argcheck (name, 1, "Array", array)
     local vfns = array.size > 0 and alien_functions or core_functions
     return vfns[name] (array, ...)
   end
