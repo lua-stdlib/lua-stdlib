@@ -15,7 +15,8 @@ local base      = require "std.base"
 local Container = require "std.container"
 local func      = require "std.functional"
 
-local prototype = require "std.object".prototype
+local elems, base_leaves, prototype = base.elems, base.leaves, base.prototype
+local fold, op  = func.fold, func.op
 
 local Tree -- forward declaration
 
@@ -66,7 +67,7 @@ end
 local function ileaves (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
-  return base.leaves (ipairs, tr)
+  return base_leaves (ipairs, tr)
 end
 
 
@@ -79,7 +80,7 @@ end
 local function leaves (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
-  return base.leaves (pairs, tr)
+  return base_leaves (pairs, tr)
 end
 
 
@@ -222,7 +223,7 @@ Tree = Container {
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
     if prototype (i) == "table" then
-      return func.fold (func.op["[]"], self, base.elems, i)
+      return fold (op["[]"], self, elems, i)
     else
       return rawget (self, i)
     end
