@@ -46,6 +46,17 @@ Stdlib NEWS - User visible changes
 
  - `optparse.on` now works with `std.strict` enabled.
 
+ - `string.require_version` now extracts the first substring made
+   entirely of digits and periods from the required module's version
+   string before splitting on period.  That means, for version strings
+   like stdlib's "General Lua Libraries / 41" we now correctly compare
+   just the numeric part against specified version range rather than
+   an ASCII comparison of the whole thing as before!
+
+ - The documentation now correcly notes that `string.require_version`
+   looks first in `module.version` and then `module._VERSION` to match
+   the long-standing implementation.
+
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]
 
