@@ -59,8 +59,6 @@ local core_functions = {
   -- @function pop
   -- @return the right-most element
   pop = function (self)
-    argcheck ("pop", 1, "Array", self)
-
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer)
   end,
@@ -71,8 +69,6 @@ local core_functions = {
   -- @param elem new element to be pushed
   -- @return elem
   push = function (self, elem)
-    argscheck ("push", {"Array", "any"}, {self, elem})
-
     local length = self.length + 1
     self.buffer[length] = elem
     self.length = length
@@ -85,7 +81,7 @@ local core_functions = {
   -- @int n the number of elements required
   -- @treturn Array the array
   realloc = function (self, n)
-    argscheck ("realloc", {"Array", "int"}, {self, n})
+    argcheck ("realloc", 2, "int", n)
 
     -- Zero padding for uninitialised elements.
     for i = self.length + 1, n do
@@ -124,8 +120,6 @@ local core_functions = {
   -- @function shift
   -- @return the removed element.
   shift = function (self)
-    argcheck ("shift", 1, "Array", self)
-
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer, 1)
   end,
@@ -136,8 +130,6 @@ local core_functions = {
   -- @param elem new element to be pushed
   -- @treturn elem
   unshift = function (self, elem)
-    argscheck ("unshift", {"Array", "any"}, {self, elem})
-
     self.length = self.length + 1
     table.insert (self.buffer, 1, elem)
     return elem
@@ -298,7 +290,7 @@ core_metatable = {
   -- @int n 1-based index, or negative to index starting from the right
   -- @treturn string the element at index `n`
   __index = function (self, n)
-    argscheck ("__index", {"Array", {"int", "string"}}, {self, n})
+    argcheck ("__index", 2, {"int", "string"}, n)
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
@@ -317,7 +309,7 @@ core_metatable = {
   -- @param elem value to store at index n
   -- @treturn Array the array
   __newindex = function (self, n, elem)
-    argscheck ("__newindex", {"Array", "int", "any"}, {self, n, elem})
+    argcheck ("__newindex", 2, "int",  n)
 
     if typeof (n) == "number" then
       local used = self.length
@@ -339,6 +331,7 @@ core_metatable = {
   -- @treturn int number of elements
   __len = function (self)
     argcheck ("__len", 1, "Array", self)
+
     return self.length
   end,
 
@@ -369,8 +362,6 @@ local element_chunk_size = 16
 
 local alien_functions = {
   pop = function (self)
-    argscheck ("pop", {"Array"}, {self})
-
     local used = self.length
     if used > 0 then
       local elem = self[used]
@@ -382,7 +373,7 @@ local alien_functions = {
 
 
   push = function (self, elem)
-    argscheck ("push", {"Array", "number"}, {self, elem})
+    argcheck ("push", 2, "number", elem)
 
     local used = self.length + 1
     self:realloc (used)
@@ -392,7 +383,7 @@ local alien_functions = {
 
 
   realloc = function (self, n)
-    argscheck ("realloc", {"Array", "int"}, {self, n})
+    argcheck ("realloc", 2, "int", n)
 
     if n > self.allocated or n < self.allocated / 2 then
       self.allocated = n + element_chunk_size
@@ -426,8 +417,6 @@ local alien_functions = {
 
 
   shift = function (self)
-    argscheck ("shift", {"Array"}, {self})
-
     local n = self.length - 1
     if n >= 0 then
       local elem = self[1]
@@ -440,7 +429,7 @@ local alien_functions = {
 
 
   unshift = function (self, elem)
-    argscheck ("unshift", {"Array", "number"}, {self, elem})
+    argcheck ("unshift", 2, "number", elem)
 
     local n = self.length
     self:realloc (n + 1)
@@ -465,7 +454,7 @@ alien_metatable = {
   end,
 
   __index = function (self, n)
-    argscheck ("__index", {"Array", {"int", "string"}}, {self, n})
+    argcheck ("__index", 2, {"int", "string"}, n)
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
@@ -478,7 +467,8 @@ alien_metatable = {
   end,
 
   __newindex = function (self, n, elem)
-    argscheck ("__newindex", {"Array", "int", "number"}, {self, n, elem})
+    argcheck ("__newindex", 2, "int", n)
+    argcheck ("__newindex", 3, "number", elem)
 
     if typeof (n) == "number" then
       local used = self.length
@@ -512,6 +502,7 @@ alien_metatable = {
 --  as appropriate to the element manager of array
 local function dispatch (name)
   return function (array, ...)
+    argcheck (name, 1, "Array", array)
     local vfns = array.size > 0 and alien_functions or core_functions
     return vfns[name] (array, ...)
   end
