@@ -60,6 +60,9 @@ specify std.string:
 - describe assert:
   - before:
       f = M.assert
+  - it diagnoses wrong argument types: |
+      expect (f (false, false)).
+        to_error "bad argument #2 to 'std.string.assert' (string or nil expected, got boolean)"
   - context when it does not trigger:
     - it has a truthy initial argument:
         expect (f (1)).not_to_error ()
@@ -86,6 +89,12 @@ specify std.string:
 - describe caps:
   - before:
       f = M.caps
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.caps' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.caps' (string expected, got boolean)"
   - it capitalises words of a string:
       target = "A String \n\n"
       expect (f (subject)).to_be (target)
@@ -97,15 +106,18 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe chomp:
   - before:
       f = M.chomp
       target = "a string \n"
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.chomp' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.chomp' (string expected, got boolean)"
   - it removes a single trailing newline from a string:
       expect (f (subject)).to_be (target)
   - it does not change a string with no trailing newline:
@@ -117,9 +129,6 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_pattern:
@@ -132,6 +141,12 @@ specify std.string:
         magic[meta:sub (i, i)] = true
       end
 
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.escape_pattern' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.escape_pattern' (string expected, got boolean)"
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
@@ -149,14 +164,17 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_shell:
   - before:
       f = M.escape_shell
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.escape_shell' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.escape_shell' (string expected, got boolean)"
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
@@ -183,6 +201,20 @@ specify std.string:
   - before:
       subject = "abcd"
       f = M.finds
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.finds' (string expected, got no value)"
+      expect (f ("string")).
+        to_error "bad argument #2 to 'std.string.finds' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.finds' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.finds' (string expected, got boolean)"
+      expect (f ("string", "pattern", false)).
+        to_error "bad argument #3 to 'std.string.finds' (int or nil expected, got boolean)"
+      expect (f ("string", "pattern", nil, "plain")).
+        to_error "bad argument #4 to 'std.string.finds' (boolean, :plain or nil expected, got string)"
   - context given a complex nested list:
     - before:
         target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
@@ -203,9 +235,6 @@ specify std.string:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 # FIXME: This looks like a misfeature to me, let's remove it!
@@ -213,6 +242,12 @@ specify std.string:
   - before: |
       subject = "string: %s, number: %d"
       f = M.format
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.format' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.format' (string expected, got boolean)"
   - it returns a single argument without attempting formatting:
       expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
@@ -221,15 +256,18 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f (nil, "arg")).to_error ("string expected")
-      expect (f ({"a table"}, "arg")).to_error ("string expected")
 
 
 - describe ltrim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
       f = M.ltrim
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.ltrim' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.ltrim' (string expected, got boolean)"
   - it removes whitespace from the start of a string:
       target = "a  short  string  \t\r\n   "
       expect (f (subject)).to_equal (target)
@@ -243,9 +281,6 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe monkey_patch:
@@ -253,6 +288,9 @@ specify std.string:
       f  = M.monkey_patch
       t  = {}
       f (t)
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.monkey_patch' (table or nil expected, got boolean)"
   - it installs concat metamethod:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""
@@ -265,13 +303,17 @@ specify std.string:
       expect (t.assert).to_be (M.assert)
   - it installs the tostring function:
       expect (t.tostring).to_be (M.tostring)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 
 - describe numbertosi:
   - before:
       f = M.numbertosi
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.numbertosi' (number or string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.numbertosi' (number or string expected, got boolean)"
   - it returns a number using SI suffixes:
       target = {"1e-9", "1y", "1z", "1a", "1f", "1p", "1n", "1mu", "1m", "1",
                 "1k", "1M", "1G", "1T", "1P", "1E", "1Z", "1Y", "1e9"}
@@ -283,14 +325,17 @@ specify std.string:
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
       expect (f "1000").to_be "1k"
-  - "it diagnoses non-numeric arguments":
-      expect (f ()).to_error ("attempt to perform arithmetic")
-      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe ordinal_suffix:
   - before:
       f = M.ordinal_suffix
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.ordinal_suffix' (int or string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.ordinal_suffix' (int or string expected, got boolean)"
   - it returns the English suffix for a number:
       subject, target = {}, {}
       for n = -120, 120 do
@@ -306,15 +351,25 @@ specify std.string:
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
       expect (f "-91").to_be "st"
-  - "it diagnoses non-numeric arguments":
-      expect (f ()).to_error ("number expected")
-      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe pad:
   - before:
       width = 20
       f = M.pad
+
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.pad' (string expected, got no value)"
+      expect (f ("string")).
+        to_error "bad argument #2 to 'std.string.pad' (int expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.pad' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.pad' (int expected, got boolean)"
+      expect (f ("string", 42, false)).
+        to_error "bad argument #3 to 'std.string.pad' (string or nil expected, got boolean)"
 
   - context when string is shorter than given width:
     - before:
@@ -348,12 +403,6 @@ specify std.string:
       original = subject
       newstring = f (subject, width)
       expect (subject).to_be (original)
-  - "it coerces non-string arguments to a string":
-      argument = { "a table " }
-      expect (f (argument, width)).to_contain (M.tostring (argument))
-  - "it diagnoses non-numeric width arguments":
-      expect (f (subject, nil)).to_error ("number expected")
-      expect (f (subject, {"a table"})).to_error ("number expected")
 
 
 - describe pickle:
@@ -386,6 +435,11 @@ specify std.string:
 - describe prettytostring:
   - before:
       f = M.prettytostring
+  - it diagnoses wrong argument types: |
+      expect (f (false, false)).
+        to_error "bad argument #2 to 'std.string.prettytostring' (string or nil expected, got boolean)"
+      expect (f (false, "string", false)).
+        to_error "bad argument #3 to 'std.string.prettytostring' (string or nil expected, got boolean)"
   - it renders nil exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))
   - it renders booleans exactly like system tostring:
@@ -428,6 +482,30 @@ specify std.string:
       f = function (x)
             return M.render (x, term "{", term "}", tostring, pair, sep)
           end
+  - it diagnoses missing arguments: |
+      expect (M.render (nil)).
+        to_error "bad argument #2 to 'std.string.render' (function expected, got no value)"
+      expect (M.render (nil, f)).
+        to_error "bad argument #3 to 'std.string.render' (function expected, got no value)"
+      expect (M.render (nil, f, f)).
+        to_error "bad argument #4 to 'std.string.render' (function expected, got no value)"
+      expect (M.render (nil, f, f, f)).
+        to_error "bad argument #5 to 'std.string.render' (function expected, got no value)"
+      expect (M.render (nil, f, f, f, f)).
+        to_error "bad argument #6 to 'std.string.render' (function expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (M.render (nil, false)).
+        to_error "bad argument #2 to 'std.string.render' (function expected, got boolean)"
+      expect (M.render (nil, f, false)).
+        to_error "bad argument #3 to 'std.string.render' (function expected, got boolean)"
+      expect (M.render (nil, f, f, false)).
+        to_error "bad argument #4 to 'std.string.render' (function expected, got boolean)"
+      expect (M.render (nil, f, f, f, false)).
+        to_error "bad argument #5 to 'std.string.render' (function expected, got boolean)"
+      expect (M.render (nil, f, f, f, f, false)).
+        to_error "bad argument #6 to 'std.string.render' (function expected, got boolean)"
+      expect (M.render (nil, f, f, f, f, f, false)).
+        to_error "bad argument #7 to 'std.string.render' (table or nil expected, got boolean)"
   - it converts a primitive to a representative string:
       expect (f (nil)).to_be "nil"
       expect (f (false)).to_be "false"
@@ -452,6 +530,18 @@ specify std.string:
 - describe require_version:
   - before:
       f = M.require_version
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.require_version' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.require_version' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.require_version' (string or nil expected, got boolean)"
+      expect (f ("string", "string", false)).
+        to_error "bad argument #3 to 'std.string.require_version' (string or nil expected, got boolean)"
+      expect (f ("string", "string", "string", false)).
+        to_error "bad argument #4 to 'std.string.require_version' (string or nil expected, got boolean)"
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
   - it diagnoses module too old:
@@ -496,6 +586,12 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
       f = M.rtrim
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.rtrim' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.rtrim' (string expected, got boolean)"
   - it removes whitespace from the end of a string:
       target = " \t\r\n  a  short  string"
       expect (f (subject)).to_equal (target)
@@ -509,9 +605,6 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe split:
@@ -519,6 +612,14 @@ specify std.string:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
       f = M.split
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.split' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.split' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.split' (string or nil expected, got boolean)"
   - it returns a one-element list for an empty string:
       expect (f ("", ", ")).to_equal {""}
   - it makes a table of substrings delimited by a separator:
@@ -548,15 +649,26 @@ specify std.string:
   - it takes a Lua pattern as a separator:
       expect (f (subject, "%s+")).
         to_equal {"first,", "the", "second", "one,", "final", "entry"}
-  - it diagnoses non-string arguments:
-      expect (f (nil, ",")).to_error ("string expected")
-      expect (f ({"a table"}, ",")).to_error ("string expected")
 
 
 - describe tfind:
   - before:
       subject = "abc"
       f = M.tfind
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.tfind' (string expected, got no value)"
+      expect (f ("string")).
+        to_error "bad argument #2 to 'std.string.tfind' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.tfind' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.tfind' (string expected, got boolean)"
+      expect (f ("string", "pattern", false)).
+        to_error "bad argument #3 to 'std.string.tfind' (int or nil expected, got boolean)"
+      expect (f ("string", "pattern", 1, "plain")).
+        to_error "bad argument #4 to 'std.string.tfind' (boolean, :plain or nil expected, got string)"
   - it creates a list of pattern captures:
       target = { 1, 3, { "a", "b", "c" } }
       expect ({f (subject, "(.)(.)(.)")}).to_equal (target)
@@ -576,9 +688,6 @@ specify std.string:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe tostring:
@@ -610,6 +719,12 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
       f = M.trim
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.trim' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.trim' (string expected, got boolean)"
   - it removes whitespace from each end of a string:
       target = "a  short  string"
       expect (f (subject)).to_equal (target)
@@ -623,37 +738,46 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe wrap:
   - before:
       subject = "This is a collection of Lua libraries for Lua 5.1 " ..
         "and 5.2. The libraries are copyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for details), and released und" ..
+        "-2014 (see the AUTHORS file for details), and released und" ..
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
       f = M.wrap
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.wrap' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.wrap' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.wrap' (int or nil expected, got boolean)"
+      expect (f ("string", 72, false)).
+        to_error "bad argument #3 to 'std.string.wrap' (int or nil expected, got boolean)"
+      expect (f ("string", 72, 4, false)).
+        to_error "bad argument #4 to 'std.string.wrap' (int or nil expected, got boolean)"
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries are\ncopyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for details), and\nreleased un" ..
+        "-2014 (see the AUTHORS file for details), and\nreleased un" ..
         "der the MIT license (the same license as Lua itself). Ther" ..
         "e is no\nwarranty."
       expect (f (subject)).to_be (target)
   - it honours a column width parameter:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries\nare copyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for\ndetails), and released un" ..
+        "-2014 (see the AUTHORS file for\ndetails), and released un" ..
         "der the MIT license (the same license as Lua\nitself). The" ..
         "re is no warranty."
       expect (f (subject, 72)).to_be (target)
   - it supports indenting by a fixed number of columns:
       target = "        This is a collection of Lua libraries for L" ..
         "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
-        "eir authors 2000-2013 (see the\n        AUTHORS file for d" ..
+        "eir authors 2000-2014 (see the\n        AUTHORS file for d" ..
         "etails), and released under the MIT license\n        (the " ..
         "same license as Lua itself). There is no warranty."
       expect (f (subject, 72, 8)).to_be (target)
@@ -661,7 +785,7 @@ specify std.string:
     - before:
         target = "    This is a collection of Lua libraries for Lua 5" ..
           ".1 and 5.2.\n  The libraries are copyright by their author" ..
-          "s 2000-2013 (see\n  the AUTHORS file for details), and rel" ..
+          "s 2000-2014 (see\n  the AUTHORS file for details), and rel" ..
           "eased under the MIT\n  license (the same license as Lua it" ..
           "self). There is no\n  warranty."
     - it can indent the first line differently:

@@ -15,7 +15,8 @@ local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
-local metamethod, split = base.metamethod, base.split
+local argcheck, argscheck, metamethod, split =
+      base.argcheck, base.argscheck, base.metamethod, base.split
 
 local _format   = string.format
 local _tostring = _G.tostring
@@ -30,19 +31,25 @@ local M = {}
 
 
 --- String concatenation operation.
--- @param s string
--- @param o object
+-- @string s initial string
+-- @param o object to stringify and concatenate
 -- @return s .. tostring (o)
+-- @usage
+-- local string = require "std.string".monkey_patch ()
+-- concatenated = "foo" .. {"bar"}
 local function __concat (s, o)
   return M.tostring (s) .. M.tostring (o)
 end
 
 
 --- String subscript operation.
--- @param s string
--- @param i index
+-- @string s string
+-- @tparam int|string i index or method name
 -- @return `s:sub (i, i)` if i is a number, otherwise
 --   fall back to a `std.string` metamethod (if any).
+-- @usage
+-- getmetatable ("").__index = require "std.string".__index
+-- third = ("12345")[3]
 local function __index (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
@@ -61,11 +68,14 @@ end
 
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
--- @param f format
--- @param arg1 first argument to format
--- @param ... arguments to format
+-- @function format
+-- @string f format string
+-- @param[opt] ... arguments to format
 -- @return formatted string
+-- @usage print (format "100% stdlib!")
 local function format (f, arg1, ...)
+  argcheck ("std.string.format", 1, "string", f)
+
   if arg1 == nil then
     return f
   else
@@ -76,10 +86,13 @@ end
 
 --- Extend to allow formatted arguments.
 -- @param v value to assert
--- @param f format
--- @param ... arguments to format
+-- @string[opt=""] f format string
+-- @param[opt] ... arguments to format
 -- @return value
+-- @usage assert (expected == actual, "100% unexpected!")
 local function assert (v, f, ...)
+  argcheck ("std.string.assert", 2, {"string", "nil"}, f)
+
   if not v then
     if f == nil then
       f = ""
@@ -90,36 +103,49 @@ local function assert (v, f, ...)
 end
 
 
---- Do find, returning captures as a list.
--- @param s target string
--- @param p pattern
--- @param init start position (default: 1)
--- @param plain inhibit magic characters (default: nil)
--- @return start of match, end of match, table of captures
-local function tfind (s, p, init, plain)
-  assert (type (s) == "string",
-          "bad argument #1 to 'tfind' (string expected, got " .. type (s) .. ")")
-  assert (type (p) == "string",
-          "bad argument #2 to 'tfind' (string expected, got " .. type (p) .. ")")
+--- Do `string.find`, returning a table of captures.
+-- @string s target string
+-- @string pattern pattern to match in *s*
+-- @int[opt=1] init start position
+-- @bool[opt] plain inhibit magic characters
+-- @treturn int start of match
+-- @treturn int end of match
+-- @treturn table list of captured strings
+-- @see std.string.finds
+-- @usage b, e, captures = tfind ("the target string", "%s", 10)
+local function tfind (s, pattern, init, plain)
+  argscheck ("std.string.tfind",
+             {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+	     {s, pattern, init, plain})
+
   local function pack (from, to, ...)
     return from, to, {...}
   end
-  return pack (p.find (s, p, init, plain))
+  return pack (pattern.find (s, pattern, init, plain))
 end
 
 
---- Do multiple `find`s on a string.
--- @param s target string
--- @param p pattern
--- @param init start position (default: 1)
--- @param plain inhibit magic characters (default: nil)
+--- Repeatedly `string.find` until target string is exhausted.
+-- @string s target string
+-- @string pattern pattern to match in *s*
+-- @int[opt=1] init start position
+-- @bool[opt] plain inhibit magic characters
 -- @return list of `{from, to; capt = {captures}}`
-local function finds (s, p, init, plain)
+-- @see std.string.tfind
+-- @usage
+-- for t in list.elems (finds ("the target string", "%S+")) do
+--   print (tostring (t.capt))
+-- end
+local function finds (s, pattern, init, plain)
+  argscheck ("std.string.finds",
+             {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+             {s, pattern, init, plain})
+
   init = init or 1
   local l = {}
   local from, to, r
   repeat
-    from, to, r = tfind (s, p, init, plain)
+    from, to, r = tfind (s, pattern, init, plain)
     if from ~= nil then
       l[#l + 1] = {from, to, capt = r}
       init = to + 1
@@ -136,16 +162,21 @@ end
 -- @string s to split
 -- @string[opt="%s*"] sep separator pattern
 -- @return list of strings
--- @return list of strings
+-- @usage words = split "a very short sentence"
 
 
 --- Require a module with a particular version.
--- @param module module to require
--- @param min lowest acceptable version (default: any)
--- @param too_big lowest version that is too big (default: none)
--- @param pattern to match version in `module.version` or
--- `module._VERSION` (default: `"%D*([%.%d]+)"`)
+-- @string module module to require
+-- @string[opt] min lowest acceptable version
+-- @string[opt] too_big lowest version that is too big
+-- @string[opt] pattern to match version in `module.version` or
+--  `module._VERSION` (default: `"%D*([%.%d]+)"`)
+-- @usage std = require ("std", "41")
 local function require_version (module, min, too_big, pattern)
+  argscheck ("std.string.require_version",
+             {"string", {"string", "nil"}, {"string", "nil"}, {"string", "nil"}},
+	     {module, min, too_big, pattern})
+
   local function version_to_list (v)
     return List (split (v, "%."))
   end
@@ -192,18 +223,25 @@ end
 --- Turn tables into strings with recursion detection.
 -- N.B. Functions calling render should not recurse, or recursion
 -- detection will not work.
--- @see render_OpenRenderer, render_CloseRenderer
--- @see render_ElementRenderer, render_PairRenderer
--- @see render_SeparatorRenderer
 -- @param x object to convert to string
--- @param open open table renderer
--- @param close close table renderer
--- @param elem element renderer
--- @param pair pair renderer
--- @param sep separator renderer
--- @param roots accumulates table references to detect recursion
--- @return string representation
+-- @tparam render_open_table open open table rendering function
+-- @tparam render_close_table close close table rendering function
+-- @tparam render_element elem element rendering function
+-- @tparam render_pair pair pair rendering function
+-- @tparam render_separator sep separator rendering function
+-- @tparam[opt] table roots accumulates table references to detect recursion
+-- @return string representation of *x*
+-- @usage
+-- function tostring (x)
+--   return render (x, mkterminal "{", mkterminal "}", string.tostring,
+--                  function (_, _, _, i, v) return i .. "=" .. v end,
+--                  mkterminal ",")
+-- end
 local function render (x, open, close, elem, pair, sep, roots)
+  argscheck ("std.string.render",
+             {{"any", "nil"}, "function", "function", "function", "function", "function", {"table", "nil"}},
+	     {x, open, close, elem, pair, sep, roots})
+
   local function stop_roots (x)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
@@ -233,48 +271,58 @@ local function render (x, open, close, elem, pair, sep, roots)
 end
 
 
----
--- @function render_OpenRenderer
--- @param t table
--- @return open table string
+--- Signature of render open table callback.
+-- @function render_open_table
+-- @tparam table t table about to be rendered
+-- @treturn string open table rendering
+-- @usage function open (t) return "{" end
 
 
----
--- @function render_CloseRenderer
--- @param t table
--- @return close table string
+--- Signature of render close table callback.
+-- @function render_close_table
+-- @tparam table t table just rendered
+-- @treturn string close table rendering
+-- @usage function close (t) return "}" end
 
 
----
--- @function render_ElementRenderer
--- @param e element
--- @return element string
+--- Signature of render element callback.
+-- @function render_element
+-- @param x element to render
+-- @treturn string element rendering
+-- @usage function element (e) return require "string".tostring (e) end
 
 
---- NB. the function should not try to render i and v, or treat them recursively.
--- @function render_PairRenderer
--- @param t table
--- @param i index
--- @param v value
--- @param is index string
--- @param vs value string
--- @return element string
+--- Signature of render pair callback.
+-- Trying to re-render *key* or *value* here will break recursion
+-- detection, use *strkey* and *strvalue* pre-rendered values instead.
+-- @function render_pair
+-- @tparam table t table containing pair being rendered
+-- @param key key part of key being rendered
+-- @param value value part of key being rendered
+-- @string keystr prerendered *key*
+-- @string valuestr prerendered *value*
+-- @treturn string pair rendering
+-- @usage
+-- function pair (_, _, _, key, value) return key .. "=" .. value end
 
 
----
--- @function render_SeparatorRenderer
--- @param t table
--- @param i preceding index (nil on first call)
--- @param v preceding value (nil on first call)
--- @param j following index (nil on last call)
--- @param w following value (nil on last call)
--- @return separator string
+--- Signature of render separator callback.
+-- @function render_separator
+-- @tparam table t table currently being renedered
+-- @param pk *t* key preceding separator, or `nil` for first key
+-- @param pv *t* value preceding separator, or `nil` for first value
+-- @param fk *t* key following separator, or `nil` for last key
+-- @param fv *t* value following separator, or `nil` for last value
+-- @treturn string separator rendering
+-- @usage function separator (t) return fk and "," or "" end
 
 
---- Extend `tostring` to work better on tables.
--- @function tostring
+--- Extend `tostring` to render table contents as a string.
 -- @param x object to convert to string
--- @return string representation
+-- @treturn string compact string rendering of *x*
+-- @usage
+-- local tostring = require "std.string".tostring
+-- print {foo="bar","baz"} --> {1=baz,foo=bar}
 local function tostring (x)
   return render (x,
                  function () return "{" end,
@@ -292,15 +340,20 @@ local function tostring (x)
 end
 
 
---- Pretty-print a table.
--- @param t table to print
--- @param indent indent between levels ["\t"]
--- @param spacing space before every line
--- @return pretty-printed string
-local function prettytostring (t, indent, spacing)
+--- Pretty-print a table, or other object.
+-- @param x object to convert to string
+-- @string[opt="\t"] indent indent between levels
+-- @string[opt=""] spacing space before every line
+-- @treturn string pretty string rendering of *x*
+-- @usage print (prettytostring (std, "  "))
+local function prettytostring (x, indent, spacing)
+  argscheck ("std.string.prettytostring",
+             {{"any", "nil"}, {"string", "nil"}, {"string", "nil"}},
+	     {x, indent, spacing})
+
   indent = indent or "\t"
   spacing = spacing or ""
-  return render (t,
+  return render (x,
                  function ()
                    local s = spacing .. "{"
                    spacing = spacing .. indent
@@ -360,12 +413,11 @@ end
 -- `std.string` versions.
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
+-- @usage local string = require "std.string".monkey_patch ()
 local function monkey_patch (namespace)
+  argcheck ("std.string.monkey_patch", 1, {"table", "nil"}, namespace)
+
   namespace = namespace or _G
-
-  assert (type (namespace) == "table",
-          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
-
   namespace.assert, namespace.tostring = assert, tostring
 
   local string_metatable = getmetatable ""
@@ -377,10 +429,13 @@ end
 
 
 --- Convert a value to a string.
--- The string can be passed to dostring to retrieve the value.
+-- The string can be passed to `functional.eval` to retrieve the value.
 -- @todo Make it work for recursive tables.
 -- @param x object to pickle
--- @return string such that eval (s) is the same value as x
+-- @treturn string reversible string rendering of *x*
+-- @see functional.eval
+-- @usage
+-- function slow_identity (x) return functional.eval (pickle (x)) end
 local function pickle (x)
   if type (x) == "string" then
     return format ("%q", x)
@@ -405,9 +460,12 @@ end
 
 
 --- Capitalise each word in a string.
--- @param s string
--- @return capitalised string
+-- @string s any string
+-- @treturn string *s* with each word capitalized
+-- @usage userfullname = caps (input_string)
 local function caps (s)
+  argcheck ("std.string.caps", 1, "string", s)
+
   return (string.gsub (s, "(%w)([%w]*)",
                       function (l, ls)
                         return string.upper (l) .. ls
@@ -416,17 +474,23 @@ end
 
 
 --- Remove any final newline from a string.
--- @param s string to process
--- @return processed string
+-- @string s any string
+-- @treturn string *s* with any single trailing newline removed
+-- @usage line = chomp (line)
 local function chomp (s)
+  argcheck ("std.string.chomp", 1, "string", s)
+
   return (string.gsub (s, "\n$", ""))
 end
 
 
 --- Escape a string to be used as a pattern.
--- @param s string to process
--- @return processed string
+-- @string s any string
+-- @treturn string *s* with active pattern characters escaped
+-- @usage substr = inputstr:match (escape_pattern (literal))
 local function escape_pattern (s)
+  argcheck ("std.string.escape_pattern", 1, "string", s)
+
   return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
 
@@ -434,17 +498,25 @@ end
 --- Escape a string to be used as a shell token.
 -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
 -- whitespace.
--- @param s string to process
--- @return processed string
+-- @string s any string
+-- @treturn string *s* with active shell characters escaped
+-- @usage os.execute ("echo " .. escape_shell (outputstr))
 local function escape_shell (s)
+  argcheck ("std.string.escape_shell", 1, "string", s)
+
   return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
 end
 
 
 --- Return the English suffix for an ordinal.
--- @param n number of the day
--- @return suffix
+-- @tparam int|string n any integer value
+-- @treturn string English suffix for *n*
+-- @usage
+-- local now = os.date "*t"
+-- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
 local function ordinal_suffix (n)
+  argcheck ("std.string.ordinal_suffix", 1, {"int", "string"}, n)
+
   n = math.abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
@@ -462,12 +534,16 @@ end
 --- Justify a string.
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w).
--- @param s string to justify
--- @param w width to justify to (-ve means right-justify; +ve means
--- left-justify)
--- @param p string to pad with (default: `" "`)
--- @return justified string
+-- @string s a string to justify
+-- @int w width to justify to (-ve means right-justify; +ve means
+--   left-justify)
+-- @string[opt=" "] p string to pad with
+-- @treturn string *s* justified to *w* characters wide
+-- @usage print (pad (trim (outputstr, 78)) .. "\n")
 local function pad (s, w, p)
+  argscheck ("std.string.pad", {"string", "int", {"string", "nil"}},
+             {s, w, p})
+
   p = string.rep (p or " ", math.abs (w))
   if w < 0 then
     return string.sub (p .. s, w)
@@ -477,19 +553,23 @@ end
 
 
 --- Wrap a string into a paragraph.
--- @param s string to wrap
--- @param w width to wrap to (default: 78)
--- @param ind indent (default: 0)
--- @param ind1 indent of first line (default: ind)
--- @return wrapped paragraph
+-- @string s a paragraph of text
+-- @int[opt=78] w width to wrap to
+-- @int[opt=0] ind indent
+-- @int[opt=ind] ind1 indent of first line
+-- @treturn string *s* wrapped to *w* columns
+-- @usage
+-- print (wrap (copyright, 72, 4))
 local function wrap (s, w, ind, ind1)
+  argscheck ("std.string.wrap",
+             {"string", {"int", "nil"}, {"int", "nil"}, {"int", "nil"}},
+	     {s, w, ind, ind1})
+
   w = w or 78
   ind = ind or 0
   ind1 = ind1 or ind
   assert (ind1 < w and ind < w,
           "the indents must be less than the line width")
-  assert (type (s) == "string",
-          "bad argument #1 to 'wrap' (string expected, got " .. type (s) .. ")")
   local r = StrBuf { string.rep (" ", ind1) }
   local i, lstart, len = 1, ind1, #s
   while i <= #s do
@@ -514,9 +594,12 @@ end
 
 --- Write a number using SI suffixes.
 -- The number is always written to 3 s.f.
--- @param n number
--- @return string
+-- @tparam number|string n any numeric value
+-- @treturn string *n* simplifed using largest available SI suffix.
+-- @usage print (numbertosi (bitspersecond) .. "bps")
 local function numbertosi (n)
+  argcheck ("std.string.numbertosi", 1, {"number", "string"}, n)
+
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
     [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
@@ -536,31 +619,41 @@ end
 
 
 --- Remove leading matter from a string.
--- @param s string
--- @param r leading pattern (default: `"%s+"`)
--- @return string without leading r
+-- @string s any string
+-- @string[opt="%s+"] r leading pattern
+-- @treturn string *s* with leading *r* stripped
+-- @usage print ("got: " .. ltrim (userinput))
 local function ltrim (s, r)
+  argscheck ("std.string.ltrim", {"string", {"string", "nil"}}, {s, r})
+
   r = r or "%s+"
-  return (string.gsub (s, "^" .. r, ""))
+  return s:gsub ("^" .. r, "")
 end
 
 
 --- Remove trailing matter from a string.
--- @param s string
--- @param r trailing pattern (default: `"%s+"`)
--- @return string without trailing r
+-- @string s any string
+-- @string[opt="%s+"] r trailing pattern
+-- @treturn string *s* with trailing *r* stripped
+-- @usage print ("got: " .. rtrim (userinput))
 local function rtrim (s, r)
+  argscheck ("std.string.rtrim", {"string", {"string", "nil"}}, {s, r})
+
   r = r or "%s+"
-  return (string.gsub (s, r .. "$", ""))
+  return s:gsub (r .. "$", "")
 end
 
 
 --- Remove leading and trailing matter from a string.
--- @param s string
--- @param r leading/trailing pattern (default: `"%s+"`)
--- @return string without leading/trailing r
+-- @string s any string
+-- @string[opt="%s+"] r trailing pattern
+-- @treturn string *s* with leading and trailing *r* stripped
+-- @usage print ("got: " .. rtrim (userinput))
 local function trim (s, r)
-  return rtrim (ltrim (s, r), r)
+  argscheck ("std.string.trim", {"string", {"string", "nil"}}, {s, r})
+
+  r = r or "%s+"
+  return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
 end
 
 
