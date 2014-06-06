@@ -163,7 +163,15 @@ local argerror = base.argerror
 -- `:option` instead of `false` versus `true`.  Or you could support
 -- both:
 --
---    argcheck ("table.copy", 2, {"boolean", ":nometa"}, nometa)
+--    argcheck ("table.copy", 2, {"boolean", ":nometa", "nil"}, nometa)
+--
+-- A very common pattern is to have a list of possible types including
+-- "nil" when the argument is optional.  Rather than writing long-hand
+-- as above, append a question mark to at least one of the list types
+-- and omit the explicit "nil" entry.  This is particularly effective
+-- when there is only one acceptable type for an optional argument:
+--
+--    argcheck ("string.assert", 1, "string?", predicate)
 --
 -- Call `argerror` if there is a type mismatch.
 --

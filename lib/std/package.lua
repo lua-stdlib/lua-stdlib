@@ -66,7 +66,7 @@ end
 -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
 local function find (pathstrings, patt, init, plain)
   argscheck ("std.package.find",
-    {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+    {"string", "string", "int?", {"boolean?", ":plain"}},
     {pathstrings, patt, init, plain})
 
   local paths = split (pathstrings, M.pathsep)
@@ -183,8 +183,7 @@ end
 -- @treturn string a new string with given element removed
 -- @usage package.path = remove (package.path)
 local function remove (pathstrings, pos)
-  argscheck ("std.package.remove",
-             {"string", {"int", "nil"}}, {pathstrings, pos})
+  argscheck ("std.package.remove", {"string", "int?"}, {pathstrings, pos})
 
   local paths = split (pathstrings, M.pathsep)
   table.remove (paths, pos)

@@ -145,7 +145,7 @@ end
 -- @param normalize[opt] function to normalize arguments
 -- @return memoized function
 local function memoize (fn, normalize)
-  argscheck ("std.functional.memoize", {"function", {"function", "nil"}},
+  argscheck ("std.functional.memoize", {"function", "function?"},
              {fn, normalize})
 
   if normalize == nil then

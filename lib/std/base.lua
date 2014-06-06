@@ -62,6 +62,22 @@ else
     level = level or 2
     if prototype (expected) ~= "table" then expected = {expected} end
 
+    -- Strip trailing "?" but add "nil" to expected when a "?" is found.
+    local add_nil = nil
+    for i, v in ipairs (expected) do
+      local m, q = v:match "^(.*)(%?)$"
+      if m then
+	expected[i] = m
+        if add_nil == nil and q == "?" then
+          add_nil = true
+        end
+      end
+      if m == "nil" then add_nil = false end
+    end
+    if add_nil then
+      expected[#expected + 1] = "nil"
+    end
+
     -- Check actual has one of the types from expected
     local ok, actualtype = false, prototype (actual)
     for i, check in ipairs (expected) do
@@ -163,9 +179,9 @@ end
 -- @return a function to show the warning on first call, and hand off to *fn*
 -- @usage funcname = deprecate (function (...) ... end, "funcname")
 local function deprecate (fn, name, warnmsg)
-  argscheck ("std.base.deprecate",
-             {"function", {"string", "nil"}, {"string", "nil"}},
+  argscheck ("std.base.deprecate", {"function", "string?", "string?"},
              {fn, name, warnmsg})
+
   if not (name or warnmsg) then
     error ("missing argument to 'std.base.deprecate' (2 or 3 arguments expected)", 2)
   end
@@ -235,7 +251,7 @@ end
 
 -- Doc-commented in string.lua...
 local function split (s, sep)
-  argscheck ("std.string.split", {"string", {"string", "nil"}}, {s, sep})
+  argscheck ("std.string.split", {"string", "string?"}, {s, sep})
 
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
   if sep == "" then patt = "(.)"; t[#t + 1] = "" end

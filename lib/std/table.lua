@@ -90,9 +90,9 @@ end
 -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
 local function clone (t, map, nometa)
   if init._ARGCHECK then
-    local types = {"table", "table", {"boolean", ":nometa", "nil"}}
+    local types = {"table", "table", {"boolean?", ":nometa"}}
     if type (map) ~= "table" then
-      types = {"table", {"table", "boolean", ":nometa", "nil"}}
+      types = {"table", {"table?", "boolean?", ":nometa"}}
     end
     argscheck ("std.table.clone", types, {t, map, nometa})
   end
@@ -133,9 +133,9 @@ local clone_rename = base.deprecate (function (map, t)
 -- partialcopy = clone_select (original, {"this", "and_this"}, true)
 local function clone_select (t, keys, nometa)
   if init._ARGCHECK then
-    local types = {"table", "table", {"boolean", ":nometa", "nil"}}
+    local types = {"table", "table", {"boolean?", ":nometa"}}
     if type (keys) ~= "table" then
-      types = {"table", {"table", "boolean", ":nometa", "nil"}}
+      types = {"table", {"table?", "boolean?", ":nometa"}}
     end
     argscheck ("std.table.clone_select", types, {t, keys, nometa})
   end
@@ -197,9 +197,9 @@ end
 -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
 local function merge (t, u, map, nometa)
   if init._ARGCHECK then
-    local types = {"table", "table", "table", {"boolean", ":nometa", "nil"}}
+    local types = {"table", "table", "table", {"boolean?", ":nometa"}}
     if type (map) ~= "table" then
-      types = {"table", "table", {"table", "boolean", ":nometa", "nil"}}
+      types = {"table", "table", {"table?", "boolean?", ":nometa"}}
     end
     argscheck ("std.table.merge", types, {t, u, map, nometa})
   end
@@ -222,9 +222,9 @@ end
 -- @usage merge_select (_G, require "std.debug", {"say"}, false)
 local function merge_select (t, u, keys, nometa)
   if init._ARGCHECK then
-    local types = {"table", "table", "table", {"boolean", ":nometa", "nil"}}
+    local types = {"table", "table", "table", {"boolean?", ":nometa"}}
     if type (keys) ~= "table" then
-      types = {"table", "table", {"table", "boolean", ":nometa", "nil"}}
+      types = {"table", "table", {"table?", "boolean?", ":nometa"}}
     end
     argscheck ("std.table.merge_select", types, {t, u, keys, nometa})
   end
@@ -249,7 +249,7 @@ local metamethod = base.metamethod
 -- @treturn table table whose unset elements are x
 -- @usage t = new (0)
 local function new (x, t)
-  argcheck ("std.table.new", 2, {"table", "nil"}, t)
+  argcheck ("std.table.new", 2, "table?", t)
 
   return setmetatable (t or {},
                        {__index = function (t, i)
@@ -324,7 +324,7 @@ end
 -- @treturn table the module table
 -- @usage local table = require "std.table".monkey_patch ()
 local function monkey_patch (namespace)
-  argcheck ("std.table.monkey_patch", 1, {"table", "nil"}, namespace)
+  argcheck ("std.table.monkey_patch", 1, "table?", namespace)
   namespace = namespace or _G
 
   namespace.table.sort = sort

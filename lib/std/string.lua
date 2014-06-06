@@ -91,7 +91,7 @@ end
 -- @return value
 -- @usage assert (expected == actual, "100% unexpected!")
 local function assert (v, f, ...)
-  argcheck ("std.string.assert", 2, {"string", "nil"}, f)
+  argcheck ("std.string.assert", 2, "string?", f)
 
   if not v then
     if f == nil then
@@ -115,7 +115,7 @@ end
 -- @usage b, e, captures = tfind ("the target string", "%s", 10)
 local function tfind (s, pattern, init, plain)
   argscheck ("std.string.tfind",
-             {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+             {"string", "string", "int?", {"boolean?", ":plain"}},
 	     {s, pattern, init, plain})
 
   local function pack (from, to, ...)
@@ -138,7 +138,7 @@ end
 -- end
 local function finds (s, pattern, init, plain)
   argscheck ("std.string.finds",
-             {"string", "string", {"int", "nil"}, {"boolean", ":plain", "nil"}},
+             {"string", "string", "int?", {"boolean?", ":plain"}},
              {s, pattern, init, plain})
 
   init = init or 1
@@ -174,7 +174,7 @@ end
 -- @usage std = require ("std", "41")
 local function require_version (module, min, too_big, pattern)
   argscheck ("std.string.require_version",
-             {"string", {"string", "nil"}, {"string", "nil"}, {"string", "nil"}},
+             {"string", "string?", "string?", "string?"},
 	     {module, min, too_big, pattern})
 
   local function version_to_list (v)
@@ -239,7 +239,7 @@ end
 -- end
 local function render (x, open, close, elem, pair, sep, roots)
   argscheck ("std.string.render",
-             {{"any", "nil"}, "function", "function", "function", "function", "function", {"table", "nil"}},
+             {"any?", "function", "function", "function", "function", "function", "table?"},
 	     {x, open, close, elem, pair, sep, roots})
 
   local function stop_roots (x)
@@ -347,8 +347,7 @@ end
 -- @treturn string pretty string rendering of *x*
 -- @usage print (prettytostring (std, "  "))
 local function prettytostring (x, indent, spacing)
-  argscheck ("std.string.prettytostring",
-             {{"any", "nil"}, {"string", "nil"}, {"string", "nil"}},
+  argscheck ("std.string.prettytostring", {"any?", "string?", "string?"},
 	     {x, indent, spacing})
 
   indent = indent or "\t"
@@ -415,7 +414,7 @@ end
 -- @treturn table the module table
 -- @usage local string = require "std.string".monkey_patch ()
 local function monkey_patch (namespace)
-  argcheck ("std.string.monkey_patch", 1, {"table", "nil"}, namespace)
+  argcheck ("std.string.monkey_patch", 1, "table?", namespace)
 
   namespace = namespace or _G
   namespace.assert, namespace.tostring = assert, tostring
@@ -541,8 +540,7 @@ end
 -- @treturn string *s* justified to *w* characters wide
 -- @usage print (pad (trim (outputstr, 78)) .. "\n")
 local function pad (s, w, p)
-  argscheck ("std.string.pad", {"string", "int", {"string", "nil"}},
-             {s, w, p})
+  argscheck ("std.string.pad", {"string", "int", "string?"}, {s, w, p})
 
   p = string.rep (p or " ", math.abs (w))
   if w < 0 then
@@ -561,8 +559,7 @@ end
 -- @usage
 -- print (wrap (copyright, 72, 4))
 local function wrap (s, w, ind, ind1)
-  argscheck ("std.string.wrap",
-             {"string", {"int", "nil"}, {"int", "nil"}, {"int", "nil"}},
+  argscheck ("std.string.wrap", {"string", "int?", "int?", "int?"},
 	     {s, w, ind, ind1})
 
   w = w or 78
@@ -624,7 +621,7 @@ end
 -- @treturn string *s* with leading *r* stripped
 -- @usage print ("got: " .. ltrim (userinput))
 local function ltrim (s, r)
-  argscheck ("std.string.ltrim", {"string", {"string", "nil"}}, {s, r})
+  argscheck ("std.string.ltrim", {"string", "string?"}, {s, r})
 
   r = r or "%s+"
   return s:gsub ("^" .. r, "")
@@ -637,7 +634,7 @@ end
 -- @treturn string *s* with trailing *r* stripped
 -- @usage print ("got: " .. rtrim (userinput))
 local function rtrim (s, r)
-  argscheck ("std.string.rtrim", {"string", {"string", "nil"}}, {s, r})
+  argscheck ("std.string.rtrim", {"string", "string?"}, {s, r})
 
   r = r or "%s+"
   return s:gsub (r .. "$", "")
@@ -650,7 +647,7 @@ end
 -- @treturn string *s* with leading and trailing *r* stripped
 -- @usage print ("got: " .. rtrim (userinput))
 local function trim (s, r)
-  argscheck ("std.string.trim", {"string", {"string", "nil"}}, {s, r})
+  argscheck ("std.string.trim", {"string", "string?"}, {s, r})
 
   r = r or "%s+"
   return s:gsub ("^" .. r, ""):gsub (r .. "$", "")

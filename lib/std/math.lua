@@ -26,7 +26,7 @@ local M -- forward declaration
 -- @treturn number `n` truncated to `p` decimal places
 -- @usage tenths = floor (magnitude, 1)
 local function floor (n, p)
-  argscheck ("std.math.floor", {"number", {"int", "nil"}}, {n, p})
+  argscheck ("std.math.floor", {"number", "int?"}, {n, p})
 
   if p and p ~= 0 then
     local e = 10 ^ p
@@ -44,7 +44,7 @@ end
 -- @treturn table the module table
 -- @usage require "std.math".monkey_patch ()
 local function monkey_patch (namespace)
-  argcheck ("std.math.monkey_patch", 1, {"table", "nil"}, namespace)
+  argcheck ("std.math.monkey_patch", 1, "table?", namespace)
   namespace = namespace or _G
 
   namespace.math.floor = floor
@@ -58,7 +58,7 @@ end
 -- @treturn number `n` rounded to `p` decimal places
 -- @usage roughly = round (exactly, 2)
 local function round (n, p)
-  argscheck ("std.math.floor", {"number", {"int", "nil"}}, {n, p})
+  argscheck ("std.math.floor", {"number", "int?"}, {n, p})
 
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e
