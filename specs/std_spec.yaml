@@ -30,6 +30,9 @@ specify std:
         table = {},
       }
       f (t)
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.barrel' (table or nil expected, got boolean)"
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (std.io.readlines)
       expect (io_mt.writelines).to_be (std.io.writelines)
@@ -78,8 +81,6 @@ specify std:
         totable         = std.table.totable,
         warn            = std.io.warn,
       }
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 - describe monkey_patch:
   - before:
@@ -95,6 +96,9 @@ specify std:
         table = {},
       }
       f (t)
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.monkey_patch' (table or nil expected, got boolean)"
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (std.io.readlines)
       expect (io_mt.writelines).to_be (std.io.writelines)
@@ -110,5 +114,3 @@ specify std:
       expect (t.tostring).to_be (std.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (std.table.sort)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"

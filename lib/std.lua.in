@@ -34,10 +34,9 @@ local M -- forward declaration
 -- @treturn table the module table
 -- @usage local std = require "std".monkey_patch ()
 local function monkey_patch (namespace)
-  namespace = namespace or _G
+  require "std.base".argcheck ("std.monkey_patch", 1, "table?", namespace)
 
-  assert (type (namespace) == "table",
-          "bad argument #1 to 'monkey_patch' (table expected, got " .. type (namespace) .. ")")
+  namespace = namespace or _G
 
   require "std.io".monkey_patch (namespace)
   require "std.math".monkey_patch (namespace)
@@ -57,10 +56,9 @@ end
 -- @treturn table module table
 -- @usage local std = require "std".barrel ()
 local function barrel (namespace)
-  namespace = namespace or _G
+  require "std.base".argcheck ("std.barrel", 1, "table?", namespace)
 
-  assert (type (namespace) == "table",
-          "bad argument #1 to 'barrel' (table expected, got " .. type (namespace) .. ")")
+  namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
   for _, v in pairs {
