@@ -63,6 +63,11 @@ Stdlib NEWS - User visible changes
    looks first in `module.version` and then `module._VERSION` to match
    the long-standing implementation.
 
+ - `string.split` now really does split on whitespace when no split
+   pattern argument is provided.  Also, the documentation now
+   correctly cites `%s+` as the default whitespace splitting pattern
+   (not `%s*` which splits on every non-whitespace character).
+
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]
 

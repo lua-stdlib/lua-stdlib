@@ -157,10 +157,10 @@ end
 
 --- Split a string at a given separator.
 -- Separator is a Lua pattern, so you have to escape active characters,
--- `^$()%.[]*+-?` with a `%` prefix to match a literal character in `s`.
+-- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
 -- @function split
 -- @string s to split
--- @string[opt="%s*"] sep separator pattern
+-- @string[opt="%s+"] sep separator pattern
 -- @return list of strings
 -- @usage words = split "a very short sentence"
 

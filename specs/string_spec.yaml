@@ -620,6 +620,9 @@ specify std.string:
         to_error "bad argument #1 to 'std.string.split' (string expected, got boolean)"
       expect (f ("string", false)).
         to_error "bad argument #2 to 'std.string.split' (string or nil expected, got boolean)"
+  - it falls back to "%s+" when no pattern is given:
+      expect (f (subject)).
+        to_equal {"first,", "the", "second", "one,", "final", "entry"}
   - it returns a one-element list for an empty string:
       expect (f ("", ", ")).to_equal {""}
   - it makes a table of substrings delimited by a separator:

@@ -253,6 +253,7 @@ end
 local function split (s, sep)
   argscheck ("std.string.split", {"string", "string?"}, {s, sep})
 
+  sep = sep or "%s+"
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
   if sep == "" then patt = "(.)"; t[#t + 1] = "" end
   while b <= len do
