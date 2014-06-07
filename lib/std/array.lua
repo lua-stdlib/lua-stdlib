@@ -1,20 +1,20 @@
 --[[--
  Array of homogenous objects.
 
- An Array is usually a block of contiguous memory, divided into equal
+ An array is usually a block of contiguous memory, divided into equal
  sized elements that can be indexed quickly.
 
- Create a new Array with:
+ Create a new array with:
 
      > Array = require "std.array"
      > array = Array ("int", {0xdead, 0xbeef, 0xfeed})
      > =array[1], array[2], array[3], array[-3], array[-4]
      57005	48879	65261	57005	nil
 
- All the indices passed to Array methods use 1-based counting.
+ All the indices passed to array methods use 1-based counting.
 
  If the Lua alien module is installed, and the `type` argument passed
- when cloning a new Array object is suitable (i.e. the name of a numeric
+ when cloning a new array object is suitable (i.e. the name of a numeric
  C type that `alien.sizeof` understands), then the array contents are
  managed in an `alien.buffer`.
 
@@ -89,7 +89,7 @@ end
 --[[ ================== ]]--
 
 
--- Initial Array prototype object, plus any derived object containing
+-- Initial array prototype object, plus any derived object containing
 -- elements that don't fit in alien buffers use `core_functions` to
 -- find object methods and `core_metatable` for metamethods.
 
@@ -100,6 +100,7 @@ local core_functions = {
   --- Remove the right-most element.
   -- @function pop
   -- @return the right-most element
+  -- @usage removed = anarray:pop ()
   pop = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer)
@@ -110,6 +111,7 @@ local core_functions = {
   -- @function push
   -- @param elem new element to be pushed
   -- @return elem
+  -- @usage added = anarray:push (anelement)
   push = function (self, elem)
     local length = self.length + 1
     self.buffer[length] = elem
@@ -121,7 +123,8 @@ local core_functions = {
   --- Change the number of elements allocated to be at least `n`.
   -- @function realloc
   -- @int n the number of elements required
-  -- @treturn Array the array
+  -- @treturn std.array the array
+  -- @usage anarray = anarray:realloc (anarray.length)
   realloc = function (self, n)
     argcheck ("realloc", 2, "int", n)
 
@@ -140,7 +143,8 @@ local core_functions = {
   -- @int from index of first element to set
   -- @param v value to store
   -- @int n number of elements to set
-  -- @treturn Array the array
+  -- @treturn std.array the array
+  -- @usage anarray:realloc (anarray.length):set (1, -1, anarray.length)
   set = function (self, from, v, n)
     argscheck ("set", {"Array", "int", "any", "int"},
                {self, from, v, n})
@@ -161,6 +165,7 @@ local core_functions = {
   -- This makes the array 1 element shorter than it was before the shift.
   -- @function shift
   -- @return the removed element.
+  -- @usage removed = anarray:shift ()
   shift = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer, 1)
@@ -171,6 +176,7 @@ local core_functions = {
   -- @function unshift
   -- @param elem new element to be pushed
   -- @treturn elem
+  -- @usage added = anarray:unshift (anelement)
   unshift = function (self, elem)
     self.length = self.length + 1
     table.insert (self.buffer, 1, elem)
@@ -183,15 +189,18 @@ core_metatable = {
   _type = "Array",
 
 
-  --- Instantiate a newly cloned Array.
+  --- Instantiate a newly cloned array.
   -- If not specified, `type` will be the same as the prototype array being
   -- cloned; otherwise, it can be any string.  Only a type name accepted by
   -- `alien.sizeof` will use the fast `alien.buffer` managed memory buffer
-  -- for Array contents; otherwise, a much slower Lua emulation is used.
+  -- for array contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
   -- @string type element type name
   -- @tparam[opt] int|table init initial size or list of initial elements
-  -- @treturn Array a new Array object
+  -- @treturn std.array a new array object
+  -- @usage
+  -- local Array = require "std.array"
+  -- local new = Array ("int", {1, 2, 3})
   __call = function (self, type, init)
     if debug._ARGCHECK then
       if init ~= nil then
@@ -210,7 +219,7 @@ core_metatable = {
     type = type or self.type
     init = init or self.length
 
-    -- This will become the cloned Array object.
+    -- This will become the cloned array object.
     local obj = {}
 
     for k, v in pairs (self) do
@@ -286,6 +295,7 @@ core_metatable = {
   --- Iterate consecutively over all elements with `ipairs (array)`.
   -- @function __ipairs
   -- @treturn function iterator function
+  -- @usage for index, anelement in ipairs (anarray) do ... end
   __ipairs = function (self)
     local i, n = 0, self.length
     return function ()
@@ -297,10 +307,11 @@ core_metatable = {
   end,
 
 
-  --- Return the `n`th character in this Array.
+  --- Return the `n`th character in this array.
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
   -- @treturn string the element at index `n`
+  -- @usage rightmost = anarray[anarray.length]
   __index = function (self, n)
     argcheck ("__index", 2, {"int", "string"}, n)
 
@@ -315,11 +326,12 @@ core_metatable = {
   end,
 
 
-  --- Set the `n`th element of this Array to `elem`.
+  --- Set the `n`th element of this array to `elem`.
   -- @function __newindex
   -- @int n 1-based index
   -- @param elem value to store at index n
-  -- @treturn Array the array
+  -- @treturn std.array the array
+  -- @usage anarray[1] = newvalue
   __newindex = function (self, n, elem)
     argcheck ("__newindex", 2, "int",  n)
 
@@ -338,9 +350,13 @@ core_metatable = {
   end,
 
 
-  --- Return the number of elements in this Array.
+  --- Return the number of elements in this array.
+  --
+  -- Beware that Lua 5.1 does not respect this metamethod; use
+  -- `array.length` if you care about portability.
   -- @function __len
   -- @treturn int number of elements
+  -- @usage length = #anarray
   __len = function (self)
     argcheck ("__len", 1, "Array", self)
 
@@ -348,9 +364,10 @@ core_metatable = {
   end,
 
 
-  --- Return a string representation of the contents of this Array.
+  --- Return a string representation of the contents of this array.
   -- @function __tostring
   -- @treturn string string representation
+  -- @usage print (anarray)
   __tostring = function (self)
     argcheck ("__tostring", 1, "Array", self)
 
@@ -370,7 +387,7 @@ core_metatable = {
 --[[ ===================== ]]--
 
 
--- Cloned Array objects with elements managed by an alien buffer use
+-- Cloned array objects with elements managed by an alien buffer use
 -- `alien_functions` to find object methods and `alien_metatable`
 -- for metamethods.
 
@@ -514,9 +531,9 @@ alien_metatable = {
 
 
 --- Return a function that dispatches to a virtual function table.
--- The __call metamethod ensures that cloned Array objects are assigned
+-- The __call metamethod ensures that cloned array objects are assigned
 -- a metatable and method table optimised for the element storage method
--- (either alien buffer, or Lua table element containers), but the Array
+-- (either alien buffer, or Lua table element containers), but the array
 -- prototype returned by this module needs to dispatch to the correct
 -- function according to the element type at run-time, because we want
 -- to support passing either object as an argument to a module function.
@@ -534,13 +551,13 @@ end
 
 ------
 -- An efficient array of homogenous objects.
--- @table Array
+-- @table std.array
 -- @int allocated number of allocated element slots, for `alien.buffer`
 --  managed elements
 -- @tfield alien.buffer|table buffer a block of indexable memory
 -- @int length number of elements currently stored
 -- @int size length of each stored element, or 0 when `alien.buffer` is
---  not managing this Array
+--  not managing this array
 -- @string type type name for elements
 local Array = Container {
   _type = "Array",
