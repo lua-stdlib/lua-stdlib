@@ -60,6 +60,8 @@
 
 local base = require "std.base"
 
+local argcheck, argscheck = base.argcheck, base.argscheck
+
 
 
 --[[ ================= ]]--
@@ -126,6 +128,9 @@ end
 --   renamed according to `map`
 -- @see std.object.mapfields
 local function mapfields (obj, src, map)
+  argscheck ("std.container.mapfields", {"table", {"table", "object"}, "table?"},
+             {obj, src, map})
+
   local mt = getmetatable (obj) or {}
 
   -- Map key pairs.
@@ -191,6 +196,8 @@ local metatable = {
   -- @treturn std.container a clone of the called container.
   -- @see std.object:__call
   __call = function (self, x, ...)
+    argcheck ("std.container.__call", 1, "object", self)
+
     local mt     = getmetatable (self)
     local obj_mt = mt
     local obj    = {}
@@ -232,6 +239,8 @@ local metatable = {
   -- @treturn string        stringified container representation
   -- @see std.object.__tostring
   __tostring = function (self)
+    argcheck ("std.container.__tostring", 1, "object", self)
+
     local totable = getmetatable (self).__totable
     local array = instantiate (totable (self))
     local other = instantiate (array)
@@ -266,6 +275,8 @@ local metatable = {
   -- @treturn table a shallow copy of non-private container fields
   -- @see std.object:__totable
   __totable  = function (self)
+    argcheck ("std.container.__totable", 1, "object", self)
+
     local t = {}
     for k, v in pairs (self) do
       if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
