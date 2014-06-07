@@ -195,6 +195,9 @@ local metatable = {
   -- @param ... any additional arguments for `_init`
   -- @treturn std.container a clone of the called container.
   -- @see std.object:__call
+  -- @usage
+  -- local Container = require "std.container"
+  -- local new = Container {"init", {"elements"}, 2, "insert"}
   __call = function (self, x, ...)
     argcheck ("std.container.__call", 1, "object", self)
 
@@ -238,6 +241,7 @@ local metatable = {
   -- @function __tostring
   -- @treturn string        stringified container representation
   -- @see std.object.__tostring
+  -- @usage print (acontainer)
   __tostring = function (self)
     argcheck ("std.container.__tostring", 1, "object", self)
 
@@ -274,6 +278,9 @@ local metatable = {
   -- @function __totable
   -- @treturn table a shallow copy of non-private container fields
   -- @see std.object:__totable
+  -- @usage
+  -- local tostring = require "std.string".tostring
+  -- print (totable (acontainer))
   __totable  = function (self)
     argcheck ("std.container.__totable", 1, "object", self)
 
