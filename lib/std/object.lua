@@ -86,13 +86,17 @@ return Container {
   -- `\_\_index`.
 
   __index = {
-    --- Clone this Object.
+    --- Clone an Object.
+    -- @static
     -- @function clone
     -- @tparam std.object obj an object
-    -- @param ... a list of arguments if `o._init` is a function, or a
-    --   single table if `o._init` is a table.
-    -- @treturn std.object a clone of `o`
+    -- @param ... a list of arguments if `obj._init` is a function, or a
+    --   single table if `obj._init` is a table.
+    -- @treturn std.object a clone of *obj*
     -- @see __call
+    -- @usage
+    -- local object = require "std.object"
+    -- new = object.clone (object, {"foo", "bar"})
     clone = metamethod (Container, "__call"),
 
 
@@ -105,9 +109,11 @@ return Container {
     -- Additionally, this function returns the results of `io.type` for
     -- file objects, or `type` otherwise.
     --
+    -- @static
     -- @function prototype
     -- @param x anything
-    -- @treturn string type of `x`
+    -- @treturn string type of *x*
+    -- @see std.object:prototype
     -- @usage
     --   local Stack = Object {
     --     _type = "Stack",
@@ -129,6 +135,15 @@ return Container {
     --   assert (prototype (h) == io.type (h))
     --
     --   assert (prototype {} == type {})
+
+    --- Type of this object.
+    --
+    -- Additionally, this function returns the results of `io.type` for
+    -- file objects, or `type` otherwise.
+    -- @function prototype
+    -- @treturn string type of this object
+    -- @see std.object.prototype
+    -- @usage if object:prototype () ~= "table" then ... end
     prototype = Container.prototype.call,
 
 
@@ -149,6 +164,7 @@ return Container {
     -- `_init` is safer than manually splitting `src` into `obj` and
     -- its metatable, because you'll pick up fixes and changes when you
     -- upgrade stdlib.
+    -- @static
     -- @function mapfields
     -- @tparam table obj destination object
     -- @tparam table src fields to copy int clone
@@ -156,6 +172,11 @@ return Container {
     -- @treturn table `obj` with non-private fields from `src` merged,
     --   and a metatable with private fields (if any) merged, both sets
     --   of keys renamed according to `map`
+    -- @usage
+    -- myobject.mapfields = function (obj, src, map)
+    --   object.mapfields (obj, src, map)
+    --   ...
+    -- end
     mapfields = Container.mapfields.call,
 
 
@@ -171,6 +192,9 @@ return Container {
   -- @param ... arguments for `\_init`
   -- @treturn std.object a clone of the this object.
   -- @see clone
+  -- @usage
+  -- local Object = require "std.object"
+  -- new = Object {"initialisation", "elements"}
 
 
   --- Return a string representation of this object.
@@ -184,6 +208,7 @@ return Container {
   -- @function __tostring
   -- @treturn string stringified container representation
   -- @see tostring
+  -- @usage print (anobject)
 
 
   --- Return a shallow copy of non-private object fields.
@@ -194,4 +219,7 @@ return Container {
   -- @function __totable
   -- @treturn table a shallow copy of non-private object fields
   -- @see std.table.totable
+  -- @usage
+  -- tostring = require "std.string".tostring
+  -- print (totable (anobject))
 }
