@@ -195,6 +195,229 @@ local function require_version (module, min, too_big, pattern)
 end
 
 
+--- Overwrite core methods and metamethods with `std` enhanced versions.
+--
+-- Adds auto-stringification to `..` operator on core strings, and
+-- integer indexing of strings with `[]` dereferencing.
+--
+-- Also replaces core `assert` and `tostring` functions with
+-- `std.string` versions.
+-- @tparam[opt=_G] table namespace where to install global functions
+-- @treturn table the module table
+-- @usage local string = require "std.string".monkey_patch ()
+local function monkey_patch (namespace)
+  argcheck ("std.string.monkey_patch", 1, "table?", namespace)
+
+  namespace = namespace or _G
+  namespace.assert, namespace.tostring = assert, M.tostring
+
+  local string_metatable = getmetatable ""
+  string_metatable.__concat = __concat
+  string_metatable.__index = __index
+
+  return M
+end
+
+
+--- Capitalise each word in a string.
+-- @string s any string
+-- @treturn string *s* with each word capitalized
+-- @usage userfullname = caps (input_string)
+local function caps (s)
+  argcheck ("std.string.caps", 1, "string", s)
+
+  return (string.gsub (s, "(%w)([%w]*)",
+                      function (l, ls)
+                        return string.upper (l) .. ls
+                      end))
+end
+
+
+--- Remove any final newline from a string.
+-- @string s any string
+-- @treturn string *s* with any single trailing newline removed
+-- @usage line = chomp (line)
+local function chomp (s)
+  argcheck ("std.string.chomp", 1, "string", s)
+
+  return (string.gsub (s, "\n$", ""))
+end
+
+
+--- Escape a string to be used as a pattern.
+-- @string s any string
+-- @treturn string *s* with active pattern characters escaped
+-- @usage substr = inputstr:match (escape_pattern (literal))
+local function escape_pattern (s)
+  argcheck ("std.string.escape_pattern", 1, "string", s)
+
+  return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
+end
+
+
+--- Escape a string to be used as a shell token.
+-- Quotes spaces, parentheses, brackets, quotes, apostrophes and
+-- whitespace.
+-- @string s any string
+-- @treturn string *s* with active shell characters escaped
+-- @usage os.execute ("echo " .. escape_shell (outputstr))
+local function escape_shell (s)
+  argcheck ("std.string.escape_shell", 1, "string", s)
+
+  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
+end
+
+
+--- Return the English suffix for an ordinal.
+-- @tparam int|string n any integer value
+-- @treturn string English suffix for *n*
+-- @usage
+-- local now = os.date "*t"
+-- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
+local function ordinal_suffix (n)
+  argcheck ("std.string.ordinal_suffix", 1, {"int", "string"}, n)
+
+  n = math.abs (n) % 100
+  local d = n % 10
+  if d == 1 and n ~= 11 then
+    return "st"
+  elseif d == 2 and n ~= 12 then
+    return "nd"
+  elseif d == 3 and n ~= 13 then
+    return "rd"
+  else
+    return "th"
+  end
+end
+
+
+--- Justify a string.
+-- When the string is longer than w, it is truncated (left or right
+-- according to the sign of w).
+-- @string s a string to justify
+-- @int w width to justify to (-ve means right-justify; +ve means
+--   left-justify)
+-- @string[opt=" "] p string to pad with
+-- @treturn string *s* justified to *w* characters wide
+-- @usage print (pad (trim (outputstr, 78)) .. "\n")
+local function pad (s, w, p)
+  argscheck ("std.string.pad", {"string", "int", "string?"}, {s, w, p})
+
+  p = string.rep (p or " ", math.abs (w))
+  if w < 0 then
+    return string.sub (p .. s, w)
+  end
+  return string.sub (s .. p, 1, w)
+end
+
+
+--- Wrap a string into a paragraph.
+-- @string s a paragraph of text
+-- @int[opt=78] w width to wrap to
+-- @int[opt=0] ind indent
+-- @int[opt=ind] ind1 indent of first line
+-- @treturn string *s* wrapped to *w* columns
+-- @usage
+-- print (wrap (copyright, 72, 4))
+local function wrap (s, w, ind, ind1)
+  argscheck ("std.string.wrap", {"string", "int?", "int?", "int?"},
+	     {s, w, ind, ind1})
+
+  w = w or 78
+  ind = ind or 0
+  ind1 = ind1 or ind
+  assert (ind1 < w and ind < w,
+          "the indents must be less than the line width")
+  local r = StrBuf { string.rep (" ", ind1) }
+  local i, lstart, len = 1, ind1, #s
+  while i <= #s do
+    local j = i + w - lstart
+    while #s[j] > 0 and s[j] ~= " " and j > i do
+      j = j - 1
+    end
+    local ni = j + 1
+    while s[j] == " " do
+      j = j - 1
+    end
+    r:concat (s:sub (i, j))
+    i = ni
+    if i < #s then
+      r:concat ("\n" .. string.rep (" ", ind))
+      lstart = ind
+    end
+  end
+  return r:tostring ()
+end
+
+
+--- Write a number using SI suffixes.
+-- The number is always written to 3 s.f.
+-- @tparam number|string n any numeric value
+-- @treturn string *n* simplifed using largest available SI suffix.
+-- @usage print (numbertosi (bitspersecond) .. "bps")
+local function numbertosi (n)
+  argcheck ("std.string.numbertosi", 1, {"number", "string"}, n)
+
+  local SIprefix = {
+    [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
+    [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
+    [0] = "", [1] = "k", [2] = "M", [3] = "G",
+    [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
+    [8] = "Y"
+  }
+  local t = format("% #.2e", n)
+  local _, _, m, e = t:find(".(.%...)e(.+)")
+  local man, exp = tonumber (m), tonumber (e)
+  local siexp = math.floor (exp / 3)
+  local shift = exp - siexp * 3
+  local s = SIprefix[siexp] or "e" .. tostring (siexp)
+  man = man * (10 ^ shift)
+  return tostring (man) .. s
+end
+
+
+--- Remove leading matter from a string.
+-- @string s any string
+-- @string[opt="%s+"] r leading pattern
+-- @treturn string *s* with leading *r* stripped
+-- @usage print ("got: " .. ltrim (userinput))
+local function ltrim (s, r)
+  argscheck ("std.string.ltrim", {"string", "string?"}, {s, r})
+
+  r = r or "%s+"
+  return s:gsub ("^" .. r, "")
+end
+
+
+--- Remove trailing matter from a string.
+-- @string s any string
+-- @string[opt="%s+"] r trailing pattern
+-- @treturn string *s* with trailing *r* stripped
+-- @usage print ("got: " .. rtrim (userinput))
+local function rtrim (s, r)
+  argscheck ("std.string.rtrim", {"string", "string?"}, {s, r})
+
+  r = r or "%s+"
+  return s:gsub (r .. "$", "")
+end
+
+
+--- Remove leading and trailing matter from a string.
+-- @string s any string
+-- @string[opt="%s+"] r trailing pattern
+-- @treturn string *s* with leading and trailing *r* stripped
+-- @usage print ("got: " .. rtrim (userinput))
+local function trim (s, r)
+  argscheck ("std.string.trim", {"string", "string?"}, {s, r})
+
+  r = r or "%s+"
+  return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
+end
+
+
+--- Stringification Functions
+-- @section Stringification
+
 -- Write pretty-printing based on:
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
@@ -403,30 +626,6 @@ local function prettytostring (x, indent, spacing)
 end
 
 
---- Overwrite core methods and metamethods with `std` enhanced versions.
---
--- Adds auto-stringification to `..` operator on core strings, and
--- integer indexing of strings with `[]` dereferencing.
---
--- Also replaces core `assert` and `tostring` functions with
--- `std.string` versions.
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table the module table
--- @usage local string = require "std.string".monkey_patch ()
-local function monkey_patch (namespace)
-  argcheck ("std.string.monkey_patch", 1, "table?", namespace)
-
-  namespace = namespace or _G
-  namespace.assert, namespace.tostring = assert, tostring
-
-  local string_metatable = getmetatable ""
-  string_metatable.__concat = __concat
-  string_metatable.__index = __index
-
-  return M
-end
-
-
 --- Convert a value to a string.
 -- The string can be passed to `functional.eval` to retrieve the value.
 -- @todo Make it work for recursive tables.
@@ -455,202 +654,6 @@ local function pickle (x)
       die ("cannot pickle " .. tostring (x))
     end
   end
-end
-
-
---- Capitalise each word in a string.
--- @string s any string
--- @treturn string *s* with each word capitalized
--- @usage userfullname = caps (input_string)
-local function caps (s)
-  argcheck ("std.string.caps", 1, "string", s)
-
-  return (string.gsub (s, "(%w)([%w]*)",
-                      function (l, ls)
-                        return string.upper (l) .. ls
-                      end))
-end
-
-
---- Remove any final newline from a string.
--- @string s any string
--- @treturn string *s* with any single trailing newline removed
--- @usage line = chomp (line)
-local function chomp (s)
-  argcheck ("std.string.chomp", 1, "string", s)
-
-  return (string.gsub (s, "\n$", ""))
-end
-
-
---- Escape a string to be used as a pattern.
--- @string s any string
--- @treturn string *s* with active pattern characters escaped
--- @usage substr = inputstr:match (escape_pattern (literal))
-local function escape_pattern (s)
-  argcheck ("std.string.escape_pattern", 1, "string", s)
-
-  return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
-end
-
-
---- Escape a string to be used as a shell token.
--- Quotes spaces, parentheses, brackets, quotes, apostrophes and
--- whitespace.
--- @string s any string
--- @treturn string *s* with active shell characters escaped
--- @usage os.execute ("echo " .. escape_shell (outputstr))
-local function escape_shell (s)
-  argcheck ("std.string.escape_shell", 1, "string", s)
-
-  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
-end
-
-
---- Return the English suffix for an ordinal.
--- @tparam int|string n any integer value
--- @treturn string English suffix for *n*
--- @usage
--- local now = os.date "*t"
--- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
-local function ordinal_suffix (n)
-  argcheck ("std.string.ordinal_suffix", 1, {"int", "string"}, n)
-
-  n = math.abs (n) % 100
-  local d = n % 10
-  if d == 1 and n ~= 11 then
-    return "st"
-  elseif d == 2 and n ~= 12 then
-    return "nd"
-  elseif d == 3 and n ~= 13 then
-    return "rd"
-  else
-    return "th"
-  end
-end
-
-
---- Justify a string.
--- When the string is longer than w, it is truncated (left or right
--- according to the sign of w).
--- @string s a string to justify
--- @int w width to justify to (-ve means right-justify; +ve means
---   left-justify)
--- @string[opt=" "] p string to pad with
--- @treturn string *s* justified to *w* characters wide
--- @usage print (pad (trim (outputstr, 78)) .. "\n")
-local function pad (s, w, p)
-  argscheck ("std.string.pad", {"string", "int", "string?"}, {s, w, p})
-
-  p = string.rep (p or " ", math.abs (w))
-  if w < 0 then
-    return string.sub (p .. s, w)
-  end
-  return string.sub (s .. p, 1, w)
-end
-
-
---- Wrap a string into a paragraph.
--- @string s a paragraph of text
--- @int[opt=78] w width to wrap to
--- @int[opt=0] ind indent
--- @int[opt=ind] ind1 indent of first line
--- @treturn string *s* wrapped to *w* columns
--- @usage
--- print (wrap (copyright, 72, 4))
-local function wrap (s, w, ind, ind1)
-  argscheck ("std.string.wrap", {"string", "int?", "int?", "int?"},
-	     {s, w, ind, ind1})
-
-  w = w or 78
-  ind = ind or 0
-  ind1 = ind1 or ind
-  assert (ind1 < w and ind < w,
-          "the indents must be less than the line width")
-  local r = StrBuf { string.rep (" ", ind1) }
-  local i, lstart, len = 1, ind1, #s
-  while i <= #s do
-    local j = i + w - lstart
-    while #s[j] > 0 and s[j] ~= " " and j > i do
-      j = j - 1
-    end
-    local ni = j + 1
-    while s[j] == " " do
-      j = j - 1
-    end
-    r:concat (s:sub (i, j))
-    i = ni
-    if i < #s then
-      r:concat ("\n" .. string.rep (" ", ind))
-      lstart = ind
-    end
-  end
-  return r:tostring ()
-end
-
-
---- Write a number using SI suffixes.
--- The number is always written to 3 s.f.
--- @tparam number|string n any numeric value
--- @treturn string *n* simplifed using largest available SI suffix.
--- @usage print (numbertosi (bitspersecond) .. "bps")
-local function numbertosi (n)
-  argcheck ("std.string.numbertosi", 1, {"number", "string"}, n)
-
-  local SIprefix = {
-    [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
-    [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
-    [0] = "", [1] = "k", [2] = "M", [3] = "G",
-    [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
-    [8] = "Y"
-  }
-  local t = format("% #.2e", n)
-  local _, _, m, e = t:find(".(.%...)e(.+)")
-  local man, exp = tonumber (m), tonumber (e)
-  local siexp = math.floor (exp / 3)
-  local shift = exp - siexp * 3
-  local s = SIprefix[siexp] or "e" .. tostring (siexp)
-  man = man * (10 ^ shift)
-  return tostring (man) .. s
-end
-
-
---- Remove leading matter from a string.
--- @string s any string
--- @string[opt="%s+"] r leading pattern
--- @treturn string *s* with leading *r* stripped
--- @usage print ("got: " .. ltrim (userinput))
-local function ltrim (s, r)
-  argscheck ("std.string.ltrim", {"string", "string?"}, {s, r})
-
-  r = r or "%s+"
-  return s:gsub ("^" .. r, "")
-end
-
-
---- Remove trailing matter from a string.
--- @string s any string
--- @string[opt="%s+"] r trailing pattern
--- @treturn string *s* with trailing *r* stripped
--- @usage print ("got: " .. rtrim (userinput))
-local function rtrim (s, r)
-  argscheck ("std.string.rtrim", {"string", "string?"}, {s, r})
-
-  r = r or "%s+"
-  return s:gsub (r .. "$", "")
-end
-
-
---- Remove leading and trailing matter from a string.
--- @string s any string
--- @string[opt="%s+"] r trailing pattern
--- @treturn string *s* with leading and trailing *r* stripped
--- @usage print ("got: " .. rtrim (userinput))
-local function trim (s, r)
-  argscheck ("std.string.trim", {"string", "string?"}, {s, r})
-
-  r = r or "%s+"
-  return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
 end
 
 
