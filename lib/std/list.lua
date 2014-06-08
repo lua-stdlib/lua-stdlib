@@ -43,7 +43,7 @@ local List -- forward declaration
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
-  local r = List {unpack (l)}
+  local r = l {}
   r[#r + 1] = x
   return r
 end
