@@ -1,6 +1,7 @@
 before:
   Object  = require "std.object"
-  List    = require "std.list"
+  list    = require "std.list"
+  List    = list
   l       = List {"foo", "bar", "baz"}
 
 
@@ -280,9 +281,51 @@ specify std.list:
 
 
 - describe index_key:
+  - context when called as a module function:
+    - before:
+        f = list.index_key
+    - it makes a map of matched table field values to table list offsets:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = f ("a", l)
+        expect (t).to_equal {b = 1, x = 3}
+        for k, v in pairs (t) do
+          expect (k).to_equal (l[v]["a"])
+        end
+    - it captures only the last matching list offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = f ("a", l)
+        expect (t.b).not_to_be (1)
+        expect (t.x).to_be (2)
+        expect (t.b).to_be (3)
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (f (1, l)).to_equal {1, 3}
+        expect (f (2, l)).to_equal {3, 1}
+        expect (f (3, l)).to_equal {nil, nil, 3}
 
 
 - describe index_value:
+  - context when called as a module function:
+    - before:
+        f = list.index_value
+    - it makes a table of matched table field values to table list references:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = f ("a", l)
+        expect (t).to_equal {b = l[1], x = l[3]}
+        for k, v in pairs (t) do
+          expect (k).to_equal (v["a"])
+        end
+    - it captures only the last matching list offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = f ("a", l)
+        expect (t.b).not_to_be (l[1])
+        expect (t.x).to_be (l[2])
+        expect (t.b).to_be (l[3])
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (f (1, l)).to_equal {l[1], l[3]}
+        expect (f (2, l)).to_equal {l[3], l[1]}
+        expect (f (3, l)).to_equal {nil, nil, l[3]}
 
 
 - describe map:

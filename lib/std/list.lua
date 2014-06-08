@@ -206,9 +206,9 @@ end
 --- Make an index of a list of tables on a given field
 -- @param f field
 -- @tparam List l list of tables `{t1, ..., tn}`
--- @treturn List index `{t1[f]=1, ..., tn[f]=n}`
+-- @treturn table index `{t1[f]=1, ..., tn[f]=n}`
 local function index_key (f, l)
-  local r = List {}
+  local r = {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -222,9 +222,9 @@ end
 --- Copy a list of tables, indexed on a given field
 -- @param f field whose value should be used as index
 -- @tparam List l list of tables `{i1=t1, ..., in=tn}`
--- @treturn List index `{t1[f]=t1, ..., tn[f]=tn}`
+-- @treturn table index `{t1[f]=t1, ..., tn[f]=tn}`
 local function index_value (f, l)
-  local r = List {}
+  local r = {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
