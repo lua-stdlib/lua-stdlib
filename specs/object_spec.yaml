@@ -260,17 +260,16 @@ specify std.object:
         expect (getmetatable (instance)).to_be (getmetatable (Derived))
   - context with custom metamethods:
     - before:
-        compare = require "std.list".compare
         bag = Object {
           _type = "bag",
-          __lt = function (a, b) return compare (a, b) < 0 end,
+          __lt = function (a, b) return a[1] < b[1] end,
         }
     - it has it's own metatable:
         expect (getmetatable (bag)).not_to_be (root_mt)
     - it propagates prototype metatable to derived instances:
         instance = bag {}
         expect (getmetatable (instance)).to_be (getmetatable (bag))
-    - it supports __lt calls:
+    - it supports __lt calls: |
         a, b = bag {"a"}, bag {"b"}
         expect (a < b).to_be (true)
         expect (a < a).to_be (false)
