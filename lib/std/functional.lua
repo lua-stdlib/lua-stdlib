@@ -144,6 +144,8 @@ end
 -- @param fn function that returns a single result
 -- @param normalize[opt] function to normalize arguments
 -- @return memoized function
+-- @usage
+-- local fast = memoize (function (...) --[[ slow code ]] end)
 local function memoize (fn, normalize)
   argscheck ("std.functional.memoize", {"function", "function?"},
              {fn, normalize})
