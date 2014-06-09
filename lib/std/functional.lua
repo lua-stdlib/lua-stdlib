@@ -186,7 +186,7 @@ end
 -- @see filter
 -- @see map
 -- @usage
--- > =collect (std.list.relems, {"a", "b", "c"})
+-- > =collect (std.list.relems, List {"a", "b", "c"})
 -- {"c", "b", "a"}
 local function collect (i, ...)
   argcheck ("std.functional.collect", 1, "function", i)
@@ -205,7 +205,7 @@ end
 -- @return result table
 -- @see filter
 -- @usage
--- > map (function (e) return e % 2 end, std.list.elements, {1, 2, 3, 4})
+-- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
 -- {1, 0, 1, 0}
 local function map (f, i, ...)
   argscheck ("std.functional.map", {"function", "function"}, {f, i})
@@ -227,7 +227,7 @@ end
 -- @return result table containing elements e for which p (e)
 -- @see collect
 -- @usage
--- > filter (function (e) return e % 2 == 0 end, std.list.elements, {1, 2, 3, 4})
+-- > filter (function (e) return e % 2 == 0 end, std.list.elems, List {1, 2, 3, 4})
 -- {2, 4}
 local function filter (p, i, ...)
   argscheck ("std.functional.filter", {"function", "function"}, {p, i})
@@ -246,10 +246,11 @@ end
 -- @param f function
 -- @param d initial first argument
 -- @param i iterator
+-- @param ... iterator arguments
 -- @return result
 -- @see std.list.foldl
 -- @see std.list.foldr
--- @usage fold (math.pow, 1, std.list.elems, {2, 3, 4})
+-- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
 local function fold (f, d, i, ...)
   argscheck ("std.functional.fold", {"function", "any", "function"}, {f, d, i})
 
