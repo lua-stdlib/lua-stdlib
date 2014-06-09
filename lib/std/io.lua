@@ -10,8 +10,8 @@
  @module std.io
 ]]
 
-local base    = require "std.base"
-local debug   = require "std.debug_init"
+local base      = require "std.base"
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
@@ -149,7 +149,7 @@ end
 -- @usage filepath = catfile ("relative", "path", "filename")
 local function catfile (...)
   local t = {...}
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     if #t == 0 then
       argcheck ("std.io.catfile", 1, "string", nil)
     end
@@ -169,7 +169,7 @@ end
 -- @usage dirpath = catdir ("", "absolute", "directory")
 local function catdir (...)
   local t = {...}
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     for i, v in ipairs (t) do
       argcheck ("std.io.catdir", i, "string", v)
     end

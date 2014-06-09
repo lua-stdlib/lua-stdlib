@@ -6,7 +6,7 @@
 local base = require "std.base"
 local argcheck, argscheck = base.argcheck, base.argscheck
 
-local debug = require "std.debug_init"
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local functional -- forward declaration
 
@@ -109,7 +109,7 @@ end
 -- a
 local function compose (...)
   local arg = {...}
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     if #arg < 1 then
       argcheck ("std.functional.compose", 1, "function", nil)
     end

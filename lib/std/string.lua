@@ -10,8 +10,9 @@
  @module std.string
 ]]
 
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
 local base   = require "std.base"
-local debug  = require "std.debug_init"
 local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
@@ -166,7 +167,7 @@ end
 -- @usage words = split "a very short sentence"
 local split
 
-if debug._ARGCHECK then
+if _ARGCHECK then
 
   split = function (s, sep)
     argscheck ("std.string.split", {"string", "string?"}, {s, sep})

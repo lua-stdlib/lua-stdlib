@@ -36,7 +36,7 @@ local argcheck, argscheck = base.argcheck, base.argscheck
 local Container = require "std.container"
 local prototype = Container.prototype
 
-local debug = require "std.debug_init"
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local have_alien, alien = pcall (require, "alien")
 local buffer, memmove, memset
@@ -202,7 +202,7 @@ core_metatable = {
   -- local Array = require "std.array"
   -- local new = Array ("int", {1, 2, 3})
   __call = function (self, type, init)
-    if debug._ARGCHECK then
+    if _ARGCHECK then
       if init ~= nil then
         -- When called with 2 arguments:
         argcheck ("Array", 1, "string", type)

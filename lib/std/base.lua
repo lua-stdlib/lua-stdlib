@@ -30,11 +30,11 @@ local function prototype (o)
 end
 
 
-local debug = require "std.debug_init"
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local argcheck, argerror, argscheck
 
-if not debug._ARGCHECK then
+if not _ARGCHECK then
 
   local function nop () end
 

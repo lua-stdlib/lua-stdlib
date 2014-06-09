@@ -27,8 +27,9 @@
  @classmod std.list
 ]]
 
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
 local base    = require "std.base"
-local debug   = require "std.debug_init"
 local func    = require "std.functional"
 local Object  = require "std.object"
 
@@ -92,7 +93,7 @@ end
 -- @return `true`
 local elems
 
-if debug._ARGCHECK then
+if _ARGCHECK then
 
   elems = function (l)
     argcheck ("std.list.elems", 1, "List", l)
@@ -113,7 +114,7 @@ end
 -- @treturn List new list containing
 --   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
 local function concat (l, ...)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     argcheck ("std.list.concat", 1, "List", l)
     argcheck ("std.list.concat", 2, {"List", "table"}, select (1, ...))
     for i, v in ipairs {...} do
@@ -148,7 +149,7 @@ end
 -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
 -- @see enpair
 local function depair (ls)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     local fname = "std.list.depair"
     argcheck (fname, 1, {"List", "table"}, ls)
 
@@ -315,7 +316,7 @@ end
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
 local function map_with (fn, ls)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     local fname = "std.list.map_with"
     argscheck (fname, {"function", "List"}, {fn, ls})
 
@@ -338,7 +339,7 @@ end
 -- @treturn List list of `f` fields
 -- @see std.list:project
 local function project (f, l)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     local fname = "std.list.project"
     argcheck (fname, 2, "List", l)
 
@@ -488,7 +489,7 @@ end
 -- @treturn List new list containing
 -- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
 local function transpose (ls)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     local fname = "std.list.transpose"
     argcheck (fname, 1, {"table", "List"}, ls)
 
@@ -519,7 +520,7 @@ end
 --   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
 -- where `N = max {map (function (l) return #l end, ls)}`
 local function zip_with (ls, fn)
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     local fname = "std.list.zip_with"
     argscheck (fname, {"List", "function"}, {ls, fn})
 

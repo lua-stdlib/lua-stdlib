@@ -10,8 +10,9 @@
  @module std.table
 ]]
 
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
 local base = require "std.base"
-local init = require "std.debug_init"
 
 
 local M -- forward declaration
@@ -90,7 +91,7 @@ end
 -- @usage
 -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
 local function clone (t, map, nometa)
-  if init._ARGCHECK then
+  if _ARGCHECK then
     local types = {"table", "table", {"boolean?", ":nometa"}}
     if type (map) ~= "table" then
       types = {"table", {"table?", "boolean?", ":nometa"}}
@@ -133,7 +134,7 @@ local clone_rename = base.deprecate (function (map, t)
 -- @usage
 -- partialcopy = clone_select (original, {"this", "and_this"}, true)
 local function clone_select (t, keys, nometa)
-  if init._ARGCHECK then
+  if _ARGCHECK then
     local types = {"table", "table", {"boolean?", ":nometa"}}
     if type (keys) ~= "table" then
       types = {"table", {"table?", "boolean?", ":nometa"}}
@@ -197,7 +198,7 @@ end
 -- @see std.table.merge_select
 -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
 local function merge (t, u, map, nometa)
-  if init._ARGCHECK then
+  if _ARGCHECK then
     local types = {"table", "table", "table", {"boolean?", ":nometa"}}
     if type (map) ~= "table" then
       types = {"table", "table", {"table?", "boolean?", ":nometa"}}
@@ -222,7 +223,7 @@ end
 -- @see std.table.clone_select
 -- @usage merge_select (_G, require "std.debug", {"say"}, false)
 local function merge_select (t, u, keys, nometa)
-  if init._ARGCHECK then
+  if _ARGCHECK then
     local types = {"table", "table", "table", {"boolean?", ":nometa"}}
     if type (keys) ~= "table" then
       types = {"table", "table", {"table?", "boolean?", ":nometa"}}
@@ -243,7 +244,7 @@ end
 -- @usage lookup = metamethod (require "std.object", "__index")
 local metamethod
 
-if init._ARGCHECK then
+if _ARGCHECK then
 
   metamethod = function (x, n)
     argscheck ("std.table.metamethod", {{"object", "table"}, "string"}, {x, n})

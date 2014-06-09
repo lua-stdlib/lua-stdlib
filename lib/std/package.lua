@@ -11,8 +11,9 @@
 ]]
 
 
+local _ARGCHECK      = require "std.debug_init"._ARGCHECK
+
 local base           = require "std.base"
-local debug          = require "std.debug_init"
 local case           = require "std.functional".case
 local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
@@ -90,7 +91,7 @@ end
 -- @usage package.path = normalize (user_paths, sys_paths, package.path)
 local function normalize (...)
   local t = {...}
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     if #t < 1 then argcheck ("std.package.normalize", 1, "string") end
     for i, v in ipairs (t) do
       argcheck ("std.package.normalize", i, "string", v)
@@ -133,7 +134,7 @@ local unpack = unpack or table.unpack
 
 local function insert (pathstrings, ...)
   local args, types = {pathstrings, ...}
-  if debug._ARGCHECK then
+  if _ARGCHECK then
     if #args == 1 then
       types = {"string", {"int", "string"}}
     elseif #args == 2 then
