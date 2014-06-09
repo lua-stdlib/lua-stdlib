@@ -200,18 +200,21 @@ local function deprecate (fn, name, warnmsg)
 end
 
 
--- Doc-commented in list.lua...
-local function elems (l)
-  argcheck ("std.list.elems", 1, {"List", "table"}, l)
-
+--- An iterator over the integer keyed elements of a table.
+-- @function elems
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn *t*
+-- @return `true`
+local function ielems (t)
   local n = 0
-  return function (l)
+  return function (t)
            n = n + 1
-           if n <= #l then
-             return l[n]
+           if n <= #t then
+             return t[n]
            end
          end,
-  l, true
+  t, true
 end
 
 
@@ -270,7 +273,7 @@ local M = {
   argerror   = argerror,
   argscheck  = argscheck,
   deprecate  = deprecate,
-  elems      = elems,
+  ielems     = ielems,
   leaves     = leaves,
   metamethod = metamethod,
   prototype  = prototype,

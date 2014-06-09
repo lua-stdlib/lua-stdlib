@@ -170,6 +170,7 @@ specify std.functional:
 - describe fold:
   - before:
       list = require "std.list"
+      List = list {}
   - it diagnoses missing arguments: |
       expect (M.fold ()).
         to_error "bad argument #1 to 'std.functional.fold' (function expected, got no value)"
@@ -183,12 +184,12 @@ specify std.functional:
       expect (M.fold (M.id, 1, false)).
         to_error "bad argument #3 to 'std.functional.fold' (function expected, got boolean)"
   - it calls a binary function over element keys:
-      expect (M.fold (M.op["+"], 2, list.elems, {3})).
+      expect (M.fold (M.op["+"], 2, list.elems, List {3})).
         to_be (2 + 3)
-      expect (M.fold (M.op["*"], 2, list.elems, {3, 4})).
+      expect (M.fold (M.op["*"], 2, list.elems, List {3, 4})).
         to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (M.fold (math.pow, 2, list.elems, {3, 4})).
+      expect (M.fold (math.pow, 2, list.elems, List {3, 4})).
         to_be (math.pow (math.pow (2, 3), 4))
 
 

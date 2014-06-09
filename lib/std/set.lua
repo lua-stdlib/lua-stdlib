@@ -204,7 +204,7 @@ Set = Container {
   _type      = "Set",
 
   _init      = function (self, t)
-                 for e in base.elems (t) do
+                 for e in base.ielems (t) do
                    insert (self, e)
                  end
                  return self

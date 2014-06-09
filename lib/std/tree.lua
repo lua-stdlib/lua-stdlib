@@ -15,7 +15,7 @@ local base      = require "std.base"
 local Container = require "std.container"
 local func      = require "std.functional"
 
-local elems, base_leaves, prototype = base.elems, base.leaves, base.prototype
+local ielems, base_leaves, prototype = base.ielems, base.leaves, base.prototype
 local fold, op  = func.fold, func.op
 
 local Tree -- forward declaration
@@ -223,7 +223,7 @@ Tree = Container {
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
     if prototype (i) == "table" then
-      return fold (op["[]"], self, elems, i)
+      return fold (op["[]"], self, ielems, i)
     else
       return rawget (self, i)
     end

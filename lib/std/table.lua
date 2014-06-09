@@ -16,7 +16,7 @@ local init = require "std.debug_init"
 
 local M -- forward declaration
 
-local argcheck, argscheck, elems = base.argcheck, base.argscheck, base.elems
+local argcheck, argscheck, ielems = base.argcheck, base.argscheck, base.ielems
 
 
 
@@ -63,7 +63,7 @@ local function merge_namedfields (t, u, keys, nometa)
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for k in elems (keys) do
+  for k in ielems (keys) do
     t[k] = u[k]
   end
   return t

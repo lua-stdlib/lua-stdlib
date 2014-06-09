@@ -32,8 +32,8 @@ local debug   = require "std.debug_init"
 local func    = require "std.functional"
 local Object  = require "std.object"
 
-local argcheck, argerror, argscheck, prototype =
-      base.argcheck, base.argerror, base.argscheck, base.prototype
+local argcheck, argerror, argscheck, ielems, prototype =
+      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype
 
 local List -- forward declaration
 
@@ -90,7 +90,21 @@ end
 --   of `l`
 -- @treturn List `l`
 -- @return `true`
-local elems = base.elems
+local elems
+
+if debug._ARGCHECK then
+
+  elems = function (l)
+    argcheck ("std.list.elems", 1, "List", l)
+    return ielems (l)
+  end
+
+else
+
+  -- Save a stack frame and a comparison on each call.
+  elems = ielems
+
+end
 
 
 --- Concatenate arguments into a list.
@@ -108,8 +122,8 @@ local function concat (l, ...)
   end
 
   local r = List {}
-  for e in elems ({l, ...}) do
-    for v in elems (e) do
+  for e in ielems {l, ...} do
+    for v in ielems (e) do
       r[#r + 1] = v
     end
   end
@@ -151,7 +165,7 @@ local function depair (ls)
   end
 
   local t = {}
-  for v in elems (ls) do
+  for v in ielems (ls) do
     t[v[1]] = v[2]
   end
   return t
@@ -183,7 +197,7 @@ end
 local function filter (p, l)
   argscheck ("std.list.filter", {"function", "List"}, {p, l})
 
-  return List (func.filter (p, elems, l))
+  return List (func.filter (p, ielems, l))
 end
 
 
@@ -210,7 +224,7 @@ end
 local function foldl (fn, e, l)
   argscheck ("std.list.foldl", {"function", "any?", "List"}, {fn, e, l})
 
-  return func.fold (fn, e, elems, l)
+  return func.fold (fn, e, ielems, l)
 end
 
 
@@ -292,7 +306,7 @@ end
 local function map (fn, l)
   argscheck ("std.list.map", {"function", {"List", "table"}}, {fn, l})
 
-  return List (func.map (fn, elems, l))
+  return List (func.map (fn, ielems, l))
 end
 
 
@@ -314,7 +328,7 @@ local function map_with (fn, ls)
     end
   end
 
-  return List (func.map (func.compose (unpack, fn), elems, ls))
+  return List (func.map (func.compose (unpack, fn), ielems, ls))
 end
 
 

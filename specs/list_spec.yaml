@@ -246,10 +246,10 @@ specify std.list:
 
   - it diagnoses missing arguments: |
       expect (f ()).
-        to_error "bad argument #1 to 'std.list.elems' (List or table expected, got no value)"
+        to_error "bad argument #1 to 'std.list.elems' (List expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (f (false)).
-        to_error "bad argument #1 to 'std.list.elems' (List or table expected, got boolean)"
+        to_error "bad argument #1 to 'std.list.elems' (List expected, got boolean)"
 
   - it is an iterator over list members:
       t = {}

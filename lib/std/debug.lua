@@ -51,7 +51,7 @@ local string     = require "std.string"
 -- @usage s = tabify {...}
 local tabify = functional.compose (
         -- map (elementfn, iterfn, unnbound_table_arg)
-        functional.bind (functional.map, {string.tostring, base.elems}),
+        functional.bind (functional.map, {string.tostring, base.ielems}),
         -- table.concat (unbound_strbuf_table, "\t")
         functional.bind (table.concat, {[2] = "\t"}))
 
