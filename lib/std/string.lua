@@ -11,11 +11,12 @@
 ]]
 
 local base   = require "std.base"
+local debug  = require "std.debug_init"
 local List   = require "std.list"
 local StrBuf = require "std.strbuf"
 local table  = require "std.table"
 
-local argcheck, argscheck, getmetamethod, split =
+local argcheck, argscheck, getmetamethod, base_split =
       base.argcheck, base.argscheck, base.getmetamethod, base.split
 
 local _format   = string.format
@@ -163,6 +164,21 @@ end
 -- @string[opt="%s+"] sep separator pattern
 -- @return list of strings
 -- @usage words = split "a very short sentence"
+local split
+
+if debug._ARGCHECK then
+
+  split = function (s, sep)
+    argscheck ("std.string.split", {"string", "string?"}, {s, sep})
+
+    return base_split (s, sep)
+  end
+
+else
+
+  split = base_split
+
+end
 
 
 --- Require a module with a particular version.
@@ -178,7 +194,7 @@ local function require_version (module, min, too_big, pattern)
 	     {module, min, too_big, pattern})
 
   local function version_to_list (v)
-    return List (split (v, "%."))
+    return List (base_split (v, "%."))
   end
   local function module_version (module, pattern)
     return version_to_list (string.match (module.version or module._VERSION,

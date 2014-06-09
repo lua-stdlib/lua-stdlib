@@ -9,7 +9,15 @@
 
  Although the implementations are here for logistical reasons, we re-export
  them from their respective logical modules so that the api is not affected
- as far as client code is concerned.
+ as far as client code is concerned. The functions in this file do not make
+ use of `argcheck` or similar, because we know that they are only called by
+ other stdlib functions which have already performed the necessary checking
+ and neither do we want to slow everything down by recheckng those argument
+ types here.
+
+ This implies that when re-exporting from another module when argument type
+ checking is in force, we must export a wrapper function that can check the
+ user's arguments fully at the API boundary.
 
  @module std.base
 ]]
@@ -255,10 +263,14 @@ local function getmetamethod (x, n)
 end
 
 
--- Doc-commented in string.lua...
+--- Split a string at a given separator.
+-- Separator is a Lua pattern, so you have to escape active characters,
+-- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
+-- @function split
+-- @string s to split
+-- @string[opt="%s+"] sep separator pattern
+-- @return list of strings
 local function split (s, sep)
-  argscheck ("std.string.split", {"string", "string?"}, {s, sep})
-
   sep = sep or "%s+"
   local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
   if sep == "" then patt = "(.)"; t[#t + 1] = "" end
