@@ -6,9 +6,10 @@
 
  Create a new array with:
 
-     > Array = require "std.array"
-     > array = Array ("int", {0xdead, 0xbeef, 0xfeed})
-     > =array[1], array[2], array[3], array[-3], array[-4]
+     > array = require "std.array"
+     > Array = array ()
+     > a = Array ("int", {0xdead, 0xbeef, 0xfeed})
+     > =a[1], a[2], a[3], a[-3], a[-4]
      57005	48879	65261	57005	nil
 
  All the indices passed to array methods use 1-based counting.
@@ -30,29 +31,31 @@
 ]]
 
 
-local base = require "std.base"
-local argcheck, argscheck = base.argcheck, base.argscheck
-
-local Container = require "std.container"
-local prototype = Container.prototype
-
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local have_alien, alien = pcall (require, "alien")
+local base      = require "std.base"
+local container = require "std.container"
+
+local Container = container {}
+
+local typeof = type
+
+local argcheck, argscheck, prototype =
+      base.argcheck, base.argscheck, base.prototype
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
 local buffer, memmove, memset
 if have_alien then
   buffer, memmove, memset = alien.buffer, alien.memmove, alien.memset
 else
   buffer = function () return {} end
 end
-
-local typeof = type
-
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
 
 
 --- Number of bytes needed in an alien.buffer for each `type` element.
@@ -199,7 +202,7 @@ core_metatable = {
   -- @tparam[opt] int|table init initial size or list of initial elements
   -- @treturn std.array a new array object
   -- @usage
-  -- local Array = require "std.array"
+  -- local Array = require "std.array" {} -- not a typo!
   -- local new = Array ("int", {1, 2, 3})
   __call = function (self, type, init)
     if _ARGCHECK then

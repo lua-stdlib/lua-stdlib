@@ -22,6 +22,9 @@
  @module std.base
 ]]
 
+
+local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
 local typeof = type
 
 -- Doc-commented in object.lua
@@ -30,21 +33,9 @@ local function prototype (o)
 end
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
-
 local argcheck, argerror, argscheck
 
-if not _ARGCHECK then
-
-  local function nop () end
-
-  -- Turn off argument checking if _DEBUG is false, or a table containing
-  -- a false valued `argcheck` field.
-
-  argcheck  = nop
-  argscheck = nop
-
-else
+if _ARGCHECK then
 
   --- Concatenate a table of strings using ", " and " or " delimiters.
   -- @tparam table alternatives a table of strings
@@ -164,6 +155,16 @@ else
       argcheck (name, i, expected[i], actual[i], 3)
     end
   end
+
+else
+
+  local function nop () end
+
+  -- Turn off argument checking if _DEBUG is false, or a table containing
+  -- a false valued `argcheck` field.
+
+  argcheck  = nop
+  argscheck = nop
 
 end
 

@@ -10,8 +10,10 @@
  @module std.io
 ]]
 
-local base      = require "std.base"
+
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
+local base = require "std.base"
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
@@ -19,6 +21,7 @@ local package = {
 
 local argcheck, argerror, leaves, split =
       base.argcheck, base.argerror, base.leaves, base.split
+
 
 local M -- forward declaration
 

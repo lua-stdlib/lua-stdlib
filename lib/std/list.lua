@@ -6,7 +6,8 @@
 
  In addition to calling methods on list objects in OO style...
 
-     local List = require "std.list"
+     local list = require "std.list"  -- module table
+     local List = list {}             -- prototype object
      local l = List {1, 2, 3}
      for e in l:relems () do print (e) end
        => 3
@@ -17,7 +18,6 @@
  argument in the first or last parameter, check the documentation for
  details:
 
-     local List = require "std.list"
      local l = List {1, 2, 3}
      for e in List.relems (l) do print (e) end
        => 3
@@ -27,16 +27,21 @@
  @classmod std.list
 ]]
 
+
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base    = require "std.base"
 local func    = require "std.functional"
-local Object  = require "std.object"
+local object  = require "std.object"
+
 
 local argcheck, argerror, argscheck, ielems, prototype =
       base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype
 
+local Object = object {}
+
 local List -- forward declaration
+
 
 ------
 -- An Object derived List.

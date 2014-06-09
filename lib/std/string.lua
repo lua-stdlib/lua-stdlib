@@ -13,9 +13,12 @@
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base   = require "std.base"
-local List   = require "std.list"
-local StrBuf = require "std.strbuf"
+local list   = require "std.list"
+local strbuf = require "std.strbuf"
 local table  = require "std.table"
+
+local List   = list {}
+local StrBuf = strbuf {}
 
 local argcheck, argscheck, getmetamethod, base_split =
       base.argcheck, base.argscheck, base.getmetamethod, base.split

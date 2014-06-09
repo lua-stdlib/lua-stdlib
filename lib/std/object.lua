@@ -31,6 +31,8 @@
 
  Objects, then, are essentially tables of `field\_n = value\_n` pairs:
 
+      > object = require "std.object"  -- module table
+      > Object = object {}             -- root object
       > o = Object {
       >>  field_1 = "value_1",
       >>  method_1 = function (self) return self.field_1 end,
@@ -49,13 +51,25 @@
  metatable for `new_object` that also contains a copy of all the entries
  in the `proto_object` metatable.
 
- Note that Object methods are stored in the `\_\_index` field of their
- metatable, and so cannot also use `\_\_index` to lookup references with
+ While clones of @{std.object} inherit all properties of their prototype,
+ it's idiomatic to always keep separate tables for the module table and
+ the root object itself: That way you can't mistakenly engage the slower
+ clone-from-module-table process accidentally if the underlying object
+ later changes from being an `Object` to being a `Container`.
+
+     local object = require "std.object"  -- module table
+     local Object = object {}             -- root object
+
+     local prototype = object.prototype
+
+     local Derived = Object { _type = "Derived" }
+
+ Note that Object methods are stored in the `__index` field of their
+ metatable, and so cannot also use `__index` to lookup references with
  square brackets.  See @{std.container} objects if you want to do that.
 
  @classmod std.object
 ]]
-
 
 
 -- Surprise!!  The real root object is Container, which has less
@@ -64,8 +78,12 @@
 -- Container is derived from it.  Confused? ;-)
 
 
-local Container     = require "std.container"
-local getmetamethod = require "std.base".getmetamethod
+local base      = require "std.base"
+local container = require "std.container"
+
+local Container = container {}
+local getmetamethod, prototype = base.getmetamethod, base.prototype
+
 
 
 --- Root object.
@@ -83,7 +101,7 @@ return Container {
 
   -- No need for explicit module functions here, because calls to, e.g.
   -- `Object.prototype` will automatically fall back metamethods in
-  -- `\_\_index`.
+  -- `__index`.
 
   __index = {
     --- Clone an Object.
@@ -97,7 +115,7 @@ return Container {
     -- @usage
     -- local object = require "std.object"
     -- new = object.clone (object, {"foo", "bar"})
-    clone = getmetamethod (Container, "__call"),
+    clone = getmetamethod (container, "__call"),
 
 
     --- Type of an object, or primitive.
@@ -143,8 +161,8 @@ return Container {
     -- @function prototype
     -- @treturn string type of this object
     -- @see std.object.prototype
-    -- @usage if object:prototype () ~= "table" then ... end
-    prototype = Container.prototype.call,
+    -- @usage if anobject:prototype () ~= "table" then ... end
+    prototype = prototype,
 
 
     --- Return `obj` with references to the fields of `src` merged in.
@@ -177,11 +195,11 @@ return Container {
     --   object.mapfields (obj, src, map)
     --   ...
     -- end
-    mapfields = Container.mapfields.call,
+    mapfields = container.mapfields.call,
 
 
     -- Backwards compatibility:
-    type = Container.prototype.call,
+    type = prototype,
   },
 
 
@@ -193,7 +211,7 @@ return Container {
   -- @treturn std.object a clone of the this object.
   -- @see clone
   -- @usage
-  -- local Object = require "std.object"
+  -- local Object = require "std.object" {} -- not a typo!
   -- new = Object {"initialisation", "elements"}
 
 

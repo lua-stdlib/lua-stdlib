@@ -12,8 +12,10 @@
 ]]
 
 local base      = require "std.base"
-local Container = require "std.container"
+local container = require "std.container"
 local func      = require "std.functional"
+
+local Container = container {}
 
 local ielems, base_leaves, prototype = base.ielems, base.leaves, base.prototype
 local fold, op  = func.fold, func.op

@@ -10,15 +10,16 @@
  @module std.table
 ]]
 
+
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base = require "std.base"
 
-
-local M -- forward declaration
-
 local argcheck, argscheck, getmetamethod, ielems =
       base.argcheck, base.argscheck, base.getmetamethod, base.ielems
+
+
+local M -- forward declaration
 
 
 

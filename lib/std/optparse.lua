@@ -415,7 +415,7 @@ end
 -- @static
 -- @string opt option name
 -- @string optarg option argument, must be an existing file
--- @treturn `optarg`
+-- @treturn string *optarg*
 local function file (self, opt, optarg)
   local h, errmsg = io.open (optarg, "r")
   if h == nil then

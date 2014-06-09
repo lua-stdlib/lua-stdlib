@@ -20,19 +20,18 @@
  initial prototype object returned by `require`, but are **not** passed
  on to derived objects during cloning:
 
-      > Container = require "std.container"
-      > x = Container {}
-      > = Container.prototype (x)
+      > container = require "std.container"  -- module table
+      > Container = container {}             -- prototype object
+      > = container:prototype ()
       Object
-      > = x.prototype (o)
+      > = Container:prototype ()
       stdin:1: attempt to call field 'prototype' (a nil value)
       ...
 
- To add functions like this to your own prototype objects, pass a table
- of the module functions in the `_functions` private field before
- cloning, and those functions will not be inherited by clones.
+ To add module functions to your own prototype containers, pass a table
+ of those module functions in the `_functions` private field before
+ cloning, and they will not be inherited by subsequent clones.
 
-      > Container = require "std.container"
       > Graph = Container {
       >>   _type = "Graph",
       >>   _functions = {
@@ -49,10 +48,18 @@
       > = g.nodes
       nil
 
- When making your own prototypes, start from @{std.container} if you
- want to access the contents of your objects with the `[]` operator, or
- @{std.object} if you want to access the functionality of your objects
- with named object methods.
+ Cloning from the module table itself is somewhat slower than cloning
+ derived objects -- due to the time spent skipping over the module
+ table's `_function` entries by the clone constructor. You can avoid
+ that overhead by creating an explicit *prototype object*:
+
+     local container = require "std.container"  -- module table
+     local Container = container {}             -- prototype object
+
+ When making your own prototypes, derive from @{std.container} if you want
+ to access the contents of your objects with the `[]` operator, or from
+ @{std.object} if you want to access the functionality of your objects with
+ named object methods.
 
  @classmod std.container
 ]]
@@ -196,7 +203,7 @@ local metatable = {
   -- @treturn std.container a clone of the called container.
   -- @see std.object:__call
   -- @usage
-  -- local Container = require "std.container"
+  -- local Container = require "std.container" {} -- not a typo!
   -- local new = Container {"init", {"elements"}, 2, "insert"}
   __call = function (self, x, ...)
     argcheck ("std.container.__call", 1, "object", self)

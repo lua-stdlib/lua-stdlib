@@ -28,8 +28,10 @@
  @module std.debug
 ]]
 
+
+local _DEBUG     = require "std.debug_init"._DEBUG
+
 local base       = require "std.base"
-local init       = require "std.debug_init"
 local functional = require "std.functional"
 local string     = require "std.string"
 
@@ -74,9 +76,9 @@ local function say (n, ...)
     level = arg[1]
     table.remove (arg, 1)
   end
-  if init._DEBUG and
-    ((type (init._DEBUG) == "table" and type (init._DEBUG.level) == "number" and
-      init._DEBUG.level >= level)
+  if _DEBUG and
+    ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
+      _DEBUG.level >= level)
        or level <= 1) then
     io.stderr:write (tabify (arg) .. "\n")
   end
@@ -120,8 +122,8 @@ local function trace (event)
   io.stderr:write (s .. "\n")
 end
 
--- Set hooks according to init._DEBUG
-if type (init._DEBUG) == "table" and init._DEBUG.call then
+-- Set hooks according to _DEBUG
+if type (_DEBUG) == "table" and _DEBUG.call then
   debug.sethook (trace, "cr")
 end
 

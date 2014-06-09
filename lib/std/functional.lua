@@ -3,10 +3,12 @@
  @module std.functional
 ]]
 
-local base = require "std.base"
-local argcheck, argscheck = base.argcheck, base.argscheck
 
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
+
+local base = require "std.base"
+
+local argcheck, argscheck = base.argcheck, base.argscheck
 
 local functional -- forward declaration
 

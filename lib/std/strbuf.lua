@@ -4,7 +4,8 @@
 ]]
 
 
-local Object = require "std.object"
+local object = require "std.object"
+local Object = object {}
 
 
 --- Add a string to a buffer.
