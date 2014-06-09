@@ -237,10 +237,13 @@ local function leaves (it, tr)
 end
 
 
--- Doc-commented in table.lua...
-local function metamethod (x, n)
-  argscheck ("std.table.metamethod", {{"object", "table"}, "string"}, {x, n})
-
+--- Return given metamethod, if any, or nil.
+-- @tparam std.object x object to get metamethod of
+-- @string n name of metamethod to get
+-- @treturn function|nil metamethod function or `nil` if no metamethod or
+--   not a function
+-- @usage lookup = getmetamethod (require "std.object", "__index")
+local function getmetamethod (x, n)
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
                       end,
@@ -269,15 +272,15 @@ end
 
 
 local M = {
-  argcheck   = argcheck,
-  argerror   = argerror,
-  argscheck  = argscheck,
-  deprecate  = deprecate,
-  ielems     = ielems,
-  leaves     = leaves,
-  metamethod = metamethod,
-  prototype  = prototype,
-  split      = split,
+  argcheck      = argcheck,
+  argerror      = argerror,
+  argscheck     = argscheck,
+  deprecate     = deprecate,
+  getmetamethod = getmetamethod,
+  ielems        = ielems,
+  leaves        = leaves,
+  prototype     = prototype,
+  split         = split,
 }
 
 

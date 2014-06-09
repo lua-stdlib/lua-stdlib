@@ -16,7 +16,8 @@ local init = require "std.debug_init"
 
 local M -- forward declaration
 
-local argcheck, argscheck, ielems = base.argcheck, base.argscheck, base.ielems
+local argcheck, argscheck, getmetamethod, ielems =
+      base.argcheck, base.argscheck, base.getmetamethod, base.ielems
 
 
 
@@ -240,7 +241,23 @@ end
 -- @treturn function|nil metamethod function or `nil` if no metamethod or
 --   not a function
 -- @usage lookup = metamethod (require "std.object", "__index")
-local metamethod = base.metamethod
+local metamethod
+
+if init._ARGCHECK then
+
+  metamethod = function (x, n)
+    argscheck ("std.table.metamethod", {{"object", "table"}, "string"}, {x, n})
+
+    return getmetamethod (x, n)
+  end
+
+else
+
+  -- Save a stack frame and a comparison on each call when not checking
+  -- arguments.
+  metamethod = getmetamethod
+
+end
 
 
 --- Make a table with a default value for unset keys.
@@ -339,7 +356,7 @@ end
 local function totable (x)
   argcheck ("std.table.totable", 1, {"object", "table", "string"}, x)
 
-  local m = metamethod (x, "__totable")
+  local m = getmetamethod (x, "__totable")
   if m then
     return m (x)
   elseif type (x) == "table" then

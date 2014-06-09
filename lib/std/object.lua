@@ -64,8 +64,8 @@
 -- Container is derived from it.  Confused? ;-)
 
 
-local Container  = require "std.container"
-local metamethod = require "std.base".metamethod
+local Container     = require "std.container"
+local getmetamethod = require "std.base".getmetamethod
 
 
 --- Root object.
@@ -97,7 +97,7 @@ return Container {
     -- @usage
     -- local object = require "std.object"
     -- new = object.clone (object, {"foo", "bar"})
-    clone = metamethod (Container, "__call"),
+    clone = getmetamethod (Container, "__call"),
 
 
     --- Type of an object, or primitive.
