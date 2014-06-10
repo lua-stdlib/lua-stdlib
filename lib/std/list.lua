@@ -73,9 +73,13 @@ local function compare (l, m)
   argscheck ("std.list.compare", {"List", {"List", "table"}}, {l, m})
 
   for i = 1, math.min (#l, #m) do
-    if l[i] < m[i] then
+    local li, mi = tonumber (l[i]), tonumber (m[i])
+    if li == nil or mi == nil then
+      li, mi = l[i], m[i]
+    end
+    if li < mi then
       return -1
-    elseif l[i] > m[i] then
+    elseif li > mi then
       return 1
     end
   end

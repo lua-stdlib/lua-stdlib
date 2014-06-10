@@ -119,17 +119,26 @@ specify std.list:
     - it returns +1 when the first list has additional elements: |
         expect (a:compare {"foo"}).to_be (1)
         expect (a:compare (List {"foo"})).to_be (1)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a:compare (b)).to_be (-1)
   - context when called as a '<' list metamethod:
     - it succeeds when the first list is less than the second:
         expect (a < b).to_be (true)
     - it fails when the first list is not less than the second:
         expect (a < a).to_be (false)
         expect (b < a).to_be (false)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a < b).to_be (true)
   - context when called as a '>' list metamethod:
     - it succeeds when the first list is greater than the second:
         expect (b > a).to_be (true)
     - it fails when the first list is not greater than the second:
         expect (b > b).to_be (false)
+        expect (a > b).to_be (false)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
         expect (a > b).to_be (false)
   - context when called as a '<=' list metamethod:
     - it succeeds when the first list is less than or equal to the second:
@@ -137,11 +146,17 @@ specify std.list:
         expect (a <= a).to_be (true)
     - it fails when the first list is not less than or equal to the second:
         expect (b <= a).to_be (false)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a <= b).to_be (true)
   - context when called as a '>=' list metamethod:
     - it succeeds when the first list is greater than or equal to the second:
         expect (b >= a).to_be (true)
         expect (b >= b).to_be (true)
     - it fails when the first list is not greater than or equal to the second:
+        expect (a >= b).to_be (false)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
         expect (a >= b).to_be (false)
 
 
