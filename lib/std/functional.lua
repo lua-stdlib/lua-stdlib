@@ -4,34 +4,30 @@
 ]]
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
+local export = require "std.base".export
 
-local base = require "std.base"
-
-local argcheck, argscheck = base.argcheck, base.argscheck
-
-local functional -- forward declaration
+local M = { "std.functional" }
 
 
 --- Identity function.
+-- @function id
 -- @param ...
 -- @return the arguments passed to the function
-local function id (...)
+function M.id (...)
   return ...
 end
 
 
 --- Partially apply a function.
--- @param f function to apply partially
--- @tparam t table {p1=a1, ..., pn=an} table of parameters to bind to given arguments
--- @return function with pi already bound
+-- @function bind
+-- @func f function to apply partially
+-- @tparam table t {p1=a1, ..., pn=an} table of parameters to bind to given arguments
+-- @return function with *pi* already bound
 -- @usage
 -- > cube = bind (math.pow, {[2] = 3})
 -- > =cube (2)
 -- 8
-local function bind (f, ...)
-  argscheck ("std.functional.bind", "function", f)
-
+local bind = export (M, "bind", {"func", "any?*"}, function (f, ...)
   local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
@@ -48,13 +44,14 @@ local function bind (f, ...)
            end
            return f (unpack (arg))
          end
-end
+end)
 
 
 --- A rudimentary case statement.
 -- Match `with` against keys in `branches` table, and return the result
 -- of running the function in the table value for the matching key, or
 -- the first non-key value function if no key matches.
+-- @function case
 -- @param with expression to match
 -- @tparam table branches map possible matches to functions
 -- @return the return value from function with a matching key, or nil.
@@ -64,26 +61,24 @@ end
 --   string = function ()  return something else end,
 --            function (s) error ("unhandled type: "..s) end,
 -- })
-local function case (with, branches)
-  argcheck ("std.functional.case", 2, "#table", branches)
-
+export (M, "case", {"any?", "#table"}, function (with, branches)
   local fn = branches[with] or branches[1]
   if fn then return fn (with) end
-end
+end)
 
 
 --- Curry a function.
--- @param f function to curry
--- @param n number of arguments
--- @return curried version of f
+-- @function curry
+-- @func f function to curry
+-- @int n number of arguments
+-- @treturn function curried version of *f*
 -- @usage
 -- > add = curry (function (x, y) return x + y end, 2)
 -- > incr, decr = add (1), add (-1)
 -- > =incr (99), decr (99)
 -- 100     98
-local function curry (f, n)
-  argscheck ("std.functional.curry", {"function", "int"}, {f, n})
-
+local curry
+curry = export (M, "curry", {"func", "int"}, function (f, n)
   if n <= 1 then
     return f
   else
@@ -91,13 +86,14 @@ local function curry (f, n)
              return curry (bind (f, x), n - 1)
            end
   end
-end
+end)
 
 
 --- Compose functions.
--- @tparam function ... functions to compose
--- @return composition of fn (... (f1) ...): note that this is the reverse
--- of what you might expect, but means that code like:
+-- @function compose
+-- @func ... functions to compose
+-- @treturn function composition of fn (... (f1) ...): note that this is the
+-- reverse of what you might expect, but means that code like:
 --
 --     functional.compose (function (x) return f (x) end,
 --                         function (x) return g (x) end))
@@ -109,17 +105,8 @@ end
 -- b
 -- c
 -- a
-local function compose (...)
+export (M, "compose", {"func*"}, function (...)
   local arg = {...}
-  if _ARGCHECK then
-    if #arg < 1 then
-      argcheck ("std.functional.compose", 1, "function", nil)
-    end
-    for i in ipairs (arg) do
-      argcheck ("std.functional.compose", i, "function", arg[i])
-    end
-  end
-
   local fns, n = arg, #arg
   return function (...)
            local arg = {...}
@@ -128,7 +115,7 @@ local function compose (...)
            end
            return unpack (arg)
          end
-end
+end)
 
 
 --- Signature of memoize `normalize` functions.
@@ -143,15 +130,13 @@ end
 -- arguments, it passes arguments to `normalize` (std.string.tostring
 -- by default). You may need a more sophisticated function if memoize
 -- should handle complicated argument equivalencies.
--- @param fn function that returns a single result
--- @param normalize[opt] function to normalize arguments
--- @return memoized function
+-- @function memoize
+-- @func fn function that returns a single result
+-- @func normalize[opt] function to normalize arguments
+-- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
-local function memoize (fn, normalize)
-  argscheck ("std.functional.memoize", {"function", "function?"},
-             {fn, normalize})
-
+export (M, "memoize", {"func", "func?"}, function (fn, normalize)
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -170,50 +155,49 @@ local function memoize (fn, normalize)
                return v
              end
   })
-end
+end)
 
 
 --- Evaluate a string.
+-- @function eval
 -- @string s string of Lua code
 -- @return result of evaluating `s`
 -- @usage eval "math.pow (2, 10)"
-local function eval (s)
-  argscheck ("std.functional.eval", "string", s)
+export (M, "eval", {"string"}, function (s)
   return loadstring ("return " .. s)()
-end
+end)
 
 
 --- Collect the results of an iterator.
--- @tparam function i iterator
--- @param ... arguments
--- @return results of running the iterator on *arguments
+-- @function collect
+-- @func i iterator
+-- @param ... iterator arguments
+-- @return results of running the iterator on *arguments*
 -- @see filter
 -- @see map
 -- @usage
 -- > =collect (std.list.relems, List {"a", "b", "c"})
 -- {"c", "b", "a"}
-local function collect (i, ...)
-  argcheck ("std.functional.collect", 1, "function", i)
-
+export (M, "collect", {"func", "any*"}, function (i, ...)
   local t = {}
   for e in i (...) do
     t[#t + 1] = e
   end
   return t
-end
+end)
 
 
 --- Map a function over an iterator.
--- @tparam function f function
--- @tparam function i iterator
--- @return result table
+-- @function map
+-- @func f function
+-- @func i iterator
+-- @param ... iterator arguments
+-- @treturn table results
 -- @see filter
 -- @usage
 -- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
 -- {1, 0, 1, 0}
-local function map (f, i, ...)
-  argscheck ("std.functional.map", {"function", "function"}, {f, i})
-
+export (M, "map", {"func", "func", "any*"}, function (f, i, ...)
   local t = {}
   for e in i (...) do
     local r = f (e)
@@ -222,20 +206,20 @@ local function map (f, i, ...)
     end
   end
   return t
-end
+end)
 
 
 --- Filter an iterator with a predicate.
--- @param p predicate
--- @param i iterator
--- @return result table containing elements e for which p (e)
+-- @function filter
+-- @func p predicate
+-- @func i iterator
+-- @param ... iterator arguments
+-- @treturn table elements e for which `p (e)` is not falsey.
 -- @see collect
 -- @usage
 -- > filter (function (e) return e % 2 == 0 end, std.list.elems, List {1, 2, 3, 4})
 -- {2, 4}
-local function filter (p, i, ...)
-  argscheck ("std.functional.filter", {"function", "function"}, {p, i})
-
+export (M, "filter", {"func", "func", "any*"}, function (p, i, ...)
   local t = {}
   for e in i (...) do
     if p (e) then
@@ -243,42 +227,27 @@ local function filter (p, i, ...)
     end
   end
   return t
-end
+end)
 
 
 --- Fold a binary function into an iterator.
--- @param f function
+-- @function fold
+-- @func f function
 -- @param d initial first argument
--- @param i iterator
+-- @func i iterator
 -- @param ... iterator arguments
 -- @return result
 -- @see std.list.foldl
 -- @see std.list.foldr
 -- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
-local function fold (f, d, i, ...)
-  argscheck ("std.functional.fold", {"function", "any", "function"}, {f, d, i})
-
+export (M, "fold", {"func", "any", "func", "any*"}, function (f, d, i, ...)
   local r = d
   for e in i (...) do
     r = f (r, e)
   end
   return r
-end
+end)
 
---- @export
-functional = {
-  bind       = bind,
-  case       = case,
-  collect    = collect,
-  compose    = compose,
-  curry      = curry,
-  eval       = eval,
-  filter     = filter,
-  fold       = fold,
-  id         = id,
-  map        = map,
-  memoize    = memoize,
-}
 
 --- Functional forms of infix operators.
 -- Defined here so that other modules can write to it.
@@ -293,7 +262,7 @@ functional = {
 -- @field not logical not
 -- @field == equality
 -- @field ~= inequality
-functional.op = {
+M.op = {
   ["[]"]  = function (t, s) return t and t[s] or nil end,
   ["+"]   = function (a, b) return a + b   end,
   ["-"]   = function (a, b) return a - b   end,
@@ -306,4 +275,4 @@ functional.op = {
   ["~="]  = function (a, b) return a ~= b  end,
 }
 
-return functional
+return M

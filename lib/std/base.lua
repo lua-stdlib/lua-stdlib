@@ -96,7 +96,8 @@ if _ARGCHECK then
           ok = true
         end
 
-      elseif check == "function" then
+      elseif check == "function" or check == "func" then
+        expected[i] = "function"
         if actualtype == "function" or
             (getmetatable (actual) or {}).__call ~= nil
         then
@@ -210,24 +211,55 @@ end
 
 
 --- Export a function definition, optionally with argument type checking.
+-- In addition to checking that each argument type matches the corresponding
+-- element in the *types* table with `argcheck`, if the final element of
+-- *types* ends with an asterisk, remaining unchecked arguments are checked
+-- against that type.
 -- @tparam table M module table
 -- @string name key in *M* for *fn*
 -- @tparam table types *fn* argument type constraints
 -- @func fn value to store at *name* in *M*
 local function export (M, name, types, fn)
+  local inner = fn
+
+  -- When argument checking is enabled, wrap in type checking function.
   if _ARGCHECK then
     argscheck ("std.base.export", {"table", "string", "#table", "function"},
-               {M, name, types, fn})
+               {M, name, types, inner})
 
-    -- When argument checking is enabled, wrap in type checking function.
-    local name, inner = M[1] .. "." .. name, fn
+    local name = M[1] .. "." .. name
+
+    local max, fin = #types, types[#types]:match "^(.+)%*$"
+    if fin then
+      max = math.huge
+      types[#types] = fin
+    end
+
     fn = function (...)
-      argscheck (name, types, {...})
+      local args = {...}
+      local typec, argc = #types, #args
+      for i = 1, typec do
+        argcheck (name, i, types[i], args[i])
+      end
+      if max == math.huge then
+        for i = typec + 1, argc do
+          argcheck (name, i, types[typec], args[i])
+	end
+      end
+
+      if argc > max then
+        local fmt
+        fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
+        error (string.format (fmt, name, max, argc), 2)
+      end
+
       return inner (...)
     end
   end
 
   M[name] = fn
+
+  return inner
 end
 
 

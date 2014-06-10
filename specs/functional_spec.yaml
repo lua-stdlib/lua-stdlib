@@ -53,6 +53,9 @@ specify std.functional:
   - it diagnoses wrong argument types: |
       expect (M.case ("no", false)).
         to_error "bad argument #2 to 'std.functional.case' (non-empty table expected, got boolean)"
+  - it diagnoses too many arguments:
+      expect (M.case (1, {2}, false)).
+        to_error "too many arguments to 'std.functional.case' (no more than 2 expected, got 3)"
   - it matches against branch keys:
       expect (M.case ("yes", branches)).to_be (true)
       expect (M.case ("no",  branches)).to_be (false)
@@ -109,6 +112,9 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.curry' (function expected, got boolean)"
       expect (M.curry (M.id, 1.234)).
         to_error "bad argument #2 to 'std.functional.curry' (int expected, got number)"
+  - it diagnoses too many arguments:
+      expect (M.curry (M.id, 2, false)).
+        to_error "too many arguments to 'std.functional.curry' (no more than 2 expected, got 3)"
   - it returns a zero argument function uncurried:
       expect (M.curry (M.id, 0)).to_be (M.id)
   - it returns a one argument function uncurried:
@@ -130,6 +136,9 @@ specify std.functional:
   - it diagnoses wrong argument types: |
       expect (M.eval (false)).
         to_error "bad argument #1 to 'std.functional.eval' (string expected, got boolean)"
+  - it diagnoses too many arguments:
+      expect (M.eval ("1", false)).
+        to_error "too many arguments to 'std.functional.eval' (no more than 1 expected, got 2)"
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable "=" code.
       expect (M.eval "=").to_error ()
@@ -242,6 +251,9 @@ specify std.functional:
         to_error "bad argument #1 to 'std.functional.memoize' (function expected, got boolean)"
       expect (M.memoize (M.id, false)).
         to_error "bad argument #2 to 'std.functional.memoize' (function or nil expected, got boolean)"
+  - it diagnoses too many arguments:
+      expect (M.memoize (M.id, M.id, false)).
+        to_error "too many arguments to 'std.functional.memoize' (no more than 2 expected, got 3)"
   - it returns the same object for the same arguments:
       t = memfn (1)
       expect (memfn (1)).to_be (t)

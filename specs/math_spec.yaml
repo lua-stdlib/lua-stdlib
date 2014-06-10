@@ -40,6 +40,9 @@ specify std.math:
         to_error "bad argument #2 to 'std.math.floor' (int or nil expected, got boolean)"
       expect (f (1.2, 3.4)).
         to_error "bad argument #2 to 'std.math.floor' (int or nil expected, got number)"
+  - it diagnoses too many arguments:
+      expect (f (1, 2, 3)).
+        to_error "too many arguments to 'std.math.floor' (no more than 2 expected, got 3)"
   - it rounds to the nearest smaller integer:
       expect (f (1.2)).to_be (1)
       expect (f (1.9)).to_be (1)
@@ -65,6 +68,9 @@ specify std.math:
   - it diagnoses wrong argument types: |
       expect (f (false)).
         to_error "bad argument #1 to 'std.math.monkey_patch' (table or nil expected, got boolean)"
+  - it diagnoses too many arguments:
+      expect (f (t, false)).
+        to_error "too many arguments to 'std.math.monkey_patch' (no more than 1 expected, got 2)"
   - it installs math.floor function:
       expect (t.math.floor).to_be (M.floor)
 
@@ -80,6 +86,9 @@ specify std.math:
         to_error "bad argument #2 to 'std.math.round' (int or nil expected, got boolean)"
       expect (f (1.2, 3.4)).
         to_error "bad argument #2 to 'std.math.round' (int or nil expected, got number)"
+  - it diagnoses too many arguments:
+      expect (f (1, 2, 3)).
+        to_error "too many arguments to 'std.math.round' (no more than 2 expected, got 3)"
   - it rounds to the nearest integer:
       expect (f (1.2)).to_be (1)
       expect (f (1.9)).to_be (2)
