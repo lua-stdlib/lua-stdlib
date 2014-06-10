@@ -3,10 +3,11 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  extend_base         = { "clone", "clone_rename", "clone_select", "empty",
-                          "invert", "keys", "merge", "merge_select",
-                          "metamethod", "monkey_patch", "new", "pack",
-                          "ripairs", "size", "sort", "totable", "values" }
+  extend_base         = { "clone", "clone_rename", "clone_select", "elems",
+                          "empty", "ielems", "invert", "keys", "merge",
+                          "merge_select", "metamethod", "monkey_patch", "new",
+                          "pack", "ripairs", "size", "sort", "totable",
+                          "values" }
 
   M = require "std.table"
 
@@ -146,6 +147,29 @@ specify std.table:
         expect (getmetatable (f (withmt, {"k1"}, ":nometa"))).to_be (nil)
 
 
+- describe elems:
+  - before:
+      f = M.elems
+
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.table.elems' (table expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.table.elems' (table expected, got boolean)"
+
+  - it is an iterator over table values:
+      t = {}
+      for e in f {"foo", bar = "baz", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_contain.a_permutation_of {"foo", "baz", 42}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
+
+
 - describe empty:
   - before:
       f = M.empty
@@ -162,6 +186,29 @@ specify std.table:
       expect (f {"stuff"}).to_be (false)
       expect (f {{}}).to_be (false)
       expect (f {false}).to_be (false)
+
+
+- describe ielems:
+  - before:
+      f = M.ielems
+
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.table.ielems' (table expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.table.ielems' (table expected, got boolean)"
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for e in f {"foo", bar = "baz", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_equal {"foo", 42}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
 
 
 - describe invert:

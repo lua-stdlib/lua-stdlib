@@ -15,7 +15,7 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base = require "std.base"
 
-local argcheck, argscheck, getmetamethod, ielems =
+local argcheck, argscheck, getmetamethod, base_ielems =
       base.argcheck, base.argscheck, base.getmetamethod, base.ielems
 
 
@@ -66,7 +66,7 @@ local function merge_namedfields (t, u, keys, nometa)
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for k in ielems (keys) do
+  for k in base_ielems (keys) do
     t[k] = u[k]
   end
   return t
@@ -147,6 +147,26 @@ local function clone_select (t, keys, nometa)
 end
 
 
+--- An iterator over all values of a table.
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn *t*
+-- @return `true`
+-- @usage for func in elems (_G) do ... end
+local function elems (t)
+  argcheck ("std.table.elems", 1, "table", t)
+
+  local k, v = nil
+  return function (t)
+           k, v = next (t, k)
+           if k then
+             return v
+           end
+         end,
+  t, true
+end
+
+
 --- Return whether table is empty.
 -- @tparam table t any table
 -- @return `true` if *t* is empty, otherwise `false`
@@ -155,6 +175,19 @@ local function empty (t)
   argcheck ("std.table.empty", 1, "table", t)
 
   return not next (t)
+end
+
+
+--- An iterator over the integer keyed elements of a table.
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn *t*
+-- @return `true`
+-- @usage for value in ielems {"a", "b", "c"} do ... end
+local function ielems (t)
+  argcheck ("std.table.ielems", 1, "table", t)
+
+  return base_ielems (t)
 end
 
 
@@ -392,7 +425,9 @@ end
 M = {
   clone        = clone,
   clone_select = clone_select,
+  elems        = elems,
   empty        = empty,
+  ielems       = ielems,
   invert       = invert,
   keys         = keys,
   merge        = merge,

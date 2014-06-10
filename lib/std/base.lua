@@ -210,7 +210,6 @@ end
 
 
 --- An iterator over the integer keyed elements of a table.
--- @function elems
 -- @tparam table t a table
 -- @treturn function iterator function
 -- @treturn *t*
