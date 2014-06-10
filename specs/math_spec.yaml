@@ -74,12 +74,12 @@ specify std.math:
       f = M.round
   - it diagnoses missing arguments: |
       expect (f ()).
-        to_error "bad argument #1 to 'std.math.floor' (number expected, got no value)"
+        to_error "bad argument #1 to 'std.math.round' (number expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (f (1.2, false)).
-        to_error "bad argument #2 to 'std.math.floor' (int or nil expected, got boolean)"
+        to_error "bad argument #2 to 'std.math.round' (int or nil expected, got boolean)"
       expect (f (1.2, 3.4)).
-        to_error "bad argument #2 to 'std.math.floor' (int or nil expected, got number)"
+        to_error "bad argument #2 to 'std.math.round' (int or nil expected, got number)"
   - it rounds to the nearest integer:
       expect (f (1.2)).to_be (1)
       expect (f (1.9)).to_be (2)

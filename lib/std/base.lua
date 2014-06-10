@@ -209,6 +209,28 @@ local function deprecate (fn, name, warnmsg)
 end
 
 
+--- Export a function definition, optionally with argument type checking.
+-- @tparam table M module table
+-- @string name key in *M* for *fn*
+-- @tparam table types *fn* argument type constraints
+-- @func fn value to store at *name* in *M*
+local function export (M, name, types, fn)
+  if _ARGCHECK then
+    argscheck ("std.base.export", {"table", "string", "#table", "function"},
+               {M, name, types, fn})
+
+    -- When argument checking is enabled, wrap in type checking function.
+    local name, inner = M[1] .. "." .. name, fn
+    fn = function (...)
+      argscheck (name, types, {...})
+      return inner (...)
+    end
+  end
+
+  M[name] = fn
+end
+
+
 --- An iterator over the integer keyed elements of a table.
 -- @tparam table t a table
 -- @treturn function iterator function
@@ -288,6 +310,7 @@ local M = {
   argerror      = argerror,
   argscheck     = argscheck,
   deprecate     = deprecate,
+  export        = export,
   getmetamethod = getmetamethod,
   ielems        = ielems,
   leaves        = leaves,

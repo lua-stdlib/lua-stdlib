@@ -115,7 +115,9 @@ function show_apis (argt)
       local M = require "]] .. not_in .. [["
 
       for k in pairs (M) do
-        if from[k] ~= M[k] then print (k) end
+	-- M[1] is typically the module namespace name, don't match
+	-- that!
+        if k ~= 1 and from[k] ~= M[k] then print (k) end
       end
     ]])
 
