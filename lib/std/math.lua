@@ -25,7 +25,7 @@ local M = { "std.math" }
 
 local _floor = math.floor
 
-export (M, "floor", {"number", "int?"}, function (n, p)
+export (M, "floor (number, int?)", function (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
     return _floor (n * e) / e
@@ -42,7 +42,7 @@ end)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage require "std.math".monkey_patch ()
-export (M, "monkey_patch", {"table?"}, function (namespace)
+export (M, "monkey_patch (table?)", function (namespace)
   namespace = namespace or _G
   namespace.math.floor = M.floor
   return M
@@ -55,7 +55,7 @@ end)
 -- @int[opt=0] p number of decimal places to round to
 -- @treturn number `n` rounded to `p` decimal places
 -- @usage roughly = round (exactly, 2)
-export (M, "round", {"number", "int?"}, function (n, p)
+export (M, "round (number, int?)", function (n, p)
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e
 end)

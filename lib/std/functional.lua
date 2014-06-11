@@ -27,7 +27,7 @@ end
 -- > cube = bind (math.pow, {[2] = 3})
 -- > =cube (2)
 -- 8
-local bind = export (M, "bind", {"func", "any?*"}, function (f, ...)
+local bind = export (M, "bind (func, any?*)", function (f, ...)
   local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
@@ -61,7 +61,7 @@ end)
 --   string = function ()  return something else end,
 --            function (s) error ("unhandled type: "..s) end,
 -- })
-export (M, "case", {"any?", "#table"}, function (with, branches)
+export (M, "case (any?, #table)", function (with, branches)
   local fn = branches[with] or branches[1]
   if fn then return fn (with) end
 end)
@@ -78,7 +78,7 @@ end)
 -- > =incr (99), decr (99)
 -- 100     98
 local curry
-curry = export (M, "curry", {"func", "int"}, function (f, n)
+curry = export (M, "curry (func, int)", function (f, n)
   if n <= 1 then
     return f
   else
@@ -105,7 +105,7 @@ end)
 -- b
 -- c
 -- a
-export (M, "compose", {"func*"}, function (...)
+export (M, "compose (func*)", function (...)
   local arg = {...}
   local fns, n = arg, #arg
   return function (...)
@@ -136,7 +136,7 @@ end)
 -- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize", {"func", "func?"}, function (fn, normalize)
+export (M, "memoize (func, func?)", function (fn, normalize)
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -163,7 +163,7 @@ end)
 -- @string s string of Lua code
 -- @return result of evaluating `s`
 -- @usage eval "math.pow (2, 10)"
-export (M, "eval", {"string"}, function (s)
+export (M, "eval (string)", function (s)
   return loadstring ("return " .. s)()
 end)
 
@@ -178,7 +178,7 @@ end)
 -- @usage
 -- > =collect (std.list.relems, List {"a", "b", "c"})
 -- {"c", "b", "a"}
-export (M, "collect", {"func", "any*"}, function (i, ...)
+export (M, "collect (func, any*)", function (i, ...)
   local t = {}
   for e in i (...) do
     t[#t + 1] = e
@@ -197,7 +197,7 @@ end)
 -- @usage
 -- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
 -- {1, 0, 1, 0}
-export (M, "map", {"func", "func", "any*"}, function (f, i, ...)
+export (M, "map (func, func, any*)", function (f, i, ...)
   local t = {}
   for e in i (...) do
     local r = f (e)
@@ -219,7 +219,7 @@ end)
 -- @usage
 -- > filter (function (e) return e % 2 == 0 end, std.list.elems, List {1, 2, 3, 4})
 -- {2, 4}
-export (M, "filter", {"func", "func", "any*"}, function (p, i, ...)
+export (M, "filter (func, func, any*)", function (p, i, ...)
   local t = {}
   for e in i (...) do
     if p (e) then
@@ -240,7 +240,7 @@ end)
 -- @see std.list.foldl
 -- @see std.list.foldr
 -- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
-export (M, "fold", {"func", "any", "func", "any*"}, function (f, d, i, ...)
+export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
   local r = d
   for e in i (...) do
     r = f (r, e)

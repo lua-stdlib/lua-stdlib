@@ -27,6 +27,8 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local typeof = type
 
+local toomanyarg_fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
+
 -- Doc-commented in object.lua
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
@@ -235,17 +237,46 @@ end
 -- element in the *types* table with `argcheck`, if the final element of
 -- *types* ends with an asterisk, remaining unchecked arguments are checked
 -- against that type.
+-- @function export
 -- @tparam table M module table
--- @string name key in *M* for *fn*
--- @tparam table types *fn* argument type constraints
+-- @string decl function type declaration string
 -- @func fn value to store at *name* in *M*
-local function export (M, name, types, fn)
+-- @usage
+-- export (M, "round (number, int?)", std.math.round)
+local function export (M, decl, fn, ...)
   local inner = fn
+
+  -- Parse "fname (argtype, argtype, argtype...)".
+  local name, types
+  if decl then
+    name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
+  end
 
   -- When argument checking is enabled, wrap in type checking function.
   if _ARGCHECK then
-    argscheck ("std.base.export", {"table", "string", "#table", "function"},
-               {M, name, types, inner})
+    local fname = "std.base.export"
+    local args = {M, decl, fn, ...}
+    argscheck (fname, {"table", "string", "function"}, args)
+
+    -- Check for other argument errors.
+    if types == "" then
+      types = {}
+    elseif types then
+      types = split (types, ",%s+")
+    else
+      name = decl:match "([%w_][%d%w_]*)"
+    end
+    if #args > 3 then
+      error (string.format (toomanyarg_fmt, fname, 3, #args), 2)
+    elseif type (M[1]) ~= "string" then
+      argerror (fname, 1, "module name at index 1 expected, got no value")
+    elseif name == nil then
+      argerror (fname, 2, "function name expected")
+    elseif types == nil then
+      argerror (fname, 2, "argument type specifications expected")
+    elseif #types < 1 then
+      argerror (fname, 2, "at least 1 argument type expected, got 0")
+    end
 
     local name = M[1] .. "." .. name
 
@@ -268,9 +299,7 @@ local function export (M, name, types, fn)
       end
 
       if argc > max then
-        local fmt
-        fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
-        error (string.format (fmt, name, max, argc), 2)
+        error (string.format (toomanyarg_fmt, name, max, argc), 2)
       end
 
       return inner (...)
