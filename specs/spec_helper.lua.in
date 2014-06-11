@@ -4,6 +4,11 @@ local std       = require "specl.std"
 
 package.path = std.package.normalize ("lib/?.lua", package.path)
 
+
+-- Error message specifications use this to shorten argument lists.
+bind = require "std.functional".bind
+
+
 -- Substitute configured LUA so that hell.spawn doesn't pick up
 -- a different Lua binary to the one used by Specl itself.  If
 -- we could rely on luaposix availability `posix.getenv` would
@@ -62,6 +67,31 @@ local function tabulate_output (code)
       if x ~= "" then r[x] = true end
     end)
   return r
+end
+
+
+--- Return a formatted bad argument string.
+-- @string fname base-name of the erroring function
+-- @int i argument number
+-- @string want expected argument type
+-- @string[opt="no value"] got actual argument type
+-- @usage
+--   expect (f ()).to_error (badarg (module, name, 1, "function"))
+function badarg (mname, fname, i, want, got)
+  return string.format ("bad argument #%d to '%s.%s' (%s expected, got %s)",
+                        i, mname, fname, want, got or "no value")
+end
+
+
+--- Return a formatted too many arguments string.
+-- @string fname base-name of the erroring function
+-- @int want maximum expected number of arguments
+-- @int got actual number of arguments
+-- @usage
+--   expect (f (1, 2)).to_error (toomanyarg (module, name, 1, 2))
+function toomanyarg (mname, fname, want, got)
+  return string.format ("too many arguments to '%s.%s' (no more than %d expected, got %d)",
+                        mname, fname, want, got)
 end
 
 

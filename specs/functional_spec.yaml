@@ -18,27 +18,32 @@ specify std.functional:
 
 
 - describe bind:
-  - it diagnoses missing arguments: |
-      expect (M.bind ()).
-        to_error "bad argument #1 to 'std.functional.bind' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.bind (false)).
-        to_error "bad argument #1 to 'std.functional.bind' (function expected, got boolean)"
+  - before:
+      fname = "bind"
+      f = M[fname]
+
+  # Long-hand badarg calls until we know bind meets specifications!
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (this_module, fname, 1, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).
+        to_error (badarg (this_module, fname, 1, "function", "boolean"))
+
   - it does not affect normal operation if no arguments are bound:
-      expect (M.bind (math.min, {}) (2, 3, 4)).to_be (2)
+      expect (f (math.min, {}) (2, 3, 4)).to_be (2)
   - it takes the extra arguments into account:
-      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).to_be (0)
+      expect (f (math.min, {1, 0}) (2, 3, 4)).to_be (0)
   - it appends final call arguments:
-      expect (M.bind (math.max, {2, 3}) (4, 5, 1)).to_be (5)
+      expect (f (math.max, {2, 3}) (4, 5, 1)).to_be (5)
   - it does not require all arguments in final call:
       div = function (a, b) return a / b end
-      expect (M.bind (div, {100}) (25)).to_be (4)
+      expect (f (div, {100}) (25)).to_be (4)
   - it supports out of order extra arguments:
-      expect (M.bind (math.pow, {[2] = 3}) (2)).to_be (8)
+      expect (f (math.pow, {[2] = 3}) (2)).to_be (8)
   - it supports the legacy api:
-      expect (M.bind (math.min) (2, 3, 4)).to_be (2)
-      expect (M.bind (math.min, 1, 0) (2, 3, 4)).to_be (0)
-      expect (M.bind (math.pow, nil, 3) (2)).to_be (8)
+      expect (f (math.min) (2, 3, 4)).to_be (2)
+      expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
+      expect (f (math.pow, nil, 3) (2)).to_be (8)
 
 
 - describe case:
@@ -47,26 +52,30 @@ specify std.functional:
       no      = function ()  return false end
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
-  - it diagnoses missing arguments: |
-      expect (M.case (nil)).
-        to_error "bad argument #2 to 'std.functional.case' (non-empty table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.case ("no", false)).
-        to_error "bad argument #2 to 'std.functional.case' (non-empty table expected, got boolean)"
+      fname = "case"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (2, "non-empty table"))
+  - it diagnoses wrong argument types:
+      expect (f ("no", false)).
+        to_error (msg (2, "non-empty table", "boolean"))
   - it diagnoses too many arguments:
-      expect (M.case (1, {2}, false)).
-        to_error "too many arguments to 'std.functional.case' (no more than 2 expected, got 3)"
+      expect (f (1, {2}, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it matches against branch keys:
-      expect (M.case ("yes", branches)).to_be (true)
-      expect (M.case ("no",  branches)).to_be (false)
+      expect (f ("yes", branches)).to_be (true)
+      expect (f ("no",  branches)).to_be (false)
   - it has a default for unmatched keys:
-      expect (M.case ("none", branches)).to_be "none"
+      expect (f ("none", branches)).to_be "none"
   - it returns nil for unmatched keys with no default:
-      expect (M.case ("none", { yes = yes, no = no })).to_be (nil)
+      expect (f ("none", { yes = yes, no = no })).to_be (nil)
   - it evaluates `with` exactly once:
       s = "prince"
       function acc () s = s .. "s"; return s end
-      expect (M.case (acc (), {
+      expect (f (acc (), {
         prince   = function () return "one" end,
         princes  = function () return "many" end,
         princess = function () return "one" end,
@@ -75,104 +84,115 @@ specify std.functional:
 
 
 - describe collect:
-  - it diagnoses missing arguments: |
-      expect (M.collect ()).
-        to_error "bad argument #1 to 'std.functional.collect' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.collect (false)).
-        to_error "bad argument #1 to 'std.functional.collect' (function expected, got boolean)"
+  - before:
+      fname = "collect"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+
   - it collects iterator results:
-      expect (M.collect (ipairs, {"a", "b", "c"})).to_equal {1, 2, 3}
+      expect (f (ipairs, {"a", "b", "c"})).to_equal {1, 2, 3}
 
 
 - describe compose:
-  - it diagnoses missing arguments: |
-      expect (M.compose ()).
-        to_error "bad argument #1 to 'std.functional.compose' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.compose (false)).
-        to_error "bad argument #1 to 'std.functional.compose' (function expected, got boolean)"
-      expect (M.compose (M.id, false)).
-        to_error "bad argument #2 to 'std.functional.compose' (function expected, got boolean)"
+  - before:
+      fname = "compose"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, false)).to_error (msg (2, "function", "boolean"))
+
   - it composes a single function correctly:
-      expect (M.compose (M.id) (1)).to_be (1)
+      expect (f (M.id) (1)).to_be (1)
   - it composes functions in the correct order:
-      expect (M.compose (math.sin, math.cos) (1)).
+      expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))
 
 
 - describe curry:
-  - it diagnoses missing arguments: |
-      expect (M.curry ()).
-        to_error "bad argument #1 to 'std.functional.curry' (function expected, got no value)"
-      expect (M.curry (M.id)).
-        to_error "bad argument #2 to 'std.functional.curry' (int expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.curry (false)).
-        to_error "bad argument #1 to 'std.functional.curry' (function expected, got boolean)"
-      expect (M.curry (M.id, 1.234)).
-        to_error "bad argument #2 to 'std.functional.curry' (int expected, got number)"
+  - before:
+      fname = "curry"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f)).to_error (msg (2, "int"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, 1.234)).to_error (msg (2, "int", "number"))
   - it diagnoses too many arguments:
-      expect (M.curry (M.id, 2, false)).
-        to_error "too many arguments to 'std.functional.curry' (no more than 2 expected, got 3)"
+      expect (f (f, 2, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it returns a zero argument function uncurried:
-      expect (M.curry (M.id, 0)).to_be (M.id)
+      expect (f (f, 0)).to_be (f)
   - it returns a one argument function uncurried:
-      expect (M.curry (M.id, 1)).to_be (M.id)
+      expect (f (f, 1)).to_be (f)
   - it curries a two argument function:
-      expect (M.curry (M.id, 2)).not_to_be (M.id)
+      expect (f (f, 2)).not_to_be (f)
   - it evaluates intermediate arguments one at a time:
-      expect (M.curry (math.min, 3) (2) (3) (4)).to_equal (2)
+      expect (f (math.min, 3) (2) (3) (4)).to_equal (2)
   - it returns a curried function that can be partially applied:
-      bin = M.curry (math.pow, 2) (2)
+      bin = f (math.pow, 2) (2)
       expect (bin (2)).to_be (math.pow (2, 2))
       expect (bin (10)).to_be (math.pow (2, 10))
 
 
 - describe eval:
-  - it diagnoses missing arguments: |
-      expect (M.eval ()).
-        to_error "bad argument #1 to 'std.functional.eval' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.eval (false)).
-        to_error "bad argument #1 to 'std.functional.eval' (string expected, got boolean)"
+  - before:
+      fname = "eval"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (M.eval ("1", false)).
-        to_error "too many arguments to 'std.functional.eval' (no more than 1 expected, got 2)"
+      expect (f ("1", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable "=" code.
-      expect (M.eval "=").to_error ()
+      expect (f "=").to_error ()
   - it evaluates a string of lua code:
-      expect (M.eval "math.pow (2, 10)").to_be (math.pow (2, 10))
+      expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
 
 
 - describe filter:
   - before:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
-  - it diagnoses missing arguments: |
-      expect (M.filter ()).
-        to_error "bad argument #1 to 'std.functional.filter' (function expected, got no value)"
-      expect (M.filter (M.id)).
-        to_error "bad argument #2 to 'std.functional.filter' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.filter (false)).
-        to_error "bad argument #1 to 'std.functional.filter' (function expected, got boolean)"
-      expect (M.filter (M.id, false)).
-        to_error "bad argument #2 to 'std.functional.filter' (function expected, got boolean)"
+     fname = "filter"
+      msg = M.bind (badarg, {this_module, fname})
+     f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f)).to_error (msg (2, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, false)).to_error (msg (2, "function", "boolean"))
+
   - it iterates through element keys:
-      expect (M.filter (M.id, ipairs, elements)).
-        to_equal {1, 2, 3, 4, 5}
-      expect (M.filter (M.id, pairs, inverse)).
-        to_contain.a_permutation_of (elements)
+      expect (f (M.id, ipairs, elements)).to_equal {1, 2, 3, 4, 5}
+      expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
   - it passes each iterated element to filter function:
       t = {}
-      M.filter (function (e) t[#t + 1] = e end, pairs, inverse)
+      f (function (e) t[#t + 1] = e end, pairs, inverse)
       expect (t).to_contain.a_permutation_of (elements)
   - it returns a table of filtered keys:
-      expect (M.filter (function (e) return e % 2 == 0 end, ipairs, elements)).
+      expect (f (function (e) return e % 2 == 0 end, ipairs, elements)).
         to_equal {2, 4}
-      expect (M.filter (function (e) return e:match "[aeiou]" end, pairs, inverse)).
+      expect (f (function (e) return e:match "[aeiou]" end, pairs, inverse)).
         to_contain.a_permutation_of {"a", "e"}
 
 
@@ -180,80 +200,82 @@ specify std.functional:
   - before:
       list = require "std.list"
       List = list {}
-  - it diagnoses missing arguments: |
-      expect (M.fold ()).
-        to_error "bad argument #1 to 'std.functional.fold' (function expected, got no value)"
-      expect (M.fold (M.id)).
-        to_error "bad argument #2 to 'std.functional.fold' (any value expected, got no value)"
-      expect (M.fold (M.id, 1)).
-        to_error "bad argument #3 to 'std.functional.fold' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.fold (false)).
-        to_error "bad argument #1 to 'std.functional.fold' (function expected, got boolean)"
-      expect (M.fold (M.id, 1, false)).
-        to_error "bad argument #3 to 'std.functional.fold' (function expected, got boolean)"
+      fname = "fold"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f)).to_error (msg (2, "any value"))
+      expect (f (f, 1)).to_error (msg (3, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, 1, false)).to_error (msg (3, "function", "boolean"))
+
   - it calls a binary function over element keys:
-      expect (M.fold (M.op["+"], 2, list.elems, List {3})).
+      expect (f (M.op["+"], 2, list.elems, List {3})).
         to_be (2 + 3)
-      expect (M.fold (M.op["*"], 2, list.elems, List {3, 4})).
+      expect (f (M.op["*"], 2, list.elems, List {3, 4})).
         to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (M.fold (math.pow, 2, list.elems, List {3, 4})).
+      expect (f (math.pow, 2, list.elems, List {3, 4})).
         to_be (math.pow (math.pow (2, 3), 4))
 
 
 - describe id:
+  - before:
+      f = M.id
   - it returns argument unchanged:
-      expect (M.id (true)).to_be (true)
-      expect (M.id {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
+      expect (f (true)).to_be (true)
+      expect (f {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
   - it returns multiple arguments unchanged:
-      expect ({M.id (1, "two", false)}).to_equal {1, "two", false}
+      expect ({f (1, "two", false)}).to_equal {1, "two", false}
 
 
 - describe map:
   - before:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
-  - it diagnoses missing arguments: |
-      expect (M.map ()).
-        to_error "bad argument #1 to 'std.functional.map' (function expected, got no value)"
-      expect (M.map (M.id)).
-        to_error "bad argument #2 to 'std.functional.map' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.map (false)).
-        to_error "bad argument #1 to 'std.functional.map' (function expected, got boolean)"
-      expect (M.map (M.id, false)).
-        to_error "bad argument #2 to 'std.functional.map' (function expected, got boolean)"
+     fname = "map"
+     msg = M.bind (badarg, {this_module, fname})
+     f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f)).to_error (msg (2, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, false)).to_error (msg (2, "function", "boolean"))
+
   - it iterates through element keys:
-      expect (M.map (M.id, ipairs, elements)).
-        to_equal {1, 2, 3, 4, 5}
-      expect (M.map (M.id, pairs, inverse)).
-        to_contain.a_permutation_of (elements)
+      expect (f (M.id, ipairs, elements)).to_equal {1, 2, 3, 4, 5}
+      expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
   - it passes each iterated element to map function:
       t = {}
-      M.map (function (e) t[#t + 1] = e end, pairs, inverse)
+      f (function (e) t[#t + 1] = e end, pairs, inverse)
       expect (t).to_contain.a_permutation_of (elements)
   - it returns a table of mapped keys:
-      expect (M.map (function (e) return e % 2 end, ipairs, elements)).
+      expect (f (function (e) return e % 2 end, ipairs, elements)).
         to_equal {1, 0, 1, 0, 1}
-      expect (M.map (function (e) return e .. "x" end, pairs, inverse)).
+      expect (f (function (e) return e .. "x" end, pairs, inverse)).
         to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
 
 
 - describe memoize:
   - before:
-      memfn = M.memoize (function (x) return {x} end)
-  - it diagnoses missing arguments: |
-      expect (M.memoize ()).
-        to_error "bad argument #1 to 'std.functional.memoize' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.memoize (false)).
-        to_error "bad argument #1 to 'std.functional.memoize' (function expected, got boolean)"
-      expect (M.memoize (M.id, false)).
-        to_error "bad argument #2 to 'std.functional.memoize' (function or nil expected, got boolean)"
+      fname = "memoize"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+      memfn = f (function (x) return {x} end)
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, false)).to_error (msg (2, "function or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (M.memoize (M.id, M.id, false)).
-        to_error "too many arguments to 'std.functional.memoize' (no more than 2 expected, got 3)"
+      expect (f (f, f, false)).to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it returns the same object for the same arguments:
       t = memfn (1)
       expect (memfn (1)).to_be (t)
