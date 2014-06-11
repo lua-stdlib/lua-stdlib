@@ -70,7 +70,7 @@ end
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
 local function compare (l, m)
-  argscheck ("std.list.compare", {"List", {"List", "table"}}, {l, m})
+  argscheck ("std.list.compare", {"List", "List|table"}, {l, m})
 
   for i = 1, math.min (#l, #m) do
     local li, mi = tonumber (l[i]), tonumber (m[i])
@@ -125,9 +125,9 @@ end
 local function concat (l, ...)
   if _ARGCHECK then
     argcheck ("std.list.concat", 1, "List", l)
-    argcheck ("std.list.concat", 2, {"List", "table"}, select (1, ...))
+    argcheck ("std.list.concat", 2, "List|table", select (1, ...))
     for i, v in ipairs {...} do
-      argcheck ("std.list.concat", i + 1, {"List", "table"}, v)
+      argcheck ("std.list.concat", i + 1, "List|table", v)
     end
   end
 
@@ -160,7 +160,7 @@ end
 local function depair (ls)
   if _ARGCHECK then
     local fname = "std.list.depair"
-    argcheck (fname, 1, {"List", "table"}, ls)
+    argcheck (fname, 1, "List|table", ls)
 
     for i, v in ipairs (ls) do
       local actual = prototype (v)
@@ -245,7 +245,7 @@ end
 -- @treturn List `l`
 -- @return `true`
 local function relems (l)
-  argcheck ("std.list.relems", 1, {"List", "table"}, l)
+  argcheck ("std.list.relems", 1, "List|table", l)
 
   local n = #l + 1
   return function (l)
@@ -318,7 +318,7 @@ end, nil,
 -- @treturn List new list containing `{fn (l[1]), ..., fn (l[#l])}`
 -- @see std.list:map
 local function map (fn, l)
-  argscheck ("std.list.map", {"function", {"List", "table"}}, {fn, l})
+  argscheck ("std.list.map", {"function", "List|table"}, {fn, l})
 
   return List (func.map (fn, ielems, l))
 end
@@ -504,7 +504,7 @@ end
 local function transpose (ls)
   if _ARGCHECK then
     local fname = "std.list.transpose"
-    argcheck (fname, 1, {"table", "List"}, ls)
+    argcheck (fname, 1, "table|List", ls)
 
     for i, v in ipairs (ls) do
       local actual = prototype (v)

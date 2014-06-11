@@ -209,10 +209,10 @@ core_metatable = {
       if init ~= nil then
         -- When called with 2 arguments:
         argcheck ("Array", 1, "string", type)
-        argcheck ("Array", 2, {"int", "table"}, init)
+        argcheck ("Array", 2, "int|table", init)
       elseif type ~= nil then
         -- When called with 1 argument:
-        argcheck ("Array", 1, {"int", "string", "table"}, type)
+        argcheck ("Array", 1, "int|string|table", type)
       end
     end
 
@@ -316,7 +316,7 @@ core_metatable = {
   -- @treturn string the element at index `n`
   -- @usage rightmost = anarray[anarray.length]
   __index = function (self, n)
-    argcheck ("__index", 2, {"int", "string"}, n)
+    argcheck ("__index", 2, "int|string", n)
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end
@@ -492,7 +492,7 @@ alien_metatable = {
   end,
 
   __index = function (self, n)
-    argcheck ("__index", 2, {"int", "string"}, n)
+    argcheck ("__index", 2, "int|string", n)
 
     if typeof (n) == "number" then
       if n < 0 then n = n + self.length + 1 end

@@ -58,7 +58,7 @@ end
 -- @see std.io.process_files
 -- @usage contents = slurp (filename)
 local function slurp (file)
-  argcheck ("std.io.slurp", 1, {"file", "string", "nil"}, file)
+  argcheck ("std.io.slurp", 1, "file|string|nil", file)
 
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
@@ -77,7 +77,7 @@ end
 -- @return list of lines
 -- @usage list = readlines "/etc/passwd"
 local function readlines (file)
-  argcheck ("std.io.readlines", 1, {"file", "string", "nil"}, file)
+  argcheck ("std.io.readlines", 1, "file|string|nil", file)
 
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.readlines", 1, err, 2) end
@@ -97,7 +97,7 @@ end
 -- @param ... values to write (as for write)
 -- @usage writelines (io.stdout, "first line", "next line")
 local function writelines (h, ...)
-  argcheck ("std.io.writelines", 1, {"file", "string", "nil"}, h)
+  argcheck ("std.io.writelines", 1, "file|string|nil", h)
 
   if io.type (h) ~= "file" then
     io.write (h, "\n")

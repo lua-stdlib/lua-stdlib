@@ -33,6 +33,26 @@ local function prototype (o)
 end
 
 
+--- Split a string at a given separator.
+-- Separator is a Lua pattern, so you have to escape active characters,
+-- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
+-- @function split
+-- @string s to split
+-- @string[opt="%s+"] sep separator pattern
+-- @return list of strings
+local function split (s, sep)
+  sep = sep or "%s+"
+  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
+  while b <= len do
+    local e, n, m = string.find (s, patt, b + 1)
+    t[#t + 1] = m or s:sub (b + 1, len)
+    b = n or len + 1
+  end
+  return t
+end
+
+
 local argcheck, argerror, argscheck
 
 if _ARGCHECK then
@@ -59,7 +79,7 @@ if _ARGCHECK then
   -- Doc-commented in debug.lua
   function argcheck (name, i, expected, actual, level)
     level = level or 2
-    if prototype (expected) ~= "table" then expected = {expected} end
+    expected = split (expected, "|")
 
     -- Strip trailing "?" but add "nil" to expected when a "?" is found.
     local add_nil = nil
@@ -314,26 +334,6 @@ local function getmetamethod (x, n)
     m = nil
   end
   return m
-end
-
-
---- Split a string at a given separator.
--- Separator is a Lua pattern, so you have to escape active characters,
--- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
--- @function split
--- @string s to split
--- @string[opt="%s+"] sep separator pattern
--- @return list of strings
-local function split (s, sep)
-  sep = sep or "%s+"
-  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
-  while b <= len do
-    local e, n, m = string.find (s, patt, b + 1)
-    t[#t + 1] = m or s:sub (b + 1, len)
-    b = n or len + 1
-  end
-  return t
 end
 
 

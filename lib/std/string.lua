@@ -120,7 +120,7 @@ end
 -- @usage b, e, captures = tfind ("the target string", "%s", 10)
 local function tfind (s, pattern, init, plain)
   argscheck ("std.string.tfind",
-             {"string", "string", "int?", {"boolean?", ":plain"}},
+             {"string", "string", "int?", "boolean|:plain?"},
 	     {s, pattern, init, plain})
 
   local function pack (from, to, ...)
@@ -143,7 +143,7 @@ end
 -- end
 local function finds (s, pattern, init, plain)
   argscheck ("std.string.finds",
-             {"string", "string", "int?", {"boolean?", ":plain"}},
+             {"string", "string", "int?", "boolean|:plain?"},
              {s, pattern, init, plain})
 
   init = init or 1
@@ -295,7 +295,7 @@ end
 -- local now = os.date "*t"
 -- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
 local function ordinal_suffix (n)
-  argcheck ("std.string.ordinal_suffix", 1, {"int", "string"}, n)
+  argcheck ("std.string.ordinal_suffix", 1, "int|string", n)
 
   n = math.abs (n) % 100
   local d = n % 10
@@ -376,7 +376,7 @@ end
 -- @treturn string *n* simplifed using largest available SI suffix.
 -- @usage print (numbertosi (bitspersecond) .. "bps")
 local function numbertosi (n)
-  argcheck ("std.string.numbertosi", 1, {"number", "string"}, n)
+  argcheck ("std.string.numbertosi", 1, "number|string", n)
 
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
@@ -482,7 +482,7 @@ end
 -- end
 local function render (x, open, close, elem, pair, sep, roots)
   argscheck ("std.string.render",
-             {"any?", "function", "function", "function", "function", "function", "table?"},
+             {"any?", "func", "func", "func", "func", "func", "table?"},
 	     {x, open, close, elem, pair, sep, roots})
 
   local function stop_roots (x)

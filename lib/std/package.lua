@@ -67,7 +67,7 @@ end
 -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
 local function find (pathstrings, patt, init, plain)
   argscheck ("std.package.find",
-    {"string", "string", "int?", {"boolean?", ":plain"}},
+    {"string", "string", "int?", "boolean|:plain?"},
     {pathstrings, patt, init, plain})
 
   local paths = split (pathstrings, M.pathsep)
@@ -136,7 +136,7 @@ local function insert (pathstrings, ...)
   local args, types = {pathstrings, ...}
   if _ARGCHECK then
     if #args == 1 then
-      types = {"string", {"int", "string"}}
+      types = {"string", "int|string"}
     elseif #args == 2 then
       types = {"string", "string"}
     else

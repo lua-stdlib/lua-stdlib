@@ -93,9 +93,9 @@ end
 -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
 local function clone (t, map, nometa)
   if _ARGCHECK then
-    local types = {"table", "table", {"boolean?", ":nometa"}}
+    local types = {"table", "table", "boolean|:nometa?"}
     if type (map) ~= "table" then
-      types = {"table", {"table?", "boolean?", ":nometa"}}
+      types = {"table", "table|boolean|:nometa?"}
     end
     argscheck ("std.table.clone", types, {t, map, nometa})
   end
@@ -136,9 +136,9 @@ local clone_rename = base.deprecate (function (map, t)
 -- partialcopy = clone_select (original, {"this", "and_this"}, true)
 local function clone_select (t, keys, nometa)
   if _ARGCHECK then
-    local types = {"table", "table", {"boolean?", ":nometa"}}
+    local types = {"table", "table", "boolean|:nometa?"}
     if type (keys) ~= "table" then
-      types = {"table", {"table?", "boolean?", ":nometa"}}
+      types = {"table", "table|boolean|:nometa?"}
     end
     argscheck ("std.table.clone_select", types, {t, keys, nometa})
   end
@@ -233,9 +233,9 @@ end
 -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
 local function merge (t, u, map, nometa)
   if _ARGCHECK then
-    local types = {"table", "table", "table", {"boolean?", ":nometa"}}
+    local types = {"table", "table", "table", "boolean|:nometa?"}
     if type (map) ~= "table" then
-      types = {"table", "table", {"table?", "boolean?", ":nometa"}}
+      types = {"table", "table", "table|boolean|:nometa?"}
     end
     argscheck ("std.table.merge", types, {t, u, map, nometa})
   end
@@ -258,9 +258,9 @@ end
 -- @usage merge_select (_G, require "std.debug", {"say"}, false)
 local function merge_select (t, u, keys, nometa)
   if _ARGCHECK then
-    local types = {"table", "table", "table", {"boolean?", ":nometa"}}
+    local types = {"table", "table", "table", "boolean|:nometa?"}
     if type (keys) ~= "table" then
-      types = {"table", "table", {"table?", "boolean?", ":nometa"}}
+      types = {"table", "table", "table|boolean|:nometa?"}
     end
     argscheck ("std.table.merge_select", types, {t, u, keys, nometa})
   end
@@ -281,7 +281,7 @@ local metamethod
 if _ARGCHECK then
 
   metamethod = function (x, n)
-    argscheck ("std.table.metamethod", {{"object", "table"}, "string"}, {x, n})
+    argscheck ("std.table.metamethod", {"object|table", "string"}, {x, n})
 
     return getmetamethod (x, n)
   end
@@ -389,7 +389,7 @@ end
 -- @treturn table resulting table or `nil`
 -- @usage print (table.concat (totable (object)))
 local function totable (x)
-  argcheck ("std.table.totable", 1, {"object", "table", "string"}, x)
+  argcheck ("std.table.totable", 1, "object|table|string", x)
 
   local m = getmetamethod (x, "__totable")
   if m then

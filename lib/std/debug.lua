@@ -165,7 +165,7 @@ local argerror = base.argerror
 -- `:option` instead of `false` versus `true`.  Or you could support
 -- both:
 --
---    argcheck ("table.copy", 2, {"boolean", ":nometa", "nil"}, nometa)
+--    argcheck ("table.copy", 2, "boolean|:nometa|nil"}, nometa)
 --
 -- A very common pattern is to have a list of possible types including
 -- "nil" when the argument is optional.  Rather than writing long-hand

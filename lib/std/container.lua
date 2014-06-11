@@ -135,7 +135,7 @@ end
 --   renamed according to `map`
 -- @see std.object.mapfields
 local function mapfields (obj, src, map)
-  argscheck ("std.container.mapfields", {"table", {"table", "object"}, "table?"},
+  argscheck ("std.container.mapfields", {"table", "table|object", "table?"},
              {obj, src, map})
 
   local mt = getmetatable (obj) or {}
