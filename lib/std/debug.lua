@@ -35,16 +35,14 @@ local base       = require "std.base"
 local functional = require "std.functional"
 local string     = require "std.string"
 
+local export = base.export
+local M      = { "std.debug" }
 
---- Control std.debug function behaviour.
--- To activate debugging set _DEBUG either to any true value
--- (equivalent to {level = 1}), or as documented below.
--- @class table
--- @name _DEBUG
--- @field argcheck honor argcheck and argscheck calls
--- @field call do call trace debugging
--- @field level debugging level
--- @usage _DEBUG = { argcheck = false, level = 9 }
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Stringify a list of objects, then tabulate the resulting list of strings.
@@ -58,6 +56,23 @@ local tabify = functional.compose (
         functional.bind (table.concat, {[2] = "\t"}))
 
 
+
+--[[ ============== ]]--
+--[[ API Functions. ]]--
+--[[ ============== ]]--
+
+
+--- Control std.debug function behaviour.
+-- To activate debugging set _DEBUG either to any true value
+-- (equivalent to {level = 1}), or as documented below.
+-- @class table
+-- @name _DEBUG
+-- @field argcheck honor argcheck and argscheck calls
+-- @field call do call trace debugging
+-- @field level debugging level
+-- @usage _DEBUG = { argcheck = false, level = 9 }
+
+
 --- Print a debugging message to `io.stderr`.
 -- Display arguments passed through `std.string.tostring` and separated by tab
 -- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
@@ -69,7 +84,7 @@ local tabify = functional.compose (
 -- local _DEBUG = require "std.debug_init"._DEBUG
 -- _DEBUG.level = 3
 -- say (2, "_DEBUG table contents:", _DEBUG)
-local function say (n, ...)
+function M.say (n, ...)
   local level = 1
   local arg = {n, ...}
   if type (arg[1]) == "number" then
@@ -91,11 +106,12 @@ local level = 0
 -- Use as debug.sethook (trace, "cr"), which is done automatically
 -- when `_DEBUG.call` is set.
 -- Based on test/trace-calls.lua from the Lua distribution.
+-- @function trace
 -- @string event event causing the call
 -- @usage
 -- _DEBUG = { call = true }
 -- local debug = require "std.debug"
-local function trace (event)
+export (M, "trace (string)", function (event)
   local t = debug.getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
@@ -120,11 +136,11 @@ local function trace (event)
     s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
   io.stderr:write (s .. "\n")
-end
+end)
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  debug.sethook (trace, "cr")
+  debug.sethook (M.trace, "cr")
 end
 
 
@@ -142,11 +158,14 @@ end
 --   local h, err = input_handle (file)
 --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
 --   ...
-local argerror = base.argerror
+export (M, "argerror (string, int, string?, int?)", base.argerror)
 
 
 --- Check the type of an argument against expected types.
 -- Equivalent to luaL_argcheck in the Lua C API.
+--
+-- Call `argerror` if there is a type mismatch.
+--
 -- Argument `actual` must match one of the types from in `expected`, each
 -- of which can be the name of a primitive Lua type, a stdlib object type,
 -- or one of the special options below:
@@ -165,17 +184,14 @@ local argerror = base.argerror
 -- `:option` instead of `false` versus `true`.  Or you could support
 -- both:
 --
---    argcheck ("table.copy", 2, "boolean|:nometa|nil"}, nometa)
+--    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
 --
 -- A very common pattern is to have a list of possible types including
 -- "nil" when the argument is optional.  Rather than writing long-hand
 -- as above, append a question mark to at least one of the list types
--- and omit the explicit "nil" entry.  This is particularly effective
--- when there is only one acceptable type for an optional argument:
+-- and omit the explicit "nil" entry:
 --
---    argcheck ("string.assert", 1, "string?", predicate)
---
--- Call `argerror` if there is a type mismatch.
+--    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
 --
 -- Normally, you should not need to use the `level` parameter, as the
 -- default is to blame the caller of the function using `argcheck` in
@@ -183,36 +199,26 @@ local argerror = base.argerror
 -- @function argcheck
 -- @string name function to blame in error message
 -- @int i argument number to blame in error message
--- @tparam table|string expected a list of acceptable argument types
+-- @string expected specification for acceptable argument types
 -- @param actual argument passed
 -- @int[opt=2] level call stack level to blame for the error
 -- @usage
 -- local function case (with, branches)
 --   argcheck ("std.functional.case", 2, "#table", branches)
 --   ...
-local argcheck = base.argcheck
+export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
 
 
 --- Check that all arguments match specified types.
 -- @function argscheck
 -- @string name function to blame in error message
--- @tparam table|string expected a list of lists of acceptable argument types
--- @tparam table|any actual argument value, or table of argument values
+-- @tparam table expected a list of lists of acceptable argument types
+-- @tparam table actual argument value, or table of argument values
 -- @usage
 -- local function curry (f, n)
 --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 --   ...
-local argscheck = base.argscheck
-
-
---- @export
-local M = {
-  argcheck  = argcheck,
-  argerror  = argerror,
-  argscheck = argscheck,
-  say       = say,
-  trace     = trace,
-}
+export (M, "argscheck (string, #table, table)", base.argscheck)
 
 
 for k, v in pairs (debug) do
@@ -227,7 +233,7 @@ end
 -- debug "oh noes!"
 local metatable = {
   __call = function (self, ...)
-             say (1, ...)
+             M.say (1, ...)
            end,
 }
 

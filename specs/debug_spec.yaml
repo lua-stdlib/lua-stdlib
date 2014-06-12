@@ -31,7 +31,6 @@ specify std.debug:
 
 - describe argerror:
   - before: |
-      fn = M.argerror
       function mkstack (level)
         return string.format ([[
           _DEBUG = true                           -- line 1
@@ -46,20 +45,36 @@ specify std.debug:
           caller ()                               -- line 10
         ]], tostring (level))
       end
-  - it raises a bad argument error: |
-      expect (fn ('expect', 1)).
-        to_error "bad argument #1 to 'expect'"
+
+      fname = "argerror"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f "foo").to_error (msg (2, "int"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
+      expect (f ("foo", 1, false)).
+        to_error (msg (3, "string or nil", "boolean"))
+      expect (f ("foo", 1, "bar", false)).
+        to_error (msg (4, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("foo", 1, "bar", 2, false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
   - it blames the call site by default: |
       expect (luaproc (mkstack ())).to_contain_error ":4: bad argument"
   - it honors optional call stack level reporting: |
       expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
       expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
   - it reports the calling function name:
-      expect (fn ('expect', 1)).to_error "'expect'"
+      expect (f ('expect', 1)).to_error "'expect'"
   - it reports the argument number: |
-      expect (fn ('expect', 12345)).to_error "#12345"
+      expect (f ('expect', 12345)).to_error "#12345"
   - it reports extra message in parentheses:
-      expect (fn ('expect', 1, "extramsg")).to_error " (extramsg)"
+      expect (f ('expect', 1, "extramsg")).to_error " (extramsg)"
 
 
 - describe argcheck:
@@ -84,6 +99,25 @@ specify std.debug:
           caller ()                                      -- line 10
         ]], tostring (debugp), tostring (level))
       end
+
+      fname = "argcheck"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f "foo").to_error (msg (2, "int"))
+      expect (f ("foo", 1)).to_error (msg (3, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
+      expect (f ("foo", 1, false)).to_error (msg (3, "string", "boolean"))
+      expect (f ("foo", 1, "bar", 2, false)).
+        to_error (msg (5, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("foo", 1, "bar", 2, 3, false)).
+        to_error (toomanyarg (this_module, fname, 5, 6))
+
   - it blames the calling function by default: |
       expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
   - it honors optional call stack level reporting: |
@@ -274,6 +308,24 @@ specify std.debug:
           caller ()                                                 -- line 10
         ]], tostring (debugp))
       end
+
+      fname = "argscheck"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f "foo").to_error (msg (2, "non-empty table"))
+      expect (f ("foo", {"bar"})).to_error (msg (3, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("foo", false)).
+        to_error (msg (2, "non-empty table", "boolean"))
+      expect (f ("foo", {"bar"}, false)).to_error (msg (3, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("foo", {"bar"}, {}, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
   - it blames the calling function: |
       expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
   - it can be disabled by setting _DEBUG to false:
@@ -288,19 +340,6 @@ specify std.debug:
   - it is not disabled by leaving _DEBUG.argcheck unset:
       expect (luaproc (mkstack ("{}"))).
         to_contain_error "bad argument"
-  - context with single non-table specs:
-    - it diagnoses missing argument:
-        expect (fn ("boolean", nil)).
-          to_error "boolean expected, got no value"
-    - it reports the correct missing argument number:
-        expect (fn ("boolean", nil)).to_error "#1 "
-    - it diagnoses mismatched argument:
-        expect (fn ("boolean", "false")).
-          to_error "boolean expected, got string"
-    - it reports the correct mismatched argument number:
-        expect (fn ("boolean", "false")).to_error "#1 "
-    - it matches argument type:
-        expect (fn ("boolean", false)).not_to_error ()
   - context with single argument table:
     - it diagnoses missing argument:
         expect (fn ({"boolean"}, {nil})).
@@ -355,6 +394,7 @@ specify std.debug:
         require "std.string".tostring (debugp),
         table.concat (require "std.list".map (mkwrap, {...}), ", "))
       end
+
   - it does nothing when _DEBUG is disabled:
       expect (luaproc (mkdebug (false, "nothing to see here"))).
         not_to_contain_error "nothing to see here"
@@ -392,6 +432,7 @@ specify std.debug:
         require "std.string".tostring (debugp),
         table.concat (require "std.list".map (mkwrap, {...}), ", "))
       end
+
   - context when _DEBUG is disabled:
     - it does nothing when message level is not set:
         expect (luaproc (mksay (false, "nothing to see here"))).
@@ -475,6 +516,19 @@ specify std.debug:
 
 
 - describe trace:
+  - before:
+      fname = "trace"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("foo", false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it does nothing when _DEBUG is disabled:
       expect (luaproc [[
         _DEBUG = false
