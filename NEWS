@@ -41,6 +41,14 @@ Stdlib NEWS - User visible changes
    need to remove the previously ignored arguments that correspond to
    the fixed argument positions in the `bind` invocation.
 
+ - `list.index_key` and `list.index_value` have been deprecated. These
+   functions are not general enough to belong in lua-stdlib, because
+   (among others) they only work correctly with tables that can be
+   inverted without loss of key values.  They will continue to work
+   for another release or two, issuing a deprecation warning on first
+   use.  After that, in some future release, they will be removed
+   entirely.
+
  - `string.pad` will still (by implementation accident) coerce non-
    string initial arguments to a string using `string.tostring` as long
    as argument checking is disabled.  Under normal circumstances,

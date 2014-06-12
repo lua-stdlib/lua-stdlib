@@ -410,6 +410,16 @@ specify std.list:
   - before:
       f = list.index_key
 
+  - it writes a deprecation warning to standard error on first call: |
+      f = list.index_key.call
+      _, err = capture (f, {1, List {{1}}})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "index_key is deprecated"
+      end
+      _, err = capture (f, {1, List {{1}}})
+      expect (err).to_be (nil)
+
   - it diagnoses missing arguments: |
       expect (f ()).
         to_be "bad argument #2 to 'std.list.index_key' (List expected, got no value)"
@@ -441,6 +451,16 @@ specify std.list:
 - describe index_value:
   - before:
       f = list.index_value
+
+  - it writes a deprecation warning to standard error on first call: |
+      f = list.index_value.call
+      _, err = capture (f, {1, List {{1}}})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "index_value is deprecated"
+      end
+      _, err = capture (f, {1, List {{1}}})
+      expect (err).to_be (nil)
 
   - it diagnoses missing arguments: |
       expect (f ()).

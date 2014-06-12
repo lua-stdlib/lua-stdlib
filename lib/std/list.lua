@@ -272,11 +272,12 @@ local function foldr (fn, e, l)
 end
 
 
+-- DEPRECATED: Remove in first release following 2015-06-07.
 --- Make an index of a list of tables on a given field
 -- @param f field
 -- @tparam List l list of tables `{t1, ..., tn}`
 -- @treturn table index `{t1[f]=1, ..., tn[f]=n}`
-local function index_key (f, l)
+local index_key = base.deprecate (function (f, l)
   argcheck ("std.list.index_key", 2, "List", l)
 
   local r = {}
@@ -287,14 +288,16 @@ local function index_key (f, l)
     end
   end
   return r
-end
+end, nil,
+  "list.index_key is deprecated, use list.filter and table.invert instead.")
 
 
---- Copy a list of tables, indexed on a given field
+-- DEPRECATED: Remove in first release following 2015-06-07.
+-- Copy a list of tables, indexed on a given field
 -- @param f field whose value should be used as index
 -- @tparam List l list of tables `{i1=t1, ..., in=tn}`
 -- @treturn table index `{t1[f]=t1, ..., tn[f]=tn}`
-local function index_value (f, l)
+local index_value = base.deprecate (function (f, l)
   argcheck ("std.list.index_value", 2, "List", l)
 
   local r = {}
@@ -305,7 +308,8 @@ local function index_value (f, l)
     end
   end
   return r
-end
+end, nil,
+  "list.index_value is deprecated, use list.filter and table.invert instead.")
 
 
 --- Map a function over a list.
@@ -546,6 +550,37 @@ local function zip_with (ls, fn)
 end
 
 
+--- @export
+local _functions = {
+  append      = append,
+  compare     = compare,
+  concat      = concat,
+  cons        = cons,
+  depair      = depair,
+  elems       = elems,
+  enpair      = enpair,
+  filter      = filter,
+  flatten     = flatten,
+  foldl       = foldl,
+  foldr       = foldr,
+  map         = map,
+  map_with    = map_with,
+  project     = project,
+  relems      = relems,
+  rep         = rep,
+  reverse     = reverse,
+  shape       = shape,
+  sub         = sub,
+  tail        = tail,
+  transpose   = transpose,
+  zip_with    = zip_with,
+}
+
+-- Deprecated and undocumented.
+_functions.index_key = index_key
+_functions.index_value = index_value
+
+
 List = Object {
   -- Derived object type.
   _type = "List",
@@ -734,33 +769,7 @@ List = Object {
   },
 
 
-  --- @export
-  _functions = {
-    append      = append,
-    compare     = compare,
-    concat      = concat,
-    cons        = cons,
-    depair      = depair,
-    elems       = elems,
-    enpair      = enpair,
-    filter      = filter,
-    flatten     = flatten,
-    foldl       = foldl,
-    foldr       = foldr,
-    index_key   = index_key,
-    index_value = index_value,
-    map         = map,
-    map_with    = map_with,
-    project     = project,
-    relems      = relems,
-    rep         = rep,
-    reverse     = reverse,
-    shape       = shape,
-    sub         = sub,
-    tail        = tail,
-    transpose   = transpose,
-    zip_with    = zip_with,
-  },
+  _functions = _functions,
 }
 
 
