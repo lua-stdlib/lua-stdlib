@@ -175,7 +175,8 @@ export (M, "argerror (string, int, string?, int?)", base.argerror)
 --    file      accept an open file object
 --    function  accept a function, or object with a __call metamethod
 --    int       accept an integer valued number
---    list      accept a table with a non-empty array part
+--    list      accept a table where all keys are a contiguous 1-based integer range
+--    #list     accept any non-empty list
 --    object    accept any std.Object derived type
 --    :foo      accept only the exact string ":foo", works for any :-prefixed string
 --
@@ -218,7 +219,7 @@ export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
 -- local function curry (f, n)
 --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 --   ...
-export (M, "argscheck (string, #table, table)", base.argscheck)
+export (M, "argscheck (string, #list, table)", base.argscheck)
 
 
 for k, v in pairs (debug) do

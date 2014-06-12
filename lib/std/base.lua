@@ -131,9 +131,17 @@ if _ARGCHECK then
           ok = true
         end
 
-      elseif check == "list" then
-        if typeof (actual) == "table" and #actual > 0 then
-	  ok = true
+      elseif check == "list" or check == "#list" then
+        if actualtype == "table" then
+          local len, count = #actual, 0
+	  local i = next (actual)
+	  repeat
+	    if i ~= nil then count = count + 1 end
+            i = next (actual, i)
+          until i == nil or count > len
+	  if count == len and (check == "list" or count > 0) then
+            ok = true
+	  end
         end
 
       elseif check == "object" then
@@ -158,12 +166,17 @@ if _ARGCHECK then
     if not ok then
       if actualtype == "nil" then
         actualtype = "no value"
-      elseif actualtype == "table" and next (actual) == nil then
-        actualtype = "empty table"
-      elseif actualtype == "List" and #actual == 0 then
-        actualtype = "empty List"
+      elseif type (actual) == "table" and next (actual) == nil then
+	local expectedstr = "," .. table.concat (expected, ",") .. ","
+        if actualtype == "table" and expectedstr == ",#list," then
+          actualtype = "empty list"
+	elseif actualtype == "table" or expectedstr:match ",#" then
+          actualtype = "empty " .. actualtype
+	end
       end
-      expected = concat (expected):gsub ("#table", "non-empty table")
+      expected = concat (expected):
+                 gsub ("#table", "non-empty table"):
+		 gsub ("#list", "non-empty list")
       argerror (name, i, expected .. " expected, got " .. actualtype, level + 1)
     end
   end

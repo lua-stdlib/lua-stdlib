@@ -199,17 +199,33 @@ specify std.debug:
   - it diagnoses mismatched list types:
       expect (fn ("list", false)).
         to_error "list expected, got boolean"
-      expect (fn ("list", {})).
-        to_error "list expected, got empty table"
       expect (fn ("list", {foo=1})).
         to_error "list expected, got table"
       expect (fn ("list", Object)).
         to_error "list expected, got Object"
       expect (fn ("list", List {})).
-        to_error "list expected, got empty List"
+        to_error "list expected, got List"
   - it matches list types:
+      expect (fn ("list", {})).not_to_error ()
       expect (fn ("list", {1})).not_to_error ()
-      expect (fn ("list", List {1})).not_to_error ()
+  - it diagnonses missing non-empty list types:
+      expect (fn ("#list", nil)).
+        to_error "non-empty list expected, got no value"
+  - it diagnoses mismatched non-empty list types:
+      expect (fn ("#list", false)).
+        to_error "non-empty list expected, got boolean"
+      expect (fn ("#list", {})).
+        to_error "non-empty list expected, got empty list"
+      expect (fn ("#list", {foo=1})).
+        to_error "non-empty list expected, got table"
+      expect (fn ("#list", Object)).
+        to_error "non-empty list expected, got empty Object"
+      expect (fn ("#list", List {})).
+        to_error "non-empty list expected, got empty List"
+      expect (fn ("#list", List {1})).
+        to_error "non-empty list expected, got List"
+  - it matches non-empty list types:
+      expect (fn ("#list", {1})).not_to_error ()
   - it diagnoses missing object types:
       expect (fn ("object", nil)).to_error "object expected, got no value"
       expect (fn ("Object", nil)).to_error "Object expected, got no value"
@@ -244,10 +260,10 @@ specify std.debug:
     - it diagnoses mismatched elements:
         expect (fn ("string|table", false)).
           to_error "string or table expected, got boolean"
-        expect (fn ("string|list|#table", {})).
-          to_error "string, list or non-empty table expected, got empty table"
-        expect (fn ("string|number|list|object", {})).
-          to_error "string, number, list or object expected, got empty table"
+        expect (fn ("string|#table", {})).
+          to_error "string or non-empty table expected, got empty table"
+        expect (fn ("string|number|#list|object", {})).
+          to_error "string, number, non-empty list or object expected, got empty table"
     - it matches any type from a list:
         expect (fn ("string|table", "foo")).not_to_error ()
         expect (fn ("string|table", {})).not_to_error ()
@@ -315,12 +331,12 @@ specify std.debug:
 
   - it diagnoses missing arguments:
       expect (f ()).to_error (msg (1, "string"))
-      expect (f "foo").to_error (msg (2, "non-empty table"))
+      expect (f "foo").to_error (msg (2, "non-empty list"))
       expect (f ("foo", {"bar"})).to_error (msg (3, "table"))
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "string", "boolean"))
       expect (f ("foo", false)).
-        to_error (msg (2, "non-empty table", "boolean"))
+        to_error (msg (2, "non-empty list", "boolean"))
       expect (f ("foo", {"bar"}, false)).to_error (msg (3, "table", "boolean"))
   - it diagnoses too many arguments:
       expect (f ("foo", {"bar"}, {}, false)).
