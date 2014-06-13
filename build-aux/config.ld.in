@@ -28,4 +28,5 @@ file = {
 }
 
 format = "markdown"
+backtick_references = false
 sort = true
