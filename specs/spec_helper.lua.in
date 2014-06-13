@@ -5,15 +5,35 @@ local std       = require "specl.std"
 package.path = std.package.normalize ("lib/?.lua", package.path)
 
 
--- Error message specifications use this to shorten argument lists.
-bind = require "std.functional".bind
-
-
 -- Substitute configured LUA so that hell.spawn doesn't pick up
 -- a different Lua binary to the one used by Specl itself.  If
 -- we could rely on luaposix availability `posix.getenv` would
 -- be a nicer way to find this...
 local LUA = "@LUA@"
+
+
+-- Null operation function.
+nop = function () end
+
+
+-- Error message specifications use this to shorten argument lists.
+-- Copied from functional.lua to avoid breaking all tests if functional
+-- cannot be loaded correctly.
+function bind (f, fix)
+  return function (...)
+           local arg = {}
+           for i, v in pairs (fix) do
+             arg[i] = v
+           end
+           local i = 1
+           for _, v in pairs {...} do
+             while arg[i] ~= nil do i = i + 1 end
+             arg[i] = v
+           end
+           return f (unpack (arg))
+         end
+end
+
 
 local function mkscript (code)
   local f = os.tmpname ()
@@ -180,8 +200,21 @@ function show_apis (argt)
 end
 
 
--- Not local, so that it is available in spec examples.
-totable = require "std.table".totable
+-- Not local, so that it is available to spec examples.
+function totable (x)
+  local _, m = pcall (function (x) return getmetatable (x)["__totable"] end, x)
+  if type (m) == "function" then
+    return m (x)
+  elseif type (x) == "table" then
+    return x
+  elseif type (x) == "string" then
+    local t = {}
+    x:gsub (".", function (c) t[#t + 1] = c end)
+    return t
+  else
+    return nil
+  end
+end
 
 
 -- Stub inprocess.capture if necessary; new in Specl 12.
@@ -189,10 +222,10 @@ capture = inprocess.capture or
           function (f, arg) return nil, nil, f (unpack (arg or {})) end
 
 
+
 do
   -- Custom matcher for set size and set membership.
 
-  local set      = require "std.set"
   local util     = require "specl.util"
   local matchers = require "specl.matchers"
 
@@ -220,7 +253,7 @@ do
 
   matchers.have_member = Matcher {
     function (self, actual, expect)
-      return set.member (actual, expect)
+      return actual[expect] ~= nil
     end,
 
     actual = "set",
