@@ -7,6 +7,8 @@ before: |
                          "process_files", "readlines", "shell", "slurp",
                          "splitdir", "warn", "writelines" }
 
+  dirsep = string.match (package.config, "^([^\n]+)\n")
+
   M = require (this_module)
 
 specify std.io:
@@ -32,63 +34,68 @@ specify std.io:
 
 
 - describe catdir:
-  - before:
-      dirsep = string.match (package.config, "^([^\n]+)\n")
-  - it diagnoses wrong argument types: |
-      expect (M.catdir (false)).
-        to_error "bad argument #1 to 'std.io.catdir' (string expected, got boolean)"
-      expect (M.catdir ("", false)).
-        to_error "bad argument #2 to 'std.io.catdir' (string expected, got boolean)"
-      expect (M.catdir ("", "false", false)).
-        to_error "bad argument #3 to 'std.io.catdir' (string expected, got boolean)"
-  - it treats no arguments as root directory:
-      expect (M.catdir ()).to_be (dirsep)
+  - before: |
+      fname = "catdir"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("", false)).to_error (msg (2, "string", "boolean"))
+      expect (f ("", "false", false)).to_error (msg (3, "string", "boolean"))
+
   - it treats initial empty string as root directory:
-      expect (M.catdir ("")).to_be (dirsep)
-      expect (M.catdir ("", "")).to_be (dirsep)
-      expect (M.catdir ("", "root")).to_be (dirsep .. "root")
+      expect (f ("")).to_be (dirsep)
+      expect (f ("", "")).to_be (dirsep)
+      expect (f ("", "root")).to_be (dirsep .. "root")
   - it returns a single argument unchanged:
-      expect (M.catdir ("hello")).to_be "hello"
+      expect (f ("hello")).to_be "hello"
   - it joins multiple arguments with platform directory separator:
-      expect (M.catdir ("one", "two")).to_be ("one" .. dirsep .. "two")
-      expect (M.catdir ("1", "2", "3", "4", "5")).
+      expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (f ("1", "2", "3", "4", "5")).
         to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe catfile:
   - before:
-      dirsep = string.match (package.config, "^([^\n]+)\n")
-  - it diagnoses missing arguments: |
-      expect (M.catfile ()).
-        to_error "bad argument #1 to 'std.io.catfile' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.catfile (false)).
-        to_error "bad argument #1 to 'std.io.catfile' (string expected, got boolean)"
-      expect (M.catfile ("", false)).
-        to_error "bad argument #2 to 'std.io.catfile' (string expected, got boolean)"
-      expect (M.catfile ("", "false", false)).
-        to_error "bad argument #3 to 'std.io.catfile' (string expected, got boolean)"
+      fname = "catfile"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("", false)).to_error (msg (2, "string", "boolean"))
+      expect (f ("", "false", false)).to_error (msg (3, "string", "boolean"))
+
   - it treats initial empty string as root directory:
-      expect (M.catfile ("", "")).to_be (dirsep)
-      expect (M.catfile ("", "root")).to_be (dirsep .. "root")
+      expect (f ("", "")).to_be (dirsep)
+      expect (f ("", "root")).to_be (dirsep .. "root")
   - it returns a single argument unchanged:
-      expect (M.catfile ("")).to_be ""
-      expect (M.catfile ("hello")).to_be "hello"
+      expect (f ("")).to_be ""
+      expect (f ("hello")).to_be "hello"
   - it joins multiple arguments with platform directory separator:
-      expect (M.catfile ("one", "two")).to_be ("one" .. dirsep .. "two")
-      expect (M.catfile ("1", "2", "3", "4", "5")).
+      expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (f ("1", "2", "3", "4", "5")).
         to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe die:
-  - before:
+  - before: |
       script = [[require "std.io".die "By 'eck!"]]
-  - it diagnoses missing arguments: |
-      expect (M.die ()).
-        to_error "bad argument #1 to 'std.io.die' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.die (false)).
-        to_error "bad argument #1 to 'std.io.die' (string expected, got boolean)"
+
+      fname = "die"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+
   - it outputs a message to stderr:
       expect (luaproc (script)).to_fail_with "By 'eck!\n"
   - it ignores `prog.line` without `prog.file` or `prog.name`:
@@ -142,7 +149,6 @@ specify std.io:
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
       mt = {}
       t  = {
         io = {
@@ -151,20 +157,21 @@ specify std.io:
           stderr = setmetatable ({}, mt),
         },
       }
-  - it diagnoses missing arguments: |
-      expect (M.monkey_patch ()).
-        to_error "bad argument #1 to 'std.io.monkey_patch' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.monkey_patch (false)).
-        to_error "bad argument #1 to 'std.io.monkey_patch' (table expected, got boolean)"
+      fname = "monkey_patch"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (t, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it installs readlines metamethod:
       f (t)
       expect (mt.readlines).to_be (M.readlines)
   - it installs writelines metamethod:
       f (t)
       expect (mt.writelines).to_be (M.writelines)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 
 - describe process_files:
@@ -180,16 +187,21 @@ specify std.io:
       catscript = [[
         require "std.io".process_files (function () io.write (io.input ():read "*a") end)
       ]]
-  - it diagnoses missing arguments: |
-      expect (M.process_files ()).
-        to_error "bad argument #1 to 'std.io.process_files' (function expected, got no value)"
+      fname = "process_files"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
   - it diagnoses wrong argument types: |
-      expect (M.process_files (false)).
-        to_error "bad argument #1 to 'std.io.process_files' (function expected, got boolean)"
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
         "cannot open file 'not-an-existing-file'",            -- Lua 5.2
         "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
       }
+  - it diagnoses too many arguments:
+      expect (f (f, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it defaults to `-` if no arguments were passed:
       expect (luaproc (ascript)).to_output "-\n"
   - it iterates over arguments with supplied function:
@@ -218,40 +230,54 @@ specify std.io:
       h:close ()
 
       defaultin = io.input ()
+      fname = "readlines"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
+
   - it diagnoses wrong argument types: |
-      expect (M.readlines (false)).
-        to_error "bad argument #1 to 'std.io.readlines' (file, string or nil expected, got boolean)"
-      expect (M.readlines "not-an-existing-file").
+      expect (f (false)).to_error (msg (1, "file, string or nil", "boolean"))
+      expect (f "not-an-existing-file").
         to_error "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
-  - it diagnoses closed file argument: |
+  - it diagnoses closed file argument:
       closed = io.open (name, "r") closed:close ()
-      expect (M.readlines (closed)).
-        to_error "bad argument #1 to 'std.io.readlines' (file, string or nil expected, got closed file)"
+      expect (f (closed)).
+        to_error (msg (1, "file, string or nil", "closed file"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it closes file handle upon completion:
       h = io.open (name)
       expect (io.type (h)).not_to_be "closed file"
-      M.readlines (h)
+      f (h)
       expect (io.type (h)).to_be "closed file"
   - it reads lines from an existing named file:
-      expect (M.readlines (name)).to_equal (lines)
+      expect (f (name)).to_equal (lines)
   - it reads lines from an open file handle:
-      expect (M.readlines (io.open (name))).to_equal (lines)
+      expect (f (io.open (name))).to_equal (lines)
   - it reads from default input stream with no arguments:
       io.input (name)
-      expect (M.readlines ()).to_equal (lines)
+      expect (f ()).to_equal (lines)
 
 
 - describe shell:
-  - it diagnoses missing arguments: |
-      expect (M.shell ()).
-        to_error "bad argument #1 to 'std.io.shell' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.shell (false)).
-        to_error "bad argument #1 to 'std.io.shell' (string expected, got boolean)"
+  - before:
+      fname = "shell"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it returns the output from a shell command string:
-      expect (M.shell [[printf '%s\n' 'foo' 'bar']]).to_be "foo\nbar\n"
+      expect (f [[printf '%s\n' 'foo' 'bar']]).to_be "foo\nbar\n"
 
 
 - describe slurp:
@@ -262,57 +288,76 @@ specify std.io:
       h:close ()
 
       defaultin = io.input ()
+      fname = "slurp"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
+
   - it diagnoses wrong argument types: |
-      expect (M.slurp (false)).
-        to_error "bad argument #1 to 'std.io.slurp' (file, string or nil expected, got boolean)"
-      expect (M.slurp "not-an-existing-file").
+      expect (f (false)).to_error (msg (1, "file, string or nil", "boolean"))
+      expect (f "not-an-existing-file").
         to_error "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+  - it diagnoses closed file argument:
+      closed = io.open (name, "r") closed:close ()
+      expect (f (closed)).
+        to_error (msg (1, "file, string or nil", "closed file"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it reads content from an existing named file:
-      expect (M.slurp (name)).to_be (content)
+      expect (f (name)).to_be (content)
   - it reads content from an open file handle:
-      expect (M.slurp (io.open (name))).to_be (content)
+      expect (f (io.open (name))).to_be (content)
   - it closes file handle upon completion:
       h = io.open (name)
       expect (io.type (h)).not_to_be "closed file"
-      M.slurp (h)
+      f (h)
       expect (io.type (h)).to_be "closed file"
   - it reads from default input stream with no arguments:
       io.input (name)
-      expect (M.slurp ()).to_be (content)
+      expect (f ()).to_be (content)
 
 
 - describe splitdir:
   - before:
-      dirsep = string.match (package.config, "^([^\n]+)\n")
-  - it diagnoses missing arguments: |
-      expect (M.splitdir ()).
-        to_error "bad argument #1 to 'std.io.splitdir' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.splitdir (false)).
-        to_error "bad argument #1 to 'std.io.splitdir' (string expected, got boolean)"
+      fname = "splitdir"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it returns a filename as a one element list:
-      expect (M.splitdir ("hello")).to_equal {"hello"}
+      expect (f ("hello")).to_equal {"hello"}
   - it splits root directory in two empty elements:
-      expect (M.splitdir (dirsep)).to_equal {"", ""}
+      expect (f (dirsep)).to_equal {"", ""}
   - it returns initial empty string for absolute path:
-      expect (M.splitdir (dirsep .. "root")).to_equal {"", "root"}
+      expect (f (dirsep .. "root")).to_equal {"", "root"}
   - it returns multiple components split at platform directory separator:
-      expect (M.splitdir ("one" .. dirsep .. "two")).to_equal {"one", "two"}
-      expect (M.splitdir (table.concat ({"1", "2", "3", "4", "5"}, dirsep))).
+      expect (f ("one" .. dirsep .. "two")).to_equal {"one", "two"}
+      expect (f (table.concat ({"1", "2", "3", "4", "5"}, dirsep))).
         to_equal {"1", "2", "3", "4", "5"}
 
 
 - describe warn:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
-  - it diagnoses missing arguments: |
-      expect (M.warn ()).
-        to_error "bad argument #1 to 'std.io.warn' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.warn (false)).
-        to_error "bad argument #1 to 'std.io.warn' (string expected, got boolean)"
+      fname = "warn"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+
   - it outputs a message to stderr:
       expect (luaproc (script)).to_output_error "Ayup!\n"
   - it ignores `prog.line` without `prog.file`, `prog.name` or `opts.program`:
@@ -368,27 +413,36 @@ specify std.io:
       lines = M.readlines (io.open "specs/spec_helper.lua")
 
       defaultout = io.output ()
+      fname = "writelines"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
   - after:
       if io.type (defaultout) ~= "closed file" then io.output (defaultout) end
       h:close ()
       os.remove (name)
+
   - it diagnoses wrong argument types: |
-      expect (M.writelines (false)).
-        to_error "bad argument #1 to 'std.io.writelines' (file, string or nil expected, got boolean)"
+      expect (f (false)).
+        to_error (msg (1, "file, string, number or nil", "boolean"))
   - it diagnoses closed file argument: |
       closed = io.open (name) closed:close ()
-      expect (M.writelines (closed)).
-        to_error "bad argument #1 to 'std.io.writelines' (file, string or nil expected, got closed file)"
+      expect (f (closed)).
+        to_error (msg (1, "file, string, number or nil", "closed file"))
+
   - it does not close the file handle upon completion:
       expect (io.type (h)).not_to_be "closed file"
-      M.writelines (h, "foo")
+      f (h, "foo")
       expect (io.type (h)).not_to_be "closed file"
   - it writes lines to an open file handle:
-      M.writelines (h, unpack (lines))
+      f (h, unpack (lines))
       h:flush ()
       expect (M.readlines (io.open (name))).to_equal (lines)
+  - it accepts number valued arguments:
+      f (h, 1, 2, 3)
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal {"1", "2", "3"}
   - it writes to default output stream with non-file first argument:
       io.output (h)
-      M.writelines (unpack (lines))
+      f (unpack (lines))
       h:flush ()
       expect (M.readlines (io.open (name))).to_equal (lines)
