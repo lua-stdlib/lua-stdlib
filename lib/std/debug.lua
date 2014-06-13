@@ -230,8 +230,8 @@ export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
 --- Check that all arguments match specified types.
 -- @function argscheck
 -- @string name function to blame in error message
--- @tparam table expected a list of lists of acceptable argument types
--- @tparam table actual argument value, or table of argument values
+-- @tparam table expected a list of acceptable argument types
+-- @tparam table actual table of argument values
 -- @usage
 -- local function curry (f, n)
 --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
