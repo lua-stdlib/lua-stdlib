@@ -25,12 +25,199 @@
 
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
-local typeof = type
 
-local toomanyarg_fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
+local argcheck, argerror, argscheck, prototype  -- forward declarations
+
+
+--[[ ================= ]]--
+--[[ Helper functions. ]]--
+--[[ ================= ]]--
+
+
+local toomanyarg_fmt =
+      "too many arguments to '%s' (no more than %d expected, got %d)"
+
+
+--- Make a shallow copy of a table.
+-- @tparam table t source table
+-- @treturn table shallow copy of *t*
+local function copy (t)
+  local new = {}
+  for k, v in pairs (t) do new[k] = v end
+  return new
+end
+
+
+--- Concatenate a table of strings using ", " and " or " delimiters.
+-- @tparam table alternatives a table of strings
+-- @treturn string string of elements from alternatives delimited by ", "
+--   and " or "
+local function concat (alternatives)
+  if #alternatives > 1 then
+    local t = copy (alternatives)
+    local top = table.remove (t)
+    t[#t] = t[#t] .. " or " .. top
+    alternatives = t
+  end
+  return table.concat (alternatives, ", ")
+end
+
+
+--- Normalize a list of type names.
+-- @tparam table list of type names, trailing "?" as required
+-- @treturn table a new list with "?" stripped, "nil" appended if so,
+--   and with duplicates stripped.
+local function normalize (t)
+  local i, r, add_nil = 1, {}, false
+  for _, v in ipairs (t) do
+    local m = v:match "^(.+)%?$"
+    if m then
+      add_nil = true
+      r[m] = r[m] or i
+      i = i + 1
+    elseif v then
+      r[v] = r[v] or i
+      i = i + 1
+    end
+  end
+  if add_nil then
+    r["nil"] = r["nil"] or i
+  end
+
+  -- Invert the return table.
+  local t = {}
+  for v, i in pairs (r) do t[i] = v end
+  return t
+end
+
+
+--- Merge |-delimited type-specs, omitting duplicates.
+-- @string ... type-specs
+-- @treturn table list of merged and normalized type-specs
+local function merge (...)
+  local i, t = 1, {}
+  for _, v in ipairs {...} do
+    v:gsub ("([^|]+)", function (m) t[i] = m; i = i + 1 end)
+  end
+  return normalize (t)
+end
+
+
+--- Calculate permutations of type lists with and without [optionals].
+-- @tparam table types a list of expected types by argument position
+-- @treturn table set of possible type lists
+local function permutations (types)
+  local p, sentinel = {{}}, {"optional arg"}
+  for i, v in ipairs (types) do
+    -- Remove sentinels before appending `v` to each list.
+    for _, v in ipairs (p) do
+      if v[#v] == sentinel then table.remove (v) end
+    end
+
+    local opt = v:match "%[(.+)%]"
+    if opt == nil then
+      -- Append non-optional type-spec to each permutation.
+      for b = 1, #p do table.insert (p[b], v) end
+    else
+      -- Duplicate all existing permutations, and add optional type-spec
+      -- to the unduplicated permutations.
+      local o = #p
+      for b = 1, o do
+        p[b + o] = copy (p[b])
+	table.insert (p[b], opt)
+      end
+
+      -- Leave a marker for optional argument in final position.
+      for _, v in ipairs (p) do
+	table.insert (v, sentinel)
+      end
+    end
+  end
+
+  -- Replace sentinels with "nil".
+  for i, v in ipairs (p) do
+    if v[#v] == sentinel then
+      table.remove (v)
+      if #v > 0 then
+        v[#v] = v[#v] .. "|nil"
+      else
+	v[1] = "nil"
+      end
+    end
+  end
+
+  return p
+end
+
+
+--- Return index of the first mismatch between types and args, or `nil`.
+-- @tparam table types a list of expected types by argument position
+-- @tparam table args a table of arguments to compare
+-- @treturn int|nil position of first mismatch in *types*
+local function match (types, args, allargs)
+  local typec, argc = #types, #args
+  for i = 1, typec do
+    local ok = pcall (argcheck, "pcall", i, types[i], args[i])
+    if not ok then return i end
+  end
+  if allargs then
+    for i = typec + 1, argc do
+      local ok = pcall (argcheck, name, i, types[typec], args[i])
+      if not ok then return i end
+    end
+  end
+end
+
+
+--- Format a type mismatch error.
+-- @tparam table expectedtypes a table of matchable types
+-- @string actual the actual argument to match with
+-- @treturn string formatted *extramsg* for this mismatch for @{argerror}
+local function formaterror (expectedtypes, actual)
+  local actualtype = prototype (actual)
+
+  -- Tidy up actual type for display.
+  if actualtype == "nil" then
+    actualtype = "no value"
+  elseif actualtype == "string" and actual:sub (1, 1) == ":" then
+    actualtype = actual
+  elseif type (actual) == "table" and next (actual) == nil then
+    local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
+    if actualtype == "table" and matchstr == ",#list," then
+      actualtype = "empty list"
+    elseif actualtype == "table" or matchstr:match ",#" then
+      actualtype = "empty " .. actualtype
+    end
+  end
+
+  -- Tidy up expected types for display.
+  local t = {}
+  for i, v in ipairs (expectedtypes) do
+    if v == "func" then
+      t[i] = "function"
+    elseif v == "any" then
+      t[i] = "any value"
+    else
+      t[i] = v
+    end
+  end
+
+  local expectedstr = concat (t):
+                      gsub ("#table", "non-empty table"):
+	              gsub ("#list", "non-empty list")
+
+  return expectedstr .. " expected, got " .. actualtype
+end
+
+
+
+--[[ ============== ]]--
+--[[ API functions. ]]--
+--[[ ============== ]]--
+
 
 -- Doc-commented in object.lua
-local function prototype (o)
+function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 
@@ -55,49 +242,14 @@ local function split (s, sep)
 end
 
 
-local argcheck, argerror, argscheck
-
 if _ARGCHECK then
 
-  --- Concatenate a table of strings using ", " and " or " delimiters.
-  -- @tparam table alternatives a table of strings
-  -- @treturn string string of elements from alternatives delimited by ", "
-  --   and " or "
-  local function concat (alternatives)
-    local t, i = {}, 1
-    while i < #alternatives do
-      t[i] = alternatives[i]
-      i = i + 1
-    end
-    if #alternatives > 1 then
-      t[#t] = t[#t] .. " or " .. alternatives[#alternatives]
-    else
-      t = alternatives
-    end
-    return table.concat (t, ", ")
-  end
-
+  local typeof = type  -- free up `type` for use as a variable
 
   -- Doc-commented in debug.lua
   function argcheck (name, i, expected, actual, level)
     level = level or 2
-    expected = split (expected, "|")
-
-    -- Strip trailing "?" but add "nil" to expected when a "?" is found.
-    local add_nil = nil
-    for i, v in ipairs (expected) do
-      local m, q = v:match "^(.*)(%?)$"
-      if m then
-	expected[i] = m
-        if add_nil == nil and q == "?" then
-          add_nil = true
-        end
-      end
-      if m == "nil" then add_nil = false end
-    end
-    if add_nil then
-      expected[#expected + 1] = "nil"
-    end
+    expected = normalize (split (expected, "|"))
 
     -- Check actual has one of the types from expected
     local ok, actualtype = false, prototype (actual)
@@ -108,7 +260,6 @@ if _ARGCHECK then
         end
 
       elseif check == "any" then
-        expected[i] = "any value"
         if actual ~= nil then
           ok = true
         end
@@ -119,7 +270,6 @@ if _ARGCHECK then
         end
 
       elseif check == "function" or check == "func" then
-        expected[i] = "function"
         if actualtype == "function" or
             (getmetatable (actual) or {}).__call ~= nil
         then
@@ -152,8 +302,6 @@ if _ARGCHECK then
       elseif typeof (check) == "string" and check:sub (1, 1) == ":" then
 	if check == actual then
 	  ok = true
-	elseif actualtype == "string" and actual:sub (1, 1) == ":" then
-	  actualtype = actual
 	end
 
       elseif check == actualtype then
@@ -164,20 +312,7 @@ if _ARGCHECK then
     end
 
     if not ok then
-      if actualtype == "nil" then
-        actualtype = "no value"
-      elseif type (actual) == "table" and next (actual) == nil then
-	local expectedstr = "," .. table.concat (expected, ",") .. ","
-        if actualtype == "table" and expectedstr == ",#list," then
-          actualtype = "empty list"
-	elseif actualtype == "table" or expectedstr:match ",#" then
-          actualtype = "empty " .. actualtype
-	end
-      end
-      expected = concat (expected):
-                 gsub ("#table", "non-empty table"):
-		 gsub ("#list", "non-empty list")
-      argerror (name, i, expected .. " expected, got " .. actualtype, level + 1)
+      argerror (name, i, formaterror (expected, actual), level + 1)
     end
   end
 
@@ -293,22 +428,50 @@ local function export (M, decl, fn, ...)
 
     local name = M[1] .. "." .. name
 
+    -- If the final element of types ends with "*", then set max to a
+    -- sentinel value to denote type-checking of *all* remaining
+    -- unchecked arguments against that type-spec is required.
     local max, fin = #types, types[#types]:match "^(.+)%*$"
     if fin then
       max = math.huge
       types[#types] = fin
     end
 
+    -- For optional arguments wrapped in square brackets, make sure
+    -- type-specs allow for passing or omitting an argument of that
+    -- type.
+    local typec, type_specs = #types, permutations (types)
+
     fn = function (...)
       local args = {...}
-      local typec, argc = #types, #args
-      for i = 1, typec do
-        argcheck (name, i, types[i], args[i])
-      end
-      if max == math.huge then
-        for i = typec + 1, argc do
-          argcheck (name, i, types[typec], args[i])
+      local argc, bestmismatch, at = #args, 0, 0
+
+      for i, types in ipairs (type_specs) do
+	local mismatch = match (types, args, max == math.huge)
+	if mismatch == nil then
+	  bestmismatch = nil
+          break -- every argument matched its type-spec
 	end
+
+	if mismatch > bestmismatch then bestmismatch, at = mismatch, i end
+      end
+
+      if bestmismatch ~= nil then
+	-- Report an error for all possible types at bestmismatch index.
+	local expected
+	if max == math.huge and bestmismatch >= typec then
+          expected = normalize (split (types[typec], "|"))
+	else
+	  local tables = {}
+	  for i, types in ipairs (type_specs) do
+            if types[bestmismatch] then
+              tables[#tables + 1] = types[bestmismatch]
+	    end
+	  end
+	  expected = merge (unpack (tables))
+	end
+	local i = bestmismatch
+	argerror (name, i, formaterror (expected, args[i]), 2)
       end
 
       if argc > max then

@@ -16,7 +16,8 @@ specify std.base:
       end
 
       fname = "deprecate"
-      msg = bind (badarg, {this_module, fname})
+      -- Don't depend on functional.bind for base specs!
+      msg = function (...) return badarg (this_module, fname, ...) end
       f = M[fname]
 
   - it diagnoses missing arguments: |
@@ -72,8 +73,11 @@ specify std.base:
         ]], tostring (debugp), tostring (level))
       end
 
+      MAGIC = { "unique!" }
+      mkmagic = function () return MAGIC end
+
       fname = "export"
-      msg = bind (badarg, {this_module, fname})
+      msg = function (...) return badarg (this_module, fname, ...) end
       f = M[fname]
 
   - it diagnoses missing arguments:
@@ -87,7 +91,7 @@ specify std.base:
   - it diagnoses too many arguments:
       expect (f ({}, "", function () end, false)).
         to_error (toomanyarg (this_module, fname, 3, 4))
-  - it diagnoses missing module name elemest:
+  - it diagnoses missing module name element:
       expect (f ({}, "", function () end)).
         to_error (msg (1, "module name at index 1"))
   - it diagnoses malformed declaration string: |
@@ -102,8 +106,8 @@ specify std.base:
       M = { "base_spec.yaml" }
       expect (f (M, "expect (any)", f)).to_be (f)
   - it stores a function in supplied table at the specified key:
-      M, MAGIC = { "base_spec.yaml" }, {"unique!"}
-      f (M, "export (any?)", function () return MAGIC end)
+      M = { "base_spec.yaml" }
+      f (M, "export (any?)", mkmagic)
       expect (M.export ()).to_be (MAGIC)
   - it stores the passed function when _ARGCHECK is disabled:
       script = [[
@@ -115,10 +119,74 @@ specify std.base:
         os.exit (M.export == export and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()
-  - it wraps the passed function with a argscheck call:
-      fake_module = "base_spec.yaml"
-      M = { fake_module }
-      fname = "fake_function"
-      f (M, "fake_function (#table)", function () end)
-      msg = bind (badarg, {fake_module, fname})
-      expect (M[fname] {}).to_error (msg (1, "non-empty table", "empty table"))
+  - context when checking single argument function:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module }
+        fname = "chk_function"
+        msg = function (...) return badarg (fake_module, fname, ...) end
+        f (M, "chk_function (#table)", mkmagic)
+        chk = M[fname]
+    - it diagnoses missing arguments:
+        expect (chk ()).to_error (msg (1, "non-empty table"))
+    - it diagnoses wrong argument types:
+        expect (chk {}).to_error (msg (1, "non-empty table", "empty table"))
+    - it diagnoses too many arguments:
+        expect (chk ({1}, 2, nil, "", false)).
+          to_error (toomanyarg (fake_module, fname, 1, 5))
+    - it accepts correct argument types:
+        expect (chk ({1})).to_equal (MAGIC) -- should be .to_be?
+  - context when checking multi-argument function:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module }
+        fname = "chk_function"
+        msg = function (...) return badarg (fake_module, fname, ...) end
+        f (M, "chk_function (table, function)", mkmagic)
+        chk = M[fname]
+    - it diagnoses missing arguments:
+        expect (chk ()).to_error (msg (1, "table"))
+        expect (chk ({})).to_error (msg (2, "function"))
+    - it diagnoses wrong argument types:
+        expect (chk (false)).to_error (msg (1, "table", "boolean"))
+        expect (chk ({}, false)).to_error (msg (2, "function", "boolean"))
+    - it diagnoses too many arguments:
+        expect (chk ({}, nop, false)).
+          to_error (toomanyarg (fake_module, fname, 2, 3))
+    - it accepts correct argument types:
+        expect (chk ({}, nop)).to_equal (MAGIC) -- should be .to_be?
+  - context when checking optional argument function:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module }
+        fname = "chk_function"
+        msg = function (...) return badarg (fake_module, fname, ...) end
+        f (M, "chk_function ([int])", mkmagic)
+        chk = M[fname]
+    - it diagnoses wrong argument types:
+        expect (chk (false)).to_error (msg (1, "int or nil", "boolean"))
+    - it diagnoses too many arguments:
+        expect (chk (1, nop)).
+          to_error (toomanyarg (fake_module, fname, 1, 2))
+    - it accepts correct argument types:
+        expect (chk ()).to_equal (MAGIC) -- should be .to_be?
+        expect (chk (1)).to_equal (MAGIC) -- should be .to_be?
+  - context when checking optional multi-argument function:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module }
+        fname = "chk_function"
+        msg = function (...) return badarg (fake_module, fname, ...) end
+        f (M, "chk_function ([int], string)", mkmagic)
+        chk = M[fname]
+    - it diagnoses missing arguments:
+        expect (chk ()).to_error (msg (1, "int or string"))
+        expect (chk (1)).to_error (msg (2, "string"))
+    - it diagnoses wrong argument types:
+        expect (chk (false)).to_error (msg (1, "int or string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (chk (1, "two", nop)).
+          to_error (toomanyarg (fake_module, fname, 2, 3))
+    - it accepts correct argument types:
+        expect (chk ("two")).to_equal (MAGIC) -- should be .to_be?
+        expect (chk (1, "two")).to_equal (MAGIC) -- should be .to_be?
