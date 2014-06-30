@@ -78,6 +78,25 @@ local function tpack (from, to, ...)
 end
 
 
+--- Return a List object by splitting version string on periods.
+-- @string version a period delimited version string
+-- @treturn List a list of version components
+local function version_to_list (version)
+  return List (base_split (version, "%."))
+end
+
+
+--- Extract a list of period delimited integer version components.
+-- @tparam table module returned from a `require` call
+-- @string pattern to capture version number from a string
+--   (default: `"%D*([%.%d]+)"`)
+-- @treturn List a list of version components
+local function module_version (module, pattern)
+  local version = module.version or module._VERSION
+  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
+end
+
+
 
 --[[ ================= ]]--
 --[[ Module Functions. ]]--
@@ -195,13 +214,6 @@ local function require_version (module, min, too_big, pattern)
              {"string", "string?", "string?", "string?"},
 	     {module, min, too_big, pattern})
 
-  local function version_to_list (v)
-    return List (base_split (v, "%."))
-  end
-  local function module_version (module, pattern)
-    return version_to_list (string.match (module.version or module._VERSION,
-                                          pattern or "%D*([%.%d]+)"))
-  end
   local m = require (module)
   if min then
     assert (module_version (m, pattern) >= version_to_list (min))
