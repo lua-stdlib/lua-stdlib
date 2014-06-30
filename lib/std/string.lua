@@ -81,11 +81,7 @@ end
 local function format (f, arg1, ...)
   argcheck ("std.string.format", 1, "string", f)
 
-  if arg1 == nil then
-    return f
-  else
-    return _format (f, arg1, ...)
-  end
+  return (arg1 ~= nil) and _format (f, arg1, ...) or f
 end
 
 
