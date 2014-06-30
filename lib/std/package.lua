@@ -2,8 +2,8 @@
  Additions to the core package module.
 
  The module table returned by `std.package` also contains all of the entries
- from the core package table.  An hygienic way to import this module, then, is
- simply to override the core `package` locally:
+ from the core `package` table.  An hygienic way to import this module, then, is
+ simply to override core `package` locally:
 
     local package = require "std.package"
 
@@ -11,18 +11,16 @@
 ]]
 
 
-local _ARGCHECK      = require "std.debug_init"._ARGCHECK
-
 local base           = require "std.base"
 local case           = require "std.functional".case
 local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
 
-local argcheck, argscheck, split =
-      base.argcheck, base.argscheck, base.split
+local export, split  = base.export, base.split
 
-local M  -- forward declaration
+
+local M = { "std.package" }
 
 
 
@@ -55,6 +53,7 @@ end
 
 
 --- Look for a path segment match of `patt` in `pathstrings`.
+-- @function find
 -- @string pathstrings `pathsep` delimited path elements
 -- @string patt a Lua pattern to search for in `pathstrings`
 -- @int[opt=1] init element (not byte index!) to start search at.
@@ -65,11 +64,8 @@ end
 -- @return the matching element number (not byte index!) and full text
 --   of the matching element, if any; otherwise nil
 -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
-local function find (pathstrings, patt, init, plain)
-  argscheck ("std.package.find",
-    {"string", "string", "int?", "boolean|:plain?"},
-    {pathstrings, patt, init, plain})
-
+export (M, "find (string, string, int?, boolean|:plain?)",
+function (pathstrings, patt, init, plain)
   local paths = split (pathstrings, M.pathsep)
   if plain then patt = escape_pattern (patt) end
   init = init or 1
@@ -77,7 +73,7 @@ local function find (pathstrings, patt, init, plain)
   for i = init, #paths do
     if paths[i]:find (patt) then return i, paths[i] end
   end
-end
+end)
 
 
 --- Normalize a path list.
@@ -86,19 +82,12 @@ end
 -- of `pathsep` delimited elements; wherein characters are subject to
 -- `/` and `?` normalization, converting `/` to `dirsep` and `?` to
 -- `path_mark` (unless immediately preceded by a `%` character).
+-- @function normalize
 -- @param ... path elements
 -- @treturn string a single normalized `pathsep` delimited paths string
 -- @usage package.path = normalize (user_paths, sys_paths, package.path)
-local function normalize (...)
-  local t = {...}
-  if _ARGCHECK then
-    if #t < 1 then argcheck ("std.package.normalize", 1, "string") end
-    for i, v in ipairs (t) do
-      argcheck ("std.package.normalize", i, "string", v)
-    end
-  end
-
-  local i, paths, pathstrings = 1, {}, table.concat (t, M.pathsep)
+local normalize = export (M, "normalize (string*)", function (...)
+  local i, paths, pathstrings = 1, {}, table.concat ({...}, M.pathsep)
   for _, path in ipairs (split (pathstrings, M.pathsep)) do
     path = pathsub (path):
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
@@ -116,7 +105,7 @@ local function normalize (...)
     end
   end
   return table.concat (invert (paths), M.pathsep)
-end
+end)
 
 
 ------
@@ -132,23 +121,11 @@ end
 
 local unpack = unpack or table.unpack
 
-local function insert (pathstrings, ...)
-  local args, types = {pathstrings, ...}
-  if _ARGCHECK then
-    if #args == 1 then
-      types = {"string", "int|string"}
-    elseif #args == 2 then
-      types = {"string", "string"}
-    else
-      types = {"string", "int", "string"}
-    end
-    argscheck ("std.package.insert", types, args)
-  end
-
+export (M, "insert (string, [int], string)", function (pathstrings, ...)
   local paths = split (pathstrings, M.pathsep)
   table.insert (paths, ...)
   return normalize (unpack (paths))
-end
+end)
 
 
 ------
@@ -161,55 +138,43 @@ end
 
 
 --- Call a function with each element of a path string.
+-- @function mappath
 -- @string pathstrings a `package.path` like string
 -- @tparam mappath_callback callback function to call for each element
 -- @param ... additional arguments passed to `callback`
 -- @return nil, or first non-nil returned by `callback`
 -- @usage mappath (package.path, searcherfn, transformfn)
-local function mappath (pathstrings, callback, ...)
-  argscheck ("std.package.mappath",
-             {"string", "function"}, {pathstrings, callback})
-
+export (M, "mappath (string, function, any?*)",
+function (pathstrings, callback, ...)
   for _, path in ipairs (split (pathstrings, M.pathsep)) do
     local r = callback (path, ...)
     if r ~= nil then return r end
   end
-end
+end)
 
 
 --- Remove any element from a `package.path` like string of paths.
+-- @function remove
 -- @string pathstrings a `package.path` like string
 -- @int[opt=n] pos element index from which to remove an item, where `n`
 --   is the number of elements prior to removal
 -- @treturn string a new string with given element removed
 -- @usage package.path = remove (package.path)
-local function remove (pathstrings, pos)
-  argscheck ("std.package.remove", {"string", "int?"}, {pathstrings, pos})
-
+export (M, "remove (string, int?)", function (pathstrings, pos)
   local paths = split (pathstrings, M.pathsep)
   table.remove (paths, pos)
   return table.concat (paths, M.pathsep)
-end
-
-
---- @export
-M = {
-  find      = find,
-  insert    = insert,
-  mappath   = mappath,
-  normalize = normalize,
-  remove    = remove,
-}
+end)
 
 
 --- Make named constants for `package.config`
 -- (undocumented in 5.1; see luaconf.h for C equivalents).
 -- @table package
--- @field dirsep directory separator
--- @field pathsep path separator
--- @field path_mark string that marks substitution points in a path template
--- @field execdir (Windows only) replaced by the executable's directory in a path
--- @field igmark Mark to ignore all before it when building `luaopen_` function name.
+-- @string dirsep directory separator
+-- @string pathsep path separator
+-- @string path_mark string that marks substitution points in a path template
+-- @string execdir (Windows only) replaced by the executable's directory in a path
+-- @string igmark Mark to ignore all before it when building `luaopen_` function name.
 M.dirsep, M.pathsep, M.path_mark, M.execdir, M.igmark =
   string.match (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
 
