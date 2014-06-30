@@ -65,6 +65,19 @@ local function __index (s, i)
 end
 
 
+--- Pack return arguments for `tfind`.
+-- @int from start of match
+-- @int to end of match
+-- @param ... captures
+-- @treturn int from
+-- @treturn int to
+-- @treturn table captures
+-- @usage return tfind_pack (string.find (str, pattern))
+local function tpack (from, to, ...)
+  return from, to, {...}
+end
+
+
 
 --[[ ================= ]]--
 --[[ Module Functions. ]]--
@@ -111,11 +124,7 @@ local function tfind (s, pattern, init, plain)
   argscheck ("std.string.tfind",
              {"string", "string", "int?", "boolean|:plain?"},
 	     {s, pattern, init, plain})
-
-  local function pack (from, to, ...)
-    return from, to, {...}
-  end
-  return pack (pattern.find (s, pattern, init, plain))
+  return tpack (s:find (pattern, init, plain))
 end
 
 
