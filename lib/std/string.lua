@@ -97,14 +97,7 @@ end
 -- @usage assert (expected == actual, "100% unexpected!")
 local function assert (v, f, ...)
   argcheck ("std.string.assert", 2, "string?", f)
-
-  if not v then
-    if f == nil then
-      f = ""
-    end
-    error (format (f, ...), 2)
-  end
-  return v
+  return v or error (format (f or "", ...), 2)
 end
 
 
