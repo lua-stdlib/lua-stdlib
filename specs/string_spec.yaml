@@ -8,8 +8,8 @@ before: |
                           "escape_shell", "finds", "format", "ltrim",
                           "monkey_patch", "numbertosi", "ordinal_suffix",
                           "pad", "pickle", "prettytostring", "render",
-                          "require_version", "rtrim", "split", "tfind",
-                          "tostring", "trim", "wrap" }
+                          "require", "require_version", "rtrim", "split",
+                          "tfind", "tostring", "trim", "wrap" }
 
   M = require (this_module)
   getmetatable ("").__concat = M.__concat
@@ -301,6 +301,8 @@ specify std.string:
       expect (mt.__index).to_be (M.__index)
   - it installs the assert function:
       expect (t.assert).to_be (M.assert)
+  - it installs the require function:
+      expect (t.require).to_be (M.require)
   - it installs the tostring function:
       expect (t.tostring).to_be (M.tostring)
 
@@ -527,21 +529,21 @@ specify std.string:
         to_be ('Array ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 
 
-- describe require_version:
+- describe require:
   - before:
-      f = M.require_version
+      f = M.require
   - it diagnoses missing arguments: |
       expect (f ()).
-        to_error "bad argument #1 to 'std.string.require_version' (string expected, got no value)"
+        to_error "bad argument #1 to 'std.string.require' (string expected, got no value)"
   - it diagnoses wrong argument types: |
       expect (f (false)).
-        to_error "bad argument #1 to 'std.string.require_version' (string expected, got boolean)"
+        to_error "bad argument #1 to 'std.string.require' (string expected, got boolean)"
       expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.require_version' (string or nil expected, got boolean)"
+        to_error "bad argument #2 to 'std.string.require' (string or nil expected, got boolean)"
       expect (f ("string", "string", false)).
-        to_error "bad argument #3 to 'std.string.require_version' (string or nil expected, got boolean)"
+        to_error "bad argument #3 to 'std.string.require' (string or nil expected, got boolean)"
       expect (f ("string", "string", "string", false)).
-        to_error "bad argument #4 to 'std.string.require_version' (string or nil expected, got boolean)"
+        to_error "bad argument #4 to 'std.string.require' (string or nil expected, got boolean)"
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
   - it diagnoses module too old:
@@ -561,24 +563,94 @@ specify std.string:
         expect (f ("std", "41", "9999")).to_be (require "std")
         std._VERSION, std.version = std.version, std._VERSION
   - context with semantic versioning:
-    - it diagnoses module too old: |
+    - before:
         std = require "std"
+        ver = std.version
         std.version = "1.2.3"
+    - after:
+        std.version = ver
+    - it diagnoses module too old: |
         expect (f ("std", "1.2.4")).to_error ()
         expect (f ("std", "1.3")).to_error ()
         expect (f ("std", "2.1.2")).to_error ()
         expect (f ("std", "2")).to_error ()
         expect (f ("std", "1.2.10")).to_error ()
     - it diagnoses module too new: |
-        std = require "std"
-        std.version = "1.2.3"
         expect (f ("std", nil, "1.2.2")).to_error ()
         expect (f ("std", nil, "1.1")).to_error ()
         expect (f ("std", nil, "1.1.2")).to_error ()
         expect (f ("std", nil, "1")).to_error ()
     - it returns modules with version in range: |
+        expect (f ("std")).to_be (std)
+        expect (f ("std", "1")).to_be (std)
+        expect (f ("std", "1.2.3")).to_be (std)
+        expect (f ("std", nil, "2")).to_be (std)
+        expect (f ("std", nil, "1.3")).to_be (std)
+        expect (f ("std", nil, "1.2.10")).to_be (std)
+        expect (f ("std", "1.2.3", "1.2.4")).to_be (std)
+
+
+# DEPRECATED: Remove in first release following 2015-06-30.
+- describe require_version:
+  - before:
+      f = M.require_version
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {"std.string"})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "require_version is deprecated"
+      end
+      _, err = capture (f, {"std.string"})
+      expect (err).to_be (nil)
+  - it diagnoses missing arguments: |
+      expect (f ()).
+        to_error "bad argument #1 to 'std.string.require' (string expected, got no value)"
+  - it diagnoses wrong argument types: |
+      expect (f (false)).
+        to_error "bad argument #1 to 'std.string.require' (string expected, got boolean)"
+      expect (f ("string", false)).
+        to_error "bad argument #2 to 'std.string.require' (string or nil expected, got boolean)"
+      expect (f ("string", "string", false)).
+        to_error "bad argument #3 to 'std.string.require' (string or nil expected, got boolean)"
+      expect (f ("string", "string", "string", false)).
+        to_error "bad argument #4 to 'std.string.require' (string or nil expected, got boolean)"
+  - it diagnoses non-existent module:
+      expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
+  - it diagnoses module too old:
+      expect (f ("std", "9999", "9999")).to_error ()
+  - it diagnoses module too new:
+      expect (f ("std", "0", "0")).to_error ()
+  - context when the module version is compatible:
+    - it returns the module table:
+        expect (f ("std", "0", "9999")).to_be (require "std")
+    - it places no upper bound by default:
+        expect (f ("std", "41")).to_be (require "std")
+    - it places no lower bound by default:
+        expect (f "std").to_be (require "std")
+    - it uses _VERSION when version field is nil:
         std = require "std"
+        std._VERSION, std.version = std.version, std._VERSION
+        expect (f ("std", "41", "9999")).to_be (require "std")
+        std._VERSION, std.version = std.version, std._VERSION
+  - context with semantic versioning:
+    - before:
+        std = require "std"
+        ver = std.version
         std.version = "1.2.3"
+    - after:
+        std.version = ver
+    - it diagnoses module too old: |
+        expect (f ("std", "1.2.4")).to_error ()
+        expect (f ("std", "1.3")).to_error ()
+        expect (f ("std", "2.1.2")).to_error ()
+        expect (f ("std", "2")).to_error ()
+        expect (f ("std", "1.2.10")).to_error ()
+    - it diagnoses module too new: |
+        expect (f ("std", nil, "1.2.2")).to_error ()
+        expect (f ("std", nil, "1.1")).to_error ()
+        expect (f ("std", nil, "1.1.2")).to_error ()
+        expect (f ("std", nil, "1")).to_error ()
+    - it returns modules with version in range: |
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)
         expect (f ("std", "1.2.3")).to_be (std)

@@ -45,6 +45,7 @@ specify std:
       expect (mt.__concat).to_be (std.string.__concat)
       expect (mt.__index).to_be (std.string.__index)
       expect (t.assert).to_be (std.string.assert)
+      expect (t.require).to_be (std.string.require)
       expect (t.tostring).to_be (std.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (std.table.sort)
@@ -74,6 +75,7 @@ specify std:
         pickle          = std.string.pickle,
         prettytostring  = std.string.prettytostring,
         render          = std.string.render,
+        require         = std.string.require,
         require_version = std.string.require_version,
         ripairs         = std.table.ripairs,
         table           = t.table,
@@ -111,6 +113,7 @@ specify std:
       expect (mt.__concat).to_be (std.string.__concat)
       expect (mt.__index).to_be (std.string.__index)
       expect (t.assert).to_be (std.string.assert)
+      expect (t.require).to_be (std.string.require)
       expect (t.tostring).to_be (std.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (std.table.sort)

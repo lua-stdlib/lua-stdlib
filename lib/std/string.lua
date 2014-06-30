@@ -24,6 +24,7 @@ local argcheck, argscheck, getmetamethod, base_split =
       base.argcheck, base.argscheck, base.getmetamethod, base.split
 
 local _format   = string.format
+local _require  = require
 local _tostring = _G.tostring
 
 local M = {}
@@ -209,12 +210,12 @@ end
 -- @string[opt] pattern to match version in `module.version` or
 --  `module._VERSION` (default: `"%D*([%.%d]+)"`)
 -- @usage std = require ("std", "41")
-local function require_version (module, min, too_big, pattern)
-  argscheck ("std.string.require_version",
+local function require (module, min, too_big, pattern)
+  argscheck ("std.string.require",
              {"string", "string?", "string?", "string?"},
 	     {module, min, too_big, pattern})
 
-  local m = require (module)
+  local m = _require (module)
   if min then
     assert (module_version (m, pattern) >= version_to_list (min))
   end
@@ -225,12 +226,17 @@ local function require_version (module, min, too_big, pattern)
 end
 
 
+-- DEPRECATED: Remove in first release following 2015-06-30.
+local require_version = base.deprecate (require, nil,
+  "string.require_version is deprecated, use string.require instead")
+
+
 --- Overwrite core methods and metamethods with `std` enhanced versions.
 --
 -- Adds auto-stringification to `..` operator on core strings, and
 -- integer indexing of strings with `[]` dereferencing.
 --
--- Also replaces core `assert` and `tostring` functions with
+-- Also replaces core `assert`, `require` and `tostring` functions with
 -- `std.string` versions.
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
@@ -239,7 +245,8 @@ local function monkey_patch (namespace)
   argcheck ("std.string.monkey_patch", 1, "table?", namespace)
 
   namespace = namespace or _G
-  namespace.assert, namespace.tostring = assert, M.tostring
+  namespace.assert, namespace.require, namespace.tostring =
+    M.assert, M.require, M.tostring
 
   local string_metatable = getmetatable ""
   string_metatable.__concat = __concat
@@ -706,7 +713,7 @@ M = {
   pickle          = pickle,
   prettytostring  = prettytostring,
   render          = render,
-  require_version = require_version,
+  require         = require,
   rtrim           = rtrim,
   split           = split,
   tfind           = tfind,
@@ -714,6 +721,9 @@ M = {
   trim            = trim,
   wrap            = wrap,
 }
+
+-- Deprecated and undocumented.
+M.require_version = require_version
 
 for k, v in pairs (string) do
   M[k] = M[k] or v
