@@ -51,9 +51,11 @@ specify std.debug:
       f = M[fname]
 
   - it diagnoses missing arguments:
+      pending "Lua 5.1 support is dropped"
       expect (f ()).to_error (msg (1, "string"))
       expect (f "foo").to_error (msg (2, "int"))
   - it diagnoses wrong argument types:
+      pending "Lua 5.1 support is dropped"
       expect (f (false)).to_error (msg (1, "string", "boolean"))
       expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
       expect (f ("foo", 1, false)).
@@ -61,6 +63,7 @@ specify std.debug:
       expect (f ("foo", 1, "bar", false)).
         to_error (msg (4, "int or nil", "boolean"))
   - it diagnoses too many arguments:
+      pending "Lua 5.1 support is dropped"
       expect (f ("foo", 1, "bar", 2, false)).
         to_error (toomanyarg (this_module, fname, 4, 5))
 
@@ -105,16 +108,19 @@ specify std.debug:
       f = M[fname]
 
   - it diagnoses missing arguments:
+      pending "Lua 5.1 support is dropped"
       expect (f ()).to_error (msg (1, "string"))
       expect (f "foo").to_error (msg (2, "int"))
       expect (f ("foo", 1)).to_error (msg (3, "string"))
   - it diagnoses wrong argument types:
+      pending "Lua 5.1 support is dropped"
       expect (f (false)).to_error (msg (1, "string", "boolean"))
       expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
       expect (f ("foo", 1, false)).to_error (msg (3, "string", "boolean"))
       expect (f ("foo", 1, "bar", 2, false)).
         to_error (msg (5, "int or nil", "boolean"))
   - it diagnoses too many arguments:
+      pending "Lua 5.1 support is dropped"
       expect (f ("foo", 1, "bar", 2, 3, false)).
         to_error (toomanyarg (this_module, fname, 5, 6))
 
@@ -330,15 +336,17 @@ specify std.debug:
       f = M[fname]
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      pending "Lua 5.1 support is dropped"
       expect (f "foo").to_error (msg (2, "non-empty list"))
       expect (f ("foo", {"bar"})).to_error (msg (3, "table"))
   - it diagnoses wrong argument types:
+      pending "Lua 5.1 support is dropped"
       expect (f (false)).to_error (msg (1, "string", "boolean"))
       expect (f ("foo", false)).
         to_error (msg (2, "non-empty list", "boolean"))
       expect (f ("foo", {"bar"}, false)).to_error (msg (3, "table", "boolean"))
   - it diagnoses too many arguments:
+      pending "Lua 5.1 support is dropped"
       expect (f ("foo", {"bar"}, {}, false)).
         to_error (toomanyarg (this_module, fname, 3, 4))
 

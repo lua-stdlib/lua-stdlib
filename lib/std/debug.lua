@@ -158,7 +158,16 @@ end
 --   local h, err = input_handle (file)
 --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
 --   ...
+M.argerror = base.argerror
+
+--[[
+ Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
+ and this function has to count stack frames correctly and so breaks in
+ that case.  After 5.1 support is dropped, we can enable the
+ following:
+
 export (M, "argerror (string, int, string?, int?)", base.argerror)
+]]
 
 
 --- Check the type of an argument against expected types.
@@ -207,8 +216,16 @@ export (M, "argerror (string, int, string?, int?)", base.argerror)
 -- local function case (with, branches)
 --   argcheck ("std.functional.case", 2, "#table", branches)
 --   ...
-export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
+M.argcheck = base.argcheck
 
+--[[
+ Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
+ and this function has to count stack frames correctly and so breaks in
+ that case.  After 5.1 support is dropped, we can enable the
+ following:
+
+export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
+]]
 
 --- Check that all arguments match specified types.
 -- @function argscheck
@@ -219,7 +236,16 @@ export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
 -- local function curry (f, n)
 --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 --   ...
+M.argscheck = base.argscheck
+
+--[[
+ Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
+ and this function has to count stack frames correctly and so breaks in
+ that case.  After 5.1 support is dropped, we can enable the
+ following:
+
 export (M, "argscheck (string, #list, table)", base.argscheck)
+]]
 
 
 for k, v in pairs (debug) do
