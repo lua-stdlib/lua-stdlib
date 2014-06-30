@@ -1,7 +1,7 @@
 --[[--
  Additions to the core math module.
 
- The module table returned by `std.io` also contains all of the entries from
+ The module table returned by `std.math` also contains all of the entries from
  the core math table.  An hygienic way to import this module, then, is simply
  to override the core `math` locally:
 
@@ -12,6 +12,7 @@
 
 
 local export = require "std.base".export
+local floor  = math.floor
 
 local M = { "std.math" }
 
@@ -23,14 +24,13 @@ local M = { "std.math" }
 -- @treturn number `n` truncated to `p` decimal places
 -- @usage tenths = floor (magnitude, 1)
 
-local _floor = math.floor
 
 export (M, "floor (number, int?)", function (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
-    return _floor (n * e) / e
+    return floor (n * e) / e
   else
-    return _floor (n)
+    return floor (n)
   end
 end)
 
@@ -57,7 +57,7 @@ end)
 -- @usage roughly = round (exactly, 2)
 export (M, "round (number, int?)", function (n, p)
   local e = 10 ^ (p or 0)
-  return _floor (n * e + 0.5) / e
+  return floor (n * e + 0.5) / e
 end)
 
 
