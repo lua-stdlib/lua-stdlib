@@ -1,4 +1,4 @@
-before: |
+before:
   base_module         = "string"
   this_module         = "std.string"
   global_table        = "_G"
@@ -59,10 +59,13 @@ specify std.string:
 
 - describe assert:
   - before:
-      f = M.assert
-  - it diagnoses wrong argument types: |
-      expect (f (false, false)).
-        to_error "bad argument #2 to 'std.string.assert' (string or nil expected, got boolean)"
+      fname = "assert"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses wrong argument types:
+      expect (f (false, false)).to_error (msg (2, "string or nil", "boolean"))
+
   - context when it does not trigger:
     - it has a truthy initial argument:
         expect (f (1)).not_to_error ()
@@ -88,13 +91,17 @@ specify std.string:
 
 - describe caps:
   - before:
-      f = M.caps
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.caps' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.caps' (string expected, got boolean)"
+      fname = "caps"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it capitalises words of a string:
       target = "A String \n\n"
       expect (f (subject)).to_be (target)
@@ -110,14 +117,19 @@ specify std.string:
 
 - describe chomp:
   - before:
-      f = M.chomp
       target = "a string \n"
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.chomp' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.chomp' (string expected, got boolean)"
+
+      fname = "chomp"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it removes a single trailing newline from a string:
       expect (f (subject)).to_be (target)
   - it does not change a string with no trailing newline:
@@ -132,21 +144,24 @@ specify std.string:
 
 
 - describe escape_pattern:
-  - before: |
-      f = M.escape_pattern
-
+  - before:
       magic = {}
       meta = "^$()%.[]*+-?"
       for i = 1, string.len (meta) do
         magic[meta:sub (i, i)] = true
       end
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.escape_pattern' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.escape_pattern' (string expected, got boolean)"
+      fname = "escape_pattern"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
@@ -168,13 +183,17 @@ specify std.string:
 
 - describe escape_shell:
   - before:
-      f = M.escape_shell
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.escape_shell' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.escape_shell' (string expected, got boolean)"
+      fname = "escape_shell"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
@@ -200,21 +219,25 @@ specify std.string:
 - describe finds:
   - before:
       subject = "abcd"
-      f = M.finds
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.finds' (string expected, got no value)"
-      expect (f ("string")).
-        to_error "bad argument #2 to 'std.string.finds' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.finds' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.finds' (string expected, got boolean)"
+
+      fname = "finds"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f ("string")).to_error (msg (2, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (msg (2, "string", "boolean"))
       expect (f ("string", "pattern", false)).
-        to_error "bad argument #3 to 'std.string.finds' (int or nil expected, got boolean)"
+        to_error (msg (3, "int or nil", "boolean"))
       expect (f ("string", "pattern", nil, "plain")).
-        to_error "bad argument #4 to 'std.string.finds' (boolean, :plain or nil expected, got string)"
+        to_error (msg (4, "boolean, :plain or nil", "string"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", nil, false, nop)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
   - context given a complex nested list:
     - before:
         target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
@@ -237,17 +260,19 @@ specify std.string:
       expect (subject).to_be (original)
 
 
-# FIXME: This looks like a misfeature to me, let's remove it!
 - describe format:
-  - before: |
-      subject = "string: %s, number: %d"
-      f = M.format
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.format' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.format' (string expected, got boolean)"
+  - before:
+      subject = "string=%s, number=%d"
+
+      fname = "format"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+
   - it returns a single argument without attempting formatting:
       expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
@@ -261,13 +286,21 @@ specify std.string:
 - describe ltrim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
-      f = M.ltrim
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.ltrim' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.ltrim' (string expected, got boolean)"
+
+      fname = "ltrim"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).
+        to_error (msg (2, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it removes whitespace from the start of a string:
       target = "a  short  string  \t\r\n   "
       expect (f (subject)).to_equal (target)
@@ -285,12 +318,18 @@ specify std.string:
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
+      fname = "monkey_patch"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
       t  = {}
       f (t)
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.monkey_patch' (table or nil expected, got boolean)"
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (t, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it installs concat metamethod:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""
@@ -309,13 +348,17 @@ specify std.string:
 
 - describe numbertosi:
   - before:
-      f = M.numbertosi
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.numbertosi' (number or string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.numbertosi' (number or string expected, got boolean)"
+      fname = "numbertosi"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "number or string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "number or string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (1, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it returns a number using SI suffixes:
       target = {"1e-9", "1y", "1z", "1a", "1f", "1p", "1n", "1mu", "1m", "1",
                 "1k", "1M", "1G", "1T", "1P", "1E", "1Z", "1Y", "1e9"}
@@ -331,13 +374,17 @@ specify std.string:
 
 - describe ordinal_suffix:
   - before:
-      f = M.ordinal_suffix
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.ordinal_suffix' (int or string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.ordinal_suffix' (int or string expected, got boolean)"
+      fname = "ordinal_suffix"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "int or string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "int or string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (1, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it returns the English suffix for a number:
       subject, target = {}, {}
       for n = -120, 120 do
@@ -358,20 +405,22 @@ specify std.string:
 - describe pad:
   - before:
       width = 20
-      f = M.pad
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.pad' (string expected, got no value)"
-      expect (f ("string")).
-        to_error "bad argument #2 to 'std.string.pad' (int expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.pad' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.pad' (int expected, got boolean)"
+      fname = "pad"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f ("string")).to_error (msg (2, "int"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (msg (2, "int", "boolean"))
       expect (f ("string", 42, false)).
-        to_error "bad argument #3 to 'std.string.pad' (string or nil expected, got boolean)"
+        to_error (msg (3, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", 42, "\t", false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
 
   - context when string is shorter than given width:
     - before:
@@ -436,12 +485,18 @@ specify std.string:
 
 - describe prettytostring:
   - before:
-      f = M.prettytostring
-  - it diagnoses wrong argument types: |
-      expect (f (false, false)).
-        to_error "bad argument #2 to 'std.string.prettytostring' (string or nil expected, got boolean)"
-      expect (f (false, "string", false)).
-        to_error "bad argument #3 to 'std.string.prettytostring' (string or nil expected, got boolean)"
+      fname = "prettytostring"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses wrong argument types:
+      expect (f (true, false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f (true, "indent", false)).
+        to_error (msg (3, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (true, "indent", "spacing", false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
   - it renders nil exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))
   - it renders booleans exactly like system tostring:
@@ -481,69 +536,73 @@ specify std.string:
       pair = function (_, _, _, i, v) return i .. "=" .. v end
       sep  = function (_, i, _, j) return (i and j) and "," or "" end
       t = {1, {{2, 3}, 4, {5}}}
-      f = function (x)
+      r = function (x)
             return M.render (x, term "{", term "}", tostring, pair, sep)
           end
-  - it diagnoses missing arguments: |
-      expect (M.render (nil)).
-        to_error "bad argument #2 to 'std.string.render' (function expected, got no value)"
-      expect (M.render (nil, f)).
-        to_error "bad argument #3 to 'std.string.render' (function expected, got no value)"
-      expect (M.render (nil, f, f)).
-        to_error "bad argument #4 to 'std.string.render' (function expected, got no value)"
-      expect (M.render (nil, f, f, f)).
-        to_error "bad argument #5 to 'std.string.render' (function expected, got no value)"
-      expect (M.render (nil, f, f, f, f)).
-        to_error "bad argument #6 to 'std.string.render' (function expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (M.render (nil, false)).
-        to_error "bad argument #2 to 'std.string.render' (function expected, got boolean)"
-      expect (M.render (nil, f, false)).
-        to_error "bad argument #3 to 'std.string.render' (function expected, got boolean)"
-      expect (M.render (nil, f, f, false)).
-        to_error "bad argument #4 to 'std.string.render' (function expected, got boolean)"
-      expect (M.render (nil, f, f, f, false)).
-        to_error "bad argument #5 to 'std.string.render' (function expected, got boolean)"
-      expect (M.render (nil, f, f, f, f, false)).
-        to_error "bad argument #6 to 'std.string.render' (function expected, got boolean)"
-      expect (M.render (nil, f, f, f, f, f, false)).
-        to_error "bad argument #7 to 'std.string.render' (table or nil expected, got boolean)"
+
+      fname = "render"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f (true)).to_error (msg (2, "function"))
+      expect (f (true, f)).to_error (msg (3, "function"))
+      expect (f (true, f, f)).to_error (msg (4, "function"))
+      expect (f (true, f, f, f)).to_error (msg (5, "function"))
+      expect (f (true, f, f, f, f)).to_error (msg (6, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (true, false)).to_error (msg (2, "function", "boolean"))
+      expect (f (true, f, false)).to_error (msg (3, "function", "boolean"))
+      expect (f (true, f, f, false)).to_error (msg (4, "function", "boolean"))
+      expect (f (true, f, f, f, false)).to_error (msg (5, "function", "boolean"))
+      expect (f (true, f, f, f, f, false)).
+        to_error (msg (6, "function", "boolean"))
+      expect (f (true, f, f, f, f, f, false)).
+        to_error (msg (7, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (true, f, f, f, f, f, {}, false)).
+        to_error (toomanyarg (this_module, fname, 7, 8))
+
   - it converts a primitive to a representative string:
-      expect (f (nil)).to_be "nil"
-      expect (f (false)).to_be "false"
-      expect (f (42)).to_be "42"
-      expect (f ("string")).to_be "string"
+      expect (r (nil)).to_be "nil"
+      expect (r (false)).to_be "false"
+      expect (r (42)).to_be "42"
+      expect (r ("string")).to_be "string"
   - it converts a table to a representative string:
-      expect (f ({"table", 42})).
+      expect (r ({"table", 42})).
         to_be '{1=table,2=42}'
   - it converts a nested table to a representative string:
-      expect (f (t)).
+      expect (r (t)).
         to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
   - it converts a recursive table to a representative string:
       t[1] = t
-      expect (f (t)).
+      expect (r (t)).
         to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
   - it converts an Array to a representative string:
       a = require "std.array" {"a", "b", {{"c"},"d"},"e"}
-      expect (f (a)).
+      expect (r (a)).
         to_be ('Array ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 
 
 - describe require:
   - before:
-      f = M.require
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.require' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.require' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.require' (string or nil expected, got boolean)"
-      expect (f ("string", "string", false)).
-        to_error "bad argument #3 to 'std.string.require' (string or nil expected, got boolean)"
-      expect (f ("string", "string", "string", false)).
-        to_error "bad argument #4 to 'std.string.require' (string or nil expected, got boolean)"
+      fname = "require"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("module", false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f ("module", "min", false)).
+        to_error (msg (3, "string or nil", "boolean"))
+      expect (f ("module", "min", "too_big", false)).
+        to_error (msg (4, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("module", "min", "too_big", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
   - it diagnoses module too old:
@@ -569,18 +628,18 @@ specify std.string:
         std.version = "1.2.3"
     - after:
         std.version = ver
-    - it diagnoses module too old: |
+    - it diagnoses module too old:
         expect (f ("std", "1.2.4")).to_error ()
         expect (f ("std", "1.3")).to_error ()
         expect (f ("std", "2.1.2")).to_error ()
         expect (f ("std", "2")).to_error ()
         expect (f ("std", "1.2.10")).to_error ()
-    - it diagnoses module too new: |
+    - it diagnoses module too new:
         expect (f ("std", nil, "1.2.2")).to_error ()
         expect (f ("std", nil, "1.1")).to_error ()
         expect (f ("std", nil, "1.1.2")).to_error ()
         expect (f ("std", nil, "1")).to_error ()
-    - it returns modules with version in range: |
+    - it returns modules with version in range:
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)
         expect (f ("std", "1.2.3")).to_be (std)
@@ -593,7 +652,10 @@ specify std.string:
 # DEPRECATED: Remove in first release following 2015-06-30.
 - describe require_version:
   - before:
-      f = M.require_version
+      fname = "require_version"
+      msg = bind (badarg, {this_module, "require"})
+      f = M[fname]
+
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
       if err ~= nil then
@@ -602,18 +664,20 @@ specify std.string:
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.require' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.require' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.require' (string or nil expected, got boolean)"
-      expect (f ("string", "string", false)).
-        to_error "bad argument #3 to 'std.string.require' (string or nil expected, got boolean)"
-      expect (f ("string", "string", "string", false)).
-        to_error "bad argument #4 to 'std.string.require' (string or nil expected, got boolean)"
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("module", false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f ("module", "min", false)).
+        to_error (msg (3, "string or nil", "boolean"))
+      expect (f ("module", "min", "too_big", false)).
+        to_error (msg (4, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("module", "min", "too_big", "pattern", false)).
+        to_error (toomanyarg (this_module, "require", 4, 5))
+
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
   - it diagnoses module too old:
@@ -639,18 +703,18 @@ specify std.string:
         std.version = "1.2.3"
     - after:
         std.version = ver
-    - it diagnoses module too old: |
+    - it diagnoses module too old:
         expect (f ("std", "1.2.4")).to_error ()
         expect (f ("std", "1.3")).to_error ()
         expect (f ("std", "2.1.2")).to_error ()
         expect (f ("std", "2")).to_error ()
         expect (f ("std", "1.2.10")).to_error ()
-    - it diagnoses module too new: |
+    - it diagnoses module too new:
         expect (f ("std", nil, "1.2.2")).to_error ()
         expect (f ("std", nil, "1.1")).to_error ()
         expect (f ("std", nil, "1.1.2")).to_error ()
         expect (f ("std", nil, "1")).to_error ()
-    - it returns modules with version in range: |
+    - it returns modules with version in range:
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)
         expect (f ("std", "1.2.3")).to_be (std)
@@ -663,13 +727,20 @@ specify std.string:
 - describe rtrim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
-      f = M.rtrim
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.rtrim' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.rtrim' (string expected, got boolean)"
+
+      fname = "rtrim"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (msg (2, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it removes whitespace from the end of a string:
       target = " \t\r\n  a  short  string"
       expect (f (subject)).to_equal (target)
@@ -689,15 +760,21 @@ specify std.string:
   - before:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
-      f = M.split
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.split' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.split' (string expected, got boolean)"
+
+      fname = "split"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
       expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.split' (string or nil expected, got boolean)"
+        to_error (msg (2, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it falls back to "%s+" when no pattern is given:
       expect (f (subject)).
         to_equal {"first,", "the", "second", "one,", "final", "entry"}
@@ -735,21 +812,25 @@ specify std.string:
 - describe tfind:
   - before:
       subject = "abc"
-      f = M.tfind
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.tfind' (string expected, got no value)"
-      expect (f ("string")).
-        to_error "bad argument #2 to 'std.string.tfind' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.tfind' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.tfind' (string expected, got boolean)"
+
+      fname = "tfind"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f ("string")).to_error (msg (2, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (msg (2, "string", "boolean"))
       expect (f ("string", "pattern", false)).
-        to_error "bad argument #3 to 'std.string.tfind' (int or nil expected, got boolean)"
+        to_error (msg (3, "int or nil", "boolean"))
       expect (f ("string", "pattern", 1, "plain")).
-        to_error "bad argument #4 to 'std.string.tfind' (boolean, :plain or nil expected, got string)"
+        to_error (msg (4, "boolean, :plain or nil", "string"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", 1, true, false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
   - it creates a list of pattern captures:
       target = { 1, 3, { "a", "b", "c" } }
       expect ({f (subject, "(.)(.)(.)")}).to_equal (target)
@@ -799,13 +880,21 @@ specify std.string:
 - describe trim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
-      f = M.trim
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.trim' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.trim' (string expected, got boolean)"
+
+      fname = "trim"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).
+        to_error (msg (2, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - it removes whitespace from each end of a string:
       target = "a  short  string"
       expect (f (subject)).to_equal (target)
@@ -828,19 +917,24 @@ specify std.string:
         "-2014 (see the AUTHORS file for details), and released und" ..
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
-      f = M.wrap
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.string.wrap' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.string.wrap' (string expected, got boolean)"
-      expect (f ("string", false)).
-        to_error "bad argument #2 to 'std.string.wrap' (int or nil expected, got boolean)"
+
+      fname = "wrap"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (msg (2, "int or nil", "boolean"))
       expect (f ("string", 72, false)).
-        to_error "bad argument #3 to 'std.string.wrap' (int or nil expected, got boolean)"
+        to_error (msg (3, "int or nil", "boolean"))
       expect (f ("string", 72, 4, false)).
-        to_error "bad argument #4 to 'std.string.wrap' (int or nil expected, got boolean)"
+        to_error (msg (4, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("string", 72, 4, 8, false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries are\ncopyright by their authors 2000" ..

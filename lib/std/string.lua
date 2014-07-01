@@ -10,8 +10,6 @@
  @module std.string
 ]]
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
-
 local base   = require "std.base"
 local list   = require "std.list"
 local strbuf = require "std.strbuf"
@@ -20,14 +18,53 @@ local table  = require "std.table"
 local List   = list {}
 local StrBuf = strbuf {}
 
-local argcheck, argscheck, getmetamethod, base_split =
-      base.argcheck, base.argscheck, base.getmetamethod, base.split
+local export, getmetamethod, split =
+  base.export, base.getmetamethod, base.split
 
 local _format   = string.format
-local _require  = require
 local _tostring = _G.tostring
 
-local M = {}
+local M = { "std.string" }
+
+local render -- forward declaration
+
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Pack return arguments for `tfind`.
+-- @int from start of match
+-- @int to end of match
+-- @param ... captures
+-- @treturn int from
+-- @treturn int to
+-- @treturn table captures
+-- @usage return tfind_pack (string.find
+local function tpack (from, to, ...)
+  return from, to, {...}
+end
+
+
+--- Return a List object by splitting version string on periods.
+-- @string version a period delimited version string
+-- @treturn List a list of version components
+local function version_to_list (version)
+  return List (split (version, "%."))
+end
+
+
+--- Extract a list of period delimited integer version components.
+-- @tparam table module returned from a `require` call
+-- @string pattern to capture version number from a string
+--   (default: `"%D*([%.%d]+)"`)
+-- @treturn List a list of version components
+local function module_version (module, pattern)
+  local version = module.version or module._VERSION
+  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
+end
 
 
 
@@ -43,7 +80,7 @@ local M = {}
 -- @usage
 -- local string = require "std.string".monkey_patch ()
 -- concatenated = "foo" .. {"bar"}
-local function __concat (s, o)
+function M.__concat (s, o)
   return M.tostring (s) .. M.tostring (o)
 end
 
@@ -56,45 +93,13 @@ end
 -- @usage
 -- getmetatable ("").__index = require "std.string".__index
 -- third = ("12345")[3]
-local function __index (s, i)
+function M.__index (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
   else
     -- Fall back to module metamethods
     return M[i]
   end
-end
-
-
---- Pack return arguments for `tfind`.
--- @int from start of match
--- @int to end of match
--- @param ... captures
--- @treturn int from
--- @treturn int to
--- @treturn table captures
--- @usage return tfind_pack (string.find (str, pattern))
-local function tpack (from, to, ...)
-  return from, to, {...}
-end
-
-
---- Return a List object by splitting version string on periods.
--- @string version a period delimited version string
--- @treturn List a list of version components
-local function version_to_list (version)
-  return List (base_split (version, "%."))
-end
-
-
---- Extract a list of period delimited integer version components.
--- @tparam table module returned from a `require` call
--- @string pattern to capture version number from a string
---   (default: `"%D*([%.%d]+)"`)
--- @treturn List a list of version components
-local function module_version (module, pattern)
-  local version = module.version or module._VERSION
-  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
 end
 
 
@@ -111,26 +116,25 @@ end
 -- @param[opt] ... arguments to format
 -- @return formatted string
 -- @usage print (format "100% stdlib!")
-local function format (f, arg1, ...)
-  argcheck ("std.string.format", 1, "string", f)
-
+local format = export (M, "format (string, any?*)", function (f, arg1, ...)
   return (arg1 ~= nil) and _format (f, arg1, ...) or f
-end
+end)
 
 
 --- Extend to allow formatted arguments.
--- @param v value to assert
+-- @function assert
+-- @param expect expression, expected to be *truthy*
 -- @string[opt=""] f format string
 -- @param[opt] ... arguments to format
--- @return value
+-- @return value of *expect*, if *truthy*
 -- @usage assert (expected == actual, "100% unexpected!")
-local function assert (v, f, ...)
-  argcheck ("std.string.assert", 2, "string?", f)
-  return v or error (format (f or "", ...), 2)
-end
+export (M, "assert (any?, string?, any?*)", function (expect, f, ...)
+  return expect or error (format (f or "", ...), 2)
+end)
 
 
 --- Do `string.find`, returning a table of captures.
+-- @function tfind
 -- @string s target string
 -- @string pattern pattern to match in *s*
 -- @int[opt=1] init start position
@@ -140,15 +144,13 @@ end
 -- @treturn table list of captured strings
 -- @see std.string.finds
 -- @usage b, e, captures = tfind ("the target string", "%s", 10)
-local function tfind (s, pattern, init, plain)
-  argscheck ("std.string.tfind",
-             {"string", "string", "int?", "boolean|:plain?"},
-	     {s, pattern, init, plain})
-  return tpack (s:find (pattern, init, plain))
-end
+local tfind = export (M, "tfind (string, string, int?, boolean|:plain?)", function (s, ...)
+  return tpack (s:find (...))
+end)
 
 
 --- Repeatedly `string.find` until target string is exhausted.
+-- @function finds
 -- @string s target string
 -- @string pattern pattern to match in *s*
 -- @int[opt=1] init start position
@@ -159,23 +161,19 @@ end
 -- for t in list.elems (finds ("the target string", "%S+")) do
 --   print (tostring (t.capt))
 -- end
-local function finds (s, pattern, init, plain)
-  argscheck ("std.string.finds",
-             {"string", "string", "int?", "boolean|:plain?"},
-             {s, pattern, init, plain})
-
-  init = init or 1
+export (M, "finds (string, string, int?, boolean|:plain?)", function (s, p, i, ...)
+  i = i or 1
   local l = {}
   local from, to, r
   repeat
-    from, to, r = tfind (s, pattern, init, plain)
+    from, to, r = tfind (s, p, i, ...)
     if from ~= nil then
       l[#l + 1] = {from, to, capt = r}
-      init = to + 1
+      i = to + 1
     end
   until not from
   return l
-end
+end)
 
 
 --- Split a string at a given separator.
@@ -186,36 +184,20 @@ end
 -- @string[opt="%s+"] sep separator pattern
 -- @return list of strings
 -- @usage words = split "a very short sentence"
-local split
-
-if _ARGCHECK then
-
-  split = function (s, sep)
-    argscheck ("std.string.split", {"string", "string?"}, {s, sep})
-
-    return base_split (s, sep)
-  end
-
-else
-
-  split = base_split
-
-end
+export (M, "split (string, string?)", split)
 
 
 --- Require a module with a particular version.
+-- @function require
 -- @string module module to require
 -- @string[opt] min lowest acceptable version
 -- @string[opt] too_big lowest version that is too big
 -- @string[opt] pattern to match version in `module.version` or
 --  `module._VERSION` (default: `"%D*([%.%d]+)"`)
 -- @usage std = require ("std", "41")
-local function require (module, min, too_big, pattern)
-  argscheck ("std.string.require",
-             {"string", "string?", "string?", "string?"},
-	     {module, min, too_big, pattern})
-
-  local m = _require (module)
+export (M, "require (string, string?, string?, string?)",
+function (module, min, too_big, pattern)
+  local m = require (module)
   if min then
     assert (module_version (m, pattern) >= version_to_list (min))
   end
@@ -223,11 +205,11 @@ local function require (module, min, too_big, pattern)
     assert (module_version (m, pattern) < version_to_list (too_big))
   end
   return m
-end
+end)
 
 
 -- DEPRECATED: Remove in first release following 2015-06-30.
-local require_version = base.deprecate (require, nil,
+M.require_version = base.deprecate (M.require, nil,
   "string.require_version is deprecated, use string.require instead")
 
 
@@ -238,79 +220,73 @@ local require_version = base.deprecate (require, nil,
 --
 -- Also replaces core `assert`, `require` and `tostring` functions with
 -- `std.string` versions.
+-- @function monkey_patch
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage local string = require "std.string".monkey_patch ()
-local function monkey_patch (namespace)
-  argcheck ("std.string.monkey_patch", 1, "table?", namespace)
-
+export (M, "monkey_patch (table?)", function (namespace)
   namespace = namespace or _G
   namespace.assert, namespace.require, namespace.tostring =
     M.assert, M.require, M.tostring
 
   local string_metatable = getmetatable ""
-  string_metatable.__concat = __concat
-  string_metatable.__index = __index
+  string_metatable.__concat = M.__concat
+  string_metatable.__index = M.__index
 
   return M
-end
+end)
 
 
 --- Capitalise each word in a string.
+-- @function caps
 -- @string s any string
 -- @treturn string *s* with each word capitalized
 -- @usage userfullname = caps (input_string)
-local function caps (s)
-  argcheck ("std.string.caps", 1, "string", s)
-
-  return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper() .. ls end)
-end
+export (M, "caps (string)", function (s)
+  return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end)
+end)
 
 
 --- Remove any final newline from a string.
+-- @function chomp
 -- @string s any string
 -- @treturn string *s* with any single trailing newline removed
 -- @usage line = chomp (line)
-local function chomp (s)
-  argcheck ("std.string.chomp", 1, "string", s)
-
+export (M, "chomp (string)", function (s)
   return s:gsub ("\n$", "")
-end
+end)
 
 
 --- Escape a string to be used as a pattern.
+-- @function escape_pattern
 -- @string s any string
 -- @treturn string *s* with active pattern characters escaped
 -- @usage substr = inputstr:match (escape_pattern (literal))
-local function escape_pattern (s)
-  argcheck ("std.string.escape_pattern", 1, "string", s)
-
+export (M, "escape_pattern (string)", function (s)
   return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
-end
+end)
 
 
 --- Escape a string to be used as a shell token.
 -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
 -- whitespace.
+-- @function escape_shell
 -- @string s any string
 -- @treturn string *s* with active shell characters escaped
 -- @usage os.execute ("echo " .. escape_shell (outputstr))
-local function escape_shell (s)
-  argcheck ("std.string.escape_shell", 1, "string", s)
-
-  return s:gsub ("([ %(%)%\\%[%]\"'])", "\\%1")
-end
+export (M, "escape_shell (string)", function (s)
+  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
+end)
 
 
 --- Return the English suffix for an ordinal.
+-- @function ordinal_suffix
 -- @tparam int|string n any integer value
 -- @treturn string English suffix for *n*
 -- @usage
 -- local now = os.date "*t"
 -- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
-local function ordinal_suffix (n)
-  argcheck ("std.string.ordinal_suffix", 1, "int|string", n)
-
+export (M, "ordinal_suffix (int|string)", function (n)
   n = math.abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
@@ -322,30 +298,30 @@ local function ordinal_suffix (n)
   else
     return "th"
   end
-end
+end)
 
 
 --- Justify a string.
 -- When the string is longer than w, it is truncated (left or right
 -- according to the sign of w).
+-- @function pad
 -- @string s a string to justify
 -- @int w width to justify to (-ve means right-justify; +ve means
 --   left-justify)
 -- @string[opt=" "] p string to pad with
 -- @treturn string *s* justified to *w* characters wide
 -- @usage print (pad (trim (outputstr, 78)) .. "\n")
-local function pad (s, w, p)
-  argscheck ("std.string.pad", {"string", "int", "string?"}, {s, w, p})
-
+export (M, "pad (string, int, string?)", function (s, w, p)
   p = string.rep (p or " ", math.abs (w))
   if w < 0 then
     return string.sub (p .. s, w)
   end
   return string.sub (s .. p, 1, w)
-end
+end)
 
 
 --- Wrap a string into a paragraph.
+-- @function wrap
 -- @string s a paragraph of text
 -- @int[opt=78] w width to wrap to
 -- @int[opt=0] ind indent
@@ -353,10 +329,7 @@ end
 -- @treturn string *s* wrapped to *w* columns
 -- @usage
 -- print (wrap (copyright, 72, 4))
-local function wrap (s, w, ind, ind1)
-  argscheck ("std.string.wrap", {"string", "int?", "int?", "int?"},
-	     {s, w, ind, ind1})
-
+export (M, "wrap (string, int?, int?, int?)", function (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
   ind1 = ind1 or ind
@@ -381,17 +354,16 @@ local function wrap (s, w, ind, ind1)
     end
   end
   return r:tostring ()
-end
+end)
 
 
 --- Write a number using SI suffixes.
 -- The number is always written to 3 s.f.
+-- @function numbertosi
 -- @tparam number|string n any numeric value
 -- @treturn string *n* simplifed using largest available SI suffix.
 -- @usage print (numbertosi (bitspersecond) .. "bps")
-local function numbertosi (n)
-  argcheck ("std.string.numbertosi", 1, "number|string", n)
-
+export (M, "numbertosi (number|string)", function (n)
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
     [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
@@ -407,46 +379,43 @@ local function numbertosi (n)
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
   return tostring (man) .. s
-end
+end)
 
 
 --- Remove leading matter from a string.
+-- @function ltrim
 -- @string s any string
 -- @string[opt="%s+"] r leading pattern
 -- @treturn string *s* with leading *r* stripped
 -- @usage print ("got: " .. ltrim (userinput))
-local function ltrim (s, r)
-  argscheck ("std.string.ltrim", {"string", "string?"}, {s, r})
-
+export (M, "ltrim (string, string?)", function (s, r)
   r = r or "%s+"
   return s:gsub ("^" .. r, "")
-end
+end)
 
 
 --- Remove trailing matter from a string.
+-- @function rtrim
 -- @string s any string
 -- @string[opt="%s+"] r trailing pattern
 -- @treturn string *s* with trailing *r* stripped
 -- @usage print ("got: " .. rtrim (userinput))
-local function rtrim (s, r)
-  argscheck ("std.string.rtrim", {"string", "string?"}, {s, r})
-
+export (M, "rtrim (string, string?)", function (s, r)
   r = r or "%s+"
   return s:gsub (r .. "$", "")
-end
+end)
 
 
 --- Remove leading and trailing matter from a string.
+-- @function trim
 -- @string s any string
 -- @string[opt="%s+"] r trailing pattern
 -- @treturn string *s* with leading and trailing *r* stripped
--- @usage print ("got: " .. rtrim (userinput))
-local function trim (s, r)
-  argscheck ("std.string.trim", {"string", "string?"}, {s, r})
-
+-- @usage print ("got: " .. trim (userinput))
+export (M, "trim (string, string?)", function (s, r)
   r = r or "%s+"
   return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
-end
+end)
 
 
 --- Stringification Functions
@@ -480,6 +449,7 @@ end
 --- Turn tables into strings with recursion detection.
 -- N.B. Functions calling render should not recurse, or recursion
 -- detection will not work.
+-- @function render
 -- @param x object to convert to string
 -- @tparam render_open_table open open table rendering function
 -- @tparam render_close_table close close table rendering function
@@ -494,11 +464,8 @@ end
 --                  function (_, _, _, i, v) return i .. "=" .. v end,
 --                  mkterminal ",")
 -- end
-local function render (x, open, close, elem, pair, sep, roots)
-  argscheck ("std.string.render",
-             {"any?", "func", "func", "func", "func", "func", "table?"},
-	     {x, open, close, elem, pair, sep, roots})
-
+render = export (M, "render (any?, func, func, func, func, func, table?)",
+function (x, open, close, elem, pair, sep, roots)
   local function stop_roots (x)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end
@@ -525,7 +492,7 @@ local function render (x, open, close, elem, pair, sep, roots)
     s = s .. sep (x, i, v, nil, nil) .. close (x)
     return s:tostring ()
   end
-end
+end)
 
 
 --- Signature of render open table callback.
@@ -575,12 +542,13 @@ end
 
 
 --- Extend `tostring` to render table contents as a string.
+-- @function tostring
 -- @param x object to convert to string
 -- @treturn string compact string rendering of *x*
 -- @usage
 -- local tostring = require "std.string".tostring
 -- print {foo="bar","baz"} --> {1=baz,foo=bar}
-local function tostring (x)
+function M.tostring (x)
   return render (x,
                  function () return "{" end,
                  function () return "}" end,
@@ -603,10 +571,8 @@ end
 -- @string[opt=""] spacing space before every line
 -- @treturn string pretty string rendering of *x*
 -- @usage print (prettytostring (std, "  "))
-local function prettytostring (x, indent, spacing)
-  argscheck ("std.string.prettytostring", {"any?", "string?", "string?"},
-	     {x, indent, spacing})
-
+export (M, "prettytostring (any?, string?, string?)",
+function (x, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
   return render (x,
@@ -657,7 +623,7 @@ local function prettytostring (x, indent, spacing)
                    end
                    return s
                  end)
-end
+end)
 
 
 --- Convert a value to a string.
@@ -668,7 +634,7 @@ end
 -- @see functional.eval
 -- @usage
 -- function slow_identity (x) return functional.eval (pickle (x)) end
-local function pickle (x)
+function M.pickle (x)
   if type (x) == "string" then
     return format ("%q", x)
   elseif type (x) == "number" or type (x) == "boolean" or
@@ -679,7 +645,7 @@ local function pickle (x)
     if type (x) == "table" then
       local s, sep = "{", ""
       for i, v in pairs (x) do
-        s = s .. sep .. "[" .. pickle (i) .. "]=" .. pickle (v)
+        s = s .. sep .. "[" .. M.pickle (i) .. "]=" .. M.pickle (v)
         sep = ","
       end
       s = s .. "}"
@@ -690,37 +656,6 @@ local function pickle (x)
   end
 end
 
-
---- @export
-M = {
-  __concat        = __concat,
-  __index         = __index,
-  assert          = assert,
-  caps            = caps,
-  chomp           = chomp,
-  escape_pattern  = escape_pattern,
-  escape_shell    = escape_shell,
-  finds           = finds,
-  format          = format,
-  ltrim           = ltrim,
-  monkey_patch    = monkey_patch,
-  numbertosi      = numbertosi,
-  ordinal_suffix  = ordinal_suffix,
-  pad             = pad,
-  pickle          = pickle,
-  prettytostring  = prettytostring,
-  render          = render,
-  require         = require,
-  rtrim           = rtrim,
-  split           = split,
-  tfind           = tfind,
-  tostring        = tostring,
-  trim            = trim,
-  wrap            = wrap,
-}
-
--- Deprecated and undocumented.
-M.require_version = require_version
 
 for k, v in pairs (string) do
   M[k] = M[k] or v
