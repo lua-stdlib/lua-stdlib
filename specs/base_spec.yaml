@@ -132,7 +132,7 @@ specify std.base:
     - it diagnoses wrong argument types:
         expect (chk {}).to_error (msg (1, "non-empty table", "empty table"))
     - it diagnoses too many arguments:
-        expect (chk ({1}, 2, nil, "", false)).
+        expect (chk ({1}, 2, nop, "", false)).
           to_error (toomanyarg (fake_module, fname, 1, 5))
     - it accepts correct argument types:
         expect (chk ({1})).to_equal (MAGIC) -- should be .to_be?
