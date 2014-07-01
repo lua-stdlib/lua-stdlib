@@ -111,7 +111,7 @@ local level = 0
 -- @usage
 -- _DEBUG = { call = true }
 -- local debug = require "std.debug"
-export (M, "trace (string)", function (event)
+function M.trace (event)
   local t = debug.getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
@@ -136,7 +136,7 @@ export (M, "trace (string)", function (event)
     s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
   io.stderr:write (s .. "\n")
-end)
+end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then

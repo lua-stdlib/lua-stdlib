@@ -545,14 +545,6 @@ specify std.debug:
       msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("foo", false)).
-        to_error (toomanyarg (this_module, fname, 1, 2))
-
   - it does nothing when _DEBUG is disabled:
       expect (luaproc [[
         _DEBUG = false
