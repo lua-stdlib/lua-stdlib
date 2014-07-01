@@ -263,10 +263,7 @@ end
 local function caps (s)
   argcheck ("std.string.caps", 1, "string", s)
 
-  return (string.gsub (s, "(%w)([%w]*)",
-                      function (l, ls)
-                        return string.upper (l) .. ls
-                      end))
+  return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper() .. ls end)
 end
 
 
@@ -277,7 +274,7 @@ end
 local function chomp (s)
   argcheck ("std.string.chomp", 1, "string", s)
 
-  return (string.gsub (s, "\n$", ""))
+  return s:gsub ("\n$", "")
 end
 
 
@@ -288,7 +285,7 @@ end
 local function escape_pattern (s)
   argcheck ("std.string.escape_pattern", 1, "string", s)
 
-  return (string.gsub (s, "[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
+  return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
 end
 
 
@@ -301,7 +298,7 @@ end
 local function escape_shell (s)
   argcheck ("std.string.escape_shell", 1, "string", s)
 
-  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
+  return s:gsub ("([ %(%)%\\%[%]\"'])", "\\%1")
 end
 
 
