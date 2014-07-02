@@ -91,12 +91,32 @@ local function normalize (t)
 end
 
 
+--- Ordered iterator for integer keyed values.
+-- Like ipairs, but does not stop at the first nil value.
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn table t
+-- @usage
+-- for i,v in opairs {"one", nil, "three"} do print (i, v) end
+local function opairs (t)
+  local i, max = 0, 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > max then max = k end
+  end
+  return function (t)
+	  i = i + 1
+	  if i <= max then return i, t[i] end
+	 end,
+  t, true
+end
+
+
 --- Merge |-delimited type-specs, omitting duplicates.
 -- @string ... type-specs
 -- @treturn table list of merged and normalized type-specs
 local function merge (...)
   local i, t = 1, {}
-  for _, v in ipairs {...} do
+  for _, v in opairs {...} do
     v:gsub ("([^|]+)", function (m) t[i] = m; i = i + 1 end)
   end
   return normalize (t)
