@@ -35,17 +35,23 @@ specify std.table:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
-      f       = M.clone
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.clone' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.clone' (table expected, got boolean)"
+
+      fname = "clone"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
       expect (f ({}, "nometa")).
-        to_error "bad argument #2 to 'std.table.clone' (table, boolean, :nometa or nil expected, got string)"
+        to_error (msg (2, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, "nometa")).
-        to_error "bad argument #3 to 'std.table.clone' (boolean, :nometa or nil expected, got string)"
+        to_error (msg (3, "boolean, :nometa or nil", "string"))
+  - it diagnoses too many arguments:
+      expect (f ({}, {}, nil, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it does copy the subject:
@@ -79,7 +85,8 @@ specify std.table:
 - describe clone_rename:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f       = M.clone_rename
+      f = M.clone_rename
+
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
       if err ~= nil then
@@ -88,6 +95,7 @@ specify std.table:
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)
+
   - it copies the subject:
       expect (f ({}, subject)).to_copy (subject)
   - it only makes a shallow copy:
@@ -110,18 +118,23 @@ specify std.table:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
-      f       = M.clone_select
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.clone_select' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.clone_select' (table expected, got boolean)"
+      fname = "clone_select"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
       expect (f ({}, "nometa")).
-        to_error "bad argument #2 to 'std.table.clone_select' (table, boolean, :nometa or nil expected, got string)"
+        to_error (msg (2, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, "nometa")).
-        to_error "bad argument #3 to 'std.table.clone_select' (boolean, :nometa or nil expected, got string)"
+        to_error (msg (3, "boolean, :nometa or nil", "string"))
+  - it diagnoses too many arguments:
+      expect (f ({}, {}, nil, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it copies the keys selected:
@@ -149,14 +162,16 @@ specify std.table:
 
 - describe elems:
   - before:
-      f = M.elems
+      fname = "elems"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.elems' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.elems' (table expected, got boolean)"
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
 
   - it is an iterator over table values:
       t = {}
@@ -523,7 +538,7 @@ specify std.table:
       expect (f (false)).
         to_error "bad argument #1 to 'std.table.sort' (table expected, got boolean)"
       expect (f ({}, false)).
-        to_error "bad argument #2 to 'std.table.sort' (function expected, got boolean)"
+        to_error "bad argument #2 to 'std.table.sort' (function or nil expected, got boolean)"
   - it sorts elements in place:
       f (subject, cmp)
       expect (subject).to_equal (target)
