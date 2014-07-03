@@ -578,10 +578,10 @@ specify std.string:
       t[1] = t
       expect (r (t)).
         to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
-  - it converts an Array to a representative string:
-      a = require "std.array" {"a", "b", {{"c"},"d"},"e"}
+  - it converts a Vector to a representative string:
+      a = require "std.vector" {"a", "b", {{"c"},"d"},"e"}
       expect (r (a)).
-        to_be ('Array ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
+        to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 
 
 - describe require:

@@ -1,0 +1,739 @@
+before:
+  Object = require "std.object"
+  Vector  = require "std.vector"
+
+  prototype = Object.prototype
+
+specify Vector:
+- before: |
+    vector = Vector ("long", {1, 1})
+    -- append fibonacci numbers until long word overflows
+    repeat
+      vector:push (vector[-1] + vector[-2])
+    until vector.length > 50 or vector[-1] < vector[-2]
+    -- discard overflowed element
+    vector:pop ()
+
+    local aliens = Vector ("int", {42})
+    have_alien = aliens.allocated > 0
+
+- describe __call:
+  - it diagnoses wrong argument types: |
+      expect (Vector (1, 2)).
+        to_error "bad argument #1 to 'Vector' (string expected, got number)"
+      expect (Vector (function () end)).
+        to_error "bad argument #1 to 'Vector' (int, string or table expected, got function)"
+      expect (Vector ("int", function () end)).
+        to_error "bad argument #2 to 'Vector' (int or table expected, got function)"
+  - context with inherited element type:
+    - it constructs an empty vector:
+        vector = Vector ()
+        expect (vector.length).to_be (0)
+        expect (vector.type).to_be (Vector.type)
+    - it constructs a sized vector:
+        vector = Vector (100)
+        expect (vector.length).to_be (100)
+        expect (vector.type).to_be (Vector.type)
+    - it sets uninitialised elements to zero:
+        vector = Vector (100)
+        for i = 1, 100 do
+          expect (vector[i]).to_be (0)
+        end
+        expect (vector.type).to_be (Vector.type)
+    - it initialises values from a table:
+        vector = Vector {1, 4, 9, 16, 25, 36, 49, 64, 81}
+        expect (vector.length).to_be (9)
+        for i = 1, vector.length do
+          expect (vector[i]).to_be (i * i)
+        end
+        expect (vector.type).to_be (Vector.type)
+    - it contains values from prototype vector:
+        a = vector ()
+        for i = 3, vector.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        expect (a.type).to_be (vector.type)
+    - it truncates copied prototype values:
+        c = math.floor (vector.length / 2)
+        a = vector (c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        expect (a.type).to_be (vector.type)
+    - it zero pads copied prototype values:
+        a = vector (vector.length * 2)
+        expect (a.length).to_be (vector.length * 2)
+        for i = 3, vector.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        for i = vector.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+        expect (a.type).to_be (vector.type)
+  - context with specified element type:
+    - it constructs an alien managed vector when possible:
+        if have_alien then
+          a = vector ("int", {1, 1, 2, 3, 5})
+          expect (a.allocated).not_to_be (0)
+          b = a ("int", {1, 4, 9, 16, 25})
+          expect (b.allocated).not_to_be (0)
+        end
+    - it constructs a tabular vector when necessary:
+        aliens = Vector ("int", {1, 1, 2, 3, 5})
+        a = aliens ("table", {1, 2, 5})
+        expect (a.allocated).to_be (0)
+        b = a ("table", {1, 4, 9, 16, 25})
+        expect (a.allocated).to_be (0)
+    - it constructs an empty vector:
+        vector = Vector "double"
+        expect (vector.length).to_be (0)
+        expect (vector.type).to_be "double"
+    - it constructs a sized vector:
+        vector = Vector ("double", 100)
+        expect (vector.length).to_be (100)
+        expect (vector.type).to_be "double"
+    - it sets uninitialised elements to zero:
+        vector = Vector ("double", 100)
+        for i = 1, 100 do
+          expect (vector[i]).to_be (0)
+        end
+        expect (vector.type).to_be "double"
+    - it initialises values from a table:
+        vector = Vector ("double", {1, 4, 9, 16, 25, 36, 49, 64, 81})
+        expect (vector.length).to_be (9)
+        for i = 1, vector.length do
+          expect (vector[i]).to_be (i * i)
+        end
+        expect (vector.type).to_be "double"
+    - it contains values from prototype vector:
+        a = vector "double"
+        for i = 3, vector.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        expect (a.type).to_be "double"
+    - it truncates copied prototype values:
+        c = math.floor (vector.length / 2)
+        a = vector ("double", c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        expect (a.type).to_be "double"
+    - it zero pads copied prototype values:
+        a = vector ("double", vector.length * 2)
+        expect (a.length).to_be (vector.length * 2)
+        for i = 3, vector.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+        for i = vector.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+        expect (a.type).to_be "double"
+  - context with non-alien element type:
+    - before:
+        vector = Vector ("table", {
+          {v=1}, {v=1}, {v=2}, {v=3}, {v=5}, {v=8}, {v=13}, {v=21}, {v=34}
+        })
+    - it constructs an alien managed vector when possible:
+        if have_alien then
+          a = vector ("int", {1, 1, 2, 3, 5})
+          expect (a.allocated).not_to_be (0)
+          b = vector ("int", {1, 4, 9, 16, 25})
+          expect (a.allocated).not_to_be (0)
+        end
+    - it constructs a tabular vector when necessary:
+        aliens = Vector ("int", {1, 1, 2, 3, 5})
+        a = aliens ("table", {1, 2, 5})
+        expect (a.allocated).to_be (0)
+        b = a ("table", {1, 4, 9, 16, 25})
+        expect (a.allocated).to_be (0)
+    - it constructs an empty vector:
+        vector = Vector "table"
+        expect (vector.length).to_be (0)
+        expect (vector.allocated).to_be (0)
+    - it constructs a sized vector:
+        vector = Vector ("table", 100)
+        expect (vector.length).to_be (100)
+        expect (vector.allocated).to_be (0)
+    - it sets uninitialised elements to zero:
+        vector = Vector ("table", 100)
+        for i = 1, 100 do
+          expect (vector[i]).to_be (0)
+        end
+        expect (vector.allocated).to_be (0)
+    - it initialises values from a table:
+        vector = Vector ("table", {{v=1}, {v=4}, {v=9}, {v=16}, {v=25}})
+        expect (vector.length).to_be (5)
+        for i = 1, vector.length do
+          expect (vector[i].v).to_be (i * i)
+        end
+        expect (vector.allocated).to_be (0)
+    - it contains values from prototype vector:
+        a = vector ()
+        for i = 3, vector.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        expect (a.allocated).to_be (0)
+    - it truncates copied prototype values:
+        c = math.floor (vector.length / 2)
+        a = vector ("table", c)
+        expect (a.length).to_be (c)
+        for i = 3, a.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        expect (a.allocated).to_be (0)
+    - it zero pads copied prototype values:
+        a = vector ("table", vector.length * 2)
+        expect (a.length).to_be (vector.length * 2)
+        for i = 3, vector.length do
+          expect (a[i].v).to_be (a[i - 1].v + a[i - 2].v)
+        end
+        for i = vector.length + 1, a.length do
+          expect (a[i]).to_be (0)
+        end
+        expect (a.allocated).to_be (0)
+
+
+- describe __ipairs:
+  - before:
+      -- Some luajit builds, and PUC RIO 5.1 don't respect __ipairs
+      local t = setmetatable ({}, {
+        __ipairs = function (self)
+          local i = 0
+          return function ()
+            i = i + 1
+            if i == 1 then return 1, 42 end
+          end
+        end,
+      })
+      meta__ipairs = false
+      for _ in ipairs (t) do meta__ipairs = true end
+  - context with alien buffer elements:
+    - it iterates over elements:
+        elements = {1, 4, 9, 16, 25}
+        vector = Vector ("int", elements)
+        if meta__ipairs then
+          local t = {}
+          for i, v in ipairs (vector) do t[i] = v end
+          expect (t).to_equal (elements)
+        end
+  - context with table elements:
+    - it iterates over elements:
+        elements = {"a", "b", {{"c"}, "d"}, "e"}
+        vector = Vector ("any", elements)
+        if meta__ipairs then
+          local t = {}
+          for i, v in ipairs (vector) do t[i] = v end
+          expect (t).to_equal (elements)
+        end
+
+
+- describe __len:
+  - before: |
+      -- Some luajit releases, and PUC RIO 5.1 don't respect __len
+      -- metamethod for # operator.
+      local t = setmetatable ({}, {__len = function () return 42 end })
+      meta__len = #t == 42
+  - it returns the number of elements stored: |
+      empty = Vector "char"
+      trio = Vector ("short", {1, 2, 3})
+      if meta__len then
+        -- __len metamethod support available
+        expect (#empty).to_be (0)
+        expect (#trio).to_be (3)
+      else
+        -- have to get the length explicitly
+        expect (empty.length).to_be (0)
+        expect (trio.length).to_be (3)
+      end
+
+- describe __index:
+  - it returns nil for an empty vector:
+      vector = Vector "int"
+      expect (vector[1]).to_be (nil)
+      expect (vector[-1]).to_be (nil)
+  - it retrieves a value stored at that index:
+      expect (vector[1]).to_be (1)
+      expect (vector[2]).to_be (1)
+      expect (vector[3]).to_be (2)
+      expect (vector[4]).to_be (3)
+      expect (vector[5]).to_be (5)
+  - it retrieves negative indices counting from the right:
+      expect (vector[-1]).to_be (vector[vector.length])
+      expect (vector[-2]).to_be (vector[vector.length - 1])
+      expect (vector[-(vector.length - 1)]).to_be (vector[2])
+      expect (vector[-(vector.length)]).to_be (vector[1])
+  - it returns nil for out of bounds indices:
+      expect (vector[-(vector.length * 2)]).to_be (nil)
+      expect (vector[-(vector.length + 1)]).to_be (nil)
+      expect (vector[0]).to_be (nil)
+      expect (vector[vector.length + 1]).to_be (nil)
+      expect (vector[vector.length * 2]).to_be (nil)
+  - it retrieves method names:
+      expect (type (vector.push)).to_be "function"
+      expect (type (vector.pop)).to_be "function"
+  - it diagnoses undefined methods:
+      expect (vector.notamethod ()).to_error "attempt to call field 'notamethod'"
+
+- describe __newindex:
+  - it sets a new value at that index:
+      vector[2] = 2
+      expect (vector[2]).to_be (2)
+  - it sets negative indexed elements counting from the right:
+      for i = 1, vector.length do vector[-i] = vector.length - i + 1 end
+      for i = 1, vector.length do
+        expect (vector[i]).to_be (i)
+      end
+  - it diagnoses out of bounds indices:
+      for _, i in ipairs {vector.length * -2, -1 - vector.length, 0,
+                          vector.length + 1, vector.length * 2} do
+        expect ((function () vector[i] = i end) ()).
+          to_error "out of bounds"
+      end
+
+- describe __tostring:
+  - it renders all elements of the vector:
+      vector = Vector ("char", {1, 4, 9, 16, 25})
+      expect (tostring (vector)).to_be 'Vector ("char", {1, 4, 9, 16, 25})'
+      expect (tostring (Vector "char")).to_be 'Vector ("char", {})'
+
+- describe pop:
+  - context when called as a module function:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        expect (Vector.pop ()).
+          to_error "bad argument #1 to 'pop' (Vector expected, got no value)"
+    - it returns nil for an empty vector:
+        vector = Vector "char"
+        expect (Vector.pop (vector)).to_be (nil)
+    - it removes an element from the vector:
+        count = vector.length
+        repeat
+          expect (vector.length).to_be (count)
+          count = count - 1
+        until Vector.pop (vector) == nil
+        expect (vector.length).to_be (0)
+    - it returns the removed element:
+        while vector.length > 2 do
+          expect (Vector.pop (vector)).to_be (vector[-1] + vector[-2])
+        end
+    - it does not perturb existing elements:
+        Vector.pop (vector)
+        for i = 3, vector.length do
+          expect (vector[i]).to_be (vector[i -1] + vector[i - 2])
+        end
+  - context when called as an object method:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it returns nil for an empty vector:
+        vector = Vector "char"
+        expect (vector:pop ()).to_be (nil)
+    - it removes an element from the vector:
+        count = vector.length
+        repeat
+          expect (vector.length).to_be (count)
+          count = count - 1
+        until vector:pop () == nil
+        expect (vector.length).to_be (0)
+    - it returns the removed element:
+        while vector.length > 2 do
+          expect (vector:pop ()).to_be (vector[-1] + vector[-2])
+        end
+    - it does not perturb existing elements:
+        vector:pop ()
+        for i = 3, vector.length do
+          expect (vector[i]).to_be (vector[i -1] + vector[i - 2])
+        end
+
+- describe push:
+  - context when called as a module function:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        expect (Vector.push ()).
+          to_error "bad argument #1 to 'push' (Vector expected, got no value)"
+        if vector.allocated > 0 then
+          -- non-alien managed vectors don't require number valued argument #2
+          expect (Vector.push (vector)).
+            to_error "bad argument #2 to 'push' (number expected, got no value)"
+        end
+    - it diagnoses wrong argument types: |
+        expect (Vector.push (1234)).
+          to_error "bad argument #1 to 'push' (Vector expected, got number)"
+        if vector.allocated > 0 then
+          expect (Vector.push (vector, "short")).
+            to_error "bad argument #2 to 'push' (number expected, got string)"
+        end
+    - it adds a single element to an empty vector:
+        vector = Vector "int"
+        Vector.push (vector, 42)
+        expect (vector[1]).to_be (vector[-1])
+    - it adds an element to an vector:
+        count = vector.length
+        Vector.push (vector, 42)
+        expect (vector[-1]).to_be (42)
+        expect (vector.length).to_be (count + 1)
+        Vector.push (vector, -273)
+        expect (vector[-1]).to_be (-273)
+        expect (vector.length).to_be (count + 2)
+    - it does not perturb existing elements:
+        Vector.push (vector, 42)
+        for i = 3, vector.length - 1 do
+          expect (vector[i]).to_be (vector[i - 1] + vector[i - 2])
+        end
+  - context when called as an object method:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        if vector.allocated > 0 then
+          expect (vector:push ()).
+            to_error "bad argument #2 to 'push' (number expected, got no value)"
+        end
+    - it diagnoses wrong argument type: |
+        if vector.allocated > 0 then
+          expect (vector:push ("short")).
+            to_error "bad argument #2 to 'push' (number expected, got string)"
+        end
+    - it adds a single element to an empty vector:
+        vector = Vector "int"
+        vector:push (42)
+        expect (vector[1]).to_be (vector[-1])
+    - it adds an element to an vector:
+        count = vector.length
+        vector:push (42)
+        expect (vector[-1]).to_be (42)
+        expect (vector.length).to_be (count + 1)
+        vector:push (-273)
+        expect (vector[-1]).to_be (-273)
+        expect (vector.length).to_be (count + 2)
+    - it returns pushed value:
+        expect (vector:push (42)).to_be (42)
+        expect (vector:push (-273)).to_be (-273)
+    - it does not perturb existing elements:
+        vector:push (42)
+        for i = 3, vector.length - 1 do
+          expect (vector[i]).to_be (vector[i - 1] + vector[i -2])
+        end
+
+- describe realloc:
+  - context when called as a module function:
+    - it diagnoses missing arguments: |
+        expect (Vector.realloc ()).
+          to_error "bad argument #1 to 'realloc' (Vector expected, got no value)"
+        expect (Vector.realloc (vector)).
+          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Vector.realloc (1234)).
+          to_error "bad argument #1 to 'realloc' (Vector expected, got number)"
+        expect (Vector.realloc (vector, "string")).
+          to_error "bad argument #2 to 'realloc' (int expected, got string)"
+    - it reduces the number of usable elements:
+        vector = Vector (100)
+        Vector.realloc (vector, 50)
+        expect (vector.length).to_be (50)
+    - it truncates existing elements when reducing size:
+        a = vector (100)
+        Vector.realloc (a, 50)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it increases the number of usable elements:
+        vector = Vector (50)
+        Vector.realloc (vector, 100)
+        expect (vector.length).to_be (100)
+    - it does not perturb existing element values:
+        a = vector (50)
+        Vector.realloc (a, 100)
+        for i = 3, 50 do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it sets new elements to zero:
+        a = vector (50)
+        Vector.realloc (a, 100)
+        for i = 51, a.length do
+          expect (a[i]).to_be (0)
+        end
+  - context when called as an object method:
+    - it diagnoses missing arguments: |
+        expect (vector:realloc ()).
+          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (vector:realloc "string").
+          to_error "bad argument #2 to 'realloc' (int expected, got string)"
+    - it reduces the number of usable elements:
+        vector = Vector (100):realloc (50)
+        expect (vector.length).to_be (50)
+    - it truncates existing elements when reducing size:
+        a = vector (100):realloc (50)
+        for i = 3, a.length do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it increases the number of usable elements:
+        vector = Vector (50):realloc (100)
+        expect (vector.length).to_be (100)
+    - it does not perturb existing element values:
+        a = vector (50):realloc (100)
+        for i = 3, 50 do
+          expect (a[i]).to_be (a[i - 1] + a[i - 2])
+        end
+    - it sets new elements to zero:
+        a = vector (50):realloc (100)
+        for i = 51, a.length do
+          expect (a[i]).to_be (0)
+        end
+
+- describe set:
+  - context when called as a module function:
+    - it diagnoses missing arguments: |
+        expect (Vector.set ()).
+          to_error "bad argument #1 to 'set' (Vector expected, got no value)"
+        expect (Vector.set (vector)).
+          to_error "bad argument #2 to 'set' (int expected, got no value)"
+        if vector.allocated > 0 then
+          expect (Vector.set (vector, 1)).
+            to_error "bad argument #3 to 'set' (number expected, got no value)"
+        end
+        expect (Vector.set (vector, 1, 0)).
+          to_error "bad argument #4 to 'set' (int expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (Vector.set (100)).
+          to_error "bad argument #1 to 'set' (Vector expected, got number)"
+        expect (Vector.set (vector, "bogus")).
+          to_error "bad argument #2 to 'set' (int expected, got string)"
+        if vector.allocated > 0 then
+          expect (Vector.set (vector, 1, {0})).
+            to_error "bad argument #3 to 'set' (number expected, got table)"
+        end
+        expect (Vector.set (vector, 1, 0, function () end)).
+          to_error "bad argument #4 to 'set' (int expected, got function)"
+    - it changes the value of a subsequence of elements:
+        vector = Vector (100)
+        Vector.set (vector, 25, 1, 50)
+        for i = 1, vector.length do
+          if i >= 25 and i < 75 then
+            expect (vector[i]).to_be (1)
+          else
+            expect (vector[i]).to_be (0)
+          end
+        end
+    - it understands negative from index:
+        vector = Vector (100)
+        Vector.set (vector, -50, 1, 50)
+        for i = 1, vector.length do
+          if i <= 50 then
+            expect (vector[i]).to_be (0)
+          else
+            expect (vector[i]).to_be (1)
+          end
+        end
+    - it does not affect the prototype vector elements:
+        a = vector (100)
+        Vector.set (a, 25, 1, 50)
+        for i = 3, vector.length do
+          expect (vector[i]).to_be (vector[i - 1] + vector[i - 2])
+        end
+    - it does not affect elements outside range being set:
+        a = vector (100)
+        Vector.set (a, 25, 1, 50)
+        for i = 1, a.length do
+          if i >= 25 and i < 75 then
+            expect (a[i]).to_be (1)
+          elseif i <= vector.length then
+            expect (a[i]).to_be (vector[i])
+          else
+            expect (a[i]).to_be (0)
+          end
+        end
+  - context when called as an object method:
+    - it diagnoses missing arguments: |
+        expect (vector:set ()).
+          to_error "bad argument #2 to 'set' (int expected, got no value)"
+        if vector.allocated > 0 then
+          expect (vector:set (1)).
+            to_error "bad argument #3 to 'set' (number expected, got no value)"
+        end
+        expect (vector:set (1, 0)).
+          to_error "bad argument #4 to 'set' (int expected, got no value)"
+    - it diagnoses wrong argument types: |
+        expect (vector:set "bogus").
+          to_error "bad argument #2 to 'set' (int expected, got string)"
+        if vector.allocated > 0 then
+          expect (vector:set (1, {0})).
+            to_error "bad argument #3 to 'set' (number expected, got table)"
+        end
+        expect (vector:set (1, 0, function () end)).
+          to_error "bad argument #4 to 'set' (int expected, got function)"
+    - it changes the value of a subsequence of elements:
+        vector = Vector (100):set (25, 1, 50)
+        for i = 1, vector.length do
+          if i >= 25 and i < 75 then
+            expect (vector[i]).to_be (1)
+          else
+            expect (vector[i]).to_be (0)
+          end
+        end
+    - it understands negative from index:
+        vector = Vector (100):set (-50, 1, 50)
+        for i = 1, vector.length do
+          if i <= 50 then
+            expect (vector[i]).to_be (0)
+          else
+            expect (vector[i]).to_be (1)
+          end
+        end
+    - it does not affect the prototype vector elements:
+        a = vector (100):set (25, 1, 50)
+        for i = 3, vector.length do
+          expect (vector[i]).to_be (vector[i - 1] + vector[i - 2])
+        end
+    - it does not affect elements outside range being set:
+        a = vector (100):set (25, 1, 50)
+        for i = 1, a.length do
+          if i >= 25 and i < 75 then
+            expect (a[i]).to_be (1)
+          elseif i <= vector.length then
+            expect (a[i]).to_be (vector[i])
+          else
+            expect (a[i]).to_be (0)
+          end
+        end
+
+- describe shift:
+  - context when called as a module function:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        expect (Vector.shift ()).
+          to_error "bad argument #1 to 'shift' (Vector expected, got no value)"
+    - it returns nil for an empty vector:
+        vector = Vector "char"
+        expect (Vector.shift (vector)).to_be (nil)
+    - it removes an element from the vector:
+        count = vector.length
+        repeat
+          expect (vector.length).to_be (count)
+          count = count - 1
+        until Vector.shift (vector) == nil
+        expect (vector.length).to_be (0)
+    - it returns the removed element:
+        while vector.length > 2 do
+          expect (Vector.shift (vector)).to_be (vector[2] - vector[1])
+        end
+    - it shifts existing elements one position left:
+        shiftme = vector ()
+        Vector.shift (shiftme)
+        for i = 1, shiftme.length do
+          expect (shiftme[i]).to_be (vector[i + 1])
+        end
+  - context when called as an object method:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it returns nil for an empty vector:
+        vector = Vector "char"
+        expect (vector:shift ()).to_be (nil)
+    - it removes an element from the vector:
+        count = vector.length
+        repeat
+          expect (vector.length).to_be (count)
+          count = count - 1
+        until vector:shift () == nil
+        expect (vector.length).to_be (0)
+    - it returns the removed element:
+        while vector.length > 2 do
+          expect (vector:shift ()).to_be (vector[2] - vector[1])
+        end
+    - it shifts existing elements one position left:
+        shiftme = vector ()
+        shiftme:shift ()
+        for i = 1, shiftme.length do
+          expect (shiftme[i]).to_be (vector[i + 1])
+        end
+
+- describe unshift:
+  - context when called as a module function:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        expect (Vector.unshift ()).
+          to_error "bad argument #1 to 'unshift' (Vector expected, got no value)"
+        if vector.allocated > 0 then
+          expect (Vector.unshift (vector)).
+            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        end
+    - it diagnoses wrong argument types: |
+        expect (Vector.unshift (1234)).
+          to_error "bad argument #1 to 'unshift' (Vector expected, got number)"
+        if vector.allocated > 0 then
+          expect (Vector.unshift (vector, "short")).
+            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        end
+    - it adds a single element to an empty vector:
+        vector = Vector "int"
+        Vector.unshift (vector, 42)
+        expect (vector[1]).to_be (vector[-1])
+    - it inserts an element into an vector:
+        count = vector.length
+        Vector.unshift (vector, 42)
+        expect (vector[1]).to_be (42)
+        expect (vector.length).to_be (count + 1)
+        Vector.unshift (vector, -273)
+        expect (vector[1]).to_be (-273)
+        expect (vector.length).to_be (count + 2)
+    - it shifts existing elements one position right:
+        unshiftme = vector ()
+        Vector.unshift (unshiftme, 42)
+        for i = 1, vector.length do
+          expect (unshiftme[i + 1]).to_be (vector[i])
+        end
+  - context when called as an object method:
+    - before:
+        # Rounding impedance mismatch between Lua double and alien long, so we
+        # use an intentionally short vector for this example.
+        vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
+    - it diagnoses missing arguments: |
+        if vector.allocated > 0 then
+          expect (vector:unshift ()).
+            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+        end
+    - it diagnoses wrong argument type: |
+        if vector.allocated > 0 then
+          expect (vector:unshift ("short")).
+            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+        end
+    - it adds a single element to an empty vector:
+        vector = Vector "int"
+        vector:unshift (42)
+        expect (vector[1]).to_be (vector[-1])
+    - it adds an element to an vector:
+        count = vector.length
+        vector:unshift (42)
+        expect (vector[1]).to_be (42)
+        expect (vector.length).to_be (count + 1)
+        vector:unshift (-273)
+        expect (vector[1]).to_be (-273)
+        expect (vector.length).to_be (count + 2)
+    - it returns unshifted value:
+        expect (vector:unshift (42)).to_be (42)
+        expect (vector:unshift (-273)).to_be (-273)
+    - it shifts existing elements one position right:
+        unshiftme = vector ()
+        unshiftme:unshift (42)
+        for i = 1, vector.length do
+          expect (unshiftme[i + 1]).to_be (vector[i])
+        end

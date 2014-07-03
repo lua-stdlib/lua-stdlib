@@ -1,33 +1,33 @@
 --[[--
- Array of homogenous objects.
+ Vector of homogenous objects.
 
- An array is usually a block of contiguous memory, divided into equal
+ A vector is usually a block of contiguous memory, divided into equal
  sized elements that can be indexed quickly.
 
- Create a new array with:
+ Create a new vector with:
 
-     > array = require "std.array"
-     > Array = array ()
-     > a = Array ("int", {0xdead, 0xbeef, 0xfeed})
+     > vector = require "std.vector"
+     > Vector = vector ()
+     > a = Vector ("int", {0xdead, 0xbeef, 0xfeed})
      > =a[1], a[2], a[3], a[-3], a[-4]
      57005	48879	65261	57005	nil
 
- All the indices passed to array methods use 1-based counting.
+ All the indices passed to vector methods use 1-based counting.
 
  If the Lua alien module is installed, and the `type` argument passed
- when cloning a new array object is suitable (i.e. the name of a numeric
- C type that `alien.sizeof` understands), then the array contents are
+ when cloning a new vector object is suitable (i.e. the name of a numeric
+ C type that `alien.sizeof` understands), then the vector contents are
  managed in an `alien.buffer`.
 
  If alien is not installed, or does not understand the `type` argument
  given when cloning, then a much slower (but API compatible) Lua table
  is transparently used to manage elements instead.
 
- In either case, `std.array` provides a means for managing collections
- of homogenous Lua objects with a vector-like, stack-like or queue-like
+ In either case, `std.vector` provides a means for managing collections
+ of homogenous Lua objects with an array-like, stack-like or queue-like
  API.
 
- @classmod std.array
+ @classmod std.vector
 ]]
 
 
@@ -67,9 +67,9 @@ local function sizeof (type)
 end
 
 
---- Convert an array element index into a pointer.
--- @tparam std.array self an array
--- @int i[opt=1] an index into array
+--- Convert a vector element index into a pointer.
+-- @tparam std.vector self a vector
+-- @int i[opt=1] an index into vector
 -- @treturn alien.buffer.pointer suitable for memmove or memset
 local function topointer (self, i)
   i = i or 1
@@ -77,8 +77,8 @@ local function topointer (self, i)
 end
 
 
---- Fast zeroing of a contiguous block of array elements for `alien.buffer`s.
--- @tparam std.array self an array
+--- Fast zeroing of a contiguous block of vector elements for `alien.buffer`s.
+-- @tparam std.vector self a vector
 -- @int from index of first element to zero out
 -- @int n number of elements to zero out
 local function setzero (self, from, n)
@@ -92,7 +92,7 @@ end
 --[[ ================== ]]--
 
 
--- Initial array prototype object, plus any derived object containing
+-- Initial vector prototype object, plus any derived object containing
 -- elements that don't fit in alien buffers use `core_functions` to
 -- find object methods and `core_metatable` for metamethods.
 
@@ -103,7 +103,7 @@ local core_functions = {
   --- Remove the right-most element.
   -- @function pop
   -- @return the right-most element
-  -- @usage removed = anarray:pop ()
+  -- @usage removed = anvector:pop ()
   pop = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer)
@@ -114,7 +114,7 @@ local core_functions = {
   -- @function push
   -- @param elem new element to be pushed
   -- @return elem
-  -- @usage added = anarray:push (anelement)
+  -- @usage added = anvector:push (anelement)
   push = function (self, elem)
     local length = self.length + 1
     self.buffer[length] = elem
@@ -126,8 +126,8 @@ local core_functions = {
   --- Change the number of elements allocated to be at least `n`.
   -- @function realloc
   -- @int n the number of elements required
-  -- @treturn std.array the array
-  -- @usage anarray = anarray:realloc (anarray.length)
+  -- @treturn std.vector the vector
+  -- @usage anvector = anvector:realloc (anvector.length)
   realloc = function (self, n)
     argcheck ("realloc", 2, "int", n)
 
@@ -146,10 +146,10 @@ local core_functions = {
   -- @int from index of first element to set
   -- @param v value to store
   -- @int n number of elements to set
-  -- @treturn std.array the array
-  -- @usage anarray:realloc (anarray.length):set (1, -1, anarray.length)
+  -- @treturn std.vector the vector
+  -- @usage anvector:realloc (anvector.length):set (1, -1, anvector.length)
   set = function (self, from, v, n)
-    argscheck ("set", {"Array", "int", "any", "int"},
+    argscheck ("set", {"Vector", "int", "any", "int"},
                {self, from, v, n})
 
     local length = self.length
@@ -164,22 +164,22 @@ local core_functions = {
   end,
 
 
-  --- Shift the whole array to the left by removing the left-most element.
-  -- This makes the array 1 element shorter than it was before the shift.
+  --- Shift the whole vector to the left by removing the left-most element.
+  -- This makes the vector 1 element shorter than it was before the shift.
   -- @function shift
   -- @return the removed element.
-  -- @usage removed = anarray:shift ()
+  -- @usage removed = anvector:shift ()
   shift = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer, 1)
   end,
 
 
-  --- Shift the whole array to the right by inserting a new left-most element.
+  --- Shift the whole vector to the right by inserting a new left-most element.
   -- @function unshift
   -- @param elem new element to be pushed
   -- @treturn elem
-  -- @usage added = anarray:unshift (anelement)
+  -- @usage added = anvector:unshift (anelement)
   unshift = function (self, elem)
     self.length = self.length + 1
     table.insert (self.buffer, 1, elem)
@@ -189,30 +189,30 @@ local core_functions = {
 
 
 core_metatable = {
-  _type = "Array",
+  _type = "Vector",
 
 
-  --- Instantiate a newly cloned array.
-  -- If not specified, `type` will be the same as the prototype array being
+  --- Instantiate a newly cloned vector.
+  -- If not specified, `type` will be the same as the prototype vector being
   -- cloned; otherwise, it can be any string.  Only a type name accepted by
   -- `alien.sizeof` will use the fast `alien.buffer` managed memory buffer
-  -- for array contents; otherwise, a much slower Lua emulation is used.
+  -- for vector contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
   -- @string type element type name
   -- @tparam[opt] int|table init initial size or list of initial elements
-  -- @treturn std.array a new array object
+  -- @treturn std.vector a new vector object
   -- @usage
-  -- local Array = require "std.array" {} -- not a typo!
-  -- local new = Array ("int", {1, 2, 3})
+  -- local Vector = require "std.vector" {} -- not a typo!
+  -- local new = Vector ("int", {1, 2, 3})
   __call = function (self, type, init)
     if _ARGCHECK then
       if init ~= nil then
         -- When called with 2 arguments:
-        argcheck ("Array", 1, "string", type)
-        argcheck ("Array", 2, "int|table", init)
+        argcheck ("Vector", 1, "string", type)
+        argcheck ("Vector", 2, "int|table", init)
       elseif type ~= nil then
         -- When called with 1 argument:
-        argcheck ("Array", 1, "int|string|table", type)
+        argcheck ("Vector", 1, "int|string|table", type)
       end
     end
 
@@ -222,7 +222,7 @@ core_metatable = {
     type = type or self.type
     init = init or self.length
 
-    -- This will become the cloned array object.
+    -- This will become the cloned vector object.
     local obj = {}
 
     for k, v in pairs (self) do
@@ -295,10 +295,10 @@ core_metatable = {
   end,
 
 
-  --- Iterate consecutively over all elements with `ipairs (array)`.
+  --- Iterate consecutively over all elements with `ipairs (vector)`.
   -- @function __ipairs
   -- @treturn function iterator function
-  -- @usage for index, anelement in ipairs (anarray) do ... end
+  -- @usage for index, anelement in ipairs (anvector) do ... end
   __ipairs = function (self)
     local i, n = 0, self.length
     return function ()
@@ -310,11 +310,11 @@ core_metatable = {
   end,
 
 
-  --- Return the `n`th character in this array.
+  --- Return the `n`th element in this vector.
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
   -- @treturn string the element at index `n`
-  -- @usage rightmost = anarray[anarray.length]
+  -- @usage rightmost = anvector[anvector.length]
   __index = function (self, n)
     argcheck ("__index", 2, "int|string", n)
 
@@ -329,19 +329,19 @@ core_metatable = {
   end,
 
 
-  --- Set the `n`th element of this array to `elem`.
+  --- Set the `n`th element of this vector to `elem`.
   -- @function __newindex
   -- @int n 1-based index
   -- @param elem value to store at index n
-  -- @treturn std.array the array
-  -- @usage anarray[1] = newvalue
+  -- @treturn std.vector the vector
+  -- @usage anvector[1] = newvalue
   __newindex = function (self, n, elem)
     argcheck ("__newindex", 2, "int",  n)
 
     if typeof (n) == "number" then
       local used = self.length
       if n == 0 or math.abs (n) > used then
-	error ("array access " .. n .. " out of bounds: 0 < abs (n) <= " ..
+	error ("vector access " .. n .. " out of bounds: 0 < abs (n) <= " ..
                tostring (self.length), 2)
       end
       if n < 0 then n = n + used + 1 end
@@ -353,26 +353,26 @@ core_metatable = {
   end,
 
 
-  --- Return the number of elements in this array.
+  --- Return the number of elements in this vector.
   --
   -- Beware that Lua 5.1 does not respect this metamethod; use
-  -- `array.length` if you care about portability.
+  -- `vector.length` if you care about portability.
   -- @function __len
   -- @treturn int number of elements
-  -- @usage length = #anarray
+  -- @usage length = #anvector
   __len = function (self)
-    argcheck ("__len", 1, "Array", self)
+    argcheck ("__len", 1, "Vector", self)
 
     return self.length
   end,
 
 
-  --- Return a string representation of the contents of this array.
+  --- Return a string representation of the contents of this vector.
   -- @function __tostring
   -- @treturn string string representation
-  -- @usage print (anarray)
+  -- @usage print (anvector)
   __tostring = function (self)
-    argcheck ("__tostring", 1, "Array", self)
+    argcheck ("__tostring", 1, "Vector", self)
 
     local t = {}
     for i = 1, self.length do
@@ -390,7 +390,7 @@ core_metatable = {
 --[[ ===================== ]]--
 
 
--- Cloned array objects with elements managed by an alien buffer use
+-- Cloned vector objects with elements managed by an alien buffer use
 -- `alien_functions` to find object methods and `alien_metatable`
 -- for metamethods.
 
@@ -438,7 +438,7 @@ local alien_functions = {
 
 
   set = function (self, from, v, n)
-    argscheck ("set", {"Array", "int", "number", "int"},
+    argscheck ("set", {"Vector", "int", "number", "int"},
                {self, from, v, n})
 
     local used = self.length
@@ -479,7 +479,7 @@ local alien_functions = {
 
 
 alien_metatable = {
-  _type = "Array",
+  _type = "Vector",
 
   __ipairs = function (self)
     local i, n = 0, self.length
@@ -511,7 +511,7 @@ alien_metatable = {
     if typeof (n) == "number" then
       local used = self.length
       if n == 0 or math.abs (n) > used then
-	error ("array access " .. n .. " out of bounds: 0 < n <= " .. tostring (self.length), 2)
+	error ("vector access " .. n .. " out of bounds: 0 < n <= " .. tostring (self.length), 2)
       end
       if n < 0 then n = n + used + 1 end
       self.buffer:set ((n - 1) * self.size + 1, elem, self.type)
@@ -534,36 +534,36 @@ alien_metatable = {
 
 
 --- Return a function that dispatches to a virtual function table.
--- The __call metamethod ensures that cloned array objects are assigned
+-- The __call metamethod ensures that cloned vector objects are assigned
 -- a metatable and method table optimised for the element storage method
--- (either alien buffer, or Lua table element containers), but the array
+-- (either alien buffer, or Lua table element containers), but the vector
 -- prototype returned by this module needs to dispatch to the correct
 -- function according to the element type at run-time, because we want
 -- to support passing either object as an argument to a module function.
 -- @string name method name to dispatch
 -- @treturn function call `alien_function[name]` or -- `core_function[name]`
---  as appropriate to the element manager of array
+--  as appropriate to the element manager of vector
 local function dispatch (name)
-  return function (array, ...)
-    argcheck (name, 1, "Array", array)
-    local vfns = array.size > 0 and alien_functions or core_functions
-    return vfns[name] (array, ...)
+  return function (vector, ...)
+    argcheck (name, 1, "Vector", vector)
+    local vfns = vector.size > 0 and alien_functions or core_functions
+    return vfns[name] (vector, ...)
   end
 end
 
 
 ------
--- An efficient array of homogenous objects.
--- @table std.array
+-- An efficient vector of homogenous objects.
+-- @table std.vector
 -- @int allocated number of allocated element slots, for `alien.buffer`
 --  managed elements
 -- @tfield alien.buffer|table buffer a block of indexable memory
 -- @int length number of elements currently stored
 -- @int size length of each stored element, or 0 when `alien.buffer` is
---  not managing this array
+--  not managing this vector
 -- @string type type name for elements
-local Array = Container {
-  _type = "Array",
+local Vector = Container {
+  _type = "Vector",
 
 
   -- Prototype initial values.
@@ -593,4 +593,4 @@ local Array = Container {
 }
 
 
-return Array
+return Vector

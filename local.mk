@@ -62,7 +62,6 @@ dist_lua_DATA +=			\
 luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
-	lib/std/array.lua		\
 	lib/std/base.lua		\
 	lib/std/container.lua		\
 	lib/std/debug.lua		\
@@ -80,6 +79,7 @@ dist_luastd_DATA =			\
 	lib/std/string.lua		\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
+	lib/std/vector.lua		\
 	$(NOTHING_ELSE)
 
 
@@ -116,7 +116,6 @@ dist_doc_DATA +=			\
 	$(srcdir)/doc/ldoc.css
 
 dist_classes_DATA +=					\
-	$(srcdir)/doc/classes/std.array.html		\
 	$(srcdir)/doc/classes/std.container.html	\
 	$(srcdir)/doc/classes/std.list.html		\
 	$(srcdir)/doc/classes/std.object.html		\
@@ -124,6 +123,7 @@ dist_classes_DATA +=					\
 	$(srcdir)/doc/classes/std.set.html		\
 	$(srcdir)/doc/classes/std.strbuf.html		\
 	$(srcdir)/doc/classes/std.tree.html		\
+	$(srcdir)/doc/classes/std.vector.html		\
 	$(NOTHING_ELSE)
 
 dist_modules_DATA +=					\

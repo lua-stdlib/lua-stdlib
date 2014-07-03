@@ -7,7 +7,6 @@ dir = "."
 file = {
   -- Modules
   "../lib/std.lua",
-  "../lib/std/array.lua",
   "../lib/std/debug.lua",
   "../lib/std/functional.lua",
   "../lib/std/io.lua",
@@ -25,6 +24,7 @@ file = {
   "../lib/std/optparse.lua",
   "../lib/std/set.lua",
   "../lib/std/strbuf.lua",
+  "../lib/std/vector.lua",
 }
 
 format = "markdown"
