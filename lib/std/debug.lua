@@ -57,9 +57,9 @@ local tabify = functional.compose (
 
 
 
---[[ ============== ]]--
---[[ API Functions. ]]--
---[[ ============== ]]--
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Control std.debug function behaviour.

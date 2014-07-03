@@ -74,9 +74,9 @@ end
 
 
 
---[[ ============== ]]--
---[[ API Functions. ]]--
---[[ ============== ]]--
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Make a shallow copy of a table, including any metatable.

@@ -55,9 +55,9 @@ end
 
 
 
---[[ ============== ]]--
---[[ API Functions. ]]--
---[[ ============== ]]--
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Tree iterator which returns just numbered leaves, in order.

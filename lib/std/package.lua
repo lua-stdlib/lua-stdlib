@@ -47,9 +47,9 @@ end
 
 
 
---[[ ============== ]]--
---[[ API Functions. ]]--
---[[ ============== ]]--
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Look for a path segment match of `patt` in `pathstrings`.
