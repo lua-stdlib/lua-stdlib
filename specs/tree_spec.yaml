@@ -28,7 +28,7 @@ specify std.tree:
       expect (tr).not_to_be (Tree)
       expect (prototype (tr)).to_be "Tree"
   - it turns a table argument into a tree:
-      expect (prototype (Tree (tr))).to_be "Tree"
+      expect (prototype (Tree (t))).to_be "Tree"
   - it does not turn table argument values into sub-Trees:
       expect (prototype (tr["fnord"])).to_be "table"
   - it understands branched nodes:
