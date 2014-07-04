@@ -9,15 +9,6 @@ local export = require "std.base".export
 local M = { "std.functional" }
 
 
---- Identity function.
--- @function id
--- @param ...
--- @return the arguments passed to the function
-function M.id (...)
-  return ...
-end
-
-
 --- Partially apply a function.
 -- @function bind
 -- @func f function to apply partially
@@ -67,25 +58,22 @@ export (M, "case (any?, #table)", function (with, branches)
 end)
 
 
---- Curry a function.
--- @function curry
--- @func f function to curry
--- @int n number of arguments
--- @treturn function curried version of *f*
+--- Collect the results of an iterator.
+-- @function collect
+-- @func i iterator
+-- @param ... iterator arguments
+-- @return results of running the iterator on *arguments*
+-- @see filter
+-- @see map
 -- @usage
--- > add = curry (function (x, y) return x + y end, 2)
--- > incr, decr = add (1), add (-1)
--- > =incr (99), decr (99)
--- 100     98
-local curry
-curry = export (M, "curry (func, int)", function (f, n)
-  if n <= 1 then
-    return f
-  else
-    return function (x)
-             return curry (bind (f, x), n - 1)
-           end
+-- > =collect (std.list.relems, List {"a", "b", "c"})
+-- {"c", "b", "a"}
+export (M, "collect (func, any*)", function (i, ...)
+  local t = {}
+  for e in i (...) do
+    t[#t + 1] = e
   end
+  return t
 end)
 
 
@@ -118,43 +106,25 @@ export (M, "compose (func*)", function (...)
 end)
 
 
---- Signature of memoize `normalize` functions.
--- @function memoize_normalize
--- @param ... arguments
--- @treturn string normalized arguments
-
-
---- Memoize a function, by wrapping it in a functable.
---
--- To ensure that memoize always returns the same object for the same
--- arguments, it passes arguments to `normalize` (std.string.tostring
--- by default). You may need a more sophisticated function if memoize
--- should handle complicated argument equivalencies.
--- @function memoize
--- @func fn function that returns a single result
--- @func normalize[opt] function to normalize arguments
--- @treturn functable memoized function
+--- Curry a function.
+-- @function curry
+-- @func f function to curry
+-- @int n number of arguments
+-- @treturn function curried version of *f*
 -- @usage
--- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", function (fn, normalize)
-  if normalize == nil then
-    -- Call require here, to avoid pulling in all of 'std.string'
-    -- even when memoize is never called.
-    local stringify = require "std.string".tostring
-    normalize = function (...) return stringify {...} end
+-- > add = curry (function (x, y) return x + y end, 2)
+-- > incr, decr = add (1), add (-1)
+-- > =incr (99), decr (99)
+-- 100     98
+local curry
+curry = export (M, "curry (func, int)", function (f, n)
+  if n <= 1 then
+    return f
+  else
+    return function (x)
+             return curry (bind (f, x), n - 1)
+           end
   end
-
-  return setmetatable ({}, {
-    __call = function (self, ...)
-               local k = normalize (...)
-               local v = self[k]
-               if v == nil then
-                 v = fn (...)
-                 self[k] = v
-               end
-               return v
-             end
-  })
 end)
 
 
@@ -165,47 +135,6 @@ end)
 -- @usage eval "math.pow (2, 10)"
 export (M, "eval (string)", function (s)
   return loadstring ("return " .. s)()
-end)
-
-
---- Collect the results of an iterator.
--- @function collect
--- @func i iterator
--- @param ... iterator arguments
--- @return results of running the iterator on *arguments*
--- @see filter
--- @see map
--- @usage
--- > =collect (std.list.relems, List {"a", "b", "c"})
--- {"c", "b", "a"}
-export (M, "collect (func, any*)", function (i, ...)
-  local t = {}
-  for e in i (...) do
-    t[#t + 1] = e
-  end
-  return t
-end)
-
-
---- Map a function over an iterator.
--- @function map
--- @func f function
--- @func i iterator
--- @param ... iterator arguments
--- @treturn table results
--- @see filter
--- @usage
--- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
--- {1, 0, 1, 0}
-export (M, "map (func, func, any*)", function (f, i, ...)
-  local t = {}
-  for e in i (...) do
-    local r = f (e)
-    if r ~= nil then
-      table.insert (t, r)
-    end
-  end
-  return t
 end)
 
 
@@ -247,6 +176,77 @@ export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
   end
   return r
 end)
+
+
+--- Identity function.
+-- @function id
+-- @param ...
+-- @return the arguments passed to the function
+function M.id (...)
+  return ...
+end
+
+
+--- Map a function over an iterator.
+-- @function map
+-- @func f function
+-- @func i iterator
+-- @param ... iterator arguments
+-- @treturn table results
+-- @see filter
+-- @usage
+-- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
+-- {1, 0, 1, 0}
+export (M, "map (func, func, any*)", function (f, i, ...)
+  local t = {}
+  for e in i (...) do
+    local r = f (e)
+    if r ~= nil then
+      table.insert (t, r)
+    end
+  end
+  return t
+end)
+
+
+--- Memoize a function, by wrapping it in a functable.
+--
+-- To ensure that memoize always returns the same object for the same
+-- arguments, it passes arguments to `normalize` (std.string.tostring
+-- by default). You may need a more sophisticated function if memoize
+-- should handle complicated argument equivalencies.
+-- @function memoize
+-- @func fn function that returns a single result
+-- @func normalize[opt] function to normalize arguments
+-- @treturn functable memoized function
+-- @usage
+-- local fast = memoize (function (...) --[[ slow code ]] end)
+export (M, "memoize (func, func?)", function (fn, normalize)
+  if normalize == nil then
+    -- Call require here, to avoid pulling in all of 'std.string'
+    -- even when memoize is never called.
+    local stringify = require "std.string".tostring
+    normalize = function (...) return stringify {...} end
+  end
+
+  return setmetatable ({}, {
+    __call = function (self, ...)
+               local k = normalize (...)
+               local v = self[k]
+               if v == nil then
+                 v = fn (...)
+                 self[k] = v
+               end
+               return v
+             end
+  })
+end)
+
+
+--- Signature of memoize `normalize` functions.
+-- @function memoize_normalize
+-- @param ... arguments
+-- @treturn string normalized arguments
 
 
 --- Functional forms of infix operators.
