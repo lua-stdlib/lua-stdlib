@@ -1,5 +1,5 @@
 before:
-  Container = require "std.container"
+  Container = require "std.container" {}
   prototype = require "std.object".prototype
 
 specify std.container:
@@ -10,6 +10,19 @@ specify std.container:
           to_equal {}
 
 - describe construction:
+  - context with table _init:
+    - it diagnoses missing arguments:
+        expect (Container ()).to_error (badarg (nil, "Container", 1, "table"))
+    - it diagnoses too many arguments:
+        expect (Container ({}, false)).to_error (toomanyarg (nil, "Container", 1, 2))
+  - context with function _init:
+    - before:
+        Thing = Container { _type = "Thing", _init = function (obj) return obj end }
+    - it doesn't diagnose missing arguments:
+        expect (Thing ()).not_to_error ()
+    - it doesn't diagnose too many args:
+        expect (Thing ({}, false)).not_to_error ()
+
   - context from Container prototype:
     - before:
         things = Container {"foo", "bar", baz="quux"}

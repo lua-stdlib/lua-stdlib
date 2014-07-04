@@ -91,12 +91,12 @@ local function normalize (t)
 end
 
 
---- Ordered length.
+--- Argument list length.
 -- Like #table, but does not stop at the first nil value.
 -- @tparam table t a table
 -- @treturn int largest integer key in *t*
--- @usage tmax = olen (t)
-local function olen (t)
+-- @usage tmax = arglen (t)
+local function arglen (t)
   local len = 0
   for k in pairs (t) do
     if type (k) == "number" and k > len then len = k end
@@ -189,7 +189,7 @@ end
 -- @tparam table args a table of arguments to compare
 -- @treturn int|nil position of first mismatch in *types*
 local function match (types, args, allargs)
-  local typec, argc = #types, olen (args)
+  local typec, argc = #types, arglen (args)
   for i = 1, typec do
     local ok = pcall (argcheck, "pcall", i, types[i], args[i])
     if not ok then return i end
@@ -448,8 +448,8 @@ local function export (M, decl, fn, ...)
     else
       name = decl:match "([%w_][%d%w_]*)"
     end
-    if olen (args) > 3 then
-      error (string.format (toomanyarg_fmt, fname, 3, olen (args)), 2)
+    if arglen (args) > 3 then
+      error (string.format (toomanyarg_fmt, fname, 3, arglen (args)), 2)
     elseif type (M[1]) ~= "string" then
       argerror (fname, 1, "module name at index 1 expected, got no value")
     elseif name == nil then
@@ -478,7 +478,7 @@ local function export (M, decl, fn, ...)
 
     fn = function (...)
       local args = {...}
-      local argc, bestmismatch, at = olen (args), 0, 0
+      local argc, bestmismatch, at = arglen (args), 0, 0
 
       for i, types in ipairs (type_specs) do
 	local mismatch = match (types, args, max == math.huge)
@@ -577,16 +577,18 @@ end
 
 
 local M = {
-  argcheck      = argcheck,
-  argerror      = argerror,
-  argscheck     = argscheck,
-  deprecate     = deprecate,
-  export        = export,
-  getmetamethod = getmetamethod,
-  ielems        = ielems,
-  leaves        = leaves,
-  prototype     = prototype,
-  split         = split,
+  argcheck       = argcheck,
+  argerror       = argerror,
+  arglen         = arglen,
+  argscheck      = argscheck,
+  deprecate      = deprecate,
+  export         = export,
+  getmetamethod  = getmetamethod,
+  ielems         = ielems,
+  leaves         = leaves,
+  prototype      = prototype,
+  split          = split,
+  toomanyarg_fmt = toomanyarg_fmt,
 }
 
 

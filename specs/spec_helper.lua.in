@@ -98,8 +98,10 @@ end
 -- @usage
 --   expect (f ()).to_error (badarg (module, name, 1, "function"))
 function badarg (mname, fname, i, want, got)
-  return string.format ("bad argument #%d to '%s.%s' (%s expected, got %s)",
-                        i, mname, fname, want, got or "no value")
+  local name = fname
+  if mname then name = mname .. "." .. name end
+  return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
+                        i, name, want, got or "no value")
 end
 
 
@@ -110,8 +112,10 @@ end
 -- @usage
 --   expect (f (1, 2)).to_error (toomanyarg (module, name, 1, 2))
 function toomanyarg (mname, fname, want, got)
-  return string.format ("too many arguments to '%s.%s' (no more than %d expected, got %d)",
-                        mname, fname, want, got)
+  local name = fname
+  if mname then name = mname .. "." .. name end
+  return string.format ("too many arguments to '%s' (no more than %d expected, got %d)",
+                        name, want, got)
 end
 
 
