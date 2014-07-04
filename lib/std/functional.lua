@@ -250,18 +250,26 @@ end)
 
 
 --- Functional forms of infix operators.
+--
 -- Defined here so that other modules can write to it.
+--
+--   1. `"[]"`: dereference a table
+--   1. `"+"`: addition
+--   1. `"-"`: subtraction
+--   1. `"*"`: multiplication
+--   1. `"/"`: division
+--   1. `"and"`: logical and
+--   1. `"or"`: logical or
+--   1. `"not"`: logical not
+--   1. `"=="`: equality
+--   1. `"~="`: inequality
+--   1. `"<"`: less than
+--   1. `"<="`: less than or equal
+--   1. `">"`: greater than
+--   1. `">="`: greater than or equal
 -- @table op
--- @field [] dereference table index
--- @field + addition
--- @field - subtraction
--- @field * multiplication
--- @field / division
--- @field and logical and
--- @field or logical or
--- @field not logical not
--- @field == equality
--- @field ~= inequality
+
+---
 M.op = {
   ["[]"]  = function (t, s) return t and t[s] or nil end,
   ["+"]   = function (a, b) return a + b   end,
