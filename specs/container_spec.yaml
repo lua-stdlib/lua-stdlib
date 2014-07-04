@@ -12,9 +12,9 @@ specify std.container:
 - describe construction:
   - context with table _init:
     - it diagnoses missing arguments:
-        expect (Container ()).to_error (badarg (nil, "Container", 1, "table"))
+        expect (Container ()).to_raise (badarg (nil, "Container", 1, "table"))
     - it diagnoses too many arguments:
-        expect (Container ({}, false)).to_error (toomanyarg (nil, "Container", 1, 2))
+        expect (Container ({}, false)).to_raise (toomanyarg (nil, "Container", 1, 2))
   - context with function _init:
     - before:
         Thing = Container { _type = "Thing", _init = function (obj) return obj end }

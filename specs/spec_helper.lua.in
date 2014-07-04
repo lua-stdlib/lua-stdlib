@@ -271,4 +271,7 @@ do
              util.concat (alternatives, util.QUOTED) .. ", "
     end,
   }
+
+  -- Alias that doesn't tickle sc_error_message_uppercase.
+  matchers.raise = matchers.error
 end
