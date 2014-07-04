@@ -17,9 +17,11 @@ Stdlib NEWS - User visible changes
    `debug.argscheck`) for production code.  Similarly `_DEBUG = false`
    disables those functions too.
 
- - New `std.array` object, for clean and fast queue-like or stack-like
+ - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types
    are compatible, use alien.buffers for efficient element management.
+
+ - New relational `functional.op` fields, `<`, `<=`, `>`, `>=`.
 
  - New `table.elems` and `table.ielems` functions for iterating table
    values cleanly, and for orthogonality between std.table, std.base,

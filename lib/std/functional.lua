@@ -273,6 +273,10 @@ M.op = {
   ["not"] = function (a)    return not a   end,
   ["=="]  = function (a, b) return a == b  end,
   ["~="]  = function (a, b) return a ~= b  end,
+  ["<"]   = function (a, b) return a < b   end,
+  ["<="]  = function (a, b) return a <= b  end,
+  [">"]   = function (a, b) return a > b   end,
+  [">="]  = function (a, b) return a >= b  end,
 }
 
 return M
