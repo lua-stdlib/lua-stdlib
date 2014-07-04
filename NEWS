@@ -31,6 +31,18 @@ Stdlib NEWS - User visible changes
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
 
+ - New `functional.lambda` function for compiling lambda strings:
+
+     table.sort (t, functional.lambda "|a,b| a<b")
+
+   or, equivalently using auto-arguments:
+
+     table.sort (t, functional.lambda "= _1 < _2"
+
+   or, equivalently using `functional.op` references:
+
+     table.sort (t, functional.lambda "<")
+
 ** Incompatible changes:
 
  - `functional.bind` sets fixed positional arguments when called as

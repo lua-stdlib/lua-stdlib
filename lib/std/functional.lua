@@ -9,6 +9,32 @@ local export = require "std.base".export
 local M = { "std.functional" }
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Construct a new Lambda functable.
+-- The lambda string can be retrieved from functable `y` with `tostring (y)`,
+-- or it can be executed with `y (args)`.
+-- @string value lambda string
+-- @func call compiled Lua function
+-- @treturn table Lambda functable.
+local function Lambda (value, call)
+  return setmetatable ({}, {
+    _type = "Lambda",
+    __call = function (self, ...) return call (...) end,
+    __tostring = function (self) return 'Lambda "' .. value .. '"' end,
+  })
+end
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
+
+
 --- Partially apply a function.
 -- @function bind
 -- @func f function to apply partially
@@ -133,7 +159,7 @@ end)
 -- @string s string of Lua code
 -- @return result of evaluating `s`
 -- @usage eval "math.pow (2, 10)"
-export (M, "eval (string)", function (s)
+local eval = export (M, "eval (string)", function (s)
   return loadstring ("return " .. s)()
 end)
 
@@ -221,7 +247,7 @@ end)
 -- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", function (fn, normalize)
+local memoize = export (M, "memoize (func, func?)", function (fn, normalize)
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -247,6 +273,64 @@ end)
 -- @function memoize_normalize
 -- @param ... arguments
 -- @treturn string normalized arguments
+
+
+--- Compile a lambda string into a Lua function.
+--
+-- A valid lambda string takes one of the following forms:
+--
+--   1. `op`: where *op* is a key in @{op}, equivalent to the stored function
+--   1. `"=expression"`: equivalent to `function (...) return (expression) end`
+--   1. `"|args|expression"`: equivalent to `function (args) return (expression) end`
+--
+-- The second format (starting with `=`) automatically assigns the first
+-- nine arguments to parameters `_1` through `_9` for use within the
+-- expression body.
+-- @function lambda
+-- @string s a lambda string
+-- @treturn function compiled lambda string
+-- @usage
+-- -- The following are all equivalent:
+-- table.sort (t, lambda "<")
+-- table.sort (t, lambda "= _1 < _2")
+-- table.sort (t, lambda "|a,b| a<b")
+export (M, "lambda (string)", memoize (function (l)
+  -- Support op table lookup.
+  if M.op[s] then
+    return Lambda (s, M.op[s])
+  end
+
+  -- Support "|args|expression" format.
+  local args, body, s = l:match "^|([^|]*)|%s*(.+)$"
+  if args and body then
+    s = string.format ("return function (%s) return (%s) end", args, body)
+  end
+
+  -- Support "=expression" format.
+  if not s then
+    body = l:match "^=%s*(.+)$"
+    if body then
+      s = [[
+        return function (...)
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = (unpack or table.unpack) {...}
+	  return (]] .. body .. [[)
+        end
+      ]]
+    end
+  end
+
+  -- Diagnose invalid input.
+  if not s then
+    return error ("invalid format lambda string '" .. l .. "'", 3)
+  end
+
+  local fn, err = loadstring (s)
+  if fn ~= nil then
+    return Lambda (s, fn ())
+  else
+    return error (err, 3)
+  end
+end, function (s) return s end))
 
 
 --- Functional forms of infix operators.
