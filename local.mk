@@ -71,6 +71,7 @@ dist_luastd_DATA =			\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/object.lua		\
+	lib/std/operator.lua		\
 	lib/std/optparse.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
@@ -132,6 +133,7 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.functional.html	\
 	$(srcdir)/doc/modules/std.io.html		\
 	$(srcdir)/doc/modules/std.math.html		\
+	$(srcdir)/doc/modules/std.operator.html		\
 	$(srcdir)/doc/modules/std.package.html		\
 	$(srcdir)/doc/modules/std.strict.html		\
 	$(srcdir)/doc/modules/std.string.html		\

@@ -1,10 +1,12 @@
 --[[--
  Functional programming.
+
  @module std.functional
 ]]
 
 
-local export = require "std.base".export
+local export   = require "std.base".export
+local operator = require "std.operator"
 
 local M = { "std.functional" }
 
@@ -279,11 +281,11 @@ end)
 --
 -- A valid lambda string takes one of the following forms:
 --
---   1. `op`: where *op* is a key in @{op}, equivalent to the stored function
+--   1. `operator`: where *op* is a key in @{std.operator}, equivalent to that operation
 --   1. `"=expression"`: equivalent to `function (...) return (expression) end`
 --   1. `"|args|expression"`: equivalent to `function (args) return (expression) end`
 --
--- The second format (starting with `=`) automatically assigns the first
+-- The second form (starting with `=`) automatically assigns the first
 -- nine arguments to parameters `_1` through `_9` for use within the
 -- expression body.
 -- @function lambda
@@ -295,9 +297,9 @@ end)
 -- table.sort (t, lambda "= _1 < _2")
 -- table.sort (t, lambda "|a,b| a<b")
 export (M, "lambda (string)", memoize (function (l)
-  -- Support op table lookup.
-  if M.op[s] then
-    return Lambda (s, M.op[s])
+  -- Support operator table lookup.
+  if operator[s] then
+    return Lambda (s, operator[s])
   end
 
   -- Support "|args|expression" format.
@@ -333,42 +335,8 @@ export (M, "lambda (string)", memoize (function (l)
 end, function (s) return s end))
 
 
---- Functional forms of infix operators.
---
--- Defined here so that other modules can write to it.
---
---   1. `"[]"`: dereference a table
---   1. `"+"`: addition
---   1. `"-"`: subtraction
---   1. `"*"`: multiplication
---   1. `"/"`: division
---   1. `"and"`: logical and
---   1. `"or"`: logical or
---   1. `"not"`: logical not
---   1. `"=="`: equality
---   1. `"~="`: inequality
---   1. `"<"`: less than
---   1. `"<="`: less than or equal
---   1. `">"`: greater than
---   1. `">="`: greater than or equal
--- @table op
+-- For backwards compatibility.
+M.op = operator
 
----
-M.op = {
-  ["[]"]  = function (t, s) return t and t[s] or nil end,
-  ["+"]   = function (a, b) return a + b   end,
-  ["-"]   = function (a, b) return a - b   end,
-  ["*"]   = function (a, b) return a * b   end,
-  ["/"]   = function (a, b) return a / b   end,
-  ["and"] = function (a, b) return a and b end,
-  ["or"]  = function (a, b) return a or b  end,
-  ["not"] = function (a)    return not a   end,
-  ["=="]  = function (a, b) return a == b  end,
-  ["~="]  = function (a, b) return a ~= b  end,
-  ["<"]   = function (a, b) return a < b   end,
-  ["<="]  = function (a, b) return a <= b  end,
-  [">"]   = function (a, b) return a > b   end,
-  [">="]  = function (a, b) return a >= b  end,
-}
 
 return M

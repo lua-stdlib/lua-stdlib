@@ -21,7 +21,10 @@ Stdlib NEWS - User visible changes
    container management.  When alien is installed, and element types
    are compatible, use alien.buffers for efficient element management.
 
- - New relational `functional.op` fields, `<`, `<=`, `>`, `>=`.
+ - New `std.operator` module, with new functional operators for
+   concatenation `..`, tablification `{}`, stringification `""`, length
+   `#` and matching `~`, plus new mathematical operators `%` and `^`, and
+   relational operators, `<`, `<=`, `>` and `>=`.
 
  - New `table.elems` and `table.ielems` functions for iterating table
    values cleanly, and for orthogonality between std.table, std.base,
@@ -79,6 +82,14 @@ Stdlib NEWS - User visible changes
  - `string.require_version` has been renamed to `string.require`, the
    old name now gives a deprecation warning on first use, and will be
    removed entirely in some future release.
+
+ - The `functional.op` table has been factored out into its own new
+   module `std.operator`.  It will also continue to be available from the
+   legacy `functional.op` access point for the forseeable future.
+
+ - The `functional.op[".."]` operator is no longer a list concatenation
+   only loaded when `std.list` is required, but a regular string
+   concatenation just like Lua's `..` operator.
 
 
 ** Bug fixes:

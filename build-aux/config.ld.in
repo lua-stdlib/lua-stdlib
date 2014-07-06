@@ -11,6 +11,7 @@ file = {
   "../lib/std/functional.lua",
   "../lib/std/io.lua",
   "../lib/std/math.lua",
+  "../lib/std/operator.lua",
   "../lib/std/package.lua",
   "../lib/std/strict.lua",
   "../lib/std/string.lua",

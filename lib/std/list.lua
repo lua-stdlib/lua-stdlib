@@ -773,8 +773,4 @@ List = Object {
 }
 
 
--- Function forms of operators
-func.op[".."] = concat
-
-
 return List
