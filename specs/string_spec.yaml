@@ -535,10 +535,11 @@ specify std.string:
       term = function (s) return function () return s end end
       pair = function (_, _, _, i, v) return i .. "=" .. v end
       sep  = function (_, i, _, j) return (i and j) and "," or "" end
-      t = {1, {{2, 3}, 4, {5}}}
       r = function (x)
             return M.render (x, term "{", term "}", tostring, pair, sep)
           end
+      t = {1, {{2, 3}, 4, {5}}}
+      a = require "std.vector" {"a", "b", {{"c"},"d"},"e"}
 
       fname = "render"
       msg = bind (badarg, {this_module, fname})
@@ -569,8 +570,7 @@ specify std.string:
       expect (r (42)).to_be "42"
       expect (r ("string")).to_be "string"
   - it converts a table to a representative string:
-      expect (r ({"table", 42})).
-        to_be '{1=table,2=42}'
+      expect (r ({"table", 42})).to_be '{1=table,2=42}'
   - it converts a nested table to a representative string:
       expect (r (t)).
         to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
@@ -579,7 +579,20 @@ specify std.string:
       expect (r (t)).
         to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
   - it converts a Vector to a representative string:
-      a = require "std.vector" {"a", "b", {{"c"},"d"},"e"}
+      expect (r (a)).
+        to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
+  - it accepts lambda strings in lieu of Lua functions:
+      r = function (x)
+            return M.render (x, '="{"', '="}"', tostring, '=_4.."=".._5',
+                             '=(_2 and _4) and "," or ""')
+          end
+      expect (r (nil)).to_be "nil"
+      expect (r (false)).to_be "false"
+      expect (r (42)).to_be "42"
+      expect (r ("string")).to_be "string"
+      expect (r ({"table", 42})).to_be '{1=table,2=42}'
+      expect (r (t)).
+        to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
       expect (r (a)).
         to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 

@@ -5,36 +5,12 @@
 ]]
 
 
-local export   = require "std.base".export
-local operator = require "std.operator"
+local base     = require "std.base"
+
+local export, lambda = base.export, base.lambda
 
 local M = { "std.functional" }
 
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
---- Construct a new Lambda functable.
--- The lambda string can be retrieved from functable `y` with `tostring (y)`,
--- or it can be executed with `y (args)`.
--- @string value lambda string
--- @func call compiled Lua function
--- @treturn table Lambda functable.
-local function Lambda (value, call)
-  return setmetatable ({}, {
-    _type = "Lambda",
-    __call = function (self, ...) return call (...) end,
-    __tostring = function (self) return 'Lambda "' .. value .. '"' end,
-  })
-end
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
 
 
 --- Partially apply a function.
@@ -51,6 +27,8 @@ local bind = export (M, "bind (func, any?*)", function (f, ...)
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
   end
+  f = type (f) == "string" and lambda (f) or f
+
   return function (...)
            local arg = {}
            for i, v in pairs (fix) do
@@ -81,8 +59,9 @@ end)
 --            function (s) error ("unhandled type: "..s) end,
 -- })
 export (M, "case (any?, #table)", function (with, branches)
-  local fn = branches[with] or branches[1]
-  if fn then return fn (with) end
+  local f = branches[with] or branches[1]
+  f = type (f) == "string" and lambda (f) or f
+  if f then return f (with) end
 end)
 
 
@@ -97,6 +76,8 @@ end)
 -- > =collect (std.list.relems, List {"a", "b", "c"})
 -- {"c", "b", "a"}
 export (M, "collect (func, any*)", function (i, ...)
+  i = type (i) == "string" and lambda (i) or i
+
   local t = {}
   for e in i (...) do
     t[#t + 1] = e
@@ -124,6 +105,11 @@ end)
 export (M, "compose (func*)", function (...)
   local arg = {...}
   local fns, n = arg, #arg
+  for i = 1, n do
+    local f = fns[i]
+    fns[i] = type (f) == "string" and lambda (f) or f
+  end
+
   return function (...)
            local arg = {...}
            for i = 1, n do
@@ -146,6 +132,8 @@ end)
 -- 100     98
 local curry
 curry = export (M, "curry (func, int)", function (f, n)
+  f = type (f) == "string" and lambda (f) or f
+
   if n <= 1 then
     return f
   else
@@ -174,9 +162,12 @@ end)
 -- @treturn table elements e for which `p (e)` is not falsey.
 -- @see collect
 -- @usage
--- > filter (function (e) return e % 2 == 0 end, std.list.elems, List {1, 2, 3, 4})
+-- > filter ("|e| e%2==0", std.list.elems, List {1, 2, 3, 4})
 -- {2, 4}
 export (M, "filter (func, func, any*)", function (p, i, ...)
+  p = type (p) == "string" and lambda (p) or p
+  i = type (i) == "string" and lambda (i) or i
+
   local t = {}
   for e in i (...) do
     if p (e) then
@@ -198,6 +189,9 @@ end)
 -- @see std.list.foldr
 -- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
 export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
+  f = type (f) == "string" and lambda (f) or f
+  i = type (i) == "string" and lambda (i) or i
+
   local r = d
   for e in i (...) do
     r = f (r, e)
@@ -226,6 +220,9 @@ end
 -- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
 -- {1, 0, 1, 0}
 export (M, "map (func, func, any*)", function (f, i, ...)
+  f = type (f) == "string" and lambda (f) or f
+  i = type (i) == "string" and lambda (i) or i
+
   local t = {}
   for e in i (...) do
     local r = f (e)
@@ -250,6 +247,9 @@ end)
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
 local memoize = export (M, "memoize (func, func?)", function (fn, normalize)
+  fn = type (fn) == "string" and lambda (fn) or fn
+  normalize = type (normalize) == "string" and lambda (normalize) or normalize
+
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -296,47 +296,11 @@ end)
 -- table.sort (t, lambda "<")
 -- table.sort (t, lambda "= _1 < _2")
 -- table.sort (t, lambda "|a,b| a<b")
-export (M, "lambda (string)", memoize (function (l)
-  -- Support operator table lookup.
-  if operator[s] then
-    return Lambda (s, operator[s])
-  end
-
-  -- Support "|args|expression" format.
-  local args, body, s = l:match "^|([^|]*)|%s*(.+)$"
-  if args and body then
-    s = string.format ("return function (%s) return (%s) end", args, body)
-  end
-
-  -- Support "=expression" format.
-  if not s then
-    body = l:match "^=%s*(.+)$"
-    if body then
-      s = [[
-        return function (...)
-          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = (unpack or table.unpack) {...}
-	  return (]] .. body .. [[)
-        end
-      ]]
-    end
-  end
-
-  -- Diagnose invalid input.
-  if not s then
-    return error ("invalid format lambda string '" .. l .. "'", 3)
-  end
-
-  local fn, err = loadstring (s)
-  if fn ~= nil then
-    return Lambda (s, fn ())
-  else
-    return error (err, 3)
-  end
-end, function (s) return s end))
+export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 
 
 -- For backwards compatibility.
-M.op = operator
+M.op = require "std.operator"
 
 
 return M

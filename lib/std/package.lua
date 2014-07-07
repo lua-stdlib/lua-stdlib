@@ -17,7 +17,7 @@ local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
 
-local export, split  = base.export, base.split
+local export, lambda, split  = base.export, base.lambda, base.split
 
 
 local M = { "std.package" }
@@ -146,6 +146,8 @@ end)
 -- @usage mappath (package.path, searcherfn, transformfn)
 export (M, "mappath (string, function, any?*)",
 function (pathstrings, callback, ...)
+  callback = type (callback) == "string" and lambda (callback) or callback
+
   for _, path in ipairs (split (pathstrings, M.pathsep)) do
     local r = callback (path, ...)
     if r ~= nil then return r end

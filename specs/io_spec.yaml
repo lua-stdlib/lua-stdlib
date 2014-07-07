@@ -181,6 +181,9 @@ specify std.io:
       ascript = [[
         require "std.io".process_files (function (a) print (a) end)
       ]]
+      lscript = [[
+        require "std.io".process_files ("=print (_1)")
+      ]]
       iscript = [[
         require "std.io".process_files (function (_, i) print (i) end)
       ]]
@@ -207,6 +210,10 @@ specify std.io:
   - it iterates over arguments with supplied function:
       expect (luaproc (ascript, name)).to_output (name .. "\n")
       expect (luaproc (ascript, names)).
+        to_output (table.concat (names, "\n") .. "\n")
+  - it iterates over arguments with supplied lambda string:
+      expect (luaproc (lscript, name)).to_output (name .. "\n")
+      expect (luaproc (lscript, names)).
         to_output (table.concat (names, "\n") .. "\n")
   - it passes argument numbers to supplied function:
       expect (luaproc (iscript, names)).to_output "1\n2\n3\n4\n"

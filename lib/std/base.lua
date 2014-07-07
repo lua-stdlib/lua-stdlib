@@ -24,18 +24,35 @@
 
 
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
+local operator  = require "std.operator"
 
 
 local argcheck, argerror, argscheck, prototype  -- forward declarations
 
 
 --[[ ================= ]]--
---[[ Helper functions. ]]--
+--[[ Helper Functions. ]]--
 --[[ ================= ]]--
 
 
 local toomanyarg_fmt =
       "too many arguments to '%s' (no more than %d expected, got %d)"
+
+
+--- Construct a new Lambda functable.
+-- The lambda string can be retrieved from functable `y` with `tostring (y)`,
+-- or it can be executed with `y (args)`.
+-- @string value lambda string
+-- @func call compiled Lua function
+-- @treturn table Lambda functable.
+local function Lambda (value, call)
+  return setmetatable ({ value = value, call = call },
+  {
+    _type = "Lambda",
+    __call = function (self, ...) return call (...) end,
+    __tostring = function (self) return 'Lambda "' .. value .. '"' end,
+  })
+end
 
 
 --- Make a shallow copy of a table.
@@ -245,14 +262,56 @@ end
 
 
 
---[[ ============== ]]--
---[[ API functions. ]]--
---[[ ============== ]]--
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 -- Doc-commented in object.lua
 function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
+
+
+-- Doc-commented in functional.lua
+local function lambda (l)
+  local s
+
+  -- Support operator table lookup.
+  if operator[l] then
+    return Lambda (l, operator[l])
+  end
+
+  -- Support "|args|expression" format.
+  local args, body = string.match (l, "^|([^|]*)|%s*(.+)$")
+  if args and body then
+    s = "return function (" .. args .. ") return " .. body .. " end"
+  end
+
+  -- Support "=expression" format.
+  if not s then
+    body = l:match "^=%s*(.+)$"
+    if body then
+      s = [[
+        return function (...)
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = (unpack or table.unpack) {...}
+	  return ]] .. body .. [[
+        end
+      ]]
+    end
+  end
+
+  local ok, fn
+  if s then
+    ok, fn = pcall (loadstring (s))
+  end
+
+  -- Diagnose invalid input.
+  if not ok then
+    return nil, "invalid lambda string '" .. l .. "'"
+  end
+
+  return Lambda (s, fn)
 end
 
 
@@ -305,7 +364,8 @@ if _ARGCHECK then
 
       elseif check == "function" or check == "func" then
         if actualtype == "function" or
-            (getmetatable (actual) or {}).__call ~= nil
+            (getmetatable (actual) or {}).__call ~= nil or
+	    (actualtype == "string" and lambda (actual) ~= nil)
         then
            ok = true
         end
@@ -585,6 +645,7 @@ local M = {
   export         = export,
   getmetamethod  = getmetamethod,
   ielems         = ielems,
+  lambda         = lambda,
   leaves         = leaves,
   prototype      = prototype,
   split          = split,

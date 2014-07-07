@@ -330,6 +330,8 @@ specify std.list:
         expect (l:filter (p)).to_equal (List {})
     - it filters a list according to a predicate:
         expect (l:filter (p)).to_equal (List {"bar", "baz"})
+    - it filters a list according to a lambda string:
+        expect (l:filter '|e| e:find "a"').to_equal (List {"bar", "baz"})
 
 
 - describe flatten:
@@ -379,6 +381,8 @@ specify std.list:
         expect (l:foldl (op["+"], 10000)).to_be (10000)
     - it folds a binary function through a list:
         expect (l:foldl (op["+"], 10000)).to_be (10111)
+    - it folds a lambda string through a list:
+        expect (l:foldl ("+", 10000)).to_be (10111)
 
 
 - describe foldr:
@@ -404,6 +408,8 @@ specify std.list:
         expect (l:foldl (op["/"], 1)).to_be (1)
     - it folds a binary function through a list:
         expect (l:foldl (op["/"], 10000)).to_be (10)
+    - it folds a lambda string through a list:
+        expect (l:foldl ("/", 10000)).to_be (10)
 
 
 - describe index_key:
@@ -522,6 +528,8 @@ specify std.list:
         expect (l).to_equal (List {1, 2, 3, 4, 5})
     - it maps a function over a list:
         expect (l:map (sq)).to_equal (List {1, 4, 9, 16, 25})
+    - it maps a lambda string over a list:
+        expect (l:map "|a|a*a").to_equal (List {1, 4, 9, 16, 25})
 
 
 - describe map_with:
@@ -560,6 +568,8 @@ specify std.list:
         expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
     - it maps a function over a list:
         expect (l:map_with (n)).to_equal (List {3, 2})
+    - it maps a lambda string over a list:
+        expect (l:map_with '|...|select ("#", ...)').to_equal (List {3, 2})
 
 
 - describe project:

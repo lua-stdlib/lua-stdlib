@@ -17,8 +17,8 @@ local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
-local argerror, export, leaves, split =
-      base.argerror, base.export, base.leaves, base.split
+local argerror, export, lambda, leaves, split =
+      base.argerror, base.export, base.lambda, base.leaves, base.split
 
 
 local M = { "std.io" }
@@ -194,6 +194,8 @@ end)
 -- local io = require "std.io"
 -- io.process_files (function () io.write (io.slurp ()) end)
 export (M, "process_files (function)", function (fn)
+  fn = type (fn) == "string" and lambda (fn) or fn
+
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
     arg[#arg + 1] = "-"
