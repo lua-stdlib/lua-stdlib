@@ -211,12 +211,12 @@ end)
 
 --- Memoize a function, by wrapping it in a functable.
 --
--- To ensure that memoize always returns the same object for the same
+-- To ensure that memoize always returns the same results for the same
 -- arguments, it passes arguments to `normalize` (std.string.tostring
--- by default). You may need a more sophisticated function if memoize
+-- by default). You can specify a more sophisticated function if memoize
 -- should handle complicated argument equivalencies.
 -- @function memoize
--- @func fn function that returns a single result
+-- @func fn function with no side effects
 -- @func normalize[opt] function to normalize arguments
 -- @treturn functable memoized function
 -- @usage
@@ -232,12 +232,12 @@ export (M, "memoize (func, func?)", function (fn, normalize)
   return setmetatable ({}, {
     __call = function (self, ...)
                local k = normalize (...)
-               local v = self[k]
-               if v == nil then
-                 v = fn (...)
-                 self[k] = v
+               local t = self[k]
+               if t == nil then
+                 t = {fn (...)}
+                 self[k] = t
                end
-               return v
+               return unpack (t)
              end
   })
 end)

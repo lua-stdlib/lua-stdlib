@@ -266,7 +266,9 @@ specify std.functional:
       fname = "memoize"
       msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
-      memfn = f (function (x) return {x} end)
+      memfn = f (function (x)
+                   if x then return {x} else return nil, "bzzt" end
+                 end)
 
   - it diagnoses missing arguments:
       expect (f ()).to_error (msg (1, "function"))
@@ -276,6 +278,8 @@ specify std.functional:
   - it diagnoses too many arguments:
       expect (f (f, f, false)).to_error (toomanyarg (this_module, fname, 2, 3))
 
+  - it propagates multiple return values:
+      expect (select (2, memfn (false))).to_be "bzzt"
   - it returns the same object for the same arguments:
       t = memfn (1)
       expect (memfn (1)).to_be (t)

@@ -27,6 +27,10 @@ Stdlib NEWS - User visible changes
    values cleanly, and for orthogonality between std.table, std.base,
    std.list and std.set.
 
+ - `functional.memoize` now propagates multiple return values correctly.
+   This allows memoizing of functions that use the `return nil, "message"`
+   pattern for error message reporting.
+
 ** Incompatible changes:
 
  - `functional.bind` sets fixed positional arguments when called as
