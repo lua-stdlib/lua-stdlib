@@ -32,6 +32,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/list_spec.yaml		\
 	$(srcdir)/specs/math_spec.yaml		\
 	$(srcdir)/specs/object_spec.yaml	\
+	$(srcdir)/specs/operator_spec.yaml	\
 	$(srcdir)/specs/optparse_spec.yaml	\
 	$(srcdir)/specs/package_spec.yaml	\
 	$(srcdir)/specs/set_spec.yaml		\

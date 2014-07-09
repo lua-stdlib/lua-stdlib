@@ -1,0 +1,251 @@
+before: |
+  this_module  = "std.operator"
+  global_table = "_G"
+
+  M = require (this_module)
+
+specify std.operator:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          to_equal {}
+
+  - context via the std module:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
+
+
+- describe ..:
+  - before:
+      f = M[".."]
+
+  - it stringifies its arguments:
+      expect (f (1, "")).to_be "1"
+      expect (f ("", 2)).to_be "2"
+  - it concatenates its arguments:
+      expect (f (1, 2)).to_be "12"
+
+- describe []:
+  - before:
+      f = M["[]"]
+
+  - it dereferences a table:
+      expect (f ({}, 1)).to_be (nil)
+      expect (f ({"foo", "bar"}, 1)).to_be "foo"
+      expect (f ({foo = "bar"}, "foo")).to_be "bar"
+
+- describe {}:
+  - before:
+      f = M["{}"]
+
+  - it packs its arguments into a table:
+      expect (f ()).to_equal {}
+      expect (f (42)).to_equal {42}
+      expect (f ("foo", "bar")).to_equal {"foo", "bar"}
+      expect (f ("a", "b", "c", 1, 2, 3)).to_equal {"a", "b", "c", 1, 2, 3}
+
+- describe "":
+  - before:
+      f = M['""']
+
+  - it stringifies its argument:
+      expect (f ()).to_be "nil"
+      expect (f (42)).to_be "42"
+      expect (f ("foo")).to_be "foo"
+
+- describe ~:
+  - before:
+      f = M["~"]
+
+  - it finds a pattern match in a string:
+      haystack = "foo bar baz"
+      expect (haystack:sub (f (haystack, "ba."))).to_be "bar"
+
+- 'describe #':
+  - before:
+      f = M["#"]
+
+  - it returns the length of a string:
+      expect (f "1234567890").to_be (10)
+  - it returns the length of a table:
+      expect (f {1, 2, 3, 4, 5}).to_be (5)
+
+- describe +:
+  - before:
+      f = M["+"]
+
+  - it returns the sum of its arguments:
+      expect (f (99, 2)).to_be (99 + 2)
+
+- describe -:
+  - before:
+      f = M["-"]
+
+  - it returns the difference of its arguments:
+      expect (f (99, 2)).to_be (99 - 2)
+
+- describe *:
+  - before:
+      f = M["*"]
+
+  - it returns the product of its arguments:
+      expect (f (99, 2)).to_be (99 * 2)
+
+- describe /:
+  - before:
+      f = M["/"]
+
+  - it returns the quotient of its arguments:
+      expect (f (99, 2)).to_be (99 / 2)
+
+- describe %:
+  - before:
+      f = M["%"]
+
+  - it returns the modulus of its arguments:
+      expect (f (99, 2)).to_be (99 % 2)
+
+- describe ^:
+  - before:
+      f = M["^"]
+
+  - it returns the power of its arguments:
+      expect (f (99, 2)).to_be (math.pow (99, 2))
+
+- describe and:
+  - before:
+      f = M["and"]
+
+  - it returns the logical and of its arguments:
+      expect (f (false, false)).to_be (false)
+      expect (f (false, true)).to_be (false)
+      expect (f (true, false)).to_be (false)
+      expect (f (true, true)).to_be (true)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (nil)
+      expect (f (0)).to_be (nil)
+      expect (f (nil, 0)).to_be (nil)
+      expect (f (0, "false")).to_be ("false")
+
+- describe or:
+  - before:
+      f = M["or"]
+
+  - it returns the logical or of its arguments:
+      expect (f (false, false)).to_be (false)
+      expect (f (false, true)).to_be (true)
+      expect (f (true, false)).to_be (true)
+      expect (f (true, true)).to_be (true)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (nil)
+      expect (f (0)).to_be (0)
+      expect (f (nil, 0)).to_be (0)
+      expect (f (0, "false")).to_be (0)
+
+- describe not:
+  - before:
+      f = M["not"]
+
+  - it returns the logical not of its argument:
+      expect (f (false)).to_be (true)
+      expect (f (true)).to_be (false)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (true)
+      expect (f (0)).to_be (false)
+
+- describe ==:
+  - before:
+      f = M["=="]
+
+  - it returns true if the arguments are equal:
+      expect (f ()).to_be (true)
+      expect (f ("foo", "foo")).to_be (true)
+  - it returns false if the arguments are unequal:
+      expect (f (1)).to_be (false)
+      expect (f ("foo", "bar")).to_be (false)
+
+- describe ~=:
+  - before:
+      f = M["=="]
+
+  - it returns false if the arguments are equal:
+      expect (f (1)).to_be (false)
+      expect (f ("foo", "bar")).to_be (false)
+      expect (f ({}, {})).to_be (false)
+  - it returns true if the arguments are unequal:
+      expect (f ()).to_be (true)
+      expect (f ("foo", "foo")).to_be (true)
+
+- describe <:
+  - before:
+      f = M["<"]
+
+  - it returns true if the arguments are in ascending order:
+      expect (f (1, 2)).to_be (true)
+      expect (f ("a", "b")).to_be (true)
+  - it returns false if the arguments are not in ascending order:
+      expect (f (2, 2)).to_be (false)
+      expect (f (3, 2)).to_be (false)
+      expect (f ("b", "b")).to_be (false)
+      expect (f ("c", "b")).to_be (false)
+  - it supports __lt metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3}, List {1, 2, 3, 4})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
+      expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
+
+- describe <=:
+  - before:
+      f = M["<="]
+
+  - it returns true if the arguments are not in descending order:
+      expect (f (1, 2)).to_be (true)
+      expect (f (2, 2)).to_be (true)
+      expect (f ("a", "b")).to_be (true)
+      expect (f ("b", "b")).to_be (true)
+  - it returns false if the arguments are in descending order:
+      expect (f (3, 2)).to_be (false)
+      expect (f ("c", "b")).to_be (false)
+  - it supports __lte metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3}, List {1, 2, 3, 4})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
+
+- describe >:
+  - before:
+      f = M[">"]
+
+  - it returns true if the arguments are in descending order:
+      expect (f (2, 1)).to_be (true)
+      expect (f ("b", "a")).to_be (true)
+  - it returns false if the arguments are not in descending order:
+      expect (f (2, 2)).to_be (false)
+      expect (f (2, 3)).to_be (false)
+      expect (f ("b", "b")).to_be (false)
+      expect (f ("b", "c")).to_be (false)
+  - it supports __lt metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3, 4}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
+      expect (f (List {1, 2, 3}, List {1, 2, 4})).to_be (false)
+
+- describe >=:
+  - before:
+      f = M[">="]
+
+  - it returns true if the arguments are not in ascending order:
+      expect (f (2, 1)).to_be (true)
+      expect (f (2, 2)).to_be (true)
+      expect (f ("b", "a")).to_be (true)
+      expect (f ("b", "b")).to_be (true)
+  - it returns false if the arguments are in ascending order:
+      expect (f (2, 3)).to_be (false)
+      expect (f ("b", "c")).to_be (false)
+  - it supports __lte metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3, 4}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 4})).to_be (false)
