@@ -42,7 +42,7 @@ Stdlib NEWS - User visible changes
 
      table.sort (t, functional.lambda "= _1 < _2"
 
-   or, equivalently using `functional.op` references:
+   or, equivalently using `std.operator` references:
 
      table.sort (t, functional.lambda "<")
 
@@ -105,16 +105,16 @@ Stdlib NEWS - User visible changes
 
  - `optparse.on` now works with `std.strict` enabled.
 
- - `string.require_version` now extracts the first substring made
-   entirely of digits and periods from the required module's version
-   string before splitting on period.  That means, for version strings
-   like stdlib's "General Lua Libraries / 41" we now correctly compare
-   just the numeric part against specified version range rather than
-   an ASCII comparison of the whole thing as before!
+ - `string.require` (nee `require_version`) now extracts the first
+   substring made entirely of digits and periods from the required
+   module's version string before splitting on period.  That means, for
+   version strings like stdlib's "General Lua Libraries / 41" we now
+   correctly compare just the numeric part against specified version
+   range rather than an ASCII comparison of the whole thing as before!
 
- - The documentation now correcly notes that `string.require_version`
-   looks first in `module.version` and then `module._VERSION` to match
-   the long-standing implementation.
+ - The documentation now correcly notes that `string.require` looks
+   first in `module.version` and then `module._VERSION` to match the
+   long-standing implementation.
 
  - `string.split` now really does split on whitespace when no split
    pattern argument is provided.  Also, the documentation now
