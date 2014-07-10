@@ -366,3 +366,13 @@ specify std.functional:
       memfn = f ("{}", '..')
       expect (memfn (1, 2)).to_be (memfn (1, 1 + 1))
       expect (memfn (1, 2)).not_to_be (memfn (2, 1))
+
+- describe nop:
+  - before:
+      f = M.nop
+  - it accepts any number of arguments:
+      expect (f ()).to_be (nil)
+      expect (f (false)).to_be (nil)
+      expect (f (1, 2, 3, nil, "str", {}, f)).to_be (nil)
+  - it returns no values:
+      expect (f (1, "two", false)).to_be (nil)

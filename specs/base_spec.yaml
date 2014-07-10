@@ -3,6 +3,8 @@ before:
 
   M = require (this_module)
 
+  nop = M.nop
+
 specify std.base:
 - describe deprecate:
   - before: |

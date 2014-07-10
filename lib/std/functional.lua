@@ -7,7 +7,7 @@
 
 local base     = require "std.base"
 
-local export, lambda = base.export, base.lambda
+local export, lambda, nop = base.export, base.lambda, base.nop
 
 local M = { "std.functional" }
 
@@ -297,6 +297,14 @@ end)
 -- table.sort (t, lambda "= _1 < _2")
 -- table.sort (t, lambda "|a,b| a<b")
 export (M, "lambda (string)", memoize (lambda, function (s) return s end))
+
+
+--- No operation.
+-- This function ignores all arguments, and returns no values.
+-- @function nop
+-- @usage
+-- if unsupported then vtable["memrmem"] = nop end
+M.nop = nop
 
 
 -- For backwards compatibility.

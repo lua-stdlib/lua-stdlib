@@ -12,10 +12,6 @@ package.path = std.package.normalize ("lib/?.lua", package.path)
 local LUA = "@LUA@"
 
 
--- Null operation function.
-nop = function () end
-
-
 -- Error message specifications use this to shorten argument lists.
 -- Copied from functional.lua to avoid breaking all tests if functional
 -- cannot be loaded correctly.

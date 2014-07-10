@@ -274,6 +274,10 @@ end
 
 
 -- Doc-commented in functional.lua
+local function nop () end
+
+
+-- Doc-commented in functional.lua
 local function lambda (l)
   local s
 
@@ -422,8 +426,6 @@ if _ARGCHECK then
   end
 
 else
-
-  local function nop () end
 
   -- Turn off argument checking if _DEBUG is false, or a table containing
   -- a false valued `argcheck` field.
@@ -647,6 +649,7 @@ local M = {
   ielems         = ielems,
   lambda         = lambda,
   leaves         = leaves,
+  nop            = nop,
   prototype      = prototype,
   split          = split,
   toomanyarg_fmt = toomanyarg_fmt,

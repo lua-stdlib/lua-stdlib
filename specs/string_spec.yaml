@@ -235,7 +235,7 @@ specify std.string:
       expect (f ("string", "pattern", nil, "plain")).
         to_error (msg (4, "boolean, :plain or nil", "string"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", nil, false, nop)).
+      expect (f ("string", "pattern", nil, false, function () end)).
         to_error (toomanyarg (this_module, fname, 4, 5))
 
   - context given a complex nested list:
