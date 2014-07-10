@@ -1,6 +1,21 @@
 --[[--
  Functional programming.
 
+ A selection of higher-order functions to enable a functional style of
+ programming in Lua.
+
+ Of special note is the `lambda` function: when calling other stdlib apis
+ that accept a function argument, the call to `lambda` itself is not
+ required.  The following are equivalent:
+
+    std.table.sort (t, lambda '|a,b| a<b')
+    std.table.sort (t, '|a,b| a<b')
+
+ In the latter case, `sort` will recognize and expand a valid "lambda
+ string" without an explicit `lambda` invocation.  If argument checking is
+ not disabled (see @{debug._DEBUG}), invalid lambda strings passed in lieu
+ of a Lua function raise a "function expected, got string" error.
+
  @module std.functional
 ]]
 
