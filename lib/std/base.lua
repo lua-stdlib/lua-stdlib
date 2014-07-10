@@ -298,7 +298,7 @@ local function lambda (l)
     if body then
       s = [[
         return function (...)
-          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = (unpack or table.unpack) {...}
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
 	  return ]] .. body .. [[
         end
       ]]
@@ -315,7 +315,7 @@ local function lambda (l)
     return nil, "invalid lambda string '" .. l .. "'"
   end
 
-  return Lambda (s, fn)
+  return Lambda (l, fn)
 end
 
 
