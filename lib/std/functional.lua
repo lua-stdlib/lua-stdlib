@@ -300,6 +300,11 @@ end)
 -- @table Lambda
 -- @func call compiled Lua function
 -- @string value original lambda string
+-- @see string.tostring
+-- @see object.prototype
+-- @usage
+-- -- Core Lua apis accept a function, but not a functable
+-- table.sort (t, (lambda "<").call)
 
 
 --- Compile a lambda string into a Lua function.
@@ -318,9 +323,9 @@ end)
 -- @treturn table compiled lambda string, can be called like a function
 -- @usage
 -- -- The following are all equivalent:
--- table.sort (t, lambda "<")
--- table.sort (t, lambda "= _1 < _2")
--- table.sort (t, lambda "|a,b| a<b")
+-- lambda "<"
+-- lambda "= _1 < _2"
+-- lambda "|a,b| a<b"
 export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 
 
