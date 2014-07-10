@@ -315,7 +315,7 @@ end
 --   @{std.object.prototype}
 -- @tfield table|function _init a table of field names, or
 --   initialisation function, used by @{__call}
--- @tfield nil|table _functions a table of module functions not copied
+-- @tfield[opt=nil] table _functions a table of module functions not copied
 --   by @{std.object.__call}
 return setmetatable ({
 
