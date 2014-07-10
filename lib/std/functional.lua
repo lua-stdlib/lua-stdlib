@@ -292,6 +292,16 @@ end)
 -- @treturn string normalized arguments
 
 
+--- A compiled lambda string returned by @{lambda}.
+--
+-- @{lambda} returns a functable with this signature, which has a
+-- metatable that returns `value` when passed to @{tostring} and
+-- can be called like any other function.
+-- @table Lambda
+-- @func call compiled Lua function
+-- @string value original lambda string
+
+
 --- Compile a lambda string into a Lua function.
 --
 -- A valid lambda string takes one of the following forms:
@@ -305,7 +315,7 @@ end)
 -- expression body.
 -- @function lambda
 -- @string s a lambda string
--- @treturn function compiled lambda string
+-- @treturn table compiled lambda string, can be called like a function
 -- @usage
 -- -- The following are all equivalent:
 -- table.sort (t, lambda "<")
