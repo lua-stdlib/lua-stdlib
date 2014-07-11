@@ -25,6 +25,7 @@
 
 local M -- forward declaration
 
+
 --- Overwrite core methods and metamethods with `std` enhanced versions.
 --
 -- Loads all `std` submodules with a `monkey_patch` method, and runs
@@ -63,11 +64,12 @@ local function barrel (namespace)
   -- Older releases installed the following into _G by default.
   for _, v in pairs {
     "functional.bind", "functional.collect", "functional.compose",
-    "functional.curry", "functional.eval", "functional.filter",
-    "functional.fold", "functional.id", "functional.map",
-    "functional.memoize", "functional.op",
+    "functional.curry", "functional.filter", "functional.fold",
+    "functional.id", "functional.map", "functional.op",
 
     "io.die", "io.warn",
+
+    "lua.case", "lua.eval", "lua.lambda", "lua.memoize",
 
     "string.assert", "string.pickle", "string.prettytostring",
     "string.render", "string.require_version", "string.tostring",

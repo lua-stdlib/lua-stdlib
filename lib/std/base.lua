@@ -261,48 +261,6 @@ end
 local function nop () end
 
 
--- Doc-commented in functional.lua
-local function lambda (l)
-  local s
-
-  -- Support operator table lookup.
-  if operator[l] then
-    return operator[l]
-  end
-
-  -- Support "|args|expression" format.
-  local args, body = string.match (l, "^|([^|]*)|%s*(.+)$")
-  if args and body then
-    s = "return function (" .. args .. ") return " .. body .. " end"
-  end
-
-  -- Support "=expression" format.
-  if not s then
-    body = l:match "^=%s*(.+)$"
-    if body then
-      s = [[
-        return function (...)
-          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
-	  return ]] .. body .. [[
-        end
-      ]]
-    end
-  end
-
-  local ok, fn
-  if s then
-    ok, fn = pcall (loadstring (s))
-  end
-
-  -- Diagnose invalid input.
-  if not ok then
-    return nil, "invalid lambda string '" .. l .. "'"
-  end
-
-  return fn
-end
-
-
 --- Split a string at a given separator.
 -- Separator is a Lua pattern, so you have to escape active characters,
 -- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
@@ -637,7 +595,6 @@ local M = {
   export         = export,
   getmetamethod  = getmetamethod,
   ielems         = ielems,
-  lambda         = lambda,
   leaves         = leaves,
   nop            = nop,
   prototype      = prototype,

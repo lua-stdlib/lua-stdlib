@@ -46,43 +46,6 @@ specify std.functional:
       expect (f (math.pow, nil, 3) (2)).to_be (8)
 
 
-- describe case:
-  - before:
-      yes     = function ()  return true end
-      no      = function ()  return false end
-      default = function (s) return s end
-      branches = { yes = yes, no = no, default }
-      fname = "case"
-      msg = M.bind (badarg, {this_module, fname})
-      f = M[fname]
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (2, "non-empty table"))
-  - it diagnoses wrong argument types:
-      expect (f ("no", false)).
-        to_error (msg (2, "non-empty table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (1, {2}, false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
-
-  - it matches against branch keys:
-      expect (f ("yes", branches)).to_be (true)
-      expect (f ("no",  branches)).to_be (false)
-  - it has a default for unmatched keys:
-      expect (f ("none", branches)).to_be "none"
-  - it returns nil for unmatched keys with no default:
-      expect (f ("none", { yes = yes, no = no })).to_be (nil)
-  - it evaluates `with` exactly once:
-      s = "prince"
-      function acc () s = s .. "s"; return s end
-      expect (f (acc (), {
-        prince   = function () return "one" end,
-        princes  = function () return "many" end,
-        princess = function () return "one" end,
-                   function () return "gibberish" end,
-      })).to_be "many"
-
-
 - describe collect:
   - before:
       fname = "collect"
@@ -145,26 +108,6 @@ specify std.functional:
       bin = f (math.pow, 2) (2)
       expect (bin (2)).to_be (math.pow (2, 2))
       expect (bin (10)).to_be (math.pow (2, 10))
-
-
-- describe eval:
-  - before:
-      fname = "eval"
-      msg = M.bind (badarg, {this_module, fname})
-      f = M[fname]
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("1", false)).to_error (toomanyarg (this_module, fname, 1, 2))
-
-  - it diagnoses invalid lua:
-      # Some internal error when eval tries to call uncompilable "=" code.
-      expect (f "=").to_error ()
-  - it evaluates a string of lua code:
-      expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
 
 
 - describe filter:
@@ -232,44 +175,6 @@ specify std.functional:
       expect ({f (1, "two", false)}).to_equal {1, "two", false}
 
 
-- describe lambda:
-  - before:
-      fname = "lambda"
-      msg = M.bind (badarg, {this_module, fname})
-      f = M[fname]
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-  - it diagnoses wrong arguments types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("foo", false)).to_error (toomanyarg (this_module, fname, 1, 2))
-  - it diagnoses bad lambda string:
-      expect (select (2, f "foo")).to_be "invalid lambda string 'foo'"
-  - it diagnoses an uncompilable expression:
-      expect (select (2, f "||+")).to_be "invalid lambda string '||+'"
-      expect (select (2, f "=")).to_be "invalid lambda string '='"
-
-  - context with argument format:
-    - it returns a function:
-        expect (prototype (f "|x| 1+x")).to_be "function"
-    - it compiles to a working Lua function:
-        fn = f "||42"
-        expect (fn ()).to_be (42)
-    - it propagates argument values:
-        fn = f "|...| {...}"
-        expect (fn (1,2,3)).to_equal {1,2,3}
-  - context with expression format:
-    - it returns a function:
-        expect (prototype (f "=1")).to_be "function"
-    - it compiles to a working Lua function:
-        fn = f "=42"
-        expect (fn ()).to_be (42)
-    - it sets auto-argument values:
-        fn = f "=_1*_1"
-        expect (fn (42)).to_be (1764)
-
-
 - describe map:
   - before:
      elements = {"a", "b", "c", "d", "e"}
@@ -298,47 +203,6 @@ specify std.functional:
       expect (f (function (e) return e .. "x" end, pairs, inverse)).
         to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
 
-
-- describe memoize:
-  - before:
-      fname = "memoize"
-      msg = M.bind (badarg, {this_module, fname})
-      f = M[fname]
-      memfn = f (function (x)
-                   if x then return {x} else return nil, "bzzt" end
-                 end)
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (f, false)).to_error (msg (2, "function or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (f, f, false)).to_error (toomanyarg (this_module, fname, 2, 3))
-
-  - it propagates multiple return values:
-      expect (select (2, memfn (false))).to_be "bzzt"
-  - it returns the same object for the same arguments:
-      t = memfn (1)
-      expect (memfn (1)).to_be (t)
-  - it returns a different object for different arguments:
-      expect (memfn (1)).not_to_be (memfn (2))
-  - it returns the same object for table valued arguments:
-      t = memfn {1, 2, 3}
-      expect (memfn {1, 2, 3}).to_be (t)
-      t = memfn {foo = "bar", baz = "quux"}
-      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
-      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
-  - it returns a different object for different table arguments:
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
-  - it accepts alternative normalization function:
-      normalize = function (...) return select ("#", ...) end
-      memfn = f (function (x) return {x} end, normalize)
-      expect (memfn "same").to_be (memfn "not same")
-      expect (memfn (1, 2)).to_be (memfn (false, "x"))
-      expect (memfn "one").not_to_be (memfn ("one", "two"))
 
 - describe nop:
   - before:

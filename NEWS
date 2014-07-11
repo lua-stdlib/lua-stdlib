@@ -33,21 +33,26 @@ Stdlib NEWS - User visible changes
  - New `functional.nop` function, for use where a function is required
    but no work should be done.
 
- - `functional.memoize` now propagates multiple return values correctly.
+ - New `std.lua` module collects additional Lua language features added
+   by stdlib that do not really belong in type modules: `std.lua.case`,
+   `std.lua.eval`, and `std.lua.memoize` (original access points exported
+   by earlier releases will be preserved for the forseeable future).
+
+ - `lua.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
 
- - New `functional.lambda` function for compiling lambda strings:
+ - New `lua.lambda` function for compiling lambda strings:
 
-     table.sort (t, functional.lambda "|a,b| a<b")
+     table.sort (t, lua.lambda "|a,b| a<b")
 
    or, equivalently using auto-arguments:
 
-     table.sort (t, functional.lambda "= _1 < _2"
+     table.sort (t, lua.lambda "= _1 < _2"
 
    or, equivalently using `std.operator` references:
 
-     table.sort (t, functional.lambda "<")
+     table.sort (t, lua.lambda "<")
 
 ** Incompatible changes:
 

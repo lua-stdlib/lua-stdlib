@@ -69,6 +69,7 @@ dist_luastd_DATA =			\
 	lib/std/functional.lua		\
 	lib/std/io.lua			\
 	lib/std/list.lua		\
+	lib/std/lua.lua			\
 	lib/std/math.lua		\
 	lib/std/object.lua		\
 	lib/std/operator.lua		\

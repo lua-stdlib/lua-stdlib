@@ -631,7 +631,7 @@ end)
 -- @todo Make it work for recursive tables.
 -- @param x object to pickle
 -- @treturn string reversible string rendering of *x*
--- @see functional.eval
+-- @see lua.eval
 -- @usage
 -- function slow_identity (x) return functional.eval (pickle (x)) end
 function M.pickle (x)
