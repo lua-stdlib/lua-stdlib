@@ -129,8 +129,6 @@ specify std.package:
       t = {}
       f (path, function (e) t[#t + 1] = e end)
       expect (t).to_equal (expected)
-  - it calls a lambda string with each path element:
-      expect (f (path, '=_1')).to_equal "./begin"
   - it passes additional arguments through: |
       reversed = {}
       for i = #expected, 1, -1 do

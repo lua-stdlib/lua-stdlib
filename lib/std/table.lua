@@ -13,8 +13,8 @@
 
 local base = require "std.base"
 
-local export, getmetamethod, lambda, ielems =
-      base.export, base.getmetamethod, base.lambda, base.ielems
+local export, getmetamethod, ielems =
+      base.export, base.getmetamethod, base.ielems
 
 
 local M = { "std.table" }
@@ -300,8 +300,6 @@ local _sort = table.sort
 -- @return *t* with keys sorted accordind to *c*
 -- @usage table.concat (sort (object))
 export (M, "sort (table, function?)", function (t, c)
-  c = type (c) == "string" and lambda (c).call or c
-
   _sort (t, c)
   return t
 end)

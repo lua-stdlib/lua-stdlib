@@ -581,20 +581,6 @@ specify std.string:
   - it converts a Vector to a representative string:
       expect (r (a)).
         to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
-  - it accepts lambda strings in lieu of Lua functions:
-      r = function (x)
-            return M.render (x, '="{"', '="}"', tostring, '=_4.."=".._5',
-                             '=(_2 and _4) and "," or ""')
-          end
-      expect (r (nil)).to_be "nil"
-      expect (r (false)).to_be "false"
-      expect (r (42)).to_be "42"
-      expect (r ("string")).to_be "string"
-      expect (r ({"table", 42})).to_be '{1=table,2=42}'
-      expect (r (t)).
-        to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
-      expect (r (a)).
-        to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 
 
 - describe require:

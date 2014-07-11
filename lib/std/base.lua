@@ -39,22 +39,6 @@ local toomanyarg_fmt =
       "too many arguments to '%s' (no more than %d expected, got %d)"
 
 
---- Construct a new Lambda functable.
--- The lambda string can be retrieved from functable `y` with `tostring (y)`,
--- or it can be executed with `y (args)`.
--- @string value lambda string
--- @func call compiled Lua function
--- @treturn table Lambda functable.
-local function Lambda (value, call)
-  return setmetatable ({ value = value, call = call },
-  {
-    _type = "Lambda",
-    __call = function (self, ...) return call (...) end,
-    __tostring = function (self) return 'Lambda "' .. value .. '"' end,
-  })
-end
-
-
 --- Make a shallow copy of a table.
 -- @tparam table t source table
 -- @treturn table shallow copy of *t*
@@ -283,7 +267,7 @@ local function lambda (l)
 
   -- Support operator table lookup.
   if operator[l] then
-    return Lambda (l, operator[l])
+    return operator[l]
   end
 
   -- Support "|args|expression" format.
@@ -315,7 +299,7 @@ local function lambda (l)
     return nil, "invalid lambda string '" .. l .. "'"
   end
 
-  return Lambda (l, fn)
+  return fn
 end
 
 
@@ -368,8 +352,7 @@ if _ARGCHECK then
 
       elseif check == "function" or check == "func" then
         if actualtype == "function" or
-            (getmetatable (actual) or {}).__call ~= nil or
-	    (actualtype == "string" and lambda (actual) ~= nil)
+            (getmetatable (actual) or {}).__call ~= nil
         then
            ok = true
         end

@@ -187,9 +187,6 @@ specify std.debug:
       expect (fn ("function", {0})).to_error "function expected, got table"
   - it matches callable types:
       expect (fn ("function", function () end)).not_to_error ()
-      expect (fn ("function", "|x|1+x")).not_to_error ()
-      expect (fn ("function", "=_1<_2")).not_to_error ()
-      expect (fn ("function", "<")).not_to_error ()
       expect (fn ("function", setmetatable ({}, {__call = function () end}))).
         not_to_error ()
   - it diagnoses missing non-empty table types:

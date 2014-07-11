@@ -544,8 +544,6 @@ specify std.table:
       expect (subject).to_equal (target)
   - it returns the sorted table:
       expect (f (subject, cmp)).to_equal (target)
-  - it accepts a lambda string in lieu of Lua function:
-      expect (f (subject, "<")).to_equal (target)
 
 
 - describe totable:

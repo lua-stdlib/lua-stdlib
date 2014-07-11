@@ -40,8 +40,6 @@ specify std.functional:
       expect (f (div, {100}) (25)).to_be (4)
   - it supports out of order extra arguments:
       expect (f (math.pow, {[2] = 3}) (2)).to_be (8)
-  - it supports lambda strings:
-      expect (f ("^", {[2] = 3}) (2)).to_be (8)
   - it supports the legacy api:
       expect (f (math.min) (2, 3, 4)).to_be (2)
       expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
@@ -83,8 +81,6 @@ specify std.functional:
         princess = function () return "one" end,
                    function () return "gibberish" end,
       })).to_be "many"
-  - it supports lambda strings:
-      expect (f ("1", { ["1"] = '="one"', '="unknown"' })).to_be "one"
 
 
 - describe collect:
@@ -100,9 +96,6 @@ specify std.functional:
 
   - it collects iterator results:
       expect (f (ipairs, {"a", "b", "c"})).to_equal {1, 2, 3}
-  - it supports lambda string iterators:
-      expect (f ("|v|function (s, k) return k<s and k+1 or nil end,v,0", 5)).
-        to_equal {1, 2, 3, 4, 5}
 
 
 - describe compose:
@@ -122,8 +115,6 @@ specify std.functional:
   - it composes functions in the correct order:
       expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))
-  - it composes lambda strings:
-      expect (f ('=42', '""') ()).to_be "42"
 
 
 - describe curry:
@@ -154,8 +145,6 @@ specify std.functional:
       bin = f (math.pow, 2) (2)
       expect (bin (2)).to_be (math.pow (2, 2))
       expect (bin (10)).to_be (math.pow (2, 10))
-  - it curries a lambda string:
-      expect (f ("{}", 3) (1) (2) (3)).to_equal {1, 2, 3}
 
 
 - describe eval:
@@ -205,10 +194,6 @@ specify std.functional:
         to_equal {2, 4}
       expect (f (function (e) return e:match "[aeiou]" end, pairs, inverse)).
         to_contain.a_permutation_of {"a", "e"}
-  - it supports lamda strings:
-      expect (f ("|e| e%2>0",
-                 "|v| function (s,k) return k<s and k+1 or nil end,v,0", 7)).
-        to_equal {1, 3, 5, 7}
 
 
 - describe fold:
@@ -232,10 +217,6 @@ specify std.functional:
         to_be (2 + 3)
       expect (f (M.op["*"], 2, list.elems, List {3, 4})).
         to_be (2 * 3 * 4)
-  - it calls a lambda string over element keys:
-      expect (f ("+", 1,
-                 "|v| function (s,k) return k<s and k+1 or nil end,v,0", 7)).
-        to_be (1 + 1 + 2 + 3 + 4 + 5 + 6 + 7)
   - it folds elements from left to right:
       expect (f (math.pow, 2, list.elems, List {3, 4})).
         to_be (math.pow (math.pow (2, 3), 4))
@@ -270,8 +251,8 @@ specify std.functional:
       expect (select (2, f "=")).to_be "invalid lambda string '='"
 
   - context with argument format:
-    - it returns a functable:
-        expect (getmetatable (f "|x| 1+x")).to_contain "__call"
+    - it returns a function:
+        expect (prototype (f "|x| 1+x")).to_be "function"
     - it compiles to a working Lua function:
         fn = f "||42"
         expect (fn ()).to_be (42)
@@ -279,8 +260,8 @@ specify std.functional:
         fn = f "|...| {...}"
         expect (fn (1,2,3)).to_equal {1,2,3}
   - context with expression format:
-    - it returns a functable:
-        expect (getmetatable (f "=1")).to_contain "__call"
+    - it returns a function:
+        expect (prototype (f "=1")).to_be "function"
     - it compiles to a working Lua function:
         fn = f "=42"
         expect (fn ()).to_be (42)
@@ -307,10 +288,6 @@ specify std.functional:
   - it iterates through element keys:
       expect (f (M.id, ipairs, elements)).to_equal {1, 2, 3, 4, 5}
       expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
-  - it supports lamda strings:
-      expect (f ("=_1*_1",
-                 "|v| function (s,k) return k<s and k+1 or nil end,v,0", 7)).
-        to_equal {1, 4, 9, 16, 25, 36, 49}
   - it passes each iterated element to map function:
       t = {}
       f (function (e) t[#t + 1] = e end, pairs, inverse)
@@ -362,10 +339,6 @@ specify std.functional:
       expect (memfn "same").to_be (memfn "not same")
       expect (memfn (1, 2)).to_be (memfn (false, "x"))
       expect (memfn "one").not_to_be (memfn ("one", "two"))
-  - it supports lambda strings:
-      memfn = f ("{}", '..')
-      expect (memfn (1, 2)).to_be (memfn (1, 1 + 1))
-      expect (memfn (1, 2)).not_to_be (memfn (2, 1))
 
 - describe nop:
   - before:

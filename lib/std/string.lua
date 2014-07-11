@@ -18,8 +18,8 @@ local table  = require "std.table"
 local List   = list {}
 local StrBuf = strbuf {}
 
-local export, getmetamethod, lambda, split =
-  base.export, base.getmetamethod, base.lambda, base.split
+local export, getmetamethod, split =
+  base.export, base.getmetamethod, base.split
 
 local _format   = string.format
 local _tostring = _G.tostring
@@ -466,12 +466,6 @@ end)
 -- end
 render = export (M, "render (any?, func, func, func, func, func, table?)",
 function (x, open, close, elem, pair, sep, roots)
-  open  = type (open)  == "string" and lambda (open)  or open
-  close = type (close) == "string" and lambda (close) or close
-  elem  = type (elem)  == "string" and lambda (elem)  or elem
-  pair  = type (pair)  == "string" and lambda (pair)  or pair
-  sep   = type (sep)   == "string" and lambda (sep)   or sep
-
   local function stop_roots (x)
     return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
   end

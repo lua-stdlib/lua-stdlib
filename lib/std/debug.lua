@@ -182,18 +182,12 @@ export (M, "argerror (string, int, string?, int?)", base.argerror)
 --    #table    accept any non-empty table
 --    any       accept any non-nil argument type
 --    file      accept an open file object
---    function  accept a function, lambda string, or object with a __call metamethod
+--    function  accept a function, or object with a __call metamethod
 --    int       accept an integer valued number
 --    list      accept a table where all keys are a contiguous 1-based integer range
 --    #list     accept any non-empty list
 --    object    accept any std.Object derived type
 --    :foo      accept only the exact string ":foo", works for any :-prefixed string
---
--- The `function` type does not compile lambda strings, so you should
--- always do that yourself whenever you accept a `function` argument:
---
---    argcheck ("table.sort", 2, "function|nil")
---    fn = type (fn) == "string" and lambda (fn) or fn
 --
 -- The `:foo` format allows for type-checking of self-documenting
 -- boolean-like constant string parameters predicated on `nil` versus

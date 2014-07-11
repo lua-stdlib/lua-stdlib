@@ -49,11 +49,6 @@ Stdlib NEWS - User visible changes
 
      table.sort (t, functional.lambda "<")
 
- - Any stdlib api that accepts a Lua function as an argument now
-   accepts either a Lua function or a direct lambda string:
-
-     std.table.sort (t, "|a,b| a>b")
-
 ** Incompatible changes:
 
  - `functional.bind` sets fixed positional arguments when called as

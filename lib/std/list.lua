@@ -35,8 +35,8 @@ local func    = require "std.functional"
 local object  = require "std.object"
 
 
-local argcheck, argerror, argscheck, ielems, lambda, prototype =
-      base.argcheck, base.argerror, base.argscheck, base.ielems, base.lambda, base.prototype
+local argcheck, argerror, argscheck, ielems, prototype =
+      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype
 
 local Object = object {}
 
@@ -206,8 +206,6 @@ end
 -- @see std.list:filter
 local function filter (p, l)
   argscheck ("std.list.filter", {"function", "List"}, {p, l})
-  p = type (p) == "string" and lambda (p) or p
-
   return List (func.filter (p, ielems, l))
 end
 
@@ -234,8 +232,6 @@ end
 -- @see std.list:foldl
 local function foldl (fn, e, l)
   argscheck ("std.list.foldl", {"function", "any?", "List"}, {fn, e, l})
-  fn = type (fn) == "string" and lambda (fn) or fn
-
   return func.fold (fn, e, ielems, l)
 end
 
@@ -268,8 +264,6 @@ end
 -- @see std.list:foldr
 local function foldr (fn, e, l)
   argscheck ("std.list.foldr", {"function", "any?", "List"}, {fn, e, l})
-  fn = type (fn) == "string" and lambda (fn) or fn
-
   return List (func.fold (function (x, y) return fn (y, x) end,
                           e, relems, l))
 end
@@ -322,8 +316,6 @@ end, nil,
 -- @see std.list:map
 local function map (fn, l)
   argscheck ("std.list.map", {"function", "List|table"}, {fn, l})
-  fn = type (fn) == "string" and lambda (fn) or fn
-
   return List (func.map (fn, ielems, l))
 end
 
@@ -333,8 +325,6 @@ end
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
 local function map_with (fn, ls)
-  fn = type (fn) == "string" and lambda (fn) or fn
-
   if _ARGCHECK then
     local fname = "std.list.map_with"
     argscheck (fname, {"function", "List"}, {fn, ls})
@@ -539,8 +529,6 @@ end
 --   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
 -- where `N = max {map (function (l) return #l end, ls)}`
 local function zip_with (ls, fn)
-  fn = type (fn) == "string" and lambda (fn) or fn
-
   if _ARGCHECK then
     local fname = "std.list.zip_with"
     argscheck (fname, {"List", "function"}, {ls, fn})

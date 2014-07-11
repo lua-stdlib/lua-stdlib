@@ -4,18 +4,6 @@
  A selection of higher-order functions to enable a functional style of
  programming in Lua.
 
- Of special note is the `lambda` function: when calling other stdlib apis
- that accept a function argument, the call to `lambda` itself is not
- required.  The following are equivalent:
-
-    std.table.sort (t, lambda '|a,b| a<b')
-    std.table.sort (t, '|a,b| a<b')
-
- In the latter case, `sort` will recognize and expand a valid "lambda
- string" without an explicit `lambda` invocation.  If argument checking is
- not disabled (see @{debug._DEBUG}), invalid lambda strings passed in lieu
- of a Lua function raise a "function expected, got string" error.
-
  @module std.functional
 ]]
 
@@ -42,7 +30,6 @@ local bind = export (M, "bind (func, any?*)", function (f, ...)
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
   end
-  f = type (f) == "string" and lambda (f) or f
 
   return function (...)
            local arg = {}
@@ -75,7 +62,6 @@ end)
 -- })
 export (M, "case (any?, #table)", function (with, branches)
   local f = branches[with] or branches[1]
-  f = type (f) == "string" and lambda (f) or f
   if f then return f (with) end
 end)
 
@@ -91,8 +77,6 @@ end)
 -- > =collect (std.list.relems, List {"a", "b", "c"})
 -- {"c", "b", "a"}
 export (M, "collect (func, any*)", function (i, ...)
-  i = type (i) == "string" and lambda (i) or i
-
   local t = {}
   for e in i (...) do
     t[#t + 1] = e
@@ -122,7 +106,6 @@ export (M, "compose (func*)", function (...)
   local fns, n = arg, #arg
   for i = 1, n do
     local f = fns[i]
-    fns[i] = type (f) == "string" and lambda (f) or f
   end
 
   return function (...)
@@ -147,8 +130,6 @@ end)
 -- 100     98
 local curry
 curry = export (M, "curry (func, int)", function (f, n)
-  f = type (f) == "string" and lambda (f) or f
-
   if n <= 1 then
     return f
   else
@@ -180,9 +161,6 @@ end)
 -- > filter ("|e| e%2==0", std.list.elems, List {1, 2, 3, 4})
 -- {2, 4}
 export (M, "filter (func, func, any*)", function (p, i, ...)
-  p = type (p) == "string" and lambda (p) or p
-  i = type (i) == "string" and lambda (i) or i
-
   local t = {}
   for e in i (...) do
     if p (e) then
@@ -204,9 +182,6 @@ end)
 -- @see std.list.foldr
 -- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
 export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
-  f = type (f) == "string" and lambda (f) or f
-  i = type (i) == "string" and lambda (i) or i
-
   local r = d
   for e in i (...) do
     r = f (r, e)
@@ -235,9 +210,6 @@ end
 -- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
 -- {1, 0, 1, 0}
 export (M, "map (func, func, any*)", function (f, i, ...)
-  f = type (f) == "string" and lambda (f) or f
-  i = type (i) == "string" and lambda (i) or i
-
   local t = {}
   for e in i (...) do
     local r = f (e)
@@ -262,9 +234,6 @@ end)
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
 local memoize = export (M, "memoize (func, func?)", function (fn, normalize)
-  fn = type (fn) == "string" and lambda (fn) or fn
-  normalize = type (normalize) == "string" and lambda (normalize) or normalize
-
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
@@ -290,21 +259,6 @@ end)
 -- @function memoize_normalize
 -- @param ... arguments
 -- @treturn string normalized arguments
-
-
---- A compiled lambda string returned by @{lambda}.
---
--- @{lambda} returns a functable with this signature, which has a
--- metatable that returns `value` when passed to @{tostring} and
--- can be called like any other function.
--- @table Lambda
--- @func call compiled Lua function
--- @string value original lambda string
--- @see string.tostring
--- @see object.prototype
--- @usage
--- -- Core Lua apis accept a function, but not a functable
--- table.sort (t, (lambda "<").call)
 
 
 --- Compile a lambda string into a Lua function.
