@@ -522,7 +522,7 @@ local function export (M, decl, fn, ...)
       argerror (fname, 2, "at least 1 argument type expected, got 0")
     end
 
-    local name = M[1] .. "." .. name
+    local name = M[1] .. (M[2] and ":" or ".") .. name
 
     -- If the final element of types ends with "*", then set max to a
     -- sentinel value to denote type-checking of *all* remaining
@@ -541,6 +541,13 @@ local function export (M, decl, fn, ...)
     fn = function (...)
       local args = {...}
       local argc, bestmismatch, at = arglen (args), 0, 0
+
+      -- For object methods, report type mismatch on self as argument 0.
+      if M[2] then
+	argcheck (name, 0, M[2], args[1], 2)
+	table.remove (args, 1)
+	argc = argc - 1
+      end
 
       for i, types in ipairs (type_specs) do
 	local mismatch = match (types, args, max == math.huge)

@@ -192,3 +192,32 @@ specify std.base:
     - it accepts correct argument types:
         expect (chk ("two")).to_equal (MAGIC) -- should be .to_be?
         expect (chk (1, "two")).to_equal (MAGIC) -- should be .to_be?
+  - context when checking self on an object method:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module, "Object" }
+        fname = "chk_method"
+        msg = function (...)
+                return badarg (nil, fake_module .. ":" .. fname, ...)
+              end
+        f (M, "chk_method (string)", function (self, x) return x end)
+        Object = require "std.object" {}
+        Bad = Object { _type = "Bad" }
+        obj = Object { chk = M.chk_method }
+    - it diagnoses missing arguments:
+        expect (obj.chk ()).to_error (msg (0, "Object"))
+        expect (obj:chk ()).to_error (msg (1, "string"))
+    - it diagnoses wrong argument types:
+        expect (obj.chk ({})).to_error (msg (0, "Object", "empty table"))
+        expect (obj.chk (Bad)).to_error (msg (0, "Object", "Bad"))
+        expect (obj:chk ({})).to_error (msg (1, "string", "empty table"))
+        expect (obj:chk (obj)).to_error (msg (1, "string", "Object"))
+    - it diagnoses too many arguments:
+        expect (obj.chk (obj, "str", false)).
+          to_error (toomanyarg (nil, fake_module .. ":" .. fname, 1, 2))
+        expect (obj:chk ("str", false)).
+          to_error (toomanyarg (nil, fake_module .. ":" .. fname, 1, 2))
+    - it accepts correct argument types:
+        expect (obj.chk (obj, "str")).to_be "str"
+        expect (obj.chk (Object, "str")).to_be "str"
+        expect (obj:chk ("str")).to_be "str"
