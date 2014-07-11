@@ -1,5 +1,4 @@
 before:
-  Object  = require "std.object"
   list    = require "std.list"
   List    = list {}
   l       = List {"foo", "bar", "baz"}
@@ -17,25 +16,25 @@ specify std.list:
     - it constructs a new list:
         l = List:clone {}
         expect (l).not_to_be (List)
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List:clone {"l"}, List:clone {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
-    - it initialises list with constructor parameters:
+    - it initialises List with constructor parameters:
         m = List:clone {"foo", "bar", "baz"}
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
-        obj = l:clone {}
-        expect (Object.type (obj)).to_be "List"
-        expect (obj).to_equal (l)
-        expect (getmetatable (obj)).to_be (getmetatable (l))
+        m = l:clone {}
+        expect (prototype (m)).to_be "List"
+        expect (m).to_equal (l)
+        expect (getmetatable (m)).to_be (getmetatable (l))
 
   # List {args} is just syntactic sugar for List:clone {args}
   - context from List object prototype:
     - it constructs a new list:
         l = List {}
         expect (l).not_to_be (List)
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List {"l"}, List {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
@@ -43,16 +42,16 @@ specify std.list:
         m = List {"foo", "bar", "baz"}
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
-        obj = l {}
-        expect (Object.type (obj)).to_be "List"
-        expect (obj).to_equal (l)
-        expect (getmetatable (obj)).to_be (getmetatable (l))
+        m = l {}
+        expect (prototype (m)).to_be "List"
+        expect (m).to_equal (l)
+        expect (getmetatable (m)).to_be (getmetatable (l))
 
 
 - describe metatable propagation:
   - it reuses the metatable for List constructed objects:
-      obj = List {"foo", "bar"}
-      expect (getmetatable (obj)).to_be (getmetatable (l))
+      m = List {"foo", "bar"}
+      expect (getmetatable (m)).to_be (getmetatable (l))
 
 
 - describe append:
@@ -69,7 +68,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         l = l:append ("quux")
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:append ("quux")).to_equal (List {"quux"})
@@ -79,7 +78,7 @@ specify std.list:
   - context when called as a list metamethod:
     - it returns a list object:
         l = l + "quux"
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l + "quux").to_equal (List {"quux"})
@@ -180,7 +179,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         l = l:concat (List {"baz"})
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:concat (List {"baz"})).to_equal (List {"baz"})
@@ -192,7 +191,7 @@ specify std.list:
   - context whne called as a list metamethod:
     - it returns a list object:
         l = l .. List {"baz"}
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l .. List {"baz"}).to_equal (List {"baz"})
@@ -217,7 +216,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         l = l:cons "quux"
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it works for empty lists:
         l = List {}
         expect (l:cons "quux").to_equal (List {"quux"})
@@ -247,7 +246,7 @@ specify std.list:
         to_error "bad argument #1 to 'std.list.depair' (List or table of pairs expected, got string at index 2)"
   - context when called as a list object method:
     - it returns a primitive table:
-        expect (Object.type (l:depair ())).to_be "table"
+        expect (prototype (l:depair ())).to_be "table"
     - it works with an empty list:
         l = List {}
         expect (l:depair ()).to_equal {}
@@ -296,7 +295,7 @@ specify std.list:
       expect (f (false)).
         to_error "bad argument #1 to 'std.list.enpair' (table expected, got boolean)"
   - it returns a list object:
-      expect (Object.type (f (t))).to_be "List"
+      expect (prototype (f (t))).to_be "List"
   - it works for an empty table:
       expect (f {}).to_equal (List {})
   - it turns a table into a list of pairs:
@@ -324,7 +323,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         m = l:filter (p)
-        expect (Object.type (m)).to_be "List"
+        expect (prototype (m)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:filter (p)).to_equal (List {})
@@ -349,7 +348,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         m = List.flatten (l)
-        expect (Object.type (m)).to_be "List"
+        expect (prototype (m)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:flatten ()).to_equal (List {})
@@ -516,7 +515,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         m = l:map (sq)
-        expect (Object.type (m)).to_be "List"
+        expect (prototype (m)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:map (sq)).to_equal (List {})
@@ -556,7 +555,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         m = l:map_with (n)
-        expect (Object.type (m)).to_be "List"
+        expect (prototype (m)).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:map_with (n)).to_equal (List {})
@@ -595,7 +594,7 @@ specify std.list:
   - context when called as a list object method:
     - it returns a list object:
         p = l:project ("third")
-        expect (Object.type (p)).to_be "List"
+        expect (prototype (p)).to_be "List"
     - it works with an empty list:
         l = List {}
         expect (l:project ("third")).to_equal (List {})
@@ -654,7 +653,7 @@ specify std.list:
 
   - context when called as a list object method:
     - it returns a list object:
-        expect (Object.type (l:rep (3))).to_be "List"
+        expect (prototype (l:rep (3))).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:rep (99)).to_equal (List {})
@@ -677,7 +676,7 @@ specify std.list:
 
   - context when called as a list object method:
     - it returns a list object:
-        expect (Object.type (l:reverse ())).to_be "List"
+        expect (prototype (l:reverse ())).to_be "List"
     - it works for an empty list:
         l = List {}
         expect (l:reverse ()).to_equal (List {})
@@ -725,7 +724,7 @@ specify std.list:
 
   - context when called as a list object method:
     - it returns a list object: |
-        expect (Object.type (l:sub (1, 1))).to_be "List"
+        expect (prototype (l:sub (1, 1))).to_be "List"
     - it makes a list from a subrange of another list: |
         expect (l:sub (2, 5)).to_equal (List {2, 3, 4, 5})
     - it truncates the result if 'to' argument is too large: |
@@ -756,7 +755,7 @@ specify std.list:
 
   - context when called as a list object method:
     - it returns a list object: |
-        expect (Object.type (l:tail ())).to_be "List"
+        expect (prototype (l:tail ())).to_be "List"
     - it makes a new list with the first element removed: |
         expect (l:tail ()).to_equal (List {2, 3, 4, 5, 6, 7})
     - it works for an empty list: |

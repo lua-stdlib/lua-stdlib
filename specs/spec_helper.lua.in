@@ -12,6 +12,13 @@ package.path = std.package.normalize ("lib/?.lua", package.path)
 local LUA = "@LUA@"
 
 
+-- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
+-- prevent everything else from working.
+function prototype (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
+
+
 -- Error message specifications use this to shorten argument lists.
 -- Copied from functional.lua to avoid breaking all tests if functional
 -- cannot be loaded correctly.
