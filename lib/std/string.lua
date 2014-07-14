@@ -158,7 +158,7 @@ end)
 -- @return list of `{from, to; capt = {captures}}`
 -- @see std.string.tfind
 -- @usage
--- for t in list.elems (finds ("the target string", "%S+")) do
+-- for t in lua.elems (finds ("the target string", "%S+")) do
 --   print (tostring (t.capt))
 -- end
 export (M, "finds (string, string, int?, boolean|:plain?)", function (s, p, i, ...)

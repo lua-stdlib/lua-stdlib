@@ -131,7 +131,7 @@ end)
 -- @treturn table elements e for which `p (e)` is not falsey.
 -- @see collect
 -- @usage
--- > filter ("|e| e%2==0", std.list.elems, List {1, 2, 3, 4})
+-- > filter (lua.lambda "|e| e%2==0", lua.elems, {1, 2, 3, 4})
 -- {2, 4}
 export (M, "filter (func, func, any*)", function (p, i, ...)
   local t = {}
@@ -153,7 +153,7 @@ end)
 -- @return result
 -- @see std.list.foldl
 -- @see std.list.foldr
--- @usage fold (math.pow, 1, std.list.elems, List {2, 3, 4})
+-- @usage fold (math.pow, 1, lua.elems, {2, 3, 4})
 export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
   local r = d
   for e in i (...) do
@@ -180,7 +180,7 @@ end
 -- @treturn table results
 -- @see filter
 -- @usage
--- > map (function (e) return e % 2 end, std.list.elems, List {1, 2, 3, 4})
+-- > map (function (e) return e % 2 end, lua.elems, {1, 2, 3, 4})
 -- {1, 0, 1, 0}
 export (M, "map (func, func, any*)", function (f, i, ...)
   local t = {}

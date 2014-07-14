@@ -12,9 +12,9 @@
 
 
 local base = require "std.base"
+local lua  = require "std.lua"
 
-local export, getmetamethod, ielems =
-      base.export, base.getmetamethod, base.ielems
+local export, getmetamethod = base.export, base.getmetamethod
 
 
 local M = { "std.table" }
@@ -64,7 +64,7 @@ local function merge_namedfields (t, u, keys, nometa)
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for k in ielems (keys) do
+  for _, k in ipairs (keys) do
     t[k] = u[k]
   end
   return t
@@ -128,25 +128,6 @@ export (M, "clone_select (table, [table], boolean|:nometa?)",
   function (...) return merge_namedfields ({}, ...) end)
 
 
---- An iterator over all values of a table.
--- @function elems
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*
--- @treturn boolean `true`
--- @usage for func in elems (_G) do ... end
-export (M, "elems (table)", function (t)
-  local k, v = nil
-  return function (t)
-           k, v = next (t, k)
-           if k then
-             return v
-           end
-         end,
-  t, true
-end)
-
-
 --- Return whether table is empty.
 -- @function empty
 -- @tparam table t any table
@@ -155,16 +136,6 @@ end)
 export (M, "empty (table)", function (t)
   return not next (t)
 end)
-
-
---- An iterator over the integer keyed elements of a table.
--- @function ielems
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*
--- @treturn boolean `true`
--- @usage for value in ielems {"a", "b", "c"} do ... end
-export (M, "ielems (table)", ielems)
 
 
 --- Invert a table.

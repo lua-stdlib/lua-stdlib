@@ -54,6 +54,31 @@ specify std.lua:
       })).to_be "many"
 
 
+- describe elems:
+  - before:
+      fname = "elems"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string or table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it is an iterator over table values:
+      t = {}
+      for e in f {"foo", bar = "baz", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_contain.a_permutation_of {"foo", "baz", 42}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
+
+
 - describe eval:
   - before:
       fname = "eval"
@@ -72,6 +97,32 @@ specify std.lua:
       expect (f "=").to_error ()
   - it evaluates a string of lua code:
       expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
+
+
+- describe ielems:
+  - before:
+      fname = "ielems"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List, list or string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List, list or string", "boolean"))
+      expect (f {foo = "bar"}).to_error (msg (1, "List, list or string", "table"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for e in f {"foo", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_equal {"foo", 42}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
 
 
 - describe lambda:

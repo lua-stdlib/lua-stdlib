@@ -532,23 +532,6 @@ local function export (M, decl, fn, ...)
 end
 
 
---- An iterator over the integer keyed elements of a table.
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn *t*
--- @return `true`
-local function ielems (t)
-  local n = 0
-  return function (t)
-           n = n + 1
-           if n <= #t then
-             return t[n]
-           end
-         end,
-  t, true
-end
-
-
 --- Iterator returning leaf nodes from nested tables.
 -- @tparam function it table iterator function
 -- @tparam tree|table tr tree or tree-like table
@@ -594,7 +577,6 @@ local M = {
   deprecate      = deprecate,
   export         = export,
   getmetamethod  = getmetamethod,
-  ielems         = ielems,
   leaves         = leaves,
   nop            = nop,
   prototype      = prototype,

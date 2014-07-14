@@ -141,8 +141,7 @@ specify std.functional:
 
 - describe fold:
   - before:
-      list = require "std.list"
-      List = list {}
+      lua = require "std.lua"
       fname = "fold"
       msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
@@ -156,12 +155,12 @@ specify std.functional:
       expect (f (f, 1, false)).to_error (msg (3, "function", "boolean"))
 
   - it calls a binary function over element keys:
-      expect (f (M.op["+"], 2, list.elems, List {3})).
+      expect (f (M.op["+"], 2, lua.ielems, {3})).
         to_be (2 + 3)
-      expect (f (M.op["*"], 2, list.elems, List {3, 4})).
+      expect (f (M.op["*"], 2, lua.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (f (math.pow, 2, list.elems, List {3, 4})).
+      expect (f (math.pow, 2, lua.ielems, {3, 4})).
         to_be (math.pow (math.pow (2, 3), 4))
 
 

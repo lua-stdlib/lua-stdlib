@@ -12,9 +12,11 @@
  ]]
 
 local base      = require "std.base"
+local lua       = require "std.lua"
 local container = require "std.container"
 
 local Container = container {}
+local ielems    = lua.ielems
 local prototype = base.prototype
 
 
@@ -206,7 +208,7 @@ Set = Container {
   _type      = "Set",
 
   _init      = function (self, t)
-                 for e in base.ielems (t) do
+                 for e in ielems (t) do
                    insert (self, e)
                  end
                  return self

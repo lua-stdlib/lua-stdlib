@@ -33,9 +33,12 @@ local _DEBUG     = require "std.debug_init"._DEBUG
 
 local base       = require "std.base"
 local functional = require "std.functional"
+local lua        = require "std.lua"
 local string     = require "std.string"
 
 local export = base.export
+local ielems = lua.ielems
+
 local M      = { "std.debug" }
 
 
@@ -51,7 +54,7 @@ local M      = { "std.debug" }
 -- @usage s = tabify {...}
 local tabify = functional.compose (
         -- map (elementfn, iterfn, unnbound_table_arg)
-        functional.bind (functional.map, {string.tostring, base.ielems}),
+        functional.bind (functional.map, {string.tostring, ielems}),
         -- table.concat (unbound_strbuf_table, "\t")
         functional.bind (table.concat, {[2] = "\t"}))
 

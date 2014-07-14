@@ -26,10 +26,6 @@ Stdlib NEWS - User visible changes
    `#` and matching `~`, plus new mathematical operators `%` and `^`, and
    relational operators, `<`, `<=`, `>` and `>=`.
 
- - New `table.elems` and `table.ielems` functions for iterating table
-   values cleanly, and for orthogonality between std.table, std.base,
-   std.list and std.set.
-
  - New `functional.nop` function, for use where a function is required
    but no work should be done.
 
@@ -37,6 +33,9 @@ Stdlib NEWS - User visible changes
    by stdlib that do not really belong in type modules: `std.lua.case`,
    `std.lua.eval`, and `std.lua.memoize` (original access points exported
    by earlier releases will be preserved for the forseeable future).
+
+ - New `lua.ielems` and `lua.elems` functions for iterating sequences cleanly,
+   while respecting `__ipairs` and `__pairs` metamethods respectively.
 
  - `lua.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`

@@ -12,6 +12,30 @@ local export, getmetamethod = base.export, base.getmetamethod
 local M = { "std.lua" }
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+local function wrapiterator (factory, ...)
+  -- Capture wrapped ctrl variable into an upvalue...
+  local fn, istate, ctrl = factory (...)
+  -- Wrap the returned iterator fn to maintain wrapped ctrl.
+  return function (state, _)
+           local v
+	   ctrl, v = fn (state, ctrl)
+	   if ctrl then return v end
+	 end, istate, true -- wrapped initial state, and wrapper ctrl
+end
+
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
+
+
 --- A rudimentary case statement.
 -- Match `with` against keys in `branches` table, and return the result
 -- of running the function in the table value for the matching key, or
@@ -39,6 +63,32 @@ end)
 -- @usage eval "math.pow (2, 10)"
 export (M, "eval (string)", function (s)
   return loadstring ("return " .. s)()
+end)
+
+
+--- An iterator over all elements of a sequence.
+-- @function elems
+-- @tparam sequence x a sequence
+-- @treturn function iterator function
+-- @treturn sequence *x*, the sequence being iterated over
+-- @treturn int *key*, the previous iteration key
+-- @usage
+-- for v in elems {a = 1, b = 2, c = 5} do process (v) end
+export (M, "elems (string|table)", function (x)
+  return wrapiterator (getmetamethod (x, "__pairs") or pairs, x)
+end)
+
+
+--- An iterator over the integer keyed elements of a sequence.
+-- @function ielems
+-- @tparam sequence x a sequence
+-- @treturn function iterator function
+-- @treturn sequence *x*, the sequence being iterated over
+-- @treturn int *index*, the previous iteration index
+-- @usage
+-- for v in ielems {"a", "b", "c"} do process (v) end
+export (M, "ielems (List|list|string)", function (x)
+  return wrapiterator (getmetamethod (x, "__ipairs") or ipairs, x)
 end)
 
 
