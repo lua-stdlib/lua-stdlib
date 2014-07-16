@@ -94,6 +94,7 @@ local function compare (l, m)
 end
 
 
+-- DEPRECATED: Remove in first release following 2015-07-11.
 --- An iterator over the elements of a list.
 -- @static
 -- @function elems
@@ -102,21 +103,8 @@ end
 --   of `l`
 -- @treturn List `l`
 -- @return `true`
-local elems
-
-if _ARGCHECK then
-
-  elems = function (l)
-    argcheck ("std.list.elems", 1, "List", l)
-    return ielems (l)
-  end
-
-else
-
-  -- Save a stack frame and a comparison on each call.
-  elems = ielems
-
-end
+local elems = base.deprecate (ielems, nil,
+  "list.elems is deprecated, use lua.ielems instead.")
 
 
 --- Concatenate arguments into a list.
@@ -555,7 +543,6 @@ local _functions = {
   concat      = concat,
   cons        = cons,
   depair      = depair,
-  elems       = elems,
   enpair      = enpair,
   filter      = filter,
   flatten     = flatten,
@@ -575,6 +562,7 @@ local _functions = {
 }
 
 -- Deprecated and undocumented.
+_functions.elems = elems
 _functions.index_key = index_key
 _functions.index_value = index_value
 
@@ -654,11 +642,11 @@ List = Object {
     ------
     -- An iterator over the elements of a list.
     -- @function elems
-    -- @treturn function  iterator function which returns successive
+    -- @treturn function iterator function which returns successive
     --   elements of `self`
     -- @treturn List `self`
     -- @return `true`
-    elems = elems,
+    elems = ielems,
 
     ------
     -- Filter a list according to a predicate.

@@ -255,32 +255,39 @@ specify std.list:
 
 
 - describe elems:
-  - before:
-      f = list.elems
+  - context as a module function:
+    - before:
+        f = list.elems
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.elems' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.elems' (List expected, got boolean)"
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
 
-  - it is an iterator over list members:
-      t = {}
-      for e in List.elems (l) do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
-  - it works for an empty list:
-      t = {}
-      for e in List.elems (List {}) do table.insert (t, e) end
-      expect (t).to_equal {}
-  - it can be called from the list module:
-      t = {}
-      for e in List.elems (l) do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
-  - it can be called as a list object method:
-      t = {}
-      for e in l:elems () do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
+        _, err = capture (f, {{}})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "elems is deprecated"
+        end
+        expect (select (2, capture (f, {{}}))).to_be (nil)
+
+    - it is an iterator over list members:
+        t = {}
+        for e in f (l) do table.insert (t, e) end
+        expect (t).to_equal {"foo", "bar", "baz"}
+    - it works for an empty list:
+        t = {}
+        for e in f (List {}) do table.insert (t, e) end
+        expect (t).to_equal {}
+
+  - context as an object method:
+    - it is an iterator over list members:
+        t = {}
+        for e in l:elems () do table.insert (t, e) end
+        expect (t).to_equal {"foo", "bar", "baz"}
+    - it works for an empty list:
+        t, l = {}, List {}
+        for e in l:elems () do table.insert (t, e) end
+        expect (t).to_equal {}
 
 
 - describe enpair:
