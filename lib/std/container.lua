@@ -120,7 +120,12 @@ local ModuleFunction = {
 -- @func fn a function
 -- @treturn functable a callable functable for `fn`
 local function modulefunction (fn)
-  return setmetatable ({_type = "modulefunction", call = fn}, ModuleFunction)
+  if getmetatable (fn) == ModuleFunction then
+    -- Don't double wrap!
+    return fn
+  else
+    return setmetatable ({_type = "modulefunction", call = fn}, ModuleFunction)
+  end
 end
 
 
