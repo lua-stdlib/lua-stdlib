@@ -206,11 +206,7 @@ end
 local function flatten (l)
   argcheck ("std.list.flatten", 1, "List", l)
 
-  local r = List {}
-  for v in base.leaves (ipairs, l) do
-    r[#r + 1] = v
-  end
-  return r
+  return List (func.collect (base.leaves, ipairs, l))
 end
 
 
