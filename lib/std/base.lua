@@ -321,7 +321,7 @@ if _ARGCHECK then
         end
 
       elseif check == "list" or check == "#list" then
-        if actualtype == "table" then
+        if actualtype == "table" or actualtype == "List" then
           local len, count = #actual, 0
 	  local i = next (actual)
 	  repeat

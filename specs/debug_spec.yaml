@@ -209,8 +209,6 @@ specify std.debug:
         to_error "list expected, got table"
       expect (fn ("list", Object)).
         to_error "list expected, got Object"
-      expect (fn ("list", List {})).
-        to_error "list expected, got List"
   - it matches list types:
       expect (fn ("list", {})).not_to_error ()
       expect (fn ("list", {1})).not_to_error ()
@@ -228,8 +226,6 @@ specify std.debug:
         to_error "non-empty list expected, got empty Object"
       expect (fn ("#list", List {})).
         to_error "non-empty list expected, got empty List"
-      expect (fn ("#list", List {1})).
-        to_error "non-empty list expected, got List"
   - it matches non-empty list types:
       expect (fn ("#list", {1})).not_to_error ()
   - it diagnoses missing object types:
