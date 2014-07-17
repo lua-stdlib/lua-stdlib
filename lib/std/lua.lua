@@ -67,28 +67,43 @@ end)
 
 
 --- An iterator over all elements of a sequence.
+-- If there is a `__pairs` metamethod, use that to iterate.
 -- @function elems
--- @tparam sequence x a sequence
+-- @tparam table t a table
 -- @treturn function iterator function
--- @treturn sequence *x*, the sequence being iterated over
--- @treturn int *key*, the previous iteration key
+-- @treturn table *t*, the table being iterated over
+-- @return *key*, the previous iteration key
 -- @usage
 -- for v in elems {a = 1, b = 2, c = 5} do process (v) end
-export (M, "elems (string|table)", function (x)
-  return wrapiterator (getmetamethod (x, "__pairs") or pairs, x)
+export (M, "elems (table)", function (t)
+  return wrapiterator (getmetamethod (t, "__pairs") or pairs, t)
 end)
 
 
 --- An iterator over the integer keyed elements of a sequence.
+-- If there is an `__ipairs` metamethod, use that to iterate.
 -- @function ielems
--- @tparam sequence x a sequence
+-- @tparam list l a list
 -- @treturn function iterator function
--- @treturn sequence *x*, the sequence being iterated over
+-- @treturn list *l*, the list being iterated over
 -- @treturn int *index*, the previous iteration index
 -- @usage
 -- for v in ielems {"a", "b", "c"} do process (v) end
-export (M, "ielems (List|list|string)", function (x)
-  return wrapiterator (getmetamethod (x, "__ipairs") or ipairs, x)
+export (M, "ielems (list)", function (l)
+  return wrapiterator (getmetamethod (l, "__ipairs") or ipairs, l)
+end)
+
+
+--- An implementation of core ipairs that respects __ipairs even in Lua 5.1.
+-- @function ipairs
+-- @tparam list l a list
+-- @treturn function iterator function
+-- @treturn list *l*, the list being iterated over
+-- @treturn int *index*, the previous iteration index
+-- @usage
+-- for i, v in ipairs {"a", "b", "c"} do process (v) end
+export (M, "ipairs (list)", function (l)
+  return ((getmetatable (l) or {}).__ipairs or ipairs) (l)
 end)
 
 
@@ -193,6 +208,18 @@ end
 
 export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 
+
+--- An implementation of core pairs that respects __pairs even in Lua 5.1.
+-- @function pairs
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn table *t*, the table being iterated over
+-- @return *key*, the previous iteration key
+-- @usage
+-- for i, v in ipairs {"a", "b", "c"} do process (v) end
+export (M, "pairs (table)", function (t)
+  return (getmetamethod (t, "__pairs") or pairs) (t)
+end)
 
 
 return M

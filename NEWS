@@ -34,6 +34,9 @@ Stdlib NEWS - User visible changes
    `std.lua.eval`, and `std.lua.memoize` (original access points exported
    by earlier releases will be preserved for the forseeable future).
 
+ - New `lua.ipairs` and `lua.pairs` functions, that respect `__ipairs`
+   and `__pairs` metamethods, even on Lua 5.1.
+
  - New `lua.ielems` and `lua.elems` functions for iterating sequences cleanly,
    while respecting `__ipairs` and `__pairs` metamethods respectively.
 

@@ -61,9 +61,9 @@ specify std.lua:
       f = M[fname]
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string or table"))
+      expect (f ()).to_error (msg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string or table", "boolean"))
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
   - it diagnoses too many arguments:
       expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
 
@@ -73,6 +73,19 @@ specify std.lua:
         t[#t + 1] = e
       end
       expect (t).to_contain.a_permutation_of {"foo", "baz", 42}
+  - it respects __pairs metamethod: |
+      x = setmetatable ({ "a string" }, {
+        __pairs = function (x)
+                     return function (x, n)
+                       if n < #x[1] then
+                         return n+1, string.sub (x[1], n+1, n+1)
+                       end
+                     end, x, 0
+                   end
+      })
+      t = {}
+      for v in f (x) do t[#t + 1] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
       for e in f {} do t[#t + 1] = e end
@@ -106,10 +119,10 @@ specify std.lua:
       f = M[fname]
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "List, list or string"))
+      expect (f ()).to_error (msg (1, "list"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "List, list or string", "boolean"))
-      expect (f {foo = "bar"}).to_error (msg (1, "List, list or string", "table"))
+      expect (f (false)).to_error (msg (1, "list", "boolean"))
+      expect (f {foo = "bar"}).to_error (msg (1, "list", "table"))
   - it diagnoses too many arguments:
       expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
 
@@ -119,9 +132,61 @@ specify std.lua:
         t[#t + 1] = e
       end
       expect (t).to_equal {"foo", 42}
+  - it respects __ipairs metamethod: |
+      x = setmetatable ({ "a string" }, {
+        __ipairs = function (x)
+                     return function (x, n)
+                       if n < #x[1] then
+                         return n+1, string.sub (x[1], n+1, n+1)
+                       end
+                     end, x, 0
+                   end
+      })
+      t = {}
+      for v in f (x) do t[#t + 1] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
       for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
+
+
+- describe ipairs:
+  - before:
+      fname = "ipairs"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "list"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "list", "boolean"))
+      expect (f {foo = "bar"}).to_error (msg (1, "list", "table"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for i, v in f {"foo", 42} do
+        t[i] = v
+      end
+      expect (t).to_equal {"foo", 42}
+  - it respects __ipairs metamethod: |
+      x = setmetatable ({ "a string" }, {
+        __ipairs = function (x)
+                     return function (x, n)
+                       if n < #x[1] then
+                         return n+1, string.sub (x[1], n+1, n+1)
+                       end
+                     end, x, 0
+                   end
+      })
+      t = {}
+      for k, v in f (x) do t[k] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for i, v in f {} do t[i] = v end
       expect (t).to_equal {}
 
 
@@ -203,3 +268,41 @@ specify std.lua:
       expect (memfn "same").to_be (memfn "not same")
       expect (memfn (1, 2)).to_be (memfn (false, "x"))
       expect (memfn "one").not_to_be (memfn ("one", "two"))
+
+
+- describe pairs:
+  - before:
+      fname = "pairs"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it is an iterator over all table values:
+      t = {}
+      for k, v in f {"foo", bar = "baz", 42} do
+        t[k] = v
+      end
+      expect (t).to_equal {"foo", bar = "baz", 42}
+  - it respects __pairs metamethod: |
+      x = setmetatable ({ "a string" }, {
+        __pairs = function (x)
+                     return function (x, n)
+                       if n < #x[1] then
+                         return n+1, string.sub (x[1], n+1, n+1)
+                       end
+                     end, x, 0
+                   end
+      })
+      t = {}
+      for k, v in f (x) do t[k] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for k, v in f {} do t[k] = v end
+      expect (t).to_equal {}
