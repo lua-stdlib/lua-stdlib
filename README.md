@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
 Standard Lua libraries
 ======================
 
