@@ -412,9 +412,9 @@ end)
 -- @return string representation of *x*
 -- @usage
 -- function tostring (x)
---   return render (x, mkterminal "{", mkterminal "}", string.tostring,
---                  function (_, _, _, i, v) return i .. "=" .. v end,
---                  mkterminal ",")
+--   return render (x, lambda '="{"', lambda '="}"', string.tostring,
+--                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
+--                  lambda '=","')
 -- end
 render = export (M, "render (any?, func, func, func, func, func, table?)",
 function (x, open, close, elem, pair, sep, roots)
@@ -484,13 +484,14 @@ end)
 
 --- Signature of render separator callback.
 -- @function render_separator
--- @tparam table t table currently being renedered
+-- @tparam table t table currently being rendered
 -- @param pk *t* key preceding separator, or `nil` for first key
 -- @param pv *t* value preceding separator, or `nil` for first value
 -- @param fk *t* key following separator, or `nil` for last key
 -- @param fv *t* value following separator, or `nil` for last value
 -- @treturn string separator rendering
--- @usage function separator (t) return fk and "," or "" end
+-- @usage
+-- function separator (_, _, _, fk) return fk and "," or "" end
 
 
 --- Extend `tostring` to render table contents as a string.
