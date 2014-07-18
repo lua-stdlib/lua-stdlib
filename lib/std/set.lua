@@ -12,12 +12,10 @@
  ]]
 
 local base      = require "std.base"
-local lua       = require "std.lua"
 local container = require "std.container"
 
 local Container = container {}
-local ielems    = lua.ielems
-local prototype = base.prototype
+local ielems, prototype = base.ielems, base.prototype
 
 
 local Set -- forward declaration

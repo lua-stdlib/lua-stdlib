@@ -33,11 +33,9 @@ local _DEBUG     = require "std.debug_init"._DEBUG
 
 local base       = require "std.base"
 local functional = require "std.functional"
-local lua        = require "std.lua"
 local string     = require "std.string"
 
-local export = base.export
-local ielems = lua.ielems
+local export, ielems = base.export, base.ielems
 
 local M      = { "std.debug" }
 

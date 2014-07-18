@@ -245,6 +245,28 @@ local function formaterror (expectedtypes, actual)
 end
 
 
+--- Iterator adaptor for discarding first value from core iterator function.
+-- @func factory iterator to be wrapped
+-- @param ... *factory* arguments
+-- @treturn function iterator that discards first returned value of
+--   factory iterator
+-- @return invariant state from *factory*
+-- @return `true`
+-- @usage
+-- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
+local function wrapiterator (factory, ...)
+  -- Capture wrapped ctrl variable into an upvalue...
+  local fn, istate, ctrl = factory (...)
+  -- Wrap the returned iterator fn to maintain wrapped ctrl.
+  return function (state, _)
+           local v
+	   ctrl, v = fn (state, ctrl)
+	   if ctrl then return v end
+	 end, istate, true -- wrapped initial state, and wrapper ctrl
+end
+
+
+
 
 --[[ ================= ]]--
 --[[ Module Functions. ]]--
@@ -569,6 +591,13 @@ local function getmetamethod (x, n)
 end
 
 
+-- Doc-commented in lua.lua
+local function ielems (l)
+  return wrapiterator (getmetamethod (l, "__ipairs") or ipairs, l)
+end
+
+
+
 local M = {
   argcheck       = argcheck,
   argerror       = argerror,
@@ -577,11 +606,13 @@ local M = {
   deprecate      = deprecate,
   export         = export,
   getmetamethod  = getmetamethod,
+  ielems         = ielems,
   leaves         = leaves,
   nop            = nop,
   prototype      = prototype,
   split          = split,
   toomanyarg_fmt = toomanyarg_fmt,
+  wrapiterator   = wrapiterator,
 }
 
 

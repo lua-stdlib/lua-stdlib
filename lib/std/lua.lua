@@ -7,33 +7,11 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, getmetamethod = base.export, base.getmetamethod
+local export, getmetamethod, ielems, wrapiterator =
+      base.export, base.getmetamethod, base.ielems, base.wrapiterator
 
 local M = { "std.lua" }
 
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
-local function wrapiterator (factory, ...)
-  -- Capture wrapped ctrl variable into an upvalue...
-  local fn, istate, ctrl = factory (...)
-  -- Wrap the returned iterator fn to maintain wrapped ctrl.
-  return function (state, _)
-           local v
-	   ctrl, v = fn (state, ctrl)
-	   if ctrl then return v end
-	 end, istate, true -- wrapped initial state, and wrapper ctrl
-end
-
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
 
 
 --- A rudimentary case statement.
@@ -89,9 +67,7 @@ end)
 -- @treturn int *index*, the previous iteration index
 -- @usage
 -- for v in ielems {"a", "b", "c"} do process (v) end
-local ielems = export (M, "ielems (list)", function (l)
-  return wrapiterator (getmetamethod (l, "__ipairs") or ipairs, l)
-end)
+export (M, "ielems (list)", ielems)
 
 
 --- An implementation of core ipairs that respects __ipairs even in Lua 5.1.

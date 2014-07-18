@@ -14,12 +14,10 @@
 local base      = require "std.base"
 local container = require "std.container"
 local func      = require "std.functional"
-local lua       = require "std.lua"
 
 local Container = container {}
-local base_leaves, prototype = base.leaves, base.prototype
+local ielems, base_leaves, prototype = base.ielems, base.leaves, base.prototype
 local fold, op  = func.fold, func.op
-local ielems    = lua.ielems
 
 local Tree -- forward declaration
 

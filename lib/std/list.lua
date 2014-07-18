@@ -32,13 +32,11 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base    = require "std.base"
 local func    = require "std.functional"
-local lua     = require "std.lua"
 local object  = require "std.object"
 
 
-local argcheck, argerror, argscheck, prototype =
-      base.argcheck, base.argerror, base.argscheck, base.prototype
-local ielems = lua.ielems
+local argcheck, argerror, argscheck, ielems, prototype =
+      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype
 
 local Object = object {}
 

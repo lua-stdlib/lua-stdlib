@@ -12,7 +12,6 @@
 
 
 local base = require "std.base"
-local lua  = require "std.lua"
 
 local export, getmetamethod = base.export, base.getmetamethod
 

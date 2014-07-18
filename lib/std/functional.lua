@@ -9,11 +9,8 @@
 
 
 local base = require "std.base"
-local lua  = require "std.lua"
 
 local export, nop = base.export, base.nop
-local case, eval, lambda, memoize =
-  lua.case, lua.eval, lua.lambda, lua.memoize
 
 local M = { "std.functional" }
 
@@ -203,10 +200,9 @@ M.nop = nop
 
 
 -- For backwards compatibility.
-M.case    = case
-M.eval    = eval
-M.lambda  = lambda
-M.memoize = memoize
+M.case    = function (...) return require "std.lua".case (...)    end
+M.eval    = function (...) return require "std.lua".eval (...)    end
+M.memoize = function (...) return require "std.lua".memoize (...) end
 M.op      = require "std.operator"
 
 
