@@ -518,6 +518,7 @@ end
 
 
 --- Pretty-print a table, or other object.
+-- @function prettytostring
 -- @param x object to convert to string
 -- @string[opt="\t"] indent indent between levels
 -- @string[opt=""] spacing space before every line
