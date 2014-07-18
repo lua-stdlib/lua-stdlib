@@ -89,7 +89,7 @@ end)
 -- @treturn int *index*, the previous iteration index
 -- @usage
 -- for v in ielems {"a", "b", "c"} do process (v) end
-export (M, "ielems (list)", function (l)
+local ielems = export (M, "ielems (list)", function (l)
   return wrapiterator (getmetamethod (l, "__ipairs") or ipairs, l)
 end)
 
@@ -209,6 +209,26 @@ end
 export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 
 
+--- Inject `std.lua` functions into global table, overwriting core functions.
+--
+-- This function does not inject itself into the global table, however!
+-- @function monkey_patch
+-- @tparam[opt=_G] table namespace to install `std.lua` functions
+-- @treturn table the module table
+-- @usage local lua = require "std.lua".monkey_patch ()
+export (M, "monkey_patch (table?)", function (namespace)
+  namespace = namespace or _G
+
+  for fname in ielems {
+    "case", "eval", "elems", "ielems", "ipairs", "lambda", "memoize", "pairs",
+  } do
+    namespace[fname] = M[fname]
+  end
+
+  return M
+end)
+
+
 --- An implementation of core pairs that respects __pairs even in Lua 5.1.
 -- @function pairs
 -- @tparam table t a table
@@ -216,7 +236,7 @@ export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 -- @treturn table *t*, the table being iterated over
 -- @return *key*, the previous iteration key
 -- @usage
--- for i, v in ipairs {"a", "b", "c"} do process (v) end
+-- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
 export (M, "pairs (table)", function (t)
   return (getmetamethod (t, "__pairs") or pairs) (t)
 end)

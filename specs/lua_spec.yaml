@@ -270,6 +270,30 @@ specify std.lua:
       expect (memfn "one").not_to_be (memfn ("one", "two"))
 
 
+- describe monkey_patch:
+  - before:
+      fname = "monkey_patch"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+      monkeys = { "case", "eval", "elems", "ielems", "ipairs", "lambda",
+                  "memoize", "pairs" }
+
+      t  = {}
+      f (t)
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (t, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it installs monkeys to the given namespace:
+      expect (t).to_contain.a_permutation_of (monkeys)
+      for _, monkey in ipairs (monkeys) do
+        expect (t[monkey]).to_be (M[monkey])
+      end
+
+
 - describe pairs:
   - before:
       fname = "pairs"

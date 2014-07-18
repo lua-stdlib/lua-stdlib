@@ -40,6 +40,7 @@ local function monkey_patch (namespace)
   namespace = namespace or _G
 
   require "std.io".monkey_patch (namespace)
+  require "std.lua".monkey_patch (namespace)
   require "std.math".monkey_patch (namespace)
   require "std.string".monkey_patch (namespace)
   require "std.table".monkey_patch (namespace)
@@ -68,8 +69,6 @@ local function barrel (namespace)
     "functional.id", "functional.map", "functional.op",
 
     "io.die", "io.warn",
-
-    "lua.case", "lua.eval", "lua.lambda", "lua.memoize",
 
     "string.assert", "string.pickle", "string.prettytostring",
     "string.render", "string.require_version", "string.tostring",
