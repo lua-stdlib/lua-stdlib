@@ -36,6 +36,17 @@ specify std:
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (std.io.readlines)
       expect (io_mt.writelines).to_be (std.io.writelines)
+  - it installs std.lua monkey patches:
+      expect (t.assert).to_be (std.lua.assert)
+      expect (t.case).to_be (std.lua.case)
+      expect (t.elems).to_be (std.lua.elems)
+      expect (t.eval).to_be (std.lua.eval)
+      expect (t.ielems).to_be (std.lua.ielems)
+      expect (t.ipairs).to_be (std.lua.ipairs)
+      expect (t.lambda).to_be (std.lua.lambda)
+      expect (t.memoize).to_be (std.lua.memoize)
+      expect (t.pairs).to_be (std.lua.pairs)
+      expect (t.require).to_be (std.lua.require)
   - it installs std.math monkey patches:
       expect (t.math.floor).to_be (std.math.floor)
   - it installs std.string monkey patches:
@@ -44,14 +55,12 @@ specify std:
       expect (mt.__append).to_be (std.string.__append)
       expect (mt.__concat).to_be (std.string.__concat)
       expect (mt.__index).to_be (std.string.__index)
-      expect (t.assert).to_be (std.string.assert)
-      expect (t.require).to_be (std.string.require)
       expect (t.tostring).to_be (std.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (std.table.sort)
   - it scribbles into the supplied namespace:
       expect (t).should_equal {
-        assert          = std.string.assert,
+        assert          = std.lua.assert,
         bind            = std.functional.bind,
         case            = std.lua.case,
         collect         = std.functional.collect,
@@ -81,7 +90,7 @@ specify std:
         pickle          = std.string.pickle,
         prettytostring  = std.string.prettytostring,
         render          = std.string.render,
-        require         = std.string.require,
+        require         = std.lua.require,
         require_version = std.string.require_version,
         ripairs         = std.table.ripairs,
         table           = t.table,
@@ -118,8 +127,6 @@ specify std:
       expect (mt.__append).to_be (std.string.__append)
       expect (mt.__concat).to_be (std.string.__concat)
       expect (mt.__index).to_be (std.string.__index)
-      expect (t.assert).to_be (std.string.assert)
-      expect (t.require).to_be (std.string.require)
       expect (t.tostring).to_be (std.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (std.table.sort)

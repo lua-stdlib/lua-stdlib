@@ -17,6 +17,38 @@ specify std.lua:
           to_equal {}
 
 
+- describe assert:
+  - before:
+      fname = "assert"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses wrong argument types:
+      expect (f (false, false)).to_error (msg (2, "string or nil", "boolean"))
+
+  - context when it does not trigger:
+    - it has a truthy initial argument:
+        expect (f (1)).not_to_error ()
+        expect (f (true)).not_to_error ()
+        expect (f "yes").not_to_error ()
+        expect (f (false == false)).not_to_error ()
+    - it returns the initial argument:
+        expect (f (1)).to_be (1)
+        expect (f (true)).to_be (true)
+        expect (f "yes").to_be "yes"
+        expect (f (false == false)).to_be (true)
+  - context when it triggers:
+    - it has a falsey initial argument:
+        expect (f ()).to_error ()
+        expect (f (false)).to_error ()
+        expect (f (1 == 0)).to_error ()
+    - it throws an optional error string:
+        expect (f (false, "ah boo")).to_error "ah boo"
+    - it plugs specifiers with string.format: |
+        expect (f (nil, "%s %d: %q", "here", 42, "a string")).
+          to_error (string.format ("%s %d: %q", "here", 42, "a string"))
+
+
 - describe case:
   - before:
       yes     = function ()  return true end
@@ -276,8 +308,8 @@ specify std.lua:
       msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
-      monkeys = { "case", "eval", "elems", "ielems", "ipairs", "lambda",
-                  "memoize", "pairs" }
+      monkeys = { "assert", "case", "eval", "elems", "ielems", "ipairs",
+                  "lambda", "memoize", "pairs", "require" }
 
       t  = {}
       f (t)
@@ -330,3 +362,68 @@ specify std.lua:
       t = {}
       for k, v in f {} do t[k] = v end
       expect (t).to_equal {}
+
+
+- describe require:
+  - before:
+      fname = "require"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("module", false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f ("module", "min", false)).
+        to_error (msg (3, "string or nil", "boolean"))
+      expect (f ("module", "min", "too_big", false)).
+        to_error (msg (4, "string or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ("module", "min", "too_big", "pattern", false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+
+  - it diagnoses non-existent module:
+      expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
+  - it diagnoses module too old:
+      expect (f ("std", "9999", "9999")).to_error ()
+  - it diagnoses module too new:
+      expect (f ("std", "0", "0")).to_error ()
+  - context when the module version is compatible:
+    - it returns the module table:
+        expect (f ("std", "0", "9999")).to_be (require "std")
+    - it places no upper bound by default:
+        expect (f ("std", "41")).to_be (require "std")
+    - it places no lower bound by default:
+        expect (f "std").to_be (require "std")
+    - it uses _VERSION when version field is nil:
+        std = require "std"
+        std._VERSION, std.version = std.version, std._VERSION
+        expect (f ("std", "41", "9999")).to_be (require "std")
+        std._VERSION, std.version = std.version, std._VERSION
+  - context with semantic versioning:
+    - before:
+        std = require "std"
+        ver = std.version
+        std.version = "1.2.3"
+    - after:
+        std.version = ver
+    - it diagnoses module too old:
+        expect (f ("std", "1.2.4")).to_error ()
+        expect (f ("std", "1.3")).to_error ()
+        expect (f ("std", "2.1.2")).to_error ()
+        expect (f ("std", "2")).to_error ()
+        expect (f ("std", "1.2.10")).to_error ()
+    - it diagnoses module too new:
+        expect (f ("std", nil, "1.2.2")).to_error ()
+        expect (f ("std", nil, "1.1")).to_error ()
+        expect (f ("std", nil, "1.1.2")).to_error ()
+        expect (f ("std", nil, "1")).to_error ()
+    - it returns modules with version in range:
+        expect (f ("std")).to_be (std)
+        expect (f ("std", "1")).to_be (std)
+        expect (f ("std", "1.2.3")).to_be (std)
+        expect (f ("std", nil, "2")).to_be (std)
+        expect (f ("std", nil, "1.3")).to_be (std)
+        expect (f ("std", nil, "1.2.10")).to_be (std)
+        expect (f ("std", "1.2.3", "1.2.4")).to_be (std)

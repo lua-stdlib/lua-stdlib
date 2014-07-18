@@ -5,13 +5,60 @@
 ]]
 
 local base     = require "std.base"
+local list     = require "std.list"
 local operator = require "std.operator"
 
-local export, getmetamethod, ielems, wrapiterator =
-      base.export, base.getmetamethod, base.ielems, base.wrapiterator
+local List     = list {}
+local export, getmetamethod, ielems, split, wrapiterator =
+      base.export, base.getmetamethod, base.ielems, base.split, base.wrapiterator
 
 local M = { "std.lua" }
 
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Return a List object by splitting version string on periods.
+-- @string version a period delimited version string
+-- @treturn List a list of version components
+local function version_to_list (version)
+  return List (split (version, "%."))
+end
+
+
+--- Extract a list of period delimited integer version components.
+-- @tparam table module returned from a `require` call
+-- @string pattern to capture version number from a string
+--   (default: `"%D*([%.%d]+)"`)
+-- @treturn List a list of version components
+local function module_version (module, pattern)
+  local version = module.version or module._VERSION
+  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
+end
+
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Extend to allow formatted arguments.
+-- @function assert
+-- @param expect expression, expected to be *truthy*
+-- @string[opt=""] f format string
+-- @param[opt] ... arguments to format
+-- @return value of *expect*, if *truthy*
+-- @usage
+-- assert (expected ~= nil, "100% unexpected!")
+-- assert (expected ~= nil, "%s unexpected!", expected)
+export (M, "assert (any?, string?, any?*)", function (expect, f, arg1, ...)
+  local msg = (arg1 ~= nil) and string.format (f, arg1, ...) or f or ""
+  return expect or error (msg, 2)
+end)
 
 
 --- A rudimentary case statement.
@@ -189,14 +236,15 @@ export (M, "lambda (string)", memoize (lambda, function (s) return s end))
 --
 -- This function does not inject itself into the global table, however!
 -- @function monkey_patch
--- @tparam[opt=_G] table namespace to install `std.lua` functions
+-- @tparam[opt=_G] table namespace to install `std.lua` functions into
 -- @treturn table the module table
 -- @usage local lua = require "std.lua".monkey_patch ()
 export (M, "monkey_patch (table?)", function (namespace)
   namespace = namespace or _G
 
   for fname in ielems {
-    "case", "eval", "elems", "ielems", "ipairs", "lambda", "memoize", "pairs",
+    "assert", "case", "eval", "elems", "ielems", "ipairs", "lambda",
+    "memoize", "pairs", "require",
   } do
     namespace[fname] = M[fname]
   end
@@ -215,6 +263,27 @@ end)
 -- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
 export (M, "pairs (table)", function (t)
   return (getmetamethod (t, "__pairs") or pairs) (t)
+end)
+
+
+--- Require a module with a particular version.
+-- @function require
+-- @string module module to require
+-- @string[opt] min lowest acceptable version
+-- @string[opt] too_big lowest version that is too big
+-- @string[opt] pattern to match version in `module.version` or
+--  `module._VERSION` (default: `"%D*([%.%d]+)"`)
+-- @usage std = require ("std", "41")
+export (M, "require (string, string?, string?, string?)",
+function (module, min, too_big, pattern)
+  local m = require (module)
+  if min then
+    assert (module_version (m, pattern) >= version_to_list (min))
+  end
+  if too_big then
+    assert (module_version (m, pattern) < version_to_list (too_big))
+  end
+  return m
 end)
 
 

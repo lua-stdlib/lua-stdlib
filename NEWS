@@ -89,8 +89,11 @@ Stdlib NEWS - User visible changes
    passing a non-string will now raise an error as specified in the api
    documentation.
 
- - `string.require_version` has been renamed to `string.require`, the
-   old name now gives a deprecation warning on first use, and will be
+ - `string.assert` has been moved to `lua.assert`, the old name now
+   gives a deprecation warning on first use.
+
+ - `string.require_version` has been moved to `lua.require`, the old
+   name now gives a deprecation warning on first use, and will be
    removed entirely in some future release.
 
  - The `functional.op` table has been factored out into its own new
