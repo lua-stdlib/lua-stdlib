@@ -71,6 +71,8 @@ specify std.operator:
       expect (f "1234567890").to_be (10)
   - it returns the length of a table:
       expect (f {1, 2, 3, 4, 5}).to_be (5)
+  - it uses the __len metamethod:
+      expect (f (setmetatable ({}, { __len = function () return 42 end }))).to_be (42)
 
 - describe +:
   - before:
