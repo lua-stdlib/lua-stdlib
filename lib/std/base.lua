@@ -24,7 +24,6 @@
 
 
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
-local operator  = require "std.operator"
 
 
 local argcheck, argerror, argscheck, prototype  -- forward declarations
