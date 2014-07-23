@@ -596,6 +596,24 @@ local function ielems (l)
 end
 
 
+-- Doc-commented in lua.lua
+local function ireverse (l)
+  local iter, r = getmetamethod (l, "__ipairs"), {}
+  if not iter then
+    -- Calculate reverse indices for direct element access.
+    local len = #l + 1
+    for i, v in ipairs (l) do r[len - i] = v end
+  else
+    -- Two passes in case __ipairs fetches from a proxy or similar,
+    -- where #l might not be accurate.
+    local t = {}
+    for i, v in iter (l) do t[i] = v end
+    for i = #t, 1, -1 do r[#r + 1] = t[i] end
+  end
+  return r
+end
+
+
 
 local M = {
   argcheck       = argcheck,
@@ -606,6 +624,7 @@ local M = {
   export         = export,
   getmetamethod  = getmetamethod,
   ielems         = ielems,
+  ireverse       = ireverse,
   leaves         = leaves,
   nop            = nop,
   prototype      = prototype,

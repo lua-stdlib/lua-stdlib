@@ -34,12 +34,6 @@ Stdlib NEWS - User visible changes
    `std.lua.eval`, and `std.lua.memoize` (original access points exported
    by earlier releases will be preserved for the forseeable future).
 
- - New `lua.ipairs` and `lua.pairs` functions, that respect `__ipairs`
-   and `__pairs` metamethods, even on Lua 5.1.
-
- - New `lua.ielems` and `lua.elems` functions for iterating sequences cleanly,
-   while respecting `__ipairs` and `__pairs` metamethods respectively.
-
  - `lua.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
@@ -55,6 +49,15 @@ Stdlib NEWS - User visible changes
    or, equivalently using `std.operator` references:
 
      table.sort (t, lua.lambda "<")
+
+ - New `lua.ipairs` and `lua.pairs` functions, that respect `__ipairs`
+   and `__pairs` metamethods, even on Lua 5.1.
+
+ - New `lua.ielems` and `lua.elems` functions for iterating sequences cleanly,
+   while respecting `__ipairs` and `__pairs` metamethods respectively.
+
+ - New `lua.ireverse` function for reversing the array part of any
+   table, while respecting `__ipairs`, even on Lua 5.1.
 
 ** Incompatible changes:
 
@@ -82,6 +85,12 @@ Stdlib NEWS - User visible changes
    for another release or two, issuing a deprecation warning on first
    use.  After that, in some future release, they will be removed
    entirely.
+
+ - `list.reverse` has been deprecated in favour of the more general
+   and more accurately named `lua.ireverse`.
+
+ - `list.relems` has been deprecated, in favour of the more composable
+   `functional.compose (lua.ireverse, lua.ielems)`.
 
  - `string.pad` will still (by implementation accident) coerce non-
    string initial arguments to a string using `string.tostring` as long

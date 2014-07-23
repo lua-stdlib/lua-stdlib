@@ -9,8 +9,8 @@ local list     = require "std.list"
 local operator = require "std.operator"
 
 local List     = list {}
-local export, getmetamethod, ielems, split, wrapiterator =
-      base.export, base.getmetamethod, base.ielems, base.split, base.wrapiterator
+local export, getmetamethod, ielems, ireverse, split, wrapiterator =
+      base.export, base.getmetamethod, base.ielems, base.ireverse, base.split, base.wrapiterator
 
 local M = { "std.lua" }
 
@@ -98,6 +98,8 @@ end)
 -- @treturn function iterator function
 -- @treturn table *t*, the table being iterated over
 -- @return *key*, the previous iteration key
+-- @see ielems
+-- @see pairs
 -- @usage
 -- for v in elems {a = 1, b = 2, c = 5} do process (v) end
 export (M, "elems (table)", function (t)
@@ -108,25 +110,43 @@ end)
 --- An iterator over the integer keyed elements of a sequence.
 -- If there is an `__ipairs` metamethod, use that to iterate.
 -- @function ielems
--- @tparam list l a list
+-- @tparam table t a table
 -- @treturn function iterator function
 -- @treturn list *l*, the list being iterated over
 -- @treturn int *index*, the previous iteration index
+-- @see elems
+-- @see ipairs
 -- @usage
 -- for v in ielems {"a", "b", "c"} do process (v) end
-export (M, "ielems (list)", ielems)
+export (M, "ielems (table)", ielems)
 
 
 --- An implementation of core ipairs that respects __ipairs even in Lua 5.1.
 -- @function ipairs
--- @tparam list l a list
+-- @tparam table t a table
 -- @treturn function iterator function
 -- @treturn list *l*, the list being iterated over
 -- @treturn int *index*, the previous iteration index
+-- @see ielems
+-- @see pairs
 -- @usage
 -- for i, v in ipairs {"a", "b", "c"} do process (v) end
-export (M, "ipairs (list)", function (l)
+local ipairs = export (M, "ipairs (table)", function (l)
   return ((getmetatable (l) or {}).__ipairs or ipairs) (l)
+end)
+
+
+--- A new reversed list.
+-- @function ireverse
+-- @tparam table t a table
+-- @treturn list a new list
+-- @see ielems
+-- @see ipairs
+-- @usage
+-- rielems = std.functional.compose (ireverse, ielems)
+-- for e in rielems (l) do process (e) end
+export (M, "ireverse (table)", function (l)
+  return ireverse (l)
 end)
 
 
@@ -243,8 +263,8 @@ export (M, "monkey_patch (table?)", function (namespace)
   namespace = namespace or _G
 
   for fname in ielems {
-    "assert", "case", "eval", "elems", "ielems", "ipairs", "lambda",
-    "memoize", "pairs", "require",
+    "assert", "case", "eval", "elems", "ielems", "ipairs", "ireverse",
+    "lambda", "memoize", "pairs", "require"
   } do
     namespace[fname] = M[fname]
   end
@@ -259,6 +279,8 @@ end)
 -- @treturn function iterator function
 -- @treturn table *t*, the table being iterated over
 -- @return *key*, the previous iteration key
+-- @see elems
+-- @see ipairs
 -- @usage
 -- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
 export (M, "pairs (table)", function (t)

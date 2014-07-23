@@ -8,21 +8,20 @@
 
      local list = require "std.list"  -- module table
      local List = list {}             -- prototype object
-     local l = List {1, 2, 3}
-     for e in l:relems () do print (e) end
-       => 3
-       => 2
-       => 1
+     local l = List {"foo", "bar"}
+     for e in ielems (l:append ("baz")) do print (e) end
+       => foo
+       => bar
+       => baz
 
  ... some can also be called as module functions with an explicit list
  argument in the first or last parameter, check the documentation for
  details:
 
-     local l = List {1, 2, 3}
-     for e in List.relems (l) do print (e) end
-       => 3
-       => 2
-       => 1
+     for e in ielems (list.append (l, "quux")) do print (e) end
+       => foo
+       => bar
+       => quux
 
  @classmod std.list
 ]]
@@ -35,8 +34,8 @@ local func    = require "std.functional"
 local object  = require "std.object"
 
 
-local argcheck, argerror, argscheck, ielems, prototype =
-      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype
+local argcheck, argerror, argscheck, ielems, prototype, ireverse =
+      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
 
 local Object = object {}
 
@@ -93,7 +92,7 @@ end
 
 
 -- DEPRECATED: Remove in first release following 2015-07-11.
---- An iterator over the elements of a list.
+-- An iterator over the elements of a list.
 -- @static
 -- @function elems
 -- @tparam List l a list
@@ -220,24 +219,17 @@ local function foldl (fn, e, l)
 end
 
 
---- An iterator over the elements of a list, in reverse.
+-- DEPRECATED: Remove in first release following 2015-07-11
+-- An iterator over the elements of a list, in reverse.
 -- @tparam List l a list
--- @treturn function iterator function which returns precessive elements
+-- @treturn function  iterator function which returns precessive elements
 --   of the `l`
 -- @treturn List `l`
 -- @return `true`
-local function relems (l)
-  argcheck ("std.list.relems", 1, "List|table", l)
-
-  local n = #l + 1
-  return function (l)
-           n = n - 1
-           if n > 0 then
-             return l[n]
-           end
-         end,
-  l, true
-end
+local relems = base.deprecate (function (l)
+                                 return ielems (ireverse (l))
+                               end, nil,
+  "list.relems is deprecated, use lua.ipairs with lua.ireverse instead.")
 
 
 --- Fold a binary function through a list right associatively.
@@ -249,7 +241,7 @@ end
 local function foldr (fn, e, l)
   argscheck ("std.list.foldr", {"function", "any?", "List"}, {fn, e, l})
   return List (func.fold (function (x, y) return fn (y, x) end,
-                          e, relems, l))
+                          e, ielems, ireverse (l)))
 end
 
 
@@ -365,18 +357,14 @@ local function rep (l, n)
 end
 
 
---- Reverse a list.
+-- DEPRECATED: Remove in first release following 2015-07-11
+-- Reverse a list.
 -- @tparam List l a list
 -- @treturn List new list containing `{l[#l], ..., l[1]}`
-local function reverse (l)
-  argcheck ("std.list.reverse", 1, "List", l)
-
-  local r = List {}
-  for i = #l, 1, -1 do
-    r[#r + 1] = l[i]
-  end
-  return r
-end
+local reverse = base.deprecate (function (l)
+                                  return List (ireverse (l))
+                                end, nil,
+  "list.reverse is deprecated, use lua.ireverse instead.")
 
 
 --- Shape a list according to a list of dimensions.
@@ -545,9 +533,7 @@ local _functions = {
   map         = map,
   map_with    = map_with,
   project     = project,
-  relems      = relems,
   rep         = rep,
-  reverse     = reverse,
   shape       = shape,
   sub         = sub,
   tail        = tail,
@@ -556,9 +542,11 @@ local _functions = {
 }
 
 -- Deprecated and undocumented.
-_functions.elems = elems
-_functions.index_key = index_key
+_functions.elems       = elems
+_functions.index_key   = index_key
 _functions.index_value = index_value
+_functions.relems      = relems
+_functions.reverse     = reverse
 
 
 List = Object {
@@ -634,15 +622,6 @@ List = Object {
     cons = cons,
 
     ------
-    -- An iterator over the elements of a list.
-    -- @function elems
-    -- @treturn function iterator function which returns successive
-    --   elements of `self`
-    -- @treturn List `self`
-    -- @return `true`
-    elems = ielems,
-
-    ------
     -- Filter a list according to a predicate.
     -- @function filter
     -- @func p predicate function, of one argument returning a boolean
@@ -693,26 +672,11 @@ List = Object {
     project = function (self, f) return project (f, self) end,
 
     ------
-    -- An iterator over the elements of a list, in reverse.
-    -- @function relems
-    -- @treturn function iterator function which returns precessive elements
-    --   of the `self`
-    -- @treturn List `self`
-    -- @return `true`
-    relems = relems,
-
-    ------
     -- Repeat a list.
     -- @function rep
     -- @int n number of times to repeat
     -- @treturn List `n` copies of `self` appended together
     rep = rep,
-
-    ------
-    -- Reverse a list.
-    -- @function reverse
-    -- @treturn List new list containing `{self[#self], ..., self[1]}`
-    reverse = reverse,
 
     -----
     -- Shape a list according to a list of dimensions.
@@ -741,9 +705,12 @@ List = Object {
     -- For backwards compatibility with pre-Object era lists, but
     -- undocumented so that new code doesn't get tangled up in it.
     depair      = depair,
+    elems       = ielems,
     index_key   = function (self, f) return index_key (f, self)   end,
     index_value = function (self, f) return index_value (f, self) end,
     map_with    = function (self, f) return map_with (f, self)    end,
+    relems      = relems,
+    reverse     = reverse,
     transpose   = transpose,
     zip_with    = function (self, f) return zip_with (f, self)    end,
   },
