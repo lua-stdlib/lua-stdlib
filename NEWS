@@ -59,6 +59,9 @@ Stdlib NEWS - User visible changes
  - New `lua.ireverse` function for reversing the array part of any
    table, while respecting `__ipairs`, even on Lua 5.1.
 
+ - New `lua.ripairs` function for returning index & value pairs in
+   reverse order, while respecting `__ipairs`, even on Lua 5.1.
+
 ** Incompatible changes:
 
  - `functional.bind` sets fixed positional arguments when called as
@@ -104,6 +107,10 @@ Stdlib NEWS - User visible changes
  - `string.require_version` has been moved to `lua.require`, the old
    name now gives a deprecation warning on first use, and will be
    removed entirely in some future release.
+
+ - `table.ripairs` has been moved to `lua.ripairs`, the old name now
+   gives a deprecation warning on first use, and will be removed
+   entirely in some future release.
 
  - The `functional.op` table has been factored out into its own new
    module `std.operator`.  It will also continue to be available from the

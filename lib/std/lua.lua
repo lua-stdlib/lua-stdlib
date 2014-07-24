@@ -9,8 +9,10 @@ local list     = require "std.list"
 local operator = require "std.operator"
 
 local List     = list {}
-local export, getmetamethod, ielems, ireverse, split, wrapiterator =
-      base.export, base.getmetamethod, base.ielems, base.ireverse, base.split, base.wrapiterator
+local export, getmetamethod, wrapiterator =
+      base.export, base.getmetamethod, base.wrapiterator
+local ielems, ireverse, ripairs, split =
+      base.ielems, base.ireverse, base.ripairs, base.split
 
 local M = { "std.lua" }
 
@@ -307,6 +309,16 @@ function (module, min, too_big, pattern)
   end
   return m
 end)
+
+
+--- An iterator like ipairs, but in reverse.
+-- @function ripairs
+-- @tparam table t any table
+-- @treturn function iterator function
+-- @treturn table *t*
+-- @treturn number `#t + 1`
+-- @usage for i, v = ripairs (t) do ... end
+export (M, "ripairs (table)", ripairs)
 
 
 return M

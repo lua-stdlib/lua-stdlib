@@ -440,12 +440,16 @@ specify std.table:
 - describe ripairs:
   - before:
       f = M.ripairs
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.ripairs' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.ripairs' (table expected, got boolean)"
+
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {{}, subject})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "ripairs is deprecated"
+      end
+      _, err = capture (f, {{}, subject})
+      expect (err).to_be (nil)
+
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
       expect ({type (fn), t, type (i)}).to_equal {"function", {1, 2, 3}, "number"}

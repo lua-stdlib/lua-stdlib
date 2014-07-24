@@ -13,7 +13,8 @@
 
 local base = require "std.base"
 
-local export, getmetamethod = base.export, base.getmetamethod
+local export, getmetamethod, ripairs =
+      base.export, base.getmetamethod, base.ripairs
 
 
 local M = { "std.table" }
@@ -227,22 +228,16 @@ function M.pack (...)
 end
 
 
---- An iterator like ipairs, but in reverse.
+-- DEPRECATED: Remove in first release following 2015-07-11.
+-- An iterator like ipairs, but in reverse.
 -- @function ripairs
 -- @tparam table t any table
 -- @treturn function iterator function
 -- @treturn table *t*
 -- @treturn number `#t + 1`
 -- @usage for i, v = ripairs (t) do ... end
-export (M, "ripairs (table)", function (t)
-  return function (t, n)
-           n = n - 1
-           if n > 0 then
-             return n, t[n]
-           end
-         end,
-  t, #t + 1
-end)
+M.ripairs = base.deprecate (ripairs, nil,
+  "table.ripairs is deprecated, use lua.ripairs instead.")
 
 
 --- Find the number of elements in a table.

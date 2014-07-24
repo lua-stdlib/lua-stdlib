@@ -614,6 +614,26 @@ local function ireverse (l)
 end
 
 
+-- Doc-commented in lua.lua
+local function ripairs (t)
+  local iter = getmetamethod (t, "__ipairs")
+  if iter then
+    -- Two passes in case __ipairs fetches from a proxy or similar,
+    -- where #t might not be accurate.
+    local l = {}
+    for i, v in iter (t) do l[i] = v end
+    t = l
+  end
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, #t + 1
+end
+
+
 
 local M = {
   argcheck       = argcheck,
@@ -628,6 +648,7 @@ local M = {
   leaves         = leaves,
   nop            = nop,
   prototype      = prototype,
+  ripairs        = ripairs,
   split          = split,
   toomanyarg_fmt = toomanyarg_fmt,
   wrapiterator   = wrapiterator,

@@ -476,3 +476,51 @@ specify std.lua:
         expect (f ("std", nil, "1.3")).to_be (std)
         expect (f ("std", nil, "1.2.10")).to_be (std)
         expect (f ("std", "1.2.3", "1.2.4")).to_be (std)
+
+
+- describe ripairs:
+  - before:
+      fname = "ripairs"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it returns a function, the table and a number:
+      fn, t, i = f {1, 2, 3}
+      expect ({type (fn), t, type (i)}).to_equal {"function", {1, 2, 3}, "number"}
+  - it iterates over the array part of a table:
+      t, u = {1, 2, 3; a=4, b=5, c=6}, {}
+      for i, v in f (t) do u[i] = v end
+      expect (u).to_equal {1, 2, 3}
+  - it returns elements in reverse order:
+      t, u = {"one", "two", "five"}, {}
+      for _, v in f (t) do u[#u + 1] = v end
+      expect (u).to_equal {"five", "two", "one"}
+  - it respects __ipairs metamethod: |
+      len = require "std.operator"["#"]
+      x = setmetatable ({ "a string" }, {
+        __ipairs = function (x)
+                     return function (x, n)
+                       if n < len (x[1]) then
+                         return n+1, string.sub (x[1], n+1, n+1)
+                       end
+                     end, x, 0
+                   end,
+      })
+      t = {}
+      for i, v in f (x) do t[i] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+      t = {}
+      for _, v in f (x) do t[#t + 1] = v end
+      expect (t).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it works with the empty list:
+      t = {}
+      for k, v in f {} do t[k] = v end
+      expect (t).to_equal {}
