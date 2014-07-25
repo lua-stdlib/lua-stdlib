@@ -1,4 +1,4 @@
-before:
+before: |
   this_module   = "std"
   global_table  = "_G"
 
@@ -7,10 +7,21 @@ before:
                     "memoize", "monkey_patch", "pairs", "require", "ripairs",
                     "tostring", "version" }
 
+  -- Tables with iterator metamethods used by various examples.
+  function str_iter (t)
+    return function (x, n)
+      if n < #x[1] then
+        return n+1, string.sub (x[1], n+1, n+1)
+      end
+    end, t, 0
+  end
+  __pairs  = setmetatable ({ "a string" }, { __pairs = str_iter })
+  __ipairs = setmetatable ({ "a string" }, { __ipairs = str_iter })
+
   M = require (this_module)
 
 specify std:
-- describe require:
+- context when required:
   - it does not touch the global table:
       expect (show_apis {added_to=global_table, by=this_module}).
         to_equal {}
@@ -19,7 +30,7 @@ specify std:
       for k in pairs (M) do t[#t + 1] = k end
       expect (t).to_contain.a_permutation_of (exported_apis)
 
-- describe lazy loading:
+- context when lazy loading:
   - it has no submodules on initial load:
       for _, v in pairs (M) do
         expect (type (v)).not_to_be "table"
@@ -65,7 +76,6 @@ specify std:
 
 - describe barrel:
   - before:
-      f = M.barrel
       io_mt = {}
       t = {
         io = {
@@ -76,10 +86,18 @@ specify std:
         math = {},
         table = {},
       }
+
+      fname = "barrel"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
       f (t)
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.barrel' (table or nil expected, got boolean)"
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (M.io.readlines)
       expect (io_mt.writelines).to_be (M.io.writelines)
@@ -130,7 +148,7 @@ specify std:
         map             = M.functional.map,
         math            = t.math,
         memoize         = M.memoize,
-        metamethod      = M.getmetamethod,
+        metamethod      = M.table.metamethod,
         nodes           = M.tree.nodes,
         op              = M.functional.op,
         pack            = M.table.pack,
@@ -153,6 +171,7 @@ specify std:
       no      = function ()  return false end
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
+
       fname = "case"
       msg = bind (badarg, {this_module, fname})
       f = M[fname]
@@ -204,18 +223,10 @@ specify std:
       end
       expect (t).to_contain.a_permutation_of {"foo", "baz", 42}
   - it respects __pairs metamethod: |
-      x = setmetatable ({ "a string" }, {
-        __pairs = function (x)
-                     return function (x, n)
-                       if n < #x[1] then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end
-      })
       t = {}
-      for v in f (x) do t[#t + 1] = v end
-      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+      for v in f (__pairs) do t[#t + 1] = v end
+      expect (t).
+        to_contain.a_permutation_of {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
       for e in f {} do t[#t + 1] = e end
@@ -310,19 +321,9 @@ specify std:
         t[#t + 1] = e
       end
       expect (t).to_equal {"foo", 42}
-  - it respects __ipairs metamethod: |
-      len = require "std.operator"["#"]
-      x = setmetatable ({ "a string" }, {
-        __ipairs = function (x)
-                     return function (x, n)
-                       if n < len (x[1]) then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end,
-      })
+  - it respects __ipairs metamethod:
       t = {}
-      for v in f (x) do t[#t + 1] = v end
+      for v in f (__ipairs) do t[#t + 1] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
@@ -355,19 +356,9 @@ specify std:
         t[i] = v
       end
       expect (t).to_equal {"foo", 42}
-  - it respects __ipairs metamethod: |
-      len = require "std.operator"["#"]
-      x = setmetatable ({ "a string" }, {
-        __ipairs = function (x)
-                     return function (x, n)
-                       if n < len (x[1]) then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end,
-      })
+  - it respects __ipairs metamethod:
       t = {}
-      for k, v in f (x) do t[k] = v end
+      for k, v in f (__ipairs) do t[k] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
@@ -395,19 +386,8 @@ specify std:
       expect (f {1, 2, "five"}).to_equal {"five", 2, 1}
   - it ignores the dictionary part of a table:
       expect (f {1, 2, "five"; a = "b", c = "d"}).to_equal {"five", 2, 1}
-  - it respects __ipairs metamethod: |
-      len = require "std.operator"["#"]
-      x = setmetatable ({ "a string" }, {
-        __ipairs = function (x)
-                     return function (x, n)
-                       if n < len (x[1]) then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end,
-      })
-      t = f (x)
-      expect (f (x)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it respects __ipairs metamethod:
+      expect (f (__ipairs)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works for an empty list:
       expect (f {}).to_equal {}
 
@@ -455,6 +435,7 @@ specify std:
       fname = "memoize"
       msg = bind (badarg, {this_module, fname})
       f = M[fname]
+
       memfn = f (function (x)
                    if x then return {x} else return nil, "bzzt" end
                  end)
@@ -494,7 +475,6 @@ specify std:
 
 - describe monkey_patch:
   - before:
-      f = M.monkey_patch
       io_mt = {}
       t = {
         io = {
@@ -505,29 +485,24 @@ specify std:
         math = {},
         table = {},
       }
+
+      fname = "monkey_patch"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
       f (t)
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.monkey_patch' (table or nil expected, got boolean)"
-  - it installs std monkey patches:
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it installs std module functions:
       for _, v in ipairs (exported_apis) do
         if type (M[v]) == "function" and v ~= "barrel" and v ~= "monkey_patch" then
           expect (t[v]).to_be (M[v])
         end
       end
-  - it installs std.io monkey patches:
-      expect (io_mt.readlines).to_be (M.io.readlines)
-      expect (io_mt.writelines).to_be (M.io.writelines)
-  - it installs std.math monkey patches:
-      expect (t.math.floor).to_be (M.math.floor)
-  - it installs std.string monkey patches:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
-      expect (mt.__append).to_be (M.string.__append)
-      expect (mt.__concat).to_be (M.string.__concat)
-      expect (mt.__index).to_be (M.string.__index)
-  - it installs std.table monkey patches:
-      expect (t.table.sort).to_be (M.table.sort)
 
 
 - describe pairs:
@@ -550,18 +525,10 @@ specify std:
       end
       expect (t).to_equal {"foo", bar = "baz", 42}
   - it respects __pairs metamethod: |
-      x = setmetatable ({ "a string" }, {
-        __pairs = function (x)
-                     return function (x, n)
-                       if n < #x[1] then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end
-      })
       t = {}
-      for k, v in f (x) do t[k] = v end
-      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+      for k, v in f (__pairs) do t[k] = v end
+      expect (t).
+        to_contain.a_permutation_of {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
       for k, v in f {} do t[k] = v end
@@ -658,22 +625,12 @@ specify std:
       t, u = {"one", "two", "five"}, {}
       for _, v in f (t) do u[#u + 1] = v end
       expect (u).to_equal {"five", "two", "one"}
-  - it respects __ipairs metamethod: |
-      len = require "std.operator"["#"]
-      x = setmetatable ({ "a string" }, {
-        __ipairs = function (x)
-                     return function (x, n)
-                       if n < len (x[1]) then
-                         return n+1, string.sub (x[1], n+1, n+1)
-                       end
-                     end, x, 0
-                   end,
-      })
+  - it respects __ipairs metamethod:
       t = {}
-      for i, v in f (x) do t[i] = v end
+      for i, v in f (__ipairs) do t[i] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
       t = {}
-      for _, v in f (x) do t[#t + 1] = v end
+      for _, v in f (__ipairs) do t[#t + 1] = v end
       expect (t).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works with the empty list:
       t = {}
@@ -683,7 +640,12 @@ specify std:
 
 - describe tostring:
   - before:
-      f = M.tostring
+      fname = "tostring"
+      f = M[fname]
+
+  - it diagnoses too many arguments:
+      expect (f (true, false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
 
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))

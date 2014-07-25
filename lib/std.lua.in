@@ -258,8 +258,6 @@ export (M, "barrel (table?)", function (namespace)
   namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
-  namespace.metamethod = M.getmetamethod
-  namespace.require_version = M.require
   for v in base.ielems {
     "functional.bind", "functional.collect", "functional.compose",
     "functional.curry", "functional.filter", "functional.fold",
@@ -268,8 +266,9 @@ export (M, "barrel (table?)", function (namespace)
     "io.die", "io.warn",
 
     "string.pickle", "string.prettytostring", "string.render",
+    "string.require_version",
 
-    "table.pack", "table.totable",
+    "table.metamethod", "table.pack", "table.totable",
 
     "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
   } do
