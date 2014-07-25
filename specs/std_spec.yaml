@@ -4,7 +4,7 @@ before:
 
   exported_apis = { "assert", "barrel", "case", "elems", "eval", "ielems",
                     "ipairs", "ireverse", "lambda", "memoize", "monkey_patch",
-                    "pairs", "require", "ripairs", "version", 1 }
+                    "pairs", "require", "ripairs", "tostring", "version", 1 }
 
   M = require (this_module)
 
@@ -101,7 +101,6 @@ specify std:
       expect (mt.__append).to_be (M.string.__append)
       expect (mt.__concat).to_be (M.string.__concat)
       expect (mt.__index).to_be (M.string.__index)
-      expect (t.tostring).to_be (M.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (M.table.sort)
   - it scribbles into the supplied namespace:
@@ -141,7 +140,7 @@ specify std:
         require_version = M.string.require_version,
         ripairs         = M.ripairs,
         table           = t.table,
-        tostring        = M.string.tostring,
+        tostring        = M.tostring,
         totable         = M.table.totable,
         warn            = M.io.warn,
       }
@@ -465,6 +464,12 @@ specify std:
   - it diagnoses wrong argument types: |
       expect (f (false)).
         to_error "bad argument #1 to 'std.monkey_patch' (table or nil expected, got boolean)"
+  - it installs std monkey patches:
+      for _, v in ipairs (exported_apis) do
+        if type (M[v]) == "function" and v ~= "barrel" and v ~= "monkey_patch" then
+          expect (t[v]).to_be (M[v])
+        end
+      end
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (M.io.readlines)
       expect (io_mt.writelines).to_be (M.io.writelines)
@@ -476,7 +481,6 @@ specify std:
       expect (mt.__append).to_be (M.string.__append)
       expect (mt.__concat).to_be (M.string.__concat)
       expect (mt.__index).to_be (M.string.__index)
-      expect (t.tostring).to_be (M.string.tostring)
   - it installs std.table monkey patches:
       expect (t.table.sort).to_be (M.table.sort)
 
@@ -630,3 +634,29 @@ specify std:
       t = {}
       for k, v in f {} do t[k] = v end
       expect (t).to_equal {}
+
+
+- describe tostring:
+  - before:
+      f = M.tostring
+
+  - it renders primitives exactly like system tostring:
+      expect (f (nil)).to_be (tostring (nil))
+      expect (f (false)).to_be (tostring (false))
+      expect (f (42)).to_be (tostring (42))
+      expect (f (f)).to_be (tostring (f))
+      expect (f "a string").to_be "a string"
+  - it renders empty tables as a pair of braces:
+      expect (f {}).to_be ("{}")
+  - it renders table array part compactly:
+      expect (f {"one", "two", "five"}).
+        to_be '{1=one,2=two,3=five}'
+  - it renders a table dictionary part compactly:
+      expect (f { one = true, two = 2, three = {3}}).
+        to_be '{one=true,three={1=3},two=2}'
+  - it renders table keys in table.sort order:
+      expect (f { one = 3, two = 5, three = 4, four = 2, five = 1 }).
+        to_be '{five=1,four=2,one=3,three=4,two=5}'
+  - it renders keys with invalid symbol names compactly:
+      expect (f { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }).
+        to_be '{?=1,[]=1,_=0,a-key=1,word=0}'

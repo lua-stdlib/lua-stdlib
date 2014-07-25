@@ -27,9 +27,73 @@ local operator = require "std.operator"
 
 
 
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+--- Make a shallow copy of a table.
+-- @tparam table t source table
+-- @treturn table shallow copy of *t*
+local function copy (t)
+  local new = {}
+  for k, v in pairs (t) do new[k] = v end
+  return new
+end
+
+
+
+--[[ ======================== ]]--
+--[[ Documented in table.lua. ]]--
+--[[ ======================== ]]--
+
+
+local function getmetamethod (x, n)
+  local _, m = pcall (function (x)
+                        return getmetatable (x)[n]
+                      end,
+                      x)
+  if type (m) ~= "function" then
+    m = nil
+  end
+  return m
+end
+
+
+
 --[[ ========================= ]]--
 --[[ Documented in string.lua. ]]--
 --[[ ========================= ]]--
+
+
+local function render (x, open, close, elem, pair, sep, roots)
+  local function stop_roots (x)
+    return roots[x] or render (x, open, close, elem, pair, sep, copy (roots))
+  end
+  roots = roots or {}
+  if type (x) ~= "table" or getmetamethod (x, "__tostring") then
+    return elem (x)
+  else
+    local s = {}
+    s[#s + 1] =  open (x)
+    roots[x] = elem (x)
+
+    -- create a sorted list of keys
+    local ord = {}
+    for k, _ in pairs (x) do ord[#ord + 1] = k end
+    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
+
+    -- render x elements in order
+    local i, v = nil, nil
+    for _, j in ipairs (ord) do
+      local w = x[j]
+      s[#s + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
+      i, v = j, w
+    end
+    s[#s + 1] = sep (x, i, v, nil, nil) .. close (x)
+    return table.concat (s)
+  end
+end
 
 
 local function split (s, sep)
@@ -43,7 +107,6 @@ local function split (s, sep)
   end
   return t
 end
-
 
 
 --[[ ====================== ]]--
@@ -209,12 +272,33 @@ local function lambda (l)
 end
 
 
+local function require_version (module, min, too_big, pattern)
+  local m = require (module)
+  if min then
+    assert (module_version (m, pattern) >= version_to_list (min))
+  end
+  if too_big then
+    assert (module_version (m, pattern) < version_to_list (too_big))
+  end
+  return m
+end
+
+
+local _tostring = _G.tostring
+
+local function tostring (x)
+  return render (x, lambda '="{"', lambda '="}"', _tostring,
+                 lambda '=_4.."=".._5',
+		 lambda '=_2 and _4 and "," or ""')
+end
+
+
+
 local function memoize (fn, normalize)
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
     -- even when memoize is never called.
-    local stringify = require "std.string".tostring
-    normalize = function (...) return stringify {...} end
+    normalize = function (...) return tostring {...} end
   end
 
   return setmetatable ({}, {
@@ -229,19 +313,6 @@ local function memoize (fn, normalize)
              end
   })
 end
-
-
-local function require_version (module, min, too_big, pattern)
-  local m = require (module)
-  if min then
-    assert (module_version (m, pattern) >= version_to_list (min))
-  end
-  if too_big then
-    assert (module_version (m, pattern) < version_to_list (too_big))
-  end
-  return m
-end
-
 
 
 --[[ ============================= ]]--
@@ -260,24 +331,6 @@ local function nop () end
 
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
-end
-
-
-
---[[ ======================== ]]--
---[[ Documented in table.lua. ]]--
---[[ ======================== ]]--
-
-
-local function getmetamethod (x, n)
-  local _, m = pcall (function (x)
-                        return getmetatable (x)[n]
-                      end,
-                      x)
-  if type (m) ~= "function" then
-    m = nil
-  end
-  return m
 end
 
 
@@ -317,16 +370,6 @@ local argcheck, argerror, argscheck  -- forward declarations
 
 local toomanyarg_fmt =
       "too many arguments to '%s' (no more than %d expected, got %d)"
-
-
---- Make a shallow copy of a table.
--- @tparam table t source table
--- @treturn table shallow copy of *t*
-local function copy (t)
-  local new = {}
-  for k, v in pairs (t) do new[k] = v end
-  return new
-end
 
 
 --- Concatenate a table of strings using ", " and " or " delimiters.
@@ -798,6 +841,7 @@ return {
   pairs    = __pairs,
   ripairs  = ripairs,
   require  = require_version,
+  tostring = tostring,
 
   -- functional.lua --
   nop = nop,
@@ -806,7 +850,8 @@ return {
   prototype = prototype,
 
   -- string.lua --
-  split = split,
+  render   = render,
+  split    = split,
 
   -- table.lua --
   getmetamethod = getmetamethod,

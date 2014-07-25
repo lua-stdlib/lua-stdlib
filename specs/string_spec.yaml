@@ -46,11 +46,11 @@ specify std.string:
   - it stringifies non-string arguments:
       argument = { "a table" }
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, M.tostring (argument)))
+        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, M.tostring (argument)))
+        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. " concatenate something"
@@ -344,8 +344,6 @@ specify std.string:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""
       expect (mt.__index).to_be (M.__index)
-  - it installs the tostring function:
-      expect (t.tostring).to_be (M.tostring)
 
 
 - describe numbertosi:
@@ -775,9 +773,22 @@ specify std.string:
       expect (subject).to_be (original)
 
 
+# DEPRECATED: Remove in first release following 2015-07-30.
 - describe tostring:
   - before:
-      f = M.tostring
+      fname = "tostring"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {"std.string"})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "tostring is deprecated"
+      end
+      _, err = capture (f, {"std.string"})
+      expect (err).to_be (nil)
+
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))
       expect (f (false)).to_be (tostring (false))

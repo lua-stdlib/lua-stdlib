@@ -198,6 +198,15 @@ export (M, "require (string, string?, string?, string?)", base.require)
 export (M, "ripairs (table)", base.ripairs)
 
 
+--- Extend `tostring` to render table contents as a string.
+-- @function tostring
+-- @param x object to convert to string
+-- @treturn string compact string rendering of *x*
+-- @usage
+-- print (std.tostring {foo="bar","baz"}) --> {1=baz,foo=bar}
+export (M, "tostring (any?)", base.tostring)
+
+
 --- Overwrite core methods and metamethods with `std` enhanced versions.
 --
 -- Loads all `std` submodules with a `monkey_patch` method, and runs

@@ -20,7 +20,7 @@ local export, getmetamethod, split =
   base.export, base.getmetamethod, base.split
 
 local _format   = string.format
-local _tostring = _G.tostring
+local _tostring = base.tostring
 
 local M = { "std.string" }
 
@@ -60,7 +60,7 @@ end
 -- local string = require "std.string".monkey_patch ()
 -- concatenated = "foo" .. {"bar"}
 function M.__concat (s, o)
-  return M.tostring (s) .. M.tostring (o)
+  return _tostring (s) .. _tostring (o)
 end
 
 
@@ -90,7 +90,7 @@ end
 
 -- DEPRECATED: Remove in first release following 2015-07-30.
 M.assert = base.deprecate (base.assert, nil,
-  "string.assert is deprecated, use lua.assert instead")
+  "std.string.assert is deprecated, use std.assert instead")
 
 
 --- Extend to work better with one argument.
@@ -130,7 +130,7 @@ end)
 -- @return list of `{from, to; capt = {captures}}`
 -- @see std.string.tfind
 -- @usage
--- for t in lua.elems (finds ("the target string", "%S+")) do
+-- for t in std.elems (finds ("the target string", "%S+")) do
 --   print (tostring (t.capt))
 -- end
 export (M, "finds (string, string, int?, boolean|:plain?)", function (s, p, i, ...)
@@ -161,7 +161,7 @@ export (M, "split (string, string?)", split)
 
 -- DEPRECATED: Remove in first release following 2015-06-30.
 M.require_version = base.deprecate (base.require, nil,
-  "string.require_version is deprecated, use lua.require instead")
+  "std.string.require_version is deprecated, use std.require instead")
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
@@ -175,8 +175,6 @@ M.require_version = base.deprecate (base.require, nil,
 -- @treturn table the module table
 -- @usage local string = require "std.string".monkey_patch ()
 export (M, "monkey_patch (table?)", function (namespace)
-  (namespace or _G).tostring = M.tostring
-
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat
   string_metatable.__index = M.__index
@@ -408,39 +406,12 @@ end)
 -- @return string representation of *x*
 -- @usage
 -- function tostring (x)
---   return render (x, lambda '="{"', lambda '="}"', string.tostring,
+--   return render (x, lambda '="{"', lambda '="}"', tostring,
 --                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
 --                  lambda '=","')
 -- end
-render = export (M, "render (any?, func, func, func, func, func, table?)",
-function (x, open, close, elem, pair, sep, roots)
-  local function stop_roots (x)
-    return roots[x] or render (x, open, close, elem, pair, sep, table.clone (roots))
-  end
-  roots = roots or {}
-  if type (x) ~= "table" or getmetamethod (x, "__tostring") then
-    return elem (x)
-  else
-    local s = StrBuf {}
-    s = s .. open (x)
-    roots[x] = elem (x)
-
-    -- create a sorted list of keys
-    local ord = {}
-    for k, _ in pairs (x) do ord[#ord + 1] = k end
-    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
-
-    -- render x elements in order
-    local i, v = nil, nil
-    for _, j in ipairs (ord) do
-      local w = x[j]
-      s = s .. sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
-      i, v = j, w
-    end
-    s = s .. sep (x, i, v, nil, nil) .. close (x)
-    return s:tostring ()
-  end
-end)
+local render = export (M,
+      "render (any?, func, func, func, func, func, table?)", base.render)
 
 
 --- Signature of render open table callback.
@@ -461,7 +432,7 @@ end)
 -- @function render_element
 -- @param x element to render
 -- @treturn string element rendering
--- @usage function element (e) return require "string".tostring (e) end
+-- @usage function element (e) return require "std".tostring (e) end
 
 
 --- Signature of render pair callback.
@@ -490,28 +461,9 @@ end)
 -- function separator (_, _, _, fk) return fk and "," or "" end
 
 
---- Extend `tostring` to render table contents as a string.
--- @function tostring
--- @param x object to convert to string
--- @treturn string compact string rendering of *x*
--- @usage
--- local tostring = require "std.string".tostring
--- print {foo="bar","baz"} --> {1=baz,foo=bar}
-function M.tostring (x)
-  return render (x,
-                 function () return "{" end,
-                 function () return "}" end,
-                 _tostring,
-                 function (t, _, _, i, v)
-                   return i .. "=" .. v
-                 end,
-                 function (_, i, _, j)
-                   if i and j then
-                     return ","
-                   end
-                   return ""
-                 end)
-end
+-- DEPRECATED: Remove in first release following 2015-07-30.
+M.tostring = base.deprecate (base.tostring, nil,
+  "std.string.tostring is deprecated, use std.tostring instead")
 
 
 --- Pretty-print a table, or other object.

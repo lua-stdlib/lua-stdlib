@@ -403,7 +403,7 @@ specify std.debug:
       function mkwrap (x)
         local fmt = "%s"
         if type (x) == "string" then fmt = "%q" end
-        return string.format (fmt, require "std.string".tostring (x))
+        return string.format (fmt, require "std".tostring (x))
       end
 
       function mkdebug (debugp, ...)
@@ -411,7 +411,7 @@ specify std.debug:
           _DEBUG = %s
           require "std.debug" (%s)
         ]],
-        require "std.string".tostring (debugp),
+        require "std".tostring (debugp),
         table.concat (require "std.list".map (mkwrap, {...}), ", "))
       end
 
@@ -441,7 +441,7 @@ specify std.debug:
       function mkwrap (x)
         local fmt = "%s"
         if type (x) == "string" then fmt = "%q" end
-        return string.format (fmt, require "std.string".tostring (x))
+        return string.format (fmt, require "std".tostring (x))
       end
 
       function mksay (debugp, ...)
@@ -449,7 +449,7 @@ specify std.debug:
           _DEBUG = %s
           require "std.debug".say (%s)
         ]],
-        require "std.string".tostring (debugp),
+        require "std".tostring (debugp),
         table.concat (require "std.list".map (mkwrap, {...}), ", "))
       end
 
