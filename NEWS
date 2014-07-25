@@ -19,47 +19,48 @@ Stdlib NEWS - User visible changes
 
  - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types
-   are compatible, use alien.buffers for efficient element management.
+   are compatible, uses alien.buffers for efficient element management.
 
  - New `std.operator` module, with new functional operators for
    concatenation `..`, tablification `{}`, stringification `""`, length
    `#` and matching `~`, plus new mathematical operators `%` and `^`, and
-   relational operators, `<`, `<=`, `>` and `>=`.
+   relational operators, `<`, `<=`, `>` and `>=`.  The `#` operator
+   respects the `__len` metamethod, if any, even on Lua 5.1.
 
  - New `functional.nop` function, for use where a function is required
    but no work should be done.
 
- - New `std.lua` module collects additional Lua language features added
-   by stdlib that do not really belong in type modules: `std.lua.case`,
-   `std.lua.eval`, and `std.lua.memoize` (original access points exported
-   by earlier releases will be preserved for the forseeable future).
+ - `std` module now collects stdlib functions that do not really belong
+   in specific type modules: including `std.case`, `std.eval`, and
+   `std.memoize` (original access points exported by earlier releases will
+   be preserved for the forseeable future).
 
- - `lua.memoize` now propagates multiple return values correctly.
+ - `std.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
 
- - New `lua.lambda` function for compiling lambda strings:
+ - New `std.lambda` function for compiling lambda strings:
 
-     table.sort (t, lua.lambda "|a,b| a<b")
+     table.sort (t, std.lambda "|a,b| a<b")
 
    or, equivalently using auto-arguments:
 
-     table.sort (t, lua.lambda "= _1 < _2"
+     table.sort (t, std.lambda "= _1 < _2"
 
    or, equivalently using `std.operator` references:
 
-     table.sort (t, lua.lambda "<")
+     table.sort (t, std.lambda "<")
 
- - New `lua.ipairs` and `lua.pairs` functions, that respect `__ipairs`
+ - New `std.ipairs` and `std.pairs` functions, that respect `__ipairs`
    and `__pairs` metamethods, even on Lua 5.1.
 
- - New `lua.ielems` and `lua.elems` functions for iterating sequences cleanly,
+ - New `std.ielems` and `std.elems` functions for iterating sequences cleanly,
    while respecting `__ipairs` and `__pairs` metamethods respectively.
 
- - New `lua.ireverse` function for reversing the array part of any
+ - New `std.ireverse` function for reversing the array part of any
    table, while respecting `__ipairs`, even on Lua 5.1.
 
- - New `lua.ripairs` function for returning index & value pairs in
+ - New `std.ripairs` function for returning index & value pairs in
    reverse order, while respecting `__ipairs`, even on Lua 5.1.
 
 ** Incompatible changes:
@@ -90,10 +91,10 @@ Stdlib NEWS - User visible changes
    entirely.
 
  - `list.reverse` has been deprecated in favour of the more general
-   and more accurately named `lua.ireverse`.
+   and more accurately named `std.ireverse`.
 
- - `list.relems` has been deprecated, in favour of the more composable
-   `functional.compose (lua.ireverse, lua.ielems)`.
+ - `list.relems` has been deprecated, in favour of the more idiomatic
+   `functional.compose (std.ireverse, std.ielems)`.
 
  - `string.pad` will still (by implementation accident) coerce non-
    string initial arguments to a string using `string.tostring` as long
@@ -101,14 +102,14 @@ Stdlib NEWS - User visible changes
    passing a non-string will now raise an error as specified in the api
    documentation.
 
- - `string.assert` has been moved to `lua.assert`, the old name now
+ - `string.assert` has been moved to `std.assert`, the old name now
    gives a deprecation warning on first use.
 
- - `string.require_version` has been moved to `lua.require`, the old
+ - `string.require_version` has been moved to `std.require`, the old
    name now gives a deprecation warning on first use, and will be
    removed entirely in some future release.
 
- - `table.ripairs` has been moved to `lua.ripairs`, the old name now
+ - `table.ripairs` has been moved to `std.ripairs`, the old name now
    gives a deprecation warning on first use, and will be removed
    entirely in some future release.
 
@@ -129,21 +130,21 @@ Stdlib NEWS - User visible changes
 
  - `optparse.on` now works with `std.strict` enabled.
 
- - `string.require` (nee `require_version`) now extracts the first
+ - `std.require` (nee `string.require_version`) now extracts the first
    substring made entirely of digits and periods from the required
    module's version string before splitting on period.  That means, for
    version strings like stdlib's "General Lua Libraries / 41" we now
    correctly compare just the numeric part against specified version
    range rather than an ASCII comparison of the whole thing as before!
 
- - The documentation now correcly notes that `string.require` looks
+ - The documentation now correcly notes that `std.require` looks
    first in `module.version` and then `module._VERSION` to match the
    long-standing implementation.
 
  - `string.split` now really does split on whitespace when no split
    pattern argument is provided.  Also, the documentation now
    correctly cites `%s+` as the default whitespace splitting pattern
-   (not `%s*` which splits on every non-whitespace character).
+   (not `%s*` which splits between every non-whitespace character).
 
 
 * Noteworthy changes in release 40 (2014-05-01) [stable]

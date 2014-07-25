@@ -23,15 +23,296 @@
 ]]
 
 
+local operator = require "std.operator"
+
+
+
+--[[ ========================= ]]--
+--[[ Documented in string.lua. ]]--
+--[[ ========================= ]]--
+
+
+local function split (s, sep)
+  sep = sep or "%s+"
+  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
+  while b <= len do
+    local e, n, m = string.find (s, patt, b + 1)
+    t[#t + 1] = m or s:sub (b + 1, len)
+    b = n or len + 1
+  end
+  return t
+end
+
+
+
+--[[ ====================== ]]--
+--[[ Documented in std.lua. ]]--
+--[[ ====================== ]]--
+
+
+--- Return a List object by splitting version string on periods.
+-- @string version a period delimited version string
+-- @treturn List a list of version components
+local function version_to_list (version)
+  return require "std.list" (split (version, "%."))
+end
+
+
+--- Extract a list of period delimited integer version components.
+-- @tparam table module returned from a `require` call
+-- @string pattern to capture version number from a string
+--   (default: `"%D*([%.%d]+)"`)
+-- @treturn List a list of version components
+local function module_version (module, pattern)
+  local version = module.version or module._VERSION
+  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
+end
+
+
+--- Unwrap proxy table or generator from __ipairs metamethod.
+-- If *t* has an __ipairs metamethod, populate a new table by calling
+-- it and return that, otherwise pass the argument through unchanged.
+-- @tparam table t a table
+-- @treturn table either *t*, or unwrapped proxy from *t*'s __ipairs
+--   metamethod
+local function unwrap__ipairs (t)
+  local __ipairs = (getmetatable (t) or {}).__ipairs
+  if __ipairs then
+    -- Two passes in case __ipairs fetches from a proxy or similar,
+    -- where #t might not be accurate.
+    local r = {}
+    for i, v in __ipairs (t) do r[i] = v end
+    t = r
+  end
+  return t
+end
+
+
+--- Iterator adaptor for discarding first value from core iterator function.
+-- @func factory iterator to be wrapped
+-- @param ... *factory* arguments
+-- @treturn function iterator that discards first returned value of
+--   factory iterator
+-- @return invariant state from *factory*
+-- @return `true`
+-- @usage
+-- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
+local function wrapiterator (factory, ...)
+  -- Capture wrapped ctrl variable into an upvalue...
+  local fn, istate, ctrl = factory (...)
+  -- Wrap the returned iterator fn to maintain wrapped ctrl.
+  return function (state, _)
+           local v
+	   ctrl, v = fn (state, ctrl)
+	   if ctrl then return v end
+	 end, istate, true -- wrapped initial state, and wrapper ctrl
+end
+
+
+local function __ipairs (l)
+  return ((getmetatable (l) or {}).__ipairs or ipairs) (l)
+end
+
+
+local function __pairs (t)
+  return ((getmetatable (t) or {}).__pairs or pairs) (t)
+end
+
+
+local function elems (t)
+  return wrapiterator ((getmetatable (t) or {}).__pairs or pairs, t)
+end
+
+
+local function ielems (l)
+  return wrapiterator ((getmetatable (l) or {}).__ipairs or ipairs, l)
+end
+
+
+local function ireverse (t)
+  t = unwrap__ipairs (t)
+
+  local r = {}
+  for i = #t, 1, -1 do r[#r + 1] = t[i] end
+  return r
+end
+
+
+local function ripairs (t)
+  t = unwrap__ipairs (t)
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, #t + 1
+end
+
+
+local function assert (expect, f, arg1, ...)
+  local msg = (arg1 ~= nil) and string.format (f, arg1, ...) or f or ""
+  return expect or error (msg, 2)
+end
+
+
+local function case (with, branches)
+  local f = branches[with] or branches[1]
+  if f then return f (with) end
+end
+
+
+local function eval (s)
+  return loadstring ("return " .. s)()
+end
+
+
+local function lambda (l)
+  local s
+
+  -- Support operator table lookup.
+  if operator[l] then
+    return operator[l]
+  end
+
+  -- Support "|args|expression" format.
+  local args, body = string.match (l, "^|([^|]*)|%s*(.+)$")
+  if args and body then
+    s = "return function (" .. args .. ") return " .. body .. " end"
+  end
+
+  -- Support "=expression" format.
+  if not s then
+    body = l:match "^=%s*(.+)$"
+    if body then
+      s = [[
+        return function (...)
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
+	  return ]] .. body .. [[
+        end
+      ]]
+    end
+  end
+
+  local ok, fn
+  if s then
+    ok, fn = pcall (loadstring (s))
+  end
+
+  -- Diagnose invalid input.
+  if not ok then
+    return nil, "invalid lambda string '" .. l .. "'"
+  end
+
+  return fn
+end
+
+
+local function memoize (fn, normalize)
+  if normalize == nil then
+    -- Call require here, to avoid pulling in all of 'std.string'
+    -- even when memoize is never called.
+    local stringify = require "std.string".tostring
+    normalize = function (...) return stringify {...} end
+  end
+
+  return setmetatable ({}, {
+    __call = function (self, ...)
+               local k = normalize (...)
+               local t = self[k]
+               if t == nil then
+                 t = {fn (...)}
+                 self[k] = t
+               end
+               return unpack (t)
+             end
+  })
+end
+
+
+local function require_version (module, min, too_big, pattern)
+  local m = require (module)
+  if min then
+    assert (module_version (m, pattern) >= version_to_list (min))
+  end
+  if too_big then
+    assert (module_version (m, pattern) < version_to_list (too_big))
+  end
+  return m
+end
+
+
+
+--[[ ============================= ]]--
+--[[ Documented in functional.lua. ]]--
+--[[ ============================= ]]--
+
+
+local function nop () end
+
+
+
+--[[ ========================= ]]--
+--[[ Documented in object.lua. ]]--
+--[[ ========================= ]]--
+
+
+local function prototype (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
+
+
+
+--[[ ======================== ]]--
+--[[ Documented in table.lua. ]]--
+--[[ ======================== ]]--
+
+
+local function getmetamethod (x, n)
+  local _, m = pcall (function (x)
+                        return getmetatable (x)[n]
+                      end,
+                      x)
+  if type (m) ~= "function" then
+    m = nil
+  end
+  return m
+end
+
+
+
+--[[ ======================= ]]--
+--[[ Documented in tree.lua. ]]--
+--[[ ======================= ]]--
+
+
+local function leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
+end
+
+
+
+
+
+--[[ ================== ]]--
+--[[ Argument Checking. ]]--
+--[[ ================== ]]--
+
+
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 
-local argcheck, argerror, argscheck, prototype  -- forward declarations
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
+local argcheck, argerror, argscheck  -- forward declarations
 
 
 local toomanyarg_fmt =
@@ -111,8 +392,8 @@ end
 -- @treturn function iterator function
 -- @treturn table t
 -- @usage
--- for i,v in opairs {"one", nil, "three"} do print (i, v) end
-local function opairs (t)
+-- for i,v in argpairs {"one", nil, "three"} do print (i, v) end
+local function argpairs (t)
   local i, max = 0, 0
   for k in pairs (t) do
     if type (k) == "number" and k > max then max = k end
@@ -130,7 +411,7 @@ end
 -- @treturn table list of merged and normalized type-specs
 local function merge (...)
   local i, t = 1, {}
-  for _, v in opairs {...} do
+  for _, v in argpairs {...} do
     v:gsub ("([^|]+)", function (m) t[i] = m; i = i + 1 end)
   end
   return normalize (t)
@@ -244,64 +525,6 @@ local function formaterror (expectedtypes, actual)
 end
 
 
---- Iterator adaptor for discarding first value from core iterator function.
--- @func factory iterator to be wrapped
--- @param ... *factory* arguments
--- @treturn function iterator that discards first returned value of
---   factory iterator
--- @return invariant state from *factory*
--- @return `true`
--- @usage
--- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
-local function wrapiterator (factory, ...)
-  -- Capture wrapped ctrl variable into an upvalue...
-  local fn, istate, ctrl = factory (...)
-  -- Wrap the returned iterator fn to maintain wrapped ctrl.
-  return function (state, _)
-           local v
-	   ctrl, v = fn (state, ctrl)
-	   if ctrl then return v end
-	 end, istate, true -- wrapped initial state, and wrapper ctrl
-end
-
-
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
-
-
--- Doc-commented in object.lua
-function prototype (o)
-  return (getmetatable (o) or {})._type or io.type (o) or type (o)
-end
-
-
--- Doc-commented in functional.lua
-local function nop () end
-
-
---- Split a string at a given separator.
--- Separator is a Lua pattern, so you have to escape active characters,
--- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
--- @function split
--- @string s to split
--- @string[opt="%s+"] sep separator pattern
--- @return list of strings
-local function split (s, sep)
-  sep = sep or "%s+"
-  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
-  while b <= len do
-    local e, n, m = string.find (s, patt, b + 1)
-    t[#t + 1] = m or s:sub (b + 1, len)
-    b = n or len + 1
-  end
-  return t
-end
-
-
 if _ARGCHECK then
 
   local typeof = type  -- free up `type` for use as a variable
@@ -410,32 +633,10 @@ function argerror (name, i, extramsg, level)
 end
 
 
---- Write a deprecation warning to stderr on first call.
--- @func fn deprecated function
--- @string[opt] name function name for automatic warning message.
--- @string[opt] warnmsg full specified warning message (overrides *name*)
--- @return a function to show the warning on first call, and hand off to *fn*
--- @usage funcname = deprecate (function (...) ... end, "funcname")
-local function deprecate (fn, name, warnmsg)
-  argscheck ("std.base.deprecate", {"function", "string?", "string?"},
-             {fn, name, warnmsg})
 
-  if not (name or warnmsg) then
-    error ("missing argument to 'std.base.deprecate' (2 or 3 arguments expected)", 2)
-  end
-
-  warnmsg = warnmsg or (name .. " is deprecated, and will go away in a future release.")
-  local warnp = true
-  return function (...)
-    if warnp then
-      local _, where = pcall (function () error ("", 4) end)
-      io.stderr:write ((string.gsub (where, "(^w%*%.%w*%:%d+)", "%1")))
-      io.stderr:write (warnmsg .. "\n")
-      warnp = false
-    end
-    return fn (...)
-  end
-end
+--[[ ============ ]]--
+--[[ Maintenance. ]]--
+--[[ ============ ]]--
 
 
 --- Export a function definition, optionally with argument type checking.
@@ -553,106 +754,74 @@ local function export (M, decl, fn, ...)
 end
 
 
---- Iterator returning leaf nodes from nested tables.
--- @tparam function it table iterator function
--- @tparam tree|table tr tree or tree-like table
--- @treturn function iterator function
--- @treturn tree|table the tree `tr`
-local function leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
+--- Write a deprecation warning to stderr on first call.
+-- @func fn deprecated function
+-- @string[opt] name function name for automatic warning message.
+-- @string[opt] warnmsg full specified warning message (overrides *name*)
+-- @return a function to show the warning on first call, and hand off to *fn*
+-- @usage funcname = deprecate (function (...) ... end, "funcname")
+local function deprecate (fn, name, warnmsg)
+  argscheck ("std.base.deprecate", {"function", "string?", "string?"},
+             {fn, name, warnmsg})
+
+  if not (name or warnmsg) then
+    error ("missing argument to 'std.base.deprecate' (2 or 3 arguments expected)", 2)
+  end
+
+  warnmsg = warnmsg or (name .. " is deprecated, and will go away in a future release.")
+  local warnp = true
+  return function (...)
+    if warnp then
+      local _, where = pcall (function () error ("", 4) end)
+      io.stderr:write ((string.gsub (where, "(^w%*%.%w*%:%d+)", "%1")))
+      io.stderr:write (warnmsg .. "\n")
+      warnp = false
     end
+    return fn (...)
   end
-  return coroutine.wrap (visit), tr
-end
-
-
---- Return given metamethod, if any, or nil.
--- @tparam std.object x object to get metamethod of
--- @string n name of metamethod to get
--- @treturn function|nil metamethod function or `nil` if no metamethod or
---   not a function
--- @usage lookup = getmetamethod (require "std.object", "__index")
-local function getmetamethod (x, n)
-  local _, m = pcall (function (x)
-                        return getmetatable (x)[n]
-                      end,
-                      x)
-  if type (m) ~= "function" then
-    m = nil
-  end
-  return m
-end
-
-
--- Doc-commented in lua.lua
-local function ielems (l)
-  return wrapiterator (getmetamethod (l, "__ipairs") or ipairs, l)
-end
-
-
--- Doc-commented in lua.lua
-local function ireverse (l)
-  local iter, r = getmetamethod (l, "__ipairs"), {}
-  if not iter then
-    -- Calculate reverse indices for direct element access.
-    local len = #l + 1
-    for i, v in ipairs (l) do r[len - i] = v end
-  else
-    -- Two passes in case __ipairs fetches from a proxy or similar,
-    -- where #l might not be accurate.
-    local t = {}
-    for i, v in iter (l) do t[i] = v end
-    for i = #t, 1, -1 do r[#r + 1] = t[i] end
-  end
-  return r
-end
-
-
--- Doc-commented in lua.lua
-local function ripairs (t)
-  local iter = getmetamethod (t, "__ipairs")
-  if iter then
-    -- Two passes in case __ipairs fetches from a proxy or similar,
-    -- where #t might not be accurate.
-    local l = {}
-    for i, v in iter (t) do l[i] = v end
-    t = l
-  end
-
-  return function (t, n)
-    n = n - 1
-    if n > 0 then
-      return n, t[n]
-    end
-  end, t, #t + 1
 end
 
 
 
-local M = {
-  argcheck       = argcheck,
-  argerror       = argerror,
-  arglen         = arglen,
-  argscheck      = argscheck,
+return {
+
+  -- std.lua --
+  assert   = assert,
+  case     = case,
+  eval     = eval,
+  elems    = elems,
+  ielems   = ielems,
+  ipairs   = __ipairs,
+  ireverse = ireverse,
+  lambda   = lambda,
+  memoize  = memoize,
+  pairs    = __pairs,
+  ripairs  = ripairs,
+  require  = require_version,
+
+  -- functional.lua --
+  nop = nop,
+
+  -- object.lua --
+  prototype = prototype,
+
+  -- string.lua --
+  split = split,
+
+  -- table.lua --
+  getmetamethod = getmetamethod,
+
+  -- tree.lua --
+  leaves = leaves,
+
+  -- Argument Checking. --
+  argcheck  = argcheck,
+  argerror  = argerror,
+  arglen    = arglen,
+  argscheck = argscheck,
+
+  -- Maintenance --
   deprecate      = deprecate,
   export         = export,
-  getmetamethod  = getmetamethod,
-  ielems         = ielems,
-  ireverse       = ireverse,
-  leaves         = leaves,
-  nop            = nop,
-  prototype      = prototype,
-  ripairs        = ripairs,
-  split          = split,
   toomanyarg_fmt = toomanyarg_fmt,
-  wrapiterator   = wrapiterator,
 }
-
-
-return M

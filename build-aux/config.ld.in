@@ -10,7 +10,6 @@ file = {
   "../lib/std/debug.lua",
   "../lib/std/functional.lua",
   "../lib/std/io.lua",
-  "../lib/std/lua.lua",
   "../lib/std/math.lua",
   "../lib/std/operator.lua",
   "../lib/std/package.lua",

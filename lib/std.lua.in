@@ -23,30 +23,206 @@
 ]]
 
 
-local M -- forward declaration
+local base = require "std.base"
+
+local export = base.export
+
+
+local M = { "std" }
+
+
+--- Extend to allow formatted arguments.
+-- @function assert
+-- @param expect expression, expected to be *truthy*
+-- @string[opt=""] f format string
+-- @param[opt] ... arguments to format
+-- @return value of *expect*, if *truthy*
+-- @usage
+-- assert (expected ~= nil, "100% unexpected!")
+-- assert (expected ~= nil, "%s unexpected!", expected)
+export (M, "assert (any?, string?, any?*)", base.assert)
+
+
+--- A rudimentary case statement.
+-- Match `with` against keys in `branches` table, and return the result
+-- of running the function in the table value for the matching key, or
+-- the first non-key value function if no key matches.
+-- @function case
+-- @param with expression to match
+-- @tparam table branches map possible matches to functions
+-- @return the return value from function with a matching key, or nil.
+-- @usage
+-- return case (type (object), {
+--   table  = function ()  return something end,
+--   string = function ()  return something else end,
+--            function (s) error ("unhandled type: "..s) end,
+-- })
+export (M, "case (any?, #table)", base.case)
+
+
+--- An iterator over all elements of a sequence.
+-- If there is a `__pairs` metamethod, use that to iterate.
+-- @function elems
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn table *t*, the table being iterated over
+-- @return *key*, the previous iteration key
+-- @see ielems
+-- @see pairs
+-- @usage
+-- for v in elems {a = 1, b = 2, c = 5} do process (v) end
+export (M, "elems (table)", base.elems)
+
+
+--- Evaluate a string.
+-- @function eval
+-- @string s string of Lua code
+-- @return result of evaluating `s`
+-- @usage eval "math.pow (2, 10)"
+export (M, "eval (string)", base.eval)
+
+
+--- An iterator over the integer keyed elements of a sequence.
+-- If there is an `__ipairs` metamethod, use that to iterate.
+-- @function ielems
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn list *l*, the list being iterated over
+-- @treturn int *index*, the previous iteration index
+-- @see elems
+-- @see ipairs
+-- @usage
+-- for v in ielems {"a", "b", "c"} do process (v) end
+export (M, "ielems (table)", base.ielems)
+
+
+--- An implementation of core ipairs that respects __ipairs even in Lua 5.1.
+-- @function ipairs
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn list *l*, the list being iterated over
+-- @treturn int *index*, the previous iteration index
+-- @see ielems
+-- @see pairs
+-- @usage
+-- for i, v in ipairs {"a", "b", "c"} do process (v) end
+export (M, "ipairs (table)", base.ipairs)
+
+
+--- A new reversed list.
+-- @function ireverse
+-- @tparam table t a table
+-- @treturn list a new list
+-- @see ielems
+-- @see ipairs
+-- @usage
+-- rielems = std.functional.compose (ireverse, ielems)
+-- for e in rielems (l) do process (e) end
+export (M, "ireverse (table)", base.ireverse)
+
+
+--- Compile a lambda string into a Lua function.
+--
+-- A valid lambda string takes one of the following forms:
+--
+--   1. `operator`: where *op* is a key in @{std.operator}, equivalent to that operation
+--   1. `"=expression"`: equivalent to `function (...) return (expression) end`
+--   1. `"|args|expression"`: equivalent to `function (args) return (expression) end`
+--
+-- The second form (starting with `=`) automatically assigns the first
+-- nine arguments to parameters `_1` through `_9` for use within the
+-- expression body.
+-- @function lambda
+-- @string s a lambda string
+-- @treturn table compiled lambda string, can be called like a function
+-- @usage
+-- -- The following are all equivalent:
+-- lambda "<"
+-- lambda "= _1 < _2"
+-- lambda "|a,b| a<b"
+export (M, "lambda (string)", base.memoize (base.lambda, base.lambda "|s|s"))
+
+
+--- Memoize a function, by wrapping it in a functable.
+--
+-- To ensure that memoize always returns the same results for the same
+-- arguments, it passes arguments to `normalize` (std.string.tostring
+-- by default). You can specify a more sophisticated function if memoize
+-- should handle complicated argument equivalencies.
+-- @function memoize
+-- @func fn function with no side effects
+-- @func normalize[opt] function to normalize arguments
+-- @treturn functable memoized function
+-- @usage
+-- local fast = memoize (function (...) --[[ slow code ]] end)
+export (M, "memoize (func, func?)", base.memoize)
+
+
+--- Signature of memoize `normalize` functions.
+-- @function memoize_normalize
+-- @param ... arguments
+-- @treturn string normalized arguments
+
+
+--- An implementation of core pairs that respects __pairs even in Lua 5.1.
+-- @function pairs
+-- @tparam table t a table
+-- @treturn function iterator function
+-- @treturn table *t*, the table being iterated over
+-- @return *key*, the previous iteration key
+-- @see elems
+-- @see ipairs
+-- @usage
+-- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
+export (M, "pairs (table)", base.pairs)
+
+
+--- Require a module with a particular version.
+-- @function require
+-- @string module module to require
+-- @string[opt] min lowest acceptable version
+-- @string[opt] too_big lowest version that is too big
+-- @string[opt] pattern to match version in `module.version` or
+--  `module._VERSION` (default: `"%D*([%.%d]+)"`)
+-- @usage std = require ("std", "41")
+export (M, "require (string, string?, string?, string?)", base.require)
+
+
+--- An iterator like ipairs, but in reverse.
+-- @function ripairs
+-- @tparam table t any table
+-- @treturn function iterator function
+-- @treturn table *t*
+-- @treturn number `#t + 1`
+-- @usage for i, v = ripairs (t) do ... end
+export (M, "ripairs (table)", base.ripairs)
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
 --
 -- Loads all `std` submodules with a `monkey_patch` method, and runs
--- them.
+-- them. And also, all `std` module functions except `std.barrel` and
+-- `std.monkey_patch` are also copied to the given namespace.
 -- @function monkey_patch
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage local std = require "std".monkey_patch ()
-local function monkey_patch (namespace)
-  require "std.base".argcheck ("std.monkey_patch", 1, "table?", namespace)
-
+local monkey_patch = export (M, "monkey_patch (table?)", function (namespace)
   namespace = namespace or _G
 
+  for n, fn in pairs (M) do
+    if type (fn) == "function" and n ~= "barrel" and n ~= "monkey_patch" then
+      namespace[n] = fn
+    end
+  end
+
   require "std.io".monkey_patch (namespace)
-  require "std.lua".monkey_patch (namespace)
   require "std.math".monkey_patch (namespace)
   require "std.string".monkey_patch (namespace)
   require "std.table".monkey_patch (namespace)
 
   return M
-end
+end)
 
 
 --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
@@ -57,33 +233,34 @@ end
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table module table
 -- @usage local std = require "std".barrel ()
-local function barrel (namespace)
-  require "std.base".argcheck ("std.barrel", 1, "table?", namespace)
-
+export (M, "barrel (table?)", function (namespace)
   namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
-  for _, v in pairs {
+  for v in base.ielems {
     "functional.bind", "functional.collect", "functional.compose",
     "functional.curry", "functional.filter", "functional.fold",
     "functional.id", "functional.map", "functional.op",
 
     "io.die", "io.warn",
 
-    "string.assert", "string.pickle", "string.prettytostring",
+    "string.pickle", "string.prettytostring",
     "string.render", "string.require_version", "string.tostring",
 
-    "table.metamethod", "table.pack", "table.ripairs",
-    "table.totable",
+    "table.metamethod", "table.pack", "table.totable",
 
     "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
   } do
     local module, method = v:match "^(.*)%.(.-)$"
-    namespace[method] = M[module][method]
+    if module then
+      namespace[method] = M[module][method]
+    else
+      namespace[v] = M[v]
+    end
   end
 
   return monkey_patch (namespace)
-end
+end)
 
 
 --- Module table.
@@ -93,14 +270,7 @@ end
 -- metatable will automatically require submodules on first reference.
 -- @table std
 -- @field version release version string
-local version = "General Lua libraries / @VERSION@"
-
-
-M = {
-  barrel       = barrel,
-  monkey_patch = monkey_patch,
-  version      = version,
-}
+M.version = "General Lua libraries / @VERSION@"
 
 
 --- Metamethods

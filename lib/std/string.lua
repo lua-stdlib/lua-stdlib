@@ -89,9 +89,7 @@ end
 
 
 -- DEPRECATED: Remove in first release following 2015-07-30.
-M.assert = base.deprecate (function (...)
-  return require "std.lua".assert (...)
-end, nil,
+M.assert = base.deprecate (base.assert, nil,
   "string.assert is deprecated, use lua.assert instead")
 
 
@@ -162,9 +160,7 @@ export (M, "split (string, string?)", split)
 
 
 -- DEPRECATED: Remove in first release following 2015-06-30.
-M.require_version = base.deprecate (function (...)
-  return require "std.lua".require (...)
-end, nil,
+M.require_version = base.deprecate (base.require, nil,
   "string.require_version is deprecated, use lua.require instead")
 
 
@@ -585,7 +581,7 @@ end)
 -- @todo Make it work for recursive tables.
 -- @param x object to pickle
 -- @treturn string reversible string rendering of *x*
--- @see lua.eval
+-- @see std.eval
 -- @usage
 -- function slow_identity (x) return functional.eval (pickle (x)) end
 function M.pickle (x)

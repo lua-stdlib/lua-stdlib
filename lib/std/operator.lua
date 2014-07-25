@@ -5,9 +5,6 @@
 ]]
 
 
-local getmetamethod = require "std.base".getmetamethod
-
-
 --- Functional forms of Lua operators.
 --
 -- Defined here so that other modules can write to it.
@@ -44,7 +41,7 @@ return {
   ["~"]   = function (s, p) return string.find (s, p) end,
   ["#"]   = function (t)
 	      -- Lua < 5.2 doesn't call `__len` automatically!
-              local m = getmetamethod (t, "__len")
+              local m = (getmetatable (t) or {}).__len
               return m and m (t) or #t
             end,
   ["+"]   = function (a, b) return a + b   end,
