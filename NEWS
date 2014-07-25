@@ -113,6 +113,10 @@ Stdlib NEWS - User visible changes
    gives a deprecation warning on first use, and will be removed
    entirely in some future release.
 
+ - `table.metamethod` has been moved to `std.getmetamethod`, the old
+   name now gives a deprecation warning on first use, and will be
+   removed entirely in some future release.
+
  - `table.ripairs` has been moved to `std.ripairs`, the old name now
    gives a deprecation warning on first use, and will be removed
    entirely in some future release.

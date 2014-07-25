@@ -346,23 +346,25 @@ specify std.table:
 
 - describe metamethod:
   - before:
-      f = M.metamethod
+      fname = "metamethod"
+      f = M[fname]
+
       Object = require "std.object"
       objmethod = function () end
       obj = Object {
         _type = "DerivedObject",
         _method = objmethod,
       }
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.metamethod' (object or table expected, got no value)"
-      expect (f (obj)).
-        to_error "bad argument #2 to 'std.table.metamethod' (string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.metamethod' (object or table expected, got boolean)"
-      expect (f (obj, false)).
-        to_error "bad argument #2 to 'std.table.metamethod' (string expected, got boolean)"
+
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {{}, subject})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain (fname .. " is deprecated")
+      end
+      _, err = capture (f, {{}, subject})
+      expect (err).to_be (nil)
+
   - it returns nil for missing metamethods:
       expect (f (obj, "not a method on obj")).to_be (nil)
   - it returns nil for non-function metatable entries:

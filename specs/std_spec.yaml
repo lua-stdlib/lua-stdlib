@@ -2,9 +2,10 @@ before:
   this_module   = "std"
   global_table  = "_G"
 
-  exported_apis = { "assert", "barrel", "case", "elems", "eval", "ielems",
-                    "ipairs", "ireverse", "lambda", "memoize", "monkey_patch",
-                    "pairs", "require", "ripairs", "tostring", "version", 1 }
+  exported_apis = { 1, "assert", "barrel", "case", "elems", "eval",
+                    "getmetamethod", "ielems", "ipairs", "ireverse", "lambda",
+                    "memoize", "monkey_patch", "pairs", "require", "ripairs",
+                    "tostring", "version" }
 
   M = require (this_module)
 
@@ -116,6 +117,7 @@ specify std:
         eval            = M.eval,
         filter          = M.functional.filter,
         fold            = M.functional.fold,
+        getmetamethod   = M.getmetamethod,
         id              = M.functional.id,
         ielems          = M.ielems,
         ileaves         = M.tree.ileaves,
@@ -128,7 +130,7 @@ specify std:
         map             = M.functional.map,
         math            = t.math,
         memoize         = M.memoize,
-        metamethod      = M.table.metamethod,
+        metamethod      = M.getmetamethod,
         nodes           = M.tree.nodes,
         op              = M.functional.op,
         pack            = M.table.pack,
@@ -238,6 +240,49 @@ specify std:
       expect (f "=").to_error ()
   - it evaluates a string of lua code:
       expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
+
+
+- describe getmetamethod:
+  - before:
+      fname = "getmetamethod"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "object or table"))
+      expect (f ({})).to_error (msg (2, "string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "object or table", "boolean"))
+      expect (f ({}, false)).to_error (msg (2, "string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, "foo", false)).
+       to_error (toomanyarg (this_module, fname, 2, 3))
+
+  - context with a table:
+    - before:
+        method = function () end
+        t = setmetatable ({}, { _type = "table", _method = method })
+    - it returns nil for missing metamethods:
+        expect (f (t, "not a metamethod on t")).to_be (nil)
+    - it returns nil for non-function metatable entries:
+        expect (f (t, "_type")).to_be (nil)
+    - it returns a method from the metatable:
+        expect (f (t, "_method")).to_be (method)
+
+  - context with an object:
+    - before:
+        Object = require "std.object"
+        objmethod = function () end
+        obj = Object {
+          _type = "DerivedObject",
+          _method = objmethod,
+        }
+    - it returns nil for missing metamethods:
+        expect (f (obj, "not a metamethod on obj")).to_be (nil)
+    - it returns nil for non-function metatable entries:
+        expect (f (obj, "_type")).to_be (nil)
+    - it returns a method from the metatable:
+        expect (f (obj, "_method")).to_be (objmethod)
 
 
 - describe ielems:

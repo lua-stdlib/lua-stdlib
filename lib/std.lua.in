@@ -121,6 +121,15 @@ export (M, "ipairs (table)", base.ipairs)
 export (M, "ireverse (table)", base.ireverse)
 
 
+--- Return named metamethod, if any, or nil.
+-- @function getmetamethod
+-- @tparam table t table to get metamethod of
+-- @string n name of metamethod to get
+-- @treturn function|nil metamethod function, or `nil` if no metamethod
+-- @usage lookup = getmetamethod (require "std.object", "__index")
+export (M, "getmetamethod (object|table, string)", base.getmetamethod)
+
+
 --- Compile a lambda string into a Lua function.
 --
 -- A valid lambda string takes one of the following forms:
@@ -246,6 +255,7 @@ export (M, "barrel (table?)", function (namespace)
   namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
+  namespace.metamethod = M.getmetamethod
   for v in base.ielems {
     "functional.bind", "functional.collect", "functional.compose",
     "functional.curry", "functional.filter", "functional.fold",
@@ -256,17 +266,14 @@ export (M, "barrel (table?)", function (namespace)
     "string.pickle", "string.prettytostring",
     "string.render", "string.require_version", "string.tostring",
 
-    "table.metamethod", "table.pack", "table.totable",
+    "table.pack", "table.totable",
 
     "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
   } do
     local module, method = v:match "^(.*)%.(.-)$"
-    if module then
-      namespace[method] = M[module][method]
-    else
-      namespace[v] = M[v]
-    end
+    namespace[method] = M[module][method]
   end
+
 
   return monkey_patch (namespace)
 end)

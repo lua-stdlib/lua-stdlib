@@ -13,8 +13,7 @@
 
 local base = require "std.base"
 
-local export, getmetamethod, ripairs =
-      base.export, base.getmetamethod, base.ripairs
+local export, getmetamethod = base.export, base.getmetamethod
 
 
 local M = { "std.table" }
@@ -197,13 +196,9 @@ export (M, "merge_select (table, table, [table], boolean|:nometa?)",
   merge_namedfields)
 
 
---- Return given metamethod, if any, or nil.
--- @function metamethod
--- @tparam object x object to get metamethod of
--- @string n name of metamethod to get
--- @treturn function|nil metamethod function, or `nil` if no metamethod
--- @usage lookup = metamethod (require "std.object", "__index")
-export (M, "metamethod (object|table, string)", getmetamethod)
+-- DEPRECATED: Remove in first release following 2015-07-30.
+M.metamethod = base.deprecate (getmetamethod, nil,
+  "table.metamethod is deprecated, use std.getmetamethod instead.")
 
 
 --- Make a table with a default value for unset keys.
@@ -229,15 +224,8 @@ end
 
 
 -- DEPRECATED: Remove in first release following 2015-07-11.
--- An iterator like ipairs, but in reverse.
--- @function ripairs
--- @tparam table t any table
--- @treturn function iterator function
--- @treturn table *t*
--- @treturn number `#t + 1`
--- @usage for i, v = ripairs (t) do ... end
-M.ripairs = base.deprecate (ripairs, nil,
-  "table.ripairs is deprecated, use lua.ripairs instead.")
+M.ripairs = base.deprecate (base.ripairs, nil,
+  "table.ripairs is deprecated, use std.ripairs instead.")
 
 
 --- Find the number of elements in a table.
