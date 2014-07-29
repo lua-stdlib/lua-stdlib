@@ -138,11 +138,11 @@ Stdlib NEWS - User visible changes
 
  - `optparse.on` now works with `std.strict` enabled.
 
- - `std.require` (nee `string.require_version`) now extracts the first
+ - `std.require` (nee `string.require_version`) now extracts the last
    substring made entirely of digits and periods from the required
    module's version string before splitting on period.  That means, for
-   version strings like stdlib's "General Lua Libraries / 41" we now
-   correctly compare just the numeric part against specified version
+   version strings like luaposix's "posix library for Lua 5.2 / 32" we
+   now correctly compare just the numeric part against specified version
    range rather than an ASCII comparison of the whole thing as before!
 
  - The documentation now correcly notes that `std.require` looks

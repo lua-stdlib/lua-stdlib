@@ -192,13 +192,17 @@ export (M, "pairs (table)", base.pairs)
 
 
 --- Enhance core `require` to assert version number compatibility.
+-- By default match against the last substring of (dot-delimited)
+-- digits in the module version string.
 -- @function require
 -- @string module module to require
 -- @string[opt] min lowest acceptable version
 -- @string[opt] too_big lowest version that is too big
 -- @string[opt] pattern to match version in `module.version` or
---  `module._VERSION` (default: `"%D*([%.%d]+)"`)
--- @usage std = require ("std", "41")
+--  `module._VERSION` (default: `"([%.%d]+)%D*$"`)
+-- @usage
+-- -- posix.version == "posix library for Lua 5.2 / 32"
+-- posix = require ("posix", "29")
 export (M, "require (string, string?, string?, string?)", base.require)
 
 

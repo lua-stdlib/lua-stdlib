@@ -125,11 +125,11 @@ end
 --- Extract a list of period delimited integer version components.
 -- @tparam table module returned from a `require` call
 -- @string pattern to capture version number from a string
---   (default: `"%D*([%.%d]+)"`)
+--   (default: `"([%.%d]+)%D*$"`)
 -- @treturn List a list of version components
 local function module_version (module, pattern)
   local version = module.version or module._VERSION
-  return version_to_list (version:match (pattern or "%D*([%.%d]+)"))
+  return version_to_list (version:match (pattern or "([%.%d]+)%D*$"))
 end
 
 
