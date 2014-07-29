@@ -65,7 +65,6 @@ dist_luastd_DATA =			\
 	lib/std/base.lua		\
 	lib/std/container.lua		\
 	lib/std/debug.lua		\
-	lib/std/debug_init.lua		\
 	lib/std/functional.lua		\
 	lib/std/io.lua			\
 	lib/std/list.lua		\
@@ -83,6 +82,17 @@ dist_luastd_DATA =			\
 	lib/std/vector.lua		\
 	$(NOTHING_ELSE)
 
+# For bugwards compatibility with LuaRocks 2.1, while ensuring that
+# `require "std.debug_init"` continues to work, we have to install
+# the former `$(luadir)/std/debug_init.lua` to `debug_init/init.lua`.
+# When LuaRocks works again, move this file back to dist_luastd_DATA
+# above and rename to debug_init.lua.
+
+luastddebugdir = $(luastddir)/debug_init
+
+dist_luastddebug_DATA =			\
+	lib/std/debug_init/init.lua	\
+	$(NOTHING_ELSE)
 
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
