@@ -62,38 +62,28 @@ specify std.optparse:
 
 - describe parser:
   - before: |
-      f = os.tmpname ()
+      code = [[
+        package.path = "]] .. package.path .. [["
+        local OptionParser = require 'std.optparse'
+        local help = [=[]] .. help .. [[]=]
+        help = help:match ("^[%s\n]*(.-)[%s\n]*$")
 
-      function parse (arglist)
-        local d = f:gsub ("/[^/]*$", "", 1)
-        local h = io.open (f, "w")
+        local parser = OptionParser (help)
+        local arg, opts = parser:parse (_G.arg)
 
-        h:write ([[
-          package.path = "]] .. package.path .. [["
-          local OptionParser = require 'std.optparse'
-          local help = [=[]] .. help .. [[]=]
-          help = help:match ("^[%s\n]*(.-)[%s\n]*$")
-
-          local parser = OptionParser (help)
-          local arg, opts = parser:parse (_G.arg)
-
-          o = {}
-          for k, v in pairs (opts) do
-            table.insert (o, k .. " = " .. tostring (v))
-          end
-          if #o > 0 then
-            table.sort (o)
-            print ("opts = { " .. table.concat (o, ", ") .. " }")
-          end
-          if #arg > 0 then
-            print ("args = { " .. table.concat (arg, ", ") .. " }")
-          end
-        ]])
-        h:close ()
-
-        return hell.spawn {arg[-1], f, unpack (arglist)}
-      end
-  - after: os.remove (f)
+        o = {}
+        for k, v in pairs (opts) do
+          table.insert (o, k .. " = " .. tostring (v))
+        end
+        if #o > 0 then
+          table.sort (o)
+          print ("opts = { " .. table.concat (o, ", ") .. " }")
+        end
+        if #arg > 0 then
+          print ("args = { " .. table.concat (arg, ", ") .. " }")
+        end
+      ]]
+      parse = bind (luaproc, {code})
 
   - it responds to --version with version text:
       expect (parse {"--version"}).
@@ -286,13 +276,8 @@ specify std.optparse:
 
 - describe parser:on:
   - before: |
-      f = os.tmpname ()
-
       function parseargs (onargstr, arglist)
-        local d = f:gsub ("/[^/]*$", "", 1)
-        local h = io.open (f, "w")
-
-        h:write ([[
+        code = [[
           package.path = "]] .. package.path .. [["
           local OptionParser = require 'std.optparse'
           local help = [=[]] .. help .. [[]=]
@@ -315,12 +300,10 @@ specify std.optparse:
           if #arg > 0 then
             print ("args = { " .. table.concat (arg, ", ") .. " }")
           end
-        ]])
-        h:close ()
+        ]]
 
-        return hell.spawn {arg[-1], f, unpack (arglist)}
+        return luaproc (code, arglist)
       end
-  - after: os.remove (f)
 
   - it recognises short options:
       expect (parseargs ([["x"]], {"-x"})).
