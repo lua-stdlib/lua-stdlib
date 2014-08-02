@@ -2,7 +2,7 @@ local hell      = require "specl.shell"
 local inprocess = require "specl.inprocess"
 local std       = require "specl.std"
 
-package.path = std.package.normalize ("lib/?.lua", package.path)
+package.path = std.package.normalize ("lib/?.lua", "lib/?/init.lua", package.path)
 
 
 -- Substitute configured LUA so that hell.spawn doesn't pick up

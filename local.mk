@@ -21,7 +21,7 @@
 ## Environment. ##
 ## ------------ ##
 
-std_path = $(abs_srcdir)/lib/?.lua
+std_path = $(abs_srcdir)/lib/?.lua;$(abs_srcdir)/lib/?/init.lua
 LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 
 
