@@ -516,7 +516,7 @@ local function zip_with (ls, fn)
     end
   end
 
-  return map_with (transpose (ls), fn)
+  return map_with (fn, transpose (ls))
 end
 
 
@@ -714,7 +714,7 @@ List = Object {
     relems      = relems,
     reverse     = reverse,
     transpose   = transpose,
-    zip_with    = function (self, f) return zip_with (f, self)    end,
+    zip_with    = zip_with,
   },
 
 

@@ -797,7 +797,7 @@ specify std.list:
 
 - describe zip_with:
   - before:
-      l = List {}
+      l = List {List {1, 2}, List {3, 4}, List {5}}
       f = list.zip_with
 
   - it diagnoses missing arguments: |
@@ -816,3 +816,17 @@ specify std.list:
         to_error "bad argument #2 to 'std.list.zip_with' (function expected, got boolean)"
 
   - context when called as a list object method:
+    - before:
+        fn = function (...) return tonumber (table.concat {...}) end
+    - it returns a list object: |
+        expect (prototype (l:zip_with (fn))).to_be "List"
+    - it returns the result in a new list object: |
+        expect (l:zip_with (fn)):not_to_be (l)
+    - it does not perturb the argument list: |
+        m = l:zip_with (fn)
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
+    - it combines column entries with a function: |
+        expect (l:zip_with (fn)).to_equal (List {135, 24})
+    - it works for an empty list: |
+        l = List {}
+        expect (l:zip_with (fn)).to_equal (List {})

@@ -139,6 +139,8 @@ Stdlib NEWS - User visible changes
  - `list.transpose` works again, and handles empty lists without
    raising an error.
 
+ - `list.zip_with` no longer raises an argument error on every call.
+
  - `optparse.on` now works with `std.strict` enabled.
 
  - `std.require` (nee `string.require_version`) now extracts the last
