@@ -6,58 +6,95 @@ before:
   nop = M.nop
 
 specify std.base:
-- describe deprecate:
+- describe DEPRECATED:
   - before: |
       function runscript (body, name, args)
         return luaproc (
-          "require 'std.base'.deprecate (function (...)" ..
+          "require 'std.base'.DEPRECATED ('0', '" .. (name or "runscript") .. "', function (...)" ..
           " " .. body ..
-          " end, '" .. (name or "runscript") .. "') " ..
+          " end) " ..
           "('" .. table.concat (args or {}, "', '") .. "')"
         )
       end
 
-      fname = "deprecate"
-      -- Don't depend on functional.bind for base specs!
-      msg = function (...) return badarg (this_module, fname, ...) end
+      fname = "DEPRECATED"
+      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
-  - it diagnoses missing arguments: |
-      expect (f ()).to_error (msg (1, "function"))
-      expect (f (function () end)).
-        to_error "missing argument to 'std.base.deprecate' (2 or 3 arguments expected)"
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "string"))
+      expect (f "version").to_error (msg (2, "string"))
+      expect (f ("version", "name")).to_error (msg (3, "string or function"))
+      expect (f ("version", "name", "extramsg")).to_error (msg (4, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f ("version", false)).to_error (msg (2, "string", "boolean"))
+      expect (f ("version", "name", false)).
+        to_error (msg (3, "string or function", "boolean"))
+      expect (f ("version", "name", "extramsg", false)).
+        to_error (msg (4, "function", "boolean"))
+  - it diagnoses too many arguments: |
+      expect (f ("version", "name", "extramsg", nop, false)).
+        to_error (toomanyarg (this_module, fname, 4, 5))
+      pending "issue #76"
+      expect (f ("version", "name", nop, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
 
   - it returns a function:
-      f = M.deprecate (function () end, "clone_rename")
-      expect (type (f)).to_be "function"
+      expect (type (f ("0", "deprecated", nop))).to_be "function"
+      expect (f ("0", "deprecated", nop)).not_to_be (nop)
   - context with deprecated function:
     - it executes the deprecated function:
         expect (runscript 'error "oh noes!"').to_contain_error "oh noes!"
     - it passes arguments to the deprecated function:
         expect (runscript ("print (table.concat ({...}, ', '))", nil,
                            {"foo", "bar", "baz"})).to_output "foo, bar, baz\n"
-    - it returns deprecated function results:
+    - it returns deprecated function results: |
         script = [[
-          deprecate = require "std.base".deprecate
-          fn = deprecate (function () return "foo", "bar", "baz" end, "fn")
+          DEPRECATED = require "std.base".DEPRECATED
+          fn = DEPRECATED ("0", "fn", function () return "foo", "bar", "baz" end)
           print (fn ())
         ]]
         expect (luaproc (script)).to_output "foo\tbar\tbaz\n"
     - it writes a warning to stderr:
         expect (runscript 'error "oh noes!"').
-          to_contain_error "deprecated, and will go away"
+          to_match_error "deprecated.*, and will be removed"
+    - it writes the version string to stderr:
+        expect (runscript 'error "oh noes!"').
+          to_contain_error "in release 0"
     - it writes the call location to stderr: |
         expect (runscript 'error "oh noes!"').
           to_match_error "^%S+:1: "
-    - it does not repeat the warning on additional calls:
-        script = [[
-          deprecate = require "std.base".deprecate
-          fn = deprecate (function () error "oh noes!" end, "fn")
-          fn ()  -- line 3
-          fn ()  -- line 4
-        ]]
-        expect (luaproc (script)).
-          not_to_match_error "^%S+:3:.*deprecated.*\n%S+:4:.*deprecated"
+    - context with _DEBUG:
+      - before: |
+          script = [[
+            DEPRECATED = require "std.base".DEPRECATED
+            fn = DEPRECATED ("0", "fn", function () io.stderr:write "oh noes!\n" end)
+            fn ()  -- line 3
+            fn ()  -- line 4
+          ]]
+      - it warns only on first call by default:
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
+      - it warns only on first call with _DEBUG set to true:
+          script = "_DEBUG = true " .. script
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
+      - it warns only on first call with _DEBUG.compat unset:
+          script = "_DEBUG = {} " .. script
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
+      - it does not warn at all when set to false: |
+          script = "_DEBUG = false " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it does not warn at all when compat field is set to true: |
+          script = "_DEBUG = { compat = true } " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it warns on every call with compat field set to false:
+          script = "_DEBUG = { compat = false } " .. script
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
+
 
 - describe export:
   - before:
@@ -111,7 +148,7 @@ specify std.base:
       M = { "base_spec.yaml" }
       f (M, "export (any?)", mkmagic)
       expect (M.export ()).to_be (MAGIC)
-  - it stores the passed function when _ARGCHECK is disabled:
+  - it stores the passed function when _ARGCHECK is disabled: |
       script = [[
         _DEBUG = false
         local debug = require "std.debug_init"

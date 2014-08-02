@@ -93,23 +93,6 @@ local clone = export (M, "clone (table, [table], boolean|:nometa?)",
   function (...) return merge_allfields ({}, ...) end)
 
 
--- DEPRECATED: Remove in first release following 2015-04-15.
--- Clone a table, renaming some keys.
--- @function clone_rename
--- @tparam table map table `{old_key=new_key, ...}`
--- @tparam table t   source table
--- @treturn table copy of *t*
-M.clone_rename = base.deprecate (function (map, t)
-                                   local r = clone (t)
-                                   for i, v in pairs (map) do
-                                     r[v] = t[i]
-                                     r[i] = nil
-                                   end
-                                   return r
-                                 end, nil,
-  "table.clone_rename is deprecated, use the new `map` argument to table.clone instead.")
-
-
 --- Make a partial clone of a table.
 --
 -- Like `clone`, but does not copy any fields by default.
@@ -196,11 +179,6 @@ export (M, "merge_select (table, table, [table], boolean|:nometa?)",
   merge_namedfields)
 
 
--- DEPRECATED: Remove in first release following 2015-07-30.
-M.metamethod = base.deprecate (getmetamethod, nil,
-  "table.metamethod is deprecated, use std.getmetamethod instead.")
-
-
 --- Make a table with a default value for unset keys.
 -- @function new
 -- @param[opt=nil] x default entry value
@@ -221,11 +199,6 @@ end)
 function M.pack (...)
   return {...}
 end
-
-
--- DEPRECATED: Remove in first release following 2015-07-11.
-M.ripairs = base.deprecate (base.ripairs, nil,
-  "table.ripairs is deprecated, use std.ripairs instead.")
 
 
 --- Find the number of elements in a table.
@@ -304,6 +277,35 @@ export (M, "values (table)", function (t)
   end
   return l
 end)
+
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = base.DEPRECATED
+
+M.clone_rename = DEPRECATED ("39", "'table.clone_rename'",
+  "use the new `map` argument to 'table.clone' instead",
+  function (map, t)
+    local r = clone (t)
+    for i, v in pairs (map) do
+      r[v] = t[i]
+      r[i] = nil
+    end
+    return r
+  end)
+
+
+M.metamethod = DEPRECATED ("41", "'table.metamethod'",
+  "use 'std.getmetamethod' instead", base.getmetamethod)
+
+
+M.ripairs = DEPRECATED ("41", "'table.ripairs'",
+  "use 'std.ripairs' instead", base.ripairs)
+
 
 
 for k, v in pairs (table) do

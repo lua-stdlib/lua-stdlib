@@ -355,14 +355,15 @@ end
 
 
 
-
-
 --[[ ================== ]]--
 --[[ Argument Checking. ]]--
 --[[ ================== ]]--
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
+local debug     = require "std.debug_init"
+
+local _ARGCHECK = debug._ARGCHECK
+local _DEBUG    = debug._DEBUG
 
 
 local argcheck, argerror, argscheck  -- forward declarations
@@ -797,32 +798,35 @@ local function export (M, decl, fn, ...)
 end
 
 
---- Write a deprecation warning to stderr on first call.
+--- Write a deprecation warning to stderr.
+-- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+-- if `_DEBUG.compat` is false, warn every time *fn* is called;
+-- otherwise don't write any warnings, and run *fn* normally.
 -- @func fn deprecated function
--- @string[opt] name function name for automatic warning message.
--- @string[opt] warnmsg full specified warning message (overrides *name*)
+-- @string version first deprecation release version
+-- @string name function name for automatic warning message
+-- @string[opt] extramsg additional warning text
 -- @return a function to show the warning on first call, and hand off to *fn*
 -- @usage funcname = deprecate (function (...) ... end, "funcname")
-local function deprecate (fn, name, warnmsg)
-  argscheck ("std.base.deprecate", {"function", "string?", "string?"},
-             {fn, name, warnmsg})
+local M = { "std.base" }
 
-  if not (name or warnmsg) then
-    error ("missing argument to 'std.base.deprecate' (2 or 3 arguments expected)", 2)
-  end
+export (M,  "DEPRECATED (string, string, [string], func)",
+function (version, name, extramsg, fn)
+  if fn == nil then fn, extramsg = extramsg, nil end
+  extramsg = extramsg or "and will be removed entirely in a future release"
+  local warnmsg = string.format ("%s was deprecated in release %s, %s.",
+                                 name, version, extramsg)
 
-  warnmsg = warnmsg or (name .. " is deprecated, and will go away in a future release.")
-  local warnp = true
+  local compat = type (_DEBUG) == "table" and _DEBUG.compat or _DEBUG == false
   return function (...)
-    if warnp then
+    if not compat then
       local _, where = pcall (function () error ("", 4) end)
-      io.stderr:write ((string.gsub (where, "(^w%*%.%w*%:%d+)", "%1")))
-      io.stderr:write (warnmsg .. "\n")
-      warnp = false
+      io.stderr:write (where .. warnmsg .. "\n")
+      if _DEBUG == true or (type (_DEBUG) == "table" and _DEBUG.compat == nil) then compat = true end
     end
     return fn (...)
   end
-end
+end)
 
 
 
@@ -866,7 +870,7 @@ return {
   argscheck = argscheck,
 
   -- Maintenance --
-  deprecate      = deprecate,
+  DEPRECATED     = M.DEPRECATED,
   export         = export,
   toomanyarg_fmt = toomanyarg_fmt,
 }

@@ -89,11 +89,6 @@ end
 --[[ ================= ]]--
 
 
--- DEPRECATED: Remove in first release following 2015-07-30.
-M.assert = base.deprecate (base.assert, nil,
-  "std.string.assert is deprecated, use std.assert instead")
-
-
 --- Extend to work better with one argument.
 -- If only one argument is passed, no formatting is attempted.
 -- @function format
@@ -158,11 +153,6 @@ end)
 -- @return list of strings
 -- @usage words = split "a very short sentence"
 export (M, "split (string, string?)", split)
-
-
--- DEPRECATED: Remove in first release following 2015-06-30.
-M.require_version = base.deprecate (base.require, nil,
-  "std.string.require_version is deprecated, use std.require instead")
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
@@ -462,11 +452,6 @@ local render = export (M,
 -- function separator (_, _, _, fk) return fk and "," or "" end
 
 
--- DEPRECATED: Remove in first release following 2015-07-30.
-M.tostring = base.deprecate (base.tostring, nil,
-  "std.string.tostring is deprecated, use std.tostring instead")
-
-
 --- Pretty-print a table, or other object.
 -- @function prettytostring
 -- @param x object to convert to string
@@ -558,6 +543,29 @@ function M.pickle (x)
     end
   end
 end
+
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = base.DEPRECATED
+
+
+M.assert = DEPRECATED ("41", "'string.assert'",
+  "use 'std.assert' instead", base.assert)
+
+
+M.require_version = DEPRECATED ("41", "'string.require_version'",
+  "use 'std.require' instead", base.require)
+
+
+M.tostring = DEPRECATED ("41", "'string.tostring'",
+  "use 'std.tostring' instead", base.tostring)
+
+
 
 
 for k, v in pairs (string) do

@@ -63,24 +63,7 @@ Stdlib NEWS - User visible changes
  - New `std.ripairs` function for returning index & value pairs in
    reverse order, while respecting `__ipairs`, even on Lua 5.1.
 
-** Incompatible changes:
-
- - `functional.bind` sets fixed positional arguments when called as
-   before, but when the newly bound function is called, those arguments
-   fill remaining unfixed positions rather than being overwritten by
-   original fixed arguments.  For example, where this would have caused
-   an error previously, it now prints "100" as expected.
-
-     local function add (a, b) return a + b end
-     local incr = functional.bind (add, {1})
-     print (incr (99))
-
-   If you have any code that calls functions returned from `bind`, you
-   need to remove the previously ignored arguments that correspond to
-   the fixed argument positions in the `bind` invocation.
-
- - `io.catdir` now raises an error when called with no arguments, for
-   consistency with `io.catfile`.
+** Deprecations:
 
  - `list.index_key` and `list.index_value` have been deprecated. These
    functions are not general enough to belong in lua-stdlib, because
@@ -90,17 +73,11 @@ Stdlib NEWS - User visible changes
    use.  After that, in some future release, they will be removed
    entirely.
 
- - `list.reverse` has been deprecated in favour of the more general
-   and more accurately named `std.ireverse`.
-
  - `list.relems` has been deprecated, in favour of the more idiomatic
    `functional.compose (std.ireverse, std.ielems)`.
 
- - `string.pad` will still (by implementation accident) coerce non-
-   string initial arguments to a string using `string.tostring` as long
-   as argument checking is disabled.  Under normal circumstances,
-   passing a non-string will now raise an error as specified in the api
-   documentation.
+ - `list.reverse` has been deprecated in favour of the more general
+   and more accurately named `std.ireverse`.
 
  - `string.assert` has been moved to `std.assert`, the old name now
    gives a deprecation warning on first use.
@@ -120,6 +97,32 @@ Stdlib NEWS - User visible changes
  - `table.ripairs` has been moved to `std.ripairs`, the old name now
    gives a deprecation warning on first use, and will be removed
    entirely in some future release.
+
+
+** Incompatible changes:
+
+ - `functional.bind` sets fixed positional arguments when called as
+   before, but when the newly bound function is called, those arguments
+   fill remaining unfixed positions rather than being overwritten by
+   original fixed arguments.  For example, where this would have caused
+   an error previously, it now prints "100" as expected.
+
+     local function add (a, b) return a + b end
+     local incr = functional.bind (add, {1})
+     print (incr (99))
+
+   If you have any code that calls functions returned from `bind`, you
+   need to remove the previously ignored arguments that correspond to
+   the fixed argument positions in the `bind` invocation.
+
+ - `io.catdir` now raises an error when called with no arguments, for
+   consistency with `io.catfile`.
+
+ - `string.pad` will still (by implementation accident) coerce non-
+   string initial arguments to a string using `string.tostring` as long
+   as argument checking is disabled.  Under normal circumstances,
+   passing a non-string will now raise an error as specified in the api
+   documentation.
 
  - The `functional.op` table has been factored out into its own new
    module `std.operator`.  It will also continue to be available from the

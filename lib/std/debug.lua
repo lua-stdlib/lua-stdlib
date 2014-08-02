@@ -68,9 +68,12 @@ local tabify = functional.compose (
 -- (equivalent to {level = 1}), or as documented below.
 -- @class table
 -- @name _DEBUG
--- @field[opt=true] argcheck honor argcheck and argscheck calls
--- @field[opt=false] call do call trace debugging
--- @field[opt=1] level debugging level
+-- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
+-- @tfield[opt=false] boolean call do call trace debugging
+-- @field[opt=nil] compat if `false`, always complain whenever a deprecated
+--   api is called; if `nil` complain on first use of each deprecated api;
+--   any other value disables deprecation warnings altogether
+-- @tfield[opt=1] int level debugging level
 -- @usage _DEBUG = { argcheck = false, level = 9 }
 
 

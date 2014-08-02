@@ -84,13 +84,15 @@ specify std.table:
 - describe clone_rename:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f = M.clone_rename
+
+      fname = "clone_rename"
+      f = M[fname]
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "clone_rename is deprecated"
+        expect (err).to_contain "'table.clone_rename' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)
@@ -346,9 +348,6 @@ specify std.table:
 
 - describe metamethod:
   - before:
-      fname = "metamethod"
-      f = M[fname]
-
       Object = require "std.object"
       objmethod = function () end
       obj = Object {
@@ -356,11 +355,14 @@ specify std.table:
         _method = objmethod,
       }
 
+      fname = "metamethod"
+      f = M[fname]
+
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain (fname .. " is deprecated")
+        expect (err).to_contain "'table.metamethod' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)
@@ -441,13 +443,14 @@ specify std.table:
 
 - describe ripairs:
   - before:
-      f = M.ripairs
+      fname = "ripairs"
+      f = M[fname]
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "ripairs is deprecated"
+        expect (err).to_contain "'table.ripairs' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)

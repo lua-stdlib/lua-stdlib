@@ -91,19 +91,6 @@ local function compare (l, m)
 end
 
 
--- DEPRECATED: Remove in first release following 2015-07-11.
--- An iterator over the elements of a list.
--- @static
--- @function elems
--- @tparam List l a list
--- @treturn function  iterator function which returns successive elements
---   of `l`
--- @treturn List `l`
--- @return `true`
-local elems = base.deprecate (ielems, nil,
-  "list.elems is deprecated, use lua.ielems instead.")
-
-
 --- Concatenate arguments into a list.
 -- @tparam List l a list
 -- @param ... tuple of lists
@@ -219,19 +206,6 @@ local function foldl (fn, e, l)
 end
 
 
--- DEPRECATED: Remove in first release following 2015-07-11
--- An iterator over the elements of a list, in reverse.
--- @tparam List l a list
--- @treturn function  iterator function which returns precessive elements
---   of the `l`
--- @treturn List `l`
--- @return `true`
-local relems = base.deprecate (function (l)
-                                 return ielems (ireverse (l))
-                               end, nil,
-  "list.relems is deprecated, use lua.ipairs with lua.ireverse instead.")
-
-
 --- Fold a binary function through a list right associatively.
 -- @func fn binary function
 -- @param e element to place in right-most position
@@ -243,46 +217,6 @@ local function foldr (fn, e, l)
   return List (func.fold (function (x, y) return fn (y, x) end,
                           e, ielems, ireverse (l)))
 end
-
-
--- DEPRECATED: Remove in first release following 2015-06-07.
---- Make an index of a list of tables on a given field
--- @param f field
--- @tparam List l list of tables `{t1, ..., tn}`
--- @treturn table index `{t1[f]=1, ..., tn[f]=n}`
-local index_key = base.deprecate (function (f, l)
-  argcheck ("std.list.index_key", 2, "List", l)
-
-  local r = {}
-  for i, v in ipairs (l) do
-    local k = v[f]
-    if k then
-      r[k] = i
-    end
-  end
-  return r
-end, nil,
-  "list.index_key is deprecated, use list.filter and table.invert instead.")
-
-
--- DEPRECATED: Remove in first release following 2015-06-07.
--- Copy a list of tables, indexed on a given field
--- @param f field whose value should be used as index
--- @tparam List l list of tables `{i1=t1, ..., in=tn}`
--- @treturn table index `{t1[f]=t1, ..., tn[f]=tn}`
-local index_value = base.deprecate (function (f, l)
-  argcheck ("std.list.index_value", 2, "List", l)
-
-  local r = {}
-  for i, v in ipairs (l) do
-    local k = v[f]
-    if k then
-      r[k] = v
-    end
-  end
-  return r
-end, nil,
-  "list.index_value is deprecated, use list.filter and table.invert instead.")
 
 
 --- Map a function over a list.
@@ -355,16 +289,6 @@ local function rep (l, n)
   end
   return r
 end
-
-
--- DEPRECATED: Remove in first release following 2015-07-11
--- Reverse a list.
--- @tparam List l a list
--- @treturn List new list containing `{l[#l], ..., l[1]}`
-local reverse = base.deprecate (function (l)
-                                  return List (ireverse (l))
-                                end, nil,
-  "list.reverse is deprecated, use lua.ireverse instead.")
 
 
 --- Shape a list according to a list of dimensions.
@@ -543,12 +467,61 @@ local _functions = {
   zip_with    = zip_with,
 }
 
--- Deprecated and undocumented.
-_functions.elems       = elems
-_functions.index_key   = index_key
-_functions.index_value = index_value
-_functions.relems      = relems
-_functions.reverse     = reverse
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = base.DEPRECATED
+
+
+_functions.elems = DEPRECATED ("41", "'list.elems'",
+  "use 'std.ielems' instead", base.ielems)
+
+
+local function relems (l) return base.ielems (base.ireverse (l)) end
+
+_functions.relems = DEPRECATED ("41", "'list.relems'",
+  "use 'std.ielems' with 'std.ireverse' instead", relems)
+
+
+local function index_key (f, l)
+  local r = {}
+  for i, v in ipairs (l) do
+    local k = v[f]
+    if k then
+      r[k] = i
+    end
+  end
+  return r
+end
+
+_functions.index_key = DEPRECATED ("41", "'list.index_key'",
+  "use 'list.filter' with 'table.invert' instead", index_key)
+
+
+local function index_value (f, l)
+  local r = {}
+  for i, v in ipairs (l) do
+    local k = v[f]
+    if k then
+      r[k] = v
+    end
+  end
+  return r
+end
+
+_functions.index_value = DEPRECATED ("41", "'list.index_value'",
+  "use 'list.filter' with 'table.invert' instead", index_value)
+
+
+local function reverse (l) return List (ireverse (l)) end
+
+_functions.reverse = DEPRECATED ("41", "'list.reverse'",
+  "use 'std.ireverse' instead", reverse)
+
 
 
 List = Object {
@@ -704,17 +677,20 @@ List = Object {
     -- @treturn List new list containing `{self[2], ..., self[#self]}`
     tail = tail,
 
-    -- For backwards compatibility with pre-Object era lists, but
-    -- undocumented so that new code doesn't get tangled up in it.
-    depair      = depair,
-    elems       = ielems,
-    index_key   = function (self, f) return index_key (f, self)   end,
-    index_value = function (self, f) return index_value (f, self) end,
-    map_with    = function (self, f) return map_with (f, self)    end,
-    relems      = relems,
-    reverse     = reverse,
-    transpose   = transpose,
-    zip_with    = zip_with,
+    ------
+    depair    = DEPRECATED ("38", "'list:depair'",    depair),
+    map_with  = DEPRECATED ("38", "'list:map_with'",
+                  function (self, f) return map_with (f, self) end),
+    transpose = DEPRECATED ("38", "'list:transpose'", transpose),
+    zip_with  = DEPRECATED ("38", "'list:zip_with'",  zip_with),
+
+    elems       = DEPRECATED ("41", "'list:elems'",     base.ielems),
+    index_key   = DEPRECATED ("41", "'list:index_key'",
+                    function (self, f) return index_key (f, self)   end),
+    index_value = DEPRECATED ("41", "'list:index_value'",
+                    function (self, f) return index_value (f, self) end),
+    relems      = DEPRECATED ("41", "'list:relems'",    relems),
+    reverse     = DEPRECATED ("41", "'list:reverse'",   reverse),
   },
 
 

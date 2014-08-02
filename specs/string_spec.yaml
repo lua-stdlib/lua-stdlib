@@ -67,7 +67,7 @@ specify std.string:
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "assert is deprecated"
+        expect (err).to_contain "'string.assert' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)
@@ -583,18 +583,16 @@ specify std.string:
         to_be ('Vector ("any", {a, b, ' .. tostring (a[3]) .. ', e})')
 
 
-# DEPRECATED: Remove in first release following 2015-06-30.
 - describe require_version:
   - before:
       fname = "require_version"
-      msg = bind (badarg, {this_module, "require"})
       f = M[fname]
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "require_version is deprecated"
+        expect (err).to_contain "'string.require_version' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)
@@ -773,18 +771,16 @@ specify std.string:
       expect (subject).to_be (original)
 
 
-# DEPRECATED: Remove in first release following 2015-07-30.
 - describe tostring:
   - before:
       fname = "tostring"
-      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "tostring is deprecated"
+        expect (err).to_contain "'string.tostring' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)

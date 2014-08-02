@@ -26,8 +26,10 @@ local M = { "std.functional" }
 -- > =cube (2)
 -- 8
 local bind = export (M, "bind (func, any?*)", function (f, ...)
-  local fix = {...} -- backwards compatibility with old API; DEPRECATED: remove in first release after 2015-04-21
+  local fix = {...}
   if type (fix[1]) == "table" and fix[2] == nil then
+    base.DEPRECATED ("39", "`functional.bind` multi-argument",
+      "use a table of arguments as the second parameter instead", nop)
     fix = fix[1]
   end
 
