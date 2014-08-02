@@ -691,6 +691,7 @@ specify std.list:
 
 - describe shape:
   - before:
+      l = List {1, 2, 3, 4, 5, 6}
       f = list.shape
 
   - it diagnoses missing arguments: |
@@ -705,6 +706,26 @@ specify std.list:
         to_error "bad argument #2 to 'std.list.shape' (List expected, got boolean)"
 
   - context when called as a list object method:
+    - it returns a list object: |
+        expect (prototype (l:shape {2, 3})).to_be "List"
+    - it returns the result in a new list object: |
+        expect (l:shape {2, 3}):not_to_be (l)
+    - it does not perturb the argument list: |
+        m = l:shape {2, 3}
+        expect (l).to_equal (List {1, 2, 3, 4, 5, 6})
+    - it reshapes a list according to given dimensions: |
+        expect (l:shape {2, 3}).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (l:shape {3, 2}).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it treats 0-valued dimensions as an indefinite number:
+        expect (l:shape {2, 0}).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (l:shape {0, 2}).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it works for an empty list: |
+        l = List {}
+        expect (l:shape {0}).to_equal (List {})
 
 
 - describe sub:
