@@ -18,6 +18,7 @@ local StrBuf = strbuf {}
 
 local export, getmetamethod, split =
   base.export, base.getmetamethod, base.split
+local totable = table.totable
 
 local _format   = string.format
 local _tostring = base.tostring
