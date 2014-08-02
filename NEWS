@@ -136,6 +136,9 @@ Stdlib NEWS - User visible changes
 
  - `debug.trace` works with Lua 5.2.x again.
 
+ - `list.transpose` works again, and handles empty lists without
+   raising an error.
+
  - `optparse.on` now works with `std.strict` enabled.
 
  - `std.require` (nee `string.require_version`) now extracts the last

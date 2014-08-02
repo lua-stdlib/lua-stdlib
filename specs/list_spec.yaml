@@ -769,6 +769,7 @@ specify std.list:
 
 - describe transpose:
   - before:
+      l = List {List {1, 2}, List {3, 4}, List {5, 6}}
       f = list.transpose
 
   - it diagnoses missing arguments: |
@@ -779,6 +780,19 @@ specify std.list:
         to_error "bad argument #1 to 'std.list.transpose' (table or List expected, got boolean)"
 
   - context when called as a list object method:
+    - it returns a list object: |
+        expect (prototype (l:transpose ())).to_be "List"
+    - it returns the result in a new list object: |
+        expect (l:transpose ()):not_to_be (l)
+    - it does not perturb the argument list: |
+        m = l:transpose ()
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it performs a matrix transpose operation: |
+        expect (l:transpose ()).
+          to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
+    - it works for an empty list: |
+        l = List {}
+        expect (l:transpose ()).to_equal (List {})
 
 
 - describe zip_with:

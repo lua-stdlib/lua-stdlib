@@ -483,11 +483,13 @@ local function transpose (ls)
     end
   end
 
-  local rs, len = List {}, #ls
-  for i = 1, math.max (unpack (map (ls, function (l) return #l end))) do
-    rs[i] = List {}
-    for j = 1, len do
-      rs[i][j] = ls[j][i]
+  local rs, len, dims = List {}, #ls, map (base.lambda "#", ls)
+  if #dims > 0 then
+    for i = 1, math.max (unpack (dims)) do
+      rs[i] = List {}
+      for j = 1, len do
+        rs[i][j] = ls[j][i]
+      end
     end
   end
   return rs
