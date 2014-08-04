@@ -49,7 +49,7 @@ return {
   ["*"]   = function (a, b) return a * b   end,
   ["/"]   = function (a, b) return a / b   end,
   ["%"]   = function (a, b) return a % b   end,
-  ["^"]   = function (a, b) return math.pow (a, b) end,
+  ["^"]   = function (a, b) return a ^ b   end,
   ["and"] = function (a, b) return a and b end,
   ["or"]  = function (a, b) return a or b  end,
   ["not"] = function (a)    return not a   end,

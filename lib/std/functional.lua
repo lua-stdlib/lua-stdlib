@@ -22,7 +22,7 @@ local M = { "std.functional" }
 -- @tparam table t {p1=a1, ..., pn=an} table of parameters to bind to given arguments
 -- @return function with *pi* already bound
 -- @usage
--- > cube = bind (math.pow, {[2] = 3})
+-- > cube = bind (std.lambda "^", {[2] = 3})
 -- > =cube (2)
 -- 8
 local bind = export (M, "bind (func, any?*)", function (f, ...)
@@ -152,7 +152,7 @@ end)
 -- @return result
 -- @see std.list.foldl
 -- @see std.list.foldr
--- @usage fold (math.pow, 1, std.elems, {2, 3, 4})
+-- @usage fold (std.lambda "^", 1, std.elems, {2, 3, 4})
 export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
   local r = d
   for e in i (...) do
