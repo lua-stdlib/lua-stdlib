@@ -83,7 +83,7 @@ export (M, "eval (string)", base.eval)
 
 
 --- An iterator over the integer keyed elements of a sequence.
--- If *t* has an `__ipairs` metamethod, use that to iterate.
+-- If *t* has a `__len` metamethod, iterate up to the index it returns.
 -- @function ielems
 -- @tparam table t a table
 -- @treturn function iterator function
@@ -96,7 +96,11 @@ export (M, "eval (string)", base.eval)
 export (M, "ielems (table)", base.ielems)
 
 
---- Enhance core `ipairs` to respect `__ipairs` even in Lua 5.1.
+--- An iterator over elements `1..#t`, respecting `__len` metamethod.
+--
+-- Unlike Lua 5.1, which ignores `__len`, and Lua 5.2, which looks for
+-- and uses `__ipairs`, this iterator always iterates over elements with
+-- integer keys starting at 1, up to and including `#t`.
 -- @function ipairs
 -- @tparam table t a table
 -- @treturn function iterator function
@@ -105,12 +109,16 @@ export (M, "ielems (table)", base.ielems)
 -- @see ielems
 -- @see pairs
 -- @usage
--- for i, v in std.ipairs {"a", "b", "c"} do process (v) end
+-- -- don't stop at first nil
+-- args = {"first", "second", nil, "last"}
+-- setmetatable (args, { __len = std.lambda "=4" })
+-- for i, v in std.ipairs (args) do process (i, v) end
 export (M, "ipairs (table)", base.ipairs)
 
 
 --- Return a new table with element order reversed.
--- If *t* has an `__ipairs` metamethod, use that to iterate.
+-- Apart from the order of the elments returned, this function follows
+-- the same rules as @{ipairs} for determining first and last elements.
 -- @function ireverse
 -- @tparam table t a table
 -- @treturn table a new table with integer keyed elements in reverse
@@ -207,8 +215,8 @@ export (M, "require (string, string?, string?, string?)", base.require)
 
 
 --- An iterator like ipairs, but in reverse.
--- If *t* has an `__ipairs` metamethod, use that to prefetch element
--- pairs.
+-- Apart from the order of the elments returned, this function follows
+-- the same rules as @{ipairs} for determining first and last elements.
 -- @function ripairs
 -- @tparam table t any table
 -- @treturn function iterator function

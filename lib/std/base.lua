@@ -27,6 +27,54 @@ local operator = require "std.operator"
 
 
 
+--[[ ====================== ]]--
+--[[ Documented in std.lua. ]]--
+--[[ ====================== ]]--
+
+
+local _len   = operator["#"]
+local _pairs = pairs
+
+
+-- Respect __pairs metamethod, even in Lua 5.1.
+local function pairs (t)
+  return ((getmetatable (t) or {}).__pairs or _pairs) (t)
+end
+
+
+-- Iterate over keys 1..#l, like Lua 5.3.
+local function ipairs (l)
+  local len = _len (l)
+
+  return function (l, n)
+    n = n + 1
+    if n <= len then
+      return n, l[n]
+    end
+  end, l, 0
+end
+
+
+local function ripairs (t)
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, _len (t) + 1
+end
+
+
+-- Be careful not to compact holes from `t` when reversing.
+local function ireverse (t)
+  local r, len = {}, _len (t)
+  for i = 1, len do r[len - i + 1] = t[i] end
+  return r
+end
+
+
+
+
 --[[ ================= ]]--
 --[[ Helper Functions. ]]--
 --[[ ================= ]]--
@@ -133,25 +181,6 @@ local function module_version (module, pattern)
 end
 
 
---- Unwrap proxy table or generator from __ipairs metamethod.
--- If *t* has an __ipairs metamethod, populate a new table by calling
--- it and return that, otherwise pass the argument through unchanged.
--- @tparam table t a table
--- @treturn table either *t*, or unwrapped proxy from *t*'s __ipairs
---   metamethod
-local function unwrap__ipairs (t)
-  local __ipairs = (getmetatable (t) or {}).__ipairs
-  if __ipairs then
-    -- Two passes in case __ipairs fetches from a proxy or similar,
-    -- where #t might not be accurate.
-    local r = {}
-    for i, v in __ipairs (t) do r[i] = v end
-    t = r
-  end
-  return t
-end
-
-
 --- Iterator adaptor for discarding first value from core iterator function.
 -- @func factory iterator to be wrapped
 -- @param ... *factory* arguments
@@ -173,44 +202,13 @@ local function wrapiterator (factory, ...)
 end
 
 
-local function __ipairs (l)
-  return ((getmetatable (l) or {}).__ipairs or ipairs) (l)
-end
-
-
-local function __pairs (t)
-  return ((getmetatable (t) or {}).__pairs or pairs) (t)
-end
-
-
 local function elems (t)
   return wrapiterator ((getmetatable (t) or {}).__pairs or pairs, t)
 end
 
 
 local function ielems (l)
-  return wrapiterator ((getmetatable (l) or {}).__ipairs or ipairs, l)
-end
-
-
-local function ireverse (t)
-  t = unwrap__ipairs (t)
-
-  local r = {}
-  for i = #t, 1, -1 do r[#r + 1] = t[i] end
-  return r
-end
-
-
-local function ripairs (t)
-  t = unwrap__ipairs (t)
-
-  return function (t, n)
-    n = n - 1
-    if n > 0 then
-      return n, t[n]
-    end
-  end, t, #t + 1
+  return wrapiterator (ipairs, l)
 end
 
 
@@ -838,11 +836,11 @@ return {
   eval     = eval,
   elems    = elems,
   ielems   = ielems,
-  ipairs   = __ipairs,
+  ipairs   = ipairs,
   ireverse = ireverse,
   lambda   = lambda,
   memoize  = memoize,
-  pairs    = __pairs,
+  pairs    = pairs,
   ripairs  = ripairs,
   require  = require_version,
   tostring = tostring,

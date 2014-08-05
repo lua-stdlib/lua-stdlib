@@ -295,21 +295,6 @@ core_metatable = {
   end,
 
 
-  --- Iterate consecutively over all elements with `ipairs (vector)`.
-  -- @function __ipairs
-  -- @treturn function iterator function
-  -- @usage for index, anelement in ipairs (anvector) do ... end
-  __ipairs = function (self)
-    local i, n = 0, self.length
-    return function ()
-      i = i + 1
-      if i <= n then
-        return i, self.buffer[i]
-      end
-    end
-  end,
-
-
   --- Return the `n`th element in this vector.
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
@@ -480,16 +465,6 @@ local alien_functions = {
 
 alien_metatable = {
   _type = "Vector",
-
-  __ipairs = function (self)
-    local i, n = 0, self.length
-    return function ()
-      i = i + 1
-      if i <= n then
-        return i, self.buffer:get ((i - 1) * self.size + 1, self.type)
-      end
-    end
-  end,
 
   __index = function (self, n)
     argcheck ("__index", 2, "int|string", n)

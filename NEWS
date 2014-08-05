@@ -51,17 +51,33 @@ Stdlib NEWS - User visible changes
 
      table.sort (t, std.lambda "<")
 
- - New `std.ipairs` and `std.pairs` functions, that respect `__ipairs`
-   and `__pairs` metamethods, even on Lua 5.1.
+ - New `std.ipairs` function that respects `__len` metamethod, while always
+   iterating from index 1 through #t.  This makes it easy to add metamethods
+   to a table that don't stop at the first `nil` value, among other things:
+
+     function maxn (t)
+       return math.max (
+         unpack (filter (lambda '|e|type(e)=="number"', pairs, t))
+       )
+     end
+
+     function processallargs (x, ...)
+       for i, v in ipairs (setmetatable ({x, ...}, { __len = maxn })) do
+         process (i, v)
+       end
+     end
 
  - New `std.ielems` and `std.elems` functions for iterating sequences cleanly,
-   while respecting `__ipairs` and `__pairs` metamethods respectively.
+   while respecting `__len` and `__pairs` metamethods respectively.
 
  - New `std.ireverse` function for reversing the array part of any
-   table, while respecting `__ipairs`, even on Lua 5.1.
+   table, while respecting `__len`.
+
+ - New `std.pairs` function that respects `__pairs` metamethod, even on
+   Lua 5.1.
 
  - New `std.ripairs` function for returning index & value pairs in
-   reverse order, while respecting `__ipairs`, even on Lua 5.1.
+   reverse order, while respecting `__len`.
 
 ** Deprecations:
 

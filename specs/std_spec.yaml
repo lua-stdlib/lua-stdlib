@@ -8,15 +8,23 @@ before: |
                     "tostring", "version" }
 
   -- Tables with iterator metamethods used by various examples.
-  function str_iter (t)
-    return function (x, n)
-      if n < #x[1] then
-        return n+1, string.sub (x[1], n+1, n+1)
-      end
-    end, t, 0
-  end
-  __pairs  = setmetatable ({ "a string" }, { __pairs = str_iter })
-  __ipairs = setmetatable ({ "a string" }, { __ipairs = str_iter })
+  __pairs = setmetatable ({ content = "a string" }, {
+              __pairs = function (t)
+                          return function (x, n)
+                            if n < #x.content then
+                              return n+1, string.sub (x.content, n+1, n+1)
+                            end
+                          end, t, 0
+                        end,
+            })
+  __index = setmetatable ({ content = "a string" }, {
+              __index = function (t, n)
+                          if n <= #t.content then
+                            return t.content:sub (n, n)
+                          end
+                        end,
+              __len   = function (t) return #t.content end,
+            })
 
   M = require (this_module)
 
@@ -321,9 +329,9 @@ specify std:
         t[#t + 1] = e
       end
       expect (t).to_equal {"foo", 42}
-  - it respects __ipairs metamethod:
+  - it respects __len metamethod:
       t = {}
-      for v in f (__ipairs) do t[#t + 1] = v end
+      for v in f (__index) do t[#t + 1] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
@@ -356,9 +364,9 @@ specify std:
         t[i] = v
       end
       expect (t).to_equal {"foo", 42}
-  - it respects __ipairs metamethod:
+  - it respects __len metamethod:
       t = {}
-      for k, v in f (__ipairs) do t[k] = v end
+      for k, v in f (__index) do t[k] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
   - it works for an empty list:
       t = {}
@@ -386,8 +394,8 @@ specify std:
       expect (f {1, 2, "five"}).to_equal {"five", 2, 1}
   - it ignores the dictionary part of a table:
       expect (f {1, 2, "five"; a = "b", c = "d"}).to_equal {"five", 2, 1}
-  - it respects __ipairs metamethod:
-      expect (f (__ipairs)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it respects __len metamethod:
+      expect (f (__index)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works for an empty list:
       expect (f {}).to_equal {}
 
@@ -642,12 +650,12 @@ specify std:
       t, u = {"one", "two", "five"}, {}
       for _, v in f (t) do u[#u + 1] = v end
       expect (u).to_equal {"five", "two", "one"}
-  - it respects __ipairs metamethod:
+  - it respects __len metamethod:
       t = {}
-      for i, v in f (__ipairs) do t[i] = v end
+      for i, v in f (__index) do t[i] = v end
       expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
       t = {}
-      for _, v in f (__ipairs) do t[#t + 1] = v end
+      for _, v in f (__index) do t[#t + 1] = v end
       expect (t).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works with the empty list:
       t = {}
