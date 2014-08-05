@@ -642,39 +642,68 @@ specify std.list:
 - describe map_with:
   - before:
       l = List {List {1, 2, 3}, List {4, 5}}
-      n = function (...) return select ("#", ...) end
-      f = M.map_with
+      fn = function (...) return select ("#", ...) end
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.map_with' (function expected, got no value)"
-      expect (f (f)).
-        to_error "bad argument #2 to 'std.list.map_with' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.map_with' (function expected, got boolean)"
-      expect (f (f, false)).
-        to_error "bad argument #2 to 'std.list.map_with' (List expected, got boolean)"
-      expect (f (f, List {{}})).
-        to_error "bad argument #2 to 'std.list.map_with' (List of Lists expected, got table at index 1)"
-      expect (f (f, List {List {}, false})).
-        to_error "bad argument #2 to 'std.list.map_with' (List of Lists expected, got boolean at index 2)"
+      fname = "map_with"
 
-  - context when called as a list object method:
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
+
+    - it diagnoses missing arguments:
+        expect (f ()).to_error (msg (1, "function"))
+        expect (f (fn)).to_error (msg (2, "List"))
+    - it diagnoses wrong argument types:
+        expect (f (false)).to_error (msg (1, "function", "boolean"))
+        expect (f (fn, false)).to_error (msg (2, "List", "boolean"))
+        expect (f (fn, List {{}})).
+          to_error (msg (2, "List of Lists", "table at index 1"))
+        expect (f (fn, List {List {}, false})).
+          to_error (msg (2, "List of Lists", "boolean at index 2"))
+
     - it returns a list object:
-        m = l:map_with (n)
+        m = f (fn, l)
         expect (prototype (m)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:map_with (n)).to_equal (List {})
     - it creates a new list:
         o = l
-        m = l:map_with (n)
+        m = f (fn, l)
         expect (l).to_equal (o)
         expect (m).not_to_equal (o)
         expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
     - it maps a function over a list:
-        expect (l:map_with (n)).to_equal (List {3, 2})
+        expect (f (fn, l)).to_equal (List {3, 2})
+    - it works for an empty list:
+        l = List {}
+        expect (f (fn, l)).to_equal (List {})
+
+  - context when called as a list object method:
+    - before:
+        f = l[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        _, err = capture (f, {l, fn})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'list:map_with' was deprecated"
+        end
+        _, err = capture (f, {l, fn})
+        expect (err).to_be (nil)
+
+    - it returns a list object:
+        m = f (l, fn)
+        expect (prototype (m)).to_be "List"
+    - it creates a new list:
+        o = l
+        m = f (l, fn)
+        expect (l).to_equal (o)
+        expect (m).not_to_equal (o)
+        expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
+    - it maps a function over a list:
+        expect (f (l, fn)).to_equal (List {3, 2})
+    - it works for an empty list:
+        l = List {}
+        expect (f (l, fn)).to_equal (List {})
 
 
 - describe project:
@@ -1005,17 +1034,16 @@ specify std.list:
       fn = function (...) return tonumber (table.concat {...}) end
 
       fname = "zip_with"
-      f = l[fname]
 
   - context as a module function:
     - before:
         msg = bind (badarg, {this_module, fname})
         f = M[fname]
 
-    - it diagnoses missing arguments: |
+    - it diagnoses missing arguments:
         expect (f ()).to_error (msg (1, "List"))
         expect (f (l)).to_error (msg (2, "function"))
-    - it diagnoses wrong argument types: |
+    - it diagnoses wrong argument types:
         expect (f (false)).to_error (msg (1, "List", "boolean"))
         expect (f (List {{}}, f)).
           to_error (msg (1, "List of Lists", "table at index 1"))
@@ -1023,16 +1051,16 @@ specify std.list:
           to_error (msg (1, "List of Lists", "boolean at index 2"))
         expect (f (l, false)).to_error (msg (2, "function", "boolean"))
 
-    - it returns a list object: |
+    - it returns a list object:
         expect (prototype (f (l, fn))).to_be "List"
-    - it returns the result in a new list object: |
+    - it returns the result in a new list object:
         expect (f (l, fn)):not_to_be (l)
-    - it does not perturb the argument list: |
+    - it does not perturb the argument list:
         m = f (l, fn)
         expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
-    - it combines column entries with a function: |
+    - it combines column entries with a function:
         expect (f (l, fn)).to_equal (List {135, 24})
-    - it works for an empty list: |
+    - it works for an empty list:
         l = List {}
         expect (f (l, fn)).to_equal (List {})
 
