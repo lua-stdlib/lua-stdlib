@@ -117,13 +117,22 @@ end
 
 
 --- Prepend an item to a list.
+-- @function cons
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  argscheck ("std.list.cons", {"List", "any"}, {l, x})
+local function cons (x, l)
+  if prototype (x) == "List" and prototype (l) ~= "List" then
+    if not base.getcompat (cons) then
+      io.stderr:write (base.DEPRECATIONMSG ("41",
+                         "'std.list.cons' with list argument first", 2))
+      base.setcompat (cons)
+    end
+    x, l = l, x
+  end
+  argscheck ("std.list.cons", {"any", "List?"}, {x, l})
 
-  return List {x, unpack (l)}
+  return List {x, unpack (l or {})}
 end
 
 
@@ -595,7 +604,7 @@ List = Object {
     -- @function cons
     -- @param x item
     -- @treturn List new list containing `{x, unpack (self)}`
-    cons = cons,
+    cons = function (self, x) return cons (x, self) end,
 
     ------
     -- Filter a list according to a predicate.

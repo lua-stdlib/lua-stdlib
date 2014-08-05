@@ -207,25 +207,54 @@ specify std.list:
 
 - describe cons:
   - before:
-      f = M.cons
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.cons' (List expected, got no value)"
-      expect (f (l)).
-        to_error "bad argument #2 to 'std.list.cons' (any value expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.cons' (List expected, got boolean)"
-  - context when called as a list object method:
+      fname = "cons"
+
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {l, "head"})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.cons' with list argument first was deprecated"
+        end
+        _, err = capture (f, {l, "head"})
+        expect (err).to_be (nil)
+
+    - it diagnoses missing arguments:
+        expect (f ()).to_error (msg (1, "any value"))
+    - it diagnoses wrong argument types:
+        expect (f ("head", false)).to_error (msg (2, "List or nil", "boolean"))
+
     - it returns a list object:
-        l = l:cons "quux"
-        expect (prototype (l)).to_be "List"
+        expect (prototype (f ("head", l))).to_be "List"
+    - it prepends an item to a list:
+        expect (f ("head", l)).
+          to_equal (List {"head", "foo", "bar", "baz"})
     - it works for empty lists:
         l = List {}
-        expect (l:cons "quux").to_equal (List {"quux"})
+        expect (f ("head", l)).to_equal (List {"head"})
+    - it supports single argument call:
+        expect (f "head").to_equal (List {"head"})
+
+  - context as a list object method:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = l[fname]
+
+    - it returns a list object:
+        expect (prototype (f (l, "head"))).to_be "List"
     - it prepends an item to a list:
-        expect (l:cons "quux").
-          to_equal (List {"quux", "foo", "bar", "baz"})
+        expect (f (l, "head")).
+          to_equal (List {"head", "foo", "bar", "baz"})
+    - it works for empty lists:
+        l = List {}
+        expect (f (l, "head")).to_equal (List {"head"})
 
 
 - describe depair:
