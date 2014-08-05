@@ -17,8 +17,9 @@ local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
+local ipairs, pairs = base.ipairs, base.pairs
 local argerror, export, leaves, split =
-      base.argerror, base.export, base.leaves, base.split
+  base.argerror, base.export, base.leaves, base.split
 
 
 local M = { "std.io" }

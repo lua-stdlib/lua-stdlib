@@ -67,6 +67,9 @@ Stdlib NEWS - User visible changes
        end
      end
 
+   All of stdlib's implementation now uses `std.ipairs` rather than `ipairs`
+   internally.
+
  - New `std.ielems` and `std.elems` functions for iterating sequences cleanly,
    while respecting `__len` and `__pairs` metamethods respectively.
 
@@ -75,6 +78,9 @@ Stdlib NEWS - User visible changes
 
  - New `std.pairs` function that respects `__pairs` metamethod, even on
    Lua 5.1.
+
+   All of stdlib's implementation now uses `std.pairs` rather than `pairs`
+   internally.
 
  - New `std.ripairs` function for returning index & value pairs in
    reverse order, while respecting `__len`.

@@ -16,8 +16,8 @@ local table  = require "std.table"
 
 local StrBuf = strbuf {}
 
-local export, getmetamethod, split =
-  base.export, base.getmetamethod, base.split
+local export, getmetamethod, pairs, split =
+  base.export, base.getmetamethod, base.pairs, base.split
 local totable = table.totable
 
 local _format   = string.format

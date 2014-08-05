@@ -17,7 +17,8 @@ local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
 
-local export, split  = base.export, base.split
+local export, ipairs, pairs, split =
+  base.export, base.ipairs, base.pairs, base.split
 
 
 local M = { "std.package" }

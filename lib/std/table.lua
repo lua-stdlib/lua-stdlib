@@ -13,7 +13,8 @@
 
 local base = require "std.base"
 
-local export, getmetamethod = base.export, base.getmetamethod
+local export, getmetamethod, ipairs, pairs =
+  base.export, base.getmetamethod, base.ipairs, base.pairs
 
 
 local M = { "std.table" }

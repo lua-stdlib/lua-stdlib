@@ -16,6 +16,7 @@ local container = require "std.container"
 local func      = require "std.functional"
 
 local Container = container {}
+local ipairs, pairs = base.ipairs, base.pairs
 local ielems, base_leaves, prototype = base.ielems, base.leaves, base.prototype
 local fold, op  = func.fold, func.op
 

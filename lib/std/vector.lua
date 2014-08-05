@@ -41,8 +41,8 @@ local Container = container {}
 
 local typeof = type
 
-local argcheck, argscheck, prototype =
-      base.argcheck, base.argscheck, base.prototype
+local argcheck, argscheck, pairs, prototype =
+  base.argcheck, base.argscheck, base.pairs, base.prototype
 
 
 --[[ ================= ]]--

@@ -69,8 +69,8 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base = require "std.base"
 
-local argcheck, export, prototype =
-      base.argcheck, base.export, base.prototype
+local argcheck, export, ipairs, pairs, prototype =
+  base.argcheck, base.export, base.ipairs, base.pairs, base.prototype
 
 local M = { "std.container" }
 

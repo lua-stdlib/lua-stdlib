@@ -34,8 +34,9 @@ local func    = require "std.functional"
 local object  = require "std.object"
 
 
+local ipairs, pairs = base.ipairs, base.pairs
 local argcheck, argerror, argscheck, ielems, prototype, ireverse =
-      base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
+  base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
 
 local Object = object {}
 

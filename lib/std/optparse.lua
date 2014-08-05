@@ -74,6 +74,10 @@
 ]=]
 
 
+local base = require "std.base"
+
+local ipairs, pairs = base.ipairs, base.pairs
+
 local OptionParser -- forward declaration
 
 

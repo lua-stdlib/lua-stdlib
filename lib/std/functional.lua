@@ -10,7 +10,7 @@
 
 local base = require "std.base"
 
-local export, nop = base.export, base.nop
+local export, nop, pairs = base.export, base.nop, base.pairs
 
 local M = { "std.functional" }
 
