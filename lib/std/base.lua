@@ -796,31 +796,74 @@ local function export (M, decl, fn, ...)
 end
 
 
+-- Required for exported function argument check failures:
+local M = { "std.base" }
+
+
+-- Whether to show a deprecation warning the next time a give key is set.
+local compat = {}
+
+
+--- Determine whether *key* will show a deprecation warning on next access.
+-- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+-- if `_DEBUG.compat` is false, warn every time *fn* is called;
+-- otherwise don't write any warnings, and run *fn* normally.
+-- @function setcompat
+-- @param key unique identifier for a deprecated API.
+local setcompat = export (M, "setcompat (any)", function (key)
+  compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
+end)
+
+
+--- Get the deprecation warning status for *key*.
+-- @function getcompat
+-- @treturn boolean whether to show a deprecation warning.
+local getcompat = export (M, "getcompat (any)", function (key)
+  if compat[key] == nil then
+    -- Whether to warn on first access.
+    compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
+  end
+  return compat[key]
+end)
+
+
+--- Format a deprecation warning message.
+-- @function DEPRECATIONMSG
+-- @string version first deprecation release version
+-- @string name function name for automatic warning message
+-- @string[opt] extramsg additional warning text
+-- @int level call stack level to blame for the error
+-- @treturn string deprecation warning message
+local DEPRECATIONMSG = export (M, "DEPRECATIONMSG (string, string, [string], int)",
+function (version, name, extramsg, level)
+  if level == nil then level, extramsg = extramsg, nil end
+  extramsg = extramsg or "and will be removed entirely in a future release"
+
+  local _, where = pcall (function () error ("", level + 3) end)
+  return (where .. string.format ("%s was deprecated in release %s, %s.\n",
+                                  name, version, extramsg))
+end)
+
+
 --- Write a deprecation warning to stderr.
 -- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
 -- if `_DEBUG.compat` is false, warn every time *fn* is called;
 -- otherwise don't write any warnings, and run *fn* normally.
--- @func fn deprecated function
+-- @function DEPRECATED
 -- @string version first deprecation release version
 -- @string name function name for automatic warning message
 -- @string[opt] extramsg additional warning text
+-- @func fn deprecated function
 -- @return a function to show the warning on first call, and hand off to *fn*
 -- @usage funcname = deprecate (function (...) ... end, "funcname")
-local M = { "std.base" }
-
-export (M,  "DEPRECATED (string, string, [string], func)",
+export (M, "DEPRECATED (string, string, [string], func)",
 function (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
-  extramsg = extramsg or "and will be removed entirely in a future release"
-  local warnmsg = string.format ("%s was deprecated in release %s, %s.",
-                                 name, version, extramsg)
 
-  local compat = type (_DEBUG) == "table" and _DEBUG.compat or _DEBUG == false
   return function (...)
-    if not compat then
-      local _, where = pcall (function () error ("", 4) end)
-      io.stderr:write (where .. warnmsg .. "\n")
-      if _DEBUG == true or (type (_DEBUG) == "table" and _DEBUG.compat == nil) then compat = true end
+    if not getcompat (fn) then
+      io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
+      setcompat (fn)
     end
     return fn (...)
   end
@@ -869,6 +912,9 @@ return {
 
   -- Maintenance --
   DEPRECATED     = M.DEPRECATED,
+  DEPRECATIONMSG = M.DEPRECATIONMSG,
   export         = export,
+  getcompat      = getcompat,
+  setcompat      = setcompat,
   toomanyarg_fmt = toomanyarg_fmt,
 }
