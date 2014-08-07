@@ -263,7 +263,6 @@ end)
 
 
 -- For backwards compatibility.
-export (M, "eval (string)", base.eval)
 M.op = require "std.operator"
 
 
@@ -274,6 +273,11 @@ M.op = require "std.operator"
 
 
 local DEPRECATED = base.DEPRECATED
+
+
+M.eval = DEPRECATED ("41", "'std.functional.eval'",
+  "use 'std.eval' instead", base.eval)
+
 
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", reduce)

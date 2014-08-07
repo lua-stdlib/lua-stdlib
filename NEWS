@@ -92,8 +92,27 @@ Stdlib NEWS - User visible changes
 
 ** Deprecations:
 
- - `functional.fold` has been deprecated, in favour of the more commonly
-   used name, `functional.reduce`.
+ - Deprecated APIs are kept for a minimum of 1 year following the first
+   release that contains the deprecations.  With each new release of
+   lua-stdlib, any APIs that have been deprecated for longer than that
+   will most likely be removed entirely.
+
+ - By default, deprecated APIs will issue a warning to stderr on first
+   use only.  However, you can turn off these warnings entirely with:
+
+     _DEBUG = { compat = true }
+
+   Or, you can issue the warnings on every use with:
+
+     _DEBUG = { compat = false }
+
+   The `_DEBUG` global must be set before requiring any stdlib modules.
+
+ - `functional.eval` has been moved to `std.eval`, the old name now
+   gives a deprecation warning.
+
+ - `functional.fold` has been renamed to `functional.reduce`, the old
+   name now gives a deprecation warning.
 
  - `list.index_key` and `list.index_value` have been deprecated. These
    functions are not general enough to belong in lua-stdlib, because
@@ -110,24 +129,19 @@ Stdlib NEWS - User visible changes
    and more accurately named `std.ireverse`.
 
  - `string.assert` has been moved to `std.assert`, the old name now
-   gives a deprecation warning on first use.
+   gives a deprecation warning.
 
  - `string.require_version` has been moved to `std.require`, the old
-   name now gives a deprecation warning on first use, and will be
-   removed entirely in some future release.
+   name now gives a deprecation warning.
 
  - `string.tostring` has been moved to `std.tostring`, the old name now
-   gives a deprecation warning on first use, and will be removed
-   entirely in some future release.
+   gives a deprecation warning.
 
  - `table.metamethod` has been moved to `std.getmetamethod`, the old
-   name now gives a deprecation warning on first use, and will be
-   removed entirely in some future release.
+   name now gives a deprecation warning.
 
  - `table.ripairs` has been moved to `std.ripairs`, the old name now
-   gives a deprecation warning on first use, and will be removed
-   entirely in some future release.
-
+   gives a deprecation warning.
 
 ** Incompatible changes:
 

@@ -165,6 +165,28 @@ specify std.functional:
       expect (bin (10)).to_be (math.pow (2, 10))
 
 
+- describe eval:
+  - before:
+      fname = "eval"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {"42"})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "'std.functional.eval' was deprecated"
+      end
+      _, err = capture (f, {"42"})
+      expect (err).to_be (nil)
+
+  - it diagnoses invalid lua:
+      # Some internal error when eval tries to call uncompilable "=" code.
+      expect (f "=").to_error ()
+  - it evaluates a string of lua code:
+      expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
+
+
 - describe filter:
   - before:
      elements = {"a", "b", "c", "d", "e"}
