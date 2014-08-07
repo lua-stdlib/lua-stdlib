@@ -93,6 +93,9 @@ Stdlib NEWS - User visible changes
 
 ** Deprecations:
 
+ - `functional.fold` has been deprecated, in favour of the more commonly
+   used name, `functional.reduce`.
+
  - `list.index_key` and `list.index_value` have been deprecated. These
    functions are not general enough to belong in lua-stdlib, because
    (among others) they only work correctly with tables that can be

@@ -165,16 +165,16 @@ specify std.functional:
 - describe fold:
   - before:
       fname = "fold"
-      msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "function"))
-      expect (f (f)).to_error (msg (2, "any value"))
-      expect (f (f, 1)).to_error (msg (3, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (f, 1, false)).to_error (msg (3, "function", "boolean"))
+  - it writes a deprecation warning to standard error on first call: |
+      _, err = capture (f, {M.id, 1, ipairs, {}})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "'std.functional.fold' was deprecated"
+      end
+      _, err = capture (f, {M.id, 1, ipairs, {}})
+      expect (err).to_be (nil)
 
   - it works with an empty table:
       expect (f (M.op["+"], 2, ipairs, {})).to_be (2)
@@ -249,3 +249,31 @@ specify std.functional:
       expect (f (1, 2, 3, nil, "str", {}, f)).to_be (nil)
   - it returns no values:
       expect (f (1, "two", false)).to_be (nil)
+
+
+- describe reduce:
+  - before:
+      fname = "reduce"
+      msg = M.bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f)).to_error (msg (2, "any value"))
+      expect (f (f, 1)).to_error (msg (3, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, 1, false)).to_error (msg (3, "function", "boolean"))
+
+  - it works with an empty table:
+      expect (f (M.op["+"], 2, ipairs, {})).to_be (2)
+  - it calls a binary function over single return value iterator results:
+      expect (f (M.op["+"], 2, base.ielems, {3})).
+        to_be (2 + 3)
+      expect (f (M.op["*"], 2, base.ielems, {3, 4})).
+        to_be (2 * 3 * 4)
+  - it calls a binary function over key:value iterator results:
+      expect (f (M.op["+"], 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (M.op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+  - it reduces elements from left to right:
+      expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)

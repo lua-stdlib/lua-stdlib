@@ -142,7 +142,7 @@ specify std:
         elems           = M.elems,
         eval            = M.eval,
         filter          = M.functional.filter,
-        fold            = M.functional.fold,
+        fold            = M.functional.reduce,
         getmetamethod   = M.getmetamethod,
         id              = M.functional.id,
         ielems          = M.ielems,

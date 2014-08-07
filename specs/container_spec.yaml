@@ -50,10 +50,10 @@ specify std.container:
         expect (getmetatable (things)._baz).to_be "quux"
   - context with module functions:
     - before:
-        fold = require "std.functional".fold
+        reduce = require "std.functional".reduce
         functions = {
           count = function (bag)
-            return fold (function (r, k) return r + k end, 0, pairs, bag)
+            return reduce (function (r, k) return r + k end, 0, pairs, bag)
           end,
         }
         Bag = Container {

@@ -266,8 +266,8 @@ export (M, "barrel (table?)", function (namespace)
   -- Older releases installed the following into _G by default.
   for v in base.ielems {
     "functional.bind", "functional.collect", "functional.compose",
-    "functional.curry", "functional.filter", "functional.fold",
-    "functional.id", "functional.map", "functional.op",
+    "functional.curry", "functional.filter", "functional.id",
+    "functional.map", "functional.op",
 
     "io.die", "io.warn",
 
@@ -281,6 +281,9 @@ export (M, "barrel (table?)", function (namespace)
     local module, method = v:match "^(.*)%.(.-)$"
     namespace[method] = M[module][method]
   end
+
+  -- Support fold, even though we renamed to reduce in v41.
+  namespace.fold = M.functional.reduce
 
   require "std.io".monkey_patch (namespace)
   require "std.math".monkey_patch (namespace)

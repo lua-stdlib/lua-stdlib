@@ -157,31 +157,6 @@ export (M, "filter (func, func, any*)", function (p, i, ...)
 end)
 
 
---- Fold a binary function into an iterator.
--- @function fold
--- @func f function
--- @param d initial first argument
--- @func i iterator
--- @param ... iterator arguments
--- @return result
--- @see std.list.foldl
--- @see std.list.foldr
--- @usage
--- --> 2 ^ 3 ^ 4 ==> 4096
--- fold (std.lambda "^", 2, std.ipairs, {3, 4})
-export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
-  local fn, state, k = i (...)
-  local t = {fn (state, k)}
-
-  local r = d
-  while t[1] ~= nil do
-    r = f (r, t[#t])
-    t = {fn (state, t[1])}
-  end
-  return r
-end)
-
-
 --- Identity function.
 -- @function id
 -- @param ...
@@ -227,11 +202,49 @@ end)
 M.nop = nop
 
 
+--- Fold a binary function into an iterator.
+-- @function reduce
+-- @func f function
+-- @param d initial first argument
+-- @func i iterator
+-- @param ... iterator arguments
+-- @return result
+-- @see std.list.foldl
+-- @see std.list.foldr
+-- @usage
+-- --> 2 ^ 3 ^ 4 ==> 4096
+-- reduce (std.lambda "^", 2, std.ipairs, {3, 4})
+local reduce = export (M, "reduce (func, any, func, any*)", function (f, d, i, ...)
+  local fn, state, k = i (...)
+  local t = {fn (state, k)}
+
+  local r = d
+  while t[1] ~= nil do
+    r = f (r, t[#t])
+    t = {fn (state, t[1])}
+  end
+  return r
+end)
+
+
 -- For backwards compatibility.
 export (M, "case (any?, #table)", base.case)
 export (M, "eval (string)", base.eval)
 export (M, "memoize (func, func?)", base.memoize)
 M.op = require "std.operator"
+
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = base.DEPRECATED
+
+M.fold = DEPRECATED ("41", "'std.functional.fold'",
+  "use 'std.functional.reduce' instead", reduce)
+
 
 
 return M

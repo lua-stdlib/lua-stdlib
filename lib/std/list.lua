@@ -212,7 +212,7 @@ end
 -- @see std.list:foldl
 local function foldl (fn, e, l)
   argscheck ("std.list.foldl", {"function", "any?", "List"}, {fn, e, l})
-  return func.fold (fn, e, ielems, l)
+  return func.reduce (fn, e, ielems, l)
 end
 
 
@@ -224,8 +224,8 @@ end
 -- @see std.list:foldr
 local function foldr (fn, e, l)
   argscheck ("std.list.foldr", {"function", "any?", "List"}, {fn, e, l})
-  return List (func.fold (function (x, y) return fn (y, x) end,
-                          e, ielems, ireverse (l)))
+  return List (func.reduce (function (x, y) return fn (y, x) end,
+                             e, ielems, ireverse (l)))
 end
 
 
