@@ -2,10 +2,10 @@ before: |
   this_module   = "std"
   global_table  = "_G"
 
-  exported_apis = { 1, "assert", "barrel", "case", "elems", "eval",
-                    "getmetamethod", "ielems", "ipairs", "ireverse", "lambda",
-                    "memoize", "monkey_patch", "pairs", "require", "ripairs",
-                    "tostring", "version" }
+  exported_apis = { 1, "assert", "barrel", "elems", "eval", "getmetamethod",
+                    "ielems", "ipairs", "ireverse", "lambda", "memoize",
+                    "monkey_patch", "pairs", "require", "ripairs", "tostring",
+                    "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -172,44 +172,6 @@ specify std:
         totable         = M.table.totable,
         warn            = M.io.warn,
       }
-
-- describe case:
-  - before:
-      yes     = function ()  return true end
-      no      = function ()  return false end
-      default = function (s) return s end
-      branches = { yes = yes, no = no, default }
-
-      fname = "case"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (2, "non-empty table"))
-  - it diagnoses wrong argument types:
-      expect (f ("no", false)).
-        to_error (msg (2, "non-empty table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (1, {2}, false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
-
-  - it matches against branch keys:
-      expect (f ("yes", branches)).to_be (true)
-      expect (f ("no",  branches)).to_be (false)
-  - it has a default for unmatched keys:
-      expect (f ("none", branches)).to_be "none"
-  - it returns nil for unmatched keys with no default:
-      expect (f ("none", { yes = yes, no = no })).to_be (nil)
-  - it evaluates `with` exactly once:
-      s = "prince"
-      function acc () s = s .. "s"; return s end
-      expect (f (acc (), {
-        prince   = function () return "one" end,
-        princes  = function () return "many" end,
-        princess = function () return "one" end,
-                   function () return "gibberish" end,
-      })).to_be "many"
-
 
 - describe elems:
   - before:

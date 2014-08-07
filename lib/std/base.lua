@@ -218,12 +218,6 @@ local function assert (expect, f, arg1, ...)
 end
 
 
-local function case (with, branches)
-  local f = branches[with] or branches[1]
-  if f then return f (with) end
-end
-
-
 local function eval (s)
   return loadstring ("return " .. s)()
 end

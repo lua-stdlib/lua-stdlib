@@ -12,7 +12,6 @@
 
 
 local base           = require "std.base"
-local case           = require "std.functional".case
 local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
@@ -38,11 +37,13 @@ local M = { "std.package" }
 --   for `/` and `?`
 local function pathsub (path)
   return path:gsub ("%%?.", function (capture)
-    return case (capture, {
-           ["?"] = function ()  return M.path_mark end,
-           ["/"] = function ()  return M.dirsep end,
-                   function (s) return s:gsub ("^%%", "", 1) end,
-    })
+    if capture == "?" then
+      return M.path_mark
+    elseif capture == "/" then
+      return M.dirsep
+    else
+      return capture:gsub ("^%%", "", 1)
+    end
   end)
 end
 

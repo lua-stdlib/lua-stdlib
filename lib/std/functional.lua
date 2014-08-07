@@ -52,6 +52,26 @@ local bind; bind = export (M, "bind (func, any?*)", function (f, ...)
 end)
 
 
+--- A rudimentary case statement.
+-- Match `with` against keys in `branches` table, and return the result
+-- of running the function in the table value for the matching key, or
+-- the first non-key value function if no key matches.
+-- @function case
+-- @param with expression to match
+-- @tparam table branches map possible matches to functions
+-- @return the return value from function with a matching key, or nil.
+-- @usage
+-- return case (type (object), {
+--   table  = function ()  return something end,
+--   string = function ()  return something else end,
+--            function (s) error ("unhandled type: " .. s) end,
+-- })
+export (M, "case (any?, #table)", function (with, branches)
+  local f = branches[with] or branches[1]
+  if f then return f (with) end
+end)
+
+
 --- Collect the results of an iterator.
 -- @function collect
 -- @func i iterator
@@ -228,7 +248,6 @@ end)
 
 
 -- For backwards compatibility.
-export (M, "case (any?, #table)", base.case)
 export (M, "eval (string)", base.eval)
 export (M, "memoize (func, func?)", base.memoize)
 M.op = require "std.operator"
