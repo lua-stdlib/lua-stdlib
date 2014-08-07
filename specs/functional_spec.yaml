@@ -1,8 +1,12 @@
-before: |
+before:
   base = require "std.base"
 
   this_module  = "std.functional"
   global_table = "_G"
+
+  exported_apis = { 1, "bind", "case", "collect", "compose", "curry", "eval",
+                    "filter", "fold", "id", "map", "memoize", "nop", "op",
+                    "reduce" }
 
   M = require (this_module)
 
@@ -12,6 +16,10 @@ specify std.functional:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+  - it exports the documented apis:
+      t = {}
+      for k in pairs (M) do t[#t + 1] = k end
+      expect (t).to_contain.a_permutation_of (exported_apis)
 
   - context via the std module:
     - it does not touch the global table:
