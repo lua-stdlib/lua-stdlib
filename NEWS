@@ -33,6 +33,9 @@ Stdlib NEWS - User visible changes
  - `functional.collect`, `functional.filter` and `functional.fold` now
    work with standard multi-return iterators, such as `std.ipairs`.
 
+ - `functional.map` now supports a mapping function that returns a key,
+   value pair for the results table.
+
  - `std` module now collects stdlib functions that do not really belong
    in specific type modules: including `std.case`, `std.eval`, and
    `std.memoize` (original access points exported by earlier releases will
@@ -140,10 +143,11 @@ Stdlib NEWS - User visible changes
    need to remove the previously ignored arguments that correspond to
    the fixed argument positions in the `bind` invocation.
 
- - `functional.collect` and `functional.filter` still makes a list from
-   the results from an iterator that returns single values, but when an
-   iterator returns multiple values it now makes a table with key:value
-   pairs taken from the first two returned values of each iteration.
+ - `functional.collect`, `functional.filter` and `functional.map` still
+   makes a list from the results from an iterator that returns single
+   values, but when an iterator returns multiple values it now makes a
+   table with key:value pairs taken from the first two returned values of
+   each iteration.
 
  - The `functional.op` table has been factored out into its own new
    module `std.operator`.  It will also continue to be available from the

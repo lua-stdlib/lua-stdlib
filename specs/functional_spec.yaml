@@ -215,18 +215,29 @@ specify std.functional:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (f (f, false)).to_error (msg (2, "function", "boolean"))
 
-  - it iterates through element keys:
-      expect (f (M.id, ipairs, elements)).to_equal {1, 2, 3, 4, 5}
+  - it works with an empty table:
+      expect (f (M.id, ipairs, {})).to_equal {}
+  - it iterates through elements:
+      expect (f (M.id, ipairs, elements)).to_equal (elements)
       expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
-  - it passes each iterated element to map function:
+  - it passes all iteration result values to map function:
       t = {}
-      f (function (e) t[#t + 1] = e end, pairs, inverse)
-      expect (t).to_contain.a_permutation_of (elements)
-  - it returns a table of mapped keys:
-      expect (f (function (e) return e % 2 end, ipairs, elements)).
-        to_equal {1, 0, 1, 0, 1}
-      expect (f (function (e) return e .. "x" end, pairs, inverse)).
+      f (function (k, v) t[k] = v end, pairs, elements)
+      expect (t).to_equal (elements)
+  - it returns a list of mapped single return value iterator results:
+      expect (f (function (e) return e:match "[aeiou]" end, base.ielems, elements)).
+        to_equal {"a", "e"}
+      expect (f (function (e) return e .. "x" end, base.elems, elements)).
         to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
+  - it returns a table of mapped key:value iterator results:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, pairs, t)).
+        to_contain.a_permutation_of {true, false, true}
+      expect (f (function (k, v) return k % 2 == 0 end, ipairs, elements)).
+        to_equal {false, true, false, true, false}
+  - it supports key:value results from mapping function:
+      expect (f (function (k, v) return v, k end, pairs, elements)).
+        to_equal (inverse)
 
 
 - describe nop:

@@ -202,14 +202,20 @@ end
 -- > map (function (e) return e % 2 end, std.elems, {1, 2, 3, 4})
 -- {1, 0, 1, 0}
 export (M, "map (func, func, any*)", function (f, i, ...)
-  local t = {}
-  for e in i (...) do
-    local r = f (e)
-    if r ~= nil then
-      table.insert (t, r)
+  local fn, state, k = i (...)
+  local t = {fn (state, k)}
+
+  local r = {}
+  while t[1] ~= nil do
+    k = t[1]
+    local d, v = f (unpack (t))
+    if v == nil then d, v = #r + 1, d end
+    if v ~= nil then
+      r[d] = v
     end
+    t = {fn (state, k)}
   end
-  return t
+  return r
 end)
 
 
