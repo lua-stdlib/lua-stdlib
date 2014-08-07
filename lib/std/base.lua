@@ -358,10 +358,10 @@ end
 --[[ ================== ]]--
 
 
-local debug     = require "std.debug_init"
+local debug_init = require "std.debug_init"
 
-local _ARGCHECK = debug._ARGCHECK
-local _DEBUG    = debug._DEBUG
+local _ARGCHECK  = debug_init._ARGCHECK
+local _DEBUG     = debug_init._DEBUG
 
 
 local argcheck, argerror, argscheck  -- forward declarations
@@ -681,6 +681,42 @@ end
 --[[ ============ ]]--
 
 
+-- Lua 5.1 requires 'debug.setfenv' to change environment of C funcs;
+-- Lua 5.2 implementation below works on C or Lua funcs unchanged.
+-- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+local setfenv = debug.setfenv or function(f, t)
+  -- Unwrap functable:
+  if type (f) == "table" then
+    f = f.call or (getmetatable (f) or {}).__call
+  end
+
+  local name
+  local up = 0
+  repeat
+    up = up + 1
+    name = debug.getupvalue (f, up)
+  until name == '_ENV' or name == nil
+  if name then
+    debug.upvaluejoin (f, up, function () return name end, 1)
+    debug.setupvalue (f, up, t)
+  end
+  return f
+end
+
+
+-- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+local getfenv = getfenv or function(f)
+  f = (type(f) == 'function' and f or debug.getinfo(f + 1, 'f').func)
+  local name, val
+  local up = 0
+  repeat
+    up = up + 1
+    name, val = debug.getupvalue(f, up)
+  until name == '_ENV' or name == nil
+  return val
+end
+
+
 --- Export a function definition, optionally with argument type checking.
 -- In addition to checking that each argument type matches the corresponding
 -- element in the *types* table with `argcheck`, if the final element of
@@ -785,6 +821,9 @@ local function export (M, decl, fn, ...)
       if argc > max then
         error (string.format (toomanyarg_fmt, name, max, argc), 2)
       end
+
+      -- Propagate outer environment to inner function.
+      setfenv (inner, getfenv (1))
 
       return inner (...)
     end

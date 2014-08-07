@@ -112,8 +112,7 @@ specify std.base:
         ]], tostring (debugp), tostring (level))
       end
 
-      MAGIC = { "unique!" }
-      mkmagic = function () return MAGIC end
+      mkmagic = function () return "MAGIC" end
 
       fname = "export"
       msg = function (...) return badarg (this_module, fname, ...) end
@@ -147,7 +146,7 @@ specify std.base:
   - it stores a function in supplied table at the specified key:
       M = { "base_spec.yaml" }
       f (M, "export (any?)", mkmagic)
-      expect (M.export ()).to_be (MAGIC)
+      expect (M.export ()).to_be "MAGIC"
   - it stores the passed function when _ARGCHECK is disabled: |
       script = [[
         _DEBUG = false
@@ -174,7 +173,7 @@ specify std.base:
         expect (chk ({1}, 2, nop, "", false)).
           to_error (toomanyarg (fake_module, fname, 1, 5))
     - it accepts correct argument types:
-        expect (chk ({1})).to_equal (MAGIC) -- should be .to_be?
+        expect (chk ({1})).to_be "MAGIC"
   - context when checking multi-argument function:
     - before:
         fake_module = "base_spec.yaml"
@@ -193,7 +192,7 @@ specify std.base:
         expect (chk ({}, nop, false)).
           to_error (toomanyarg (fake_module, fname, 2, 3))
     - it accepts correct argument types:
-        expect (chk ({}, nop)).to_equal (MAGIC) -- should be .to_be?
+        expect (chk ({}, nop)).to_be "MAGIC"
   - context when checking optional argument function:
     - before:
         fake_module = "base_spec.yaml"
@@ -208,8 +207,8 @@ specify std.base:
         expect (chk (1, nop)).
           to_error (toomanyarg (fake_module, fname, 1, 2))
     - it accepts correct argument types:
-        expect (chk ()).to_equal (MAGIC) -- should be .to_be?
-        expect (chk (1)).to_equal (MAGIC) -- should be .to_be?
+        expect (chk ()).to_be "MAGIC"
+        expect (chk (1)).to_be "MAGIC"
   - context when checking optional multi-argument function:
     - before:
         fake_module = "base_spec.yaml"
@@ -227,8 +226,8 @@ specify std.base:
         expect (chk (1, "two", nop)).
           to_error (toomanyarg (fake_module, fname, 2, 3))
     - it accepts correct argument types:
-        expect (chk ("two")).to_equal (MAGIC) -- should be .to_be?
-        expect (chk (1, "two")).to_equal (MAGIC) -- should be .to_be?
+        expect (chk ("two")).to_be "MAGIC"
+        expect (chk (1, "two")).to_be "MAGIC"
   - context when checking self on an object method:
     - before:
         fake_module = "base_spec.yaml"
