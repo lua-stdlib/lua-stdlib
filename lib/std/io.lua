@@ -172,14 +172,6 @@ export (M, "shell (string)", function (c)
 end)
 
 
-------
--- Signature of @{process_files} callback function.
--- @function process_files_callback
--- @string[opt] filename filename
--- @int[opt] i argument number of *filename*
--- @see process_files
-
-
 --- Process files specified on the command-line.
 -- Each filename is made the default input source with `io.input`, and
 -- then the filename and argument number are passed to the callback
@@ -187,10 +179,9 @@ end)
 -- filenames were given, behave as if a single `-` was passed.
 -- @todo Make the file list an argument to the function.
 -- @function process_files
--- @tparam function fn @{process_files_callback} function for each file
---  argument
--- @see process_files_callback
--- @usage #! /usr/bin/env lua
+-- @tparam fileprocessor fn function called for each file argument
+-- @usage
+-- #! /usr/bin/env lua
 -- -- minimal cat command
 -- local io = require "std.io"
 -- io.process_files (function () io.write (io.slurp ()) end)
@@ -271,3 +262,18 @@ for k, v in pairs (io) do
 end
 
 return M
+
+
+
+--- Types
+-- @section Types
+
+--- Signature of @{process_files} callback function.
+-- @function fileprocessor
+-- @string filename filename
+-- @int i argument number of *filename*
+-- @usage
+-- local fileprocessor = function (filename, i)
+--   io.write (tostring (i) .. ":\n===\n" .. io.slurp (filename) .. "\n")
+-- end
+-- io.process_files (fileprocessor)

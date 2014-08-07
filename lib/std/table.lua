@@ -222,7 +222,7 @@ local _sort = table.sort
 --- Make table.sort return its result.
 -- @function sort
 -- @tparam table t unsorted table
--- @func[opt] c comparator function if passed, otherwise standard
+-- @tparam[opt=std.operator["<"]] comparator c ordering function callback
 --   lua `<` operator
 -- @return *t* with keys sorted accordind to *c*
 -- @usage table.concat (sort (object))
@@ -314,3 +314,18 @@ for k, v in pairs (table) do
 end
 
 return M
+
+
+
+--- Types
+-- @section Types
+
+--- Signature of a @{sort} comparator function.
+-- @function comparator
+-- @param a any object
+-- @param b any object
+-- @treturn boolean `true` if *a* sorts before *b*, otherwise `false`
+-- @see sort
+-- @usage
+-- local reversor = function (a, b) return a > b end
+-- sort (t, reversor)

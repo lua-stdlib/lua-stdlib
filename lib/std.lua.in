@@ -172,18 +172,12 @@ export (M, "lambda (string)", base.memoize (base.lambda, base.lambda "|s|s"))
 -- by default). You can specify a more sophisticated function if memoize
 -- should handle complicated argument equivalencies.
 -- @function memoize
--- @func fn function with no side effects
--- @func normalize[opt] function to normalize arguments
+-- @func fn pure function: a function with no side effects
+-- @tparam[opt] normalizecb normalize function to normalize arguments
 -- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
 export (M, "memoize (func, func?)", base.memoize)
-
-
---- Signature of `memoize` *normalize* parameter.
--- @function memoize_normalize
--- @param ... arguments
--- @treturn string normalized arguments
 
 
 --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
@@ -329,3 +323,17 @@ return setmetatable (M, {
 	      end
 	    end,
 })
+
+
+
+--- Types
+-- @section Types
+
+--- Signature of a @{memoize} argument normalization callback function.
+-- @function normalizecb
+-- @param ... arguments
+-- @treturn string normalized arguments
+-- @see memoize
+-- @usage
+-- local normalizecb = function (name, value, props) return name end
+-- local intern = std.memoize (mksymbol, normalizecb)

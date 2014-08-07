@@ -15,7 +15,6 @@ local export, nop, pairs = base.export, base.nop, base.pairs
 local M = { "std.functional" }
 
 
-
 --- Partially apply a function.
 -- @function bind
 -- @func f function to apply partially
@@ -130,7 +129,7 @@ end)
 
 --- Filter an iterator with a predicate.
 -- @function filter
--- @func p predicate
+-- @tparam predicate p predicate function
 -- @func i iterator
 -- @param ... iterator arguments
 -- @treturn table elements e for which `p (e)` is not falsey.
@@ -224,3 +223,15 @@ M.op = require "std.operator"
 
 
 return M
+
+--- Types
+-- @section Types
+
+--- Signature of a @{filter} predicate function.
+-- @function predicate
+-- @param ... arguments
+-- @treturn boolean `true` if the predicate condition succeeds
+-- @see filter
+-- @usage
+-- local predicate = std.lambda '|k,v|type(v)=="string"'
+-- local strvalues = filter (predicate, std.pairs, {name="Roberto", id=12345})

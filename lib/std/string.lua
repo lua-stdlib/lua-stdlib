@@ -355,9 +355,6 @@ export (M, "trim (string, string?)", function (s, r)
 end)
 
 
---- Stringification Functions
--- @section Stringification
-
 -- Write pretty-printing based on:
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
@@ -388,11 +385,11 @@ end)
 -- detection will not work.
 -- @function render
 -- @param x object to convert to string
--- @tparam render_open_table open open table rendering function
--- @tparam render_close_table close close table rendering function
--- @tparam render_element elem element rendering function
--- @tparam render_pair pair pair rendering function
--- @tparam render_separator sep separator rendering function
+-- @tparam opentablecb open open table rendering function
+-- @tparam closetablecb close close table rendering function
+-- @tparam elementcb elem element rendering function
+-- @tparam paircb pair pair rendering function
+-- @tparam separatorcb sep separator rendering function
 -- @tparam[opt] table roots accumulates table references to detect recursion
 -- @return string representation of *x*
 -- @usage
@@ -403,53 +400,6 @@ end)
 -- end
 local render = export (M,
       "render (any?, func, func, func, func, func, table?)", base.render)
-
-
---- Signature of render open table callback.
--- @function render_open_table
--- @tparam table t table about to be rendered
--- @treturn string open table rendering
--- @usage function open (t) return "{" end
-
-
---- Signature of render close table callback.
--- @function render_close_table
--- @tparam table t table just rendered
--- @treturn string close table rendering
--- @usage function close (t) return "}" end
-
-
---- Signature of render element callback.
--- @function render_element
--- @param x element to render
--- @treturn string element rendering
--- @usage function element (e) return require "std".tostring (e) end
-
-
---- Signature of render pair callback.
--- Trying to re-render *key* or *value* here will break recursion
--- detection, use *strkey* and *strvalue* pre-rendered values instead.
--- @function render_pair
--- @tparam table t table containing pair being rendered
--- @param key key part of key being rendered
--- @param value value part of key being rendered
--- @string keystr prerendered *key*
--- @string valuestr prerendered *value*
--- @treturn string pair rendering
--- @usage
--- function pair (_, _, _, key, value) return key .. "=" .. value end
-
-
---- Signature of render separator callback.
--- @function render_separator
--- @tparam table t table currently being rendered
--- @param pk *t* key preceding separator, or `nil` for first key
--- @param pv *t* value preceding separator, or `nil` for first value
--- @param fk *t* key following separator, or `nil` for last key
--- @param fv *t* value following separator, or `nil` for last value
--- @treturn string separator rendering
--- @usage
--- function separator (_, _, _, fk) return fk and "," or "" end
 
 
 --- Pretty-print a table, or other object.
@@ -573,3 +523,58 @@ for k, v in pairs (string) do
 end
 
 return M
+
+
+
+--- Types
+-- @section Types
+
+--- Signature of @{render} open table callback.
+-- @function opentablecb
+-- @tparam table t table about to be rendered
+-- @treturn string open table rendering
+-- @see render
+-- @usage function open (t) return "{" end
+
+
+--- Signature of @{render} close table callback.
+-- @function closetablecb
+-- @tparam table t table just rendered
+-- @treturn string close table rendering
+-- @see render
+-- @usage function close (t) return "}" end
+
+
+--- Signature of @{render} element callback.
+-- @function elementcb
+-- @param x element to render
+-- @treturn string element rendering
+-- @see render
+-- @usage function element (e) return require "std".tostring (e) end
+
+
+--- Signature of @{render} pair callback.
+-- Trying to re-render *key* or *value* here will break recursion
+-- detection, use *strkey* and *strvalue* pre-rendered values instead.
+-- @function paircb
+-- @tparam table t table containing pair being rendered
+-- @param key key part of key being rendered
+-- @param value value part of key being rendered
+-- @string keystr prerendered *key*
+-- @string valuestr prerendered *value*
+-- @treturn string pair rendering
+-- @see render
+-- @usage
+-- function pair (_, _, _, key, value) return key .. "=" .. value end
+
+
+--- Signature of @{render} separator callback.
+-- @function separatorcb
+-- @tparam table t table currently being rendered
+-- @param pk *t* key preceding separator, or `nil` for first key
+-- @param pv *t* value preceding separator, or `nil` for first value
+-- @param fk *t* key following separator, or `nil` for last key
+-- @param fv *t* value following separator, or `nil` for last value
+-- @treturn string separator rendering
+-- @usage
+-- function separator (_, _, _, fk) return fk and "," or "" end
