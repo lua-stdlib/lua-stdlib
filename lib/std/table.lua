@@ -288,8 +288,8 @@ end)
 
 local DEPRECATED = base.DEPRECATED
 
-M.clone_rename = DEPRECATED ("39", "'table.clone_rename'",
-  "use the new `map` argument to 'table.clone' instead",
+M.clone_rename = DEPRECATED ("39", "'std.table.clone_rename'",
+  "use the new `map` argument to 'std.table.clone' instead",
   function (map, t)
     local r = clone (t)
     for i, v in pairs (map) do
@@ -300,11 +300,11 @@ M.clone_rename = DEPRECATED ("39", "'table.clone_rename'",
   end)
 
 
-M.metamethod = DEPRECATED ("41", "'table.metamethod'",
+M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
   "use 'std.getmetamethod' instead", base.getmetamethod)
 
 
-M.ripairs = DEPRECATED ("41", "'table.ripairs'",
+M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",
   "use 'std.ripairs' instead", base.ripairs)
 
 

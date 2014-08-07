@@ -554,15 +554,15 @@ end
 local DEPRECATED = base.DEPRECATED
 
 
-M.assert = DEPRECATED ("41", "'string.assert'",
+M.assert = DEPRECATED ("41", "'std.string.assert'",
   "use 'std.assert' instead", base.assert)
 
 
-M.require_version = DEPRECATED ("41", "'string.require_version'",
+M.require_version = DEPRECATED ("41", "'std.string.require_version'",
   "use 'std.require' instead", base.require)
 
 
-M.tostring = DEPRECATED ("41", "'string.tostring'",
+M.tostring = DEPRECATED ("41", "'std.string.tostring'",
   "use 'std.tostring' instead", base.tostring)
 
 

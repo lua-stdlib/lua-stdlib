@@ -67,7 +67,7 @@ specify std.string:
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'string.assert' was deprecated"
+        expect (err).to_contain "'std.string.assert' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)
@@ -592,7 +592,7 @@ specify std.string:
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'string.require_version' was deprecated"
+        expect (err).to_contain "'std.string.require_version' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)
@@ -780,7 +780,7 @@ specify std.string:
       _, err = capture (f, {"std.string"})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'string.tostring' was deprecated"
+        expect (err).to_contain "'std.string.tostring' was deprecated"
       end
       _, err = capture (f, {"std.string"})
       expect (err).to_be (nil)

@@ -298,7 +298,7 @@ specify std.list:
         _, err = capture (f, {l})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:depair' was deprecated"
+          expect (err).to_contain "'std.list:depair' was deprecated"
         end
         expect (select (2, capture (f, {l}))).to_be (nil)
 
@@ -326,7 +326,7 @@ specify std.list:
         _, err = capture (f, {{}})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list.elems' was deprecated"
+          expect (err).to_contain "'std.list.elems' was deprecated"
         end
         expect (select (2, capture (f, {{}}))).to_be (nil)
 
@@ -347,7 +347,7 @@ specify std.list:
         _, err = capture (f, {l})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:elems' was deprecated"
+          expect (err).to_contain "'std.list:elems' was deprecated"
         end
         _, err = capture (f, {l})
         expect (err).to_be (nil)
@@ -504,7 +504,7 @@ specify std.list:
         _, err = capture (f, {1, List {{1}}})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list.index_key' was deprecated"
+          expect (err).to_contain "'std.list.index_key' was deprecated"
         end
         _, err = capture (f, {1, List {{1}}})
         expect (err).to_be (nil)
@@ -536,7 +536,7 @@ specify std.list:
         _, err = capture (f, {l, 1})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:index_key' was deprecated"
+          expect (err).to_contain "'std.list:index_key' was deprecated"
         end
         _, err = capture (f, {l, 1})
         expect (err).to_be (nil)
@@ -576,7 +576,7 @@ specify std.list:
         _, err = capture (f, {1, List {{1}}})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list.index_value' was deprecated"
+          expect (err).to_contain "'std.list.index_value' was deprecated"
         end
         _, err = capture (f, {1, List {{1}}})
         expect (err).to_be (nil)
@@ -609,7 +609,7 @@ specify std.list:
         _, err = capture (f, {l, 1})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:index_value' was deprecated"
+          expect (err).to_contain "'std.list:index_value' was deprecated"
         end
         _, err = capture (f, {l, 1})
         expect (err).to_be (nil)
@@ -714,7 +714,7 @@ specify std.list:
         _, err = capture (f, {l, fn})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:map_with' was deprecated"
+          expect (err).to_contain "'std.list:map_with' was deprecated"
         end
         _, err = capture (f, {l, fn})
         expect (err).to_be (nil)
@@ -785,7 +785,7 @@ specify std.list:
         _, err = capture (f, {{}})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list.relems' was deprecated"
+          expect (err).to_contain "'std.list.relems' was deprecated"
         end
         _, err = capture (f, {{}})
         expect (err).to_be (nil)
@@ -807,7 +807,7 @@ specify std.list:
         _, err = capture (f, {l})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:relems' was deprecated"
+          expect (err).to_contain "'std.list:relems' was deprecated"
         end
         _, err = capture (f, {l})
         expect (err).to_be (nil)
@@ -867,7 +867,7 @@ specify std.list:
         _, err = capture (f, {{}})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list.reverse' was deprecated"
+          expect (err).to_contain "'std.list.reverse' was deprecated"
         end
         _, err = capture (f, {{}})
         expect (err).to_be (nil)
@@ -892,7 +892,7 @@ specify std.list:
         _, err = capture (f, {l})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:reverse' was deprecated"
+          expect (err).to_contain "'std.list:reverse' was deprecated"
         end
         _, err = capture (f, {l})
         expect (err).to_be (nil)
@@ -1037,7 +1037,7 @@ specify std.list:
         _, err = capture (f, {l})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:transpose' was deprecated"
+          expect (err).to_contain "'std.list:transpose' was deprecated"
         end
         _, err = capture (f, {l})
         expect (err).to_be (nil)
@@ -1101,7 +1101,7 @@ specify std.list:
         _, err = capture (f, {l, fn})
         if err ~= nil then
           -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'list:zip_with' was deprecated"
+          expect (err).to_contain "'std.list:zip_with' was deprecated"
         end
         _, err = capture (f, {l, fn})
         expect (err).to_be (nil)

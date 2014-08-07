@@ -92,7 +92,7 @@ specify std.table:
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'table.clone_rename' was deprecated"
+        expect (err).to_contain "'std.table.clone_rename' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)
@@ -362,7 +362,7 @@ specify std.table:
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'table.metamethod' was deprecated"
+        expect (err).to_contain "'std.table.metamethod' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)
@@ -450,7 +450,7 @@ specify std.table:
       _, err = capture (f, {{}, subject})
       if err ~= nil then
         -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'table.ripairs' was deprecated"
+        expect (err).to_contain "'std.table.ripairs' was deprecated"
       end
       _, err = capture (f, {{}, subject})
       expect (err).to_be (nil)

@@ -487,14 +487,14 @@ local _functions = {
 local DEPRECATED = base.DEPRECATED
 
 
-_functions.elems = DEPRECATED ("41", "'list.elems'",
+_functions.elems = DEPRECATED ("41", "'std.list.elems'",
   "use 'std.ielems' instead", base.ielems)
 
 
 local function relems (l) return base.ielems (base.ireverse (l)) end
 
-_functions.relems = DEPRECATED ("41", "'list.relems'",
-  "use 'std.ielems' with 'std.ireverse' instead", relems)
+_functions.relems = DEPRECATED ("41", "'std.list.relems'",
+  "compose 'std.ielems' and 'std.ireverse' instead", relems)
 
 
 local function index_key (f, l)
@@ -508,8 +508,8 @@ local function index_key (f, l)
   return r
 end
 
-_functions.index_key = DEPRECATED ("41", "'list.index_key'",
-  "use 'list.filter' with 'table.invert' instead", index_key)
+_functions.index_key = DEPRECATED ("41", "'std.list.index_key'",
+  "compose 'std.list.filter' and 'std.table.invert' instead", index_key)
 
 
 local function index_value (f, l)
@@ -523,13 +523,13 @@ local function index_value (f, l)
   return r
 end
 
-_functions.index_value = DEPRECATED ("41", "'list.index_value'",
-  "use 'list.filter' with 'table.invert' instead", index_value)
+_functions.index_value = DEPRECATED ("41", "'std.list.index_value'",
+  "compose 'std.list.filter' and 'std.table.invert' instead", index_value)
 
 
 local function reverse (l) return List (ireverse (l)) end
 
-_functions.reverse = DEPRECATED ("41", "'list.reverse'",
+_functions.reverse = DEPRECATED ("41", "'std.list.reverse'",
   "use 'std.ireverse' instead", reverse)
 
 
@@ -688,19 +688,19 @@ List = Object {
     tail = tail,
 
     ------
-    depair    = DEPRECATED ("38", "'list:depair'",    depair),
-    map_with  = DEPRECATED ("38", "'list:map_with'",
+    depair    = DEPRECATED ("38", "'std.list:depair'",    depair),
+    map_with  = DEPRECATED ("38", "'std.list:map_with'",
                   function (self, f) return map_with (f, self) end),
-    transpose = DEPRECATED ("38", "'list:transpose'", transpose),
-    zip_with  = DEPRECATED ("38", "'list:zip_with'",  zip_with),
+    transpose = DEPRECATED ("38", "'std.list:transpose'", transpose),
+    zip_with  = DEPRECATED ("38", "'std.list:zip_with'",  zip_with),
 
-    elems       = DEPRECATED ("41", "'list:elems'",     base.ielems),
-    index_key   = DEPRECATED ("41", "'list:index_key'",
+    elems       = DEPRECATED ("41", "'std.list:elems'",     base.ielems),
+    index_key   = DEPRECATED ("41", "'std.list:index_key'",
                     function (self, f) return index_key (f, self)   end),
-    index_value = DEPRECATED ("41", "'list:index_value'",
+    index_value = DEPRECATED ("41", "'std.list:index_value'",
                     function (self, f) return index_value (f, self) end),
-    relems      = DEPRECATED ("41", "'list:relems'",    relems),
-    reverse     = DEPRECATED ("41", "'list:reverse'",   reverse),
+    relems      = DEPRECATED ("41", "'std.list:relems'",    relems),
+    reverse     = DEPRECATED ("41", "'std.list:reverse'",   reverse),
   },
 
 
