@@ -25,12 +25,17 @@ local M = { "std.functional" }
 -- > cube = bind (std.lambda "^", {[2] = 3})
 -- > =cube (2)
 -- 8
-local bind = export (M, "bind (func, any?*)", function (f, ...)
+local bind; bind = export (M, "bind (func, any?*)", function (f, ...)
   local fix = {...}
   if type (fix[1]) == "table" and fix[2] == nil then
-    base.DEPRECATED ("39", "`functional.bind` multi-argument",
-      "use a table of arguments as the second parameter instead", nop)
     fix = fix[1]
+  else
+    if not base.getcompat (bind) then
+      io.stderr:write (base.DEPRECATIONMSG ("39",
+                         "multi-argument 'std.functional.bind'",
+                         "use a table of arguments as the second parameter instead", 2))
+      base.setcompat (bind)
+    end
   end
 
   return function (...)

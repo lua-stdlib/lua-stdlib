@@ -29,6 +29,18 @@ specify std.functional:
       expect (f (false)).
         to_error (badarg (this_module, fname, 1, "function", "boolean"))
 
+  - it writes a deprecation warning to standard error on first call: |
+      -- Unwrap functable
+      f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+      _, err = capture (f, {badarg, this_module, fname})
+      if err ~= nil then
+        -- skip this test when using Specl < 12 capture stub
+        expect (err).to_contain "multi-argument 'std.functional.bind' was deprecated"
+      end
+      _, err = capture (f, {badarg, this_module, fname})
+      expect (err).to_be (nil)
+
   - it does not affect normal operation if no arguments are bound:
       expect (f (math.min, {}) (2, 3, 4)).to_be (2)
   - it takes the extra arguments into account:
