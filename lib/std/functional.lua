@@ -136,16 +136,25 @@ end)
 -- @treturn table elements e for which `p (e)` is not falsey.
 -- @see collect
 -- @usage
--- > filter (std.lambda "|e| e%2==0", std.elems, {1, 2, 3, 4})
+-- > filter (std.lambda "|e|e%2==0", std.elems, {1, 2, 3, 4})
 -- {2, 4}
 export (M, "filter (func, func, any*)", function (p, i, ...)
-  local t = {}
-  for e in i (...) do
-    if p (e) then
-      table.insert (t, e)
+  local r = {}			-- new results table
+  local fn, state, k = i (...)
+  local t = {fn (state, k)}	-- table of iteration 1
+
+  while t[1] ~= nil do		-- until iterator returns nil
+    k = t[1]
+    if p (unpack (t)) then	-- pass all iterator results to p
+      if t[2] ~= nil then
+	r[k] = t[2]		-- k,v = t[1],t[2]
+      else
+	r[#r + 1] = k		-- k,v = #r + 1,t[1]
+      end
     end
+    t = {fn (state, k)}		-- maintain loop invariant
   end
-  return t
+  return r
 end)
 
 

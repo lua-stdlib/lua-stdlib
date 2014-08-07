@@ -1,4 +1,6 @@
 before: |
+  base = require "std.base"
+
   this_module  = "std.functional"
   global_table = "_G"
 
@@ -60,8 +62,6 @@ specify std.functional:
 
 - describe collect:
   - before:
-      base = require "std.base"
-
       fname = "collect"
       msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
@@ -142,23 +142,28 @@ specify std.functional:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (f (f, false)).to_error (msg (2, "function", "boolean"))
 
+  - it works with an empty table:
+      expect (f (M.id, pairs, {})).to_equal {}
   - it iterates through element keys:
-      expect (f (M.id, ipairs, elements)).to_equal {1, 2, 3, 4, 5}
-      expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
-  - it passes each iterated element to filter function:
+      expect (f (M.id, base.ielems, elements)).to_equal {"a", "b", "c", "d", "e"}
+      expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
+  - it passes all iteration result values to filter predicate:
       t = {}
-      f (function (e) t[#t + 1] = e end, pairs, inverse)
-      expect (t).to_contain.a_permutation_of (elements)
-  - it returns a table of filtered keys:
-      expect (f (function (e) return e % 2 == 0 end, ipairs, elements)).
-        to_equal {2, 4}
-      expect (f (function (e) return e:match "[aeiou]" end, pairs, inverse)).
-        to_contain.a_permutation_of {"a", "e"}
+      f (function (k, v) t[k] = v end, pairs, elements)
+      expect (t).to_equal (elements)
+  - it returns a list of filtered single return value iterator results:
+      expect (f (function (e) return e:match "[aeiou]" end, base.ielems, elements)).
+        to_equal {"a", "e"}
+  - it returns a table of filtered key:value iterator results:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, pairs, t)).
+        to_equal {"first", last="three"}
+      expect (f (function (k, v) return k % 2 == 0 end, ipairs, elements)).
+        to_equal {[2]="b", [4]="d"}
 
 
 - describe fold:
   - before:
-      base = require "std.base"
       fname = "fold"
       msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
