@@ -166,11 +166,17 @@ end)
 -- @return result
 -- @see std.list.foldl
 -- @see std.list.foldr
--- @usage fold (std.lambda "^", 1, std.elems, {2, 3, 4})
+-- @usage
+-- --> 2 ^ 3 ^ 4 ==> 4096
+-- fold (std.lambda "^", 2, std.ipairs, {3, 4})
 export (M, "fold (func, any, func, any*)", function (f, d, i, ...)
+  local fn, state, k = i (...)
+  local t = {fn (state, k)}
+
   local r = d
-  for e in i (...) do
-    r = f (r, e)
+  while t[1] ~= nil do
+    r = f (r, t[#t])
+    t = {fn (state, t[1])}
   end
   return r
 end)

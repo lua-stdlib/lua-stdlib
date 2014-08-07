@@ -176,14 +176,18 @@ specify std.functional:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (f (f, 1, false)).to_error (msg (3, "function", "boolean"))
 
-  - it calls a binary function over element keys:
+  - it works with an empty table:
+      expect (f (M.op["+"], 2, ipairs, {})).to_be (2)
+  - it calls a binary function over single return value iterator results:
       expect (f (M.op["+"], 2, base.ielems, {3})).
         to_be (2 + 3)
       expect (f (M.op["*"], 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
+  - it calls a binary function over key:value iterator results:
+      expect (f (M.op["+"], 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (M.op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (f (math.pow, 2, base.ielems, {3, 4})).
-        to_be (math.pow (math.pow (2, 3), 4))
+      expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe id:

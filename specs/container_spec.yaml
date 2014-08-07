@@ -53,7 +53,7 @@ specify std.container:
         fold = require "std.functional".fold
         functions = {
           count = function (bag)
-            return fold (function (r, k) return r + bag[k] end, 0, pairs, bag)
+            return fold (function (r, k) return r + k end, 0, pairs, bag)
           end,
         }
         Bag = Container {
