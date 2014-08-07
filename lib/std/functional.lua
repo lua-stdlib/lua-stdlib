@@ -61,14 +61,15 @@ end)
 -- @see filter
 -- @see map
 -- @usage
--- > =collect (std.list.relems, List {"a", "b", "c"})
+-- > =collect (compose (std.ireverse, std.ielems), {"a", "b", "c"})
 -- {"c", "b", "a"}
 export (M, "collect (func, any*)", function (i, ...)
-  local t = {}
-  for e in i (...) do
-    t[#t + 1] = e
+  local r = {}
+  for k, v in i (...) do
+    if v == nil then k, v = #r + 1, k end
+    r[k] = v
   end
-  return t
+  return r
 end)
 
 

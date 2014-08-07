@@ -137,6 +137,19 @@ Stdlib NEWS - User visible changes
    need to remove the previously ignored arguments that correspond to
    the fixed argument positions in the `bind` invocation.
 
+ - `functional.collect` still makes a list from the results from an
+   iterator that returns single values, but when an iterator returns
+   multiple values it now makes a table with key:value pairs taken from
+   the first two returned values of each iteration.
+
+ - The `functional.op` table has been factored out into its own new
+   module `std.operator`.  It will also continue to be available from the
+   legacy `functional.op` access point for the forseeable future.
+
+ - The `functional.op[".."]` operator is no longer a list concatenation
+   only loaded when `std.list` is required, but a regular string
+   concatenation just like Lua's `..` operator.
+
  - `io.catdir` now raises an error when called with no arguments, for
    consistency with `io.catfile`.
 
@@ -154,14 +167,6 @@ Stdlib NEWS - User visible changes
    as argument checking is disabled.  Under normal circumstances,
    passing a non-string will now raise an error as specified in the api
    documentation.
-
- - The `functional.op` table has been factored out into its own new
-   module `std.operator`.  It will also continue to be available from the
-   legacy `functional.op` access point for the forseeable future.
-
- - The `functional.op[".."]` operator is no longer a list concatenation
-   only loaded when `std.list` is required, but a regular string
-   concatenation just like Lua's `..` operator.
 
 
 ** Bug fixes:

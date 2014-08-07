@@ -60,6 +60,8 @@ specify std.functional:
 
 - describe collect:
   - before:
+      base = require "std.base"
+
       fname = "collect"
       msg = M.bind (badarg, {this_module, fname})
       f = M[fname]
@@ -69,8 +71,11 @@ specify std.functional:
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
 
-  - it collects iterator results:
-      expect (f (ipairs, {"a", "b", "c"})).to_equal {1, 2, 3}
+  - it collects a list of single return value iterator results:
+      expect (f (base.ielems, {"a", "b", "c"})).to_equal {"a", "b", "c"}
+  - it collects a table of key:value iterator results:
+      t = {"first", second="two", last=3}
+      expect (f (pairs, t)).to_equal (t)
 
 
 - describe compose:
