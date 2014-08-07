@@ -27,23 +27,22 @@ Stdlib NEWS - User visible changes
    relational operators, `<`, `<=`, `>` and `>=`.  The `#` operator
    respects the `__len` metamethod, if any, even on Lua 5.1.
 
- - New `functional.nop` function, for use where a function is required
-   but no work should be done.
-
  - `functional.collect`, `functional.filter` and `functional.fold` now
    work with standard multi-return iterators, such as `std.ipairs`.
 
  - `functional.map` now supports a mapping function that returns a key,
    value pair for the results table.
 
- - `std` module now collects stdlib functions that do not really belong
-   in specific type modules: including `std.case`, `std.eval`, and
-   `std.memoize` (original access points exported by earlier releases will
-   be preserved for the forseeable future).
-
- - `std.memoize` now propagates multiple return values correctly.
+ - `functional.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
+
+ - New `functional.nop` function, for use where a function is required
+   but no work should be done.
+
+ - `std` module now collects stdlib functions that do not really belong
+   in specific type modules: including `std.assert`, `std.eval`, and
+   `std.tostring`. See LDocs for details.
 
  - New `std.lambda` function for compiling lambda strings:
 

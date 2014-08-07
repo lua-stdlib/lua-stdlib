@@ -148,21 +148,6 @@ export (M, "getmetamethod (object|table, string)", base.getmetamethod)
 export (M, "lambda (string)", base.memoize (base.lambda, base.lambda "|s|s"))
 
 
---- Memoize a function, by wrapping it in a functable.
---
--- To ensure that memoize always returns the same results for the same
--- arguments, it passes arguments to `normalize` (std.string.tostring
--- by default). You can specify a more sophisticated function if memoize
--- should handle complicated argument equivalencies.
--- @function memoize
--- @func fn pure function: a function with no side effects
--- @tparam[opt] normalizecb normalize function to normalize arguments
--- @treturn functable memoized function
--- @usage
--- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", base.memoize)
-
-
 --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
 -- @function pairs
 -- @tparam table t a table
@@ -309,17 +294,3 @@ return setmetatable (M, {
 	      end
 	    end,
 })
-
-
-
---- Types
--- @section Types
-
---- Signature of a @{memoize} argument normalization callback function.
--- @function normalizecb
--- @param ... arguments
--- @treturn string normalized arguments
--- @see memoize
--- @usage
--- local normalizecb = function (name, value, props) return name end
--- local intern = std.memoize (mksymbol, normalizecb)

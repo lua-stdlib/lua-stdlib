@@ -3,9 +3,8 @@ before: |
   global_table  = "_G"
 
   exported_apis = { 1, "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "ireverse", "lambda", "memoize",
-                    "monkey_patch", "pairs", "require", "ripairs", "tostring",
-                    "version" }
+                    "ielems", "ipairs", "ireverse", "lambda", "monkey_patch",
+                    "pairs", "require", "ripairs", "tostring", "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -111,13 +110,11 @@ specify std:
       expect (io_mt.writelines).to_be (M.io.writelines)
   - it installs std.lua monkey patches:
       expect (t.assert).to_be (M.assert)
-      expect (t.case).to_be (M.case)
       expect (t.elems).to_be (M.elems)
       expect (t.eval).to_be (M.eval)
       expect (t.ielems).to_be (M.ielems)
       expect (t.ipairs).to_be (M.ipairs)
       expect (t.lambda).to_be (M.lambda)
-      expect (t.memoize).to_be (M.memoize)
       expect (t.pairs).to_be (M.pairs)
       expect (t.require).to_be (M.require)
   - it installs std.math monkey patches:
@@ -155,7 +152,6 @@ specify std:
         leaves          = M.tree.leaves,
         map             = M.functional.map,
         math            = t.math,
-        memoize         = M.memoize,
         metamethod      = M.table.metamethod,
         nodes           = M.tree.nodes,
         op              = M.functional.op,
@@ -398,49 +394,6 @@ specify std:
     - it sets auto-argument values:
         fn = f "=_1*_1"
         expect (fn (42)).to_be (1764)
-
-
-- describe memoize:
-  - before:
-      fname = "memoize"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
-
-      memfn = f (function (x)
-                   if x then return {x} else return nil, "bzzt" end
-                 end)
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (f, false)).to_error (msg (2, "function or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (f, f, false)).to_error (toomanyarg (this_module, fname, 2, 3))
-
-  - it propagates multiple return values:
-      expect (select (2, memfn (false))).to_be "bzzt"
-  - it returns the same object for the same arguments:
-      t = memfn (1)
-      expect (memfn (1)).to_be (t)
-  - it returns a different object for different arguments:
-      expect (memfn (1)).not_to_be (memfn (2))
-  - it returns the same object for table valued arguments:
-      t = memfn {1, 2, 3}
-      expect (memfn {1, 2, 3}).to_be (t)
-      t = memfn {foo = "bar", baz = "quux"}
-      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
-      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
-  - it returns a different object for different table arguments:
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
-  - it accepts alternative normalization function:
-      normalize = function (...) return select ("#", ...) end
-      memfn = f (function (x) return {x} end, normalize)
-      expect (memfn "same").to_be (memfn "not same")
-      expect (memfn (1, 2)).to_be (memfn (false, "x"))
-      expect (memfn "one").not_to_be (memfn ("one", "two"))
 
 
 - describe monkey_patch:

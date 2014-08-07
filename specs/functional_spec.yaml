@@ -278,6 +278,49 @@ specify std.functional:
         to_equal (inverse)
 
 
+- describe memoize:
+  - before:
+      fname = "memoize"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+      memfn = f (function (x)
+                   if x then return {x} else return nil, "bzzt" end
+                 end)
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, false)).to_error (msg (2, "function or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (f, f, false)).to_error (toomanyarg (this_module, fname, 2, 3))
+
+  - it propagates multiple return values:
+      expect (select (2, memfn (false))).to_be "bzzt"
+  - it returns the same object for the same arguments:
+      t = memfn (1)
+      expect (memfn (1)).to_be (t)
+  - it returns a different object for different arguments:
+      expect (memfn (1)).not_to_be (memfn (2))
+  - it returns the same object for table valued arguments:
+      t = memfn {1, 2, 3}
+      expect (memfn {1, 2, 3}).to_be (t)
+      t = memfn {foo = "bar", baz = "quux"}
+      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
+      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
+  - it returns a different object for different table arguments:
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
+  - it accepts alternative normalization function:
+      normalize = function (...) return select ("#", ...) end
+      memfn = f (function (x) return {x} end, normalize)
+      expect (memfn "same").to_be (memfn "not same")
+      expect (memfn (1, 2)).to_be (memfn (false, "x"))
+      expect (memfn "one").not_to_be (memfn ("one", "two"))
+
+
 - describe nop:
   - before:
       f = M.nop

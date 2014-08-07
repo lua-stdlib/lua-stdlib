@@ -214,6 +214,21 @@ export (M, "map (func, func, any*)", function (f, i, ...)
 end)
 
 
+--- Memoize a function, by wrapping it in a functable.
+--
+-- To ensure that memoize always returns the same results for the same
+-- arguments, it passes arguments to `normalize` (std.string.tostring
+-- by default). You can specify a more sophisticated function if memoize
+-- should handle complicated argument equivalencies.
+-- @function memoize
+-- @func fn pure function: a function with no side effects
+-- @tparam[opt] normalize normalize function to normalize arguments
+-- @treturn functable memoized function
+-- @usage
+-- local fast = memoize (function (...) --[[ slow code ]] end)
+export (M, "memoize (func, func?)", base.memoize)
+
+
 --- No operation.
 -- This function ignores all arguments, and returns no values.
 -- @function nop
@@ -249,7 +264,6 @@ end)
 
 -- For backwards compatibility.
 export (M, "eval (string)", base.eval)
-export (M, "memoize (func, func?)", base.memoize)
 M.op = require "std.operator"
 
 
@@ -265,17 +279,28 @@ M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", reduce)
 
 
-
 return M
+
+
 
 --- Types
 -- @section Types
 
---- Signature of a @{filter} predicate function.
+
+--- Signature of a @{memoize} argument normalization callback function.
+-- @function normalize
+-- @param ... arguments
+-- @treturn string normalized arguments
+-- @usage
+-- local normalize = function (name, value, props) return name end
+-- local intern = std.memoize (mksymbol, normalize)
+
+
+--- Signature of a @{filter} predicate callback function.
 -- @function predicate
 -- @param ... arguments
--- @treturn boolean `true` if the predicate condition succeeds
--- @see filter
+-- @treturn boolean "truthy" if the predicate condition succeeds,
+--   "falsey" otherwise
 -- @usage
 -- local predicate = std.lambda '|k,v|type(v)=="string"'
 -- local strvalues = filter (predicate, std.pairs, {name="Roberto", id=12345})
