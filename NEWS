@@ -27,6 +27,11 @@ Stdlib NEWS - User visible changes
    relational operators, `<`, `<=`, `>` and `>=`.  The `#` operator
    respects the `__len` metamethod, if any, even on Lua 5.1.
 
+ - `functional.case` now accepts non-callable branch values, which are
+   simply returned as is, and functable values which are called and
+   their return value propagated back to the case caller.  Function
+   values behave the same as in previous releases.
+
  - `functional.collect`, `functional.filter` and `functional.fold` now
    work with standard multi-return iterators, such as `std.ipairs`.
 

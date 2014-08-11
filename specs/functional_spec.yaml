@@ -95,7 +95,17 @@ specify std.functional:
       expect (f ("none", branches)).to_be "none"
   - it returns nil for unmatched keys with no default:
       expect (f ("none", { yes = yes, no = no })).to_be (nil)
-  - it evaluates `with` exactly once:
+  - it returns non-function matches:
+      expect (f ("t", {t = true})).to_be (true)
+  - it evaluates returned functions:
+      expect (f ("fn", {fn = function () return true end})).
+        to_be (true)
+  - it passes 'with' to function matches:
+      expect (f ("with", {function (s) return s end})).to_be "with"
+  - it evaluates returned functables:
+      functable = setmetatable ({}, {__call = function (t, with) return with end})
+      expect (f ("functable", {functable})).to_be "functable"
+  - it evaluates 'with` exactly once:
       s = "prince"
       function acc () s = s .. "s"; return s end
       expect (f (acc (), {

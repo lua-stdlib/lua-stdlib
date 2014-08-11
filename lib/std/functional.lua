@@ -15,6 +15,24 @@ local export, nop, pairs = base.export, base.nop, base.pairs
 local M = { "std.functional" }
 
 
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+local function iscallable (x)
+  if type (x) == "function" then return true end
+  return type ((getmetatable (x) or {}).__call) == "function"
+end
+
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
+
+
 --- Partially apply a function.
 -- @function bind
 -- @func f function to apply partially
@@ -53,22 +71,27 @@ end)
 
 
 --- A rudimentary case statement.
--- Match `with` against keys in `branches` table, and return the result
--- of running the function in the table value for the matching key, or
--- the first non-key value function if no key matches.
+-- Match *with* against keys in *branches* table, and return the result
+-- table value for the matching key, or the first non-key value if no key
+-- matches. Function or functable valued matches are called using *with* as
+-- the sole argument, and the result of that call returned; otherwise the
+-- matching value associated with the matching key is returned directly.
 -- @function case
 -- @param with expression to match
 -- @tparam table branches map possible matches to functions
 -- @return the return value from function with a matching key, or nil.
 -- @usage
 -- return case (type (object), {
---   table  = function ()  return something end,
---   string = function ()  return something else end,
+--   table  = "table",
+--   string = function ()  return "string" end,
 --            function (s) error ("unhandled type: " .. s) end,
 -- })
 export (M, "case (any?, #table)", function (with, branches)
-  local f = branches[with] or branches[1]
-  if f then return f (with) end
+  local match = branches[with] or branches[1]
+  if iscallable (match) then
+    return match (with)
+  end
+  return match
 end)
 
 
