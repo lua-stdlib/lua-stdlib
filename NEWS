@@ -35,6 +35,9 @@ Stdlib NEWS - User visible changes
  - `functional.collect`, `functional.filter` and `functional.fold` now
    work with standard multi-return iterators, such as `std.ipairs`.
 
+ - New `functional.cond`, for evaluating multiple distinct expressions
+   to determine what following value to be the returned.
+
  - `functional.map` now supports a mapping function that returns a key,
    value pair for the results table.
 

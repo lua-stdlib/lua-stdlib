@@ -80,6 +80,7 @@ end)
 -- @param with expression to match
 -- @tparam table branches map possible matches to functions
 -- @return the return value from function with a matching key, or nil.
+-- @see cond
 -- @usage
 -- return case (type (object), {
 --   table  = "table",
@@ -146,6 +147,40 @@ export (M, "compose (func*)", function (...)
            return unpack (arg)
          end
 end)
+
+
+--- A rudimentary condition-case statement.
+-- If *expr* is "truthy" return *branch* if given, otherwise *expr*
+-- itself. If the return value is a function or functable, then call it
+-- with *expr* as the sole argument and return the result; otherwise
+-- return it explicitly.  If *expr* is "falsey", then recurse with the
+-- first two arguments stripped.
+-- @function cond
+-- @param expr a Lua expression
+-- @param branch a function, functable or value to use if *expr* is
+--   "truthy"
+-- @param ... additional arguments to retry if *expr* is "falsey"
+-- @see case
+-- @usage
+-- -- recursively calculate the nth triangular number
+-- function triangle (n)
+--   return cond (
+--     n <= 0, 0,
+--     n == 1, 1,
+--             function () return n + triangle (n - 1) end)
+-- end
+M.cond = function (expr, branch, ...)
+  if branch == nil and select ("#", ...) == 0 then
+    expr, branch = true, expr
+  end
+  if expr then
+    if iscallable (branch) then
+      return branch (expr)
+    end
+    return branch
+  end
+  return M.cond (...)
+end
 
 
 --- Curry a function.

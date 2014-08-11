@@ -4,9 +4,9 @@ before:
   this_module  = "std.functional"
   global_table = "_G"
 
-  exported_apis = { 1, "bind", "case", "collect", "compose", "curry", "eval",
-                    "filter", "fold", "id", "map", "memoize", "nop", "op",
-                    "reduce" }
+  exported_apis = { 1, "bind", "case", "collect", "compose", "cond", "curry",
+                    "eval", "filter", "fold", "id", "map", "memoize", "nop",
+                    "op", "reduce" }
 
   M = require (this_module)
 
@@ -151,6 +151,36 @@ specify std.functional:
   - it composes functions in the correct order:
       expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))
+
+
+- describe cond:
+  - before:
+      yes     = function ()  return true end
+      no      = function ()  return false end
+      default = function (s) return s end
+      branches = { yes = yes, no = no, default }
+
+      fname = "cond"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it returns nil for no arguments:
+      expect (f ()).to_be (nil)
+  - it evaluates a single function argument:
+      expect (f (function () return true end)).to_be (true)
+  - it evaluates a single functable argument:
+      functable = setmetatable ({}, {__call = function () return true end})
+      expect (f (functable)).to_be (true)
+  - it returns a non-callable single argument directly:
+      expect (f "foo").to_be "foo"
+  - it evaluates a branch function if expr is truthy:
+      expect (f ("truthy", function (s) return s end)).to_be "truthy"
+  - it returns nil if the last expr is falsey:
+      expect (f (nil, function (s) return "falsey" end)).to_be (nil)
+      expect (f (false, true, false, true)).to_be (nil)
+  - it recurses with remaining arguments if first argument is falsey:
+      expect (f (nil, true, 42, M.id)).to_be (42)
+      expect (f (nil, true, false, false, 42, M.id)).to_be (42)
 
 
 - describe curry:
