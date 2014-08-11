@@ -8,7 +8,8 @@
 ]]
 
 
-local base = require "std.base"
+local base     = require "std.base"
+local operator = require "std.operator"
 
 local export, nop, pairs = base.export, base.nop, base.pairs
 
@@ -39,7 +40,7 @@ end
 -- @tparam table t {p1=a1, ..., pn=an} table of parameters to bind to given arguments
 -- @return function with *pi* already bound
 -- @usage
--- > cube = bind (std.lambda "^", {[2] = 3})
+-- > cube = bind (lambda "^", {[2] = 3})
 -- > =cube (2)
 -- 8
 local bind; bind = export (M, "bind (func, any?*)", function (f, ...)
@@ -213,7 +214,7 @@ end)
 -- @treturn table elements e for which `p (e)` is not falsey.
 -- @see collect
 -- @usage
--- > filter (std.lambda "|e|e%2==0", std.elems, {1, 2, 3, 4})
+-- > filter (lambda "|e|e%2==0", std.elems, {1, 2, 3, 4})
 -- {2, 4}
 export (M, "filter (func, func, any*)", function (p, i, ...)
   local r = {}			-- new results table
@@ -242,6 +243,71 @@ end)
 function M.id (...)
   return ...
 end
+
+
+--- Compile a lambda string into a Lua function.
+--
+-- A valid lambda string takes one of the following forms:
+--
+--   1. `operator`: where *op* is a key in @{std.operator}, equivalent to that operation
+--   1. `"=expression"`: equivalent to `function (...) return (expression) end`
+--   1. `"|args|expression"`: equivalent to `function (args) return (expression) end`
+--
+-- The second form (starting with `=`) automatically assigns the first
+-- nine arguments to parameters `_1` through `_9` for use within the
+-- expression body.
+--
+-- The results are memoized, so recompiling an previously compiled
+-- lambda string is extremely fast.
+-- @function lambda
+-- @string s a lambda string
+-- @treturn table compiled lambda string, can be called like a function
+-- @usage
+-- -- The following are all equivalent:
+-- lambda "<"
+-- lambda "= _1 < _2"
+-- lambda "|a,b| a<b"
+export (M, "lambda (string)", base.memoize (function (l)
+  local s
+
+  -- Support operator table lookup.
+  if operator[l] then
+    return operator[l]
+  end
+
+  -- Support "|args|expression" format.
+  local args, body = string.match (l, "^|([^|]*)|%s*(.+)$")
+  if args and body then
+    s = "return function (" .. args .. ") return " .. body .. " end"
+  end
+
+  -- Support "=expression" format.
+  if not s then
+    body = l:match "^=%s*(.+)$"
+    if body then
+      s = [[
+        return function (...)
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
+	  return ]] .. body .. [[
+        end
+      ]]
+    end
+  end
+
+  local ok, fn
+  if s then
+    ok, fn = pcall (loadstring (s))
+  end
+
+  -- Diagnose invalid input.
+  if not ok then
+    return nil, "invalid lambda string '" .. l .. "'"
+  end
+
+  return fn
+end, M.id))
+
+
 
 
 --- Map a function over an iterator.
@@ -306,7 +372,7 @@ M.nop = nop
 -- @see std.list.foldr
 -- @usage
 -- --> 2 ^ 3 ^ 4 ==> 4096
--- reduce (std.lambda "^", 2, std.ipairs, {3, 4})
+-- reduce (lambda "^", 2, std.ipairs, {3, 4})
 local reduce = export (M, "reduce (func, any, func, any*)", function (f, d, i, ...)
   local fn, state, k = i (...)
   local t = {fn (state, k)}
@@ -321,7 +387,7 @@ end)
 
 
 -- For backwards compatibility.
-M.op = require "std.operator"
+M.op = operator
 
 
 
@@ -364,5 +430,5 @@ return M
 -- @treturn boolean "truthy" if the predicate condition succeeds,
 --   "falsey" otherwise
 -- @usage
--- local predicate = std.lambda '|k,v|type(v)=="string"'
+-- local predicate = lambda '|k,v|type(v)=="string"'
 -- local strvalues = filter (predicate, std.pairs, {name="Roberto", id=12345})

@@ -417,7 +417,7 @@ local function transpose (ls)
     end
   end
 
-  local rs, len, dims = List {}, #ls, map (base.lambda "#", ls)
+  local rs, len, dims = List {}, base.len (ls), map (base.len, ls)
   if #dims > 0 then
     for i = 1, math.max (unpack (dims)) do
       rs[i] = List {}

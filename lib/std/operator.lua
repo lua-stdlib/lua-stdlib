@@ -5,6 +5,9 @@
 ]]
 
 
+local base = require "std.base"
+
+
 --- Functional forms of Lua operators.
 --
 -- Defined here so that other modules can write to it.
@@ -39,11 +42,7 @@ return {
   ["{}"]  = function (...)  return {...}   end,
   ['""']  = function (x)    return tostring (x) end,
   ["~"]   = function (s, p) return string.find (s, p) end,
-  ["#"]   = function (t)
-	      -- Lua < 5.2 doesn't call `__len` automatically!
-              local m = (getmetatable (t) or {}).__len
-              return m and m (t) or #t
-            end,
+  ["#"]   = base.len,
   ["+"]   = function (a, b) return a + b   end,
   ["-"]   = function (a, b) return a - b   end,
   ["*"]   = function (a, b) return a * b   end,

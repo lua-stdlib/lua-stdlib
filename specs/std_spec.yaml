@@ -3,8 +3,8 @@ before: |
   global_table  = "_G"
 
   exported_apis = { 1, "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "ireverse", "lambda", "monkey_patch",
-                    "pairs", "require", "ripairs", "tostring", "version" }
+                    "ielems", "ipairs", "ireverse", "monkey_patch", "pairs",
+                    "require", "ripairs", "tostring", "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -114,7 +114,6 @@ specify std:
       expect (t.eval).to_be (M.eval)
       expect (t.ielems).to_be (M.ielems)
       expect (t.ipairs).to_be (M.ipairs)
-      expect (t.lambda).to_be (M.lambda)
       expect (t.pairs).to_be (M.pairs)
       expect (t.require).to_be (M.require)
   - it installs std.math monkey patches:
@@ -148,7 +147,6 @@ specify std:
         io              = t.io,
         ipairs          = M.ipairs,
         ireverse        = M.ireverse,
-        lambda          = M.lambda,
         leaves          = M.tree.leaves,
         map             = M.functional.map,
         math            = t.math,
@@ -356,44 +354,6 @@ specify std:
       expect (f (__index)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works for an empty list:
       expect (f {}).to_equal {}
-
-
-- describe lambda:
-  - before:
-      fname = "lambda"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-  - it diagnoses wrong arguments types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("foo", false)).to_error (toomanyarg (this_module, fname, 1, 2))
-  - it diagnoses bad lambda string:
-      expect (select (2, f "foo")).to_be "invalid lambda string 'foo'"
-  - it diagnoses an uncompilable expression:
-      expect (select (2, f "||+")).to_be "invalid lambda string '||+'"
-      expect (select (2, f "=")).to_be "invalid lambda string '='"
-
-  - context with argument format:
-    - it returns a function:
-        expect (prototype (f "|x| 1+x")).to_be "function"
-    - it compiles to a working Lua function:
-        fn = f "||42"
-        expect (fn ()).to_be (42)
-    - it propagates argument values:
-        fn = f "|...| {...}"
-        expect (fn (1,2,3)).to_equal {1,2,3}
-  - context with expression format:
-    - it returns a function:
-        expect (prototype (f "=1")).to_be "function"
-    - it compiles to a working Lua function:
-        fn = f "=42"
-        expect (fn ()).to_be (42)
-    - it sets auto-argument values:
-        fn = f "=_1*_1"
-        expect (fn (42)).to_be (1764)
 
 
 - describe monkey_patch:

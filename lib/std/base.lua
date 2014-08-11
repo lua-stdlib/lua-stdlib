@@ -23,8 +23,11 @@
 ]]
 
 
-local operator = require "std.operator"
-
+local function len (t)
+  -- Lua < 5.2 doesn't call `__len` automatically!
+  local m = (getmetatable (t) or {}).__len
+  return m and m (t) or #t
+end
 
 
 --[[ ====================== ]]--
@@ -32,7 +35,6 @@ local operator = require "std.operator"
 --[[ ====================== ]]--
 
 
-local _len   = operator["#"]
 local _pairs = pairs
 
 
@@ -44,11 +46,11 @@ end
 
 -- Iterate over keys 1..#l, like Lua 5.3.
 local function ipairs (l)
-  local len = _len (l)
+  local tlen = len (l)
 
   return function (l, n)
     n = n + 1
-    if n <= len then
+    if n <= tlen then
       return n, l[n]
     end
   end, l, 0
@@ -61,14 +63,14 @@ local function ripairs (t)
     if n > 0 then
       return n, t[n]
     end
-  end, t, _len (t) + 1
+  end, t, len (t) + 1
 end
 
 
 -- Be careful not to compact holes from `t` when reversing.
 local function ireverse (t)
-  local r, len = {}, _len (t)
-  for i = 1, len do r[len - i + 1] = t[i] end
+  local r, tlen = {}, len (t)
+  for i = 1, tlen do r[tlen - i + 1] = t[i] end
   return r
 end
 
@@ -223,47 +225,6 @@ local function eval (s)
 end
 
 
-local function lambda (l)
-  local s
-
-  -- Support operator table lookup.
-  if operator[l] then
-    return operator[l]
-  end
-
-  -- Support "|args|expression" format.
-  local args, body = string.match (l, "^|([^|]*)|%s*(.+)$")
-  if args and body then
-    s = "return function (" .. args .. ") return " .. body .. " end"
-  end
-
-  -- Support "=expression" format.
-  if not s then
-    body = l:match "^=%s*(.+)$"
-    if body then
-      s = [[
-        return function (...)
-          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
-	  return ]] .. body .. [[
-        end
-      ]]
-    end
-  end
-
-  local ok, fn
-  if s then
-    ok, fn = pcall (loadstring (s))
-  end
-
-  -- Diagnose invalid input.
-  if not ok then
-    return nil, "invalid lambda string '" .. l .. "'"
-  end
-
-  return fn
-end
-
-
 local function require_version (module, min, too_big, pattern)
   local m = require (module)
   if min then
@@ -279,9 +240,12 @@ end
 local _tostring = _G.tostring
 
 local function tostring (x)
-  return render (x, lambda '="{"', lambda '="}"', _tostring,
-                 lambda '=_4.."=".._5',
-		 lambda '=_2 and _4 and "," or ""')
+  return render (x,
+                 function () return "{" end,
+		 function () return "}" end,
+                 _tostring,
+                 function (_, _, _, is, vs) return is .."=".. vs end,
+		 function (_, i, _, j) return i and j and "," or "" end)
 end
 
 
@@ -922,7 +886,6 @@ return {
   ielems   = ielems,
   ipairs   = ipairs,
   ireverse = ireverse,
-  lambda   = lambda,
   memoize  = memoize,
   pairs    = pairs,
   ripairs  = ripairs,
@@ -956,6 +919,7 @@ return {
   DEPRECATIONMSG = M.DEPRECATIONMSG,
   export         = export,
   getcompat      = getcompat,
+  len            = len,
   setcompat      = setcompat,
   toomanyarg_fmt = toomanyarg_fmt,
 }

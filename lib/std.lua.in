@@ -94,7 +94,7 @@ export (M, "ielems (table)", base.ielems)
 -- @usage
 -- -- don't stop at first nil
 -- args = {"first", "second", nil, "last"}
--- setmetatable (args, { __len = std.lambda "=4" })
+-- setmetatable (args, { __len = std.functional.lambda "=4" })
 -- for i, v in std.ipairs (args) do process (i, v) end
 export (M, "ipairs (table)", base.ipairs)
 
@@ -121,31 +121,6 @@ export (M, "ireverse (table)", base.ireverse)
 -- @treturn function|nil metamethod function, or `nil` if no metamethod
 -- @usage lookup = std.getmetamethod (require "std.object", "__index")
 export (M, "getmetamethod (object|table, string)", base.getmetamethod)
-
-
---- Compile a lambda string into a Lua function.
---
--- A valid lambda string takes one of the following forms:
---
---   1. `operator`: where *op* is a key in @{std.operator}, equivalent to that operation
---   1. `"=expression"`: equivalent to `function (...) return (expression) end`
---   1. `"|args|expression"`: equivalent to `function (args) return (expression) end`
---
--- The second form (starting with `=`) automatically assigns the first
--- nine arguments to parameters `_1` through `_9` for use within the
--- expression body.
---
--- The results are memoized, so recompiling an previously compiled
--- lambda string is extremely fast.
--- @function lambda
--- @string s a lambda string
--- @treturn table compiled lambda string, can be called like a function
--- @usage
--- -- The following are all equivalent:
--- std.lambda "<"
--- std.lambda "= _1 < _2"
--- std.lambda "|a,b| a<b"
-export (M, "lambda (string)", base.memoize (base.lambda, base.lambda "|s|s"))
 
 
 --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
