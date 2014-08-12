@@ -250,69 +250,6 @@ end
 
 
 
---[[ ============================= ]]--
---[[ Documented in functional.lua. ]]--
---[[ ============================= ]]--
-
-
-local function memoize (fn, normalize)
-  if normalize == nil then
-    -- Call require here, to avoid pulling in all of 'std.string'
-    -- even when memoize is never called.
-    normalize = function (...) return tostring {...} end
-  end
-
-  return setmetatable ({}, {
-    __call = function (self, ...)
-               local k = normalize (...)
-               local t = self[k]
-               if t == nil then
-                 t = {fn (...)}
-                 self[k] = t
-               end
-               return unpack (t)
-             end
-  })
-end
-
-
-local function nop () end
-
-
-local function reduce (f, d, i, ...)
-  local fn, state, k = i (...)
-  local t = {fn (state, k)}
-
-  local r = d
-  while t[1] ~= nil do
-    r = f (r, t[#t])
-    t = {fn (state, t[1])}
-  end
-  return r
-end
-
-
-local function foldl (fn, d, t)
-  if t == nil then
-    local tail = {}
-    for i = 2, len (d) do tail[#tail + 1] = d[i] end
-    d, t = d[1], tail
-  end
-  return reduce (fn, d, ipairs, t)
-end
-
-
-local function foldr (fn, d, t)
-  if t == nil then
-    local u, last = {}, len (d)
-    for i = 1, last - 1 do u[#u + 1] = d[i] end
-    d, t = d[last], u
-  end
-  return reduce (function (x, y) return fn (y, x) end, d, ipairs, ireverse (t))
-end
-
-
-
 --[[ ========================= ]]--
 --[[ Documented in object.lua. ]]--
 --[[ ========================= ]]--
@@ -912,7 +849,7 @@ end)
 --- Metamethods
 -- @section Metamethods
 
-return {
+return setmetatable ({
 
   -- std.lua --
   assert   = assert,
@@ -926,13 +863,6 @@ return {
   ripairs  = ripairs,
   require  = require_version,
   tostring = tostring,
-
-  -- functional.lua --
-  foldl   = foldl,
-  foldr   = foldr,
-  memoize = memoize,
-  nop     = nop,
-  reduce  = reduce,
 
   -- object.lua --
   prototype = prototype,
@@ -961,4 +891,24 @@ return {
   len            = len,
   setcompat      = setcompat,
   toomanyarg_fmt = toomanyarg_fmt,
-}
+
+}, {
+
+  --- Lazy loading of shared base modules.
+  -- Don't load everything on initial startup, wait until first attempt
+  -- to access a submodule, and then load it on demand.
+  -- @function __index
+  -- @string name submodule name
+  -- @treturn table|nil the submodule that was loaded to satisfy the missing
+  --   `name`, otherwise `nil` if nothing was found
+  -- @usage
+  -- local base    = require "base"
+  -- local memoize = base.functional.memoize
+  __index = function (self, name)
+              local ok, t = pcall (require, "std.base." .. name)
+              if ok then
+		rawset (self, name, t)
+		return t
+	      end
+	    end,
+})

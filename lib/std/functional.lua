@@ -11,8 +11,8 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, ireverse, len, nop, pairs =
-  base.export, base.ireverse, base.len, base.nop, base.pairs
+local export, ireverse, len, pairs =
+  base.export, base.ireverse, base.len, base.pairs
 
 local M = { "std.functional" }
 
@@ -238,6 +238,34 @@ export (M, "filter (func, func, any*)", function (p, i, ...)
 end)
 
 
+--- Fold a binary function left associatively.
+-- If parameter *d* is omitted, the first element of *t* is used.
+-- @function foldl
+-- @func fn binary function
+-- @param[opt] d initial left-most argument
+-- @tparam table t a table
+-- @return result
+-- @see foldr
+-- @see reduce
+-- @usage
+-- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
+export (M, "foldl (function, [any], table)", base.functional.foldl)
+
+
+--- Fold a binary function right associatively.
+-- If parameter *d* is omitted, the last element of *t* is used.
+-- @function foldr
+-- @func fn binary function
+-- @param[opt] d initial right-most argument
+-- @tparam table t a table
+-- @return result
+-- @see foldl
+-- @see reduce
+-- @usage
+-- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
+export (M, "foldr (function, [any], table)", base.functional.foldr)
+
+
 --- Identity function.
 -- @function id
 -- @param ...
@@ -269,7 +297,7 @@ end
 -- lambda "<"
 -- lambda "= _1 < _2"
 -- lambda "|a,b| a<b"
-export (M, "lambda (string)", base.memoize (function (l)
+export (M, "lambda (string)", base.functional.memoize (function (l)
   local s
 
   -- Support operator table lookup.
@@ -350,7 +378,7 @@ end)
 -- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", base.memoize)
+export (M, "memoize (func, func?)", base.functional.memoize)
 
 
 --- No operation.
@@ -358,7 +386,7 @@ export (M, "memoize (func, func?)", base.memoize)
 -- @function nop
 -- @usage
 -- if unsupported then vtable["memrmem"] = nop end
-M.nop = nop
+M.nop = base.functional.nop
 
 
 --- Fold a binary function into an iterator.
@@ -373,35 +401,7 @@ M.nop = nop
 -- @usage
 -- --> 2 ^ 3 ^ 4 ==> 4096
 -- reduce (lambda "^", 2, std.ipairs, {3, 4})
-export (M, "reduce (func, any, func, any*)", base.reduce)
-
-
---- Fold a binary function left associatively.
--- If parameter *d* is omitted, the first element of *t* is used.
--- @function foldl
--- @func fn binary function
--- @param[opt] d initial left-most argument
--- @tparam table t a table
--- @return result
--- @see foldr
--- @see reduce
--- @usage
--- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
-export (M, "foldl (function, [any], table)", base.foldl)
-
-
---- Fold a binary function right associatively.
--- If parameter *d* is omitted, the last element of *t* is used.
--- @function foldr
--- @func fn binary function
--- @param[opt] d initial right-most argument
--- @tparam table t a table
--- @return result
--- @see foldl
--- @see reduce
--- @usage
--- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
-export (M, "foldr (function, [any], table)", base.foldr)
+export (M, "reduce (func, any, func, any*)", base.functional.reduce)
 
 
 -- For backwards compatibility.
@@ -422,7 +422,7 @@ M.eval = DEPRECATED ("41", "'std.functional.eval'",
 
 
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
-  "use 'std.functional.reduce' instead", base.reduce)
+  "use 'std.functional.reduce' instead", base.functional.reduce)
 
 
 return M
@@ -439,7 +439,7 @@ return M
 -- @treturn string normalized arguments
 -- @usage
 -- local normalize = function (name, value, props) return name end
--- local intern = std.memoize (mksymbol, normalize)
+-- local intern = std.functional.memoize (mksymbol, normalize)
 
 
 --- Signature of a @{filter} predicate callback function.

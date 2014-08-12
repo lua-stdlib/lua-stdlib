@@ -37,7 +37,7 @@ local object  = require "std.object"
 local ipairs, pairs = base.ipairs, base.pairs
 local argcheck, argerror, argscheck, ielems, prototype, ireverse =
   base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
-local foldl, foldr = base.foldl, base.foldr
+local foldl, foldr = base.functional.foldl, base.functional.foldr
 
 
 local Object = object {}
