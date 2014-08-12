@@ -441,52 +441,135 @@ specify std.list:
 
 - describe foldl:
   - before:
-      op = require "std.functional".op
-      l = List {1, 10, 100}
-      f = M.foldl
+      op = require "std.operator"
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.foldl' (function expected, got no value)"
-      expect (f (f, nil)).
-        to_error "bad argument #3 to 'std.list.foldl' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.foldl' (function expected, got boolean)"
-      expect (f (f, nil, false)).
-        to_error "bad argument #3 to 'std.list.foldl' (List expected, got boolean)"
+      fname = "foldl"
 
-  - context when called as a list object method:
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {op["+"], 1, {10}})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.foldl' was deprecated"
+        end
+        _, err = capture (f, {op["+"], 1, {10}})
+        expect (err).to_be (nil)
+
+    - context with a table:
+      - it works with an empty table:
+          expect (f (op["+"], 10000, {})).to_be (10000)
+      - it folds a binary function through a table:
+          expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
+      - it folds from left to right:
+          expect (f (op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+    - context with a List:
+      - it works with an empty List:
+          expect (f (op["+"], 10000, List {})).to_be (10000)
+      - it folds a binary function through a List:
+          expect (f (op["+"], 10000, List {1, 10, 100})).
+            to_be (10111)
+      - it folds from left to right:
+          expect (f (op["^"], 2, List {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+  - context as a List object method:
+    - before:
+        l = List {3, 4}
+        f = l[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {l, op["+"], 1})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list:foldl' was deprecated"
+        end
+        _, err = capture (f, {l, op["+"], 1})
+        expect (err).to_be (nil)
+
     - it works with an empty list:
         l = List {}
-        expect (l:foldl (op["+"], 10000)).to_be (10000)
+        expect (f (l, op["+"], 2)).to_be (2)
     - it folds a binary function through a list:
-        expect (l:foldl (op["+"], 10000)).to_be (10111)
+        expect (f (l, op["+"], 2)).to_be (9)
+    - it folds from left to right:
+        expect (f (l, op["^"], 2)).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldr:
   - before:
-      op = require "std.functional".op
-      l = List {1, 10, 100}
-      f = M.foldr
+      op = require "std.operator"
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.foldr' (function expected, got no value)"
-      expect (f (f, nil)).
-        to_error "bad argument #3 to 'std.list.foldr' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.foldr' (function expected, got boolean)"
-      expect (f (f, nil, false)).
-        to_error "bad argument #3 to 'std.list.foldr' (List expected, got boolean)"
+      fname = "foldr"
 
-  - context when called as a list object method:
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {op["+"], 1, {10}})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.foldr' was deprecated"
+        end
+        _, err = capture (f, {op["+"], 1, {10}})
+        expect (err).to_be (nil)
+
+    - context with a table:
+      - it works with an empty table:
+          expect (f (op["+"], 10000, {})).to_be (10000)
+      - it folds a binary function through a table:
+          expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
+      - it folds from right to left:
+          expect (f (op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
+
+    - context with a List:
+      - it works with an empty List:
+          expect (f (op["+"], 10000, List {})).to_be (10000)
+      - it folds a binary function through a List:
+          expect (f (op["+"], 10000, List {1, 10, 100})).
+            to_be (10111)
+      - it folds from right to left:
+          expect (f (op["/"], 10, List {10000, 100})).
+            to_be (10000 / (100 / 10))
+
+  - context as a List object method:
+    - before:
+        l = List {10000, 100}
+        f = l[fname]
+
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {l, op["+"], 1})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list:foldr' was deprecated"
+        end
+        _, err = capture (f, {l, op["+"], 1})
+        expect (err).to_be (nil)
+
     - it works with an empty list:
         l = List {}
-        expect (l:foldl (op["/"], 1)).to_be (1)
+        expect (f (l, op["+"], 10)).to_be (10)
     - it folds a binary function through a list:
-        expect (l:foldl (op["/"], 10000)).to_be (10)
+        expect (f (l, op["+"], 10)).to_be (10110)
+    - it folds from right to left:
+        expect (f (l, op["/"], 10)).to_be (10000 / (100 / 10))
 
 
 - describe index_key:

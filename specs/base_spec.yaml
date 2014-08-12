@@ -3,7 +3,7 @@ before:
 
   M = require (this_module)
 
-  nop = M.nop
+  nop = function () end
 
 specify std.base:
 - describe DEPRECATED:

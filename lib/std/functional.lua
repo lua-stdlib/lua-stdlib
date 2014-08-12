@@ -11,7 +11,8 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, nop, pairs = base.export, base.nop, base.pairs
+local export, ireverse, len, nop, pairs =
+  base.export, base.ireverse, base.len, base.nop, base.pairs
 
 local M = { "std.functional" }
 
@@ -43,7 +44,8 @@ end
 -- > cube = bind (lambda "^", {[2] = 3})
 -- > =cube (2)
 -- 8
-local bind; bind = export (M, "bind (func, any?*)", function (f, ...)
+local bind
+bind = export (M, "bind (func, any?*)", function (f, ...)
   local fix = {...}
   if type (fix[1]) == "table" and fix[2] == nil then
     fix = fix[1]
@@ -308,8 +310,6 @@ export (M, "lambda (string)", base.memoize (function (l)
 end, M.id))
 
 
-
-
 --- Map a function over an iterator.
 -- @function map
 -- @func f function
@@ -368,22 +368,40 @@ M.nop = nop
 -- @func i iterator
 -- @param ... iterator arguments
 -- @return result
--- @see std.list.foldl
--- @see std.list.foldr
+-- @see foldl
+-- @see foldr
 -- @usage
 -- --> 2 ^ 3 ^ 4 ==> 4096
 -- reduce (lambda "^", 2, std.ipairs, {3, 4})
-local reduce = export (M, "reduce (func, any, func, any*)", function (f, d, i, ...)
-  local fn, state, k = i (...)
-  local t = {fn (state, k)}
+export (M, "reduce (func, any, func, any*)", base.reduce)
 
-  local r = d
-  while t[1] ~= nil do
-    r = f (r, t[#t])
-    t = {fn (state, t[1])}
-  end
-  return r
-end)
+
+--- Fold a binary function left associatively.
+-- If parameter *d* is omitted, the first element of *t* is used.
+-- @function foldl
+-- @func fn binary function
+-- @param[opt] d initial left-most argument
+-- @tparam table t a table
+-- @return result
+-- @see foldr
+-- @see reduce
+-- @usage
+-- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
+export (M, "foldl (function, [any], table)", base.foldl)
+
+
+--- Fold a binary function right associatively.
+-- If parameter *d* is omitted, the last element of *t* is used.
+-- @function foldr
+-- @func fn binary function
+-- @param[opt] d initial right-most argument
+-- @tparam table t a table
+-- @return result
+-- @see foldl
+-- @see reduce
+-- @usage
+-- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
+export (M, "foldr (function, [any], table)", base.foldr)
 
 
 -- For backwards compatibility.
@@ -404,7 +422,7 @@ M.eval = DEPRECATED ("41", "'std.functional.eval'",
 
 
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
-  "use 'std.functional.reduce' instead", reduce)
+  "use 'std.functional.reduce' instead", base.reduce)
 
 
 return M

@@ -5,8 +5,8 @@ before:
   global_table = "_G"
 
   exported_apis = { 1, "bind", "case", "collect", "compose", "cond", "curry",
-                    "eval", "filter", "fold", "id", "lambda", "map",
-                    "memoize", "nop", "op", "reduce" }
+                    "eval", "filter", "fold", "foldl", "foldr", "id",
+                    "lambda", "map", "memoize", "nop", "op", "reduce" }
 
   M = require (this_module)
 
@@ -119,7 +119,7 @@ specify std.functional:
 - describe collect:
   - before:
       fname = "collect"
-      msg = M.bind (badarg, {this_module, fname})
+      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
   - it diagnoses missing arguments:
@@ -137,7 +137,7 @@ specify std.functional:
 - describe compose:
   - before:
       fname = "compose"
-      msg = M.bind (badarg, {this_module, fname})
+      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
   - it diagnoses missing arguments:
@@ -186,7 +186,7 @@ specify std.functional:
 - describe curry:
   - before:
       fname = "curry"
-      msg = M.bind (badarg, {this_module, fname})
+      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
   - it diagnoses missing arguments:
@@ -240,7 +240,7 @@ specify std.functional:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
      fname = "filter"
-      msg = M.bind (badarg, {this_module, fname})
+     msg = bind (badarg, {this_module, fname})
      f = M[fname]
 
   - it diagnoses missing arguments:
@@ -298,6 +298,60 @@ specify std.functional:
       expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
+- describe foldl:
+  - before:
+      fname = "foldl"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f, nil)).to_error (msg (2, "any value or table"))
+      expect (f (f, 42)).to_error (msg (3, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, 42, false)).to_error (msg (3, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (f, 42, {}, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
+  - it works with an empty table:
+      expect (f (M.op["+"], 10000, {})).to_be (10000)
+  - it folds a binary function through a table:
+      expect (f (M.op["+"], 10000, {1, 10, 100})).to_be (10111)
+  - it folds from left to right:
+      expect (f (M.op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+  - it supports eliding init argument:
+      expect (f (M.op["^"], {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
+
+
+- describe foldr:
+  - before:
+      fname = "foldr"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (f, nil)).to_error (msg (2, "any value or table"))
+      expect (f (f, 42)).to_error (msg (3, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (f, 42, false)).to_error (msg (3, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (f, 42, {}, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
+
+  - it works with an empty table:
+      expect (f (M.op["+"], 1, {})).to_be (1)
+  - it folds a binary function through a table:
+      expect (f (M.op["+"], {10000, 100, 10, 1})).to_be (10111)
+  - it folds from right to left:
+      expect (f (M.op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
+  - it supports eliding init argument:
+      expect (f (M.op["/"], {10000, 100, 10})).to_be (10000 / (100 / 10))
+
+
 - describe id:
   - before:
       f = M.id
@@ -351,7 +405,7 @@ specify std.functional:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
      fname = "map"
-     msg = M.bind (badarg, {this_module, fname})
+     msg = bind (badarg, {this_module, fname})
      f = M[fname]
 
   - it diagnoses missing arguments:
@@ -443,7 +497,7 @@ specify std.functional:
 - describe reduce:
   - before:
       fname = "reduce"
-      msg = M.bind (badarg, {this_module, fname})
+      msg = bind (badarg, {this_module, fname})
       f = M[fname]
 
   - it diagnoses missing arguments:

@@ -37,6 +37,8 @@ local object  = require "std.object"
 local ipairs, pairs = base.ipairs, base.pairs
 local argcheck, argerror, argscheck, ielems, prototype, ireverse =
   base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
+local foldl, foldr = base.foldl, base.foldr
+
 
 local Object = object {}
 
@@ -201,31 +203,6 @@ local function flatten (l)
   argcheck ("std.list.flatten", 1, "List", l)
 
   return List (func.collect (base.leaves, ipairs, l))
-end
-
-
---- Fold a binary function through a list left associatively.
--- @func fn binary function
--- @param e element to place in left-most position
--- @tparam List l a list
--- @return result
--- @see std.list:foldl
-local function foldl (fn, e, l)
-  argscheck ("std.list.foldl", {"function", "any?", "List"}, {fn, e, l})
-  return func.reduce (fn, e, ielems, l)
-end
-
-
---- Fold a binary function through a list right associatively.
--- @func fn binary function
--- @param e element to place in right-most position
--- @tparam List l a list
--- @return result
--- @see std.list:foldr
-local function foldr (fn, e, l)
-  argscheck ("std.list.foldr", {"function", "any?", "List"}, {fn, e, l})
-  return List (func.reduce (function (x, y) return fn (y, x) end,
-                             e, ielems, ireverse (l)))
 end
 
 
@@ -464,8 +441,6 @@ local _functions = {
   enpair      = enpair,
   filter      = filter,
   flatten     = flatten,
-  foldl       = foldl,
-  foldr       = foldr,
   map         = map,
   map_with    = map_with,
   project     = project,
@@ -495,6 +470,14 @@ local function relems (l) return base.ielems (base.ireverse (l)) end
 
 _functions.relems = DEPRECATED ("41", "'std.list.relems'",
   "compose 'std.ielems' and 'std.ireverse' instead", relems)
+
+
+_functions.foldl = DEPRECATED ("41", "'std.list.foldl'",
+  "use 'std.functional.foldl' instead", foldl)
+
+
+_functions.foldr = DEPRECATED ("41", "'std.list.foldr'",
+  "use 'std.functional.foldr' instead", foldr)
 
 
 local function index_key (f, l)
@@ -622,24 +605,6 @@ List = Object {
     flatten = flatten,
 
     ------
-    -- Fold a binary function through a list left associatively.
-    -- @function foldl
-    -- @func fn binary function
-    -- @param e element to place in left-most position
-    -- @return result
-    -- @see std.list.foldl
-    foldl = function (self, fn, e) return foldl (fn, e, self) end,
-
-    ------
-    -- Fold a binary function through a list right associatively.
-    -- @function foldr
-    -- @func f binary function
-    -- @param e  element to place in right-most position
-    -- @return result
-    -- @see std.list.foldr
-    foldr = function (self, fn, e) return foldr (fn, e, self) end,
-
-    ------
     -- Map a function over a list.
     -- @function map
     -- @func fn map function
@@ -694,13 +659,25 @@ List = Object {
     transpose = DEPRECATED ("38", "'std.list:transpose'", transpose),
     zip_with  = DEPRECATED ("38", "'std.list:zip_with'",  zip_with),
 
-    elems       = DEPRECATED ("41", "'std.list:elems'",     base.ielems),
+    elems       = DEPRECATED ("41", "'std.list:elems'", base.ielems),
+    foldl       = DEPRECATED ("41", "'std.list:foldl'",
+                    "use 'std.functional.foldl' instead",
+		    function (self, fn, e)
+	              if e ~= nil then return foldl (fn, e, self) end
+	              return foldl (fn, self)
+	            end),
+    foldr       = DEPRECATED ("41", "'std.list:foldr'",
+                    "use 'std.functional.foldr' instead",
+		    function (self, fn, e)
+	              if e ~= nil then return foldr (fn, e, self) end
+	              return foldr (fn, self)
+	            end),
     index_key   = DEPRECATED ("41", "'std.list:index_key'",
                     function (self, f) return index_key (f, self)   end),
     index_value = DEPRECATED ("41", "'std.list:index_value'",
                     function (self, f) return index_value (f, self) end),
-    relems      = DEPRECATED ("41", "'std.list:relems'",    relems),
-    reverse     = DEPRECATED ("41", "'std.list:reverse'",   reverse),
+    relems      = DEPRECATED ("41", "'std.list:relems'",  relems),
+    reverse     = DEPRECATED ("41", "'std.list:reverse'", reverse),
   },
 
 

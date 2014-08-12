@@ -38,6 +38,10 @@ Stdlib NEWS - User visible changes
  - New `functional.cond`, for evaluating multiple distinct expressions
    to determine what following value to be the returned.
 
+ - The init argument to `functional.foldl` and `functional.foldr` is now
+   optional; when omitted these functions automatically start with
+   the left- or right-most element of the table argument resp.
+
  - New `functional.lambda` function for compiling lambda strings:
 
      table.sort (t, lambda "|a,b| a<b")
@@ -122,6 +126,11 @@ Stdlib NEWS - User visible changes
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
 
+ - `list.foldl` and `list.foldr` have been replaced by the richer
+   `functional.foldl` and `functional.foldr` respectively.  The old
+   names now give a deprecation warning.  Note that List object methods
+   `foldl` and `foldr` are not affected.
+
  - `list.index_key` and `list.index_value` have been deprecated. These
    functions are not general enough to belong in lua-stdlib, because
    (among others) they only work correctly with tables that can be
@@ -205,6 +214,9 @@ Stdlib NEWS - User visible changes
  - Removed LDocs for unused `_DEBUG.std` field.
 
  - `debug.trace` works with Lua 5.2.x again.
+
+ - `list:foldr` works again instead of raising a "bad argument #1 to
+   'List'" error.
 
  - `list.transpose` works again, and handles empty lists without
    raising an error.
