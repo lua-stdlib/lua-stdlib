@@ -2,7 +2,7 @@ before:
   this_module  = "std.list"
   global_table = "_G"
 
-  exported_apis = { "append", "compare", "concat", "cons", "depair",
+  exported_apis = { 1, "append", "compare", "concat", "cons", "depair",
                     "elems", "enpair", "filter", "flatten", "foldl",
                     "foldr", "index_key", "index_value", "map",
                     "map_with", "project", "relems", "rep", "reverse",
@@ -75,15 +75,19 @@ specify std.list:
 
 - describe append:
   - before:
-      f = M.append
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.append' (List expected, got no value)"
-      expect (f (l)).
-        to_error "bad argument #2 to 'std.list.append' (any value expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.append' (List expected, got boolean)"
+      fname = "append"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+      expect (f (l)).to_error (msg (2, "any value"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 42, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - context when called as a list object method:
     - it returns a list object:
         l = l:append ("quux")
@@ -109,17 +113,21 @@ specify std.list:
 - describe compare:
   - before:
       a, b = List {"foo", "bar"}, List {"foo", "baz"}
-      f = M.compare
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.compare' (List expected, got no value)"
-      expect (f (l)).
-        to_error "bad argument #2 to 'std.list.compare' (List or table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.compare' (List expected, got boolean)"
-      expect (f (a, false)).
-        to_error "bad argument #2 to 'std.list.compare' (List or table expected, got boolean)"
+
+      fname = "compare"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+      expect (f (l)).to_error (msg (2, "List or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+      expect (f (a, false)).to_error (msg (2, "List or table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (a, b, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
   - context when called as a list object method:
     - it returns -1 when the first list is less than the second: |
         expect (a:compare {"foo", "baz"}).to_be (-1)
@@ -181,19 +189,19 @@ specify std.list:
 - describe concat:
   - before:
       l = List {"foo", "bar"}
-      f = M.concat
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.concat' (List expected, got no value)"
-      expect (f (l)).
-        to_error "bad argument #2 to 'std.list.concat' (List or table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.concat' (List expected, got boolean)"
-      expect (f (l, false)).
-        to_error "bad argument #2 to 'std.list.concat' (List or table expected, got boolean)"
+
+      fname = "concat"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+      expect (f (l)).to_error (msg (2, "List or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+      expect (f (l, false)).to_error (msg (2, "List or table", "boolean"))
       expect (f (l, l, false)).
-        to_error "bad argument #3 to 'std.list.concat' (List or table expected, got boolean)"
+        to_error (msg (3, "List or table", "boolean"))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -207,7 +215,7 @@ specify std.list:
           to_equal (List {"foo", "bar", "baz", "quux"})
         expect (l:concat (List {"baz"}, List {"quux"})).
           to_equal (List {"foo", "bar", "baz", "quux"})
-  - context whne called as a list metamethod:
+  - context when called as a list metamethod:
     - it returns a list object:
         l = l .. List {"baz"}
         expect (prototype (l)).to_be "List"
@@ -391,8 +399,11 @@ specify std.list:
 
     - it diagnoses missing arguments:
         expect (f ()).to_error (msg (1, "table"))
-    - it diagnoses wrong argument types: |
+    - it diagnoses wrong argument types:
         expect (f (false)).to_error (msg (1, "table", "boolean"))
+    - it diagnoses too many arguments:
+        expect (f ({}, false)).
+          to_error (toomanyarg (this_module, fname, 1, 2))
 
     - it returns a list object:
         expect (prototype (f (t))).to_be "List"
@@ -407,18 +418,20 @@ specify std.list:
   - before:
       l = List {"foo", "bar", "baz", "quux"}
       p = function (e) return (e:match "a" ~= nil) end
-      f = M.filter
+
+      fname = "filter"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
 
   - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.filter' (function expected, got no value)"
-      expect (f (f)).
-        to_error "bad argument #2 to 'std.list.filter' (List expected, got no value)"
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (p)).to_error (msg (2, "List"))
   - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.filter' (function expected, got boolean)"
-      expect (f (f, false)).
-        to_error "bad argument #2 to 'std.list.filter' (List expected, got boolean)"
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (p, false)).to_error (msg (2, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (p, l, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -434,14 +447,18 @@ specify std.list:
 - describe flatten:
   - before:
       l = List {List {List {"one"}}, "two", List {List {"three"}, "four"}}
-      f = M.flatten
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.flatten' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.flatten' (List expected, got boolean)"
+      fname = "flatten"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -737,18 +754,20 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5}
       sq = function (n) return n * n end
-      f = M.map
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.map' (function expected, got no value)"
-      expect (f (f)).
-        to_error "bad argument #2 to 'std.list.map' (List or table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.map' (function expected, got boolean)"
-      expect (f (f, false)).
-        to_error "bad argument #2 to 'std.list.map' (List or table expected, got boolean)"
+      fname = "map"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (sq)).to_error (msg (2, "List or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (sq, false)).to_error (msg (2, "List or table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (sq, l, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -789,6 +808,9 @@ specify std.list:
           to_error (msg (2, "List of Lists", "table at index 1"))
         expect (f (fn, List {List {}, false})).
           to_error (msg (2, "List of Lists", "boolean at index 2"))
+    - it diagnoses too many arguments:
+        expect (f (fn, l, false)).
+          to_error (toomanyarg (this_module, fname, 2, 3))
 
     - it returns a list object:
         m = f (fn, l)
@@ -841,18 +863,23 @@ specify std.list:
         {first = 1, second = 2, third = 3},
         {first = "1st", second = "2nd", third = "3rd"},
       }
-      f = M.project
 
-  - it diagnoses missing arguments: |
-      expect (f (f)).
-        to_error "bad argument #2 to 'std.list.project' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (f, false)).
-        to_error "bad argument #2 to 'std.list.project' (List expected, got boolean)"
+      fname = "project"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "any value"))
+      expect (f (f)).to_error (msg (2, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (f, false)).to_error (msg (2, "List", "boolean"))
       expect (f (f, List {false})).
-        to_error "bad argument #2 to 'std.list.project' (List of tables expected, got boolean at index 1)"
+        to_error (msg (2, "List of tables", "boolean at index 1"))
       expect (f (f, List {{}, false})).
-        to_error "bad argument #2 to 'std.list.project' (List of tables expected, got boolean at index 2)"
+        to_error (msg (2, "List of tables", "boolean at index 2"))
+  - it diagnoses too many arguments:
+      expect (f (f, l, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -925,18 +952,20 @@ specify std.list:
 - describe rep:
   - before:
       l = List {"foo", "bar"}
-      f = M.rep
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.rep' (List expected, got no value)"
-      expect (f (l)).
-        to_error "bad argument #2 to 'std.list.rep' (int expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.rep' (List expected, got boolean)"
-      expect (f (l, false)).
-        to_error "bad argument #2 to 'std.list.rep' (int expected, got boolean)"
+      fname = "rep"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+      expect (f (l)).to_error (msg (2, "int"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+      expect (f (l, false)).to_error (msg (2, "int", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 2, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
 
   - context when called as a list object method:
     - it returns a list object:
@@ -1012,18 +1041,20 @@ specify std.list:
 - describe shape:
   - before:
       l = List {1, 2, 3, 4, 5, 6}
-      f = M.shape
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.shape' (table expected, got no value)"
-      expect (f ({})).
-        to_error "bad argument #2 to 'std.list.shape' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.shape' (table expected, got boolean)"
-      expect (f ({}, false)).
-        to_error "bad argument #2 to 'std.list.shape' (List expected, got boolean)"
+      fname = "shape"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+      expect (f ({})).to_error (msg (2, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f ({}, false)).to_error (msg (2, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, l, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
 
   - context when called as a list object method:
     - it returns a list object: |
@@ -1051,18 +1082,20 @@ specify std.list:
 - describe sub:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
-      f = M.sub
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.sub' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.sub' (List expected, got boolean)"
-      expect (f (l, false)).
-        to_error "bad argument #2 to 'std.list.sub' (int or nil expected, got boolean)"
-      expect (f (l, 1, false)).
-        to_error "bad argument #3 to 'std.list.sub' (int or nil expected, got boolean)"
+      fname = "sub"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+      expect (f (l, false)).to_error (msg (2, "int or nil", "boolean"))
+      expect (f (l, 1, false)).to_error (msg (3, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 1, 2, false)).
+        to_error (toomanyarg (this_module, fname, 3, 4))
 
   - context when called as a list object method:
     - it returns a list object: |
@@ -1086,14 +1119,18 @@ specify std.list:
 - describe tail:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
-      f = M.tail
 
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.list.tail' (List expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.list.tail' (List expected, got boolean)"
+      fname = "tail"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
 
   - context when called as a list object method:
     - it returns a list object: |
@@ -1120,8 +1157,11 @@ specify std.list:
 
     - it diagnoses missing arguments:
         expect (f ()).to_error (msg (1, "table or List"))
-    - it diagnoses wrong argument types: |
+    - it diagnoses wrong argument types:
         expect (f (false)).to_error (msg (1, "table or List", "boolean"))
+    - it diagnoses too many arguments:
+        expect (f (l, false)).
+          to_error (toomanyarg (this_module, fname, 1, 2))
 
     - it transposes rows and columns:
         expect (f (l)).to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
@@ -1178,6 +1218,9 @@ specify std.list:
         expect (f (List {List {}, false}, f)).
           to_error (msg (1, "List of Lists", "boolean at index 2"))
         expect (f (l, false)).to_error (msg (2, "function", "boolean"))
+    - it diagnoses too many arguments:
+        expect (f (l, fn, false)).
+          to_error (toomanyarg (this_module, fname, 2, 3))
 
     - it returns a list object:
         expect (prototype (f (l, fn))).to_be "List"

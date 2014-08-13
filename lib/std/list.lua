@@ -33,16 +33,15 @@ local base    = require "std.base"
 local func    = require "std.functional"
 local object  = require "std.object"
 
+local Object = object {}
+local List     -- forward declaration
 
 local ipairs, pairs = base.ipairs, base.pairs
-local argcheck, argerror, argscheck, ielems, prototype, ireverse =
-  base.argcheck, base.argerror, base.argscheck, base.ielems, base.prototype, base.ireverse
+local argerror, argscheck, export, ielems, prototype, ireverse =
+  base.argerror, base.argscheck, base.export, base.ielems, base.prototype, base.ireverse
 local foldl, foldr = base.functional.foldl, base.functional.foldr
 
-
-local Object = object {}
-
-local List -- forward declaration
+local M = { "std.list" }
 
 
 ------
@@ -53,13 +52,11 @@ local List -- forward declaration
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
-local function append (l, x)
-  argscheck ("std.list.append", {"List", "any"}, {l, x})
-
+local append = export (M, "append (List, any)", function (l, x)
   local r = l {}
   r[#r + 1] = x
   return r
-end
+end)
 
 
 --- Compare two lists element-by-element, from left-to-right.
@@ -71,9 +68,7 @@ end
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local function compare (l, m)
-  argscheck ("std.list.compare", {"List", "List|table"}, {l, m})
-
+local compare = export (M, "compare (List, List|table)", function (l, m)
   for i = 1, math.min (#l, #m) do
     local li, mi = tonumber (l[i]), tonumber (m[i])
     if li == nil or mi == nil then
@@ -91,7 +86,7 @@ local function compare (l, m)
     return 1
   end
   return 0
-end
+end)
 
 
 --- Concatenate arguments into a list.
@@ -99,15 +94,7 @@ end
 -- @param ... tuple of lists
 -- @treturn List new list containing
 --   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-local function concat (l, ...)
-  if _ARGCHECK then
-    argcheck ("std.list.concat", 1, "List", l)
-    argcheck ("std.list.concat", 2, "List|table", select (1, ...))
-    for i, v in ipairs {...} do
-      argcheck ("std.list.concat", i + 1, "List|table", v)
-    end
-  end
-
+local concat = export (M, "concat (List, List|table*)", function (l, ...)
   local r = List {}
   for e in ielems {l, ...} do
     for v in ielems (e) do
@@ -115,7 +102,7 @@ local function concat (l, ...)
     end
   end
   return r
-end
+end)
 
 
 --- Prepend an item to a list.
@@ -123,12 +110,12 @@ end
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{x, unpack (l)}`
-local function cons (x, l)
+M.cons = function (x, l)
   if prototype (x) == "List" and prototype (l) ~= "List" then
-    if not base.getcompat (cons) then
+    if not base.getcompat (M.cons) then
       io.stderr:write (base.DEPRECATIONMSG ("41",
-                         "'std.list.cons' with list argument first", 2))
-      base.setcompat (cons)
+                       "'std.list.cons' with list argument first", 2))
+      base.setcompat (M.cons)
     end
     x, l = l, x
   end
@@ -143,19 +130,17 @@ end
 -- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
 -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
 -- @see enpair
-local function depair (ls)
+local depair = export (M, "depair (List|table)", function (ls)
   if _ARGCHECK then
     local fname = "std.list.depair"
-    argcheck (fname, 1, "List|table", ls)
-
     for i, v in ipairs (ls) do
       local actual = prototype (v)
       if actual ~= "List" and actual ~= "table" then
         argerror (fname, 1, "List or table of pairs expected, got " ..
-                    actual .. " at index " .. i, 2)
+                  actual .. " at index " .. i, 2)
       elseif #v ~= 2 then
         argerror (fname, 1, "List or table of pairs expected, got " ..
-                    #v .. "-tuple at index " .. i, 2)
+                  #v .. "-tuple at index " .. i, 2)
       end
     end
   end
@@ -165,7 +150,7 @@ local function depair (ls)
     t[v[1]] = v[2]
   end
   return t
-end
+end)
 
 
 --- Turn a table into a list of pairs.
@@ -173,15 +158,13 @@ end
 -- @tparam  table t  a table `{i1=v1, ..., in=vn}`
 -- @treturn List a new list containing `{{i1, v1}, ..., {in, vn}}`
 -- @see depair
-local function enpair (t)
-  argcheck ("std.list.enpair", 1, "table", t)
-
+export (M, "enpair (table)", function (t)
   local ls = List {}
   for i, v in pairs (t) do
     ls[#ls + 1] = List {i, v}
   end
   return ls
-end
+end)
 
 
 --- Filter a list according to a predicate.
@@ -190,20 +173,17 @@ end
 -- @treturn List new list containing elements `e` of `l` for which
 --   `p (e)` is true
 -- @see std.list:filter
-local function filter (p, l)
-  argscheck ("std.list.filter", {"function", "List"}, {p, l})
+local filter = export (M, "filter (function, List)", function (p, l)
   return List (func.filter (p, ielems, l))
-end
+end)
 
 
 --- Flatten a list.
 -- @tparam List l a list
 -- @treturn List flattened list
-local function flatten (l)
-  argcheck ("std.list.flatten", 1, "List", l)
-
+local flatten = export (M, "flatten (List)", function (l)
   return List (func.collect (base.leaves, ipairs, l))
-end
+end)
 
 
 --- Map a function over a list.
@@ -211,32 +191,28 @@ end
 -- @tparam List l a list
 -- @treturn List new list containing `{fn (l[1]), ..., fn (l[#l])}`
 -- @see std.list:map
-local function map (fn, l)
-  argscheck ("std.list.map", {"function", "List|table"}, {fn, l})
+local map = export (M, "map (function, List|table)", function (fn, l)
   return List (func.map (fn, ielems, l))
-end
+end)
 
 
 --- Map a function over a list of lists.
 -- @func fn map function
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
-local function map_with (fn, ls)
+local map_with = export (M, "map_with (function, List)", function (fn, ls)
   if _ARGCHECK then
-    local fname = "std.list.map_with"
-    argscheck (fname, {"function", "List"}, {fn, ls})
-
     for i, v in ipairs (ls) do
       local actual = prototype (v)
       if actual ~= "List" then
-        argerror (fname, 2, "List of Lists expected, got " ..
+        argerror ("std.list.map_with", 2, "List of Lists expected, got " ..
                   actual .. " at index " .. i, 2)
       end
     end
   end
 
   return List (func.map (func.compose (unpack, fn), ielems, ls))
-end
+end)
 
 
 --- Project a list of fields from a list of tables.
@@ -244,38 +220,32 @@ end
 -- @tparam List l a list of tables
 -- @treturn List list of `f` fields
 -- @see std.list:project
-local function project (f, l)
+local project = export (M, "project (any, List)", function (f, l)
   if _ARGCHECK then
-    local fname = "std.list.project"
-    argcheck (fname, 2, "List", l)
-
     for i, v in ipairs (l) do
       local actual = prototype (v)
       if actual ~= "table" then
-        argerror (fname, 2, "List of tables expected, got " ..
+        argerror ("std.list.project", 2, "List of tables expected, got " ..
                   actual .. " at index " .. i, 2)
       end
     end
   end
 
-
   return map (function (t) return t[f] end, l)
-end
+end)
 
 
 --- Repeat a list.
 -- @tparam List l a list
 -- @int n number of times to repeat
 -- @treturn List `n` copies of `l` appended together
-local function rep (l, n)
-  argscheck ("std.list.rep", {"List", "int"}, {l, n})
-
+local rep = export (M, "rep (List, int)", function (l, n)
   local r = List {}
   for i = 1, n do
     r = concat (r, l)
   end
   return r
-end
+end)
 
 
 --- Shape a list according to a list of dimensions.
@@ -298,9 +268,7 @@ end
 -- @tparam List l a list
 -- @return reshaped list
 -- @see std.list:shape
-local function shape (s, l)
-  argscheck ("std.list.shape", {"table", "List"}, {s, l})
-
+local shape = export (M, "shape (table, List)", function (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
@@ -333,7 +301,7 @@ local function shape (s, l)
     end
   end
   return (fill (1, 1))
-end
+end)
 
 
 --- Return a sub-range of a list.
@@ -343,9 +311,7 @@ end
 -- @int from start of range (default: 1)
 -- @int to end of range (default: `#l`)
 -- @treturn List new list containing `{l[from], ..., l[to]}`
-local function sub (l, from, to)
-  argscheck ("std.list.sub", {"List", "int?", "int?"}, {l, from, to})
-
+local sub = export (M, "sub (List, int?, int?)", function (l, from, to)
   local r = List {}
   local len = #l
   from = from or 1
@@ -360,17 +326,15 @@ local function sub (l, from, to)
     r[#r + 1] = l[i]
   end
   return r
-end
+end)
 
 
 --- Return a list with its first element removed.
 -- @tparam List l a list
 -- @treturn List new list containing `{l[2], ..., l[#l]}`
-local function tail (l)
-  argcheck ("std.list.tail", 1, "List", l)
-
+local tail = export (M, "tail (List)", function (l)
   return sub (l, 2)
-end
+end)
 
 
 --- Transpose a list of lists.
@@ -380,15 +344,12 @@ end
 -- `{{ls<1,1>, ..., ls<1,c>}, ..., {ls&lt;r,1>, ..., ls&lt;r,c>}}`
 -- @treturn List new list containing
 -- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
-local function transpose (ls)
+local transpose = export (M, "transpose (table|List)", function (ls)
   if _ARGCHECK then
-    local fname = "std.list.transpose"
-    argcheck (fname, 1, "table|List", ls)
-
     for i, v in ipairs (ls) do
       local actual = prototype (v)
       if actual ~= "List" then
-        argerror (fname, 1, "List or table of Lists expected, got " ..
+        argerror ("std.list.transpose", 1, "List or table of Lists expected, got " ..
                   actual .. " at index " .. i, 2)
       end
     end
@@ -404,7 +365,7 @@ local function transpose (ls)
     end
   end
   return rs
-end
+end)
 
 
 --- Zip a list of lists together with a function.
@@ -413,44 +374,19 @@ end
 -- @treturn List    a new list containing
 --   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
 -- where `N = max {map (function (l) return #l end, ls)}`
-local function zip_with (ls, fn)
+local zip_with = export (M, "zip_with (List, function)", function (ls, fn)
   if _ARGCHECK then
-    local fname = "std.list.zip_with"
-    argscheck (fname, {"List", "function"}, {ls, fn})
-
     for i, v in ipairs (ls) do
       local actual = prototype (v)
       if actual ~= "List" then
-        argerror (fname, 1,
+        argerror ("std.list.zip_with", 1,
 	  "List of Lists expected, got " .. actual .. " at index " .. i, 2)
       end
     end
   end
 
   return map_with (fn, transpose (ls))
-end
-
-
---- @export
-local _functions = {
-  append      = append,
-  compare     = compare,
-  concat      = concat,
-  cons        = cons,
-  depair      = depair,
-  enpair      = enpair,
-  filter      = filter,
-  flatten     = flatten,
-  map         = map,
-  map_with    = map_with,
-  project     = project,
-  rep         = rep,
-  shape       = shape,
-  sub         = sub,
-  tail        = tail,
-  transpose   = transpose,
-  zip_with    = zip_with,
-}
+end)
 
 
 
@@ -462,21 +398,21 @@ local _functions = {
 local DEPRECATED = base.DEPRECATED
 
 
-_functions.elems = DEPRECATED ("41", "'std.list.elems'",
+M.elems = DEPRECATED ("41", "'std.list.elems'",
   "use 'std.ielems' instead", base.ielems)
 
 
 local function relems (l) return base.ielems (base.ireverse (l)) end
 
-_functions.relems = DEPRECATED ("41", "'std.list.relems'",
+M.relems = DEPRECATED ("41", "'std.list.relems'",
   "compose 'std.ielems' and 'std.ireverse' instead", relems)
 
 
-_functions.foldl = DEPRECATED ("41", "'std.list.foldl'",
+M.foldl = DEPRECATED ("41", "'std.list.foldl'",
   "use 'std.functional.foldl' instead", foldl)
 
 
-_functions.foldr = DEPRECATED ("41", "'std.list.foldr'",
+M.foldr = DEPRECATED ("41", "'std.list.foldr'",
   "use 'std.functional.foldr' instead", foldr)
 
 
@@ -491,7 +427,7 @@ local function index_key (f, l)
   return r
 end
 
-_functions.index_key = DEPRECATED ("41", "'std.list.index_key'",
+M.index_key = DEPRECATED ("41", "'std.list.index_key'",
   "compose 'std.list.filter' and 'std.table.invert' instead", index_key)
 
 
@@ -506,13 +442,13 @@ local function index_value (f, l)
   return r
 end
 
-_functions.index_value = DEPRECATED ("41", "'std.list.index_value'",
+M.index_value = DEPRECATED ("41", "'std.list.index_value'",
   "compose 'std.list.filter' and 'std.table.invert' instead", index_value)
 
 
 local function reverse (l) return List (ireverse (l)) end
 
-_functions.reverse = DEPRECATED ("41", "'std.list.reverse'",
+M.reverse = DEPRECATED ("41", "'std.list.reverse'",
   "use 'std.ireverse' instead", reverse)
 
 
@@ -587,7 +523,7 @@ List = Object {
     -- @function cons
     -- @param x item
     -- @treturn List new list containing `{x, unpack (self)}`
-    cons = function (self, x) return cons (x, self) end,
+    cons = function (self, x) return M.cons (x, self) end,
 
     ------
     -- Filter a list according to a predicate.
@@ -681,7 +617,7 @@ List = Object {
   },
 
 
-  _functions = _functions,
+  _functions = M,
 }
 
 
