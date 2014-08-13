@@ -49,6 +49,8 @@ local M = { "std.list" }
 -- @table List
 
 --- Append an item to a list.
+-- @static
+-- @function append
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
@@ -90,6 +92,8 @@ end)
 
 
 --- Concatenate arguments into a list.
+-- @static
+-- @function concat
 -- @tparam List l a list
 -- @param ... tuple of lists
 -- @treturn List new list containing
@@ -106,6 +110,7 @@ end)
 
 
 --- Prepend an item to a list.
+-- @static
 -- @function cons
 -- @tparam List l a list
 -- @param x item
@@ -127,6 +132,8 @@ end
 
 --- Turn a list of pairs into a table.
 -- @todo Find a better name.
+-- @static
+-- @function depair
 -- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
 -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
 -- @see enpair
@@ -155,6 +162,8 @@ end)
 
 --- Turn a table into a list of pairs.
 -- @todo Find a better name.
+-- @static
+-- @function enpair
 -- @tparam  table t  a table `{i1=v1, ..., in=vn}`
 -- @treturn List a new list containing `{{i1, v1}, ..., {in, vn}}`
 -- @see depair
@@ -168,6 +177,8 @@ end)
 
 
 --- Filter a list according to a predicate.
+-- @static
+-- @function filter
 -- @func p predicate function, of one argument returning a boolean
 -- @tparam List l a list
 -- @treturn List new list containing elements `e` of `l` for which
@@ -179,6 +190,8 @@ end)
 
 
 --- Flatten a list.
+-- @static
+-- @function flatten
 -- @tparam List l a list
 -- @treturn List flattened list
 local flatten = export (M, "flatten (List)", function (l)
@@ -187,6 +200,8 @@ end)
 
 
 --- Map a function over a list.
+-- @static
+-- @function map
 -- @func fn map function
 -- @tparam List l a list
 -- @treturn List new list containing `{fn (l[1]), ..., fn (l[#l])}`
@@ -197,6 +212,8 @@ end)
 
 
 --- Map a function over a list of lists.
+-- @static
+-- @function map_with
 -- @func fn map function
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
@@ -216,6 +233,8 @@ end)
 
 
 --- Project a list of fields from a list of tables.
+-- @static
+-- @function project
 -- @param f field to project
 -- @tparam List l a list of tables
 -- @treturn List list of `f` fields
@@ -236,6 +255,8 @@ end)
 
 
 --- Repeat a list.
+-- @static
+-- @function rep
 -- @tparam List l a list
 -- @int n number of times to repeat
 -- @treturn List `n` copies of `l` appended together
@@ -264,6 +285,8 @@ end)
 --
 -- @todo Use ileaves instead of flatten (needs a while instead of a
 -- for in fill function)
+-- @static
+-- @function shape
 -- @tparam table s `{d1, ..., dn}`
 -- @tparam List l a list
 -- @return reshaped list
@@ -307,6 +330,8 @@ end)
 --- Return a sub-range of a list.
 -- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
+-- @static
+-- @function sub
 -- @tparam List l a list
 -- @int from start of range (default: 1)
 -- @int to end of range (default: `#l`)
@@ -330,6 +355,8 @@ end)
 
 
 --- Return a list with its first element removed.
+-- @static
+-- @function tail
 -- @tparam List l a list
 -- @treturn List new list containing `{l[2], ..., l[#l]}`
 local tail = export (M, "tail (List)", function (l)
@@ -340,6 +367,8 @@ end)
 --- Transpose a list of lists.
 -- This function in Lua is equivalent to zip and unzip in more strongly
 -- typed languages.
+-- @static
+-- @function transpose
 -- @tparam table ls
 -- `{{ls<1,1>, ..., ls<1,c>}, ..., {ls&lt;r,1>, ..., ls&lt;r,c>}}`
 -- @treturn List new list containing
@@ -369,6 +398,8 @@ end)
 
 
 --- Zip a list of lists together with a function.
+-- @static
+-- @function zip_with
 -- @tparam  table    ls list of lists
 -- @tparam  function fn function
 -- @treturn List    a new list containing
