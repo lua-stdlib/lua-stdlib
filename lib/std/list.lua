@@ -195,17 +195,6 @@ local map = export (M, "map (function, List|table)", function (fn, l)
 end)
 
 
---- Map a function over a list of lists.
--- @static
--- @function map_with
--- @func fn map function
--- @tparam List ls a list of lists
--- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
-local map_with = export (M, "map_with (function, List of Lists)", function (fn, ls)
-  return List (func.map (func.compose (unpack, fn), ielems, ls))
-end)
-
-
 --- Project a list of fields from a list of tables.
 -- @static
 -- @function project
@@ -359,6 +348,11 @@ end)
 -- @treturn List    a new list containing
 --   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
 -- where `N = max {map (function (l) return #l end, ls)}`
+
+local function map_with (fn, ls)
+  return List (func.map (func.compose (unpack, fn), ielems, ls))
+end
+
 local zip_with = export (M, "zip_with (List of Lists, function)", function (ls, fn)
   return map_with (fn, transpose (ls))
 end)
@@ -419,6 +413,10 @@ end
 
 M.index_value = DEPRECATED ("41", "'std.list.index_value'",
   "compose 'std.list.filter' and 'std.table.invert' instead", index_value)
+
+
+M.map_with = DEPRECATED ("41", "'std.list.map_with'",
+   "use 'std.functional.map_with' instead", map_with)
 
 
 local function reverse (l) return List (ireverse (l)) end
@@ -566,7 +564,7 @@ List = Object {
     ------
     depair    = DEPRECATED ("38", "'std.list:depair'",    depair),
     map_with  = DEPRECATED ("38", "'std.list:map_with'",
-                  function (self, f) return map_with (f, self) end),
+                  function (self, fn) return map_with (fn, self) end),
     transpose = DEPRECATED ("38", "'std.list:transpose'", transpose),
     zip_with  = DEPRECATED ("38", "'std.list:zip_with'",  zip_with),
 
@@ -584,9 +582,9 @@ List = Object {
 	              return foldr (fn, self)
 	            end),
     index_key   = DEPRECATED ("41", "'std.list:index_key'",
-                    function (self, f) return index_key (f, self)   end),
+                    function (self, fn) return index_key (fn, self)   end),
     index_value = DEPRECATED ("41", "'std.list:index_value'",
-                    function (self, f) return index_value (f, self) end),
+                    function (self, fn) return index_value (fn, self) end),
     relems      = DEPRECATED ("41", "'std.list:relems'",  relems),
     reverse     = DEPRECATED ("41", "'std.list:reverse'", reverse),
   },

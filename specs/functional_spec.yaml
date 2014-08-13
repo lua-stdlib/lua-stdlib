@@ -6,7 +6,8 @@ before:
 
   exported_apis = { 1, "bind", "case", "collect", "compose", "cond", "curry",
                     "eval", "filter", "fold", "foldl", "foldr", "id",
-                    "lambda", "map", "memoize", "nop", "op", "reduce" }
+                    "lambda", "map", "map_with", "memoize", "nop", "op",
+                    "reduce" }
 
   M = require (this_module)
 
@@ -438,6 +439,46 @@ specify std.functional:
   - it supports key:value results from mapping function:
       expect (f (function (k, v) return v, k end, pairs, elements)).
         to_equal (inverse)
+
+
+- describe map_with:
+  - before:
+      t = {{1, 2, 3}, {4, 5}}
+      fn = function (...) return select ("#", ...) end
+
+      fname = "map_with"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (fn)).to_error (msg (2, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (fn, false)).to_error (msg (2, "table", "boolean"))
+      expect (f (fn, {1})).
+        to_error (msg (2, "table of tables", "number at index 1"))
+      expect (f (fn, {{}, false})).
+        to_error (msg (2, "table of tables", "boolean at index 2"))
+  - it diagnoses too many arguments:
+      expect (f (fn, t, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
+  - it returns a list object:
+      u = f (fn, t)
+      expect (type (u)).to_be "table"
+  - it creates a new table:
+      old = t
+      u = f (fn, t)
+      expect (t).to_equal (old)
+      expect (u).not_to_equal (old)
+      expect (t).to_equal {{1, 2, 3}, {4, 5}}
+  - it maps a function over a table of lists:
+      expect (f (fn, t)).to_equal {3, 2}
+  - it maps a function over a table of tables:
+      expect (f (fn, {a={1,2,3}, b={4,5}})).to_equal {a=3, b=2}
+  - it works for an empty table:
+      expect (f (fn, {})).to_equal ({})
 
 
 - describe memoize:

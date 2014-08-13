@@ -796,19 +796,17 @@ specify std.list:
         msg = bind (badarg, {this_module, fname})
         f = M[fname]
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_error (msg (1, "function"))
-        expect (f (fn)).to_error (msg (2, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_error (msg (1, "function", "boolean"))
-        expect (f (fn, false)).to_error (msg (2, "List", "boolean"))
-        expect (f (fn, List {{1}})).
-          to_error (msg (2, "List of Lists", "table at index 1"))
-        expect (f (fn, List {List {}, false})).
-          to_error (msg (2, "List of Lists", "boolean at index 2"))
-    - it diagnoses too many arguments:
-        expect (f (fn, l, false)).
-          to_error (toomanyarg (this_module, fname, 2, 3))
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {fn, l})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.map_with' was deprecated"
+        end
+        _, err = capture (f, {fn, l})
+        expect (err).to_be (nil)
 
     - it returns a list object:
         m = f (fn, l)

@@ -57,6 +57,11 @@ Stdlib NEWS - User visible changes
  - `functional.map` now supports a mapping function that returns a key,
    value pair for the results table.
 
+ - New `functional.map_with` that returns a new table with keys matching
+   the argument table, and values made by mapping the supplied function
+   over value tables.  This replaces the misplaced, and less powerful
+   `list.map_with`.
+
  - `functional.memoize` now propagates multiple return values correctly.
    This allows memoizing of functions that use the `return nil, "message"`
    pattern for error message reporting.
@@ -138,6 +143,9 @@ Stdlib NEWS - User visible changes
    for another release or two, issuing a deprecation warning on first
    use.  After that, in some future release, they will be removed
    entirely.
+
+ - `list.map_with` has been deprecated, in favour of the more powerful
+   new `functional.map_with` which handles tables as well as lists.
 
  - `list.relems` has been deprecated, in favour of the more idiomatic
    `functional.compose (std.ireverse, std.ielems)`.

@@ -135,7 +135,7 @@ end)
 -- b
 -- c
 -- a
-export (M, "compose (func*)", function (...)
+local compose = export (M, "compose (func*)", function (...)
   local arg = {...}
   local fns, n = arg, #arg
   for i = 1, n do
@@ -345,10 +345,11 @@ end, M.id))
 -- @param ... iterator arguments
 -- @treturn table results
 -- @see filter
+-- @see map_with
 -- @usage
 -- > map (function (e) return e % 2 end, std.elems, {1, 2, 3, 4})
 -- {1, 0, 1, 0}
-export (M, "map (func, func, any*)", function (f, i, ...)
+local map = export (M, "map (func, func, any*)", function (f, i, ...)
   local fn, state, k = i (...)
   local t = {fn (state, k)}
 
@@ -361,6 +362,24 @@ export (M, "map (func, func, any*)", function (f, i, ...)
       r[d] = v
     end
     t = {fn (state, k)}
+  end
+  return r
+end)
+
+
+--- Map a function over a table of tables.
+-- @function map_with
+-- @func fn map function
+-- @tparam table ts a table of *fn* argument tables
+-- @treturn table new table of *fn* results
+-- @see map
+-- @usage
+-- --> {3, 2}
+-- map_with (lambda '|...|select ("#", ...)', {{1, 2, 3}, {4, 5}})
+export (M, "map_with (function, table of tables)", function (fn, ts)
+  local r = {}
+  for k, v in pairs (ts) do
+    r[k] = fn (unpack (v))
   end
   return r
 end)
