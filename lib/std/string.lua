@@ -25,8 +25,6 @@ local _tostring = base.tostring
 
 local M = { "std.string" }
 
-local render -- forward declaration
-
 
 
 --[[ ================= ]]--
