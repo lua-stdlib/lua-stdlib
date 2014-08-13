@@ -294,17 +294,15 @@ specify std.list:
         f = M[fname]
 
     - it diagnoses missing arguments:
-        expect (f ()).to_error (msg (1, "List or table"))
+        expect (f ()).to_error (msg (1, "List"))
     - it diagnoses wrong argument types:
-        expect (f (false)).to_error (msg (1, "List or table", "boolean"))
+        expect (f (false)).to_error (msg (1, "List", "boolean"))
         expect (f (List {0})).
-          to_error (msg (1, "List or table of pairs", "number at index 1"))
+          to_error (msg (1, "List of Lists", "number at index 1"))
         expect (f (List {{}})).
-          to_error (msg (1, "List or table of pairs", "0-tuple at index 1"))
-        expect (f (List {{"a"}})).
-          to_error (msg (1, "List or table of pairs", "1-tuple at index 1"))
-        expect (f (List {{"a", "b"}, ""})).
-          to_error (msg (1, "List or table of pairs", "string at index 2"))
+          to_error (msg (1, "List of Lists", "empty table at index 1"))
+        expect (f (List { List {"a", "b"}, ""})).
+          to_error (msg (1, "List of Lists", "string at index 2"))
 
     - it returns a primitive table:
         expect (prototype (f (l))).to_be "table"
@@ -804,7 +802,7 @@ specify std.list:
     - it diagnoses wrong argument types:
         expect (f (false)).to_error (msg (1, "function", "boolean"))
         expect (f (fn, false)).to_error (msg (2, "List", "boolean"))
-        expect (f (fn, List {{}})).
+        expect (f (fn, List {{1}})).
           to_error (msg (2, "List of Lists", "table at index 1"))
         expect (f (fn, List {List {}, false})).
           to_error (msg (2, "List of Lists", "boolean at index 2"))
@@ -1156,9 +1154,9 @@ specify std.list:
         f = M[fname]
 
     - it diagnoses missing arguments:
-        expect (f ()).to_error (msg (1, "table or List"))
+        expect (f ()).to_error (msg (1, "List"))
     - it diagnoses wrong argument types:
-        expect (f (false)).to_error (msg (1, "table or List", "boolean"))
+        expect (f (false)).to_error (msg (1, "List", "boolean"))
     - it diagnoses too many arguments:
         expect (f (l, false)).
           to_error (toomanyarg (this_module, fname, 1, 2))
@@ -1214,7 +1212,7 @@ specify std.list:
     - it diagnoses wrong argument types:
         expect (f (false)).to_error (msg (1, "List", "boolean"))
         expect (f (List {{}}, f)).
-          to_error (msg (1, "List of Lists", "table at index 1"))
+          to_error (msg (1, "List of Lists", "empty table at index 1"))
         expect (f (List {List {}, false}, f)).
           to_error (msg (1, "List of Lists", "boolean at index 2"))
         expect (f (l, false)).to_error (msg (2, "function", "boolean"))

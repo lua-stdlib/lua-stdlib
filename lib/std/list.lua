@@ -27,14 +27,12 @@
 ]]
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
-
 local base    = require "std.base"
 local func    = require "std.functional"
 local object  = require "std.object"
 
-local Object = object {}
-local List     -- forward declaration
+local Object  = object {}
+local List      -- forward declaration
 
 local ipairs, pairs = base.ipairs, base.pairs
 local argerror, argscheck, export, ielems, prototype, ireverse =
@@ -137,21 +135,7 @@ end
 -- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
 -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
 -- @see enpair
-local depair = export (M, "depair (List|table)", function (ls)
-  if _ARGCHECK then
-    local fname = "std.list.depair"
-    for i, v in ipairs (ls) do
-      local actual = prototype (v)
-      if actual ~= "List" and actual ~= "table" then
-        argerror (fname, 1, "List or table of pairs expected, got " ..
-                  actual .. " at index " .. i, 2)
-      elseif #v ~= 2 then
-        argerror (fname, 1, "List or table of pairs expected, got " ..
-                  #v .. "-tuple at index " .. i, 2)
-      end
-    end
-  end
-
+local depair = export (M, "depair (List of Lists)", function (ls)
   local t = {}
   for v in ielems (ls) do
     t[v[1]] = v[2]
@@ -217,17 +201,7 @@ end)
 -- @func fn map function
 -- @tparam List ls a list of lists
 -- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
-local map_with = export (M, "map_with (function, List)", function (fn, ls)
-  if _ARGCHECK then
-    for i, v in ipairs (ls) do
-      local actual = prototype (v)
-      if actual ~= "List" then
-        argerror ("std.list.map_with", 2, "List of Lists expected, got " ..
-                  actual .. " at index " .. i, 2)
-      end
-    end
-  end
-
+local map_with = export (M, "map_with (function, List of Lists)", function (fn, ls)
   return List (func.map (func.compose (unpack, fn), ielems, ls))
 end)
 
@@ -239,17 +213,7 @@ end)
 -- @tparam List l a list of tables
 -- @treturn List list of `f` fields
 -- @see std.list:project
-local project = export (M, "project (any, List)", function (f, l)
-  if _ARGCHECK then
-    for i, v in ipairs (l) do
-      local actual = prototype (v)
-      if actual ~= "table" then
-        argerror ("std.list.project", 2, "List of tables expected, got " ..
-                  actual .. " at index " .. i, 2)
-      end
-    end
-  end
-
+local project = export (M, "project (any, List of tables)", function (f, l)
   return map (function (t) return t[f] end, l)
 end)
 
@@ -373,17 +337,7 @@ end)
 -- `{{ls<1,1>, ..., ls<1,c>}, ..., {ls&lt;r,1>, ..., ls&lt;r,c>}}`
 -- @treturn List new list containing
 -- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
-local transpose = export (M, "transpose (table|List)", function (ls)
-  if _ARGCHECK then
-    for i, v in ipairs (ls) do
-      local actual = prototype (v)
-      if actual ~= "List" then
-        argerror ("std.list.transpose", 1, "List or table of Lists expected, got " ..
-                  actual .. " at index " .. i, 2)
-      end
-    end
-  end
-
+local transpose = export (M, "transpose (List of Lists)", function (ls)
   local rs, len, dims = List {}, base.len (ls), map (base.len, ls)
   if #dims > 0 then
     for i = 1, math.max (unpack (dims)) do
@@ -405,17 +359,7 @@ end)
 -- @treturn List    a new list containing
 --   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
 -- where `N = max {map (function (l) return #l end, ls)}`
-local zip_with = export (M, "zip_with (List, function)", function (ls, fn)
-  if _ARGCHECK then
-    for i, v in ipairs (ls) do
-      local actual = prototype (v)
-      if actual ~= "List" then
-        argerror ("std.list.zip_with", 1,
-	  "List of Lists expected, got " .. actual .. " at index " .. i, 2)
-      end
-    end
-  end
-
+local zip_with = export (M, "zip_with (List of Lists, function)", function (ls, fn)
   return map_with (fn, transpose (ls))
 end)
 
