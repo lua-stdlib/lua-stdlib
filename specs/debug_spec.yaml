@@ -142,110 +142,229 @@ specify std.debug:
   - it is not disabled by leaving _DEBUG.argcheck unset:
       expect (luaproc (mkstack (nil, "{}"))).
         to_contain_error "bad argument"
-  - it diagnoses missing primitive types:
-      expect (fn ("boolean", nil)).to_error "boolean expected, got no value"
-      expect (fn ("file", nil)).to_error "file expected, got no value"
-      expect (fn ("number", nil)).to_error "number expected, got no value"
-      expect (fn ("string", nil)).to_error "string expected, got no value"
-      expect (fn ("table", nil)).to_error "table expected, got no value"
-  - it diagnoses mismatched primitive types:
-      expect (fn ("boolean", {0})).to_error "boolean expected, got table"
-      expect (fn ("file", {0})).to_error "file expected, got table"
-      expect (fn ("number", {0})).to_error "number expected, got table"
-      expect (fn ("string", {0})).to_error "string expected, got table"
-      expect (fn ("table", false)).to_error "table expected, got boolean"
-      expect (fn ("table", require "std.object")).
-        to_error "table expected, got Object"
-  - it matches primitive Lua types:
-      expect (fn ("boolean", true)).not_to_error ()
-      expect (fn ("file", io.stderr)).not_to_error ()
-      expect (fn ("number", 1)).not_to_error ()
-      expect (fn ("string", "s")).not_to_error ()
-      expect (fn ("table", {})).not_to_error ()
-  - it diagnoses missing int types:
-      expect (fn ("int", nil)).to_error "int expected, got no value"
-  - it diagnoses mismatched int types:
-      expect (fn ("int", false)).to_error "int expected, got boolean"
-      expect (fn ("int", 1.234)).to_error "int expected, got number"
-      expect (fn ("int", 1234e-3)).to_error "int expected, got number"
-  - it matches int types:
-      expect (fn ("int", 1)).not_to_error ()
-      expect (fn ("int", 1.0)).not_to_error ()
-      expect (fn ("int", 0x1234)).not_to_error ()
-      expect (fn ("int", 1.234e3)).not_to_error ()
-  - it diagnoses missing constant string types:
-      expect (fn (":foo", nil)).to_error ":foo expected, got no value"
-  - it diagnoses mismatched constant string types:
-      expect (fn (":foo", false)).to_error ":foo expected, got boolean"
-      expect (fn (":foo", ":bar")).to_error ":foo expected, got :bar"
-      expect (fn (":foo", "foo")).to_error ":foo expected, got string"
-  - it matches constant string types:
-      expect (fn (":foo", ":foo")).not_to_error ()
-  - it diagnoses missing callable types:
-      expect (fn ("function", nil)).to_error "function expected, got no value"
-  - it diagnoses mismatched callable types:
-      expect (fn ("function", {0})).to_error "function expected, got table"
-  - it matches callable types:
-      expect (fn ("function", function () end)).not_to_error ()
-      expect (fn ("function", setmetatable ({}, {__call = function () end}))).
-        not_to_error ()
-  - it diagnoses missing non-empty table types:
-      expect (fn ("#table", nil)).
-        to_error "non-empty table expected, got no value"
-  - it diagnoses mismatched non-empty table types:
-      expect (fn ("#table", false)).
-        to_error "non-empty table expected, got boolean"
-      expect (fn ("#table", {})).
-        to_error "non-empty table expected, got empty table"
-  - it matches non-empty table types:
-      expect (fn ("#table", {0})).not_to_error ()
-  - it diagnonses missing list types:
-      expect (fn ("list", nil)).
-        to_error "list expected, got no value"
-  - it diagnoses mismatched list types:
-      expect (fn ("list", false)).
-        to_error "list expected, got boolean"
-      expect (fn ("list", {foo=1})).
-        to_error "list expected, got table"
-      expect (fn ("list", Object)).
-        to_error "list expected, got Object"
-  - it matches list types:
-      expect (fn ("list", {})).not_to_error ()
-      expect (fn ("list", {1})).not_to_error ()
-  - it diagnonses missing non-empty list types:
-      expect (fn ("#list", nil)).
-        to_error "non-empty list expected, got no value"
-  - it diagnoses mismatched non-empty list types:
-      expect (fn ("#list", false)).
-        to_error "non-empty list expected, got boolean"
-      expect (fn ("#list", {})).
-        to_error "non-empty list expected, got empty list"
-      expect (fn ("#list", {foo=1})).
-        to_error "non-empty list expected, got table"
-      expect (fn ("#list", Object)).
-        to_error "non-empty list expected, got empty Object"
-      expect (fn ("#list", List {})).
-        to_error "non-empty list expected, got empty List"
-  - it matches non-empty list types:
-      expect (fn ("#list", {1})).not_to_error ()
-  - it diagnoses missing object types:
-      expect (fn ("object", nil)).to_error "object expected, got no value"
-      expect (fn ("Object", nil)).to_error "Object expected, got no value"
-      expect (fn ("Foo", nil)).to_error "Foo expected, got no value"
-      expect (fn ("any", nil)).to_error "any value expected, got no value"
-  - it diagnoses mismatched object types:
-      expect (fn ("object", {0})).to_error "object expected, got table"
-      expect (fn ("Object", {0})).to_error "Object expected, got table"
-      expect (fn ("object", {_type="Object"})).to_error "object expected, got table"
-      expect (fn ("Object", {_type="Object"})).to_error "Object expected, got table"
-      expect (fn ("Object", Foo)).to_error "Object expected, got Foo"
-      expect (fn ("Foo", {0})).to_error "Foo expected, got table"
-      expect (fn ("Foo", Object)).to_error "Foo expected, got Object"
-  - it matches object types:
-      expect (fn ("object", Object)).not_to_error ()
-      expect (fn ("object", Object {})).not_to_error ()
-      expect (fn ("object", Foo)).not_to_error ()
-      expect (fn ("object", Foo {})).not_to_error ()
+
+  - context with primitives:
+    - it diagnoses missing types:
+        expect (fn ("boolean", nil)).to_error "boolean expected, got no value"
+        expect (fn ("file", nil)).to_error "file expected, got no value"
+        expect (fn ("number", nil)).to_error "number expected, got no value"
+        expect (fn ("string", nil)).to_error "string expected, got no value"
+        expect (fn ("table", nil)).to_error "table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("boolean", {0})).to_error "boolean expected, got table"
+        expect (fn ("file", {0})).to_error "file expected, got table"
+        expect (fn ("number", {0})).to_error "number expected, got table"
+        expect (fn ("string", {0})).to_error "string expected, got table"
+        expect (fn ("table", false)).to_error "table expected, got boolean"
+        expect (fn ("table", require "std.object")).
+          to_error "table expected, got Object"
+    - it matches types:
+        expect (fn ("boolean", true)).not_to_error ()
+        expect (fn ("file", io.stderr)).not_to_error ()
+        expect (fn ("number", 1)).not_to_error ()
+        expect (fn ("string", "s")).not_to_error ()
+        expect (fn ("table", {})).not_to_error ()
+  - context with int:
+    - it diagnoses missing types:
+        expect (fn ("int", nil)).to_error "int expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("int", false)).to_error "int expected, got boolean"
+        expect (fn ("int", 1.234)).to_error "int expected, got number"
+        expect (fn ("int", 1234e-3)).to_error "int expected, got number"
+    - it matches types:
+        expect (fn ("int", 1)).not_to_error ()
+        expect (fn ("int", 1.0)).not_to_error ()
+        expect (fn ("int", 0x1234)).not_to_error ()
+        expect (fn ("int", 1.234e3)).not_to_error ()
+  - context with constant string:
+    - it diagnoses missing types:
+        expect (fn (":foo", nil)).to_error ":foo expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn (":foo", false)).to_error ":foo expected, got boolean"
+        expect (fn (":foo", ":bar")).to_error ":foo expected, got :bar"
+        expect (fn (":foo", "foo")).to_error ":foo expected, got string"
+    - it matches types:
+        expect (fn (":foo", ":foo")).not_to_error ()
+  - context with callable types:
+    - it diagnoses missing types:
+        expect (fn ("function", nil)).to_error "function expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("function", {0})).to_error "function expected, got table"
+    - it matches types:
+        expect (fn ("function", function () end)).not_to_error ()
+        expect (fn ("function", setmetatable ({}, {__call = function () end}))).
+          not_to_error ()
+  - context with table of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("table of boolean", nil)).
+          to_error "table expected, got no value"
+        expect (fn ("table of booleans", nil)).
+          to_error "table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("table of file", io.stderr)).
+          to_error "table expected, got file"
+        expect (fn ("table of files", io.stderr)).
+          to_error "table expected, got file"
+    - it diagnoses mismatched element types:
+        expect (fn ("table of number", {false})).
+          to_error "table of numbers expected, got boolean at index 1"
+        expect (fn ("table of numbers", {1, 2, "3"})).
+          to_error "table of numbers expected, got string at index 3"
+        expect (fn ("table of numbers", {a=1, b=2, c="3"})).
+          to_error "table of numbers expected, got string at index c"
+    - it matches types:
+        expect (fn ("table of string", {})).not_to_error ()
+        expect (fn ("table of string", {"foo"})).not_to_error ()
+        expect (fn ("table of string", {"f", "o", "o"})).not_to_error ()
+        expect (fn ("table of string", {b="b", a="a", r="r"})).not_to_error ()
+  - context with non-empty table types:
+    - it diagnoses missing types:
+        expect (fn ("#table", nil)).
+          to_error "non-empty table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#table", false)).
+          to_error "non-empty table expected, got boolean"
+        expect (fn ("#table", {})).
+          to_error "non-empty table expected, got empty table"
+    - it matches types:
+        expect (fn ("#table", {0})).not_to_error ()
+  - context with non-empty table of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("#table of boolean", nil)).
+          to_error "non-empty table expected, got no value"
+        expect (fn ("#table of booleans", nil)).
+          to_error "non-empty table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#table of file", {})).
+          to_error "non-empty table expected, got empty table"
+        expect (fn ("#table of file", io.stderr)).
+          to_error "non-empty table expected, got file"
+    - it diagnoses mismatched element types:
+        expect (fn ("#table of number", {false})).
+          to_error "non-empty table of numbers expected, got boolean at index 1"
+        expect (fn ("#table of numbers", {1, 2, "3"})).
+          to_error "non-empty table of numbers expected, got string at index 3"
+        expect (fn ("#table of numbers", {a=1, b=2, c="3"})).
+          to_error "non-empty table of numbers expected, got string at index c"
+    - it matches types:
+        expect (fn ("#table of string", {"foo"})).not_to_error ()
+        expect (fn ("#table of string", {"f", "o", "o"})).not_to_error ()
+        expect (fn ("#table of string", {b="b", a="a", r="r"})).not_to_error ()
+  - context with list:
+    - it diagnonses missing types:
+        expect (fn ("list", nil)).
+          to_error "list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("list", false)).
+          to_error "list expected, got boolean"
+        expect (fn ("list", {foo=1})).
+          to_error "list expected, got table"
+        expect (fn ("list", Object)).
+          to_error "list expected, got Object"
+    - it matches types:
+        expect (fn ("list", {})).not_to_error ()
+        expect (fn ("list", {1})).not_to_error ()
+  - context with list of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("list of boolean", nil)).
+          to_error "list expected, got no value"
+        expect (fn ("list of booleans", nil)).
+          to_error "list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("list of file", io.stderr)).
+          to_error "list expected, got file"
+        expect (fn ("list of files", io.stderr)).
+          to_error "list expected, got file"
+        expect (fn ("list of files", {file=io.stderr})).
+          to_error "list expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("list of number", {false})).
+          to_error "list of numbers expected, got boolean at index 1"
+        expect (fn ("list of numbers", {1, 2, "3"})).
+          to_error "list of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("list of string", {})).not_to_error ()
+        expect (fn ("list of string", {"foo"})).not_to_error ()
+        expect (fn ("list of string", {"f", "o", "o"})).not_to_error ()
+  - context with non-empty list:
+    - it diagnonses missing types:
+        expect (fn ("#list", nil)).
+          to_error "non-empty list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#list", false)).
+          to_error "non-empty list expected, got boolean"
+        expect (fn ("#list", {})).
+          to_error "non-empty list expected, got empty list"
+        expect (fn ("#list", {foo=1})).
+          to_error "non-empty list expected, got table"
+        expect (fn ("#list", Object)).
+          to_error "non-empty list expected, got empty Object"
+        expect (fn ("#list", List {})).
+          to_error "non-empty list expected, got empty List"
+    - it matches types:
+        expect (fn ("#list", {1})).not_to_error ()
+  - context with non-empty list of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("#list of boolean", nil)).
+          to_error "non-empty list expected, got no value"
+        expect (fn ("#list of booleans", nil)).
+          to_error "non-empty list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#list of file", {})).
+          to_error "non-empty list expected, got empty table"
+        expect (fn ("#list of file", io.stderr)).
+          to_error "non-empty list expected, got file"
+        expect (fn ("#list of files", {file=io.stderr})).
+          to_error "non-empty list expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("#list of number", {false})).
+          to_error "non-empty list of numbers expected, got boolean at index 1"
+        expect (fn ("#list of numbers", {1, 2, "3"})).
+          to_error "non-empty list of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("#list of string", {"foo"})).not_to_error ()
+        expect (fn ("#list of string", {"f", "o", "o"})).not_to_error ()
+  - context with container:
+    - it diagnoses missing types:
+        expect (fn ("List of boolean", nil)).
+          to_error "List expected, got no value"
+        expect (fn ("List of booleans", nil)).
+          to_error "List expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("List of file", io.stderr)).
+          to_error "List expected, got file"
+        expect (fn ("List of files", io.stderr)).
+          to_error "List expected, got file"
+        expect (fn ("List of files", {file=io.stderr})).
+          to_error "List expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("List of number", List {false})).
+          to_error "List of numbers expected, got boolean at index 1"
+        expect (fn ("List of numbers", List {1, 2, "3"})).
+          to_error "List of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("list of string", List {})).not_to_error ()
+        expect (fn ("list of string", List {"foo"})).not_to_error ()
+        expect (fn ("list of string", List {"f", "o", "o"})).not_to_error ()
+  - context with object:
+    - it diagnoses missing types:
+        expect (fn ("object", nil)).to_error "object expected, got no value"
+        expect (fn ("Object", nil)).to_error "Object expected, got no value"
+        expect (fn ("Foo", nil)).to_error "Foo expected, got no value"
+        expect (fn ("any", nil)).to_error "any value expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("object", {0})).to_error "object expected, got table"
+        expect (fn ("Object", {0})).to_error "Object expected, got table"
+        expect (fn ("object", {_type="Object"})).to_error "object expected, got table"
+        expect (fn ("Object", {_type="Object"})).to_error "Object expected, got table"
+        expect (fn ("Object", Foo)).to_error "Object expected, got Foo"
+        expect (fn ("Foo", {0})).to_error "Foo expected, got table"
+        expect (fn ("Foo", Object)).to_error "Foo expected, got Object"
+    - it matches types:
+        expect (fn ("object", Object)).not_to_error ()
+        expect (fn ("object", Object {})).not_to_error ()
+        expect (fn ("object", Foo)).not_to_error ()
+        expect (fn ("object", Foo {})).not_to_error ()
   - it matches anything:
       expect (fn ("any", true)).not_to_error ()
       expect (fn ("any", {})).not_to_error ()

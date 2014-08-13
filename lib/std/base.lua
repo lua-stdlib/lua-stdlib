@@ -458,7 +458,7 @@ end
 -- @tparam table expectedtypes a table of matchable types
 -- @string actual the actual argument to match with
 -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
-local function formaterror (expectedtypes, actual)
+local function formaterror (expectedtypes, actual, index)
   local actualtype = prototype (actual)
 
   -- Tidy up actual type for display.
@@ -475,6 +475,10 @@ local function formaterror (expectedtypes, actual)
     end
   end
 
+  if index then
+    actualtype = actualtype .. " at index " .. tostring (index)
+  end
+
   -- Tidy up expected types for display.
   local t = {}
   for i, v in ipairs (expectedtypes) do
@@ -482,6 +486,8 @@ local function formaterror (expectedtypes, actual)
       t[i] = "function"
     elseif v == "any" then
       t[i] = "any value"
+    elseif not index then
+      t[i] = v:match "(%S+) of %S+" or v
     else
       t[i] = v
     end
@@ -489,15 +495,80 @@ local function formaterror (expectedtypes, actual)
 
   local expectedstr = concat (t):
                       gsub ("#table", "non-empty table"):
-	              gsub ("#list", "non-empty list")
+	              gsub ("#list", "non-empty list"):
+                      gsub ("(%S+ of %S+)", "%1s"):
+		      gsub ("(%S+ of %S+)ss", "%1s")
 
   return expectedstr .. " expected, got " .. actualtype
 end
 
 
-if _ARGCHECK then
+--- Compare *check* against type of *actual*
+-- @string check extended type name expected
+-- @param actual object being typechecked
+-- @treturn boolean `true` if *actual* is of type *check*, otherwise
+--   `false`
+local function checktype (check, actual)
+  local actualtype = prototype (actual)
+  if check == "#table" then
+    if actualtype == "table" and next (actual) then
+      return true
+    end
 
-  local typeof = type  -- free up `type` for use as a variable
+  elseif check == "any" then
+    if actual ~= nil then
+      return true
+    end
+
+  elseif check == "file" then
+    if io.type (actual) == "file" then
+      return true
+    end
+
+  elseif check == "function" or check == "func" then
+    if actualtype == "function" or
+        (getmetatable (actual) or {}).__call ~= nil
+    then
+       return true
+    end
+
+  elseif check == "int" then
+    if actualtype == "number" and actual == math.floor (actual) then
+      return true
+    end
+
+  elseif check == "list" or check == "#list" then
+    if actualtype == "table" or actualtype == "List" then
+      local len, count = #actual, 0
+      local i = next (actual)
+      repeat
+	if i ~= nil then count = count + 1 end
+        i = next (actual, i)
+      until i == nil or count > len
+      if count == len and (check == "list" or count > 0) then
+        return true
+      end
+    end
+
+  elseif check == "object" then
+    if actualtype ~= "table" and type (actual) == "table" then
+      return true
+    end
+
+  elseif type (check) == "string" and check:sub (1, 1) == ":" then
+    if check == actual then
+      return true
+    end
+
+  elseif check == actualtype then
+    return true
+  end
+
+  return false
+end
+
+
+if _ARGCHECK then
 
   -- Doc-commented in debug.lua
   function argcheck (name, i, expected, actual, level)
@@ -505,62 +576,22 @@ if _ARGCHECK then
     expected = normalize (split (expected, "|"))
 
     -- Check actual has one of the types from expected
-    local ok, actualtype = false, prototype (actual)
-    for i, check in ipairs (expected) do
-      if check == "#table" then
-        if actualtype == "table" and next (actual) then
-          ok = true
+    local ok = false
+    for _, expect in ipairs (expected) do
+      local check, contents = expect:match "^(%S+) of (%S-)s?$"
+      check = check or expect
+
+      -- Does the type of actual check out?
+      ok = checktype (check, actual)
+
+      -- For "table of things", check all elements are a thing too.
+      if ok and contents and type (actual) == "table" then
+        for k, v in pairs (actual) do
+          if not checktype (contents, v) then
+            argerror (name, i, formaterror (expected, v, k), level + 1)
+          end
         end
-
-      elseif check == "any" then
-        if actual ~= nil then
-          ok = true
-        end
-
-      elseif check == "file" then
-        if io.type (actual) == "file" then
-          ok = true
-        end
-
-      elseif check == "function" or check == "func" then
-        if actualtype == "function" or
-            (getmetatable (actual) or {}).__call ~= nil
-        then
-           ok = true
-        end
-
-      elseif check == "int" then
-        if actualtype == "number" and actual == math.floor (actual) then
-          ok = true
-        end
-
-      elseif check == "list" or check == "#list" then
-        if actualtype == "table" or actualtype == "List" then
-          local len, count = #actual, 0
-	  local i = next (actual)
-	  repeat
-	    if i ~= nil then count = count + 1 end
-            i = next (actual, i)
-          until i == nil or count > len
-	  if count == len and (check == "list" or count > 0) then
-            ok = true
-	  end
-        end
-
-      elseif check == "object" then
-        if actualtype ~= "table" and typeof (actual) == "table" then
-          ok = true
-        end
-
-      elseif typeof (check) == "string" and check:sub (1, 1) == ":" then
-	if check == actual then
-	  ok = true
-	end
-
-      elseif check == actualtype then
-        ok = true
       end
-
       if ok then break end
     end
 
@@ -572,8 +603,8 @@ if _ARGCHECK then
 
   -- Doc-commented in debug.lua
   function argscheck (name, expected, actual)
-    if typeof (expected) ~= "table" then expected = {expected} end
-    if typeof (actual) ~= "table" then actual = {actual} end
+    if type (expected) ~= "table" then expected = {expected} end
+    if type (actual) ~= "table" then actual = {actual} end
 
     for i, v in ipairs (expected) do
       argcheck (name, i, expected[i], actual[i], 3)
@@ -751,6 +782,20 @@ local function export (M, decl, fn, ...)
 	  expected = merge (unpack (tables))
 	end
 	local i = bestmismatch
+
+	-- For "table of things", check all elements are a thing too.
+	if types[i] then
+	  local check, contents = types[i]:match "^(%S+) of (%S-)s?$"
+	  if contents and type (args[i]) == "table" then
+	    for k, v in pairs (args[i]) do
+	      if not checktype (contents, v) then
+	        argerror (name, i, formaterror (expected, v, k), 2)
+	      end
+	    end
+	  end
+        end
+
+	-- Otherwise the argument type itself was mismatched.
 	argerror (name, i, formaterror (expected, args[i]), 2)
       end
 
