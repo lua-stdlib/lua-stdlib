@@ -49,14 +49,14 @@ end
 local function nop () end
 
 
-local function reduce (f, d, i, ...)
-  local fn, state, k = i (...)
-  local t = {fn (state, k)}
+local function reduce (fn, d, ifn, ...)
+  local nextfn, state, k = ifn (...)
+  local t = {nextfn (state, k)}
 
   local r = d
   while t[1] ~= nil do
-    r = f (r, t[#t])
-    t = {fn (state, t[1])}
+    r = fn (r, t[#t])
+    t = {nextfn (state, t[1])}
   end
   return r
 end

@@ -32,11 +32,17 @@ Stdlib NEWS - User visible changes
    their return value propagated back to the case caller.  Function
    values behave the same as in previous releases.
 
- - `functional.collect`, `functional.filter` and `functional.fold` now
-   work with standard multi-return iterators, such as `std.ipairs`.
+ - `functional.collect`, `functional.filter`, `functional.map` and
+   `functional.reduce` now work with standard multi-return iterators,
+   such as `std.pairs`.
+
+ - `functional.collect` defaults to using `std.ipairs` as an iterator.
 
  - New `functional.cond`, for evaluating multiple distinct expressions
    to determine what following value to be the returned.
+
+ - `functional.filter` and `functional.map` default to using `std.pairs`
+   as an iterator.
 
  - The init argument to `functional.foldl` and `functional.foldr` is now
    optional; when omitted these functions automatically start with
@@ -56,9 +62,6 @@ Stdlib NEWS - User visible changes
    or, equivalently using `std.operator` references:
 
      table.sort (t, lambda "<")
-
- - `functional.map` now supports a mapping function that returns a key,
-   value pair for the results table.
 
  - New `functional.map_with` that returns a new table with keys matching
    the argument table, and values made by mapping the supplied function

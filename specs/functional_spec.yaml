@@ -141,15 +141,15 @@ specify std.functional:
       f = M[fname]
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f ()).to_error (msg (1, "function or any value"))
 
   - it collects a list of single return value iterator results:
       expect (f (base.ielems, {"a", "b", "c"})).to_equal {"a", "b", "c"}
   - it collects a table of key:value iterator results:
       t = {"first", second="two", last=3}
       expect (f (pairs, t)).to_equal (t)
+  - it defaults to ipairs iteration:
+      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2}
 
 
 - describe compose:
@@ -263,10 +263,9 @@ specify std.functional:
 
   - it diagnoses missing arguments:
       expect (f ()).to_error (msg (1, "function"))
-      expect (f (f)).to_error (msg (2, "function"))
+      expect (f (f)).to_error (msg (2, "function or any value"))
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (f, false)).to_error (msg (2, "function", "boolean"))
 
   - it works with an empty table:
       expect (f (M.id, pairs, {})).to_equal {}
@@ -286,6 +285,10 @@ specify std.functional:
         to_equal {"first", last="three"}
       expect (f (function (k, v) return k % 2 == 0 end, ipairs, elements)).
         to_equal {[2]="b", [4]="d"}
+  - it defaults to pairs iteration:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, t)).
+        to_equal {"first", last="three"}
 
 
 - describe fold:
@@ -428,10 +431,9 @@ specify std.functional:
 
   - it diagnoses missing arguments:
       expect (f ()).to_error (msg (1, "function"))
-      expect (f (f)).to_error (msg (2, "function"))
+      expect (f (f)).to_error (msg (2, "function or any value"))
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (f, false)).to_error (msg (2, "function", "boolean"))
 
   - it works with an empty table:
       expect (f (M.id, ipairs, {})).to_equal {}
@@ -456,6 +458,10 @@ specify std.functional:
   - it supports key:value results from mapping function:
       expect (f (function (k, v) return v, k end, pairs, elements)).
         to_equal (inverse)
+  - it defaults to pairs iteration:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, t)).
+        to_contain.a_permutation_of {true, false, true}
 
 
 - describe map_with:
@@ -473,10 +479,10 @@ specify std.functional:
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (f (fn, false)).to_error (msg (2, "table", "boolean"))
-      expect (f (fn, {1})).
-        to_error (msg (2, "table of tables", "number at index 1"))
+      expect (f (fn, {{a=1}})).
+        to_error (msg (2, "table of lists", "table at index 1"))
       expect (f (fn, {{}, false})).
-        to_error (msg (2, "table of tables", "boolean at index 2"))
+        to_error (msg (2, "table of lists", "boolean at index 2"))
   - it diagnoses too many arguments:
       expect (f (fn, t, false)).
         to_error (toomanyarg (this_module, fname, 2, 3))

@@ -11,8 +11,8 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, ireverse, len, pairs =
-  base.export, base.ireverse, base.len, base.pairs
+local export, ipairs, ireverse, len, pairs =
+  base.export, base.ipairs, base.ireverse, base.len, base.pairs
 local callable = base.functional.callable
 
 local M = { "std.functional" }
@@ -22,7 +22,7 @@ local M = { "std.functional" }
 --- Partially apply a function.
 -- @function bind
 -- @func fn function to apply partially
--- @tparam table argt {p1=a1, ..., pn=an} table of arguments to bind
+-- @tparam table argt table of *fn* arguments to bind
 -- @return function with *argt* arguments already bound
 -- @usage
 -- cube = bind (lambda "^", {[2] = 3})
@@ -93,17 +93,22 @@ end)
 
 --- Collect the results of an iterator.
 -- @function collect
--- @func ifn iterator function
--- @param ... iterator function arguments
--- @return results of running *ifn* on *arguments*
+-- @func[opt=std.ipairs] ifn iterator function
+-- @param ... *ifn* arguments
+-- @treturn table of results from running *ifn* on *args*
 -- @see filter
 -- @see map
 -- @usage
--- --> {"c", "b", "a"}
--- collect (compose (std.ireverse, std.ielems), {"a", "b", "c"})
-export (M, "collect (func, any*)", function (ifn, ...)
+-- --> {"a", "b", "c"}
+-- collect {"a", "b", "c", x=1, y=2, z=5}
+export (M, "collect ([func], any*)", function (ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = ipairs, {ifn, ...}
+  end
+
   local r = {}
-  for k, v in ifn (...) do
+  for k, v in ifn (unpack (argt)) do
     if v == nil then k, v = #r + 1, k end
     r[k] = v
   end
@@ -198,7 +203,7 @@ end)
 --- Filter an iterator with a predicate.
 -- @function filter
 -- @tparam predicate pfn predicate function
--- @func ifn iterator function
+-- @func[opt=std.pairs] ifn iterator function
 -- @param ... iterator arguments
 -- @treturn table elements e for which `pfn (e)` is not "falsey".
 -- @see collect
@@ -206,11 +211,16 @@ end)
 -- @usage
 -- --> {2, 4}
 -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
-export (M, "filter (func, func, any*)", function (pfn, ifn, ...)
-  local r = {}			-- new results table
-  local nextfn, state, k = ifn (...)
+export (M, "filter (func, [func], any*)", function (pfn, ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = pairs, {ifn, ...}
+  end
+
+  local nextfn, state, k = ifn (unpack (argt))
   local t = {nextfn (state, k)}	-- table of iteration 1
 
+  local r = {}			-- new results table
   while t[1] ~= nil do		-- until iterator returns nil
     k = t[1]
     if pfn (unpack (t)) then	-- pass all iterator results to p
@@ -331,7 +341,7 @@ end, M.id))
 --- Map a function over an iterator.
 -- @function map
 -- @func fn map function
--- @func ifn iterator function
+-- @func[opt=std.pairs] ifn iterator function
 -- @param ... iterator arguments
 -- @treturn table results
 -- @see filter
@@ -339,8 +349,13 @@ end, M.id))
 -- @usage
 -- --> {1, 0, 1, 0}
 -- map (lambda '=_1,_2%2', pairs, {1, 2, 3, 4})
-local map = export (M, "map (func, func, any*)", function (fn, ifn, ...)
-  local nextfn, state, k = ifn (...)
+local map = export (M, "map (func, [func], any*)", function (fn, ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = pairs, {ifn, ...}
+  end
+
+  local nextfn, state, k = ifn (unpack (argt))
   local t = {nextfn (state, k)}
 
   local r = {}
@@ -357,16 +372,16 @@ local map = export (M, "map (func, func, any*)", function (fn, ifn, ...)
 end)
 
 
---- Map a function over a table of tables.
+--- Map a function over a table of argument lists.
 -- @function map_with
 -- @func fn map function
--- @tparam table tt a table of tabulated *fn* arguments
+-- @tparam table tt a table of *fn* argument lists
 -- @treturn table new table of *fn* results
 -- @see map
 -- @usage
 -- --> {123, 45}
 -- map_with (lambda '|...|table.concat {...}', {{1, 2, 3}, {4, 5}})
-export (M, "map_with (function, table of tables)", function (fn, tt)
+export (M, "map_with (function, table of lists)", function (fn, tt)
   local r = {}
   for k, v in pairs (tt) do
     r[k] = fn (unpack (v))
