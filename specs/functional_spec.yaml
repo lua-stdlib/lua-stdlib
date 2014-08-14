@@ -4,10 +4,10 @@ before:
   this_module  = "std.functional"
   global_table = "_G"
 
-  exported_apis = { 1, "bind", "case", "collect", "compose", "cond", "curry",
-                    "eval", "filter", "fold", "foldl", "foldr", "id",
-                    "lambda", "map", "map_with", "memoize", "nop", "op",
-                    "reduce" }
+  exported_apis = { 1, "bind", "callable", "case", "collect", "compose",
+                    "cond", "curry", "eval", "filter", "fold", "foldl",
+                    "foldr", "id", "lambda", "map", "map_with", "memoize",
+                    "nop", "op", "reduce" }
 
   M = require (this_module)
 
@@ -68,6 +68,23 @@ specify std.functional:
       expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
       expect (f (math.pow, nil, 3) (2)).to_be (8)
 
+
+- describe callable:
+  - before:
+      f = M.callable
+  - it identifies whether objects are callable:
+      for _, v in ipairs {
+        true,
+        42,
+        "str",
+        io.stderr,
+        {},
+        function () end,
+        setmetatable ({}, {__call = function () end}),
+        require "std.container",
+      } do
+        expect (f (v)).to_be (pcall (v, {}))
+      end
 
 - describe case:
   - before:

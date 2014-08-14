@@ -19,6 +19,12 @@ local operator = require "std.operator"
 local ipairs, ireverse, len = base.ipairs, base.ireverse, base.len
 
 
+local function callable (x)
+  if type (x) == "function" then return true end
+  return type ((getmetatable (x) or {}).__call) == "function"
+end
+
+
 local function memoize (fn, normalize)
   if normalize == nil then
     -- Call require here, to avoid pulling in all of 'std.string'
@@ -77,9 +83,10 @@ end
 
 
 return {
-  foldl   = foldl,
-  foldr   = foldr,
-  memoize = memoize,
-  nop     = nop,
-  reduce  = reduce,
+  callable = callable,
+  foldl    = foldl,
+  foldr    = foldr,
+  memoize  = memoize,
+  nop      = nop,
+  reduce   = reduce,
 }

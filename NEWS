@@ -42,6 +42,9 @@ Stdlib NEWS - User visible changes
    optional; when omitted these functions automatically start with
    the left- or right-most element of the table argument resp.
 
+ - New `functional.callable` function for detecting objects or
+   primitives that can be called as if they were a function.
+
  - New `functional.lambda` function for compiling lambda strings:
 
      table.sort (t, lambda "|a,b| a<b")

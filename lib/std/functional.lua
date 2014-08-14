@@ -13,26 +13,10 @@ local operator = require "std.operator"
 
 local export, ireverse, len, pairs =
   base.export, base.ireverse, base.len, base.pairs
+local callable = base.functional.callable
 
 local M = { "std.functional" }
 
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
-local function iscallable (x)
-  if type (x) == "function" then return true end
-  return type ((getmetatable (x) or {}).__call) == "function"
-end
-
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
 
 
 --- Partially apply a function.
@@ -71,6 +55,15 @@ bind = export (M, "bind (func, any?*)", function (fn, ...)
 end)
 
 
+--- Identify callable types.
+-- @function callable
+-- @param x an object or primitive
+-- @return `true` if *x* can be called, otherwise `false`
+-- @usage
+-- if callable (functable) then functable (args) end
+M.callable = callable
+
+
 --- A rudimentary case statement.
 -- Match *with* against keys in *branches* table.
 -- @function case
@@ -91,7 +84,7 @@ end)
 -- })
 export (M, "case (any?, #table)", function (with, branches)
   local match = branches[with] or branches[1]
-  if iscallable (match) then
+  if callable (match) then
     return match (with)
   end
   return match
@@ -173,7 +166,7 @@ M.cond = function (expr, branch, ...)
     expr, branch = true, expr
   end
   if expr then
-    if iscallable (branch) then
+    if callable (branch) then
       return branch (expr)
     end
     return branch
