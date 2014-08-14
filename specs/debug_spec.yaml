@@ -519,10 +519,10 @@ specify std.debug:
 
 - describe debug:
   - before: |
-      function mkwrap (x)
+      function mkwrap (k, v)
         local fmt = "%s"
-        if type (x) == "string" then fmt = "%q" end
-        return string.format (fmt, require "std".tostring (x))
+        if type (v) == "string" then fmt = "%q" end
+        return k, string.format (fmt, require "std".tostring (v))
       end
 
       function mkdebug (debugp, ...)
@@ -531,7 +531,7 @@ specify std.debug:
           require "std.debug" (%s)
         ]],
         require "std".tostring (debugp),
-        table.concat (require "std.list".map (mkwrap, {...}), ", "))
+        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
       end
 
   - it does nothing when _DEBUG is disabled:
@@ -557,10 +557,10 @@ specify std.debug:
 
 - describe say:
   - before: |
-      function mkwrap (x)
+      function mkwrap (k, v)
         local fmt = "%s"
-        if type (x) == "string" then fmt = "%q" end
-        return string.format (fmt, require "std".tostring (x))
+        if type (v) == "string" then fmt = "%q" end
+        return k, string.format (fmt, require "std".tostring (v))
       end
 
       function mksay (debugp, ...)
@@ -569,7 +569,7 @@ specify std.debug:
           require "std.debug".say (%s)
         ]],
         require "std".tostring (debugp),
-        table.concat (require "std.list".map (mkwrap, {...}), ", "))
+        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
       end
 
   - context when _DEBUG is disabled:

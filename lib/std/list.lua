@@ -183,18 +183,6 @@ local flatten = export (M, "flatten (List)", function (l)
 end)
 
 
---- Map a function over a list.
--- @static
--- @function map
--- @func fn map function
--- @tparam List l a list
--- @treturn List new list containing `{fn (l[1]), ..., fn (l[#l])}`
--- @see std.list:map
-local map = export (M, "map (function, List|table)", function (fn, l)
-  return List (func.map (fn, ielems, l))
-end)
-
-
 --- Project a list of fields from a list of tables.
 -- @static
 -- @function project
@@ -203,7 +191,7 @@ end)
 -- @treturn List list of `f` fields
 -- @see std.list:project
 local project = export (M, "project (any, List of tables)", function (f, l)
-  return map (function (t) return t[f] end, l)
+  return List (func.map (function (t) return t[f] end, ielems, l))
 end)
 
 
@@ -327,7 +315,7 @@ end)
 -- @treturn List new list containing
 -- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
 local transpose = export (M, "transpose (List of Lists)", function (ls)
-  local rs, len, dims = List {}, base.len (ls), map (base.len, ls)
+  local rs, len, dims = List {}, base.len (ls), func.map (base.len, ielems, ls)
   if #dims > 0 then
     for i = 1, math.max (unpack (dims)) do
       rs[i] = List {}
@@ -413,6 +401,12 @@ end
 
 M.index_value = DEPRECATED ("41", "'std.list.index_value'",
   "compose 'std.list.filter' and 'std.table.invert' instead", index_value)
+
+
+local function map (fn, l) return List (func.map (fn, ielems, l)) end
+
+M.map = DEPRECATED ("41", "'std.list.map'",
+  "use 'std.functional.map' instead", map)
 
 
 M.map_with = DEPRECATED ("41", "'std.list.map_with'",

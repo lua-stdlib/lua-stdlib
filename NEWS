@@ -150,8 +150,9 @@ Stdlib NEWS - User visible changes
    use.  After that, in some future release, they will be removed
    entirely.
 
- - `list.map_with` has been deprecated, in favour of the more powerful
-   new `functional.map_with` which handles tables as well as lists.
+ - `list.map` and `list.map_with` has been deprecated, in favour of the
+   more powerful new `functional.map` and `functional.map_with` which
+   handle tables as well as lists.
 
  - `list.relems` has been deprecated, in favour of the more idiomatic
    `functional.compose (std.ireverse, std.ielems)`.

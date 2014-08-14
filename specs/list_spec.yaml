@@ -754,34 +754,57 @@ specify std.list:
       sq = function (n) return n * n end
 
       fname = "map"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "function"))
-      expect (f (sq)).to_error (msg (2, "List or table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "function", "boolean"))
-      expect (f (sq, false)).to_error (msg (2, "List or table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (sq, l, false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
 
-  - context when called as a list object method:
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {sq, l})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.map' was deprecated"
+        end
+        _, err = capture (f, {sq, l})
+        expect (err).to_be (nil)
+
     - it returns a list object:
-        m = l:map (sq)
+        m = f (sq, l)
         expect (prototype (m)).to_be "List"
     - it works for an empty list:
         l = List {}
-        expect (l:map (sq)).to_equal (List {})
+        expect (f (sq, l)).to_equal (List {})
     - it creates a new list:
         o = l
-        m = l:map (sq)
+        m = f (sq, l)
         expect (l).to_equal (o)
         expect (m).not_to_equal (o)
         expect (l).to_equal (List {1, 2, 3, 4, 5})
     - it maps a function over a list:
-        expect (l:map (sq)).to_equal (List {1, 4, 9, 16, 25})
+        expect (f (sq, l)).to_equal (List {1, 4, 9, 16, 25})
+
+  - context as a list object method:
+    - before:
+        f = l[fname]
+
+    - it returns a list object:
+        m = f (l, sq)
+        expect (prototype (m)).to_be "List"
+    - it works for an empty list:
+        l = List {}
+        expect (f (l, sq)).to_equal (List {})
+    - it creates a new list:
+        o = l
+        m = f (l, sq)
+        expect (l).to_equal (o)
+        expect (m).not_to_equal (o)
+        expect (l).to_equal (List {1, 2, 3, 4, 5})
+    - it maps a function over a list:
+        expect (f (l, sq)).to_equal (List {1, 4, 9, 16, 25})
 
 
 - describe map_with:
