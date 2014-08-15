@@ -172,16 +172,6 @@ local filter = export (M, "filter (function, List)", function (p, l)
 end)
 
 
---- Flatten a list.
--- @static
--- @function flatten
--- @tparam List l a list
--- @treturn List flattened list
-local flatten = export (M, "flatten (List)", function (l)
-  return List (func.collect (base.tree.leaves, ipairs, l))
-end)
-
-
 --- Project a list of fields from a list of tables.
 -- @static
 -- @function project
@@ -231,6 +221,11 @@ end)
 -- @tparam List l a list
 -- @return reshaped list
 -- @see std.list:shape
+
+local function flatten (l)
+  return List (func.collect (base.tree.leaves, ipairs, l))
+end
+
 local shape = export (M, "shape (table, List)", function (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
@@ -321,6 +316,10 @@ local function relems (l) return base.ielems (base.ireverse (l)) end
 
 M.relems = DEPRECATED ("41", "'std.list.relems'",
   "compose 'std.ielems' and 'std.ireverse' instead", relems)
+
+
+M.flatten = DEPRECATED ("41", "'std.list.flatten'",
+  "use 'std.functional.flatten' instead", flatten)
 
 
 local function foldl (fn, d, t)

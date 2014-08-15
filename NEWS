@@ -149,6 +149,9 @@ Stdlib NEWS - User visible changes
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
 
+ - `list.flatten` has been moved to `functional.flatten`, the old name
+   now gives a deprecation warning.
+
  - `list.foldl` and `list.foldr` have been replaced by the richer
    `functional.foldl` and `functional.foldr` respectively.  The old
    names now give a deprecation warning.  Note that List object methods

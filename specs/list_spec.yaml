@@ -447,26 +447,44 @@ specify std.list:
       l = List {List {List {"one"}}, "two", List {List {"three"}, "four"}}
 
       fname = "flatten"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "List"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "List", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (l, false)).
-        to_error (toomanyarg (this_module, fname, 1, 2))
+  - context as a module function:
+    - before:
+        msg = bind (badarg, {this_module, fname})
+        f = M[fname]
 
-  - context when called as a list object method:
+    - it writes a deprecation warning to standard error on first call: |
+        -- Unwrap functable
+        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
+
+        _, err = capture (f, {l})
+        if err ~= nil then
+          -- skip this test when using Specl < 12 capture stub
+          expect (err).to_contain "'std.list.flatten' was deprecated"
+        end
+        _, err = capture (f, {l})
+        expect (err).to_be (nil)
+
     - it returns a list object:
-        m = List.flatten (l)
-        expect (prototype (m)).to_be "List"
+        expect (prototype (f (l))).to_be "List"
     - it works for an empty list:
         l = List {}
-        expect (l:flatten ()).to_equal (List {})
+        expect (f (l)).to_equal (List {})
     - it flattens a list:
-        expect (l:flatten ()).
+        expect (f (l)).
+          to_equal (List {"one", "two", "three", "four"})
+
+  - context as a List object method:
+    - before:
+        f = l[fname]
+
+    - it returns a list object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty list:
+        l = List {}
+        expect (f (l)).to_equal (List {})
+    - it flattens a list:
+        expect (f (l)).
           to_equal (List {"one", "two", "three", "four"})
 
 
