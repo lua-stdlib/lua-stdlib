@@ -7,7 +7,7 @@ before:
   exported_apis = { 1, "bind", "callable", "case", "collect", "compose",
                     "cond", "curry", "eval", "filter", "fold", "foldl",
                     "foldr", "id", "lambda", "map", "map_with", "memoize",
-                    "nop", "op", "reduce" }
+                    "nop", "op", "reduce", "zip", "zip_with" }
 
   M = require (this_module)
 
@@ -479,15 +479,15 @@ specify std.functional:
   - it diagnoses wrong argument types:
       expect (f (false)).to_error (msg (1, "function", "boolean"))
       expect (f (fn, false)).to_error (msg (2, "table", "boolean"))
-      expect (f (fn, {{a=1}})).
-        to_error (msg (2, "table of lists", "table at index 1"))
       expect (f (fn, {{}, false})).
-        to_error (msg (2, "table of lists", "boolean at index 2"))
+        to_error (msg (2, "table of tables", "boolean at index 2"))
   - it diagnoses too many arguments:
       expect (f (fn, t, false)).
         to_error (toomanyarg (this_module, fname, 2, 3))
 
-  - it returns a list object:
+  - it works for an empty table:
+      expect (f (fn, {})).to_equal ({})
+  - it returns a table:
       u = f (fn, t)
       expect (type (u)).to_be "table"
   - it creates a new table:
@@ -496,12 +496,12 @@ specify std.functional:
       expect (t).to_equal (old)
       expect (u).not_to_equal (old)
       expect (t).to_equal {{1, 2, 3}, {4, 5}}
-  - it maps a function over a table of lists:
+  - it maps a function over a list of argument lists:
       expect (f (fn, t)).to_equal {3, 2}
-  - it maps a function over a table of tables:
+  - it discards hash-part arguments:
+      expect (f (fn, {{1,x=2,3}, {4,5,y="z"}})).to_equal {2, 2}
+  - it maps a function over a table of argument lists:
       expect (f (fn, {a={1,2,3}, b={4,5}})).to_equal {a=3, b=2}
-  - it works for an empty table:
-      expect (f (fn, {})).to_equal ({})
 
 
 - describe memoize:
@@ -584,3 +584,68 @@ specify std.functional:
       expect (f (M.op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it reduces elements from left to right:
       expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+
+- describe zip:
+  - before:
+      tt = {{1, 2}, {3, 4}, {5, 6}}
+
+      fname = "zip"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (tt, false)).
+        to_error (toomanyarg (this_module, fname, 1, 2))
+
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it is the inverse of itself:
+      expect (f (f (tt))).to_equal (tt)
+  - it transposes rows and columns:
+      expect (f (tt)).to_equal {{1, 3, 5}, {2, 4, 6}}
+      expect (f {x={a=1, b=2}, y={a=3, b=4}, z={b=5}}).
+        to_equal {a={x=1, y=3}, b={x=2,y=4,z=5}}
+
+
+- describe zip_with:
+  - before:
+      tt = {{1, 2}, {3, 4}, {5}}
+      fn = function (...) return tonumber (table.concat {...}) end
+
+      fname = "zip_with"
+      msg = bind (badarg, {this_module, fname})
+      f = M[fname]
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (msg (1, "function"))
+      expect (f (fn)).to_error (msg (2, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (msg (1, "function", "boolean"))
+      expect (f (fn, false)).to_error (msg (2, "table", "boolean"))
+      expect (f (fn, {{}, false})).
+        to_error (msg (2, "table of tables", "boolean at index 2"))
+  - it diagnoses too many arguments:
+      expect (f (fn, tt, false)).
+        to_error (toomanyarg (this_module, fname, 2, 3))
+
+  - it works for an empty table:
+      expect (f (fn, {})).to_equal {}
+  - it returns a table:
+      expect (type (f (fn, tt))).to_be "table"
+  - it returns the result in a new table:
+      expect (f (fn, tt)).not_to_be (tt)
+  - it does not perturb the argument list:
+      m = f (fn, tt)
+      expect (tt).to_equal {{1, 2}, {3, 4}, {5}}
+  - it combines column entries with a function:
+      expect (f (fn, tt)).to_equal {135, 24}
+  - it discards hash-part arguments:
+      expect (f (fn, {{1,2}, x={3,4}, {[2]=5}})).to_equal {1, 25}
+  - it combines matching key entries with a function:
+      expect (f (fn, {{a=1,b=2}, {a=3,b=4}, {b=5}})).
+        to_equal {a=13, b=245}

@@ -10,7 +10,7 @@ Stdlib NEWS - User visible changes
  - New `debug.argerror` and `debug.argcheck` functions that provide Lua
    equivalents of `luaL_argerror` and `luaL_argcheck`.
 
- - New `debug.argscheck` function for checking all function paramater
+ - New `debug.argscheck` function for checking all function parameter
    types with a single function call in the common case.
 
  - New `_DEBUG.argcheck` field that disables `debug.argcheck` (and
@@ -74,6 +74,18 @@ Stdlib NEWS - User visible changes
 
  - New `functional.nop` function, for use where a function is required
    but no work should be done.
+
+ - New `functional.zip`, which in addition to replacing the functionality
+   of deprecated `list.transpose` when handling lists of lists, correctly
+   zips arbitrary tables of tables, and is orthogonal to `functional.map`.
+   It is also more than twice as fast as `list.transpose`, processing
+   with a single pass over the argument table as opposed to the two
+   passes and addition book-keeping required by `list.transpose`s
+   algorithm.
+
+ - New `functional.zip_with`, subsumes functionality of deprecated
+   `list.zip_with`, but also handles arbitrary tables of tables correctly,
+   and is orthogonal to `functional.map_with`.
 
  - `std` module now collects stdlib functions that do not really belong
    in specific type modules: including `std.assert`, `std.eval`, and
@@ -160,6 +172,12 @@ Stdlib NEWS - User visible changes
  - `list.reverse` has been deprecated in favour of the more general
    and more accurately named `std.ireverse`.
 
+ - `list.transpose` has been deprecated in favour of `functional.zip`,
+   see above for details.
+
+ - `list.zip_with` has been deprecated in favour of `functional.zip_with`,
+   see above for details.
+
  - `string.assert` has been moved to `std.assert`, the old name now
    gives a deprecation warning.
 
@@ -234,9 +252,11 @@ Stdlib NEWS - User visible changes
    'List'" error.
 
  - `list.transpose` works again, and handles empty lists without
-   raising an error.
+   raising an error; but is deprecated and will be removed in a future
+   release (see above).
 
- - `list.zip_with` no longer raises an argument error on every call.
+ - `list.zip_with` no longer raises an argument error on every call; but,
+   like `list.transpose`, is also deprecated (see above).
 
  - `optparse.on` now works with `std.strict` enabled.
 

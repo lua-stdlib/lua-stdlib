@@ -11,9 +11,9 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, ipairs, ireverse, len, pairs =
-  base.export, base.ipairs, base.ireverse, base.len, base.pairs
 local callable = base.functional.callable
+local export, ielems, ipairs, ireverse, pairs =
+  base.export, base.ielems, base.ipairs, base.ireverse, base.pairs
 
 local M = { "std.functional" }
 
@@ -346,27 +346,28 @@ end, M.id))
 -- @treturn table results
 -- @see filter
 -- @see map_with
+-- @see zip
 -- @usage
--- --> {1, 0, 1, 0}
--- map (lambda '=_1,_2%2', pairs, {1, 2, 3, 4})
-local map = export (M, "map (func, [func], any*)", function (fn, ifn, ...)
+-- --> {1, 4, 9, 16}
+-- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
+export (M, "map (func, [func], any*)", function (mapfn, ifn, ...)
   local argt = {...}
   if not callable (ifn) then
     ifn, argt = pairs, {ifn, ...}
   end
 
   local nextfn, state, k = ifn (unpack (argt))
-  local t = {nextfn (state, k)}
+  local mapargs = {nextfn (state, k)}
 
   local r = {}
-  while t[1] ~= nil do
-    k = t[1]
-    local d, v = fn (unpack (t))
+  while mapargs[1] ~= nil do
+    k = mapargs[1]
+    local d, v = mapfn (unpack (mapargs))
     if v == nil then d, v = #r + 1, d end
     if v ~= nil then
       r[d] = v
     end
-    t = {nextfn (state, k)}
+    mapargs = {nextfn (state, k)}
   end
   return r
 end)
@@ -378,13 +379,15 @@ end)
 -- @tparam table tt a table of *fn* argument lists
 -- @treturn table new table of *fn* results
 -- @see map
+-- @see zip_with
 -- @usage
--- --> {123, 45}
--- map_with (lambda '|...|table.concat {...}', {{1, 2, 3}, {4, 5}})
-export (M, "map_with (function, table of lists)", function (fn, tt)
+-- --> {"123", "45"}, {a="123", b="45"}
+-- conc = bind (map_with, {lambda '|...|table.concat {...}'})
+-- conc {{1, 2, 3}, {4, 5}}, conc {a={1, 2, 3, x="y"}, b={4, 5, z=6}}
+local map_with = export (M, "map_with (function, table of tables)", function (mapfn, tt)
   local r = {}
   for k, v in pairs (tt) do
-    r[k] = fn (unpack (v))
+    r[k] = mapfn (unpack (v))
   end
   return r
 end)
@@ -426,6 +429,49 @@ M.nop = base.functional.nop
 -- --> 2 ^ 3 ^ 4 ==> 4096
 -- reduce (lambda '^', 2, std.ipairs, {3, 4})
 export (M, "reduce (func, any, func, any*)", base.functional.reduce)
+
+
+--- Zip a table of tables.
+-- Make a new table, with lists of elements at the same index in the
+-- original table. This function is effectively its own inverse.
+-- @function zip
+-- @tparam table tt a table of tables
+-- @treturn table new table with lists of elements of the same key
+--   from *tt*
+-- @see map
+-- @see zip_with
+-- @usage
+-- --> {{1, 3, 5}, {2, 4}}, {a={x=1, y=3, z=5}, b={x=2, y=4}}
+-- zip {{1, 2}, {3, 4}, {5}}, zip {x={a=1, b=2}, y={a=3, b=4}, z={a=5}}
+local zip = export (M, "zip (table of tables)", function (tt)
+  local r = {}
+  for outerk, inner in pairs (tt) do
+    for k, v in pairs (inner) do
+      r[k] = r[k] or {}
+      r[k][outerk] = v
+    end
+  end
+  return r
+end)
+
+
+--- Zip a list of tables together with a function.
+-- @function zip_with
+-- @tparam function fn function
+-- @tparam table tt table of tables
+-- @treturn table a new table of results from calls to *fn* with arguments
+--   made from all elements the same key in the original tables; effectively
+--   the "columns" in a simple list
+-- of lists.
+-- @see map_with
+-- @see zip
+-- @usage
+-- --> {"135", "24"}, {a="1", b="25"}
+-- conc = bind (zip_with, {lambda '|...|table.concat {...}'})
+-- conc {{1, 2}, {3, 4}, {5}}, conc {{a=1, b=2}, x={a=3, b=4}, {b=5}}
+export (M, "zip_with (function, table of tables)", function (fn, tt)
+  return map_with (fn, zip (tt))
+end)
 
 
 -- For backwards compatibility.

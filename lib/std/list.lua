@@ -305,47 +305,6 @@ local tail = export (M, "tail (List)", function (l)
 end)
 
 
---- Transpose a list of lists.
--- This function in Lua is equivalent to zip and unzip in more strongly
--- typed languages.
--- @static
--- @function transpose
--- @tparam table ls
--- `{{ls<1,1>, ..., ls<1,c>}, ..., {ls&lt;r,1>, ..., ls&lt;r,c>}}`
--- @treturn List new list containing
--- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
-local transpose = export (M, "transpose (List of Lists)", function (ls)
-  local rs, len, dims = List {}, base.len (ls), func.map (base.len, ielems, ls)
-  if #dims > 0 then
-    for i = 1, math.max (unpack (dims)) do
-      rs[i] = List {}
-      for j = 1, len do
-        rs[i][j] = ls[j][i]
-      end
-    end
-  end
-  return rs
-end)
-
-
---- Zip a list of lists together with a function.
--- @static
--- @function zip_with
--- @tparam  table    ls list of lists
--- @tparam  function fn function
--- @treturn List    a new list containing
---   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
--- where `N = max {map (function (l) return #l end, ls)}`
-
-local function map_with (fn, ls)
-  return List (func.map (func.compose (unpack, fn), ielems, ls))
-end
-
-local zip_with = export (M, "zip_with (List of Lists, function)", function (ls, fn)
-  return map_with (fn, transpose (ls))
-end)
-
-
 
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
@@ -409,6 +368,10 @@ M.map = DEPRECATED ("41", "'std.list.map'",
   "use 'std.functional.map' instead", map)
 
 
+local function map_with (fn, ls)
+  return List (func.map (func.compose (unpack, fn), ielems, ls))
+end
+
 M.map_with = DEPRECATED ("41", "'std.list.map_with'",
    "use 'std.functional.map_with' instead", map_with)
 
@@ -417,6 +380,31 @@ local function reverse (l) return List (ireverse (l)) end
 
 M.reverse = DEPRECATED ("41", "'std.list.reverse'",
   "use 'std.ireverse' instead", reverse)
+
+
+local function transpose (ls)
+  local rs, len, dims = List {}, base.len (ls), func.map (base.len, ielems, ls)
+  if #dims > 0 then
+    for i = 1, math.max (unpack (dims)) do
+      rs[i] = List {}
+      for j = 1, len do
+        rs[i][j] = ls[j][i]
+      end
+    end
+  end
+  return rs
+end
+
+M.transpose = DEPRECATED ("41", "'std.list.transpose'",
+  "use 'std.functional.zip' instead", transpose)
+
+
+local function zip_with (ls, fn)
+  return map_with (fn, transpose (ls))
+end
+
+M.zip_with = DEPRECATED ("41", "'std.list.zip_with'",
+  "use 'std.functional.zip_with' instead", zip_with)
 
 
 
