@@ -179,7 +179,7 @@ end)
 -- @tparam List l a list
 -- @treturn List flattened list
 local flatten = export (M, "flatten (List)", function (l)
-  return List (func.collect (base.leaves, ipairs, l))
+  return List (func.collect (base.tree.leaves, ipairs, l))
 end)
 
 

@@ -86,6 +86,7 @@ luastdbasedir = $(luastddir)/base
 
 dist_luastdbase_DATA =			\
 	lib/std/base/functional.lua	\
+	lib/std/base/tree.lua		\
 	$(NOTHING_ELSE)
 
 # For bugwards compatibility with LuaRocks 2.1, while ensuring that

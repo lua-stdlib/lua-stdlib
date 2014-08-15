@@ -19,7 +19,7 @@ local operator  = require "std.operator"
 local Container = container {}
 
 local ielems, ipairs, base_leaves, pairs, prototype =
-  base.ielems, base.ipairs, base.leaves, base.pairs, base.prototype
+  base.ielems, base.ipairs, base.tree.leaves, base.pairs, base.prototype
 local reduce = func.reduce
 
 local Tree -- forward declaration

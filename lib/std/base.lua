@@ -261,26 +261,6 @@ end
 
 
 
---[[ ======================= ]]--
---[[ Documented in tree.lua. ]]--
---[[ ======================= ]]--
-
-
-local function leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
-    end
-  end
-  return coroutine.wrap (visit), tr
-end
-
-
-
 --[[ ================== ]]--
 --[[ Argument Checking. ]]--
 --[[ ================== ]]--
@@ -918,9 +898,6 @@ return setmetatable ({
 
   -- table.lua --
   getmetamethod = getmetamethod,
-
-  -- tree.lua --
-  leaves = leaves,
 
   -- Argument Checking. --
   argcheck  = argcheck,
