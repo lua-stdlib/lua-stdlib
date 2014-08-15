@@ -11,12 +11,44 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local callable = base.functional.callable
-local export, ielems, ipairs, ireverse, pairs =
-  base.export, base.ielems, base.ipairs, base.ireverse, base.pairs
+local export, ielems, ipairs, ireverse, len, pairs =
+  base.export, base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
+local callable, reduce = base.functional.callable, base.functional.reduce
 
 local M = { "std.functional" }
 
+
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+local function memoize (fn, normalize)
+  if normalize == nil then
+    -- Call require here, to avoid pulling in all of 'std.string'
+    -- even when memoize is never called.
+    normalize = function (...) return require "std.base".tostring {...} end
+  end
+
+  return setmetatable ({}, {
+    __call = function (self, ...)
+               local k = normalize (...)
+               local t = self[k]
+               if t == nil then
+                 t = {fn (...)}
+                 self[k] = t
+               end
+               return unpack (t)
+             end
+  })
+end
+
+
+
+--[[ ================= ]]--
+--[[ Module Functions. ]]--
+--[[ ================= ]]--
 
 
 --- Partially apply a function.
@@ -248,7 +280,14 @@ end)
 -- @see reduce
 -- @usage
 -- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
-export (M, "foldl (function, [any], table)", base.functional.foldl)
+export (M, "foldl (function, [any], table)", function (fn, d, t)
+  if t == nil then
+    local tail = {}
+    for i = 2, len (d) do tail[#tail + 1] = d[i] end
+    d, t = d[1], tail
+  end
+  return reduce (fn, d, ipairs, t)
+end)
 
 
 --- Fold a binary function right associatively.
@@ -263,7 +302,14 @@ export (M, "foldl (function, [any], table)", base.functional.foldl)
 -- @see reduce
 -- @usage
 -- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
-export (M, "foldr (function, [any], table)", base.functional.foldr)
+export (M, "foldr (function, [any], table)", function (fn, d, t)
+  if t == nil then
+    local u, last = {}, len (d)
+    for i = 1, last - 1 do u[#u + 1] = d[i] end
+    d, t = d[last], u
+  end
+  return reduce (function (x, y) return fn (y, x) end, d, ipairs, ireverse (t))
+end)
 
 
 --- Identity function.
@@ -297,7 +343,7 @@ end
 -- lambda '<'
 -- lambda '= _1 < _2'
 -- lambda '|a,b| a<b'
-export (M, "lambda (string)", base.functional.memoize (function (s)
+export (M, "lambda (string)", memoize (function (s)
   local expr
 
   -- Support operator table lookup.
@@ -405,7 +451,7 @@ end)
 -- @treturn functable memoized function
 -- @usage
 -- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", base.functional.memoize)
+export (M, "memoize (func, func?)", memoize)
 
 
 --- No operation.
@@ -413,7 +459,7 @@ export (M, "memoize (func, func?)", base.functional.memoize)
 -- @function nop
 -- @usage
 -- if unsupported then vtable["memrmem"] = nop end
-M.nop = base.functional.nop
+M.nop = function () end
 
 
 --- Fold a binary function into an iterator.
@@ -428,7 +474,7 @@ M.nop = base.functional.nop
 -- @usage
 -- --> 2 ^ 3 ^ 4 ==> 4096
 -- reduce (lambda '^', 2, std.ipairs, {3, 4})
-export (M, "reduce (func, any, func, any*)", base.functional.reduce)
+export (M, "reduce (func, any, func, any*)", reduce)
 
 
 --- Zip a table of tables.
@@ -492,7 +538,7 @@ M.eval = DEPRECATED ("41", "'std.functional.eval'",
 
 
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
-  "use 'std.functional.reduce' instead", base.functional.reduce)
+  "use 'std.functional.reduce' instead", reduce)
 
 
 return M

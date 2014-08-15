@@ -37,7 +37,6 @@ local List      -- forward declaration
 local ipairs, pairs = base.ipairs, base.pairs
 local argerror, argscheck, export, ielems, prototype, ireverse =
   base.argerror, base.argscheck, base.export, base.ielems, base.prototype, base.ireverse
-local foldl, foldr = base.functional.foldl, base.functional.foldr
 
 local M = { "std.list" }
 
@@ -324,9 +323,28 @@ M.relems = DEPRECATED ("41", "'std.list.relems'",
   "compose 'std.ielems' and 'std.ireverse' instead", relems)
 
 
+local function foldl (fn, d, t)
+  if t == nil then
+    local tail = {}
+    for i = 2, len (d) do tail[#tail + 1] = d[i] end
+    d, t = d[1], tail
+  end
+  return base.functional.reduce (fn, d, ipairs, t)
+end
+
 M.foldl = DEPRECATED ("41", "'std.list.foldl'",
   "use 'std.functional.foldl' instead", foldl)
 
+
+local function foldr (fn, d, t)
+  if t == nil then
+    local u, last = {}, len (d)
+    for i = 1, last - 1 do u[#u + 1] = d[i] end
+    d, t = d[last], u
+  end
+  return base.functional.reduce (
+    function (x, y) return fn (y, x) end, d, ipairs, ireverse (t))
+end
 
 M.foldr = DEPRECATED ("41", "'std.list.foldr'",
   "use 'std.functional.foldr' instead", foldr)
