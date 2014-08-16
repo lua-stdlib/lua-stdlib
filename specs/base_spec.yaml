@@ -97,19 +97,15 @@ specify std.base:
 
 
 - describe export:
-  - before:
-      function mkstack (level, types)
+  - before: |
+      function mkstack (name, spec)
         return string.format ([[
-          _DEBUG = %s                                    -- line 1
-          local export = require "std.base".export       -- line 2
-          export ("ohnoes", 1, "table", t, %s) -- line 4
-          end                                            -- line 5
-          function caller ()                             -- line 6
-            local r = ohnoes "not a table"               -- line 7
-            return "not a tail call"                     -- line 8
-          end                                            -- line 9
-          caller ()                                      -- line 10
-        ]], tostring (debugp), tostring (level))
+          local export = require "std.base".export       -- line 1
+          local function caller ()                       -- line 2
+            export ({%s}, "%s", function () end)         -- line 3
+          end                                            -- line 4
+          caller ()                                      -- line 5
+        ]], tostring (name), tostring (spec))
       end
 
       mkmagic = function () return "MAGIC" end
@@ -129,16 +125,16 @@ specify std.base:
   - it diagnoses too many arguments:
       expect (f ({}, "", function () end, false)).
         to_error (toomanyarg (this_module, fname, 3, 4))
-  - it diagnoses missing module name element:
-      expect (f ({}, "", function () end)).
-        to_error (msg (1, "module name at index 1"))
-  - it diagnoses malformed declaration string: |
-      M = { "base_spec.yaml" }
-      expect (f (M, "", function () end)).to_error "function name expected"
-      expect (f (M, "woo", function () end)).
-        to_error "argument type specifications expected"
-      expect (f (M, "woo ()", function () end)).
-        to_error (msg (2, "at least 1 argument type", "0"))
+  - it diagnoses missing module name element at callsite: |
+      expect (luaproc (mkstack ("", ""))).
+        to_contain_error (":3: " .. msg (1, "module name at index 1"))
+  - it diagnoses malformed declaration string at callsite: |
+      expect (luaproc (mkstack ('"mkstack"', ""))).
+        to_contain_error (":3: " .. msg (2, "function name"))
+      expect (luaproc (mkstack ('"mkstack"', "woo"))).
+        to_contain_error (":3: " .. msg (2, "argument type specification"))
+      expect (luaproc (mkstack ('"mkstack"', "woo ()"))).
+        to_contain_error (":3: " .. msg (2, "at least 1 argument type", "0"))
 
   - it returns the supplied function:
       M = { "base_spec.yaml" }

@@ -460,24 +460,26 @@ local function formaterror (expectedtypes, actual, index)
   end
 
   -- Tidy up expected types for display.
-  local t = {}
-  for i, v in ipairs (expectedtypes) do
-    if v == "func" then
-      t[i] = "function"
-    elseif v == "any" then
-      t[i] = "any value"
-    elseif not index then
-      t[i] = v:match "(%S+) of %S+" or v
-    else
-      t[i] = v
+  local expectedstr = expectedtypes
+  if type (expectedtypes) == "table" then
+    local t = {}
+    for i, v in ipairs (expectedtypes) do
+      if v == "func" then
+        t[i] = "function"
+      elseif v == "any" then
+        t[i] = "any value"
+      elseif not index then
+        t[i] = v:match "(%S+) of %S+" or v
+      else
+        t[i] = v
+      end
     end
+    expectedstr = concat (t):
+                  gsub ("#table", "non-empty table"):
+	          gsub ("#list", "non-empty list"):
+                  gsub ("(%S+ of %S+)", "%1s"):
+		  gsub ("(%S+ of %S+)ss", "%1s")
   end
-
-  local expectedstr = concat (t):
-                      gsub ("#table", "non-empty table"):
-	              gsub ("#list", "non-empty list"):
-                      gsub ("(%S+ of %S+)", "%1s"):
-		      gsub ("(%S+ of %S+)ss", "%1s")
 
   return expectedstr .. " expected, got " .. actualtype
 end
@@ -701,13 +703,13 @@ local function export (M, decl, fn, ...)
     if arglen (args) > 3 then
       error (string.format (toomanyarg_fmt, fname, 3, arglen (args)), 2)
     elseif type (M[1]) ~= "string" then
-      argerror (fname, 1, "module name at index 1 expected, got no value")
+      argerror (fname, 1, formaterror ("module name at index 1", M[1]), 2)
     elseif name == nil then
-      argerror (fname, 2, "function name expected")
+      argerror (fname, 2, formaterror ("function name", name), 2)
     elseif types == nil then
-      argerror (fname, 2, "argument type specifications expected")
+      argerror (fname, 2, formaterror ("argument type specification", types), 2)
     elseif #types < 1 then
-      argerror (fname, 2, "at least 1 argument type expected, got 0")
+      argerror (fname, 2, "at least 1 argument type expected, got " .. #types, 2)
     end
 
     local name = M[1] .. (M[2] and ":" or ".") .. name
