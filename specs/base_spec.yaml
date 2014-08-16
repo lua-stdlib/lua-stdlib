@@ -133,8 +133,6 @@ specify std.base:
         to_contain_error (":3: " .. msg (2, "function name"))
       expect (luaproc (mkstack ('"mkstack"', "woo"))).
         to_contain_error (":3: " .. msg (2, "argument type specification"))
-      expect (luaproc (mkstack ('"mkstack"', "woo ()"))).
-        to_contain_error (":3: " .. msg (2, "at least 1 argument type", "0"))
 
   - it returns the supplied function:
       M = { "base_spec.yaml" }
@@ -153,6 +151,19 @@ specify std.base:
         os.exit (M.export == export and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()
+  - context when checking zero argument function:
+    - before:
+        fake_module = "base_spec.yaml"
+        M = { fake_module }
+        fname = "chk_function"
+        msg = function (...) return badarg (fake_module, fname, ...) end
+        f (M, "chk_function ()", mkmagic)
+        chk = M[fname]
+    - it diagnoses too many arguments:
+        expect (chk (false)).
+          to_error (toomanyarg (fake_module, fname, 0, 1))
+    - it accepts correct argument types:
+        expect (chk ()).to_be "MAGIC"
   - context when checking single argument function:
     - before:
         fake_module = "base_spec.yaml"

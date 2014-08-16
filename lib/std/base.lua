@@ -708,8 +708,6 @@ local function export (M, decl, fn, ...)
       argerror (fname, 2, formaterror ("function name", name), 2)
     elseif types == nil then
       argerror (fname, 2, formaterror ("argument type specification", types), 2)
-    elseif #types < 1 then
-      argerror (fname, 2, "at least 1 argument type expected, got " .. #types, 2)
     end
 
     local name = M[1] .. (M[2] and ":" or ".") .. name
@@ -717,7 +715,7 @@ local function export (M, decl, fn, ...)
     -- If the final element of types ends with "*", then set max to a
     -- sentinel value to denote type-checking of *all* remaining
     -- unchecked arguments against that type-spec is required.
-    local max, fin = #types, types[#types]:match "^(.+)%*$"
+    local max, fin = #types, (types[#types] or ""):match "^(.+)%*$"
     if fin then
       max = math.huge
       types[#types] = fin
