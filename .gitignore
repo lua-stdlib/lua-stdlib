@@ -25,7 +25,6 @@
 /doc/modules
 /lib/std.lua
 /luarocks
-/m4/ax_compare_version.m4
 /m4/ax_lua.m4
 /m4/slingshot.m4
 /specs/spec_helper.lua
