@@ -17,28 +17,25 @@ specify std.base:
         )
       end
 
-      fname = "DEPRECATED"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "DEPRECATED")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f "version").to_error (msg (2, "string"))
-      expect (f ("version", "name")).to_error (msg (3, "string or function"))
-      expect (f ("version", "name", "extramsg")).to_error (msg (4, "function"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f "version").to_error (badarg (2, "string"))
+      expect (f ("version", "name")).to_error (badarg (3, "string or function"))
+      expect (f ("version", "name", "extramsg")).to_error (badarg (4, "function"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("version", false)).to_error (msg (2, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("version", false)).to_error (badarg (2, "string", "boolean"))
       expect (f ("version", "name", false)).
-        to_error (msg (3, "string or function", "boolean"))
+        to_error (badarg (3, "string or function", "boolean"))
       expect (f ("version", "name", "extramsg", false)).
-        to_error (msg (4, "function", "boolean"))
+        to_error (badarg (4, "function", "boolean"))
   - it diagnoses too many arguments: |
       expect (f ("version", "name", "extramsg", nop, false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+        to_error (badarg (5))
       pending "issue #76"
-      expect (f ("version", "name", nop, false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ("version", "name", nop, false)).to_error (badarg (4))
 
   - it returns a function:
       expect (type (f ("0", "deprecated", nop))).to_be "function"
@@ -110,29 +107,26 @@ specify std.base:
 
       mkmagic = function () return "MAGIC" end
 
-      fname = "export"
-      msg = function (...) return badarg (this_module, fname, ...) end
-      f = M[fname]
+      f, badarg = init (M, "export")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
-      expect (f ({})).to_error (msg (2, "string"))
-      expect (f ({}, "")).to_error (msg (3, "function"))
+      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ({})).to_error (badarg (2, "string"))
+      expect (f ({}, "")).to_error (badarg (3, "function"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
-      expect (f ({}, false)).to_error (msg (2, "string", "boolean"))
-      expect (f ({}, "", false)).to_error (msg (3, "function", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f ({}, false)).to_error (badarg (2, "string", "boolean"))
+      expect (f ({}, "", false)).to_error (badarg (3, "function", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, "", function () end, false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ({}, "", function () end, false)).to_error (badarg (4))
   - it diagnoses missing module name element at callsite: |
       expect (luaproc (mkstack ("", ""))).
-        to_contain_error (":3: " .. msg (1, "module name at index 1"))
+        to_contain_error (":3: " .. badarg (1, "module name at index 1"))
   - it diagnoses malformed declaration string at callsite: |
       expect (luaproc (mkstack ('"mkstack"', ""))).
-        to_contain_error (":3: " .. msg (2, "function name"))
+        to_contain_error (":3: " .. badarg (2, "function name"))
       expect (luaproc (mkstack ('"mkstack"', "woo"))).
-        to_contain_error (":3: " .. msg (2, "argument type specification"))
+        to_contain_error (":3: " .. badarg (2, "argument type specification"))
 
   - it returns the supplied function:
       M = { "base_spec.yaml" }
@@ -151,115 +145,100 @@ specify std.base:
         os.exit (M.export == export and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()
+
   - context when checking zero argument function:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module }
-        fname = "chk_function"
-        msg = function (...) return badarg (fake_module, fname, ...) end
+        M = { "base_spec.yaml" }
+        _, badarg = init (M, "chk_function")
         f (M, "chk_function ()", mkmagic)
-        chk = M[fname]
+        chk = M.chk_function
     - it diagnoses too many arguments:
-        expect (chk (false)).
-          to_error (toomanyarg (fake_module, fname, 0, 1))
+        expect (chk (false)).to_error (badarg (1))
     - it accepts correct argument types:
         expect (chk ()).to_be "MAGIC"
+
   - context when checking single argument function:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module }
-        fname = "chk_function"
-        msg = function (...) return badarg (fake_module, fname, ...) end
+        M = { "base_spec.yaml" }
+        _, badarg = init (M, "chk_function")
         f (M, "chk_function (#table)", mkmagic)
-        chk = M[fname]
+        chk = M.chk_function
     - it diagnoses missing arguments:
-        expect (chk ()).to_error (msg (1, "non-empty table"))
+        expect (chk ()).to_error (badarg (1, "non-empty table"))
     - it diagnoses wrong argument types:
-        expect (chk {}).to_error (msg (1, "non-empty table", "empty table"))
+        expect (chk {}).to_error (badarg (1, "non-empty table", "empty table"))
     - it diagnoses too many arguments:
-        expect (chk ({1}, 2, nop, "", false)).
-          to_error (toomanyarg (fake_module, fname, 1, 5))
+        expect (chk ({1}, 2, nop, "", false)).to_error (badarg (1, 5))
     - it accepts correct argument types:
         expect (chk ({1})).to_be "MAGIC"
+
   - context when checking multi-argument function:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module }
-        fname = "chk_function"
-        msg = function (...) return badarg (fake_module, fname, ...) end
+        M = { "base_spec.yaml" }
+        _, badarg = init (M, "chk_function")
         f (M, "chk_function (table, function)", mkmagic)
-        chk = M[fname]
+        chk = M.chk_function
     - it diagnoses missing arguments:
-        expect (chk ()).to_error (msg (1, "table"))
-        expect (chk ({})).to_error (msg (2, "function"))
+        expect (chk ()).to_error (badarg (1, "table"))
+        expect (chk ({})).to_error (badarg (2, "function"))
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_error (msg (1, "table", "boolean"))
-        expect (chk ({}, false)).to_error (msg (2, "function", "boolean"))
+        expect (chk (false)).to_error (badarg (1, "table", "boolean"))
+        expect (chk ({}, false)).to_error (badarg (2, "function", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk ({}, nop, false)).
-          to_error (toomanyarg (fake_module, fname, 2, 3))
+        expect (chk ({}, nop, false)).to_error (badarg (3))
     - it accepts correct argument types:
         expect (chk ({}, nop)).to_be "MAGIC"
+
   - context when checking optional argument function:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module }
-        fname = "chk_function"
-        msg = function (...) return badarg (fake_module, fname, ...) end
+        M = { "base_spec.yaml" }
+        _, badarg = init (M, "chk_function")
         f (M, "chk_function ([int])", mkmagic)
-        chk = M[fname]
+        chk = M.chk_function
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_error (msg (1, "int or nil", "boolean"))
+        expect (chk (false)).to_error (badarg (1, "int or nil", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk (1, nop)).
-          to_error (toomanyarg (fake_module, fname, 1, 2))
+        expect (chk (1, nop)).to_error (badarg (2))
     - it accepts correct argument types:
         expect (chk ()).to_be "MAGIC"
         expect (chk (1)).to_be "MAGIC"
+
   - context when checking optional multi-argument function:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module }
-        fname = "chk_function"
-        msg = function (...) return badarg (fake_module, fname, ...) end
+        M = { "base_spec.yaml" }
+        _, badarg = init (M, "chk_function")
         f (M, "chk_function ([int], string)", mkmagic)
-        chk = M[fname]
+        chk = M.chk_function
     - it diagnoses missing arguments:
-        expect (chk ()).to_error (msg (1, "int or string"))
-        expect (chk (1)).to_error (msg (2, "string"))
+        expect (chk ()).to_error (badarg (1, "int or string"))
+        expect (chk (1)).to_error (badarg (2, "string"))
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_error (msg (1, "int or string", "boolean"))
+        expect (chk (false)).to_error (badarg (1, "int or string", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk (1, "two", nop)).
-          to_error (toomanyarg (fake_module, fname, 2, 3))
+        expect (chk (1, "two", nop)).to_error (badarg (3))
     - it accepts correct argument types:
         expect (chk ("two")).to_be "MAGIC"
         expect (chk (1, "two")).to_be "MAGIC"
+
   - context when checking self on an object method:
     - before:
-        fake_module = "base_spec.yaml"
-        M = { fake_module, "Object" }
-        fname = "chk_method"
-        msg = function (...)
-                return badarg (nil, fake_module .. ":" .. fname, ...)
-              end
+        M = { "base_spec.yaml", "Object" }
+        _, badarg = init (M, "chk_method")
         f (M, "chk_method (string)", function (self, x) return x end)
         Object = require "std.object" {}
         Bad = Object { _type = "Bad" }
         obj = Object { chk = M.chk_method }
     - it diagnoses missing arguments:
-        expect (obj.chk ()).to_error (msg (0, "Object"))
-        expect (obj:chk ()).to_error (msg (1, "string"))
+        expect (obj.chk ()).to_error (badarg (0, "Object"))
+        expect (obj:chk ()).to_error (badarg (1, "string"))
     - it diagnoses wrong argument types:
-        expect (obj.chk ({})).to_error (msg (0, "Object", "empty table"))
-        expect (obj.chk (Bad)).to_error (msg (0, "Object", "Bad"))
-        expect (obj:chk ({})).to_error (msg (1, "string", "empty table"))
-        expect (obj:chk (obj)).to_error (msg (1, "string", "Object"))
+        expect (obj.chk ({})).to_error (badarg (0, "Object", "empty table"))
+        expect (obj.chk (Bad)).to_error (badarg (0, "Object", "Bad"))
+        expect (obj:chk ({})).to_error (badarg (1, "string", "empty table"))
+        expect (obj:chk (obj)).to_error (badarg (1, "string", "Object"))
     - it diagnoses too many arguments:
-        expect (obj.chk (obj, "str", false)).
-          to_error (toomanyarg (nil, fake_module .. ":" .. fname, 1, 2))
-        expect (obj:chk ("str", false)).
-          to_error (toomanyarg (nil, fake_module .. ":" .. fname, 1, 2))
+        expect (obj.chk (obj, "str", false)).to_error (badarg (2))
+        expect (obj:chk ("str", false)).to_error (badarg (2))
     - it accepts correct argument types:
         expect (obj.chk (obj, "str")).to_be "str"
         expect (obj.chk (Object, "str")).to_be "str"

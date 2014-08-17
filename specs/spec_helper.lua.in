@@ -94,31 +94,35 @@ end
 
 
 --- Return a formatted bad argument string.
+-- @tparam table M module table
 -- @string fname base-name of the erroring function
 -- @int i argument number
 -- @string want expected argument type
 -- @string[opt="no value"] got actual argument type
 -- @usage
---   expect (f ()).to_error (badarg (module, name, 1, "function"))
-function badarg (mname, fname, i, want, got)
-  local name = fname
-  if mname then name = mname .. "." .. name end
+--   expect (f ()).to_error (badarg (M, name, 1, "function"))
+local function badarg (M, fname, i, want, got)
+  fname = tostring (M[1]) .. (rawget (M, 2) and ":" or ".") .. fname
+  if want == nil then i, want = i - 1, i end
+
+  if got == nil and type (want) == "number" then
+    return string.format ("too many arguments to '%s' (no more than %d expected, got %d)",
+                          fname, i, want)
+  end
   return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
-                        i, name, want, got or "no value")
+                        i, fname, want, got or "no value")
 end
 
 
---- Return a formatted too many arguments string.
--- @string fname base-name of the erroring function
--- @int want maximum expected number of arguments
--- @int got actual number of arguments
--- @usage
---   expect (f (1, 2)).to_error (toomanyarg (module, name, 1, 2))
-function toomanyarg (mname, fname, want, got)
-  local name = fname
-  if mname then name = mname .. "." .. name end
-  return string.format ("too many arguments to '%s' (no more than %d expected, got %d)",
-                        name, want, got)
+--- Initialise custom function and argument error handlers.
+-- @tparam table M module table
+-- @string fname function name to bind
+-- @treturn string *fname*
+-- @treturn function `M[fname]` if any, otherwise `nil`
+-- @treturn function badarg with *M* and *fname* prebound
+-- @treturn function toomanyarg with *M* and *fname* prebound
+function init (M, fname)
+  return M[fname], bind (badarg, {M, fname})
 end
 
 

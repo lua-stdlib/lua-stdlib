@@ -59,9 +59,7 @@ specify std.string:
 
 - describe assert:
   - before:
-      fname = "assert"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f = M.assert
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
@@ -97,16 +95,14 @@ specify std.string:
 
 - describe caps:
   - before:
-      fname = "caps"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "caps")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ("string", false)).to_error (badarg (2))
 
   - it capitalises words of a string:
       target = "A String \n\n"
@@ -125,16 +121,14 @@ specify std.string:
   - before:
       target = "a string \n"
 
-      fname = "chomp"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "chomp")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ("string", false)).to_error (badarg (2))
 
   - it removes a single trailing newline from a string:
       expect (f (subject)).to_be (target)
@@ -157,16 +151,14 @@ specify std.string:
         magic[meta:sub (i, i)] = true
       end
 
-      fname = "escape_pattern"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "escape_pattern")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ("string", false)).to_error (badarg (2))
 
   - context with each printable ASCII char:
     - before:
@@ -189,16 +181,14 @@ specify std.string:
 
 - describe escape_shell:
   - before:
-      fname = "escape_shell"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "escape_shell")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ("string", false)).to_error (badarg (2))
 
   - context with each printable ASCII char:
     - before:
@@ -226,23 +216,21 @@ specify std.string:
   - before:
       subject = "abcd"
 
-      fname = "finds"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "finds")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f ("string")).to_error (msg (2, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ("string")).to_error (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("string", false)).to_error (msg (2, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (badarg (2, "string", "boolean"))
       expect (f ("string", "pattern", false)).
-        to_error (msg (3, "int or nil", "boolean"))
+        to_error (badarg (3, "int or nil", "boolean"))
       expect (f ("string", "pattern", nil, "plain")).
-        to_error (msg (4, "boolean, :plain or nil", "string"))
+        to_error (badarg (4, "boolean, :plain or nil", "string"))
   - it diagnoses too many arguments:
       expect (f ("string", "pattern", nil, false, function () end)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+        to_error (badarg (5))
 
   - context given a complex nested list:
     - before:
@@ -270,14 +258,12 @@ specify std.string:
   - before:
       subject = "string=%s, number=%d"
 
-      fname = "format"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "format")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
 
   - it returns a single argument without attempting formatting:
       expect (f (subject)).to_be (subject)
@@ -293,19 +279,16 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      fname = "ltrim"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ltrim")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
       expect (f ("string", false)).
-        to_error (msg (2, "string or nil", "boolean"))
+        to_error (badarg (2, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ("string", "pattern", false)).to_error (badarg (3))
 
   - it removes whitespace from the start of a string:
       target = "a  short  string  \t\r\n   "
@@ -324,17 +307,15 @@ specify std.string:
 
 - describe monkey_patch:
   - before:
-      fname = "monkey_patch"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "monkey_patch")
 
       t  = {}
       f (t)
 
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (t, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f (t, false)).to_error (badarg (2))
 
   - it installs concat metamethod:
       # FIXME: string metatable monkey-patches leak out!
@@ -348,16 +329,14 @@ specify std.string:
 
 - describe numbertosi:
   - before:
-      fname = "numbertosi"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "numbertosi")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "number or string"))
+      expect (f ()).to_error (badarg (1, "number or string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "number or string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "number or string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (1, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f (1, false)).to_error (badarg (2))
 
   - it returns a number using SI suffixes:
       target = {"1e-9", "1y", "1z", "1a", "1f", "1p", "1n", "1mu", "1m", "1",
@@ -374,16 +353,14 @@ specify std.string:
 
 - describe ordinal_suffix:
   - before:
-      fname = "ordinal_suffix"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ordinal_suffix")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "int or string"))
+      expect (f ()).to_error (badarg (1, "int or string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "int or string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "int or string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (1, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f (1, false)).to_error (badarg (2))
 
   - it returns the English suffix for a number:
       subject, target = {}, {}
@@ -406,21 +383,18 @@ specify std.string:
   - before:
       width = 20
 
-      fname = "pad"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "pad")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f ("string")).to_error (msg (2, "int"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ("string")).to_error (badarg (2, "int"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("string", false)).to_error (msg (2, "int", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (badarg (2, "int", "boolean"))
       expect (f ("string", 42, false)).
-        to_error (msg (3, "string or nil", "boolean"))
+        to_error (badarg (3, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", 42, "\t", false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ("string", 42, "\t", false)).to_error (badarg (4))
 
   - context when string is shorter than given width:
     - before:
@@ -485,17 +459,14 @@ specify std.string:
 
 - describe prettytostring:
   - before:
-      fname = "prettytostring"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "prettytostring")
 
   - it diagnoses wrong argument types:
-      expect (f (true, false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f (true, false)).to_error (badarg (2, "string or nil", "boolean"))
       expect (f (true, "indent", false)).
-        to_error (msg (3, "string or nil", "boolean"))
+        to_error (badarg (3, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (true, "indent", "spacing", false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f (true, "indent", "spacing", false)).to_error (badarg (4))
 
   - it renders nil exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))
@@ -541,28 +512,25 @@ specify std.string:
       t = {1, {{2, 3}, 4, {5}}}
       a = require "std.vector" {"a", "b", {{"c"},"d"},"e"}
 
-      fname = "render"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "render")
 
   - it diagnoses missing arguments:
-      expect (f (true)).to_error (msg (2, "function"))
-      expect (f (true, f)).to_error (msg (3, "function"))
-      expect (f (true, f, f)).to_error (msg (4, "function"))
-      expect (f (true, f, f, f)).to_error (msg (5, "function"))
-      expect (f (true, f, f, f, f)).to_error (msg (6, "function"))
+      expect (f (true)).to_error (badarg (2, "function"))
+      expect (f (true, f)).to_error (badarg (3, "function"))
+      expect (f (true, f, f)).to_error (badarg (4, "function"))
+      expect (f (true, f, f, f)).to_error (badarg (5, "function"))
+      expect (f (true, f, f, f, f)).to_error (badarg (6, "function"))
   - it diagnoses wrong argument types:
-      expect (f (true, false)).to_error (msg (2, "function", "boolean"))
-      expect (f (true, f, false)).to_error (msg (3, "function", "boolean"))
-      expect (f (true, f, f, false)).to_error (msg (4, "function", "boolean"))
-      expect (f (true, f, f, f, false)).to_error (msg (5, "function", "boolean"))
+      expect (f (true, false)).to_error (badarg (2, "function", "boolean"))
+      expect (f (true, f, false)).to_error (badarg (3, "function", "boolean"))
+      expect (f (true, f, f, false)).to_error (badarg (4, "function", "boolean"))
+      expect (f (true, f, f, f, false)).to_error (badarg (5, "function", "boolean"))
       expect (f (true, f, f, f, f, false)).
-        to_error (msg (6, "function", "boolean"))
+        to_error (badarg (6, "function", "boolean"))
       expect (f (true, f, f, f, f, f, false)).
-        to_error (msg (7, "table or nil", "boolean"))
+        to_error (badarg (7, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (true, f, f, f, f, f, {}, false)).
-        to_error (toomanyarg (this_module, fname, 7, 8))
+      expect (f (true, f, f, f, f, f, {}, false)).to_error (badarg (8))
 
   - it converts a primitive to a representative string:
       expect (r (nil)).to_be "nil"
@@ -585,8 +553,7 @@ specify std.string:
 
 - describe require_version:
   - before:
-      fname = "require_version"
-      f = M[fname]
+      f = M.require_version
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
@@ -647,18 +614,15 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      fname = "rtrim"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "rtrim")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("string", false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (badarg (2, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ("string", "pattern", false)).to_error (badarg (3))
 
   - it removes whitespace from the end of a string:
       target = " \t\r\n  a  short  string"
@@ -680,19 +644,16 @@ specify std.string:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
 
-      fname = "split"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "split")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
       expect (f ("string", false)).
-        to_error (msg (2, "string or nil", "boolean"))
+        to_error (badarg (2, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ("string", "pattern", false)).to_error (badarg (3))
 
   - it falls back to "%s+" when no pattern is given:
       expect (f (subject)).
@@ -732,23 +693,20 @@ specify std.string:
   - before:
       subject = "abc"
 
-      fname = "tfind"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "tfind")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f ("string")).to_error (msg (2, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ("string")).to_error (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("string", false)).to_error (msg (2, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (badarg (2, "string", "boolean"))
       expect (f ("string", "pattern", false)).
-        to_error (msg (3, "int or nil", "boolean"))
+        to_error (badarg (3, "int or nil", "boolean"))
       expect (f ("string", "pattern", 1, "plain")).
-        to_error (msg (4, "boolean, :plain or nil", "string"))
+        to_error (badarg (4, "boolean, :plain or nil", "string"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", 1, true, false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+      expect (f ("string", "pattern", 1, true, false)).to_error (badarg (5))
 
   - it creates a list of pattern captures:
       target = { 1, 3, { "a", "b", "c" } }
@@ -773,8 +731,7 @@ specify std.string:
 
 - describe tostring:
   - before:
-      fname = "tostring"
-      f = M[fname]
+      f = M.tostring
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {"std.string"})
@@ -811,19 +768,16 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      fname = "trim"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "trim")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
       expect (f ("string", false)).
-        to_error (msg (2, "string or nil", "boolean"))
+        to_error (badarg (2, "string or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", "pattern", false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ("string", "pattern", false)).to_error (badarg (3))
 
   - it removes whitespace from each end of a string:
       target = "a  short  string"
@@ -848,22 +802,19 @@ specify std.string:
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
 
-      fname = "wrap"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "wrap")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("string", false)).to_error (msg (2, "int or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("string", false)).to_error (badarg (2, "int or nil", "boolean"))
       expect (f ("string", 72, false)).
-        to_error (msg (3, "int or nil", "boolean"))
+        to_error (badarg (3, "int or nil", "boolean"))
       expect (f ("string", 72, 4, false)).
-        to_error (msg (4, "int or nil", "boolean"))
+        to_error (badarg (4, "int or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", 72, 4, 8, false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+      expect (f ("string", 72, 4, 8, false)).to_error (badarg (5))
 
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..

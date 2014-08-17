@@ -51,12 +51,10 @@ specify std:
 
 - describe assert:
   - before:
-      fname = "assert"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "assert")
 
   - it diagnoses wrong argument types:
-      expect (f (false, false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f (false, false)).to_error (badarg (2, "string or nil", "boolean"))
 
   - context when it does not trigger:
     - it has a truthy initial argument:
@@ -94,16 +92,14 @@ specify std:
         table = {},
       }
 
-      fname = "barrel"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "barrel")
 
       f (t)
 
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (M.io.readlines)
@@ -169,16 +165,14 @@ specify std:
 
 - describe elems:
   - before:
-      fname = "elems"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "elems")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it is an iterator over table values:
       t = {}
@@ -199,16 +193,14 @@ specify std:
 
 - describe eval:
   - before:
-      fname = "eval"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "eval")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("1", false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ("1", false)).to_error (badarg (2))
 
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable "=" code.
@@ -219,19 +211,16 @@ specify std:
 
 - describe getmetamethod:
   - before:
-      fname = "getmetamethod"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "getmetamethod")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "object or table"))
-      expect (f ({})).to_error (msg (2, "string"))
+      expect (f ()).to_error (badarg (1, "object or table"))
+      expect (f ({})).to_error (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "object or table", "boolean"))
-      expect (f ({}, false)).to_error (msg (2, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "object or table", "boolean"))
+      expect (f ({}, false)).to_error (badarg (2, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, "foo", false)).
-       to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ({}, "foo", false)).to_error (badarg (3))
 
   - context with a table:
     - before:
@@ -262,16 +251,14 @@ specify std:
 
 - describe ielems:
   - before:
-      fname = "ielems"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ielems")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -297,16 +284,14 @@ specify std:
 
 - describe ipairs:
   - before:
-      fname = "ipairs"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ipairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -332,16 +317,14 @@ specify std:
 
 - describe ireverse:
   - before:
-      fname = "ireverse"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ireverse")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it returns a new list:
       t = {1, 2, 5}
@@ -369,16 +352,14 @@ specify std:
         table = {},
       }
 
-      fname = "monkey_patch"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "monkey_patch")
 
       f (t)
 
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it installs std module functions:
       for _, v in ipairs (exported_apis) do
@@ -390,16 +371,14 @@ specify std:
 
 - describe pairs:
   - before:
-      fname = "pairs"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "pairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it is an iterator over all table values:
       t = {}
@@ -420,22 +399,20 @@ specify std:
 
 - describe require:
   - before:
-      fname = "require"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "require")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("module", false)).to_error (msg (2, "string or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("module", false)).to_error (badarg (2, "string or nil", "boolean"))
       expect (f ("module", "min", false)).
-        to_error (msg (3, "string or nil", "boolean"))
+        to_error (badarg (3, "string or nil", "boolean"))
       expect (f ("module", "min", "too_big", false)).
-        to_error (msg (4, "string or nil", "boolean"))
+        to_error (badarg (4, "string or nil", "boolean"))
   - it diagnoses too many arguments:
       expect (f ("module", "min", "too_big", "pattern", false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+        to_error (badarg (5))
 
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
@@ -502,17 +479,14 @@ specify std:
 
 - describe ripairs:
   - before:
-      fname = "ripairs"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "ripairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).
-        to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f ({}, false)).to_error (badarg (2))
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
@@ -540,12 +514,10 @@ specify std:
 
 - describe tostring:
   - before:
-      fname = "tostring"
-      f = M[fname]
+      f, badarg = init (M, "tostring")
 
   - it diagnoses too many arguments:
-      expect (f (true, false)).
-        to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f (true, false)).to_error (badarg (2))
 
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))

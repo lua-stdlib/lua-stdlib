@@ -35,21 +35,18 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      fname = "clone"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "clone")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
       expect (f ({}, "nometa")).
-        to_error (msg (2, "table, boolean, :nometa or nil", "string"))
+        to_error (badarg (2, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, "nometa")).
-        to_error (msg (3, "boolean, :nometa or nil", "string"))
+        to_error (badarg (3, "boolean, :nometa or nil", "string"))
   - it diagnoses too many arguments:
-      expect (f ({}, {}, nil, false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ({}, {}, nil, false)).to_error (badarg (4))
 
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
@@ -120,21 +117,18 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      fname = "clone_select"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "clone_select")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "table"))
+      expect (f ()).to_error (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "table", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
       expect (f ({}, "nometa")).
-        to_error (msg (2, "table, boolean, :nometa or nil", "string"))
+        to_error (badarg (2, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, "nometa")).
-        to_error (msg (3, "boolean, :nometa or nil", "string"))
+        to_error (badarg (3, "boolean, :nometa or nil", "string"))
   - it diagnoses too many arguments:
-      expect (f ({}, {}, nil, false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ({}, {}, nil, false)).to_error (badarg (4))
 
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
@@ -163,13 +157,15 @@ specify std.table:
 
 - describe empty:
   - before:
-      f = M.empty
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.empty' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.empty' (table expected, got boolean)"
+      f, badarg = init (M, "empty")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it returns true for an empty table:
       expect (f {}).to_be (true)
       expect (f {nil}).to_be (true)
@@ -182,13 +178,16 @@ specify std.table:
 - describe invert:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = M.invert
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.invert' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.invert' (table expected, got boolean)"
+
+      f, badarg = init (M, "invert")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it returns a new table:
       expect (f (subject)).not_to_be (subject)
   - it inverts keys and values in the returned table:
@@ -203,13 +202,16 @@ specify std.table:
 - describe keys:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = M.keys
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.keys' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.keys' (table expected, got boolean)"
+
+      f, badarg = init (M, "keys")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
   - it makes a list of table keys:
@@ -229,25 +231,28 @@ specify std.table:
       t1   = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
       t2   = { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = t1.k1 }
       t1mt = setmetatable (M.clone (t1), {"meta!"})
-      f    = M.merge
-
       target = {}
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.merge' (table expected, got no value)"
-      expect (f ({})).
-        to_error "bad argument #2 to 'std.table.merge' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.merge' (table expected, got boolean)"
-      expect (f ({}, false)).
-        to_error "bad argument #2 to 'std.table.merge' (table expected, got boolean)"
+
+      f, badarg = init (M, "merge")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ({})).to_error (badarg (2, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f ({}, false)).to_error (badarg (2, "table", "boolean"))
       expect (f ({}, {}, "nometa")).
-        to_error "bad argument #3 to 'std.table.merge' (table, boolean, :nometa or nil expected, got string)"
+        to_error (badarg (3, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, {}, "nometa")).
-        to_error "bad argument #4 to 'std.table.merge' (boolean, :nometa or nil expected, got string)"
+        to_error (badarg (4, "boolean, :nometa or nil", "string"))
+  - it diagnoses too many arguments: |
+      expect (f ({}, {}, {}, ":nometa", false)).
+        to_error (badarg (5))
+      pending "issue #78"
+      expect (f ({}, {}, ":nometa", false)).to_error (badarg (4))
+
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
   - it does not change t1 when t2 is empty:
@@ -293,25 +298,28 @@ specify std.table:
       t1mt     = setmetatable (M.clone (t1), {"meta!"})
       t2       = { ["if"] = true, [tablekey] = false, _ = "underscore", k3 = t1.k1 }
       t2keys   = { "if", tablekey, "_", "k3" }
-      f        = M.merge_select
-
       target = {}
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.merge_select' (table expected, got no value)"
-      expect (f ({})).
-        to_error "bad argument #2 to 'std.table.merge_select' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.merge_select' (table expected, got boolean)"
-      expect (f ({}, false)).
-        to_error "bad argument #2 to 'std.table.merge_select' (table expected, got boolean)"
+
+      f, badarg = init (M, "merge_select")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ({})).to_error (badarg (2, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f ({}, false)).to_error (badarg (2, "table", "boolean"))
       expect (f ({}, {}, "nometa")).
-        to_error "bad argument #3 to 'std.table.merge_select' (table, boolean, :nometa or nil expected, got string)"
+        to_error (badarg (3, "table, boolean, :nometa or nil", "string"))
       expect (f ({}, {}, {}, "nometa")).
-        to_error "bad argument #4 to 'std.table.merge_select' (boolean, :nometa or nil expected, got string)"
+        to_error (badarg (4, "boolean, :nometa or nil", "string"))
+  - it diagnoses too many arguments: |
+      expect (f ({}, {}, {}, ":nometa", false)).
+        to_error (badarg (5))
+      pending "issue #78"
+      expect (f ({}, {}, ":nometa", false)).to_error (badarg (4))
+
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
   - it does not change t1 when t2 is empty:
@@ -355,8 +363,7 @@ specify std.table:
         _method = objmethod,
       }
 
-      fname = "metamethod"
-      f = M[fname]
+      f = M.metamethod
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
@@ -377,25 +384,30 @@ specify std.table:
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
-      t  = {
+      f, badarg = init (M, "monkey_patch")
+
+      t = {
         table = {},
       }
       f (t)
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.monkey_patch' (table or nil expected, got boolean)"
+
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it installs table.sort function:
       expect (t.table.sort).to_be (M.sort)
 
 
 - describe new:
   - before:
-      f = M.new
+      f, badarg = init (M, "new")
 
-  - it diagnoses wrong argument types: |
-      expect (f (nil, false)).
-        to_error "bad argument #2 to 'std.table.new' (table or nil expected, got boolean)"
+  - it diagnoses wrong argument types:
+      expect (f (nil, false)).to_error (badarg (2, "table or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, {}, false)).to_error (badarg (3))
 
   - context when not setting a default:
     - before: default = nil
@@ -443,8 +455,7 @@ specify std.table:
 
 - describe ripairs:
   - before:
-      fname = "ripairs"
-      f = M[fname]
+      f = M.ripairs
 
   - it writes a deprecation warning to standard error on first call: |
       _, err = capture (f, {{}, subject})
@@ -472,13 +483,16 @@ specify std.table:
   - before: |
       --          - 1 -  --------- 2 ----------  -- 3 --
       subject = { "one", { { "two" }, "three" }, four = 5 }
-      f = M.size
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.size' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.size' (table expected, got boolean)"
+
+      f, badarg = init (M, "size")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it counts the number of keys in a table:
       expect (f (subject)).to_be (3)
   - it counts no keys in an empty table:
@@ -490,15 +504,17 @@ specify std.table:
       subject = { 5, 2, 4, 1, 0, 3 }
       target  = { 0, 1, 2, 3, 4, 5 }
       cmp     = function (a, b) return a < b end
-      f       = M.sort
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.sort' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.sort' (table expected, got boolean)"
-      expect (f ({}, false)).
-        to_error "bad argument #2 to 'std.table.sort' (function or nil expected, got boolean)"
+
+      f, badarg = init (M, "sort")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f ({}, false)).to_error (badarg (2, "function or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, f, false)).to_error (badarg (3))
+
   - it sorts elements in place:
       f (subject, cmp)
       expect (subject).to_equal (target)
@@ -511,13 +527,16 @@ specify std.table:
       t  = {"one", "two", "five"}
       mt = { _type = "MockObject",
              __totable = function (self) return self.content end }
-      f  = M.totable
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.totable' (object, table or string expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.totable' (object, table or string expected, got boolean)"
+
+      f, badarg = init (M, "totable")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "object, table or string"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "object, table or string", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it calls object's __totable metamethod:
       object = setmetatable ({content = t}, mt)
       expect (f (object)).to_be (t)
@@ -530,13 +549,16 @@ specify std.table:
 - describe values:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
-      f       = M.values
-  - it diagnoses missing arguments: |
-      expect (f ()).
-        to_error "bad argument #1 to 'std.table.values' (table expected, got no value)"
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_error "bad argument #1 to 'std.table.values' (table expected, got boolean)"
+
+      f, badarg = init (M, "values")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_error (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_error (badarg (2))
+
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
   - it makes a list of table values:

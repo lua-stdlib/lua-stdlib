@@ -46,26 +46,23 @@ specify std.debug:
         ]], tostring (level))
       end
 
-      fname = "argerror"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "argerror")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f "foo").to_error (msg (2, "int"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f "foo").to_error (badarg (2, "int"))
   - it diagnoses wrong argument types:
       pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_error (badarg (2, "int", "boolean"))
       expect (f ("foo", 1, false)).
-        to_error (msg (3, "string or nil", "boolean"))
+        to_error (badarg (3, "string or nil", "boolean"))
       expect (f ("foo", 1, "bar", false)).
-        to_error (msg (4, "int or nil", "boolean"))
+        to_error (badarg (4, "int or nil", "boolean"))
   - it diagnoses too many arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f ("foo", 1, "bar", 2, false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+      expect (f ("foo", 1, "bar", 2, false)).to_error (badarg (5))
 
   - it blames the call site by default: |
       expect (luaproc (mkstack ())).to_contain_error ":4: bad argument"
@@ -103,26 +100,23 @@ specify std.debug:
         ]], tostring (debugp), tostring (level))
       end
 
-      fname = "argcheck"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "argcheck")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f "foo").to_error (msg (2, "int"))
-      expect (f ("foo", 1)).to_error (msg (3, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f "foo").to_error (badarg (2, "int"))
+      expect (f ("foo", 1)).to_error (badarg (3, "string"))
   - it diagnoses wrong argument types:
       pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("foo", false)).to_error (msg (2, "int", "boolean"))
-      expect (f ("foo", 1, false)).to_error (msg (3, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_error (badarg (2, "int", "boolean"))
+      expect (f ("foo", 1, false)).to_error (badarg (3, "string", "boolean"))
       expect (f ("foo", 1, "bar", 2, false)).
-        to_error (msg (5, "int or nil", "boolean"))
+        to_error (badarg (5, "int or nil", "boolean"))
   - it diagnoses too many arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f ("foo", 1, "bar", 2, 3, false)).
-        to_error (toomanyarg (this_module, fname, 5, 6))
+      expect (f ("foo", 1, "bar", 2, 3, false)).to_error (badarg (6))
 
   - it blames the calling function by default: |
       expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
@@ -446,24 +440,21 @@ specify std.debug:
         ]], tostring (debugp))
       end
 
-      fname = "argscheck"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "argscheck")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f "foo").to_error (msg (2, "non-empty list"))
-      expect (f ("foo", {"bar"})).to_error (msg (3, "table"))
+      expect (f "foo").to_error (badarg (2, "non-empty list"))
+      expect (f ("foo", {"bar"})).to_error (badarg (3, "table"))
   - it diagnoses wrong argument types:
       pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
       expect (f ("foo", false)).
-        to_error (msg (2, "non-empty list", "boolean"))
-      expect (f ("foo", {"bar"}, false)).to_error (msg (3, "table", "boolean"))
+        to_error (badarg (2, "non-empty list", "boolean"))
+      expect (f ("foo", {"bar"}, false)).to_error (badarg (3, "table", "boolean"))
   - it diagnoses too many arguments:
       pending "Lua 5.1 support is dropped"
-      expect (f ("foo", {"bar"}, {}, false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f ("foo", {"bar"}, {}, false)).to_error (badarg (4))
 
   - it blames the calling function: |
       expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
@@ -656,9 +647,7 @@ specify std.debug:
 
 - describe trace:
   - before:
-      fname = "trace"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f = init (M, "trace")
 
   - it does nothing when _DEBUG is disabled:
       expect (luaproc [[

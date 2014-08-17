@@ -41,22 +41,19 @@ specify std.package:
   - before: |
       path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
 
-      fname = "find"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "find")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f (path)).to_error (msg (2, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f (path)).to_error (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f (path, false)).to_error (msg (2, "string", "boolean"))
-      expect (f (path, "foo", false)).to_error (msg (3, "int or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f (path, false)).to_error (badarg (2, "string", "boolean"))
+      expect (f (path, "foo", false)).to_error (badarg (3, "int or nil", "boolean"))
       expect (f (path, "foo", 1, 2)).
-        to_error (msg (4, "boolean, :plain or nil", "number"))
+        to_error (badarg (4, "boolean, :plain or nil", "number"))
   - it diagnoses too many arguments:
-      expect (f (path, "foo", 1, ":plain", false)).
-        to_error (toomanyarg (this_module, fname, 4, 5))
+      expect (f (path, "foo", 1, ":plain", false)).to_error (badarg (5))
 
   - it returns nil for unmatched element:
       expect (f (path, "unmatchable")).to_be (nil)
@@ -76,20 +73,17 @@ specify std.package:
 
 - describe insert:
   - before:
-      fname = "insert"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "insert")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f (path)).to_error (msg (2, "int or string"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f (path)).to_error (badarg (2, "int or string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f (path, false)).to_error (msg (2, "int or string", "boolean"))
-      expect (f (path, 1, false)).to_error (msg (3, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f (path, false)).to_error (badarg (2, "int or string", "boolean"))
+      expect (f (path, 1, false)).to_error (badarg (3, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (path, 1, "string", false)).
-        to_error (toomanyarg (this_module, fname, 3, 4))
+      expect (f (path, 1, "string", false)).to_error (badarg (4))
 
   - it appends by default:
       expect (f (path, "new")).
@@ -114,16 +108,14 @@ specify std.package:
   - before: |
       expected = require "std.string".split (path, M.pathsep)
 
-      fname = "mappath"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "mappath")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
-      expect (f ("")).to_error (msg (2, "function"))
+      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ("")).to_error (badarg (2, "function"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (msg (2, "function", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_error (badarg (2, "function", "boolean"))
 
   - it calls a function with each path element:
       t = {}
@@ -141,15 +133,13 @@ specify std.package:
 
 - describe normalize:
   - before:
-      fname = "normalize"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "normalize")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (msg (2, "string", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_error (badarg (2, "string", "boolean"))
 
   - context with a single element:
     - it strips redundant . directories:
@@ -195,18 +185,15 @@ specify std.package:
 
 - describe remove:
   - before:
-      fname = "remove"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "remove")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (msg (1, "string"))
+      expect (f ()).to_error (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (msg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (msg (2, "int or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_error (badarg (2, "int or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", 2, false)).
-        to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f ("string", 2, false)).to_error (badarg (3))
 
   - it removes the last item by default:
       expect (f (path)).to_be (M.normalize ("begin", "middle"))

@@ -31,17 +31,15 @@ specify std.math:
 
 - describe floor:
   - before:
-      fname = "floor"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "floor")
 
   - it diagnoses missing arguments: |
-      expect (f ()).to_error (msg (1, "number"))
+      expect (f ()).to_error (badarg (1, "number"))
   - it diagnoses wrong argument types: |
-      expect (f (1.2, false)).to_error (msg (2, "int or nil", "boolean"))
-      expect (f (1.2, 3.4)).to_error (msg (2, "int or nil", "number"))
+      expect (f (1.2, false)).to_error (badarg (2, "int or nil", "boolean"))
+      expect (f (1.2, 3.4)).to_error (badarg (2, "int or nil", "number"))
   - it diagnoses too many arguments:
-      expect (f (1, 2, 3)).to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f (1, 2, 3)).to_error (badarg (3))
 
   - it rounds to the nearest smaller integer:
       expect (f (1.2)).to_be (1)
@@ -63,14 +61,13 @@ specify std.math:
       t  = {
         math = {},
       }
-      fname = "monkey_patch"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+
+      f, badarg = init (M, "monkey_patch")
 
   - it diagnoses wrong argument types: |
-      expect (f (false)).to_error (msg (1, "table or nil", "boolean"))
+      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (t, false)).to_error (toomanyarg (this_module, fname, 1, 2))
+      expect (f (t, false)).to_error (badarg (2))
 
   - it installs math.floor function:
       f (t)
@@ -79,19 +76,17 @@ specify std.math:
 
 - describe round:
   - before:
-      fname = "round"
-      msg = bind (badarg, {this_module, fname})
-      f = M[fname]
+      f, badarg = init (M, "round")
 
   - it diagnoses missing arguments: |
-      expect (f ()).to_error (msg (1, "number"))
+      expect (f ()).to_error (badarg (1, "number"))
   - it diagnoses wrong argument types: |
       expect (f (1.2, false)).
-        to_error (msg (2, "int or nil", "boolean"))
+        to_error (badarg (2, "int or nil", "boolean"))
       expect (f (1.2, 3.4)).
-        to_error (msg (2, "int or nil", "number"))
+        to_error (badarg (2, "int or nil", "number"))
   - it diagnoses too many arguments:
-      expect (f (1, 2, 3)).to_error (toomanyarg (this_module, fname, 2, 3))
+      expect (f (1, 2, 3)).to_error (badarg (3))
 
   - it rounds to the nearest integer:
       expect (f (1.2)).to_be (1)
