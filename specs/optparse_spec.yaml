@@ -58,7 +58,7 @@ specify std.optparse:
         to_match ("^Usage: parseme .*Banner .*Long .*Options:.*" ..
                       "Footer .*/issues>%.")
   - it diagnoses incorrect input text:
-      expect (OptionParser "garbage in").to_error "argument must match"
+      expect (OptionParser "garbage in").to_raise "argument must match"
 
 - describe parser:
   - before: |

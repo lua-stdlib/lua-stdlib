@@ -44,16 +44,16 @@ specify std.package:
       f, badarg = init (M, "find")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
-      expect (f (path)).to_error (badarg (2, "string"))
+      expect (f ()).to_raise (badarg (1, "string"))
+      expect (f (path)).to_raise (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f (path, false)).to_error (badarg (2, "string", "boolean"))
-      expect (f (path, "foo", false)).to_error (badarg (3, "int or nil", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f (path, false)).to_raise (badarg (2, "string", "boolean"))
+      expect (f (path, "foo", false)).to_raise (badarg (3, "int or nil", "boolean"))
       expect (f (path, "foo", 1, 2)).
-        to_error (badarg (4, "boolean, :plain or nil", "number"))
+        to_raise (badarg (4, "boolean, :plain or nil", "number"))
   - it diagnoses too many arguments:
-      expect (f (path, "foo", 1, ":plain", false)).to_error (badarg (5))
+      expect (f (path, "foo", 1, ":plain", false)).to_raise (badarg (5))
 
   - it returns nil for unmatched element:
       expect (f (path, "unmatchable")).to_be (nil)
@@ -76,14 +76,14 @@ specify std.package:
       f, badarg = init (M, "insert")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
-      expect (f (path)).to_error (badarg (2, "int or string"))
+      expect (f ()).to_raise (badarg (1, "string"))
+      expect (f (path)).to_raise (badarg (2, "int or string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f (path, false)).to_error (badarg (2, "int or string", "boolean"))
-      expect (f (path, 1, false)).to_error (badarg (3, "string", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f (path, false)).to_raise (badarg (2, "int or string", "boolean"))
+      expect (f (path, 1, false)).to_raise (badarg (3, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f (path, 1, "string", false)).to_error (badarg (4))
+      expect (f (path, 1, "string", false)).to_raise (badarg (4))
 
   - it appends by default:
       expect (f (path, "new")).
@@ -111,11 +111,11 @@ specify std.package:
       f, badarg = init (M, "mappath")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
-      expect (f ("")).to_error (badarg (2, "function"))
+      expect (f ()).to_raise (badarg (1, "string"))
+      expect (f ("")).to_raise (badarg (2, "function"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (badarg (2, "function", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_raise (badarg (2, "function", "boolean"))
 
   - it calls a function with each path element:
       t = {}
@@ -136,10 +136,10 @@ specify std.package:
       f, badarg = init (M, "normalize")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ()).to_raise (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (badarg (2, "string", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_raise (badarg (2, "string", "boolean"))
 
   - context with a single element:
     - it strips redundant . directories:
@@ -188,12 +188,12 @@ specify std.package:
       f, badarg = init (M, "remove")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ()).to_raise (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f ("", false)).to_error (badarg (2, "int or nil", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("", false)).to_raise (badarg (2, "int or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("string", 2, false)).to_error (badarg (3))
+      expect (f ("string", 2, false)).to_raise (badarg (3))
 
   - it removes the last item by default:
       expect (f (path)).to_be (M.normalize ("begin", "middle"))

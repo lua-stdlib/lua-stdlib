@@ -20,11 +20,11 @@ specify Vector:
 - describe __call:
   - it diagnoses wrong argument types: |
       expect (Vector (1, 2)).
-        to_error "bad argument #1 to 'Vector' (string expected, got number)"
+        to_raise "bad argument #1 to 'Vector' (string expected, got number)"
       expect (Vector (function () end)).
-        to_error "bad argument #1 to 'Vector' (int, string or table expected, got function)"
+        to_raise "bad argument #1 to 'Vector' (int, string or table expected, got function)"
       expect (Vector ("int", function () end)).
-        to_error "bad argument #2 to 'Vector' (int or table expected, got function)"
+        to_raise "bad argument #2 to 'Vector' (int or table expected, got function)"
   - context with inherited element type:
     - it constructs an empty vector:
         vector = Vector ()
@@ -274,7 +274,7 @@ specify Vector:
       expect (type (vector.push)).to_be "function"
       expect (type (vector.pop)).to_be "function"
   - it diagnoses undefined methods:
-      expect (vector.notamethod ()).to_error "attempt to call field 'notamethod'"
+      expect (vector.notamethod ()).to_raise "attempt to call field 'notamethod'"
 
 - describe __newindex:
   - it sets a new value at that index:
@@ -289,7 +289,7 @@ specify Vector:
       for _, i in ipairs {vector.length * -2, -1 - vector.length, 0,
                           vector.length + 1, vector.length * 2} do
         expect ((function () vector[i] = i end) ()).
-          to_error "out of bounds"
+          to_raise "out of bounds"
       end
 
 - describe __tostring:
@@ -306,7 +306,7 @@ specify Vector:
         vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
         expect (Vector.pop ()).
-          to_error "bad argument #1 to 'pop' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'pop' (Vector expected, got no value)"
     - it returns nil for an empty vector:
         vector = Vector "char"
         expect (Vector.pop (vector)).to_be (nil)
@@ -359,18 +359,18 @@ specify Vector:
         vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
         expect (Vector.push ()).
-          to_error "bad argument #1 to 'push' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'push' (Vector expected, got no value)"
         if vector.allocated > 0 then
           -- non-alien managed vectors don't require number valued argument #2
           expect (Vector.push (vector)).
-            to_error "bad argument #2 to 'push' (number expected, got no value)"
+            to_raise "bad argument #2 to 'push' (number expected, got no value)"
         end
     - it diagnoses wrong argument types: |
         expect (Vector.push (1234)).
-          to_error "bad argument #1 to 'push' (Vector expected, got number)"
+          to_raise "bad argument #1 to 'push' (Vector expected, got number)"
         if vector.allocated > 0 then
           expect (Vector.push (vector, "short")).
-            to_error "bad argument #2 to 'push' (number expected, got string)"
+            to_raise "bad argument #2 to 'push' (number expected, got string)"
         end
     - it adds a single element to an empty vector:
         vector = Vector "int"
@@ -397,12 +397,12 @@ specify Vector:
     - it diagnoses missing arguments: |
         if vector.allocated > 0 then
           expect (vector:push ()).
-            to_error "bad argument #2 to 'push' (number expected, got no value)"
+            to_raise "bad argument #2 to 'push' (number expected, got no value)"
         end
     - it diagnoses wrong argument type: |
         if vector.allocated > 0 then
           expect (vector:push ("short")).
-            to_error "bad argument #2 to 'push' (number expected, got string)"
+            to_raise "bad argument #2 to 'push' (number expected, got string)"
         end
     - it adds a single element to an empty vector:
         vector = Vector "int"
@@ -429,14 +429,14 @@ specify Vector:
   - context when called as a module function:
     - it diagnoses missing arguments: |
         expect (Vector.realloc ()).
-          to_error "bad argument #1 to 'realloc' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'realloc' (Vector expected, got no value)"
         expect (Vector.realloc (vector)).
-          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
+          to_raise "bad argument #2 to 'realloc' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (Vector.realloc (1234)).
-          to_error "bad argument #1 to 'realloc' (Vector expected, got number)"
+          to_raise "bad argument #1 to 'realloc' (Vector expected, got number)"
         expect (Vector.realloc (vector, "string")).
-          to_error "bad argument #2 to 'realloc' (int expected, got string)"
+          to_raise "bad argument #2 to 'realloc' (int expected, got string)"
     - it reduces the number of usable elements:
         vector = Vector (100)
         Vector.realloc (vector, 50)
@@ -466,10 +466,10 @@ specify Vector:
   - context when called as an object method:
     - it diagnoses missing arguments: |
         expect (vector:realloc ()).
-          to_error "bad argument #2 to 'realloc' (int expected, got no value)"
+          to_raise "bad argument #2 to 'realloc' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (vector:realloc "string").
-          to_error "bad argument #2 to 'realloc' (int expected, got string)"
+          to_raise "bad argument #2 to 'realloc' (int expected, got string)"
     - it reduces the number of usable elements:
         vector = Vector (100):realloc (50)
         expect (vector.length).to_be (50)
@@ -496,26 +496,26 @@ specify Vector:
   - context when called as a module function:
     - it diagnoses missing arguments: |
         expect (Vector.set ()).
-          to_error "bad argument #1 to 'set' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'set' (Vector expected, got no value)"
         expect (Vector.set (vector)).
-          to_error "bad argument #2 to 'set' (int expected, got no value)"
+          to_raise "bad argument #2 to 'set' (int expected, got no value)"
         if vector.allocated > 0 then
           expect (Vector.set (vector, 1)).
-            to_error "bad argument #3 to 'set' (number expected, got no value)"
+            to_raise "bad argument #3 to 'set' (number expected, got no value)"
         end
         expect (Vector.set (vector, 1, 0)).
-          to_error "bad argument #4 to 'set' (int expected, got no value)"
+          to_raise "bad argument #4 to 'set' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (Vector.set (100)).
-          to_error "bad argument #1 to 'set' (Vector expected, got number)"
+          to_raise "bad argument #1 to 'set' (Vector expected, got number)"
         expect (Vector.set (vector, "bogus")).
-          to_error "bad argument #2 to 'set' (int expected, got string)"
+          to_raise "bad argument #2 to 'set' (int expected, got string)"
         if vector.allocated > 0 then
           expect (Vector.set (vector, 1, {0})).
-            to_error "bad argument #3 to 'set' (number expected, got table)"
+            to_raise "bad argument #3 to 'set' (number expected, got table)"
         end
         expect (Vector.set (vector, 1, 0, function () end)).
-          to_error "bad argument #4 to 'set' (int expected, got function)"
+          to_raise "bad argument #4 to 'set' (int expected, got function)"
     - it changes the value of a subsequence of elements:
         vector = Vector (100)
         Vector.set (vector, 25, 1, 50)
@@ -557,22 +557,22 @@ specify Vector:
   - context when called as an object method:
     - it diagnoses missing arguments: |
         expect (vector:set ()).
-          to_error "bad argument #2 to 'set' (int expected, got no value)"
+          to_raise "bad argument #2 to 'set' (int expected, got no value)"
         if vector.allocated > 0 then
           expect (vector:set (1)).
-            to_error "bad argument #3 to 'set' (number expected, got no value)"
+            to_raise "bad argument #3 to 'set' (number expected, got no value)"
         end
         expect (vector:set (1, 0)).
-          to_error "bad argument #4 to 'set' (int expected, got no value)"
+          to_raise "bad argument #4 to 'set' (int expected, got no value)"
     - it diagnoses wrong argument types: |
         expect (vector:set "bogus").
-          to_error "bad argument #2 to 'set' (int expected, got string)"
+          to_raise "bad argument #2 to 'set' (int expected, got string)"
         if vector.allocated > 0 then
           expect (vector:set (1, {0})).
-            to_error "bad argument #3 to 'set' (number expected, got table)"
+            to_raise "bad argument #3 to 'set' (number expected, got table)"
         end
         expect (vector:set (1, 0, function () end)).
-          to_error "bad argument #4 to 'set' (int expected, got function)"
+          to_raise "bad argument #4 to 'set' (int expected, got function)"
     - it changes the value of a subsequence of elements:
         vector = Vector (100):set (25, 1, 50)
         for i = 1, vector.length do
@@ -616,7 +616,7 @@ specify Vector:
         vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
         expect (Vector.shift ()).
-          to_error "bad argument #1 to 'shift' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'shift' (Vector expected, got no value)"
     - it returns nil for an empty vector:
         vector = Vector "char"
         expect (Vector.shift (vector)).to_be (nil)
@@ -671,17 +671,17 @@ specify Vector:
         vector = Vector ("short", {1, 1, 2 ,3, 5, 8, 13, 21, 34, 55, 89})
     - it diagnoses missing arguments: |
         expect (Vector.unshift ()).
-          to_error "bad argument #1 to 'unshift' (Vector expected, got no value)"
+          to_raise "bad argument #1 to 'unshift' (Vector expected, got no value)"
         if vector.allocated > 0 then
           expect (Vector.unshift (vector)).
-            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+            to_raise "bad argument #2 to 'unshift' (number expected, got no value)"
         end
     - it diagnoses wrong argument types: |
         expect (Vector.unshift (1234)).
-          to_error "bad argument #1 to 'unshift' (Vector expected, got number)"
+          to_raise "bad argument #1 to 'unshift' (Vector expected, got number)"
         if vector.allocated > 0 then
           expect (Vector.unshift (vector, "short")).
-            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+            to_raise "bad argument #2 to 'unshift' (number expected, got string)"
         end
     - it adds a single element to an empty vector:
         vector = Vector "int"
@@ -709,12 +709,12 @@ specify Vector:
     - it diagnoses missing arguments: |
         if vector.allocated > 0 then
           expect (vector:unshift ()).
-            to_error "bad argument #2 to 'unshift' (number expected, got no value)"
+            to_raise "bad argument #2 to 'unshift' (number expected, got no value)"
         end
     - it diagnoses wrong argument type: |
         if vector.allocated > 0 then
           expect (vector:unshift ("short")).
-            to_error "bad argument #2 to 'unshift' (number expected, got string)"
+            to_raise "bad argument #2 to 'unshift' (number expected, got string)"
         end
     - it adds a single element to an empty vector:
         vector = Vector "int"

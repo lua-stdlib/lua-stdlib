@@ -54,14 +54,14 @@ specify std:
       f, badarg = init (M, "assert")
 
   - it diagnoses wrong argument types:
-      expect (f (false, false)).to_error (badarg (2, "string or nil", "boolean"))
+      expect (f (false, false)).to_raise (badarg (2, "string or nil", "boolean"))
 
   - context when it does not trigger:
     - it has a truthy initial argument:
-        expect (f (1)).not_to_error ()
-        expect (f (true)).not_to_error ()
-        expect (f "yes").not_to_error ()
-        expect (f (false == false)).not_to_error ()
+        expect (f (1)).not_to_raise "any error"
+        expect (f (true)).not_to_raise "any error"
+        expect (f "yes").not_to_raise "any error"
+        expect (f (false == false)).not_to_raise "any error"
     - it returns the initial argument:
         expect (f (1)).to_be (1)
         expect (f (true)).to_be (true)
@@ -69,14 +69,14 @@ specify std:
         expect (f (false == false)).to_be (true)
   - context when it triggers:
     - it has a falsey initial argument:
-        expect (f ()).to_error ()
-        expect (f (false)).to_error ()
-        expect (f (1 == 0)).to_error ()
+        expect (f ()).to_raise ()
+        expect (f (false)).to_raise ()
+        expect (f (1 == 0)).to_raise ()
     - it throws an optional error string:
-        expect (f (false, "ah boo")).to_error "ah boo"
+        expect (f (false, "ah boo")).to_raise "ah boo"
     - it plugs specifiers with string.format: |
         expect (f (nil, "%s %d: %q", "here", 42, "a string")).
-          to_error (string.format ("%s %d: %q", "here", 42, "a string"))
+          to_raise (string.format ("%s %d: %q", "here", 42, "a string"))
 
 
 - describe barrel:
@@ -97,9 +97,9 @@ specify std:
       f (t)
 
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it installs std.io monkey patches:
       expect (io_mt.readlines).to_be (M.io.readlines)
@@ -168,11 +168,11 @@ specify std:
       f, badarg = init (M, "elems")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it is an iterator over table values:
       t = {}
@@ -196,15 +196,15 @@ specify std:
       f, badarg = init (M, "eval")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ()).to_raise (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ("1", false)).to_error (badarg (2))
+      expect (f ("1", false)).to_raise (badarg (2))
 
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable "=" code.
-      expect (f "=").to_error ()
+      expect (f "=").to_raise ()
   - it evaluates a string of lua code:
       expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
 
@@ -214,13 +214,13 @@ specify std:
       f, badarg = init (M, "getmetamethod")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "object or table"))
-      expect (f ({})).to_error (badarg (2, "string"))
+      expect (f ()).to_raise (badarg (1, "object or table"))
+      expect (f ({})).to_raise (badarg (2, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "object or table", "boolean"))
-      expect (f ({}, false)).to_error (badarg (2, "string", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "object or table", "boolean"))
+      expect (f ({}, false)).to_raise (badarg (2, "string", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, "foo", false)).to_error (badarg (3))
+      expect (f ({}, "foo", false)).to_raise (badarg (3))
 
   - context with a table:
     - before:
@@ -254,11 +254,11 @@ specify std:
       f, badarg = init (M, "ielems")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -287,11 +287,11 @@ specify std:
       f, badarg = init (M, "ipairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -320,11 +320,11 @@ specify std:
       f, badarg = init (M, "ireverse")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it returns a new list:
       t = {1, 2, 5}
@@ -357,9 +357,9 @@ specify std:
       f (t)
 
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table or nil", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it installs std module functions:
       for _, v in ipairs (exported_apis) do
@@ -374,11 +374,11 @@ specify std:
       f, badarg = init (M, "pairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it is an iterator over all table values:
       t = {}
@@ -402,24 +402,24 @@ specify std:
       f, badarg = init (M, "require")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "string"))
+      expect (f ()).to_raise (badarg (1, "string"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "string", "boolean"))
-      expect (f ("module", false)).to_error (badarg (2, "string or nil", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("module", false)).to_raise (badarg (2, "string or nil", "boolean"))
       expect (f ("module", "min", false)).
-        to_error (badarg (3, "string or nil", "boolean"))
+        to_raise (badarg (3, "string or nil", "boolean"))
       expect (f ("module", "min", "too_big", false)).
-        to_error (badarg (4, "string or nil", "boolean"))
+        to_raise (badarg (4, "string or nil", "boolean"))
   - it diagnoses too many arguments:
       expect (f ("module", "min", "too_big", "pattern", false)).
-        to_error (badarg (5))
+        to_raise (badarg (5))
 
   - it diagnoses non-existent module:
-      expect (f ("module-not-exists", "", "")).to_error "module-not-exists"
+      expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
   - it diagnoses module too old:
-      expect (f ("std", "9999", "9999")).to_error ()
+      expect (f ("std", "9999", "9999")).to_raise ()
   - it diagnoses module too new:
-      expect (f ("std", "0", "0")).to_error ()
+      expect (f ("std", "0", "0")).to_raise ()
   - context when the module version is compatible:
     - it returns the module table:
         expect (f ("std", "0", "9999")).to_be (require "std")
@@ -440,16 +440,16 @@ specify std:
     - after:
         std.version = ver
     - it diagnoses module too old:
-        expect (f ("std", "1.2.4")).to_error ()
-        expect (f ("std", "1.3")).to_error ()
-        expect (f ("std", "2.1.2")).to_error ()
-        expect (f ("std", "2")).to_error ()
-        expect (f ("std", "1.2.10")).to_error ()
+        expect (f ("std", "1.2.4")).to_raise ()
+        expect (f ("std", "1.3")).to_raise ()
+        expect (f ("std", "2.1.2")).to_raise ()
+        expect (f ("std", "2")).to_raise ()
+        expect (f ("std", "1.2.10")).to_raise ()
     - it diagnoses module too new:
-        expect (f ("std", nil, "1.2.2")).to_error ()
-        expect (f ("std", nil, "1.1")).to_error ()
-        expect (f ("std", nil, "1.1.2")).to_error ()
-        expect (f ("std", nil, "1")).to_error ()
+        expect (f ("std", nil, "1.2.2")).to_raise ()
+        expect (f ("std", nil, "1.1")).to_raise ()
+        expect (f ("std", nil, "1.1.2")).to_raise ()
+        expect (f ("std", nil, "1")).to_raise ()
     - it returns modules with version in range:
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)
@@ -466,9 +466,9 @@ specify std:
     - after:
         std.version = ver
     - it diagnoses module too old:
-        expect (f ("std", "42")).to_error ()
+        expect (f ("std", "42")).to_raise ()
     - it diagnoses module too new:
-        expect (f ("std", nil, "40")).to_error ()
+        expect (f ("std", nil, "40")).to_raise ()
     - it returns modules with version in range:
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)
@@ -482,11 +482,11 @@ specify std:
       f, badarg = init (M, "ripairs")
 
   - it diagnoses missing arguments:
-      expect (f ()).to_error (badarg (1, "table"))
+      expect (f ()).to_raise (badarg (1, "table"))
   - it diagnoses wrong argument types:
-      expect (f (false)).to_error (badarg (1, "table", "boolean"))
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses too many arguments:
-      expect (f ({}, false)).to_error (badarg (2))
+      expect (f ({}, false)).to_raise (badarg (2))
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
@@ -517,7 +517,7 @@ specify std:
       f, badarg = init (M, "tostring")
 
   - it diagnoses too many arguments:
-      expect (f (true, false)).to_error (badarg (2))
+      expect (f (true, false)).to_raise (badarg (2))
 
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))

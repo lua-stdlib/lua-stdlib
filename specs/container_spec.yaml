@@ -21,9 +21,9 @@ specify std.container:
     - before:
         Thing = Container { _type = "Thing", _init = function (obj) return obj end }
     - it doesn't diagnose missing arguments:
-        expect (Thing ()).not_to_error ()
+        expect (Thing ()).not_to_raise "any error"
     - it doesn't diagnose too many args:
-        expect (Thing ({}, false)).not_to_error ()
+        expect (Thing ({}, false)).not_to_raise "any error"
 
   - context from Container prototype:
     - before:
@@ -66,7 +66,7 @@ specify std.container:
         expect (things.count).to_be (nil)
     - it does not provide object methods: |
         things = Bag {}
-        expect (things:count ()).to_error "attempt to call method 'count'"
+        expect (things:count ()).to_raise "attempt to call method 'count'"
     - it does retain module functions:
         things = Bag { apples = 1, oranges = 3 }
         expect (Bag.count (things)).to_be (4)
