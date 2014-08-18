@@ -149,8 +149,8 @@ Stdlib NEWS - User visible changes
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
 
- - `list.flatten` has been moved to `functional.flatten`, the old name
-   now gives a deprecation warning.
+ - `list.filter` and `list.flatten` has been moved to `functional.filter`
+   and `functional.flatten`, the old names now give deprecation warnings.
 
  - `list.foldl` and `list.foldr` have been replaced by the richer
    `functional.foldl` and `functional.foldr` respectively.  The old
@@ -213,8 +213,8 @@ Stdlib NEWS - User visible changes
    the fixed argument positions in the `bind` invocation.
 
  - `functional.collect`, `functional.filter` and `functional.map` still
-   makes a list from the results from an iterator that returns single
-   values, but when an iterator returns multiple values it now makes a
+   make a list from the results from an iterator that returns single
+   values, but when an iterator returns multiple values they now make a
    table with key:value pairs taken from the first two returned values of
    each iteration.
 

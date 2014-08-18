@@ -491,14 +491,9 @@ specify std.list:
     - before:
         f, badarg = init (M, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "function"))
-        expect (f (p)).to_raise (badarg (2, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-        expect (f (p, false)).to_raise (badarg (2, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (p, l, false)).to_raise (badarg (3))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {p, l})).to_contain_error "was deprecated"
+        expect (capture (f, {p, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f (p, l))).to_be "List"
@@ -511,14 +506,9 @@ specify std.list:
     - before:
         f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "function"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (1, "function", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, p, false)).to_raise (badarg (2))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, p})).to_contain_error "was deprecated"
+        expect (capture (f, {l, p})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f (l, p))).to_be "List"

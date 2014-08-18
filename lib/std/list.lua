@@ -185,19 +185,6 @@ export (M, "enpair (table)", function (t)
 end)
 
 
---- Filter a list according to a predicate.
--- @static
--- @function filter
--- @func p predicate function, of one argument returning a boolean
--- @tparam List l a list
--- @treturn List new list containing elements `e` of `l` for which
---   `p (e)` is true
--- @see std.list:filter
-local filter = export (M, "filter (function, List)", function (p, l)
-  return List (func.filter (p, ielems, l))
-end)
-
-
 --- Project a list of fields from a list of tables.
 -- @static
 -- @function project
@@ -371,16 +358,6 @@ export (m, "cons (any)",
   function (self, x) return cons (x, self) end)
 
 
---- Filter a list according to a predicate.
--- @function filter
--- @func p predicate function, of one argument returning a boolean
--- @treturn List new list containing elements `e` of `self` for which
---   `p (e)` is true
--- @see std.list.filter
-export (m, "filter (func)",
-  function (self, p) return filter (p, self) end)
-
-
 --- Flatten a list.
 -- @function flatten
 -- @treturn List flattened list
@@ -437,6 +414,17 @@ export (m, "tail ()", tail)
 
 
 local DEPRECATED = base.DEPRECATED
+
+
+local function filter (pfn, l)
+  local r = List {}
+  for e in ielems (l) do
+    if pfn (e) then
+      r[#r + 1] = e
+    end
+  end
+  return r
+end
 
 
 local function foldl (fn, d, t)
@@ -528,6 +516,13 @@ M.elems       = DEPRECATED ("41", "'std.list.elems'",
 m.elems       = DEPRECATED ("41", "'std.list:elems'",
                   "use 'std.ielems' instead", base.ielems)
 
+M.filter      = DEPRECATED ("41", "'std.list.filter'",
+                  "use 'std.functional.filter' instead", filter)
+m.filter      = DEPRECATED ("41", "'std.list:filter'",
+                  "use 'std.functional.filter' instead",
+                  function (self, p) return filter (p, self) end)
+
+
 M.flatten     = DEPRECATED ("41", "'std.list.flatten'",
                   "use 'std.functional.flatten' instead", flatten)
 
@@ -550,14 +545,14 @@ m.foldr       = DEPRECATED ("41", "'std.list:foldr'",
 	          end)
 
 M.index_key   = DEPRECATED ("41", "'std.list.index_key'",
-                "compose 'std.list.filter' and 'std.table.invert' instead",
+                "compose 'std.functional.filter' and 'std.table.invert' instead",
 		index_key)
 m.index_key   = DEPRECATED ("41", "'std.list:index_key'",
                 function (self, fn) return index_key (fn, self) end)
 
 
 M.index_value = DEPRECATED ("41", "'std.list.index_value'",
-                  "compose 'std.list.filter' and 'std.table.invert' instead",
+                  "compose 'std.functional.filter' and 'std.table.invert' instead",
 		  index_value)
 m.index_value = DEPRECATED ("41", "'std.list:index_value'",
                   function (self, fn) return index_value (fn, self) end)
