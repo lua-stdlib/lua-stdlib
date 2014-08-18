@@ -9,16 +9,15 @@
      local list = require "std.list"  -- module table
      local List = list {}             -- prototype object
      local l = List {"foo", "bar"}
-     for e in ielems (l:append ("baz")) do print (e) end
+     for e in ielems (l:cons ("baz")) do print (e) end
        => foo
        => bar
        => baz
 
- ... some can also be called as module functions with an explicit list
- argument in the first or last parameter, check the documentation for
- details:
+ ...they can also be called as module functions with an explicit list
+ argument in the first parameter:
 
-     for e in ielems (list.append (l, "quux")) do print (e) end
+     for e in ielems (list.cons (l, "quux")) do print (e) end
        => foo
        => bar
        => quux
@@ -37,29 +36,9 @@ local List      -- forward declaration
 local ipairs, pairs = base.ipairs, base.pairs
 local export, ielems, prototype =
   base.export, base.ielems, base.prototype
+
 local M = { "std.list" }
 
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
--- Support for DEPRECATED apis. --
-
-local ielems = base.ielems
-
-local function map (fn, l)
-  local r = List {}
-  for e in ielems (l) do
-    local v = fn (e)
-    if v ~= nil then
-      r[#r + 1] = v
-    end
-  end
-  return r
-end
 
 
 --[[ ================= ]]--
@@ -192,73 +171,13 @@ end)
 
 
 
---[[ =============== ]]--
---[[ Object Methods. ]]--
---[[ =============== ]]--
-
-
-local m = { "std.list", "List" }
-
-
---- Append an item to a list.
--- @function append
--- @param x item
--- @treturn List new list containing `{self[1], ..., self[#self], x}`
-export (m, "append (any)", append)
-
-
---- Compare two lists element-by-element, from left-to-right.
---
---     if a_list:compare (another_list) == 0 then print "same" end
--- @function compare
--- @tparam table l a list
--- @return -1 if `self` is less than `l`, 0 if they are the same, and 1
---   if `self` is greater than `l`
-export (m, "compare (List|table)", compare)
-
-
---- Concatenate arguments into a list.
--- @function concat
--- @param ... tuple of lists
--- @treturn List new list containing
---   `{self[1], ..., self[#self], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-export (m, "concat (List|table*)", concat)
-
-
---- Prepend an item to a list.
--- @function cons
--- @param x item
--- @treturn List new list containing `{x, unpack (self)}`
-export (m, "cons (any)", cons)
-
-
---- Repeat a list.
--- @function rep
--- @int n number of times to repeat
--- @treturn List `n` copies of `self` appended together
-export (m, "rep (int)", rep)
-
-
---- Return a sub-range of a list.
--- (The equivalent of `string.sub` on strings; negative list indices
--- count from the end of the list.)
--- @function sub
--- @int from start of range (default: 1)
--- @int to end of range (default: `#self`)
--- @treturn List new list containing `{self[from], ..., self[to]}`
-export (m, "sub (int?, int?)", sub)
-
-
---- Return a list with its first element removed.
--- @function tail
--- @treturn List new list containing `{self[2], ..., self[#self]}`
-export (m, "tail ()", tail)
-
-
-
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
 --[[ ============= ]]--
+
+-- This entire section can be deleted in due course, with just one
+-- additional small correction noted in FIXME comments in the List
+-- object constructor at the end of this file.
 
 
 local DEPRECATED = base.DEPRECATED
@@ -284,7 +203,7 @@ end
 
 local function filter (pfn, l)
   local r = List {}
-  for e in ielems (l) do
+  for e in base.ielems (l) do
     if pfn (e) then
       r[#r + 1] = e
     end
@@ -341,6 +260,18 @@ local function index_value (f, l)
     local k = v[f]
     if k then
       r[k] = v
+    end
+  end
+  return r
+end
+
+
+local function map (fn, l)
+  local r = List {}
+  for e in base.ielems (l) do
+    local v = fn (e)
+    if v ~= nil then
+      r[#r + 1] = v
     end
   end
   return r
@@ -418,6 +349,18 @@ end
 local function zip_with (ls, fn)
   return map_with (fn, transpose (ls))
 end
+
+
+local m = { "std.list", "List" }
+
+
+export (m, "append (any)", append)
+export (m, "compare (List|table)", compare)
+export (m, "concat (List|table*)", concat)
+export (m, "cons (any)", cons)
+export (m, "rep (int)", rep)
+export (m, "sub (int?, int?)", sub)
+export (m, "tail ()", tail)
 
 
 m.depair      = DEPRECATED ("38", "'std.list:depair'",    depair)
@@ -533,8 +476,8 @@ M.zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
 List = Object {
   -- Derived object type.
   _type      = "List",
-  _functions = M,
-  __index    = m,
+  _functions = M,	-- FIXME: remove this when DEPRECATIONS have gone
+  __index    = m,	-- FIXME: `__index = M` when DEPRECATIONS have gone
 
   ------
   -- Concatenate lists.
