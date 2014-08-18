@@ -13,7 +13,8 @@ local operator = require "std.operator"
 
 local export, ielems, ipairs, ireverse, len, pairs =
   base.export, base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
-local callable, reduce = base.functional.callable, base.functional.reduce
+local callable, map, reduce =
+  base.functional.callable, base.functional.map, base.functional.reduce
 local leaves = base.tree.leaves
 
 local M = { "std.functional" }
@@ -406,27 +407,7 @@ end, M.id))
 -- @usage
 -- --> {1, 4, 9, 16}
 -- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
-export (M, "map (func, [func], any*)", function (mapfn, ifn, ...)
-  local argt = {...}
-  if not callable (ifn) then
-    ifn, argt = pairs, {ifn, ...}
-  end
-
-  local nextfn, state, k = ifn (unpack (argt))
-  local mapargs = {nextfn (state, k)}
-
-  local r = {}
-  while mapargs[1] ~= nil do
-    k = mapargs[1]
-    local d, v = mapfn (unpack (mapargs))
-    if v == nil then d, v = #r + 1, d end
-    if v ~= nil then
-      r[d] = v
-    end
-    mapargs = {nextfn (state, k)}
-  end
-  return r
-end)
+export (M, "map (func, [func], any*)", map)
 
 
 --- Map a function over a table of argument lists.
