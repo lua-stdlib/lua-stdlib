@@ -149,6 +149,9 @@ Stdlib NEWS - User visible changes
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
 
+ - `list.depair` and `list.enpair` have been moved to `table.depair` and
+   `table.enpair`, the old names now give deprecation warnings.
+
  - `list.filter` has been moved to `functional.filter`, the old name now
    gives a deprecation warning.
 

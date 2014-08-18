@@ -363,8 +363,8 @@ specify std.list:
 
 - describe depair:
   - before:
+      l = List {List {1, "first"}, List {2, "second"}, List {"third", 4}}
       t = {"first", "second", third = 4}
-      l = M.enpair (t)
 
       fname = "depair"
 
@@ -372,18 +372,9 @@ specify std.list:
     - before:
         f, badarg = init (M, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-        expect (f (List {0})).
-          to_raise (badarg (1, "List of Lists", "number at index 1"))
-        expect (f (List {{}})).
-          to_raise (badarg (1, "List of Lists", "empty table at index 1"))
-        expect (f (List { List {"a", "b"}, ""})).
-          to_raise (badarg (1, "List of Lists", "string at index 2"))
-    - it diagnoses too many arguments:
-        expect (f (List { List {"a", "b"} }, false)).to_raise (badarg (2))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a primitive table:
         expect (prototype (f (l))).to_be "table"
@@ -457,12 +448,10 @@ specify std.list:
   - context as a module function:
     - before:
         f, badarg = init (M, fname)
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "table"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f ({}, false)).to_raise (badarg (2))
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {t})).to_contain_error "was deprecated"
+        expect (capture (f, {t})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f (t))).to_be "List"

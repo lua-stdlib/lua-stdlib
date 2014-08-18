@@ -139,38 +139,6 @@ local cons = export (M, "cons (List, any)", function (l, x)
 end)
 
 
---- Turn a list of pairs into a table.
--- @todo Find a better name.
--- @static
--- @function depair
--- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
--- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
--- @see enpair
-local depair = export (M, "depair (List of Lists)", function (ls)
-  local t = {}
-  for v in ielems (ls) do
-    t[v[1]] = v[2]
-  end
-  return t
-end)
-
-
---- Turn a table into a list of pairs.
--- @todo Find a better name.
--- @static
--- @function enpair
--- @tparam  table t  a table `{i1=v1, ..., in=vn}`
--- @treturn List a new list containing `{{i1, v1}, ..., {in, vn}}`
--- @see depair
-export (M, "enpair (table)", function (t)
-  local ls = List {}
-  for i, v in pairs (t) do
-    ls[#ls + 1] = List {i, v}
-  end
-  return ls
-end)
-
-
 --- Repeat a list.
 -- @static
 -- @function rep
@@ -294,6 +262,24 @@ export (m, "tail ()", tail)
 
 
 local DEPRECATED = base.DEPRECATED
+
+
+local function depair (ls)
+  local t = {}
+  for v in ielems (ls) do
+    t[v[1]] = v[2]
+  end
+  return t
+end
+
+
+local function enpair (t)
+  local ls = List {}
+  for i, v in pairs (t) do
+    ls[#ls + 1] = List {i, v}
+  end
+  return ls
+end
 
 
 local function filter (pfn, l)
@@ -440,6 +426,11 @@ m.map_with    = DEPRECATED ("38", "'std.list:map_with'",
 m.transpose   = DEPRECATED ("38", "'std.list:transpose'", transpose)
 m.zip_with    = DEPRECATED ("38", "'std.list:zip_with'",  zip_with)
 
+
+M.depair      = DEPRECATED ("41", "'std.list.depair'", depair)
+
+M.enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair)
+m.enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair)
 
 M.elems       = DEPRECATED ("41", "'std.list.elems'",
                   "use 'std.ielems' instead", base.ielems)

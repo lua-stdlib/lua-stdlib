@@ -3,11 +3,11 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  extend_base         = { "clone", "clone_rename", "clone_select", "empty",
-                          "flatten", "invert", "keys", "merge", "merge_select",
-                          "metamethod", "monkey_patch", "new", "pack",
-                          "project", "ripairs", "shape", "size", "sort",
-                          "totable", "values" }
+  extend_base         = { "clone", "clone_rename", "clone_select", "depair",
+                          "empty", "enpair", "flatten", "invert", "keys",
+                          "merge", "merge_select", "metamethod",
+                          "monkey_patch", "new", "pack", "project", "ripairs",
+                          "shape", "size", "sort", "totable", "values" }
 
   M = require "std.table"
 
@@ -151,6 +151,32 @@ specify std.table:
         expect (getmetatable (f (withmt, {"k1"}, ":nometa"))).to_be (nil)
 
 
+- describe depair:
+  - before:
+      t = {"first", "second", third = 4}
+      l = M.enpair (t)
+
+      f, badarg = init (M, "depair")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "list"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "list", "boolean"))
+      expect (f {0}).
+        to_raise (badarg (1, "list of lists", "number at index 1"))
+      expect (f {{"a", "b"}, ""}).
+        to_raise (badarg (1, "list of lists", "string at index 2"))
+  - it diagnoses too many arguments:
+      expect (f ({{"a", "b"}}, false)).to_raise (badarg (2))
+
+  - it returns a primitive table:
+      expect (prototype (f (l))).to_be "table"
+  - it works with an empty table:
+      expect (f {}).to_equal {}
+  - it is the inverse of enpair:
+      expect (f (l)).to_equal (t)
+
+
 - describe empty:
   - before:
       f, badarg = init (M, "empty")
@@ -169,6 +195,30 @@ specify std.table:
       expect (f {"stuff"}).to_be (false)
       expect (f {{}}).to_be (false)
       expect (f {false}).to_be (false)
+
+
+- describe enpair:
+  - before:
+      t = {"first", "second", third = 4}
+      l = M.enpair (t)
+
+      f, badarg = init (M, "enpair")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_raise (badarg (2))
+
+  - it returns a table:
+      expect (prototype (f (t))).to_be "table"
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it turns a table into a table of pairs:
+      expect (f (t)).to_equal {{1, "first"}, {2, "second"}, {"third", 4}}
+  - it is the inverse of depair:
+      expect (f (t)).to_equal (l)
 
 
 - describe flatten:

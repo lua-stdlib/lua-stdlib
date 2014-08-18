@@ -13,8 +13,8 @@
 
 local base = require "std.base"
 
-local export, getmetamethod, ipairs, pairs =
-  base.export, base.getmetamethod, base.ipairs, base.pairs
+local export, getmetamethod, ielems, ipairs, pairs =
+  base.export, base.getmetamethod, base.ielems, base.ipairs, base.pairs
 local collect = base.functional.collect
 local leaves  = base.tree.leaves
 
@@ -111,6 +111,36 @@ local clone = export (M, "clone (table, [table], boolean|:nometa?)",
 -- partialcopy = clone_select (original, {"this", "and_this"}, true)
 export (M, "clone_select (table, [table], boolean|:nometa?)",
   function (...) return merge_namedfields ({}, ...) end)
+
+
+--- Turn a list of pairs into a table.
+-- @todo Find a better name.
+-- @function depair
+-- @tparam table ls list of lists `{{i1, v1}, ..., {in, vn}}`
+-- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
+-- @see enpair
+export (M, "depair (list of lists)", function (ls)
+  local t = {}
+  for v in ielems (ls) do
+    t[v[1]] = v[2]
+  end
+  return t
+end)
+
+
+--- Turn a table into a list of pairs.
+-- @todo Find a better name.
+-- @function enpair
+-- @tparam table t  a table `{i1=v1, ..., in=vn}`
+-- @treturn table a new list of pairs containing `{{i1, v1}, ..., {in, vn}}`
+-- @see depair
+export (M, "enpair (table)", function (t)
+  local tt = {}
+  for i, v in pairs (t) do
+    tt[#tt + 1] = {i, v}
+  end
+  return tt
+end)
 
 
 --- Return whether table is empty.
