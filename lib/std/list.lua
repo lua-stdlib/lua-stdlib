@@ -212,73 +212,6 @@ local rep = export (M, "rep (List, int)", function (l, n)
 end)
 
 
---- Shape a list according to a list of dimensions.
---
--- Dimensions are given outermost first and items from the original
--- list are distributed breadth first; there may be one 0 indicating
--- an indefinite number. Hence, `{0}` is a flat list,
--- `{1}` is a singleton, `{2, 0}` is a list of
--- two lists, and `{0, 2}` is a list of pairs.
---
--- Algorithm: turn shape into all positive numbers, calculating
--- the zero if necessary and making sure there is at most one;
--- recursively walk the shape, adding empty tables until the bottom
--- level is reached at which point add table items instead, using a
--- counter to walk the flattened original list.
---
--- @todo Use ileaves instead of flatten (needs a while instead of a
--- for in fill function)
--- @static
--- @function shape
--- @tparam table s `{d1, ..., dn}`
--- @tparam List l a list
--- @return reshaped list
--- @see std.list:shape
-
-local function flatten (l)
-  local r = List {}
-  for v in base.tree.leaves (ipairs, l) do
-    r[#r + 1] = v
-  end
-  return r
-end
-
-local shape = export (M, "shape (table, List)", function (s, l)
-  l = flatten (l)
-  -- Check the shape and calculate the size of the zero, if any
-  local size = 1
-  local zero
-  for i, v in ipairs (s) do
-    if v == 0 then
-      if zero then -- bad shape: two zeros
-        return nil
-      else
-        zero = i
-      end
-    else
-      size = size * v
-    end
-  end
-  if zero then
-    s[zero] = math.ceil (#l / size)
-  end
-  local function fill (i, d)
-    if d > #s then
-      return l[i], i + 1
-    else
-      local r = List {}
-      for j = 1, s[d] do
-        local e
-        e, i = fill (i, d + 1)
-        r[#r + 1] = e
-      end
-      return r, i
-    end
-  end
-  return (fill (1, 1))
-end)
-
-
 --- Return a sub-range of a list.
 -- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
@@ -376,15 +309,6 @@ end)
 export (m, "rep (int)", rep)
 
 
---- Shape a list according to a list of dimensions.
--- @function shape
--- @tparam table s `{d1, ..., dn}`
--- @return reshaped list
--- @see std.list.shape
-export (m, "shape (table)",
-  function (self, s) return shape (s, self) end)
-
-
 --- Return a sub-range of a list.
 -- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
@@ -416,6 +340,15 @@ local function filter (pfn, l)
     if pfn (e) then
       r[#r + 1] = e
     end
+  end
+  return r
+end
+
+
+local function flatten (l)
+  local r = List {}
+  for v in base.tree.leaves (ipairs, l) do
+    r[#r + 1] = v
   end
   return r
 end
@@ -475,6 +408,42 @@ local function relems (l) return base.ielems (base.ireverse (l)) end
 
 
 local function reverse (l) return List (base.ireverse (l)) end
+
+
+local function shape (s, l)
+  l = flatten (l)
+  -- Check the shape and calculate the size of the zero, if any
+  local size = 1
+  local zero
+  for i, v in ipairs (s) do
+    if v == 0 then
+      if zero then -- bad shape: two zeros
+        return nil
+      else
+        zero = i
+      end
+    else
+      size = size * v
+    end
+  end
+  if zero then
+    s[zero] = math.ceil (#l / size)
+  end
+  local function fill (i, d)
+    if d > #s then
+      return l[i], i + 1
+    else
+      local r = List {}
+      for j = 1, s[d] do
+        local e
+        e, i = fill (i, d + 1)
+        r[#r + 1] = e
+      end
+      return r, i
+    end
+  end
+  return (fill (1, 1))
+end
 
 
 local function transpose (ls)
@@ -574,6 +543,12 @@ M.reverse     = DEPRECATED ("41", "'std.list.reverse'",
                   "use 'std.ireverse' instead", reverse)
 m.reverse     = DEPRECATED ("41", "'std.list:reverse'",
                   "use 'std.ireverse' instead", reverse)
+
+M.shape       = DEPRECATED ("41", "'std.list.shape'",
+                  "use 'std.functional.shape' instead", shape)
+m.shape       = DEPRECATED ("41", "'std.list:shape'",
+                  "use 'std.functional.shape' instead",
+		  function (t, l) return shape (l, t) end)
 
 M.transpose   = DEPRECATED ("41", "'std.list.transpose'",
                   "use 'std.functional.zip' instead", transpose)

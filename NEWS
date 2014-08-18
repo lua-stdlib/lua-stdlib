@@ -149,8 +149,11 @@ Stdlib NEWS - User visible changes
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
 
- - `list.filter` and `list.flatten` has been moved to `functional.filter`
-   and `functional.flatten`, the old names now give deprecation warnings.
+ - `list.filter` has been moved to `functional.filter`, the old name now
+   gives a deprecation warning.
+
+ - `list.flatten` has been moved to `table.flatten`, the old name now
+   gives a deprecation warning.
 
  - `list.foldl` and `list.foldr` have been replaced by the richer
    `functional.foldl` and `functional.foldr` respectively.  The old
@@ -160,10 +163,8 @@ Stdlib NEWS - User visible changes
  - `list.index_key` and `list.index_value` have been deprecated. These
    functions are not general enough to belong in lua-stdlib, because
    (among others) they only work correctly with tables that can be
-   inverted without loss of key values.  They will continue to work
-   for another release or two, issuing a deprecation warning on first
-   use.  After that, in some future release, they will be removed
-   entirely.
+   inverted without loss of key values.  They currently give deprecation
+   warnings.
 
  - `list.map` and `list.map_with` has been deprecated, in favour of the
    more powerful new `functional.map` and `functional.map_with` which
@@ -174,6 +175,9 @@ Stdlib NEWS - User visible changes
 
  - `list.reverse` has been deprecated in favour of the more general
    and more accurately named `std.ireverse`.
+
+ - `list.shape` has been deprecated in favour of `table.shape`, the old
+   name now gives a deprecation warning.
 
  - `list.transpose` has been deprecated in favour of `functional.zip`,
    see above for details.

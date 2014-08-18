@@ -127,7 +127,7 @@ end)
 -- @function flatten
 -- @tparam table t a table
 -- @treturn table a list of all non-table elements of *t*
-export (M, "flatten (table)", function (t)
+local flatten = export (M, "flatten (table)", function (t)
   return collect (leaves, ipairs, t)
 end)
 
@@ -211,6 +211,62 @@ end)
 function M.pack (...)
   return {...}
 end
+
+
+--- Shape a table according to a list of dimensions.
+--
+-- Dimensions are given outermost first and items from the original
+-- list are distributed breadth first; there may be one 0 indicating
+-- an indefinite number. Hence, `{0}` is a flat list,
+-- `{1}` is a singleton, `{2, 0}` is a list of
+-- two lists, and `{0, 2}` is a list of pairs.
+--
+-- Algorithm: turn shape into all positive numbers, calculating
+-- the zero if necessary and making sure there is at most one;
+-- recursively walk the shape, adding empty tables until the bottom
+-- level is reached at which point add table items instead, using a
+-- counter to walk the flattened original list.
+--
+-- @todo Use ileaves instead of flatten (needs a while instead of a
+-- for in fill function)
+-- @function shape
+-- @tparam table dims table of dimensions `{d1, ..., dn}`
+-- @tparam table t a table of elements
+-- @return reshaped list
+export (M, "shape (table, table)", function (dims, t)
+  t = flatten (t)
+  -- Check the shape and calculate the size of the zero, if any
+  local size = 1
+  local zero
+  for i, v in ipairs (dims) do
+    if v == 0 then
+      if zero then -- bad shape: two zeros
+        return nil
+      else
+        zero = i
+      end
+    else
+      size = size * v
+    end
+  end
+  if zero then
+    dims[zero] = math.ceil (#t / size)
+  end
+  local function fill (i, d)
+    if d > #dims then
+      return t[i], i + 1
+    else
+      local r = {}
+      for j = 1, dims[d] do
+        local e
+        e, i = fill (i, d + 1)
+        r[#r + 1] = e
+      end
+      return r, i
+    end
+  end
+  return (fill (1, 1))
+end)
 
 
 --- Find the number of elements in a table.

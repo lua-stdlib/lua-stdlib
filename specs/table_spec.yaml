@@ -6,7 +6,8 @@ before: |
   extend_base         = { "clone", "clone_rename", "clone_select", "empty",
                           "flatten", "invert", "keys", "merge", "merge_select",
                           "metamethod", "monkey_patch", "new", "pack",
-                          "ripairs", "size", "sort", "totable", "values" }
+                          "ripairs", "shape", "size", "sort", "totable",
+                          "values" }
 
   M = require "std.table"
 
@@ -483,6 +484,42 @@ specify std.table:
       t, u = {"one", "two", "five"}, {}
       for _, v in f (t) do u[#u + 1] = v end
       expect (u).to_equal {"five", "two", "one"}
+
+
+- describe shape:
+  - before:
+      l = {1, 2, 3, 4, 5, 6}
+
+      f, badarg = init (M, "shape")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+      expect (f ({})).to_raise (badarg (2, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+      expect (f ({}, false)).to_raise (badarg (2, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, l, false)).to_raise (badarg (3))
+
+  - it returns a table:
+      expect (prototype (f ({2, 3}, l))).to_be "table"
+  - it works for an empty table:
+      expect (f ({0}, {})).to_equal ({})
+  - it returns the result in a new table:
+      expect (f ({2, 3}, l)).not_to_be (l)
+  - it does not perturb the argument table:
+      f ({2, 3}, l)
+      expect (l).to_equal {1, 2, 3, 4, 5, 6}
+  - it reshapes a table according to given dimensions:
+      expect (f ({2, 3}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({3, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
+  - it treats 0-valued dimensions as an indefinite number:
+      expect (f ({2, 0}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({0, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
 
 
 - describe size:
