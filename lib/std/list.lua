@@ -112,8 +112,8 @@ end)
 --- Prepend an item to a list.
 -- @static
 -- @function cons
--- @tparam List l a list
 -- @param x item
+-- @tparam List l a list
 -- @treturn List new list containing `{x, unpack (l)}`
 local cons = function (x, l, ...)
   if prototype (x) == "List" and prototype (l) ~= "List" then
