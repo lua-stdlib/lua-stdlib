@@ -7,8 +7,7 @@ package.path = std.package.normalize ("lib/?.lua", "lib/?/init.lua", package.pat
 
 -- Allow user override of LUA binary used by hell.spawn, falling
 -- back to environment PATH search for "lua" if nothing else works.
-local LUA = os.getenv "LUA" or os.execute "which lua"
-if LUA == "" then LUA = "lua" end
+local LUA = os.getenv "LUA" or "lua"
 
 
 -- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
