@@ -327,27 +327,20 @@ specify std.list:
     - before:
         f, badarg = init (M, fname)
 
-    - it writes a argument order deprecation warning on first call:
-        expect (capture (f, {l, "x"})).to_contain_error "was deprecated"
-        expect (capture (f, {l, "x"})).not_to_contain_error "was deprecated"
-
     - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "any value"))
+        expect (f ()).to_raise (badarg (1, "List"))
+        expect (f (List {})).to_raise (badarg (2, "any value"))
     - it diagnoses wrong argument types:
-        expect (f ("x", false)).to_raise (badarg (2, "List or nil", "boolean"))
+        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
     - it diagnoses too many arguments:
-        expect (f ("x", List {}, false)).to_raise (badarg (3))
+        expect (f (List {}, "x", false)).to_raise (badarg (3))
 
     - it returns a List object:
-        expect (prototype (f ("head", l))).to_be "List"
+        expect (prototype (f (l, "x"))).to_be "List"
     - it prepends an item to a List:
-        expect (f ("head", l)).
-          to_equal (List {"head", "foo", "bar", "baz"})
+        expect (f (l, "x")).to_equal (List {"x", "foo", "bar", "baz"})
     - it works for empty Lists:
-        l = List {}
-        expect (f ("head", l)).to_equal (List {"head"})
-    - it supports single argument call:
-        expect (f "head").to_equal (List {"head"})
+        expect (f (List {}, "x")).to_equal (List {"x"})
 
   - context as an object method:
     - before:

@@ -35,8 +35,8 @@ local Object  = object {}
 local List      -- forward declaration
 
 local ipairs, pairs = base.ipairs, base.pairs
-local argscheck, export, ielems, prototype =
-  base.argscheck, base.export, base.ielems, base.prototype
+local export, ielems, prototype =
+  base.export, base.ielems, base.prototype
 local M = { "std.list" }
 
 
@@ -131,26 +131,12 @@ end)
 --- Prepend an item to a list.
 -- @static
 -- @function cons
--- @param x item
 -- @tparam List l a list
+-- @param x item
 -- @treturn List new list containing `{x, unpack (l)}`
-local cons = function (x, l, ...)
-  if prototype (x) == "List" and prototype (l) ~= "List" then
-    if not base.getcompat (M.cons) then
-      io.stderr:write (base.DEPRECATIONMSG ("41",
-                       "'std.list.cons' with List argument first", 2))
-      base.setcompat (M.cons)
-    end
-    x, l = l, x
-  end
-  argscheck ("std.list.cons", {"any", "List?"}, {x, l})
-  if next {...} then
-    error (string.format (base.toomanyarg_fmt, "std.list.cons", 2, 2 + base.len {...}), 2)
-  end
-
-  return List {x, unpack (l or {})}
-end
-M.cons = cons
+local cons = export (M, "cons (List, any)", function (l, x)
+  return List {x, unpack (l)}
+end)
 
 
 --- Turn a list of pairs into a table.
@@ -275,8 +261,7 @@ export (m, "concat (List|table*)", concat)
 -- @function cons
 -- @param x item
 -- @treturn List new list containing `{x, unpack (self)}`
-export (m, "cons (any)",
-  function (self, x) return cons (x, self) end)
+export (m, "cons (any)", cons)
 
 
 --- Repeat a list.
