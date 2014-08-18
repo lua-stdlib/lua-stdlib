@@ -5,11 +5,10 @@ local std       = require "specl.std"
 package.path = std.package.normalize ("lib/?.lua", "lib/?/init.lua", package.path)
 
 
--- Substitute configured LUA so that hell.spawn doesn't pick up
--- a different Lua binary to the one used by Specl itself.  If
--- we could rely on luaposix availability `posix.getenv` would
--- be a nicer way to find this...
-local LUA = "@LUA@"
+-- Allow user override of LUA binary used by hell.spawn, falling
+-- back to environment PATH search for "lua" if nothing else works.
+local LUA = os.getenv "LUA" or os.execute "which lua"
+if LUA == "" then LUA = "lua" end
 
 
 -- A copy of base.lua:prototype, so that an unloadable base.lua doesn't

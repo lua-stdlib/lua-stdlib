@@ -169,8 +169,8 @@ specify std.io:
 
 - describe process_files:
   - before:
-      name = "specs/spec_helper.lua"
-      names = {"Makefile", "config.log", "config.status", "specs/spec_helper.lua"}
+      name = "Makefile"
+      names = {"Makefile", "config.log", "config.status", "build-aux/config.ld"}
       ascript = [[
         require "std.io".process_files (function (a) print (a) end)
       ]]
@@ -219,7 +219,7 @@ specify std.io:
 
 - describe readlines:
   - before: |
-      name = "specs/spec_helper.lua"
+      name = "Makefile"
       h = io.open (name)
       lines = {} for l in h:lines () do lines[#lines + 1] = l end
       h:close ()
@@ -272,7 +272,7 @@ specify std.io:
 
 - describe slurp:
   - before: |
-      name = "specs/spec_helper.lua"
+      name = "Makefile"
       h = io.open (name)
       content = h:read "*a"
       h:close ()
@@ -392,7 +392,7 @@ specify std.io:
   - before: |
       name = os.tmpname ()
       h = io.open (name, "w")
-      lines = M.readlines (io.open "specs/spec_helper.lua")
+      lines = M.readlines (io.open "Makefile")
 
       defaultout = io.output ()
       f, badarg = init (M, "writelines")

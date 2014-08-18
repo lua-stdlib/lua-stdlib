@@ -27,6 +27,5 @@
 /luarocks
 /m4/ax_lua.m4
 /m4/slingshot.m4
-/specs/spec_helper.lua
 /stdlib-*.tar.gz
 /travis.yml.in
