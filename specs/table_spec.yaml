@@ -6,8 +6,8 @@ before: |
   extend_base         = { "clone", "clone_rename", "clone_select", "empty",
                           "flatten", "invert", "keys", "merge", "merge_select",
                           "metamethod", "monkey_patch", "new", "pack",
-                          "ripairs", "shape", "size", "sort", "totable",
-                          "values" }
+                          "project", "ripairs", "shape", "size", "sort",
+                          "totable", "values" }
 
   M = require "std.table"
 
@@ -463,6 +463,38 @@ specify std.table:
       expect (f ("one", "two", "five")).to_equal (t)
   - it is the inverse operation to unpack:
       expect (f (unpack (t))).to_equal (t)
+
+
+- describe project:
+  - before:
+      l = {
+        {first = false, second = true, third = true},
+        {first = 1, second = 2, third = 3},
+        {first = "1st", second = "2nd", third = "3rd"},
+      }
+
+      f, badarg = init (M, "project")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "any value"))
+      expect (f ("x")).to_raise (badarg (2, "list"))
+  - it diagnoses wrong argument types:
+      expect (f ("x", false)).to_raise (badarg (2, "list", "boolean"))
+      expect (f ("x", {false})).
+        to_raise (badarg (2, "list of tables", "boolean at index 1"))
+      expect (f ("x", {{}, false})).
+        to_raise (badarg (2, "list of tables", "boolean at index 2"))
+  - it diagnoses too many arguments:
+      expect (f ("x", l, false)).to_raise (badarg (3))
+
+  - it returns a table:
+      expect (prototype (f ("third", l))).to_be "table"
+  - it works with an empty table:
+      expect (f ("third", {})).to_equal {}
+  - it projects a table of fields from a table of tables:
+      expect (f ("third", l)).to_equal {true, 3, "3rd"}
+  - it projects fields with a falsey value correctly:
+      expect (f ("first", l)).to_equal {false, 1, "1st"}
 
 
 - describe ripairs:

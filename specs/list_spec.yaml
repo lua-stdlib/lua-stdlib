@@ -911,17 +911,9 @@ specify std.list:
     - before:
         f, badarg = init (M, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "any value"))
-        expect (f ("x")).to_raise (badarg (2, "List"))
-    - it diagnoses wrong argument types:
-        expect (f ("x", false)).to_raise (badarg (2, "List", "boolean"))
-        expect (f ("x", List {false})).
-          to_raise (badarg (2, "List of tables", "boolean at index 1"))
-        expect (f ("x", List {{}, false})).
-          to_raise (badarg (2, "List of tables", "boolean at index 2"))
-    - it diagnoses too many arguments:
-        expect (f ("x", l, false)).to_raise (badarg (3))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {"third", l})).to_contain_error "was deprecated"
+        expect (capture (f, {"third", l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f ("third", l))).to_be "List"
@@ -936,17 +928,9 @@ specify std.list:
     - before:
         f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "any value"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (List {false}, "x")).
-          to_raise (badarg (0, "List of tables", "boolean at index 1"))
-        expect (f (List {{}, false}, "x")).
-          to_raise (badarg (0, "List of tables", "boolean at index 2"))
-    - it diagnoses too many arguments:
-        expect (f (l, "x", false)).to_raise (badarg (2))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, "third"})).to_contain_error "was deprecated"
+        expect (capture (f, {l, "third"})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f (l, "third"))).to_be "List"

@@ -185,18 +185,6 @@ export (M, "enpair (table)", function (t)
 end)
 
 
---- Project a list of fields from a list of tables.
--- @static
--- @function project
--- @param f field to project
--- @tparam List l a list of tables
--- @treturn List list of `f` fields
--- @see std.list:project
-local project = export (M, "project (any, List of tables)", function (x, l)
-  return map (function (t) return t[x] end, l)
-end)
-
-
 --- Repeat a list.
 -- @static
 -- @function rep
@@ -289,17 +277,6 @@ export (m, "concat (List|table*)", concat)
 -- @treturn List new list containing `{x, unpack (self)}`
 export (m, "cons (any)",
   function (self, x) return cons (x, self) end)
-
-
---- Project a list of fields from a list of tables.
--- @function project
--- @param f field to project
--- @treturn List list of `f` fields
--- @see std.list.project
-export (m, "project (any)", function (self, x)
-  base.argcheck ("std.list:project", 0, "List of tables", self)
-  return project (x, self)
-end)
 
 
 --- Repeat a list.
@@ -401,6 +378,11 @@ end
 
 local function map_with (fn, ls)
   return map (function (...) return fn (unpack (...)) end, ls)
+end
+
+
+local function project (x, l)
+  return map (function (t) return t[x] end, l)
 end
 
 
@@ -535,6 +517,12 @@ m.map         = DEPRECATED ("41", "'std.list:map'",
 M.map_with    = DEPRECATED ("41", "'std.list.map_with'",
                   "use 'std.functional.map_with' instead", map_with)
 
+M.project     = DEPRECATED ("41", "'std.list.project'",
+                  "use 'std.table.project' instead", project)
+m.project     = DEPRECATED ("41", "'std.list:project'",
+                  "use 'std.table.project' instead",
+                  function (self, x) return project (x, self) end)
+
 M.relems      = DEPRECATED ("41", "'std.list.relems'",
                   "compose 'std.ielems' and 'std.ireverse' instead", relems)
 m.relems      = DEPRECATED ("41", "'std.list:relems'",  relems)
@@ -545,9 +533,9 @@ m.reverse     = DEPRECATED ("41", "'std.list:reverse'",
                   "use 'std.ireverse' instead", reverse)
 
 M.shape       = DEPRECATED ("41", "'std.list.shape'",
-                  "use 'std.functional.shape' instead", shape)
+                  "use 'std.table.shape' instead", shape)
 m.shape       = DEPRECATED ("41", "'std.list:shape'",
-                  "use 'std.functional.shape' instead",
+                  "use 'std.table.shape' instead",
 		  function (t, l) return shape (l, t) end)
 
 M.transpose   = DEPRECATED ("41", "'std.list.transpose'",

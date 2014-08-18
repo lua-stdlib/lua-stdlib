@@ -213,6 +213,20 @@ function M.pack (...)
 end
 
 
+--- Project a list of fields from a list of tables.
+-- @function project
+-- @param fkey field to project
+-- @tparam table tt a list of tables
+-- @treturn table list of *fkey* fields from *tt*
+export (M, "project (any, list of tables)", function (fkey, tt)
+  local r = {}
+  for _, t in ipairs (tt) do
+    r[#r + 1] = t[fkey]
+  end
+  return r
+end)
+
+
 --- Shape a table according to a list of dimensions.
 --
 -- Dimensions are given outermost first and items from the original
