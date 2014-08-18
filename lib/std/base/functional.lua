@@ -15,6 +15,21 @@ local function callable (x)
 end
 
 
+local function collect (ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = ipairs, {ifn, ...}
+  end
+
+  local r = {}
+  for k, v in ifn (unpack (argt)) do
+    if v == nil then k, v = #r + 1, k end
+    r[k] = v
+  end
+  return r
+end
+
+
 local function reduce (fn, d, ifn, ...)
   local nextfn, state, k = ifn (...)
   local t = {nextfn (state, k)}
@@ -30,5 +45,6 @@ end
 
 return {
   callable = callable,
+  collect  = collect,
   reduce   = reduce,
 }

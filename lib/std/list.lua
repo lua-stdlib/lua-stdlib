@@ -358,12 +358,6 @@ export (m, "cons (any)",
   function (self, x) return cons (x, self) end)
 
 
---- Flatten a list.
--- @function flatten
--- @treturn List flattened list
-export (m, "flatten ()", flatten)
-
-
 --- Project a list of fields from a list of tables.
 -- @function project
 -- @param f field to project
@@ -525,6 +519,9 @@ m.filter      = DEPRECATED ("41", "'std.list:filter'",
 
 M.flatten     = DEPRECATED ("41", "'std.list.flatten'",
                   "use 'std.functional.flatten' instead", flatten)
+m.flatten     = DEPRECATED ("41", "'std.list:flatten'",
+                  "use 'std.functional.flatten' instead", flatten)
+
 
 M.foldl       = DEPRECATED ("41", "'std.list.foldl'",
                   "use 'std.functional.foldl' instead", foldl)

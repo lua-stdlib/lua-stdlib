@@ -4,7 +4,7 @@ before: |
   global_table        = "_G"
 
   extend_base         = { "clone", "clone_rename", "clone_select", "empty",
-                          "invert", "keys", "merge", "merge_select",
+                          "flatten", "invert", "keys", "merge", "merge_select",
                           "metamethod", "monkey_patch", "new", "pack",
                           "ripairs", "size", "sort", "totable", "values" }
 
@@ -168,6 +168,27 @@ specify std.table:
       expect (f {"stuff"}).to_be (false)
       expect (f {{}}).to_be (false)
       expect (f {false}).to_be (false)
+
+
+- describe flatten:
+  - before:
+      t = {{{"one"}}, "two", {{"three"}, "four"}}
+
+      f, badarg = init (M, "flatten")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (t, false)).to_raise (badarg (2))
+
+  - it returns a table:
+      expect (type (f (t))).to_be "table"
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it flattens a nested table:
+      expect (f (t)).to_equal {"one", "two", "three", "four"}
 
 
 - describe invert:

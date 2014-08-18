@@ -5,8 +5,8 @@ before:
   global_table = "_G"
 
   exported_apis = { 1, "bind", "callable", "case", "collect", "compose",
-                    "cond", "curry", "eval", "filter", "flatten", "fold",
-                    "foldl", "foldr", "id", "lambda", "map", "map_with",
+                    "cond", "curry", "eval", "filter", "fold", "foldl",
+                    "foldr", "id", "lambda", "map", "map_with",
                     "memoize", "nop", "op", "reduce", "zip", "zip_with" }
 
   M = require (this_module)
@@ -262,26 +262,6 @@ specify std.functional:
       expect (f (function (k, v) return type (v) == "string" end, t)).
         to_equal {"first", last="three"}
 
-
-- describe flatten:
-  - before:
-      t = {{{"one"}}, "two", {{"three"}, "four"}}
-
-      f, badarg = init (M, "flatten")
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (t, false)).to_raise (badarg (2))
-
-  - it returns a table:
-      expect (type (f (t))).to_be "table"
-  - it works for an empty table:
-      expect (f {}).to_equal {}
-  - it flattens a nested table:
-      expect (f (t)).to_equal {"one", "two", "three", "four"}
 
 - describe fold:
   - before:

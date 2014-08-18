@@ -15,6 +15,8 @@ local base = require "std.base"
 
 local export, getmetamethod, ipairs, pairs =
   base.export, base.getmetamethod, base.ipairs, base.pairs
+local collect = base.functional.collect
+local leaves  = base.tree.leaves
 
 
 local M = { "std.table" }
@@ -118,6 +120,15 @@ export (M, "clone_select (table, [table], boolean|:nometa?)",
 -- @usage if empty (t) then error "ohnoes" end
 export (M, "empty (table)", function (t)
   return not next (t)
+end)
+
+
+--- Flatten a nested table into a list.
+-- @function flatten
+-- @tparam table t a table
+-- @treturn table a list of all non-table elements of *t*
+export (M, "flatten (table)", function (t)
+  return collect (leaves, ipairs, t)
 end)
 
 

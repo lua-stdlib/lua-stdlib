@@ -545,12 +545,9 @@ specify std.list:
     - before:
         f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
 
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, false)).to_raise (badarg (1))
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
         expect (prototype (f (l))).to_be "List"

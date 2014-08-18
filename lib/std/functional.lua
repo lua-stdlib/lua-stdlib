@@ -15,7 +15,6 @@ local export, ielems, ipairs, ireverse, len, pairs =
   base.export, base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
 local callable, map, reduce =
   base.functional.callable, base.functional.map, base.functional.reduce
-local leaves = base.tree.leaves
 
 local M = { "std.functional" }
 
@@ -135,19 +134,7 @@ end)
 -- @usage
 -- --> {"a", "b", "c"}
 -- collect {"a", "b", "c", x=1, y=2, z=5}
-local collect = export (M, "collect ([func], any*)", function (ifn, ...)
-  local argt = {...}
-  if not callable (ifn) then
-    ifn, argt = ipairs, {ifn, ...}
-  end
-
-  local r = {}
-  for k, v in ifn (unpack (argt)) do
-    if v == nil then k, v = #r + 1, k end
-    r[k] = v
-  end
-  return r
-end)
+export (M, "collect ([func], any*)", base.functional.collect)
 
 
 --- Compose functions.
@@ -267,15 +254,6 @@ export (M, "filter (func, [func], any*)", function (pfn, ifn, ...)
     t = {nextfn (state, k)}	-- maintain loop invariant
   end
   return r
-end)
-
-
---- Flatten a nested table into a list.
--- @function flatten
--- @tparam table t a table
--- @treturn table a list of all non-table elements of *t*
-export (M, "flatten (table)", function (t)
-  return collect (leaves, ipairs, t)
 end)
 
 
