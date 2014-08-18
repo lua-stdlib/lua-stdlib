@@ -85,14 +85,9 @@ specify std.table:
       fname = "clone_rename"
       f = M[fname]
 
-  - it writes a deprecation warning to standard error on first call: |
-      _, err = capture (f, {{}, subject})
-      if err ~= nil then
-        -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'std.table.clone_rename' was deprecated"
-      end
-      _, err = capture (f, {{}, subject})
-      expect (err).to_be (nil)
+  - it writes a deprecation warning on first call:
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it copies the subject:
       expect (f ({}, subject)).to_copy (subject)
@@ -365,14 +360,9 @@ specify std.table:
 
       f = M.metamethod
 
-  - it writes a deprecation warning to standard error on first call: |
-      _, err = capture (f, {{}, subject})
-      if err ~= nil then
-        -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'std.table.metamethod' was deprecated"
-      end
-      _, err = capture (f, {{}, subject})
-      expect (err).to_be (nil)
+  - it writes a deprecation warning on first call:
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it returns nil for missing metamethods:
       expect (f (obj, "not a method on obj")).to_be (nil)
@@ -457,14 +447,9 @@ specify std.table:
   - before:
       f = M.ripairs
 
-  - it writes a deprecation warning to standard error on first call: |
-      _, err = capture (f, {{}, subject})
-      if err ~= nil then
-        -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "'std.table.ripairs' was deprecated"
-      end
-      _, err = capture (f, {{}, subject})
-      expect (err).to_be (nil)
+  - it writes a deprecation warning on first call:
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}

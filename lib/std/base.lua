@@ -861,9 +861,9 @@ function (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
   return function (...)
-    if not getcompat (fn) then
+    if not getcompat (name) then
       io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-      setcompat (fn)
+      setcompat (name)
     end
     return fn (...)
   end

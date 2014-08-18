@@ -229,17 +229,9 @@ specify std.list:
     - before:
         f, badarg = init (M, fname)
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l, "head"})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.cons' with list argument first was deprecated"
-        end
-        _, err = capture (f, {l, "head"})
-        expect (err).to_be (nil)
+    - it writes a argument order deprecation warning on first call:
+        expect (capture (f, {l, "x"})).to_contain_error "was deprecated"
+        expect (capture (f, {l, "x"})).not_to_contain_error "was deprecated"
 
     - it diagnoses missing arguments:
         expect (f ()).to_raise (badarg (1, "any value"))
@@ -307,13 +299,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:depair' was deprecated"
-        end
-        expect (select (2, capture (f, {l}))).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a primitive table:
         expect (prototype (l:depair ())).to_be "table"
@@ -332,16 +320,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {{}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.elems' was deprecated"
-        end
-        expect (select (2, capture (f, {{}}))).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {{}})).to_contain_error "was deprecated"
+        expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
     - it is an iterator over list members:
         t = {}
@@ -356,14 +337,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:elems' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is an iterator over list members:
         t = {}
@@ -438,17 +414,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.flatten' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         expect (prototype (f (l))).to_be "List"
@@ -483,17 +451,11 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {op["+"], 1, {10}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.foldl' was deprecated"
-        end
-        _, err = capture (f, {op["+"], 1, {10}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {op["+"], 1, {10}})).
+         to_contain_error "was deprecated"
+        expect (capture (f, {op["+"], 1, {10}})).
+         not_to_contain_error "was deprecated"
 
     - context with a table:
       - it works with an empty table:
@@ -517,17 +479,11 @@ specify std.list:
         l = List {3, 4}
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l, op["+"], 1})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:foldl' was deprecated"
-        end
-        _, err = capture (f, {l, op["+"], 1})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, op["+"], 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {l, op["+"], 1})).
+          not_to_contain_error "was deprecated"
 
     - it works with an empty list:
         l = List {}
@@ -548,17 +504,11 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {op["+"], 1, {10}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.foldr' was deprecated"
-        end
-        _, err = capture (f, {op["+"], 1, {10}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {op["+"], 1, {10}})).
+         to_contain_error "was deprecated"
+        expect (capture (f, {op["+"], 1, {10}})).
+         not_to_contain_error "was deprecated"
 
     - context with a table:
       - it works with an empty table:
@@ -583,17 +533,11 @@ specify std.list:
         l = List {10000, 100}
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l, op["+"], 1})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:foldr' was deprecated"
-        end
-        _, err = capture (f, {l, op["+"], 1})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, op["+"], 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {l, op["+"], 1})).
+          not_to_contain_error "was deprecated"
 
     - it works with an empty list:
         l = List {}
@@ -612,17 +556,11 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {1, List {{1}}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.index_key' was deprecated"
-        end
-        _, err = capture (f, {1, List {{1}}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {1, List {{1}}})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {1, List {{1}}})).
+          not_to_contain_error "was deprecated"
 
     - it makes a map of matched table field values to table list offsets:
         l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
@@ -647,14 +585,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l, 1})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:index_key' was deprecated"
-        end
-        _, err = capture (f, {l, 1})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
 
     - it makes a map of matched table field values to table list offsets:
         l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
@@ -684,17 +617,11 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {1, List {{1}}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.index_value' was deprecated"
-        end
-        _, err = capture (f, {1, List {{1}}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {1, List {{1}}})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {1, List {{1}}})).
+          not_to_contain_error "was deprecated"
 
     - it makes a table of matched table field values to table list references:
         l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
@@ -720,14 +647,9 @@ specify std.list:
         l = List {{1}}
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l, 1})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:index_value' was deprecated"
-        end
-        _, err = capture (f, {l, 1})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
 
     - it makes a table of matched table field values to table list references:
         l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
@@ -760,17 +682,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {sq, l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.map' was deprecated"
-        end
-        _, err = capture (f, {sq, l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {sq, l})).to_contain_error "was deprecated"
+        expect (capture (f, {sq, l})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         m = f (sq, l)
@@ -818,17 +732,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {fn, l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.map_with' was deprecated"
-        end
-        _, err = capture (f, {fn, l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {fn, l})).to_contain_error "was deprecated"
+        expect (capture (f, {fn, l})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         m = f (fn, l)
@@ -849,14 +755,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l, fn})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:map_with' was deprecated"
-        end
-        _, err = capture (f, {l, fn})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         m = f (l, fn)
@@ -919,17 +820,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {{}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.relems' was deprecated"
-        end
-        _, err = capture (f, {{}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is a reverse iterator over list members:
         t = {}
@@ -944,14 +837,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:relems' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is a reverse iterator over list members:
         t = {}
@@ -1000,17 +888,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {{}})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.reverse' was deprecated"
-        end
-        _, err = capture (f, {{}})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {{}})).to_contain_error "was deprecated"
+        expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         expect (prototype (f (l))).to_be "List"
@@ -1028,14 +908,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:reverse' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         expect (prototype (l:reverse ())).to_be "List"
@@ -1157,17 +1032,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.transpose' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it transposes rows and columns:
         expect (f (l)).to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
@@ -1178,14 +1045,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:transpose' was deprecated"
-        end
-        _, err = capture (f, {l})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a list object: |
         expect (prototype (l:transpose ())).to_be "List"
@@ -1213,17 +1075,9 @@ specify std.list:
     - before:
         f = M[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        -- Unwrap functable
-        f = type (f) == "function" and f or f.call or (getmetatable (f) or {}).__call
-
-        _, err = capture (f, {l, fn})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list.zip_with' was deprecated"
-        end
-        _, err = capture (f, {l, fn})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a list object:
         expect (prototype (f (l, fn))).to_be "List"
@@ -1242,14 +1096,9 @@ specify std.list:
     - before:
         f = l[fname]
 
-    - it writes a deprecation warning to standard error on first call: |
-        _, err = capture (f, {l, fn})
-        if err ~= nil then
-          -- skip this test when using Specl < 12 capture stub
-          expect (err).to_contain "'std.list:zip_with' was deprecated"
-        end
-        _, err = capture (f, {l, fn})
-        expect (err).to_be (nil)
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a list object: |
         expect (prototype (f (l, fn))).to_be "List"
