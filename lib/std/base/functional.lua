@@ -15,29 +15,6 @@ local function callable (x)
 end
 
 
-local function map (mapfn, ifn, ...)
-  local argt = {...}
-  if not callable (ifn) or not next (argt) then
-    ifn, argt = pairs, {ifn, ...}
-  end
-
-  local nextfn, state, k = ifn (unpack (argt))
-  local mapargs = {nextfn (state, k)}
-
-  local r = {}
-  while mapargs[1] ~= nil do
-    k = mapargs[1]
-    local d, v = mapfn (unpack (mapargs))
-    if v == nil then d, v = #r + 1, d end
-    if v ~= nil then
-      r[d] = v
-    end
-    mapargs = {nextfn (state, k)}
-  end
-  return r
-end
-
-
 local function reduce (fn, d, ifn, ...)
   local nextfn, state, k = ifn (...)
   local t = {nextfn (state, k)}
@@ -53,6 +30,5 @@ end
 
 return {
   callable = callable,
-  map      = map,
   reduce   = reduce,
 }

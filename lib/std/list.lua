@@ -40,7 +40,26 @@ local argscheck, export, ielems, prototype =
 local M = { "std.list" }
 
 
-local map = function (...) return List (base.functional.map (...)) end
+
+--[[ ================= ]]--
+--[[ Helper Functions. ]]--
+--[[ ================= ]]--
+
+
+-- Support for DEPRECATED apis. --
+
+local ielems = base.ielems
+
+local function map (fn, l)
+  local r = List {}
+  for e in ielems (l) do
+    local v = fn (e)
+    if v ~= nil then
+      r[#r + 1] = v
+    end
+  end
+  return r
+end
 
 
 --[[ ================= ]]--
@@ -187,7 +206,7 @@ end)
 -- @treturn List list of `f` fields
 -- @see std.list:project
 local project = export (M, "project (any, List of tables)", function (x, l)
-  return map (function (t) return t[x] end, ielems, l)
+  return map (function (t) return t[x] end, l)
 end)
 
 
@@ -368,16 +387,6 @@ export (m, "filter (func)",
 export (m, "flatten ()", flatten)
 
 
---- Map a function over a list.
--- @function map
--- @func fn map function
--- @treturn List new list containing
---   `{fn (self[1]), ..., fn (self[#self])}`
--- @see std.list.map
-export (m, "map (func)",
-  function (self, fn) return map (fn, self) end)
-
-
 --- Project a list of fields from a list of tables.
 -- @function project
 -- @param f field to project
@@ -476,7 +485,7 @@ end
 
 
 local function map_with (fn, ls)
-  return map (function (...) return fn (unpack (...)) end, ielems, ls)
+  return map (function (...) return fn (unpack (...)) end, ls)
 end
 
 
@@ -487,7 +496,7 @@ local function reverse (l) return List (base.ireverse (l)) end
 
 
 local function transpose (ls)
-  local rs, len, dims = List {}, base.len (ls), map (base.len, ielems, ls)
+  local rs, len, dims = List {}, base.len (ls), map (base.len, ls)
   if #dims > 0 then
     for i = 1, math.max (unpack (dims)) do
       rs[i] = List {}
@@ -556,6 +565,11 @@ m.index_value = DEPRECATED ("41", "'std.list:index_value'",
 
 M.map         = DEPRECATED ("41", "'std.list.map'",
                   "use 'std.functional.map' instead", map)
+m.map         = DEPRECATED ("41", "'std.list:map'",
+                  "use 'std.functional.map' instead",
+                  function (self, fn) return map (fn, self) end)
+
+
 
 M.map_with    = DEPRECATED ("41", "'std.list.map_with'",
                   "use 'std.functional.map_with' instead", map_with)
