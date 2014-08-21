@@ -10,8 +10,14 @@
 
 
 local function callable (x)
-  if type (x) == "function" then return true end
-  return type ((getmetatable (x) or {}).__call) == "function"
+  if type (x) == "function" then
+    return x
+  else
+    x = (getmetatable (x) or {}).__call
+    if type (x) == "function" then
+      return x
+    end
+  end
 end
 
 

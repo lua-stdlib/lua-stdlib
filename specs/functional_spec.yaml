@@ -64,18 +64,19 @@ specify std.functional:
 - describe callable:
   - before:
       f = M.callable
-  - it identifies whether objects are callable:
+  - it returns the function associated with a callable:
+      Container = require "std.container" { __call = M.nop }
       for _, v in ipairs {
         true,
         42,
         "str",
         io.stderr,
         {},
-        function () end,
-        setmetatable ({}, {__call = function () end}),
-        require "std.container",
+        M.nop,
+        setmetatable ({}, {__call = M.nop}),
+        Container,
       } do
-        expect (f (v)).to_be (pcall (v, {}))
+        expect (f (v)).to_be (pcall (v, {}) and M.nop or nil)
       end
 
 - describe case:
