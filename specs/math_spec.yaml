@@ -31,7 +31,7 @@ specify std.math:
 
 - describe floor:
   - before:
-      f, badarg = init (M, "floor")
+      f, badarg = init (M, this_module, "floor")
 
   - it diagnoses missing arguments: |
       expect (f ()).to_raise (badarg (1, "number"))
@@ -62,7 +62,7 @@ specify std.math:
         math = {},
       }
 
-      f, badarg = init (M, "monkey_patch")
+      f, badarg = init (M, this_module, "monkey_patch")
 
   - it diagnoses wrong argument types: |
       expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
@@ -76,7 +76,7 @@ specify std.math:
 
 - describe round:
   - before:
-      f, badarg = init (M, "round")
+      f, badarg = init (M, this_module, "round")
 
   - it diagnoses missing arguments: |
       expect (f ()).to_raise (badarg (1, "number"))

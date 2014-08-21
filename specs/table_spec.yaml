@@ -36,7 +36,7 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      f, badarg = init (M, "clone")
+      f, badarg = init (M, this_module, "clone")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -113,7 +113,7 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      f, badarg = init (M, "clone_select")
+      f, badarg = init (M, this_module, "clone_select")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -156,7 +156,7 @@ specify std.table:
       t = {"first", "second", third = 4}
       l = M.enpair (t)
 
-      f, badarg = init (M, "depair")
+      f, badarg = init (M, this_module, "depair")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "list"))
@@ -179,7 +179,7 @@ specify std.table:
 
 - describe empty:
   - before:
-      f, badarg = init (M, "empty")
+      f, badarg = init (M, this_module, "empty")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -202,7 +202,7 @@ specify std.table:
       t = {"first", "second", third = 4}
       l = M.enpair (t)
 
-      f, badarg = init (M, "enpair")
+      f, badarg = init (M, this_module, "enpair")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -225,7 +225,7 @@ specify std.table:
   - before:
       t = {{{"one"}}, "two", {{"three"}, "four"}}
 
-      f, badarg = init (M, "flatten")
+      f, badarg = init (M, this_module, "flatten")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -246,7 +246,7 @@ specify std.table:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
 
-      f, badarg = init (M, "invert")
+      f, badarg = init (M, this_module, "invert")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -270,7 +270,7 @@ specify std.table:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
 
-      f, badarg = init (M, "keys")
+      f, badarg = init (M, this_module, "keys")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -302,7 +302,7 @@ specify std.table:
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
 
-      f, badarg = init (M, "merge")
+      f, badarg = init (M, this_module, "merge")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -369,7 +369,7 @@ specify std.table:
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
 
-      f, badarg = init (M, "merge_select")
+      f, badarg = init (M, this_module, "merge_select")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -446,7 +446,7 @@ specify std.table:
 
 - describe monkey_patch:
   - before:
-      f, badarg = init (M, "monkey_patch")
+      f, badarg = init (M, this_module, "monkey_patch")
 
       t = {
         table = {},
@@ -464,7 +464,7 @@ specify std.table:
 
 - describe new:
   - before:
-      f, badarg = init (M, "new")
+      f, badarg = init (M, this_module, "new")
 
   - it diagnoses wrong argument types:
       expect (f (nil, false)).to_raise (badarg (2, "table or nil", "boolean"))
@@ -523,7 +523,7 @@ specify std.table:
         {first = "1st", second = "2nd", third = "3rd"},
       }
 
-      f, badarg = init (M, "project")
+      f, badarg = init (M, this_module, "project")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "any value"))
@@ -572,7 +572,7 @@ specify std.table:
   - before:
       l = {1, 2, 3, 4, 5, 6}
 
-      f, badarg = init (M, "shape")
+      f, badarg = init (M, this_module, "shape")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -609,7 +609,7 @@ specify std.table:
       --          - 1 -  --------- 2 ----------  -- 3 --
       subject = { "one", { { "two" }, "three" }, four = 5 }
 
-      f, badarg = init (M, "size")
+      f, badarg = init (M, this_module, "size")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -630,7 +630,7 @@ specify std.table:
       target  = { 0, 1, 2, 3, 4, 5 }
       cmp     = function (a, b) return a < b end
 
-      f, badarg = init (M, "sort")
+      f, badarg = init (M, this_module, "sort")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -653,7 +653,7 @@ specify std.table:
       mt = { _type = "MockObject",
              __totable = function (self) return self.content end }
 
-      f, badarg = init (M, "totable")
+      f, badarg = init (M, this_module, "totable")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "object, table or string"))
@@ -675,7 +675,7 @@ specify std.table:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
 
-      f, badarg = init (M, "values")
+      f, badarg = init (M, this_module, "values")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))

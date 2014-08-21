@@ -31,7 +31,7 @@ specify std.functional:
 - describe bind:
   - before:
       fname = "bind"
-      f, badarg = init (M, fname)
+      f, badarg = init (M, this_module,  fname)
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -85,7 +85,7 @@ specify std.functional:
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
 
-      f, badarg = init (M, "case")
+      f, badarg = init (M, this_module,  "case")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (2, "non-empty table"))
@@ -125,7 +125,7 @@ specify std.functional:
 
 - describe collect:
   - before:
-      f, badarg = init (M, "collect")
+      f, badarg = init (M, this_module,  "collect")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function or any value"))
@@ -141,7 +141,7 @@ specify std.functional:
 
 - describe compose:
   - before:
-      f, badarg = init (M, "compose")
+      f, badarg = init (M, this_module,  "compose")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -186,7 +186,7 @@ specify std.functional:
 
 - describe curry:
   - before:
-      f, badarg = init (M, "curry")
+      f, badarg = init (M, this_module,  "curry")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -231,7 +231,7 @@ specify std.functional:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
 
-     f, badarg = init (M, "filter")
+     f, badarg = init (M, this_module,  "filter")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -289,7 +289,7 @@ specify std.functional:
 
 - describe foldl:
   - before:
-      f, badarg = init (M, "foldl")
+      f, badarg = init (M, this_module,  "foldl")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -313,7 +313,7 @@ specify std.functional:
 
 - describe foldr:
   - before:
-      f, badarg = init (M, "foldr")
+      f, badarg = init (M, this_module,  "foldr")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -347,7 +347,7 @@ specify std.functional:
 
 - describe lambda:
   - before:
-      f, badarg = init (M, "lambda")
+      f, badarg = init (M, this_module,  "lambda")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -386,7 +386,7 @@ specify std.functional:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
 
-     f, badarg = init (M, "map")
+     f, badarg = init (M, this_module,  "map")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -428,7 +428,7 @@ specify std.functional:
       t = {{1, 2, 3}, {4, 5}}
       fn = function (...) return select ("#", ...) end
 
-      f, badarg = init (M, "map_with")
+      f, badarg = init (M, this_module,  "map_with")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -462,7 +462,7 @@ specify std.functional:
 
 - describe memoize:
   - before:
-      f, badarg = init (M, "memoize")
+      f, badarg = init (M, this_module,  "memoize")
 
       memfn = f (function (x)
                    if x then return {x} else return nil, "bzzt" end
@@ -514,7 +514,7 @@ specify std.functional:
 
 - describe reduce:
   - before:
-      f, badarg = init (M, "reduce")
+      f, badarg = init (M, this_module,  "reduce")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -542,7 +542,7 @@ specify std.functional:
   - before:
       tt = {{1, 2}, {3, 4}, {5, 6}}
 
-      f, badarg = init (M, "zip")
+      f, badarg = init (M, this_module,  "zip")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -566,7 +566,7 @@ specify std.functional:
       tt = {{1, 2}, {3, 4}, {5}}
       fn = function (...) return tonumber (table.concat {...}) end
 
-      f, badarg = init (M, "zip_with")
+      f, badarg = init (M, this_module,  "zip_with")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))

@@ -75,20 +75,17 @@ specify std.list:
 
 - describe append:
   - before:
-      fname = "append"
+      f, badarg = init (M, this_module, "append")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+      expect (f (l)).to_raise (badarg (2, "any value"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 42, false)).to_raise (badarg (3))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-        expect (f (l)).to_raise (badarg (2, "any value"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, 42, false)).to_raise (badarg (3))
-
     - it returns a List object:
         expect (prototype (f (l, "quux"))).to_be "List"
     - it works for an empty List:
@@ -99,15 +96,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "any value"))
-    - it diagnoses wrong argument types:
-        expect (f ({"foo", "bar"})).to_raise (badarg (0, "List", "table"))
-    - it diagnoses too many arguments:
-        expect (f (l, "bar", false)).to_raise (badarg (2))
+        f = l.append
 
     - it returns a List object:
         expect (prototype (f (l, "quux"))).to_be "List"
@@ -131,21 +120,18 @@ specify std.list:
   - before:
       a, b = List {"foo", "bar"}, List {"foo", "baz"}
 
-      fname = "compare"
+      f, badarg = init (M, this_module, "compare")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+      expect (f (l)).to_raise (badarg (2, "List or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+      expect (f (a, false)).to_raise (badarg (2, "List or table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (a, b, false)).to_raise (badarg (3))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-        expect (f (l)).to_raise (badarg (2, "List or table"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-        expect (f (a, false)).to_raise (badarg (2, "List or table", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (a, b, false)).to_raise (badarg (3))
-
     - it returns -1 when the first list is less than the second:
         expect (f (a, {"foo", "baz"})).to_be (-1)
         expect (f (a, List {"foo", "baz"})).to_be (-1)
@@ -167,16 +153,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = a[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "List or table"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (a, false)).to_raise (badarg (1, "List or table", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (a, b, false)).to_raise (badarg (2))
+        f = a.compare
 
     - it returns -1 when the first list is less than the second:
         expect (f (a, {"foo", "baz"})).to_be (-1)
@@ -243,21 +220,18 @@ specify std.list:
   - before:
       l = List {"foo", "bar"}
 
-      fname = "concat"
+      f, badarg = init (M, this_module, "concat")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+      expect (f (l)).to_raise (badarg (2, "List or table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+      expect (f (l, false)).to_raise (badarg (2, "List or table", "boolean"))
+      expect (f (l, l, false)).
+        to_raise (badarg (3, "List or table", "boolean"))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-        expect (f (l)).to_raise (badarg (2, "List or table"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (2, "List or table", "boolean"))
-        expect (f (l, l, false)).
-          to_raise (badarg (3, "List or table", "boolean"))
-
     - it returns a List object:
         expect (prototype (f (l, l))).to_be "List"
     - it works for an empty List:
@@ -275,16 +249,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "List or table"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (1, "List or table", "boolean"))
-        expect (f (l, l, false)).
-          to_raise (badarg (2, "List or table", "boolean"))
+        f = l.concat
 
     - it returns a List object:
         expect (prototype (f (l, l))).to_be "List"
@@ -321,20 +286,17 @@ specify std.list:
 
 - describe cons:
   - before:
-      fname = "cons"
+      f, badarg = init (M, this_module, "cons")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+      expect (f (List {})).to_raise (badarg (2, "any value"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (List {}, "x", false)).to_raise (badarg (3))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-        expect (f (List {})).to_raise (badarg (2, "any value"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (List {}, "x", false)).to_raise (badarg (3))
-
     - it returns a List object:
         expect (prototype (f (l, "x"))).to_be "List"
     - it prepends an item to a List:
@@ -344,14 +306,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, "x", false)).to_raise (badarg (2))
+        f = l.cons
 
     - it returns a List object:
         expect (prototype (f (l, "x"))).to_be "List"
@@ -366,11 +321,9 @@ specify std.list:
       l = List {List {1, "first"}, List {2, "second"}, List {"third", 4}}
       t = {"first", "second", third = 4}
 
-      fname = "depair"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.depair
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -386,7 +339,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.depair
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -401,12 +354,9 @@ specify std.list:
 
 
 - describe elems:
-  - before:
-      fname = "elems"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.elems
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {{}})).to_contain_error "was deprecated"
@@ -423,7 +373,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.elems
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -442,17 +392,13 @@ specify std.list:
 - describe enpair:
   - before:
      t = {"first", "second", third = 4}
+     f = M.enpair
 
-     fname = "enpair"
+  - it writes a deprecation warning on first call:
+      expect (capture (f, {t})).to_contain_error "was deprecated"
+      expect (capture (f, {t})).not_to_contain_error "was deprecated"
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it writes a deprecation warning on first call:
-        expect (capture (f, {t})).to_contain_error "was deprecated"
-        expect (capture (f, {t})).not_to_contain_error "was deprecated"
-
     - it returns a List object:
         expect (prototype (f (t))).to_be "List"
     - it works for an empty table:
@@ -467,11 +413,9 @@ specify std.list:
       l = List {"foo", "bar", "baz", "quux"}
       p = function (e) return (e:match "a" ~= nil) end
 
-      fname = "filter"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.filter
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {p, l})).to_contain_error "was deprecated"
@@ -486,7 +430,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.filter
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, p})).to_contain_error "was deprecated"
@@ -504,11 +448,9 @@ specify std.list:
   - before:
       l = List {List {List {"one"}}, "two", List {List {"three"}, "four"}}
 
-      fname = "flatten"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.flatten
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -525,7 +467,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.flatten
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -544,17 +486,16 @@ specify std.list:
 - describe foldl:
   - before:
       op = require "std.operator"
-
-      fname = "foldl"
+      l = List {3, 4}
 
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.foldl
 
     - it writes a deprecation warning on first call:
-        expect (capture (f, {op["+"], 1, {10}})).
+        expect (capture (f, {op["+"], 1, l})).
          to_contain_error "was deprecated"
-        expect (capture (f, {op["+"], 1, {10}})).
+        expect (capture (f, {op["+"], 1, l})).
          not_to_contain_error "was deprecated"
 
     - context with a table:
@@ -576,9 +517,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        l = List {3, 4}
-
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.foldl
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, op["+"], 1})).
@@ -598,12 +537,11 @@ specify std.list:
 - describe foldr:
   - before:
       op = require "std.operator"
-
-      fname = "foldr"
+      l = List {10000, 100}
 
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.foldr
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {op["+"], 1, {10}})).
@@ -631,9 +569,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        l = List {10000, 100}
-
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.foldr
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, op["+"], 1})).
@@ -651,12 +587,9 @@ specify std.list:
 
 
 - describe index_key:
-  - before:
-      fname = "index_key"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.index_key
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {1, List {{1}}})).
@@ -685,7 +618,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.index_key
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, 1})).to_contain_error "was deprecated"
@@ -712,12 +645,9 @@ specify std.list:
 
 
 - describe index_value:
-  - before:
-      fname = "index_value"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.index_value
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {1, List {{1}}})).
@@ -748,7 +678,7 @@ specify std.list:
     - before:
         l = List {{1}}
 
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.index_value
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, 1})).to_contain_error "was deprecated"
@@ -779,11 +709,9 @@ specify std.list:
       l = List {1, 2, 3, 4, 5}
       sq = function (n) return n * n end
 
-      fname = "map"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f, badarg = init (M, this_module, "map")
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {sq, l})).to_contain_error "was deprecated"
@@ -804,7 +732,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.map
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, sq})).to_contain_error "was deprecated"
@@ -830,11 +758,9 @@ specify std.list:
       l = List {List {1, 2, 3}, List {4, 5}}
       fn = function (...) return select ("#", ...) end
 
-      fname = "map_with"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.map_with
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {fn, l})).to_contain_error "was deprecated"
@@ -857,7 +783,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.map_with
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"
@@ -887,11 +813,9 @@ specify std.list:
         {first = "1st", second = "2nd", third = "3rd"},
       }
 
-      fname = "project"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.project
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {"third", l})).to_contain_error "was deprecated"
@@ -908,7 +832,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.project
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, "third"})).to_contain_error "was deprecated"
@@ -925,12 +849,9 @@ specify std.list:
 
 
 - describe relems:
-  - before:
-      fname = "relems"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.relems
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -947,7 +868,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.relems
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -967,21 +888,18 @@ specify std.list:
   - before:
       l = List {"foo", "bar"}
 
-      fname = "rep"
+      f, badarg = init (M, this_module, "rep")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+      expect (f (l)).to_raise (badarg (2, "int"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+      expect (f (l, false)).to_raise (badarg (2, "int", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 2, false)).to_raise (badarg (3))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-        expect (f (l)).to_raise (badarg (2, "int"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (2, "int", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, 2, false)).to_raise (badarg (3))
-
     - it returns a List object:
         expect (prototype (f (l, 3))).to_be "List"
     - it works for an empty List:
@@ -992,16 +910,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-        expect (f (l)).to_raise (badarg (1, "int"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (1, "int", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, 2, false)).to_raise (badarg (2))
+        f = l.rep
 
     - it returns a List object:
         expect (prototype (f (l, 3))).to_be "List"
@@ -1016,11 +925,9 @@ specify std.list:
   - before:
       l = List {"foo", "bar", "baz", "quux"}
 
-      fname = "reverse"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.reverse
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {{}})).to_contain_error "was deprecated"
@@ -1040,7 +947,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.reverse
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -1062,11 +969,9 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5, 6}
 
-      fname = "shape"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.shape
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {{0}, l})).to_contain_error "was deprecated"
@@ -1094,7 +999,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.shape
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, {0}})).to_contain_error "was deprecated"
@@ -1125,21 +1030,18 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
 
-      fname = "sub"
+      f, badarg = init (M, this_module, "sub")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+      expect (f (l, false)).to_raise (badarg (2, "int or nil", "boolean"))
+      expect (f (l, 1, false)).to_raise (badarg (3, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, 1, 2, false)).to_raise (badarg (4))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (2, "int or nil", "boolean"))
-        expect (f (l, 1, false)).to_raise (badarg (3, "int or nil", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, 1, 2, false)).to_raise (badarg (4))
-
     - it returns a List object:
         expect (prototype (f (l, 1, 1))).to_be "List"
     - it makes a List from a subrange of another List:
@@ -1159,16 +1061,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-        expect (f (l, false)).to_raise (badarg (1, "int or nil", "boolean"))
-        expect (f (l, 1, false)).to_raise (badarg (2, "int or nil", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, 1, 2, false)).to_raise (badarg (3))
+        f = l.sub
 
     - it returns a List object:
         expect (prototype (f (l, 1, 1))).to_be "List"
@@ -1192,19 +1085,16 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
 
-      fname = "tail"
+      f, badarg = init (M, this_module, "tail")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "List"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f (l, false)).to_raise (badarg (2))
 
   - context as a module function:
-    - before:
-        f, badarg = init (M, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (1, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, false)).to_raise (badarg (2))
-
     - it returns a List object:
         expect (prototype (f (l))).to_be "List"
     - it makes a new List with the first element removed:
@@ -1216,14 +1106,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
-
-    - it diagnoses missing arguments:
-        expect (f ()).to_raise (badarg (0, "List"))
-    - it diagnoses wrong argument types:
-        expect (f (false)).to_raise (badarg (0, "List", "boolean"))
-    - it diagnoses too many arguments:
-        expect (f (l, false)).to_raise (badarg (1))
+        f = l.tail
 
     - it returns a List object:
         expect (prototype (f (l))).to_be "List"
@@ -1239,11 +1122,9 @@ specify std.list:
   - before:
       l = List {List {1, 2}, List {3, 4}, List {5, 6}}
 
-      fname = "transpose"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.transpose
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -1263,7 +1144,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.transpose
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l})).to_contain_error "was deprecated"
@@ -1288,11 +1169,9 @@ specify std.list:
       l = List {List {1, 2}, List {3, 4}, List {5}}
       fn = function (...) return tonumber (table.concat {...}) end
 
-      fname = "zip_with"
-
   - context as a module function:
     - before:
-        f, badarg = init (M, fname)
+        f = M.zip_with
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"
@@ -1312,7 +1191,7 @@ specify std.list:
 
   - context as an object method:
     - before:
-        f, _, badarg = l[fname], init ({M[1], M[2]}, fname)
+        f = l.zip_with
 
     - it writes a deprecation warning on first call:
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"

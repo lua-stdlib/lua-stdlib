@@ -17,7 +17,7 @@ specify std.base:
         )
       end
 
-      f, badarg = init (M, "DEPRECATED")
+      f, badarg = init (M, this_module, "DEPRECATED")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -107,7 +107,7 @@ specify std.base:
 
       mkmagic = function () return "MAGIC" end
 
-      f, badarg = init (M, "export")
+      f, badarg = init (M, this_module, "export")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -149,7 +149,7 @@ specify std.base:
   - context when checking zero argument function:
     - before:
         M = { "base_spec.yaml" }
-        _, badarg = init (M, "chk_function")
+        _, badarg = init (M, "base_spec.yaml", "chk_function")
         f (M, "chk_function ()", mkmagic)
         chk = M.chk_function
     - it diagnoses too many arguments:
@@ -160,7 +160,7 @@ specify std.base:
   - context when checking single argument function:
     - before:
         M = { "base_spec.yaml" }
-        _, badarg = init (M, "chk_function")
+        _, badarg = init (M, "base_spec.yaml", "chk_function")
         f (M, "chk_function (#table)", mkmagic)
         chk = M.chk_function
     - it diagnoses missing arguments:
@@ -175,7 +175,7 @@ specify std.base:
   - context when checking multi-argument function:
     - before:
         M = { "base_spec.yaml" }
-        _, badarg = init (M, "chk_function")
+        _, badarg = init (M, "base_spec.yaml", "chk_function")
         f (M, "chk_function (table, function)", mkmagic)
         chk = M.chk_function
     - it diagnoses missing arguments:
@@ -192,7 +192,7 @@ specify std.base:
   - context when checking optional argument function:
     - before:
         M = { "base_spec.yaml" }
-        _, badarg = init (M, "chk_function")
+        _, badarg = init (M, "base_spec.yaml", "chk_function")
         f (M, "chk_function ([int])", mkmagic)
         chk = M.chk_function
     - it diagnoses wrong argument types:
@@ -206,7 +206,7 @@ specify std.base:
   - context when checking optional multi-argument function:
     - before:
         M = { "base_spec.yaml" }
-        _, badarg = init (M, "chk_function")
+        _, badarg = init (M, "base_spec.yaml", "chk_function")
         f (M, "chk_function ([int], string)", mkmagic)
         chk = M.chk_function
     - it diagnoses missing arguments:
@@ -219,27 +219,3 @@ specify std.base:
     - it accepts correct argument types:
         expect (chk ("two")).to_be "MAGIC"
         expect (chk (1, "two")).to_be "MAGIC"
-
-  - context when checking self on an object method:
-    - before:
-        M = { "base_spec.yaml", "Object" }
-        _, badarg = init (M, "chk_method")
-        f (M, "chk_method (string)", function (self, x) return x end)
-        Object = require "std.object" {}
-        Bad = Object { _type = "Bad" }
-        obj = Object { chk = M.chk_method }
-    - it diagnoses missing arguments:
-        expect (obj.chk ()).to_raise (badarg (0, "Object"))
-        expect (obj:chk ()).to_raise (badarg (1, "string"))
-    - it diagnoses wrong argument types:
-        expect (obj.chk ({})).to_raise (badarg (0, "Object", "empty table"))
-        expect (obj.chk (Bad)).to_raise (badarg (0, "Object", "Bad"))
-        expect (obj:chk ({})).to_raise (badarg (1, "string", "empty table"))
-        expect (obj:chk (obj)).to_raise (badarg (1, "string", "Object"))
-    - it diagnoses too many arguments:
-        expect (obj.chk (obj, "str", false)).to_raise (badarg (2))
-        expect (obj:chk ("str", false)).to_raise (badarg (2))
-    - it accepts correct argument types:
-        expect (obj.chk (obj, "str")).to_be "str"
-        expect (obj.chk (Object, "str")).to_be "str"
-        expect (obj:chk ("str")).to_be "str"

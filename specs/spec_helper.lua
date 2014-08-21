@@ -98,17 +98,16 @@ end
 -- @string want expected argument type
 -- @string[opt="no value"] got actual argument type
 -- @usage
---   expect (f ()).to_error (badarg (M, name, 1, "function"))
-local function badarg (M, fname, i, want, got)
-  fname = tostring (M[1]) .. (rawget (M, 2) and ":" or ".") .. fname
+--   expect (f ()).to_error (badarg (fname, mname, 1, "function"))
+local function badarg (mname, fname, i, want, got)
   if want == nil then i, want = i - 1, i end
 
   if got == nil and type (want) == "number" then
-    return string.format ("too many arguments to '%s' (no more than %d expected, got %d)",
-                          fname, i, want)
+    local s = "too many arguments to '%s.%s' (no more than %d expected, got %d)"
+    return string.format (s, mname, fname, i, want)
   end
-  return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
-                        i, fname, want, got or "no value")
+  return string.format ("bad argument #%d to '%s.%s' (%s expected, got %s)",
+                        i, mname, fname, want, got or "no value")
 end
 
 
@@ -119,8 +118,8 @@ end
 -- @treturn function `M[fname]` if any, otherwise `nil`
 -- @treturn function badarg with *M* and *fname* prebound
 -- @treturn function toomanyarg with *M* and *fname* prebound
-function init (M, fname)
-  return M[fname], bind (badarg, {M, fname})
+function init (M, mname, fname)
+  return M[fname], bind (badarg, {mname, fname})
 end
 
 

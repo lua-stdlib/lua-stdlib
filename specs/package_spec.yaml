@@ -41,7 +41,7 @@ specify std.package:
   - before: |
       path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
 
-      f, badarg = init (M, "find")
+      f, badarg = init (M, this_module, "find")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -73,7 +73,7 @@ specify std.package:
 
 - describe insert:
   - before:
-      f, badarg = init (M, "insert")
+      f, badarg = init (M, this_module, "insert")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -108,7 +108,7 @@ specify std.package:
   - before: |
       expected = require "std.string".split (path, M.pathsep)
 
-      f, badarg = init (M, "mappath")
+      f, badarg = init (M, this_module, "mappath")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -133,7 +133,7 @@ specify std.package:
 
 - describe normalize:
   - before:
-      f, badarg = init (M, "normalize")
+      f, badarg = init (M, this_module, "normalize")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -185,7 +185,7 @@ specify std.package:
 
 - describe remove:
   - before:
-      f, badarg = init (M, "remove")
+      f, badarg = init (M, this_module, "remove")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))

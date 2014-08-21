@@ -46,7 +46,7 @@ specify std.debug:
         ]], tostring (level))
       end
 
-      f, badarg = init (M, "argerror")
+      f, badarg = init (M, this_module,  "argerror")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
@@ -100,7 +100,7 @@ specify std.debug:
         ]], tostring (debugp), tostring (level))
       end
 
-      f, badarg = init (M, "argcheck")
+      f, badarg = init (M, this_module,  "argcheck")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
@@ -440,7 +440,7 @@ specify std.debug:
         ]], tostring (debugp))
       end
 
-      f, badarg = init (M, "argscheck")
+      f, badarg = init (M, this_module,  "argscheck")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
@@ -647,7 +647,7 @@ specify std.debug:
 
 - describe trace:
   - before:
-      f = init (M, "trace")
+      f = init (M, this_module,  "trace")
 
   - it does nothing when _DEBUG is disabled:
       expect (luaproc [[

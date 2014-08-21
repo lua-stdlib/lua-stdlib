@@ -51,7 +51,7 @@ specify std:
 
 - describe assert:
   - before:
-      f, badarg = init (M, "assert")
+      f, badarg = init (M, this_module, "assert")
 
   - it diagnoses wrong argument types:
       expect (f (false, false)).to_raise (badarg (2, "string or nil", "boolean"))
@@ -92,7 +92,7 @@ specify std:
         table = {},
       }
 
-      f, badarg = init (M, "barrel")
+      f, badarg = init (M, this_module, "barrel")
 
       f (t)
 
@@ -165,7 +165,7 @@ specify std:
 
 - describe elems:
   - before:
-      f, badarg = init (M, "elems")
+      f, badarg = init (M, this_module, "elems")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -193,7 +193,7 @@ specify std:
 
 - describe eval:
   - before:
-      f, badarg = init (M, "eval")
+      f, badarg = init (M, this_module, "eval")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -211,7 +211,7 @@ specify std:
 
 - describe getmetamethod:
   - before:
-      f, badarg = init (M, "getmetamethod")
+      f, badarg = init (M, this_module, "getmetamethod")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "object or table"))
@@ -251,7 +251,7 @@ specify std:
 
 - describe ielems:
   - before:
-      f, badarg = init (M, "ielems")
+      f, badarg = init (M, this_module, "ielems")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -284,7 +284,7 @@ specify std:
 
 - describe ipairs:
   - before:
-      f, badarg = init (M, "ipairs")
+      f, badarg = init (M, this_module, "ipairs")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -317,7 +317,7 @@ specify std:
 
 - describe ireverse:
   - before:
-      f, badarg = init (M, "ireverse")
+      f, badarg = init (M, this_module, "ireverse")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -352,7 +352,7 @@ specify std:
         table = {},
       }
 
-      f, badarg = init (M, "monkey_patch")
+      f, badarg = init (M, this_module, "monkey_patch")
 
       f (t)
 
@@ -371,7 +371,7 @@ specify std:
 
 - describe pairs:
   - before:
-      f, badarg = init (M, "pairs")
+      f, badarg = init (M, this_module, "pairs")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -399,7 +399,7 @@ specify std:
 
 - describe require:
   - before:
-      f, badarg = init (M, "require")
+      f, badarg = init (M, this_module, "require")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -479,7 +479,7 @@ specify std:
 
 - describe ripairs:
   - before:
-      f, badarg = init (M, "ripairs")
+      f, badarg = init (M, this_module, "ripairs")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "table"))
@@ -514,7 +514,7 @@ specify std:
 
 - describe tostring:
   - before:
-      f, badarg = init (M, "tostring")
+      f, badarg = init (M, this_module, "tostring")
 
   - it diagnoses too many arguments:
       expect (f (true, false)).to_raise (badarg (2))

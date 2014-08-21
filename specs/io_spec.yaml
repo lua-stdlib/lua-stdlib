@@ -35,7 +35,7 @@ specify std.io:
 
 - describe catdir:
   - before: |
-      f, badarg = init (M, "catdir")
+      f, badarg = init (M, this_module,  "catdir")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -58,7 +58,7 @@ specify std.io:
 
 - describe catfile:
   - before:
-      f, badarg = init (M, "catfile")
+      f, badarg = init (M, this_module,  "catfile")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -83,7 +83,7 @@ specify std.io:
   - before: |
       script = [[require "std.io".die "By 'eck!"]]
 
-      f, badarg = init (M, "die")
+      f, badarg = init (M, this_module,  "die")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -152,7 +152,7 @@ specify std.io:
         },
       }
 
-      f, badarg = init (M, "monkey_patch")
+      f, badarg = init (M, this_module,  "monkey_patch")
 
   - it diagnoses wrong argument types:
       expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
@@ -184,7 +184,7 @@ specify std.io:
         require "std.io".process_files (function () io.write (io.input ():read "*a") end)
       ]]
 
-      f, badarg = init (M, "process_files")
+      f, badarg = init (M, this_module,  "process_files")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "function"))
@@ -226,7 +226,7 @@ specify std.io:
 
       defaultin = io.input ()
 
-      f, badarg = init (M, "readlines")
+      f, badarg = init (M, this_module,  "readlines")
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
 
@@ -257,7 +257,7 @@ specify std.io:
 
 - describe shell:
   - before:
-      f, badarg = init (M, "shell")
+      f, badarg = init (M, this_module,  "shell")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -278,7 +278,7 @@ specify std.io:
       h:close ()
 
       defaultin = io.input ()
-      f, badarg = init (M, "slurp")
+      f, badarg = init (M, this_module,  "slurp")
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
 
@@ -309,7 +309,7 @@ specify std.io:
 
 - describe splitdir:
   - before:
-      f, badarg = init (M, "splitdir")
+      f, badarg = init (M, this_module,  "splitdir")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -333,7 +333,7 @@ specify std.io:
 - describe warn:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
-      f, badarg = init (M, "warn")
+      f, badarg = init (M, this_module,  "warn")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -395,7 +395,7 @@ specify std.io:
       lines = M.readlines (io.open "Makefile")
 
       defaultout = io.output ()
-      f, badarg = init (M, "writelines")
+      f, badarg = init (M, this_module,  "writelines")
   - after:
       if io.type (defaultout) ~= "closed file" then io.output (defaultout) end
       h:close ()

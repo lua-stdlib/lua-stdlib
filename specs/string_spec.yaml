@@ -90,7 +90,7 @@ specify std.string:
 
 - describe caps:
   - before:
-      f, badarg = init (M, "caps")
+      f, badarg = init (M, this_module, "caps")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -116,7 +116,7 @@ specify std.string:
   - before:
       target = "a string \n"
 
-      f, badarg = init (M, "chomp")
+      f, badarg = init (M, this_module, "chomp")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -146,7 +146,7 @@ specify std.string:
         magic[meta:sub (i, i)] = true
       end
 
-      f, badarg = init (M, "escape_pattern")
+      f, badarg = init (M, this_module, "escape_pattern")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -176,7 +176,7 @@ specify std.string:
 
 - describe escape_shell:
   - before:
-      f, badarg = init (M, "escape_shell")
+      f, badarg = init (M, this_module, "escape_shell")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -211,7 +211,7 @@ specify std.string:
   - before:
       subject = "abcd"
 
-      f, badarg = init (M, "finds")
+      f, badarg = init (M, this_module, "finds")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -253,7 +253,7 @@ specify std.string:
   - before:
       subject = "string=%s, number=%d"
 
-      f, badarg = init (M, "format")
+      f, badarg = init (M, this_module, "format")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -274,7 +274,7 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      f, badarg = init (M, "ltrim")
+      f, badarg = init (M, this_module, "ltrim")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -302,7 +302,7 @@ specify std.string:
 
 - describe monkey_patch:
   - before:
-      f, badarg = init (M, "monkey_patch")
+      f, badarg = init (M, this_module, "monkey_patch")
 
       t  = {}
       f (t)
@@ -324,7 +324,7 @@ specify std.string:
 
 - describe numbertosi:
   - before:
-      f, badarg = init (M, "numbertosi")
+      f, badarg = init (M, this_module, "numbertosi")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "number or string"))
@@ -348,7 +348,7 @@ specify std.string:
 
 - describe ordinal_suffix:
   - before:
-      f, badarg = init (M, "ordinal_suffix")
+      f, badarg = init (M, this_module, "ordinal_suffix")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "int or string"))
@@ -378,7 +378,7 @@ specify std.string:
   - before:
       width = 20
 
-      f, badarg = init (M, "pad")
+      f, badarg = init (M, this_module, "pad")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -454,7 +454,7 @@ specify std.string:
 
 - describe prettytostring:
   - before:
-      f, badarg = init (M, "prettytostring")
+      f, badarg = init (M, this_module, "prettytostring")
 
   - it diagnoses wrong argument types:
       expect (f (true, false)).to_raise (badarg (2, "string or nil", "boolean"))
@@ -507,7 +507,7 @@ specify std.string:
       t = {1, {{2, 3}, 4, {5}}}
       a = require "std.vector" {"a", "b", {{"c"},"d"},"e"}
 
-      f, badarg = init (M, "render")
+      f, badarg = init (M, this_module, "render")
 
   - it diagnoses missing arguments:
       expect (f (true)).to_raise (badarg (2, "function"))
@@ -604,7 +604,7 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      f, badarg = init (M, "rtrim")
+      f, badarg = init (M, this_module, "rtrim")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -634,7 +634,7 @@ specify std.string:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
 
-      f, badarg = init (M, "split")
+      f, badarg = init (M, this_module, "split")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -683,7 +683,7 @@ specify std.string:
   - before:
       subject = "abc"
 
-      f, badarg = init (M, "tfind")
+      f, badarg = init (M, this_module, "tfind")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -753,7 +753,7 @@ specify std.string:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
 
-      f, badarg = init (M, "trim")
+      f, badarg = init (M, this_module, "trim")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
@@ -787,7 +787,7 @@ specify std.string:
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
 
-      f, badarg = init (M, "wrap")
+      f, badarg = init (M, this_module, "wrap")
 
   - it diagnoses missing arguments:
       expect (f ()).to_raise (badarg (1, "string"))
