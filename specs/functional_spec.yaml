@@ -4,7 +4,7 @@ before:
   this_module  = "std.functional"
   global_table = "_G"
 
-  exported_apis = { 1, "bind", "callable", "case", "collect", "compose",
+  exported_apis = { "bind", "callable", "case", "collect", "compose",
                     "cond", "curry", "eval", "filter", "fold", "foldl",
                     "foldr", "id", "lambda", "map", "map_with",
                     "memoize", "nop", "op", "reduce", "zip", "zip_with" }

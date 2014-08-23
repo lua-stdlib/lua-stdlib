@@ -18,11 +18,12 @@ local package = {
 }
 
 local ipairs, pairs = base.ipairs, base.pairs
-local argerror, export, leaves, split =
-  base.argerror, base.export, base.tree.leaves, base.split
+local argerror = base.argerror
+local leaves   = base.tree.leaves
+local split    = base.split
 
 
-local M = { "std.io" }
+local M
 
 
 
@@ -57,7 +58,7 @@ end
 -- @return contents of file or handle, or nil if error
 -- @see process_files
 -- @usage contents = slurp (filename)
-local slurp = export (M, "slurp (file|string|nil)", function (file)
+local function slurp (file)
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
 
@@ -66,7 +67,7 @@ local slurp = export (M, "slurp (file|string|nil)", function (file)
     h:close ()
     return s
   end
-end)
+end
 
 
 --- Read a file or file handle into a list of lines.
@@ -76,7 +77,7 @@ end)
 --   if file is a file handle, that file is closed after reading
 -- @treturn list lines
 -- @usage list = readlines "/etc/passwd"
-export (M, "readlines (file|string|nil)", function (file)
+local function readlines (file)
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.readlines", 1, err, 2) end
 
@@ -86,7 +87,7 @@ export (M, "readlines (file|string|nil)", function (file)
   end
   h:close ()
   return l
-end)
+end
 
 
 --- Write values adding a newline after each.
@@ -95,9 +96,7 @@ end)
 --   the file is **not** closed after writing
 -- @tparam string|number ... values to write (as for write)
 -- @usage writelines (io.stdout, "first line", "next line")
-local writelines = export (M,
-"writelines (file|string|number?, string|number?*)",
-function (h, ...)
+local function writelines (h, ...)
   if io.type (h) ~= "file" then
     io.write (h, "\n")
     h = io.output ()
@@ -105,7 +104,7 @@ function (h, ...)
   for v in leaves (ipairs, {...}) do
     h:write (v, "\n")
   end
-end)
+end
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
@@ -115,7 +114,7 @@ end)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the `std.io` module table
 -- @usage local io = require "std.io".monkey_patch ()
-export (M, "monkey_patch (table?)", function (namespace)
+local function monkey_patch (namespace)
   namespace = namespace or _G
 
   local file_metatable = getmetatable (namespace.io.stdin)
@@ -123,7 +122,7 @@ export (M, "monkey_patch (table?)", function (namespace)
   file_metatable.writelines = M.writelines
 
   return M
-end)
+end
 
 
 --- Split a directory path into components.
@@ -133,9 +132,9 @@ end)
 -- @return list of path components
 -- @see catdir
 -- @usage dir_components = splitdir (filepath)
-export (M, "splitdir (string)", function (path)
+local function splitdir (path)
   return split (path, package.dirsep)
-end)
+end
 
 
 --- Concatenate one or more directories and a filename into a path.
@@ -145,9 +144,9 @@ end)
 -- @see catdir
 -- @see splitdir
 -- @usage filepath = catfile ("relative", "path", "filename")
-export (M, "catfile (string*)", function (...)
+local function catfile (...)
   return table.concat ({...}, package.dirsep)
-end)
+end
 
 
 --- Concatenate directory names into a path.
@@ -156,9 +155,9 @@ end)
 -- @return path without trailing separator
 -- @see catfile
 -- @usage dirpath = catdir ("", "absolute", "directory")
-export (M, "catdir (string*)", function (...)
+local function catdir (...)
   return table.concat ({...}, package.dirsep):gsub("^$", package.dirsep)
-end)
+end
 
 
 --- Perform a shell command and return its output.
@@ -167,9 +166,9 @@ end)
 -- @treturn string output, or nil if error
 -- @see os.execute
 -- @usage users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
-export (M, "shell (string)", function (c)
+local function shell (c)
   return slurp (io.popen (c))
-end)
+end
 
 
 --- Process files specified on the command-line.
@@ -185,7 +184,7 @@ end)
 -- -- minimal cat command
 -- local io = require "std.io"
 -- io.process_files (function () io.write (io.slurp ()) end)
-export (M, "process_files (function)", function (fn)
+local function process_files (fn)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
     arg[#arg + 1] = "-"
@@ -198,7 +197,7 @@ export (M, "process_files (function)", function (fn)
     end
     fn (v, i)
   end
-end)
+end
 
 
 --- Give warning with the name of program and file (if any).
@@ -220,7 +219,7 @@ end)
 --   if not _G.opts.keep_going then
 --     require "std.io".warn "oh noes!"
 --   end
-local warn = export (M, "warn (string, any?*)", function (msg, ...)
+local function warn (msg, ...)
   local prefix = ""
   if (prog or {}).name then
     prefix = prog.name .. ":"
@@ -240,7 +239,7 @@ local warn = export (M, "warn (string, any?*)", function (msg, ...)
   end
   if #prefix > 0 then prefix = prefix .. " " end
   writelines (io.stderr, prefix .. string.format (msg, ...))
-end)
+end
 
 
 --- Die with error.
@@ -251,10 +250,29 @@ end)
 -- @param ... additional arguments to plug format string specifiers
 -- @see warn
 -- @usage die ("oh noes! (%s)", tostring (obj))
-export (M, "die (string, any?*)", function (...)
+local function die (...)
   warn (...)
   error ()
-end)
+end
+
+
+local export = base.export
+
+--- @export
+M = {
+  catdir        = export "catdir (string*)",
+  catfile       = export "catfile (string*)",
+  die           = export "die (string, any?*)",
+  monkey_patch  = export "monkey_patch (table?)",
+  process_files = export "process_files (function)",
+  readlines     = export "readlines (file|string|nil)",
+  shell         = export "shell (string)",
+  slurp         = export "slurp (file|string|nil)",
+  splitdir      = export "splitdir (string)",
+  warn          = export "warn (string, any?*)",
+  writelines    = export "writelines (file|string|number?, string|number?*)",
+}
+
 
 
 for k, v in pairs (io) do

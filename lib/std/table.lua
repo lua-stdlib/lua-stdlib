@@ -13,13 +13,12 @@
 
 local base = require "std.base"
 
-local export, getmetamethod, ielems, ipairs, pairs =
-  base.export, base.getmetamethod, base.ielems, base.ipairs, base.pairs
-local collect = base.functional.collect
-local leaves  = base.tree.leaves
+local collect       = base.functional.collect
+local leaves        = base.tree.leaves
+local ielems, ipairs, pairs = base.ielems, base.ipairs, base.pairs
 
 
-local M = { "std.table" }
+local M
 
 
 
@@ -82,7 +81,6 @@ end
 --- Make a shallow copy of a table, including any metatable.
 --
 -- To make deep copies, use @{tree.clone}.
--- @function clone
 -- @tparam table t source table
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
 -- @bool[opt] nometa if non-nil don't copy metatable
@@ -92,14 +90,12 @@ end
 -- @see clone_select
 -- @usage
 -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
-local clone = export (M, "clone (table, [table], boolean|:nometa?)",
-  function (...) return merge_allfields ({}, ...) end)
+local function clone (...) return merge_allfields ({}, ...) end
 
 
 --- Make a partial clone of a table.
 --
 -- Like `clone`, but does not copy any fields by default.
--- @function clone_select
 -- @tparam table t source table
 -- @tparam[opt={}] table keys list of keys to copy
 -- @bool[opt] nometa if non-nil don't copy metatable
@@ -109,90 +105,82 @@ local clone = export (M, "clone (table, [table], boolean|:nometa?)",
 -- @see merge_select
 -- @usage
 -- partialcopy = clone_select (original, {"this", "and_this"}, true)
-export (M, "clone_select (table, [table], boolean|:nometa?)",
-  function (...) return merge_namedfields ({}, ...) end)
+local function clone_select (...) return merge_namedfields ({}, ...) end
 
 
 --- Turn a list of pairs into a table.
 -- @todo Find a better name.
--- @function depair
 -- @tparam table ls list of lists `{{i1, v1}, ..., {in, vn}}`
 -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
 -- @see enpair
-export (M, "depair (list of lists)", function (ls)
+local function depair (ls)
   local t = {}
   for v in ielems (ls) do
     t[v[1]] = v[2]
   end
   return t
-end)
+end
 
 
 --- Turn a table into a list of pairs.
 -- @todo Find a better name.
--- @function enpair
 -- @tparam table t  a table `{i1=v1, ..., in=vn}`
 -- @treturn table a new list of pairs containing `{{i1, v1}, ..., {in, vn}}`
 -- @see depair
-export (M, "enpair (table)", function (t)
+local function enpair (t)
   local tt = {}
   for i, v in pairs (t) do
     tt[#tt + 1] = {i, v}
   end
   return tt
-end)
+end
 
 
 --- Return whether table is empty.
--- @function empty
 -- @tparam table t any table
 -- @treturn boolean `true` if *t* is empty, otherwise `false`
 -- @usage if empty (t) then error "ohnoes" end
-export (M, "empty (table)", function (t)
+local function empty (t)
   return not next (t)
-end)
+end
 
 
 --- Flatten a nested table into a list.
--- @function flatten
 -- @tparam table t a table
 -- @treturn table a list of all non-table elements of *t*
-local flatten = export (M, "flatten (table)", function (t)
+local function flatten (t)
   return collect (leaves, ipairs, t)
-end)
+end
 
 
 --- Invert a table.
--- @function invert
 -- @tparam table t a table with `{k=v, ...}`
 -- @treturn table inverted table `{v=k, ...}`
 -- @usage values = invert (t)
-export (M, "invert (table)", function (t)
+local function invert (t)
   local i = {}
   for k, v in pairs (t) do
     i[v] = k
   end
   return i
-end)
+end
 
 
 --- Make the list of keys in table.
--- @function keys
 -- @tparam table t a table
 -- @treturn table list of keys from *t*
 -- @see values
 -- @usage globals = keys (_G)
-export (M, "keys (table)", function (t)
+local function keys (t)
   local l = {}
   for k, _ in pairs (t) do
     l[#l + 1] = k
   end
   return l
-end)
+end
 
 
 --- Destructively merge another table's fields into another.
--- @function merge
 -- @tparam table t destination table
 -- @tparam table u table with fields to merge
 -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
@@ -201,13 +189,12 @@ end)
 -- @see clone
 -- @see merge_select
 -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
-export (M, "merge (table, table, [table], boolean|:nometa?)", merge_allfields)
+local merge = merge_allfields
 
 
 --- Destructively merge another table's named fields into *table*.
 --
 -- Like `merge`, but does not merge any fields by default.
--- @function merge_select
 -- @tparam table t destination table
 -- @tparam table u table with fields to merge
 -- @tparam[opt={}] table keys list of keys to copy
@@ -217,44 +204,41 @@ export (M, "merge (table, table, [table], boolean|:nometa?)", merge_allfields)
 -- @see merge
 -- @see clone_select
 -- @usage merge_select (_G, require "std.debug", {"say"}, false)
-export (M, "merge_select (table, table, [table], boolean|:nometa?)",
-  merge_namedfields)
+local merge_select = merge_namedfields
 
 
 --- Make a table with a default value for unset keys.
--- @function new
 -- @param[opt=nil] x default entry value
 -- @tparam[opt={}] table t initial table
 -- @treturn table table whose unset elements are *x*
 -- @usage t = new (0)
-export (M, "new (any?, table?)", function (x, t)
+local function new (x, t)
   return setmetatable (t or {},
                        {__index = function (t, i)
                                     return x
                                   end})
-end)
+end
 
 
 --- Turn a tuple into a list.
 -- @param ... tuple
 -- @return list
-function M.pack (...)
+local function pack (...)
   return {...}
 end
 
 
 --- Project a list of fields from a list of tables.
--- @function project
 -- @param fkey field to project
 -- @tparam table tt a list of tables
 -- @treturn table list of *fkey* fields from *tt*
-export (M, "project (any, list of tables)", function (fkey, tt)
+local function project (fkey, tt)
   local r = {}
   for _, t in ipairs (tt) do
     r[#r + 1] = t[fkey]
   end
   return r
-end)
+end
 
 
 --- Shape a table according to a list of dimensions.
@@ -273,11 +257,10 @@ end)
 --
 -- @todo Use ileaves instead of flatten (needs a while instead of a
 -- for in fill function)
--- @function shape
 -- @tparam table dims table of dimensions `{d1, ..., dn}`
 -- @tparam table t a table of elements
 -- @return reshaped list
-export (M, "shape (table, table)", function (dims, t)
+local function shape (dims, t)
   t = flatten (t)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
@@ -310,50 +293,47 @@ export (M, "shape (table, table)", function (dims, t)
     end
   end
   return (fill (1, 1))
-end)
+end
 
 
 --- Find the number of elements in a table.
--- @function size
 -- @tparam table t any table
 -- @treturn int number of non-nil values in *t*
 -- @usage count = size {foo = true, bar = true, baz = false}
-export (M, "size (table)", function (t)
+local function size (t)
   local n = 0
   for _ in pairs (t) do
     n = n + 1
   end
   return n
-end)
+end
 
 
 -- Preserve core table sort function.
 local _sort = table.sort
 
 --- Make table.sort return its result.
--- @function sort
 -- @tparam table t unsorted table
 -- @tparam[opt=std.operator["<"]] comparator c ordering function callback
 --   lua `<` operator
 -- @return *t* with keys sorted accordind to *c*
 -- @usage table.concat (sort (object))
-export (M, "sort (table, function?)", function (t, c)
+local function sort (t, c)
   _sort (t, c)
   return t
-end)
+end
 
 
 --- Overwrite core methods with `std` enhanced versions.
 --
 -- Replaces core `table.sort` with `std.table` version.
--- @function monkey_patch
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage local table = require "std.table".monkey_patch ()
-export (M, "monkey_patch (table?)", function (namespace)
+local function monkey_patch (namespace)
   namespace.table.sort = M.sort
   return M
-end)
+end
 
 
 --- Turn an object into a table according to `__totable` metamethod.
@@ -361,7 +341,10 @@ end)
 -- @tparam object|table|string x object to turn into a table
 -- @treturn table resulting table or `nil`
 -- @usage print (table.concat (totable (object)))
-export (M, "totable (object|table|string)", function (x)
+
+local getmetamethod = base.getmetamethod
+
+local function totable (x)
   local m = getmetamethod (x, "__totable")
   if m then
     return m (x)
@@ -374,22 +357,46 @@ export (M, "totable (object|table|string)", function (x)
   else
     return nil
   end
-end)
+end
 
 
 --- Make the list of values of a table.
--- @function values
 -- @tparam table t any table
 -- @treturn table list of values in *t*
 -- @see keys
-export (M, "values (table)", function (t)
+local function values (t)
   local l = {}
   for _, v in pairs (t) do
     l[#l + 1] = v
   end
   return l
-end)
+end
 
+
+local export        = base.export
+
+--- @export
+M = {
+  clone        = export "clone (table, [table], boolean|:nometa?)",
+  clone_select = export "clone_select (table, [table], boolean|:nometa?)",
+  depair       = export "depair (list of lists)",
+  enpair       = export "enpair (table)",
+  empty        = export "empty (table)",
+  flatten      = export "flatten (table)",
+  invert       = export "invert (table)",
+  keys         = export "keys (table)",
+  merge        = export "merge (table, table, [table], boolean|:nometa?)",
+  merge_select = export "merge_select (table, table, [table], boolean|:nometa?)",
+  new          = export "new (any?, table?)",
+  pack         = pack,
+  project      = export "project (any, list of tables)",
+  shape        = export "shape (table, table)",
+  size         = export "size (table)",
+  sort         = export "sort (table, function?)",
+  monkey_patch = export "monkey_patch (table?)",
+  totable      = export "totable (object|table|string)",
+  values       = export "values (table)",
+}
 
 
 --[[ ============= ]]--

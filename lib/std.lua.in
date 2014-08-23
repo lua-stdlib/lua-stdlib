@@ -25,10 +25,8 @@
 
 local base = require "std.base"
 
-local export = base.export
+local M
 
-
-local M = { "std" }
 
 
 --- Enhance core `assert` to also allow formatted arguments.
@@ -40,7 +38,7 @@ local M = { "std" }
 -- @usage
 -- std.assert (expected ~= nil, "100% unexpected!")
 -- std.assert (expected ~= nil, "%s unexpected!", expected)
-export (M, "assert (any?, string?, any?*)", base.assert)
+local assert = base.assert
 
 
 --- An iterator over all elements of a sequence.
@@ -54,7 +52,7 @@ export (M, "assert (any?, string?, any?*)", base.assert)
 -- @see pairs
 -- @usage
 -- for value in std.elems {a = 1, b = 2, c = 5} do process (value) end
-export (M, "elems (table)", base.elems)
+local elems = base.elems
 
 
 --- Evaluate a string as Lua code.
@@ -62,7 +60,7 @@ export (M, "elems (table)", base.elems)
 -- @string s string of Lua code
 -- @return result of evaluating `s`
 -- @usage std.eval "math.pow (2, 10)"
-export (M, "eval (string)", base.eval)
+local eval = base.eval
 
 
 --- An iterator over the integer keyed elements of a sequence.
@@ -76,7 +74,7 @@ export (M, "eval (string)", base.eval)
 -- @see ipairs
 -- @usage
 -- for v in std.ielems {"a", "b", "c"} do process (v) end
-export (M, "ielems (table)", base.ielems)
+local ielems = base.ielems
 
 
 --- An iterator over elements `1..#t`, respecting `__len` metamethod.
@@ -96,7 +94,7 @@ export (M, "ielems (table)", base.ielems)
 -- args = {"first", "second", nil, "last"}
 -- setmetatable (args, { __len = std.functional.lambda "=4" })
 -- for i, v in std.ipairs (args) do process (i, v) end
-export (M, "ipairs (table)", base.ipairs)
+local ipairs = base.ipairs
 
 
 --- Return a new table with element order reversed.
@@ -111,7 +109,7 @@ export (M, "ipairs (table)", base.ipairs)
 -- @usage
 -- local rielems = std.functional.compose (std.ireverse, std.ielems)
 -- for e in rielems (l) do process (e) end
-export (M, "ireverse (table)", base.ireverse)
+local ireverse = base.ireverse
 
 
 --- Return named metamethod, if any, otherwis `nil`.
@@ -120,7 +118,7 @@ export (M, "ireverse (table)", base.ireverse)
 -- @string n name of metamethod to get
 -- @treturn function|nil metamethod function, or `nil` if no metamethod
 -- @usage lookup = std.getmetamethod (require "std.object", "__index")
-export (M, "getmetamethod (object|table, string)", base.getmetamethod)
+local getmetamethod = base.getmetamethod
 
 
 --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
@@ -133,7 +131,7 @@ export (M, "getmetamethod (object|table, string)", base.getmetamethod)
 -- @see ipairs
 -- @usage
 -- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
-export (M, "pairs (table)", base.pairs)
+local pairs = base.pairs
 
 
 --- Enhance core `require` to assert version number compatibility.
@@ -148,7 +146,7 @@ export (M, "pairs (table)", base.pairs)
 -- @usage
 -- -- posix.version == "posix library for Lua 5.2 / 32"
 -- posix = require ("posix", "29")
-export (M, "require (string, string?, string?, string?)", base.require)
+local require = base.require
 
 
 --- An iterator like ipairs, but in reverse.
@@ -160,7 +158,7 @@ export (M, "require (string, string?, string?, string?)", base.require)
 -- @treturn table *t*
 -- @treturn number `#t + 1`
 -- @usage for i, v = ripairs (t) do ... end
-export (M, "ripairs (table)", base.ripairs)
+local ripairs = base.ripairs
 
 
 --- Enhance core `tostring` to render table contents as a string.
@@ -170,7 +168,7 @@ export (M, "ripairs (table)", base.ripairs)
 -- @usage
 -- -- {1=baz,foo=bar}
 -- print (std.tostring {foo="bar","baz"})
-export (M, "tostring (any?)", base.tostring)
+local tostring = base.tostring
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
@@ -181,7 +179,7 @@ export (M, "tostring (any?)", base.tostring)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage local std = require "std".monkey_patch ()
-local monkey_patch = export (M, "monkey_patch (table?)", function (namespace)
+local function monkey_patch (namespace)
   namespace = namespace or _G
 
   for n, fn in pairs (M) do
@@ -191,7 +189,7 @@ local monkey_patch = export (M, "monkey_patch (table?)", function (namespace)
   end
 
   return M
-end)
+end
 
 
 --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
@@ -203,7 +201,7 @@ end)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table module table
 -- @usage local std = require "std".barrel ()
-export (M, "barrel (table?)", function (namespace)
+local function barrel (namespace)
   namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
@@ -234,7 +232,8 @@ export (M, "barrel (table?)", function (namespace)
   require "std.table".monkey_patch (namespace)
 
   return monkey_patch (namespace)
-end)
+end
+
 
 
 --- Module table.
@@ -244,7 +243,26 @@ end)
 -- demand.
 -- @table std
 -- @field version release version string
-M.version = "General Lua libraries / @VERSION@"
+
+local export = base.debug.export
+
+M = {
+  assert        = export "assert   (any?, string?, any?*)",
+  barrel        = export "barrel   (table?)",
+  elems         = export "elems    (table)",
+  eval          = export "eval     (string)",
+  ielems        = export "ielems   (table)",
+  ipairs        = export "ipairs   (table)",
+  ireverse      = export "ireverse (table)",
+  getmetamethod = export "getmetamethod (object|table, string)",
+  monkey_patch  = export "monkey_patch (table?)",
+  pairs         = export "pairs    (table)",
+  require       = export "require  (string, string?, string?, string?)",
+  ripairs       = export "ripairs  (table)",
+  tostring      = export "tostring (any?)",
+
+  version       = "General Lua libraries / @VERSION@",
+}
 
 
 --- Metamethods

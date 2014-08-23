@@ -34,10 +34,10 @@ local Object  = object {}
 local List      -- forward declaration
 
 local ipairs, pairs = base.ipairs, base.pairs
-local export, ielems, prototype =
-  base.export, base.ielems, base.prototype
+local ielems    = base.ielems
+local prototype = base.prototype
 
-local M = { "std.list" }
+local M = {}
 
 
 
@@ -47,28 +47,24 @@ local M = { "std.list" }
 
 
 --- Append an item to a list.
--- @static
--- @function append
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{l[1], ..., l[#l], x}`
-local append = export (M, "append (List, any)", function (l, x)
+local function append (l, x)
   local r = l {}
   r[#r + 1] = x
   return r
-end)
+end
 
 
 --- Compare two lists element-by-element, from left-to-right.
 --
 --     if a_list:compare (another_list) == 0 then print "same" end
--- @static
--- @function compare
 -- @tparam List l a list
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local compare = export (M, "compare (List, List|table)", function (l, m)
+local function compare (l, m)
   for i = 1, math.min (#l, #m) do
     local li, mi = tonumber (l[i]), tonumber (m[i])
     if li == nil or mi == nil then
@@ -86,17 +82,15 @@ local compare = export (M, "compare (List, List|table)", function (l, m)
     return 1
   end
   return 0
-end)
+end
 
 
 --- Concatenate arguments into a list.
--- @static
--- @function concat
 -- @tparam List l a list
 -- @param ... tuple of lists
 -- @treturn List new list containing
 --   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-local concat = export (M, "concat (List, List|table*)", function (l, ...)
+local function concat (l, ...)
   local r = List {}
   for e in ielems {l, ...} do
     for v in ielems (e) do
@@ -104,45 +98,39 @@ local concat = export (M, "concat (List, List|table*)", function (l, ...)
     end
   end
   return r
-end)
+end
 
 
 --- Prepend an item to a list.
--- @static
--- @function cons
 -- @tparam List l a list
 -- @param x item
 -- @treturn List new list containing `{x, unpack (l)}`
-local cons = export (M, "cons (List, any)", function (l, x)
+local function cons (l, x)
   return List {x, unpack (l)}
-end)
+end
 
 
 --- Repeat a list.
--- @static
--- @function rep
 -- @tparam List l a list
 -- @int n number of times to repeat
 -- @treturn List `n` copies of `l` appended together
-local rep = export (M, "rep (List, int)", function (l, n)
+local function rep (l, n)
   local r = List {}
   for i = 1, n do
     r = concat (r, l)
   end
   return r
-end)
+end
 
 
 --- Return a sub-range of a list.
 -- (The equivalent of `string.sub` on strings; negative list indices
 -- count from the end of the list.)
--- @static
--- @function sub
 -- @tparam List l a list
 -- @int from start of range (default: 1)
 -- @int to end of range (default: `#l`)
 -- @treturn List new list containing `{l[from], ..., l[to]}`
-local sub = export (M, "sub (List, int?, int?)", function (l, from, to)
+local function sub (l, from, to)
   local r = List {}
   local len = #l
   from = from or 1
@@ -157,17 +145,29 @@ local sub = export (M, "sub (List, int?, int?)", function (l, from, to)
     r[#r + 1] = l[i]
   end
   return r
-end)
+end
 
 
 --- Return a list with its first element removed.
--- @static
--- @function tail
 -- @tparam List l a list
 -- @treturn List new list containing `{l[2], ..., l[#l]}`
-local tail = export (M, "tail (List)", function (l)
+local function tail (l)
   return sub (l, 2)
-end)
+end
+
+
+local export = base.export
+
+--- @export
+local M = {
+  append  = export "append  (List, any)",
+  compare = export "compare (List, List|table)",
+  concat  = export "concat  (List, List|table*)",
+  cons    = export "cons    (List, any)",
+  rep     = export "rep     (List, int)",
+  sub     = export "sub     (List, int?, int?)",
+  tail    = export "tail    (List)",
+}
 
 
 
@@ -351,16 +351,15 @@ local function zip_with (ls, fn)
 end
 
 
-local m = { "std.list", "List" }
-
-
-export (m, "append (any)", append)
-export (m, "compare (List|table)", compare)
-export (m, "concat (List|table*)", concat)
-export (m, "cons (any)", cons)
-export (m, "rep (int)", rep)
-export (m, "sub (int?, int?)", sub)
-export (m, "tail ()", tail)
+local m = {
+  append  = M.append,
+  compare = M.compare,
+  concat  = M.concat,
+  cons    = M.cons,
+  rep     = M.rep,
+  sub     = M.sub,
+  tail    = M.tail,
+}
 
 
 m.depair      = DEPRECATED ("38", "'std.list:depair'",    depair)

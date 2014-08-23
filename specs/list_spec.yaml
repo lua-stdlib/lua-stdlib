@@ -2,7 +2,7 @@ before:
   this_module  = "std.list"
   global_table = "_G"
 
-  exported_apis = { 1, "append", "compare", "concat", "cons", "depair",
+  exported_apis = { "append", "compare", "concat", "cons", "depair",
                     "elems", "enpair", "filter", "flatten", "foldl",
                     "foldr", "index_key", "index_value", "map",
                     "map_with", "project", "relems", "rep", "reverse",

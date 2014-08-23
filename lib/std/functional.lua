@@ -11,45 +11,9 @@
 local base     = require "std.base"
 local operator = require "std.operator"
 
-local export, ielems, ipairs, ireverse, len, pairs =
-  base.export, base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
-local callable, map, reduce =
-  base.functional.callable, base.functional.map, base.functional.reduce
+local ipairs, ireverse, len, pairs =
+  base.ipairs, base.ireverse, base.len, base.pairs
 
-local M = { "std.functional" }
-
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
-local function memoize (fn, normalize)
-  if normalize == nil then
-    -- Call require here, to avoid pulling in all of 'std.string'
-    -- even when memoize is never called.
-    normalize = function (...) return require "std.base".tostring {...} end
-  end
-
-  return setmetatable ({}, {
-    __call = function (self, ...)
-               local k = normalize (...)
-               local t = self[k]
-               if t == nil then
-                 t = {fn (...)}
-                 self[k] = t
-               end
-               return unpack (t)
-             end
-  })
-end
-
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
 
 
 --- Partially apply a function.
@@ -59,8 +23,7 @@ end
 -- @return function with *argt* arguments already bound
 -- @usage
 -- cube = bind (lambda "^", {[2] = 3})
-local bind
-bind = export (M, "bind (func, any?*)", function (fn, ...)
+local function bind (fn, ...)
   local argt = {...}
   if type (argt[1]) == "table" and argt[2] == nil then
     argt = argt[1]
@@ -85,7 +48,7 @@ bind = export (M, "bind (func, any?*)", function (fn, ...)
            end
            return fn (unpack (arg))
          end
-end)
+end
 
 
 --- Identify callable types.
@@ -94,7 +57,7 @@ end)
 -- @return `true` if *x* can be called, otherwise `false`
 -- @usage
 -- if callable (functable) then functable (args) end
-M.callable = callable
+local callable = base.functional.callable
 
 
 --- A rudimentary case statement.
@@ -115,13 +78,13 @@ M.callable = callable
 --   string = function ()  return "string" end,
 --            function (s) error ("unhandled type: " .. s) end,
 -- })
-export (M, "case (any?, #table)", function (with, branches)
+local function case (with, branches)
   local match = branches[with] or branches[1]
   if callable (match) then
     return match (with)
   end
   return match
-end)
+end
 
 
 --- Collect the results of an iterator.
@@ -134,7 +97,7 @@ end)
 -- @usage
 -- --> {"a", "b", "c"}
 -- collect {"a", "b", "c", x=1, y=2, z=5}
-export (M, "collect ([func], any*)", base.functional.collect)
+local collect = base.functional.collect
 
 
 --- Compose functions.
@@ -150,7 +113,7 @@ export (M, "collect ([func], any*)", base.functional.collect)
 -- @usage
 -- vpairs = compose (table.invert, ipairs)
 -- for v, i in vpairs {"a", "b", "c"} do process (v, i) end
-local compose = export (M, "compose (func*)", function (...)
+local function compose (...)
   local arg = {...}
   local fns, n = arg, #arg
   for i = 1, n do
@@ -164,7 +127,7 @@ local compose = export (M, "compose (func*)", function (...)
            end
            return unpack (arg)
          end
-end)
+end
 
 
 --- A rudimentary condition-case statement.
@@ -187,7 +150,7 @@ end)
 --     n == 1, 1,
 --             function () return n + triangle (n - 1) end)
 -- end
-M.cond = function (expr, branch, ...)
+local function cond (expr, branch, ...)
   if branch == nil and select ("#", ...) == 0 then
     expr, branch = true, expr
   end
@@ -197,7 +160,7 @@ M.cond = function (expr, branch, ...)
     end
     return branch
   end
-  return M.cond (...)
+  return cond (...)
 end
 
 
@@ -209,8 +172,7 @@ end
 -- @usage
 -- add = curry (function (x, y) return x + y end, 2)
 -- incr, decr = add (1), add (-1)
-local curry
-curry = export (M, "curry (func, int)", function (fn, n)
+local function curry (fn, n)
   if n <= 1 then
     return fn
   else
@@ -218,7 +180,7 @@ curry = export (M, "curry (func, int)", function (fn, n)
              return curry (bind (fn, x), n - 1)
            end
   end
-end)
+end
 
 
 --- Filter an iterator with a predicate.
@@ -232,7 +194,7 @@ end)
 -- @usage
 -- --> {2, 4}
 -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
-export (M, "filter (func, [func], any*)", function (pfn, ifn, ...)
+local function filter (pfn, ifn, ...)
   local argt = {...}
   if not callable (ifn) then
     ifn, argt = pairs, {ifn, ...}
@@ -254,7 +216,22 @@ export (M, "filter (func, [func], any*)", function (pfn, ifn, ...)
     t = {nextfn (state, k)}	-- maintain loop invariant
   end
   return r
-end)
+end
+
+
+--- Fold a binary function into an iterator.
+-- @function reduce
+-- @func fn reduce function
+-- @param d initial first argument
+-- @func ifn iterator function
+-- @param ... iterator arguments
+-- @return result
+-- @see foldl
+-- @see foldr
+-- @usage
+-- --> 2 ^ 3 ^ 4 ==> 4096
+-- reduce (lambda '^', 2, std.ipairs, {3, 4})
+local reduce = base.functional.reduce
 
 
 --- Fold a binary function left associatively.
@@ -269,14 +246,14 @@ end)
 -- @see reduce
 -- @usage
 -- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
-export (M, "foldl (function, [any], table)", function (fn, d, t)
+local function foldl (fn, d, t)
   if t == nil then
     local tail = {}
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
   return reduce (fn, d, ipairs, t)
-end)
+end
 
 
 --- Fold a binary function right associatively.
@@ -291,22 +268,55 @@ end)
 -- @see reduce
 -- @usage
 -- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
-export (M, "foldr (function, [any], table)", function (fn, d, t)
+local function foldr (fn, d, t)
   if t == nil then
     local u, last = {}, len (d)
     for i = 1, last - 1 do u[#u + 1] = d[i] end
     d, t = d[last], u
   end
   return reduce (function (x, y) return fn (y, x) end, d, ipairs, ireverse (t))
-end)
+end
 
 
 --- Identity function.
 -- @function id
 -- @param ... arguments
 -- @return *arguments*
-function M.id (...)
+local function id (...)
   return ...
+end
+
+
+--- Memoize a function, by wrapping it in a functable.
+--
+-- To ensure that memoize always returns the same results for the same
+-- arguments, it passes arguments to *fn*. You can specify a more
+-- sophisticated function if memoize should handle complicated argument
+-- equivalencies.
+-- @function memoize
+-- @func fn pure function: a function with no side effects
+-- @tparam[opt=std.tostring] normalize normfn function to normalize arguments
+-- @treturn functable memoized function
+-- @usage
+-- local fast = memoize (function (...) --[[ slow code ]] end)
+local function memoize (fn, normalize)
+  if normalize == nil then
+    -- Call require here, to avoid pulling in all of 'std.string'
+    -- even when memoize is never called.
+    normalize = function (...) return require "std.base".tostring {...} end
+  end
+
+  return setmetatable ({}, {
+    __call = function (self, ...)
+               local k = normalize (...)
+               local t = self[k]
+               if t == nil then
+                 t = {fn (...)}
+                 self[k] = t
+               end
+               return unpack (t)
+             end
+  })
 end
 
 
@@ -332,7 +342,7 @@ end
 -- lambda '<'
 -- lambda '= _1 < _2'
 -- lambda '|a,b| a<b'
-export (M, "lambda (string)", memoize (function (s)
+local lambda = memoize (function (s)
   local expr
 
   -- Support operator table lookup.
@@ -370,7 +380,7 @@ export (M, "lambda (string)", memoize (function (s)
   end
 
   return fn
-end, M.id))
+end, id)
 
 
 --- Map a function over an iterator.
@@ -385,7 +395,7 @@ end, M.id))
 -- @usage
 -- --> {1, 4, 9, 16}
 -- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
-export (M, "map (func, [func], any*)", function (mapfn, ifn, ...)
+local function map (mapfn, ifn, ...)
   local argt = {...}
   if not callable (ifn) or not next (argt) then
     ifn, argt = pairs, {ifn, ...}
@@ -405,7 +415,7 @@ export (M, "map (func, [func], any*)", function (mapfn, ifn, ...)
     mapargs = {nextfn (state, k)}
   end
   return r
-end)
+end
 
 
 --- Map a function over a table of argument lists.
@@ -419,28 +429,13 @@ end)
 -- --> {"123", "45"}, {a="123", b="45"}
 -- conc = bind (map_with, {lambda '|...|table.concat {...}'})
 -- conc {{1, 2, 3}, {4, 5}}, conc {a={1, 2, 3, x="y"}, b={4, 5, z=6}}
-local map_with = export (M, "map_with (function, table of tables)", function (mapfn, tt)
+local function map_with (mapfn, tt)
   local r = {}
   for k, v in pairs (tt) do
     r[k] = mapfn (unpack (v))
   end
   return r
-end)
-
-
---- Memoize a function, by wrapping it in a functable.
---
--- To ensure that memoize always returns the same results for the same
--- arguments, it passes arguments to *fn*. You can specify a more
--- sophisticated function if memoize should handle complicated argument
--- equivalencies.
--- @function memoize
--- @func fn pure function: a function with no side effects
--- @tparam[opt=std.tostring] normalize normfn function to normalize arguments
--- @treturn functable memoized function
--- @usage
--- local fast = memoize (function (...) --[[ slow code ]] end)
-export (M, "memoize (func, func?)", memoize)
+end
 
 
 --- No operation.
@@ -448,22 +443,7 @@ export (M, "memoize (func, func?)", memoize)
 -- @function nop
 -- @usage
 -- if unsupported then vtable["memrmem"] = nop end
-M.nop = function () end
-
-
---- Fold a binary function into an iterator.
--- @function reduce
--- @func fn reduce function
--- @param d initial first argument
--- @func ifn iterator function
--- @param ... iterator arguments
--- @return result
--- @see foldl
--- @see foldr
--- @usage
--- --> 2 ^ 3 ^ 4 ==> 4096
--- reduce (lambda '^', 2, std.ipairs, {3, 4})
-export (M, "reduce (func, any, func, any*)", reduce)
+local function nop () end
 
 
 --- Zip a table of tables.
@@ -478,7 +458,7 @@ export (M, "reduce (func, any, func, any*)", reduce)
 -- @usage
 -- --> {{1, 3, 5}, {2, 4}}, {a={x=1, y=3, z=5}, b={x=2, y=4}}
 -- zip {{1, 2}, {3, 4}, {5}}, zip {x={a=1, b=2}, y={a=3, b=4}, z={a=5}}
-local zip = export (M, "zip (table of tables)", function (tt)
+local function zip (tt)
   local r = {}
   for outerk, inner in pairs (tt) do
     for k, v in pairs (inner) do
@@ -487,7 +467,7 @@ local zip = export (M, "zip (table of tables)", function (tt)
     end
   end
   return r
-end)
+end
 
 
 --- Zip a list of tables together with a function.
@@ -504,14 +484,38 @@ end)
 -- --> {"135", "24"}, {a="1", b="25"}
 -- conc = bind (zip_with, {lambda '|...|table.concat {...}'})
 -- conc {{1, 2}, {3, 4}, {5}}, conc {{a=1, b=2}, x={a=3, b=4}, {b=5}}
-export (M, "zip_with (function, table of tables)", function (fn, tt)
+local function zip_with (fn, tt)
   return map_with (fn, zip (tt))
-end)
+end
 
 
--- For backwards compatibility.
-M.op = operator
+local export = base.export
 
+--- @export
+local M = {
+  bind     = export "bind     (func, any?*)",
+  callable = callable,
+  case     = export "case     (any?, #table)",
+  collect  = export "collect  ([func], any*)",
+  compose  = export "compose  (func*)",
+  cond     = cond,
+  curry    = export "curry    (func, int)",
+  filter   = export "filter   (func, [func], any*)",
+  foldl    = export "foldl    (function, [any], table)",
+  foldr    = export "foldr    (function, [any], table)",
+  id       = id,
+  lambda   = export "lambda   (string)",
+  map      = export "map      (func, [func], any*)",
+  map_with = export "map_with (function, table of tables)",
+  memoize  = export "memoize  (func, func?)",
+  nop      = nop,
+  reduce   = export "reduce   (func, any, func, any*)",
+  zip      = export "zip      (table of tables)",
+  zip_with = export "zip_with (function, table of tables)",
+}
+
+
+M.op = operator  -- for backwards compatibility
 
 
 --[[ ============= ]]--

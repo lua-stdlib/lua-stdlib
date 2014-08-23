@@ -16,11 +16,9 @@ local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
 
-local export, ipairs, pairs, split =
-  base.export, base.ipairs, base.pairs, base.split
+local ipairs, pairs, split = base.ipairs, base.pairs, base.split
 
-
-local M = { "std.package" }
+local M
 
 
 
@@ -54,6 +52,18 @@ end
 --[[ ================= ]]--
 
 
+--- Make named constants for `package.config`
+-- (undocumented in 5.1; see luaconf.h for C equivalents).
+-- @table package
+-- @string dirsep directory separator
+-- @string pathsep path separator
+-- @string path_mark string that marks substitution points in a path template
+-- @string execdir (Windows only) replaced by the executable's directory in a path
+-- @string igmark Mark to ignore all before it when building `luaopen_` function name.
+local dirsep, pathsep, path_mark, execdir, igmark =
+  string.match (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
+
+
 --- Look for a path segment match of `patt` in `pathstrings`.
 -- @function find
 -- @string pathstrings `pathsep` delimited path elements
@@ -66,8 +76,7 @@ end
 -- @return the matching element number (not byte index!) and full text
 --   of the matching element, if any; otherwise nil
 -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
-export (M, "find (string, string, int?, boolean|:plain?)",
-function (pathstrings, patt, init, plain)
+local function find (pathstrings, patt, init, plain)
   local paths = split (pathstrings, M.pathsep)
   if plain then patt = escape_pattern (patt) end
   init = init or 1
@@ -75,7 +84,7 @@ function (pathstrings, patt, init, plain)
   for i = init, #paths do
     if paths[i]:find (patt) then return i, paths[i] end
   end
-end)
+end
 
 
 --- Normalize a path list.
@@ -88,14 +97,14 @@ end)
 -- @param ... path elements
 -- @treturn string a single normalized `pathsep` delimited paths string
 -- @usage package.path = normalize (user_paths, sys_paths, package.path)
-local normalize = export (M, "normalize (string*)", function (...)
-  local i, paths, pathstrings = 1, {}, table.concat ({...}, M.pathsep)
-  for _, path in ipairs (split (pathstrings, M.pathsep)) do
+local function normalize (...)
+  local i, paths, pathstrings = 1, {}, table.concat ({...}, pathsep)
+  for _, path in ipairs (split (pathstrings, pathsep)) do
     path = pathsub (path):
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
-      gsub (catfile ("", "%.", ""), M.dirsep):
+      gsub (catfile ("", "%.", ""), dirsep):
       gsub (catfile ("", "%.$"), ""):
-      gsub (catfile ("", "[^", "]+", "%.%.", ""), M.dirsep):
+      gsub (catfile ("", "[^", "]+", "%.%.", ""), dirsep):
       gsub (catfile ("", "[^", "]+", "%.%.$"), ""):
       gsub (catfile ("%.", "%..", ""), catfile ("..", "")):
       gsub (catfile ("", "$"), "")
@@ -106,8 +115,8 @@ local normalize = export (M, "normalize (string*)", function (...)
       paths[path], i = i, i + 1
     end
   end
-  return table.concat (invert (paths), M.pathsep)
-end)
+  return table.concat (invert (paths), pathsep)
+end
 
 
 ------
@@ -123,11 +132,11 @@ end)
 
 local unpack = unpack or table.unpack
 
-export (M, "insert (string, [int], string)", function (pathstrings, ...)
-  local paths = split (pathstrings, M.pathsep)
+local function insert (pathstrings, ...)
+  local paths = split (pathstrings, pathsep)
   table.insert (paths, ...)
   return normalize (unpack (paths))
-end)
+end
 
 
 ------
@@ -146,13 +155,12 @@ end)
 -- @param ... additional arguments passed to `callback`
 -- @return nil, or first non-nil returned by `callback`
 -- @usage mappath (package.path, searcherfn, transformfn)
-export (M, "mappath (string, function, any?*)",
-function (pathstrings, callback, ...)
-  for _, path in ipairs (split (pathstrings, M.pathsep)) do
+local function mappath (pathstrings, callback, ...)
+  for _, path in ipairs (split (pathstrings, pathsep)) do
     local r = callback (path, ...)
     if r ~= nil then return r end
   end
-end)
+end
 
 
 --- Remove any element from a `package.path` like string of paths.
@@ -162,23 +170,30 @@ end)
 --   is the number of elements prior to removal
 -- @treturn string a new string with given element removed
 -- @usage package.path = remove (package.path)
-export (M, "remove (string, int?)", function (pathstrings, pos)
-  local paths = split (pathstrings, M.pathsep)
+local function remove (pathstrings, pos)
+  local paths = split (pathstrings, pathsep)
   table.remove (paths, pos)
-  return table.concat (paths, M.pathsep)
-end)
+  return table.concat (paths, pathsep)
+end
 
 
---- Make named constants for `package.config`
--- (undocumented in 5.1; see luaconf.h for C equivalents).
--- @table package
--- @string dirsep directory separator
--- @string pathsep path separator
--- @string path_mark string that marks substitution points in a path template
--- @string execdir (Windows only) replaced by the executable's directory in a path
--- @string igmark Mark to ignore all before it when building `luaopen_` function name.
-M.dirsep, M.pathsep, M.path_mark, M.execdir, M.igmark =
-  string.match (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
+local export = base.export
+
+--- @export
+M = {
+  find      = export "find (string, string, int?, boolean|:plain?)",
+  insert    = export "insert (string, [int], string)",
+  mappath   = export "mappath (string, function, any?*)",
+  normalize = export "normalize (string*)",
+  remove    = export "remove (string, int?)",
+}
+
+
+M.dirsep    = dirsep
+M.execdir   = execdir
+M.igmark    = igmark
+M.path_mark = path_mark
+M.pathsep   = pathsep
 
 
 for k, v in pairs (package) do

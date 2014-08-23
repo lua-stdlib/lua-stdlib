@@ -17,6 +17,9 @@ function prototype (o)
 end
 
 
+function nop () end
+
+
 -- Error message specifications use this to shorten argument lists.
 -- Copied from functional.lua to avoid breaking all tests if functional
 -- cannot be loaded correctly.
@@ -102,12 +105,14 @@ end
 local function badarg (mname, fname, i, want, got)
   if want == nil then i, want = i - 1, i end
 
+  local fqfname = (mname .. "." .. fname):gsub ("^%.", "")
+
   if got == nil and type (want) == "number" then
-    local s = "too many arguments to '%s.%s' (no more than %d expected, got %d)"
-    return string.format (s, mname, fname, i, want)
+    local s = "too many arguments to '%s' (no more than %d expected, got %d)"
+    return string.format (s, fqfname, i, want)
   end
-  return string.format ("bad argument #%d to '%s.%s' (%s expected, got %s)",
-                        i, mname, fname, want, got or "no value")
+  return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
+                        i, fqfname, want, got or "no value")
 end
 
 

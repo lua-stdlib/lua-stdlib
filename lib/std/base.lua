@@ -23,6 +23,12 @@
 ]]
 
 
+local base = require "std.base.string"
+local callable = require "std.base.functional".callable
+local copy, render, split = base.copy, base.render, base.split
+
+
+
 local function len (t)
   -- Lua < 5.2 doesn't call `__len` automatically!
   local m = (getmetatable (t) or {}).__len
@@ -77,22 +83,6 @@ end
 
 
 
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
---- Make a shallow copy of a table.
--- @tparam table t source table
--- @treturn table shallow copy of *t*
-local function copy (t)
-  local new = {}
-  for k, v in pairs (t) do new[k] = v end
-  return new
-end
-
-
-
 --[[ ======================== ]]--
 --[[ Documented in table.lua. ]]--
 --[[ ======================== ]]--
@@ -109,54 +99,6 @@ local function getmetamethod (x, n)
   return m
 end
 
-
-
---[[ ========================= ]]--
---[[ Documented in string.lua. ]]--
---[[ ========================= ]]--
-
-
-local function render (x, open, close, elem, pair, sep, roots)
-  local function stop_roots (x)
-    return roots[x] or render (x, open, close, elem, pair, sep, copy (roots))
-  end
-  roots = roots or {}
-  if type (x) ~= "table" or getmetamethod (x, "__tostring") then
-    return elem (x)
-  else
-    local s = {}
-    s[#s + 1] =  open (x)
-    roots[x] = elem (x)
-
-    -- create a sorted list of keys
-    local ord = {}
-    for k, _ in pairs (x) do ord[#ord + 1] = k end
-    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
-
-    -- render x elements in order
-    local i, v = nil, nil
-    for _, j in ipairs (ord) do
-      local w = x[j]
-      s[#s + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
-      i, v = j, w
-    end
-    s[#s + 1] = sep (x, i, v, nil, nil) .. close (x)
-    return table.concat (s)
-  end
-end
-
-
-local function split (s, sep)
-  sep = sep or "%s+"
-  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
-  while b <= len do
-    local e, n, m = string.find (s, patt, b + 1)
-    t[#t + 1] = m or s:sub (b + 1, len)
-    b = n or len + 1
-  end
-  return t
-end
 
 
 --[[ ====================== ]]--
@@ -666,6 +608,49 @@ local getfenv = getfenv or function(f)
 end
 
 
+local dirsep, pathsep, path_mark = package.config:match "^(%S+)\n(%S+)\n(%S+)\n"
+local pathpatt, markpatt = "[^" .. pathsep .. "]+", path_mark:gsub ("%p", "%%%0")
+
+local function whatpath (name, src)
+  local r
+  package.path:gsub (pathpatt, function (s)
+    local substituted = s:gsub (markpatt, (name:gsub ("%.", dirsep)))
+    if substituted == src then r = name end
+  end)
+  return r
+end
+
+
+local function getinfo (what, level)
+  local fqfname, s, fn
+
+  for i = 1, math.huge do
+    s, fn = debug.getlocal (level + 1, i)
+
+    if s == nil then
+      break
+
+    elseif s == what or fn == what then
+      local t, src = {}, debug.getinfo (callable (fn), "S").source:gsub ("^@(.*)$", "%1")
+      src:gsub ("/([^/]+)", function (m) t[#t + 1] = m:gsub ("%.lua", "") end)
+
+      local tryme
+      for i = #t, 1, -1 do
+	tryme = tryme and (t[i] .. "." .. tryme) or t[i]
+	if whatpath (tryme, src) then
+	  fqfname = (tryme .. "." .. s):gsub ("^(std%.)base%.", "%1")
+          break
+	end
+      end
+      break
+
+    end
+  end
+
+  return fqfname, fn
+end
+
+
 --- Export a function definition, optionally with argument type checking.
 -- In addition to checking that each argument type matches the corresponding
 -- element in the *types* table with `argcheck`, if the final element of
@@ -677,41 +662,22 @@ end
 -- @func fn value to store at *name* in *M*
 -- @usage
 -- export (M, "round (number, int?)", std.math.round)
-local function export (M, decl, fn, ...)
-  local inner = fn
-
+local function export (decl, ...)
   -- Parse "fname (argtype, argtype, argtype...)".
-  local name, types
-  if decl then
-    name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
+  local name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
+  if types == "" then
+    types = {}
+  elseif types then
+    types = split (types, ",%s+")
+  else
+    name = decl:match "([%w_][%d%w_]*)"
   end
+  local fqfname, inner = getinfo (name, 2)
+
+  local fn = inner
 
   -- When argument checking is enabled, wrap in type checking function.
   if _ARGCHECK then
-    local fname = "std.base.export"
-    local args = {M, decl, fn, ...}
-    argscheck (fname, {"table", "string", "function"}, args)
-
-    -- Check for other argument errors.
-    if types == "" then
-      types = {}
-    elseif types then
-      types = split (types, ",%s+")
-    else
-      name = decl:match "([%w_][%d%w_]*)"
-    end
-    if arglen (args) > 3 then
-      error (string.format (toomanyarg_fmt, fname, 3, arglen (args)), 2)
-    elseif type (M[1]) ~= "string" then
-      argerror (fname, 1, formaterror ("module name at index 1", M[1]), 2)
-    elseif name == nil then
-      argerror (fname, 2, formaterror ("function name", name), 2)
-    elseif types == nil then
-      argerror (fname, 2, formaterror ("argument type specification", types), 2)
-    end
-
-    local name = M[1] .. (M[2] and ":" or ".") .. name
-
     -- If the final element of types ends with "*", then set max to a
     -- sentinel value to denote type-checking of *all* remaining
     -- unchecked arguments against that type-spec is required.
@@ -729,13 +695,6 @@ local function export (M, decl, fn, ...)
     fn = function (...)
       local args = {...}
       local argc, bestmismatch, at = arglen (args), 0, 0
-
-      -- For object methods, report type mismatch on self as argument 0.
-      if M[2] then
-	argcheck (name, 0, M[2], args[1], 2)
-	table.remove (args, 1)
-	argc = argc - 1
-      end
 
       for i, types in ipairs (type_specs) do
 	local mismatch = match (types, args, max == math.huge)
@@ -769,18 +728,18 @@ local function export (M, decl, fn, ...)
 	  if contents and type (args[i]) == "table" then
 	    for k, v in pairs (args[i]) do
 	      if not checktype (contents, v) then
-	        argerror (name, i, formaterror (expected, v, k), 2)
+	        argerror (fqfname or name, i, formaterror (expected, v, k), 2)
 	      end
 	    end
 	  end
         end
 
 	-- Otherwise the argument type itself was mismatched.
-	argerror (name, i, formaterror (expected, args[i]), 2)
+	argerror (fqfname or name, i, formaterror (expected, args[i]), 2)
       end
 
       if argc > max then
-        error (string.format (toomanyarg_fmt, name, max, argc), 2)
+        error (string.format (toomanyarg_fmt, fqfname or name, max, argc), 2)
       end
 
       -- Propagate outer environment to inner function.
@@ -790,14 +749,8 @@ local function export (M, decl, fn, ...)
     end
   end
 
-  M[name] = fn
-
-  return inner
+  return fn
 end
-
-
--- Required for exported function argument check failures:
-local M = { "std.base" }
 
 
 -- Whether to show a deprecation warning the next time a give key is set.
@@ -808,56 +761,51 @@ local compat = {}
 -- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
 -- if `_DEBUG.compat` is false, warn every time *fn* is called;
 -- otherwise don't write any warnings, and run *fn* normally.
--- @function setcompat
 -- @param key unique identifier for a deprecated API.
-local setcompat = export (M, "setcompat (any)", function (key)
+local function setcompat (key)
   compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
-end)
+end
 
 
 --- Get the deprecation warning status for *key*.
--- @function getcompat
+-- @param key unique identifier for a deprecated API.
 -- @treturn boolean whether to show a deprecation warning.
-local getcompat = export (M, "getcompat (any)", function (key)
+local function getcompat (key)
   if compat[key] == nil then
     -- Whether to warn on first access.
     compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
   end
   return compat[key]
-end)
+end
 
 
 --- Format a deprecation warning message.
--- @function DEPRECATIONMSG
 -- @string version first deprecation release version
 -- @string name function name for automatic warning message
 -- @string[opt] extramsg additional warning text
 -- @int level call stack level to blame for the error
 -- @treturn string deprecation warning message
-local DEPRECATIONMSG = export (M, "DEPRECATIONMSG (string, string, [string], int)",
-function (version, name, extramsg, level)
+local function DEPRECATIONMSG (version, name, extramsg, level)
   if level == nil then level, extramsg = extramsg, nil end
   extramsg = extramsg or "and will be removed entirely in a future release"
 
   local _, where = pcall (function () error ("", level + 3) end)
   return (where .. string.format ("%s was deprecated in release %s, %s.\n",
                                   name, version, extramsg))
-end)
+end
 
 
 --- Write a deprecation warning to stderr.
 -- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
 -- if `_DEBUG.compat` is false, warn every time *fn* is called;
 -- otherwise don't write any warnings, and run *fn* normally.
--- @function DEPRECATED
 -- @string version first deprecation release version
 -- @string name function name for automatic warning message
 -- @string[opt] extramsg additional warning text
 -- @func fn deprecated function
 -- @return a function to show the warning on first call, and hand off to *fn*
 -- @usage funcname = deprecate (function (...) ... end, "funcname")
-export (M, "DEPRECATED (string, string, [string], func)",
-function (version, name, extramsg, fn)
+local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
   return function (...)
@@ -867,7 +815,7 @@ function (version, name, extramsg, fn)
     end
     return fn (...)
   end
-end)
+end
 
 
 
@@ -907,12 +855,13 @@ return setmetatable ({
   argscheck = argscheck,
 
   -- Maintenance --
-  DEPRECATED     = M.DEPRECATED,
-  DEPRECATIONMSG = M.DEPRECATIONMSG,
-  export         = export,
+  DEPRECATED     = DEPRECATED,
+  DEPRECATIONMSG = DEPRECATIONMSG,
   getcompat      = getcompat,
-  len            = len,
   setcompat      = setcompat,
+
+  export         = export,
+  len            = len,
   toomanyarg_fmt = toomanyarg_fmt,
 
 }, {

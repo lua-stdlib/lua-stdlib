@@ -16,14 +16,14 @@ local table  = require "std.table"
 
 local StrBuf = strbuf {}
 
-local export, getmetamethod, pairs, split =
-  base.export, base.getmetamethod, base.pairs, base.split
-local totable = table.totable
+local getmetamethod = base.getmetamethod
+local pairs         = base.pairs
+local totable       = table.totable
 
 local _format   = string.format
 local _tostring = base.tostring
 
-local M = { "std.string" }
+local M
 
 
 
@@ -58,7 +58,7 @@ end
 -- @usage
 -- local string = require "std.string".monkey_patch ()
 -- concatenated = "foo" .. {"bar"}
-function M.__concat (s, o)
+local function __concat (s, o)
   return _tostring (s) .. _tostring (o)
 end
 
@@ -71,7 +71,7 @@ end
 -- @usage
 -- getmetatable ("").__index = require "std.string".__index
 -- third = ("12345")[3]
-function M.__index (s, i)
+local function __index (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
   else
@@ -94,9 +94,9 @@ end
 -- @param[opt] ... arguments to format
 -- @return formatted string
 -- @usage print (format "100% stdlib!")
-local format = export (M, "format (string, any?*)", function (f, arg1, ...)
+local function format (f, arg1, ...)
   return (arg1 ~= nil) and _format (f, arg1, ...) or f
-end)
+end
 
 
 --- Do `string.find`, returning a table of captures.
@@ -110,9 +110,9 @@ end)
 -- @treturn table list of captured strings
 -- @see std.string.finds
 -- @usage b, e, captures = tfind ("the target string", "%s", 10)
-local tfind = export (M, "tfind (string, string, int?, boolean|:plain?)", function (s, ...)
+local function tfind (s, ...)
   return tpack (s:find (...))
-end)
+end
 
 
 --- Repeatedly `string.find` until target string is exhausted.
@@ -127,7 +127,7 @@ end)
 -- for t in std.elems (finds ("the target string", "%S+")) do
 --   print (tostring (t.capt))
 -- end
-export (M, "finds (string, string, int?, boolean|:plain?)", function (s, p, i, ...)
+local function finds (s, p, i, ...)
   i = i or 1
   local l = {}
   local from, to, r
@@ -139,7 +139,7 @@ export (M, "finds (string, string, int?, boolean|:plain?)", function (s, p, i, .
     end
   until not from
   return l
-end)
+end
 
 
 --- Split a string at a given separator.
@@ -150,7 +150,7 @@ end)
 -- @string[opt="%s+"] sep separator pattern
 -- @return list of strings
 -- @usage words = split "a very short sentence"
-export (M, "split (string, string?)", split)
+local split = base.split
 
 
 --- Overwrite core methods and metamethods with `std` enhanced versions.
@@ -163,13 +163,13 @@ export (M, "split (string, string?)", split)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage local string = require "std.string".monkey_patch ()
-export (M, "monkey_patch (table?)", function (namespace)
+local function monkey_patch (namespace)
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat
   string_metatable.__index = M.__index
 
   return M
-end)
+end
 
 
 --- Capitalise each word in a string.
@@ -177,9 +177,9 @@ end)
 -- @string s any string
 -- @treturn string *s* with each word capitalized
 -- @usage userfullname = caps (input_string)
-export (M, "caps (string)", function (s)
+local function caps (s)
   return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end)
-end)
+end
 
 
 --- Remove any final newline from a string.
@@ -187,9 +187,9 @@ end)
 -- @string s any string
 -- @treturn string *s* with any single trailing newline removed
 -- @usage line = chomp (line)
-export (M, "chomp (string)", function (s)
+local function chomp (s)
   return s:gsub ("\n$", "")
-end)
+end
 
 
 --- Escape a string to be used as a pattern.
@@ -197,9 +197,9 @@ end)
 -- @string s any string
 -- @treturn string *s* with active pattern characters escaped
 -- @usage substr = inputstr:match (escape_pattern (literal))
-export (M, "escape_pattern (string)", function (s)
+local function escape_pattern (s)
   return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
-end)
+end
 
 
 --- Escape a string to be used as a shell token.
@@ -209,9 +209,9 @@ end)
 -- @string s any string
 -- @treturn string *s* with active shell characters escaped
 -- @usage os.execute ("echo " .. escape_shell (outputstr))
-export (M, "escape_shell (string)", function (s)
+local function escape_shell (s)
   return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
-end)
+end
 
 
 --- Return the English suffix for an ordinal.
@@ -221,7 +221,7 @@ end)
 -- @usage
 -- local now = os.date "*t"
 -- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
-export (M, "ordinal_suffix (int|string)", function (n)
+local function ordinal_suffix (n)
   n = math.abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
@@ -233,7 +233,7 @@ export (M, "ordinal_suffix (int|string)", function (n)
   else
     return "th"
   end
-end)
+end
 
 
 --- Justify a string.
@@ -246,13 +246,13 @@ end)
 -- @string[opt=" "] p string to pad with
 -- @treturn string *s* justified to *w* characters wide
 -- @usage print (pad (trim (outputstr, 78)) .. "\n")
-export (M, "pad (string, int, string?)", function (s, w, p)
+local function pad (s, w, p)
   p = string.rep (p or " ", math.abs (w))
   if w < 0 then
     return string.sub (p .. s, w)
   end
   return string.sub (s .. p, 1, w)
-end)
+end
 
 
 --- Wrap a string into a paragraph.
@@ -264,7 +264,7 @@ end)
 -- @treturn string *s* wrapped to *w* columns
 -- @usage
 -- print (wrap (copyright, 72, 4))
-export (M, "wrap (string, int?, int?, int?)", function (s, w, ind, ind1)
+local function wrap (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
   ind1 = ind1 or ind
@@ -289,7 +289,7 @@ export (M, "wrap (string, int?, int?, int?)", function (s, w, ind, ind1)
     end
   end
   return r:tostring ()
-end)
+end
 
 
 --- Write a number using SI suffixes.
@@ -298,7 +298,7 @@ end)
 -- @tparam number|string n any numeric value
 -- @treturn string *n* simplifed using largest available SI suffix.
 -- @usage print (numbertosi (bitspersecond) .. "bps")
-export (M, "numbertosi (number|string)", function (n)
+local function numbertosi (n)
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
     [-4] = "p", [-3] = "n", [-2] = "mu", [-1] = "m",
@@ -314,7 +314,7 @@ export (M, "numbertosi (number|string)", function (n)
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
   return tostring (man) .. s
-end)
+end
 
 
 --- Remove leading matter from a string.
@@ -323,10 +323,10 @@ end)
 -- @string[opt="%s+"] r leading pattern
 -- @treturn string *s* with leading *r* stripped
 -- @usage print ("got: " .. ltrim (userinput))
-export (M, "ltrim (string, string?)", function (s, r)
+local function ltrim (s, r)
   r = r or "%s+"
   return s:gsub ("^" .. r, "")
-end)
+end
 
 
 --- Remove trailing matter from a string.
@@ -335,10 +335,10 @@ end)
 -- @string[opt="%s+"] r trailing pattern
 -- @treturn string *s* with trailing *r* stripped
 -- @usage print ("got: " .. rtrim (userinput))
-export (M, "rtrim (string, string?)", function (s, r)
+local function rtrim (s, r)
   r = r or "%s+"
   return s:gsub (r .. "$", "")
-end)
+end
 
 
 --- Remove leading and trailing matter from a string.
@@ -347,10 +347,10 @@ end)
 -- @string[opt="%s+"] r trailing pattern
 -- @treturn string *s* with leading and trailing *r* stripped
 -- @usage print ("got: " .. trim (userinput))
-export (M, "trim (string, string?)", function (s, r)
+local function trim (s, r)
   r = r or "%s+"
   return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
-end)
+end
 
 
 -- Write pretty-printing based on:
@@ -396,8 +396,7 @@ end)
 --                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
 --                  lambda '=","')
 -- end
-local render = export (M,
-      "render (any?, func, func, func, func, func, table?)", base.render)
+local render = base.render
 
 
 --- Pretty-print a table, or other object.
@@ -407,8 +406,7 @@ local render = export (M,
 -- @string[opt=""] spacing space before every line
 -- @treturn string pretty string rendering of *x*
 -- @usage print (prettytostring (std, "  "))
-export (M, "prettytostring (any?, string?, string?)",
-function (x, indent, spacing)
+local function prettytostring (x, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
   return render (x,
@@ -459,7 +457,7 @@ function (x, indent, spacing)
                    end
                    return s
                  end)
-end)
+end
 
 
 --- Convert a value to a string.
@@ -470,7 +468,7 @@ end)
 -- @see std.eval
 -- @usage
 -- function slow_identity (x) return functional.eval (pickle (x)) end
-function M.pickle (x)
+local function pickle (x)
   if type (x) == "string" then
     return format ("%q", x)
   elseif type (x) == "number" or type (x) == "boolean" or
@@ -493,6 +491,34 @@ function M.pickle (x)
 end
 
 
+local export = base.export
+
+--- @export
+M = {
+  __concat       = __concat,
+  __index        = __index,
+  caps           = export "caps (string)",
+  chomp          = export "chomp (string)",
+  escape_pattern = export "escape_pattern (string)",
+  escape_shell   = export "escape_shell (string)",
+  finds          = export "finds (string, string, int?, boolean|:plain?)",
+  format         = export "format (string, any?*)",
+  ltrim          = export "ltrim (string, string?)",
+  monkey_patch   = export "monkey_patch (table?)",
+  numbertosi     = export "numbertosi (number|string)",
+  ordinal_suffix = export "ordinal_suffix (int|string)",
+  pad            = export "pad (string, int, string?)",
+  pickle         = pickle,
+  prettytostring = export "prettytostring (any?, string?, string?)",
+  render         = export "render (any?, func, func, func, func, func, table?)",
+  rtrim          = export "rtrim (string, string?)",
+  split          = export "split (string, string?)",
+  tfind          = export "tfind (string, string, int?, boolean|:plain?)",
+  trim           = export "trim (string, string?)",
+  wrap           = export "wrap (string, int?, int?, int?)",
+}
+
+
 
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
@@ -512,7 +538,6 @@ M.require_version = DEPRECATED ("41", "'std.string.require_version'",
 
 M.tostring = DEPRECATED ("41", "'std.string.tostring'",
   "use 'std.tostring' instead", base.tostring)
-
 
 
 

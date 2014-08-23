@@ -2,7 +2,7 @@ before: |
   this_module   = "std"
   global_table  = "_G"
 
-  exported_apis = { 1, "assert", "barrel", "elems", "eval", "getmetamethod",
+  exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
                     "ielems", "ipairs", "ireverse", "monkey_patch", "pairs",
                     "require", "ripairs", "tostring", "version" }
 

@@ -19,24 +19,6 @@ specify std.base:
 
       f, badarg = init (M, this_module, "DEPRECATED")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-      expect (f "version").to_raise (badarg (2, "string"))
-      expect (f ("version", "name")).to_raise (badarg (3, "string or function"))
-      expect (f ("version", "name", "extramsg")).to_raise (badarg (4, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("version", false)).to_raise (badarg (2, "string", "boolean"))
-      expect (f ("version", "name", false)).
-        to_raise (badarg (3, "string or function", "boolean"))
-      expect (f ("version", "name", "extramsg", false)).
-        to_raise (badarg (4, "function", "boolean"))
-  - it diagnoses too many arguments: |
-      expect (f ("version", "name", "extramsg", nop, false)).
-        to_raise (badarg (5))
-      pending "issue #76"
-      expect (f ("version", "name", nop, false)).to_raise (badarg (4))
-
   - it returns a function:
       expect (type (f ("0", "deprecated", nop))).to_be "function"
       expect (f ("0", "deprecated", nop)).not_to_be (nop)
@@ -105,117 +87,89 @@ specify std.base:
         ]], tostring (name), tostring (spec))
       end
 
-      mkmagic = function () return "MAGIC" end
-
       f, badarg = init (M, this_module, "export")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-      expect (f ({})).to_raise (badarg (2, "string"))
-      expect (f ({}, "")).to_raise (badarg (3, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "string", "boolean"))
-      expect (f ({}, "", false)).to_raise (badarg (3, "function", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, "", function () end, false)).to_raise (badarg (4))
-  - it diagnoses missing module name element at callsite: |
-      expect (luaproc (mkstack ("", ""))).
-        to_contain_error (":3: " .. badarg (1, "module name at index 1"))
-  - it diagnoses malformed declaration string at callsite: |
-      expect (luaproc (mkstack ('"mkstack"', ""))).
-        to_contain_error (":3: " .. badarg (2, "function name"))
-      expect (luaproc (mkstack ('"mkstack"', "woo"))).
-        to_contain_error (":3: " .. badarg (2, "argument type specification"))
+      mkmagic = function () return "MAGIC" end
+      local inner = mkmagic
+      wrapped = f "inner ()"
 
-  - it returns the supplied function:
-      M = { "base_spec.yaml" }
-      expect (f (M, "expect (any)", f)).to_be (f)
-  - it stores a function in supplied table at the specified key:
-      M = { "base_spec.yaml" }
-      f (M, "export (any?)", mkmagic)
-      expect (M.export ()).to_be "MAGIC"
-  - it stores the passed function when _ARGCHECK is disabled: |
+  - it returns the wrapped function:
+      expect (wrapped).not_to_be (inner)
+      expect (wrapped ()).to_be "MAGIC"
+  - it does not wrap the function when _ARGCHECK is disabled: |
       script = [[
         _DEBUG = false
         local debug = require "std.debug_init"
         local export = require "std.base".export
-        M = { "base_spec.yaml" }
-        export (M, "export (any)", export)
-        os.exit (M.export == export and 0 or 1)
+        local function inner () return "MAGIC" end
+        local wrapped = export "inner (any?)"
+        os.exit (wrapped == inner and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()
 
   - context when checking zero argument function:
     - before:
-        M = { "base_spec.yaml" }
-        _, badarg = init (M, "base_spec.yaml", "chk_function")
-        f (M, "chk_function ()", mkmagic)
-        chk = M.chk_function
+        _, badarg = init (M, "", "inner")
     - it diagnoses too many arguments:
-        expect (chk (false)).to_raise (badarg (1))
+        expect (wrapped (false)).to_raise (badarg (1))
     - it accepts correct argument types:
-        expect (chk ()).to_be "MAGIC"
+        expect (wrapped ()).to_be "MAGIC"
 
   - context when checking single argument function:
     - before:
-        M = { "base_spec.yaml" }
-        _, badarg = init (M, "base_spec.yaml", "chk_function")
-        f (M, "chk_function (#table)", mkmagic)
-        chk = M.chk_function
+        _, badarg = init (M, "", "inner")
+        local inner = mkmagic
+        wrapped = f "inner (#table)"
     - it diagnoses missing arguments:
-        expect (chk ()).to_raise (badarg (1, "non-empty table"))
+        expect (wrapped ()).to_raise (badarg (1, "non-empty table"))
     - it diagnoses wrong argument types:
-        expect (chk {}).to_raise (badarg (1, "non-empty table", "empty table"))
+        expect (wrapped {}).to_raise (badarg (1, "non-empty table", "empty table"))
     - it diagnoses too many arguments:
-        expect (chk ({1}, 2, nop, "", false)).to_raise (badarg (1, 5))
+        expect (wrapped ({1}, 2, nop, "", false)).to_raise (badarg (1, 5))
     - it accepts correct argument types:
-        expect (chk ({1})).to_be "MAGIC"
+        expect (wrapped ({1})).to_be "MAGIC"
 
   - context when checking multi-argument function:
     - before:
-        M = { "base_spec.yaml" }
-        _, badarg = init (M, "base_spec.yaml", "chk_function")
-        f (M, "chk_function (table, function)", mkmagic)
-        chk = M.chk_function
+        _, badarg = init (M, "", "inner")
+        local inner = mkmagic
+        wrapped = f "inner (table, function)"
     - it diagnoses missing arguments:
-        expect (chk ()).to_raise (badarg (1, "table"))
-        expect (chk ({})).to_raise (badarg (2, "function"))
+        expect (wrapped ()).to_raise (badarg (1, "table"))
+        expect (wrapped ({})).to_raise (badarg (2, "function"))
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_raise (badarg (1, "table", "boolean"))
-        expect (chk ({}, false)).to_raise (badarg (2, "function", "boolean"))
+        expect (wrapped (false)).to_raise (badarg (1, "table", "boolean"))
+        expect (wrapped ({}, false)).to_raise (badarg (2, "function", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk ({}, nop, false)).to_raise (badarg (3))
+        expect (wrapped ({}, nop, false)).to_raise (badarg (3))
     - it accepts correct argument types:
-        expect (chk ({}, nop)).to_be "MAGIC"
+        expect (wrapped ({}, nop)).to_be "MAGIC"
 
   - context when checking optional argument function:
     - before:
-        M = { "base_spec.yaml" }
-        _, badarg = init (M, "base_spec.yaml", "chk_function")
-        f (M, "chk_function ([int])", mkmagic)
-        chk = M.chk_function
+        _, badarg = init (M, "", "inner")
+        local inner = mkmagic
+        wrapped = f "inner ([int])"
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_raise (badarg (1, "int or nil", "boolean"))
+        expect (wrapped (false)).to_raise (badarg (1, "int or nil", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk (1, nop)).to_raise (badarg (2))
+        expect (wrapped (1, nop)).to_raise (badarg (2))
     - it accepts correct argument types:
-        expect (chk ()).to_be "MAGIC"
-        expect (chk (1)).to_be "MAGIC"
+        expect (wrapped ()).to_be "MAGIC"
+        expect (wrapped (1)).to_be "MAGIC"
 
   - context when checking optional multi-argument function:
     - before:
-        M = { "base_spec.yaml" }
-        _, badarg = init (M, "base_spec.yaml", "chk_function")
-        f (M, "chk_function ([int], string)", mkmagic)
-        chk = M.chk_function
+        _, badarg = init (M, "", "inner")
+        local inner = mkmagic
+        wrapped = f "inner ([int], string)"
     - it diagnoses missing arguments:
-        expect (chk ()).to_raise (badarg (1, "int or string"))
-        expect (chk (1)).to_raise (badarg (2, "string"))
+        expect (wrapped ()).to_raise (badarg (1, "int or string"))
+        expect (wrapped (1)).to_raise (badarg (2, "string"))
     - it diagnoses wrong argument types:
-        expect (chk (false)).to_raise (badarg (1, "int or string", "boolean"))
+        expect (wrapped (false)).to_raise (badarg (1, "int or string", "boolean"))
     - it diagnoses too many arguments:
-        expect (chk (1, "two", nop)).to_raise (badarg (3))
+        expect (wrapped (1, "two", nop)).to_raise (badarg (3))
     - it accepts correct argument types:
-        expect (chk ("two")).to_be "MAGIC"
-        expect (chk (1, "two")).to_be "MAGIC"
+        expect (wrapped ("two")).to_be "MAGIC"
+        expect (wrapped (1, "two")).to_be "MAGIC"

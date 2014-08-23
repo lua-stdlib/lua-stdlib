@@ -86,6 +86,7 @@ luastdbasedir = $(luastddir)/base
 
 dist_luastdbase_DATA =			\
 	lib/std/base/functional.lua	\
+	lib/std/base/string.lua		\
 	lib/std/base/tree.lua		\
 	$(NOTHING_ELSE)
 

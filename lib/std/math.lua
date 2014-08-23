@@ -11,10 +11,7 @@
 ]]
 
 
-local export = require "std.base".export
-local floor  = math.floor
-
-local M = { "std.math" }
+local M
 
 
 --- Extend `math.floor` to take the number of decimal places.
@@ -24,15 +21,16 @@ local M = { "std.math" }
 -- @treturn number `n` truncated to `p` decimal places
 -- @usage tenths = floor (magnitude, 1)
 
+local _floor  = math.floor
 
-export (M, "floor (number, int?)", function (n, p)
+local function floor (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
-    return floor (n * e) / e
+    return _floor (n * e) / e
   else
-    return floor (n)
+    return _floor (n)
   end
-end)
+end
 
 
 --- Overwrite core methods with `std` enhanced versions.
@@ -42,11 +40,11 @@ end)
 -- @tparam[opt=_G] table namespace where to install global functions
 -- @treturn table the module table
 -- @usage require "std.math".monkey_patch ()
-export (M, "monkey_patch (table?)", function (namespace)
+local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.math.floor = M.floor
   return M
-end)
+end
 
 
 --- Round a number to a given number of decimal places
@@ -55,10 +53,20 @@ end)
 -- @int[opt=0] p number of decimal places to round to
 -- @treturn number `n` rounded to `p` decimal places
 -- @usage roughly = round (exactly, 2)
-export (M, "round (number, int?)", function (n, p)
+local function round (n, p)
   local e = 10 ^ (p or 0)
-  return floor (n * e + 0.5) / e
-end)
+  return _floor (n * e + 0.5) / e
+end
+
+
+local export = require "std.base".export
+
+--- @export
+M = {
+  floor        = export "floor (number, int?)",
+  monkey_patch = export "monkey_patch (table?)",
+  round        = export "round (number, int?)",
+}
 
 
 for k, v in pairs (math) do

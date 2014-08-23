@@ -35,9 +35,9 @@ local base       = require "std.base"
 local functional = require "std.functional"
 local string     = require "std.string"
 
-local export, ielems = base.export, base.ielems
+local ielems = base.ielems
 
-local M      = { "std.debug" }
+local M
 
 
 
@@ -88,7 +88,7 @@ local tabify = functional.compose (
 -- local _DEBUG = require "std.debug_init"._DEBUG
 -- _DEBUG.level = 3
 -- say (2, "_DEBUG table contents:", _DEBUG)
-function M.say (n, ...)
+local function say (n, ...)
   local level = 1
   local arg = {n, ...}
   if type (arg[1]) == "number" then
@@ -115,7 +115,7 @@ local level = 0
 -- @usage
 -- _DEBUG = { call = true }
 -- local debug = require "std.debug"
-function M.trace (event)
+local function trace (event)
   local t = debug.getinfo (3)
   local s = " >>> " .. string.rep (" ", level)
   if t ~= nil and t.currentline >= 0 then
@@ -144,7 +144,7 @@ end
 
 -- Set hooks according to _DEBUG
 if type (_DEBUG) == "table" and _DEBUG.call then
-  debug.sethook (M.trace, "cr")
+  debug.sethook (trace, "cr")
 end
 
 
@@ -162,7 +162,7 @@ end
 --   local h, err = input_handle (file)
 --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
 --   ...
-M.argerror = base.argerror
+local argerror = base.argerror
 
 --[[
  Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
@@ -220,7 +220,7 @@ export (M, "argerror (string, int, string?, int?)", base.argerror)
 -- local function case (with, branches)
 --   argcheck ("std.functional.case", 2, "#table", branches)
 --   ...
-M.argcheck = base.argcheck
+local argcheck = base.argcheck
 
 --[[
  Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
@@ -240,7 +240,7 @@ export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
 -- local function curry (f, n)
 --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
 --   ...
-M.argscheck = base.argscheck
+local argscheck = base.argscheck
 
 --[[
  Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
@@ -250,6 +250,16 @@ M.argscheck = base.argscheck
 
 export (M, "argscheck (string, #list, table)", base.argscheck)
 ]]
+
+
+--- @export
+M = {
+  argcheck   = argcheck,
+  argerror   = argerror,
+  argscheck  = argscheck,
+  say        = say,
+  trace      = trace,
+}
 
 
 for k, v in pairs (debug) do

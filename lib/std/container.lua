@@ -69,10 +69,9 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
 local base = require "std.base"
 
-local argcheck, export, ipairs, pairs, prototype =
-  base.argcheck, base.export, base.ipairs, base.pairs, base.prototype
-
-local M = { "std.container" }
+local ipairs, pairs = base.ipairs, base.pairs
+local prototype = base.prototype
+local argcheck, export = base.argcheck, base.export
 
 
 
@@ -145,8 +144,7 @@ end
 --   a metatable with private fields (if any) merged, both sets of keys
 --   renamed according to *map*
 -- @see std.object.mapfields
-local mapfields = export (M, "mapfields (table, table|object, table?)",
-function (obj, src, map)
+local function mapfields (obj, src, map)
   local mt = getmetatable (obj) or {}
 
   -- Map key pairs.
@@ -182,7 +180,7 @@ function (obj, src, map)
     setmetatable (obj, mt)
   end
   return obj
-end)
+end
 
 
 --- Return a clone of this container.
@@ -230,6 +228,11 @@ local function __call (self, x, ...)
 
   return setmetatable (obj, obj_mt)
 end
+
+
+local M = {
+  mapfields = export "mapfields (table, table|object, table?)",
+}
 
 
 if _ARGCHECK then
