@@ -23,9 +23,10 @@
 ]]
 
 
-local base = require "std.base.string"
 local callable = require "std.base.functional".callable
-local copy, render, split = base.copy, base.render, base.split
+local compare  = require "std.base.list".compare
+local bstring  = require "std.base.string"
+local copy, render, split = bstring.copy, bstring.render, bstring.split
 
 
 
@@ -87,25 +88,6 @@ local function getmetamethod (x, n)
 end
 
 
---- Return a List object by splitting version string on periods.
--- @string version a period delimited version string
--- @treturn List a list of version components
-local function version_to_list (version)
-  return require "std.list" (split (version, "%."))
-end
-
-
---- Extract a list of period delimited integer version components.
--- @tparam table module returned from a `require` call
--- @string pattern to capture version number from a string
---   (default: `"([%.%d]+)%D*$"`)
--- @treturn List a list of version components
-local function module_version (module, pattern)
-  local version = module.version or module._VERSION
-  return version_to_list (version:match (pattern or "([%.%d]+)%D*$"))
-end
-
-
 --- Iterator adaptor for discarding first value from core iterator function.
 -- @func factory iterator to be wrapped
 -- @param ... *factory* arguments
@@ -148,13 +130,23 @@ local function eval (s)
 end
 
 
-local function require_version (module, min, too_big, pattern)
-  local m = require (module)
+local function vcompare (a, b)
+  return compare (split (a, "%."), split (b, "%."))
+end
+
+
+local _require = require
+
+local function require (module, min, too_big, pattern)
+  local m = _require (module)
+  local v = (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
-    assert (module_version (m, pattern) >= version_to_list (min))
+    assert (vcompare (v, min) >= 0, "require '" .. module ..
+            "' with at least version " .. min .. ", but found version " .. v)
   end
   if too_big then
-    assert (module_version (m, pattern) < version_to_list (too_big))
+    assert (vcompare (v, too_big) < 0, "require '" .. module ..
+            "' with version less than " .. too_big .. ", but found version " .. v)
   end
   return m
 end
@@ -816,7 +808,7 @@ return setmetatable ({
   ireverse = ireverse,
   pairs    = pairs,
   ripairs  = ripairs,
-  require  = require_version,
+  require  = require,
   tostring = tostring,
 
   -- object.lua --

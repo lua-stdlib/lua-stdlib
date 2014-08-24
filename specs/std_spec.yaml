@@ -417,9 +417,11 @@ specify std:
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
   - it diagnoses module too old:
-      expect (f ("std", "9999", "9999")).to_raise ()
+      expect (f ("std", "9999", "9999")).
+        to_raise "require 'std' with at least version 9999,"
   - it diagnoses module too new:
-      expect (f ("std", "0", "0")).to_raise ()
+      expect (f ("std", "0", "0")).
+        to_raise "require 'std' with version less than 0,"
   - context when the module version is compatible:
     - it returns the module table:
         expect (f ("std", "0", "9999")).to_be (require "std")
@@ -440,16 +442,25 @@ specify std:
     - after:
         std.version = ver
     - it diagnoses module too old:
-        expect (f ("std", "1.2.4")).to_raise ()
-        expect (f ("std", "1.3")).to_raise ()
-        expect (f ("std", "2.1.2")).to_raise ()
-        expect (f ("std", "2")).to_raise ()
-        expect (f ("std", "1.2.10")).to_raise ()
+        expect (f ("std", "1.2.4")).
+          to_raise "require 'std' with at least version 1.2.4,"
+        expect (f ("std", "1.3")).
+          to_raise "require 'std' with at least version 1.3,"
+        expect (f ("std", "2.1.2")).
+          to_raise "require 'std' with at least version 2.1.2,"
+        expect (f ("std", "2")).
+          to_raise "require 'std' with at least version 2,"
+        expect (f ("std", "1.2.10")).
+          to_raise "require 'std' with at least version 1.2.10,"
     - it diagnoses module too new:
-        expect (f ("std", nil, "1.2.2")).to_raise ()
-        expect (f ("std", nil, "1.1")).to_raise ()
-        expect (f ("std", nil, "1.1.2")).to_raise ()
-        expect (f ("std", nil, "1")).to_raise ()
+        expect (f ("std", nil, "1.2.2")).
+          to_raise "require 'std' with version less than 1.2.2,"
+        expect (f ("std", nil, "1.1")).
+          to_raise "require 'std' with version less than 1.1,"
+        expect (f ("std", nil, "1.1.2")).
+          to_raise "require 'std' with version less than 1.1.2,"
+        expect (f ("std", nil, "1")).
+          to_raise "require 'std' with version less than 1,"
     - it returns modules with version in range:
         expect (f ("std")).to_be (std)
         expect (f ("std", "1")).to_be (std)

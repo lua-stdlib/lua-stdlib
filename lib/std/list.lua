@@ -64,25 +64,7 @@ end
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local function compare (l, m)
-  for i = 1, math.min (#l, #m) do
-    local li, mi = tonumber (l[i]), tonumber (m[i])
-    if li == nil or mi == nil then
-      li, mi = l[i], m[i]
-    end
-    if li < mi then
-      return -1
-    elseif li > mi then
-      return 1
-    end
-  end
-  if #l < #m then
-    return -1
-  elseif #l > #m then
-    return 1
-  end
-  return 0
-end
+local compare = base.list.compare
 
 
 --- Concatenate arguments into a list.

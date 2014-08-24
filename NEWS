@@ -122,6 +122,9 @@ Stdlib NEWS - User visible changes
    All of stdlib's implementation now uses `std.pairs` rather than `pairs`
    internally.
 
+ - `std.require` now give a verbose error message when loaded module does not
+   meet version numbers passed.
+
  - New `std.ripairs` function for returning index & value pairs in
    reverse order, while respecting `__len`.
 
