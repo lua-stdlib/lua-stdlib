@@ -796,8 +796,6 @@ end
 -- @section Metamethods
 
 return setmetatable ({
-  "std.base",
-
   -- std.lua --
   assert   = assert,
   case     = case,
