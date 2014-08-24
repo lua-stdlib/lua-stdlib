@@ -36,13 +36,7 @@ local function len (t)
 end
 
 
---[[ ====================== ]]--
---[[ Documented in std.lua. ]]--
---[[ ====================== ]]--
-
-
 local _pairs = pairs
-
 
 -- Respect __pairs metamethod, even in Lua 5.1.
 local function pairs (t)
@@ -81,13 +75,6 @@ local function ireverse (t)
 end
 
 
-
-
---[[ ======================== ]]--
---[[ Documented in table.lua. ]]--
---[[ ======================== ]]--
-
-
 local function getmetamethod (x, n)
   local _, m = pcall (function (x)
                         return getmetatable (x)[n]
@@ -98,12 +85,6 @@ local function getmetamethod (x, n)
   end
   return m
 end
-
-
-
---[[ ====================== ]]--
---[[ Documented in std.lua. ]]--
---[[ ====================== ]]--
 
 
 --- Return a List object by splitting version string on periods.
