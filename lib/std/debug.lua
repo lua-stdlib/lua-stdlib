@@ -225,8 +225,16 @@ local function arglen (t)
 end
 
 
-local toomanyarg_fmt =
-  "too many arguments to '%s' (no more than %d expected, got %d)"
+--- Format a standard "too many arguments" error message.
+-- @string name function name
+-- @number expect maximum number of arguments accepted
+-- @number actual number of arguments received
+-- @treturn string standard "too many arguments" error message
+local function toomanyargmsg (name, expect, actual)
+  local fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
+  return string.format (fmt, name, expect, actual)
+end
+
 
 local argcheck, argscheck, _export  -- forward declarations
 
@@ -650,7 +658,7 @@ if _ARGCHECK then
       end
 
       if argc > max then
-        error (string.format (toomanyarg_fmt, fqfname or name, max, argc), 2)
+        error (toomanyargmsg (fqfname or name, max, argc), 2)
       end
 
       -- Propagate outer environment to inner function.
@@ -828,7 +836,7 @@ M = {
   argscheck      = argscheck,
   export         = export,
   say            = say,
-  toomanyarg_fmt = toomanyarg_fmt,
+  toomanyargmsg  = toomanyargmsg,
   trace          = trace,
 }
 

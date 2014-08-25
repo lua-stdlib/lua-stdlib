@@ -238,7 +238,7 @@ local M = {
 
 if _ARGCHECK then
 
-  local arglen, toomanyarg_fmt = debug.arglen, debug.toomanyarg_fmt
+  local arglen, toomanyargmsg = debug.arglen, debug.toomanyargmsg
 
   M.__call = function (self, x, ...)
     local mt = getmetatable (self)
@@ -251,7 +251,7 @@ if _ARGCHECK then
       -- it just refers back to the object being called: `Container {"x"}.
       argcheck (name, 1, "table", x)
       if next (argt) then
-        error (string.format (toomanyarg_fmt, name, 1, 1 + arglen (argt)), 2)
+        error (toomanyargmsg (name, 1, 1 + arglen (argt)), 2)
       end
     end
 
