@@ -29,12 +29,9 @@ local function bind (fn, ...)
   if type (argt[1]) == "table" and argt[2] == nil then
     argt = argt[1]
   else
-    if not debug.getcompat (bind) then
-      io.stderr:write (debug.DEPRECATIONMSG ("39",
-                         "multi-argument 'std.functional.bind'",
-                         "use a table of arguments as the second parameter instead", 2))
-      debug.setcompat (bind)
-    end
+    io.stderr:write (debug.DEPRECATIONMSG ("39",
+                       "multi-argument 'std.functional.bind'",
+                       "use a table of arguments as the second parameter instead", 2))
   end
 
   return function (...)

@@ -775,25 +775,32 @@ end
 
 
 --- Format a deprecation warning message.
+-- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+-- if `_DEBUG.compat` is false, warn every time *fn* is called;
+-- otherwise don't write any warnings, and run *fn* normally.
 -- @string version first deprecation release version
 -- @string name function name for automatic warning message
 -- @string[opt] extramsg additional warning text
 -- @int level call stack level to blame for the error
--- @treturn string deprecation warning message
+-- @treturn string deprecation warning message, or empty string
+-- @usage
+-- io.stderr:write ("42", "multi-argument 'module.fname", 2)
 local function DEPRECATIONMSG (version, name, extramsg, level)
   if level == nil then level, extramsg = extramsg, nil end
   extramsg = extramsg or "and will be removed entirely in a future release"
 
   local _, where = pcall (function () error ("", level + 3) end)
-  return (where .. string.format ("%s was deprecated in release %s, %s.\n",
-                                  name, version, extramsg))
+  if not getcompat (name) then
+    setcompat (name)
+    return (where .. string.format ("%s was deprecated in release %s, %s.\n",
+                                    name, tostring (version), extramsg))
+  end
+
+  return ""
 end
 
 
 --- Write a deprecation warning to stderr.
--- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
--- if `_DEBUG.compat` is false, warn every time *fn* is called;
--- otherwise don't write any warnings, and run *fn* normally.
 -- @string version first deprecation release version
 -- @string name function name for automatic warning message
 -- @string[opt] extramsg additional warning text
@@ -804,10 +811,7 @@ local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
   return function (...)
-    if not getcompat (name) then
-      io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-      setcompat (name)
-    end
+    io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
     return fn (...)
   end
 end
@@ -823,9 +827,7 @@ M = {
   arglen         = arglen,
   argscheck      = argscheck,
   export         = export,
-  getcompat      = getcompat,
   say            = say,
-  setcompat      = setcompat,
   toomanyarg_fmt = toomanyarg_fmt,
   trace          = trace,
 }
