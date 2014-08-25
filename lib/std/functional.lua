@@ -9,6 +9,7 @@
 
 
 local base     = require "std.base"
+local debug    = require "std.debug"
 local operator = require "std.operator"
 
 local ipairs, ireverse, len, pairs =
@@ -28,11 +29,11 @@ local function bind (fn, ...)
   if type (argt[1]) == "table" and argt[2] == nil then
     argt = argt[1]
   else
-    if not base.getcompat (bind) then
-      io.stderr:write (base.DEPRECATIONMSG ("39",
+    if not debug.getcompat (bind) then
+      io.stderr:write (debug.DEPRECATIONMSG ("39",
                          "multi-argument 'std.functional.bind'",
                          "use a table of arguments as the second parameter instead", 2))
-      base.setcompat (bind)
+      debug.setcompat (bind)
     end
   end
 
@@ -443,7 +444,7 @@ end
 -- @function nop
 -- @usage
 -- if unsupported then vtable["memrmem"] = nop end
-local function nop () end
+local nop = base.nop
 
 
 --- Zip a table of tables.
@@ -489,7 +490,7 @@ local function zip_with (fn, tt)
 end
 
 
-local export = base.export
+local export = debug.export
 
 --- @export
 local M = {
@@ -523,7 +524,7 @@ M.op = operator  -- for backwards compatibility
 --[[ ============= ]]--
 
 
-local DEPRECATED = base.DEPRECATED
+local DEPRECATED = debug.DEPRECATED
 
 
 M.eval = DEPRECATED ("41", "'std.functional.eval'",

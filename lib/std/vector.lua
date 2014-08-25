@@ -36,13 +36,14 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 local have_alien, alien = pcall (require, "alien")
 local base      = require "std.base"
 local container = require "std.container"
+local debug     = require "std.debug"
 
 local Container = container {}
 
 local typeof = type
 
 local argcheck, argscheck, pairs, prototype =
-  base.argcheck, base.argscheck, base.pairs, base.prototype
+  debug.argcheck, debug.argscheck, base.pairs, base.prototype
 
 
 --[[ ================= ]]--

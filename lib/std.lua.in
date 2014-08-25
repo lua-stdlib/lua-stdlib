@@ -244,7 +244,7 @@ end
 -- @table std
 -- @field version release version string
 
-local export = base.export
+local export = require "std.debug".export
 
 M = {
   assert        = export "assert   (any?, string?, any?*)",

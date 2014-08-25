@@ -12,6 +12,7 @@
 
 
 local base           = require "std.base"
+local debug          = require "std.debug"
 local catfile        = require "std.io".catfile
 local invert         = require "std.table".invert
 local escape_pattern = require "std.string".escape_pattern
@@ -177,7 +178,7 @@ local function remove (pathstrings, pos)
 end
 
 
-local export = base.export
+local export = debug.export
 
 --- @export
 M = {

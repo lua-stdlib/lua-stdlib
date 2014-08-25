@@ -13,9 +13,13 @@ Stdlib NEWS - User visible changes
  - New `debug.argscheck` function for checking all function parameter
    types with a single function call in the common case.
 
- - New `_DEBUG.argcheck` field that disables `debug.argcheck` (and
-   `debug.argscheck`) for production code.  Similarly `_DEBUG = false`
-   disables those functions too.
+ - New `debug.export` function, which returns a wrapper function for
+   checking all arguments of an inner function against a type list.
+
+ - New `_DEBUG.argcheck` field that disables `debug.argcheck`,
+   `debug.argscheck` and changes `debug.export` to return its function
+   argument unwrapped, for production code.  Similarly `_DEBUG = false`
+   deactivates these functions in the same way.
 
  - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types

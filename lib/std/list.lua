@@ -27,6 +27,7 @@
 
 
 local base    = require "std.base"
+local debug   = require "std.debug"
 local func    = require "std.functional"
 local object  = require "std.object"
 
@@ -138,7 +139,7 @@ local function tail (l)
 end
 
 
-local export = base.export
+local export = debug.export
 
 --- @export
 local M = {
@@ -162,7 +163,7 @@ local M = {
 -- object constructor at the end of this file.
 
 
-local DEPRECATED = base.DEPRECATED
+local DEPRECATED = debug.DEPRECATED
 
 
 local function depair (ls)

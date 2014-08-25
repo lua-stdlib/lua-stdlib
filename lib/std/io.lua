@@ -11,14 +11,15 @@
 ]]
 
 
-local base = require "std.base"
+local base  = require "std.base"
+local debug = require "std.debug"
 
 local package = {
   dirsep  = string.match (package.config, "^([^\n]+)\n"),
 }
 
 local ipairs, pairs = base.ipairs, base.pairs
-local argerror = base.argerror
+local argerror = debug.argerror
 local leaves   = base.tree.leaves
 local split    = base.split
 
@@ -256,7 +257,7 @@ local function die (...)
 end
 
 
-local export = base.export
+local export = debug.export
 
 --- @export
 M = {

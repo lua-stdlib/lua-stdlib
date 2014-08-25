@@ -11,7 +11,8 @@
 ]]
 
 
-local base = require "std.base"
+local base  = require "std.base"
+local debug = require "std.debug"
 
 local collect       = base.functional.collect
 local leaves        = base.tree.leaves
@@ -373,7 +374,7 @@ local function values (t)
 end
 
 
-local export        = base.export
+local export = debug.export
 
 --- @export
 M = {
@@ -404,7 +405,7 @@ M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = base.DEPRECATED
+local DEPRECATED = debug.DEPRECATED
 
 M.clone_rename = DEPRECATED ("39", "'std.table.clone_rename'",
   "use the new `map` argument to 'std.table.clone' instead",

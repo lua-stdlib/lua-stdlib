@@ -29,10 +29,13 @@
 ]]
 
 
-local _DEBUG     = require "std.debug_init"._DEBUG
+local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
-local tostring   = base.tostring
+local _ARGCHECK  = debug_init._ARGCHECK
+local _DEBUG     = debug_init._DEBUG
+local callable   = base.functional.callable
+local split, tostring = base.string.split, base.tostring
 
 local M
 
@@ -50,6 +53,63 @@ local M
 --   any other value disables deprecation warnings altogether
 -- @tfield[opt=1] int level debugging level
 -- @usage _DEBUG = { argcheck = false, level = 9 }
+
+
+--- Extend `debug.setfenv` to unwrap functables correctly.
+-- @function setfenv
+-- @tparam function|functable fn target function
+-- @tparam table env new function environment
+-- @treturn function *fn*
+
+local _setfenv = debug.setfenv
+
+local function setfenv (fn, env)
+  -- Unwrap functable:
+  if type (fn) == "table" then
+    fn = fn.call or (getmetatable (fn) or {}).__call
+  end
+
+  if _setfenv then
+    return _setfenv (fn, env)
+
+  else
+    -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+    local name
+    local up = 0
+    repeat
+      up = up + 1
+      name = debug.getupvalue (fn, up)
+    until name == '_ENV' or name == nil
+    if name then
+      debug.upvaluejoin (fn, up, function () return name end, 1)
+      debug.setupvalue (fn, up, env)
+    end
+
+    return fn
+  end
+end
+
+
+--- Extend `debug.getfenv` to unwrap functables correctly.
+-- @function getfenv
+-- @tparam int|function|functable fn target function, or stack level
+-- @treturn table environment of *fn*
+local getfenv = getfenv or function (fn)
+  -- Unwrap functable:
+  if type (fn) == "table" then
+    fn = fn.call or (getmetatable (fn) or {}).__call
+  elseif type (fn) == "number" then
+    fn = debug.getinfo (fn + 1, "f").func
+  end
+
+  local name, env
+  local up = 0
+  repeat
+    up = up + 1
+    name, env = debug.getupvalue (fn, up)
+  until name == '_ENV' or name == nil
+  return env
+end
 
 
 --- Print a debugging message to `io.stderr`.
@@ -81,8 +141,6 @@ local function say (n, ...)
 end
 
 
-local level = 0
-
 --- Trace function calls.
 -- Use as debug.sethook (trace, "cr"), which is done automatically
 -- when `_DEBUG.call` is set.
@@ -92,6 +150,9 @@ local level = 0
 -- @usage
 -- _DEBUG = { call = true }
 -- local debug = require "std.debug"
+
+local level = 0
+
 local function trace (event)
   local t = debug.getinfo (3)
   local s = " >>> "
@@ -140,103 +201,633 @@ end
 --   local h, err = input_handle (file)
 --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
 --   ...
-local argerror = base.argerror
-
---[[
- Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
- and this function has to count stack frames correctly and so breaks in
- that case.  After 5.1 support is dropped, we can enable the
- following:
-
-export (M, "argerror (string, int, string?, int?)", base.argerror)
-]]
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad argument #%d to '%s'", i, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
+end
 
 
---- Check the type of an argument against expected types.
--- Equivalent to luaL_argcheck in the Lua C API.
---
--- Call `argerror` if there is a type mismatch.
---
--- Argument `actual` must match one of the types from in `expected`, each
--- of which can be the name of a primitive Lua type, a stdlib object type,
--- or one of the special options below:
---
---    #table    accept any non-empty table
---    any       accept any non-nil argument type
---    file      accept an open file object
---    function  accept a function, or object with a __call metamethod
---    int       accept an integer valued number
---    list      accept a table where all keys are a contiguous 1-based integer range
---    #list     accept any non-empty list
---    object    accept any std.Object derived type
---    :foo      accept only the exact string ":foo", works for any :-prefixed string
---
--- The `:foo` format allows for type-checking of self-documenting
--- boolean-like constant string parameters predicated on `nil` versus
--- `:option` instead of `false` versus `true`.  Or you could support
--- both:
---
---    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
---
--- A very common pattern is to have a list of possible types including
--- "nil" when the argument is optional.  Rather than writing long-hand
--- as above, append a question mark to at least one of the list types
--- and omit the explicit "nil" entry:
---
---    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
---
--- Normally, you should not need to use the `level` parameter, as the
--- default is to blame the caller of the function using `argcheck` in
--- error messages; which is almost certainly what you want.
--- @function argcheck
--- @string name function to blame in error message
--- @int i argument number to blame in error message
--- @string expected specification for acceptable argument types
--- @param actual argument passed
--- @int[opt=2] level call stack level to blame for the error
+--- Argument list length.
+-- Like #table, but does not stop at the first nil value.
+-- @tparam table t a table
+-- @treturn int largest integer key in *t*
+-- @usage tmax = arglen (t)
+local function arglen (t)
+  local len = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > len then len = k end
+  end
+  return len
+end
+
+
+local toomanyarg_fmt =
+  "too many arguments to '%s' (no more than %d expected, got %d)"
+
+local argcheck, argscheck, _export  -- forward declarations
+
+if _ARGCHECK then
+
+  local copy, prototype = base.string.copy, base.prototype
+
+  --- Concatenate a table of strings using ", " and " or " delimiters.
+  -- @tparam table alternatives a table of strings
+  -- @treturn string string of elements from alternatives delimited by ", "
+  --   and " or "
+  local function concat (alternatives)
+    if #alternatives > 1 then
+      local t = copy (alternatives)
+      local top = table.remove (t)
+      t[#t] = t[#t] .. " or " .. top
+      alternatives = t
+    end
+    return table.concat (alternatives, ", ")
+  end
+
+
+  --- Normalize a list of type names.
+  -- @tparam table t list of type names, trailing "?" as required
+  -- @treturn table a new list with "?" stripped, "nil" appended if so,
+  --   and with duplicates stripped.
+  local function normalize (t)
+    local i, r, add_nil = 1, {}, false
+    for _, v in ipairs (t) do
+      local m = v:match "^(.+)%?$"
+      if m then
+        add_nil = true
+        r[m] = r[m] or i
+        i = i + 1
+      elseif v then
+        r[v] = r[v] or i
+        i = i + 1
+      end
+    end
+    if add_nil then
+      r["nil"] = r["nil"] or i
+    end
+
+    -- Invert the return table.
+    local t = {}
+    for v, i in pairs (r) do t[i] = v end
+    return t
+  end
+
+
+  --- Ordered iterator for integer keyed values.
+  -- Like ipairs, but does not stop at the first nil value.
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table t
+  -- @usage
+  -- for i,v in argpairs {"one", nil, "three"} do print (i, v) end
+  local function argpairs (t)
+    local i, max = 0, 0
+    for k in pairs (t) do
+      if type (k) == "number" and k > max then max = k end
+    end
+    return function (t)
+	    i = i + 1
+	    if i <= max then return i, t[i] end
+	   end,
+    t, true
+  end
+
+
+  --- Merge |-delimited type-specs, omitting duplicates.
+  -- @string ... type-specs
+  -- @treturn table list of merged and normalized type-specs
+  local function merge (...)
+    local i, t = 1, {}
+    for _, v in argpairs {...} do
+      v:gsub ("([^|]+)", function (m) t[i] = m; i = i + 1 end)
+    end
+    return normalize (t)
+  end
+
+
+  --- Calculate permutations of type lists with and without [optionals].
+  -- @tparam table types a list of expected types by argument position
+  -- @treturn table set of possible type lists
+  local function permutations (types)
+    local p, sentinel = {{}}, {"optional arg"}
+    for i, v in ipairs (types) do
+      -- Remove sentinels before appending `v` to each list.
+      for _, v in ipairs (p) do
+        if v[#v] == sentinel then table.remove (v) end
+      end
+
+      local opt = v:match "%[(.+)%]"
+      if opt == nil then
+        -- Append non-optional type-spec to each permutation.
+        for b = 1, #p do table.insert (p[b], v) end
+      else
+        -- Duplicate all existing permutations, and add optional type-spec
+        -- to the unduplicated permutations.
+        local o = #p
+        for b = 1, o do
+          p[b + o] = copy (p[b])
+	  table.insert (p[b], opt)
+        end
+
+        -- Leave a marker for optional argument in final position.
+        for _, v in ipairs (p) do
+	  table.insert (v, sentinel)
+        end
+      end
+    end
+
+    -- Replace sentinels with "nil".
+    for i, v in ipairs (p) do
+      if v[#v] == sentinel then
+        table.remove (v)
+        if #v > 0 then
+          v[#v] = v[#v] .. "|nil"
+        else
+	  v[1] = "nil"
+        end
+      end
+    end
+
+    return p
+  end
+
+
+  --- Return index of the first mismatch between types and args, or `nil`.
+  -- @tparam table types a list of expected types by argument position
+  -- @tparam table args a table of arguments to compare
+  -- @tparam boolean allargs whether to match all arguments
+  -- @treturn int|nil position of first mismatch in *types*
+  local function match (types, args, allargs)
+    local typec, argc = #types, arglen (args)
+    for i = 1, typec do
+      local ok = pcall (argcheck, "pcall", i, types[i], args[i])
+      if not ok then return i end
+    end
+    if allargs then
+      for i = typec + 1, argc do
+        local ok = pcall (argcheck, name, i, types[typec], args[i])
+        if not ok then return i end
+      end
+    end
+  end
+
+
+  --- Format a type mismatch error.
+  -- @tparam table expectedtypes a table of matchable types
+  -- @string actual the actual argument to match with
+  -- @number[opt] index erroring container element index
+  -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
+  local function formaterror (expectedtypes, actual, index)
+    local actualtype = prototype (actual)
+
+    -- Tidy up actual type for display.
+    if actualtype == "nil" then
+      actualtype = "no value"
+    elseif actualtype == "string" and actual:sub (1, 1) == ":" then
+      actualtype = actual
+    elseif type (actual) == "table" and next (actual) == nil then
+      local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
+      if actualtype == "table" and matchstr == ",#list," then
+        actualtype = "empty list"
+      elseif actualtype == "table" or matchstr:match ",#" then
+        actualtype = "empty " .. actualtype
+      end
+    end
+
+    if index then
+      actualtype = actualtype .. " at index " .. tostring (index)
+    end
+
+    -- Tidy up expected types for display.
+    local expectedstr = expectedtypes
+    if type (expectedtypes) == "table" then
+      local t = {}
+      for i, v in ipairs (expectedtypes) do
+        if v == "func" then
+          t[i] = "function"
+        elseif v == "any" then
+          t[i] = "any value"
+        elseif not index then
+          t[i] = v:match "(%S+) of %S+" or v
+        else
+          t[i] = v
+        end
+      end
+      expectedstr = concat (t):
+                    gsub ("#table", "non-empty table"):
+	            gsub ("#list", "non-empty list"):
+                    gsub ("(%S+ of %S+)", "%1s"):
+		    gsub ("(%S+ of %S+)ss", "%1s")
+    end
+
+    return expectedstr .. " expected, got " .. actualtype
+  end
+
+
+  --- Compare *check* against type of *actual*
+  -- @string check extended type name expected
+  -- @param actual object being typechecked
+  -- @treturn boolean `true` if *actual* is of type *check*, otherwise
+  --   `false`
+  local function checktype (check, actual)
+    local actualtype = prototype (actual)
+    if check == "#table" then
+      if actualtype == "table" and next (actual) then
+        return true
+      end
+
+    elseif check == "any" then
+      if actual ~= nil then
+        return true
+      end
+
+    elseif check == "file" then
+      if io.type (actual) == "file" then
+        return true
+      end
+
+    elseif check == "function" or check == "func" then
+      if actualtype == "function" or
+          (getmetatable (actual) or {}).__call ~= nil
+      then
+         return true
+      end
+
+    elseif check == "int" then
+      if actualtype == "number" and actual == math.floor (actual) then
+        return true
+      end
+
+    elseif check == "list" or check == "#list" then
+      if actualtype == "table" or actualtype == "List" then
+        local len, count = #actual, 0
+        local i = next (actual)
+        repeat
+	  if i ~= nil then count = count + 1 end
+          i = next (actual, i)
+        until i == nil or count > len
+        if count == len and (check == "list" or count > 0) then
+          return true
+        end
+      end
+
+    elseif check == "object" then
+      if actualtype ~= "table" and type (actual) == "table" then
+        return true
+      end
+
+    elseif type (check) == "string" and check:sub (1, 1) == ":" then
+      if check == actual then
+        return true
+      end
+
+    elseif check == actualtype then
+      return true
+    end
+
+    return false
+  end
+
+
+  --- Check the type of an argument against expected types.
+  -- Equivalent to luaL_argcheck in the Lua C API.
+  --
+  -- Call `argerror` if there is a type mismatch.
+  --
+  -- Argument `actual` must match one of the types from in `expected`, each
+  -- of which can be the name of a primitive Lua type, a stdlib object type,
+  -- or one of the special options below:
+  --
+  --    #table    accept any non-empty table
+  --    any       accept any non-nil argument type
+  --    file      accept an open file object
+  --    function  accept a function, or object with a __call metamethod
+  --    int       accept an integer valued number
+  --    list      accept a table where all keys are a contiguous 1-based integer range
+  --    #list     accept any non-empty list
+  --    object    accept any std.Object derived type
+  --    :foo      accept only the exact string ":foo", works for any :-prefixed string
+  --
+  -- The `:foo` format allows for type-checking of self-documenting
+  -- boolean-like constant string parameters predicated on `nil` versus
+  -- `:option` instead of `false` versus `true`.  Or you could support
+  -- both:
+  --
+  --    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
+  --
+  -- A very common pattern is to have a list of possible types including
+  -- "nil" when the argument is optional.  Rather than writing long-hand
+  -- as above, append a question mark to at least one of the list types
+  -- and omit the explicit "nil" entry:
+  --
+  --    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+  --
+  -- Normally, you should not need to use the `level` parameter, as the
+  -- default is to blame the caller of the function using `argcheck` in
+  -- error messages; which is almost certainly what you want.
+  -- @function argcheck
+  -- @string name function to blame in error message
+  -- @int i argument number to blame in error message
+  -- @string expected specification for acceptable argument types
+  -- @param actual argument passed
+  -- @int[opt=2] level call stack level to blame for the error
+  -- @usage
+  -- local function case (with, branches)
+  --   argcheck ("std.functional.case", 2, "#table", branches)
+  --   ...
+  function argcheck (name, i, expected, actual, level)
+    level = level or 2
+    expected = normalize (split (expected, "|"))
+
+    -- Check actual has one of the types from expected
+    local ok = false
+    for _, expect in ipairs (expected) do
+      local check, contents = expect:match "^(%S+) of (%S-)s?$"
+      check = check or expect
+
+      -- Does the type of actual check out?
+      ok = checktype (check, actual)
+
+      -- For "table of things", check all elements are a thing too.
+      if ok and contents and type (actual) == "table" then
+        for k, v in pairs (actual) do
+          if not checktype (contents, v) then
+            argerror (name, i, formaterror (expected, v, k), level + 1)
+          end
+        end
+      end
+      if ok then break end
+    end
+
+    if not ok then
+      argerror (name, i, formaterror (expected, actual), level + 1)
+    end
+  end
+
+
+  --- Check that all arguments match specified types.
+  -- @function argscheck
+  -- @string name function to blame in error message
+  -- @tparam table expected a list of acceptable argument types
+  -- @tparam table actual table of argument values
+  -- @usage
+  -- local function curry (f, n)
+  --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
+  --   ...
+  function argscheck (name, expected, actual)
+    if type (expected) ~= "table" then expected = {expected} end
+    if type (actual) ~= "table" then actual = {actual} end
+
+    for i, v in ipairs (expected) do
+      argcheck (name, i, expected[i], actual[i], 3)
+    end
+  end
+
+
+  function _export (inner, name, fqfname, types)
+    -- If the final element of types ends with "*", then set max to a
+    -- sentinel value to denote type-checking of *all* remaining
+    -- unchecked arguments against that type-spec is required.
+    local max, fin = #types, (types[#types] or ""):match "^(.+)%*$"
+    if fin then
+      max = math.huge
+      types[#types] = fin
+    end
+
+    -- For optional arguments wrapped in square brackets, make sure
+    -- type-specs allow for passing or omitting an argument of that
+    -- type.
+    local typec, type_specs = #types, permutations (types)
+
+    return function (...)
+      local args = {...}
+      local argc, bestmismatch, at = arglen (args), 0, 0
+
+      for i, types in ipairs (type_specs) do
+        local mismatch = match (types, args, max == math.huge)
+        if mismatch == nil then
+	  bestmismatch = nil
+          break -- every argument matched its type-spec
+	end
+
+	if mismatch > bestmismatch then bestmismatch, at = mismatch, i end
+      end
+
+      if bestmismatch ~= nil then
+        -- Report an error for all possible types at bestmismatch index.
+	local expected
+	if max == math.huge and bestmismatch >= typec then
+          expected = normalize (split (types[typec], "|"))
+	else
+	  local tables = {}
+	  for i, types in ipairs (type_specs) do
+            if types[bestmismatch] then
+              tables[#tables + 1] = types[bestmismatch]
+	    end
+	  end
+	  expected = merge (unpack (tables))
+	end
+	local i = bestmismatch
+
+	-- For "table of things", check all elements are a thing too.
+	if types[i] then
+	  local check, contents = types[i]:match "^(%S+) of (%S-)s?$"
+	  if contents and type (args[i]) == "table" then
+	    for k, v in pairs (args[i]) do
+	      if not checktype (contents, v) then
+	        argerror (fqfname or name, i, formaterror (expected, v, k), 2)
+	      end
+	    end
+	  end
+        end
+
+	-- Otherwise the argument type itself was mismatched.
+	argerror (fqfname or name, i, formaterror (expected, args[i]), 2)
+      end
+
+      if argc > max then
+        error (string.format (toomanyarg_fmt, fqfname or name, max, argc), 2)
+      end
+
+      -- Propagate outer environment to inner function.
+      setfenv (inner, getfenv (1))
+
+      return inner (...)
+    end
+  end
+
+else
+
+  -- Turn off argument checking if _DEBUG is false, or a table containing
+  -- a false valued `argcheck` field.
+
+  argcheck  = base.nop
+  argscheck = base.nop
+
+  _export   = function (inner) return inner end
+
+end
+
+
+local dirsep, pathsep, path_mark = package.config:match "^(%S+)\n(%S+)\n(%S+)\n"
+local pathpatt, markpatt = "[^" .. pathsep .. "]+", path_mark:gsub ("%p", "%%%0")
+
+local function whatpath (name, src)
+  local r
+  package.path:gsub (pathpatt, function (s)
+    local substituted = s:gsub (markpatt, (name:gsub ("%.", dirsep)))
+    if substituted == src then r = name end
+  end)
+  return r
+end
+
+
+local function getinfo (what, level)
+  local fqfname, s, fn
+
+  for i = 1, math.huge do
+    s, fn = debug.getlocal (level + 1, i)
+
+    if s == nil then
+      break
+
+    elseif s == what or fn == what then
+      local t, src = {}, debug.getinfo (callable (fn), "S").source:gsub ("^@(.*)$", "%1")
+      src:gsub ("/([^/]+)", function (m) t[#t + 1] = m:gsub ("%.lua", "") end)
+
+      local tryme
+      for i = #t, 1, -1 do
+        tryme = tryme and (t[i] .. "." .. tryme) or t[i]
+        if whatpath (tryme, src) then
+          fqfname = (tryme .. "." .. s):gsub ("^(std%.)base%.", "%1")
+          break
+        end
+      end
+      break
+
+    end
+  end
+
+  return fqfname, fn
+end
+
+
+--- Export a function definition, optionally with argument type checking.
+-- In addition to checking that each argument type matches the corresponding
+-- element in the *types* table with `argcheck`, if the final element of
+-- *types* ends with an asterisk, remaining unchecked arguments are checked
+-- against that type.
+-- @string[opt] mname module name (default: looked up with *decl*)
+-- @string decl function type declaration string
 -- @usage
--- local function case (with, branches)
---   argcheck ("std.functional.case", 2, "#table", branches)
---   ...
-local argcheck = base.argcheck
+-- M.round = export "round (number, int?)"
+local function export (mname, decl)
+  if decl == nil then mname, decl = nil, mname end
 
---[[
- Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
- and this function has to count stack frames correctly and so breaks in
- that case.  After 5.1 support is dropped, we can enable the
- following:
+  -- Parse "fname (argtype, argtype, argtype...)".
+  local name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
+  if types == "" then
+    types = {}
+  elseif types then
+    types = split (types, ",%s+")
+  else
+    name = decl:match "([%w_][%d%w_]*)"
+  end
+  local fqfname, inner = getinfo (name, 2)
 
-export (M, "argcheck (string, int, string, any?, int?)", base.argcheck)
-]]
+  -- Trust the user *mname* argument, if given.
+  if mname then
+    fqfname = mname .. "." .. name
+  end
 
---- Check that all arguments match specified types.
--- @function argscheck
--- @string name function to blame in error message
--- @tparam table expected a list of acceptable argument types
--- @tparam table actual table of argument values
--- @usage
--- local function curry (f, n)
---   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
---   ...
-local argscheck = base.argscheck
+  return _export (inner, name, fqfname, types)
+end
 
---[[
- Puc-Rio Lua 5.1 messes up tail-call elimination in the argcheck wrapper,
- and this function has to count stack frames correctly and so breaks in
- that case.  After 5.1 support is dropped, we can enable the
- following:
 
-export (M, "argscheck (string, #list, table)", base.argscheck)
-]]
+-- Whether to show a deprecation warning the next time a give key is set.
+local compat = {}
+
+
+--- Determine whether *key* will show a deprecation warning on next access.
+-- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+-- if `_DEBUG.compat` is false, warn every time *fn* is called;
+-- otherwise don't write any warnings, and run *fn* normally.
+-- @param key unique identifier for a deprecated API.
+local function setcompat (key)
+  compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
+end
+
+
+--- Get the deprecation warning status for *key*.
+-- @param key unique identifier for a deprecated API.
+-- @treturn boolean whether to show a deprecation warning.
+local function getcompat (key)
+  if compat[key] == nil then
+    -- Whether to warn on first access.
+    compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
+  end
+  return compat[key]
+end
+
+
+--- Format a deprecation warning message.
+-- @string version first deprecation release version
+-- @string name function name for automatic warning message
+-- @string[opt] extramsg additional warning text
+-- @int level call stack level to blame for the error
+-- @treturn string deprecation warning message
+local function DEPRECATIONMSG (version, name, extramsg, level)
+  if level == nil then level, extramsg = extramsg, nil end
+  extramsg = extramsg or "and will be removed entirely in a future release"
+
+  local _, where = pcall (function () error ("", level + 3) end)
+  return (where .. string.format ("%s was deprecated in release %s, %s.\n",
+                                  name, version, extramsg))
+end
+
+
+--- Write a deprecation warning to stderr.
+-- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+-- if `_DEBUG.compat` is false, warn every time *fn* is called;
+-- otherwise don't write any warnings, and run *fn* normally.
+-- @string version first deprecation release version
+-- @string name function name for automatic warning message
+-- @string[opt] extramsg additional warning text
+-- @func fn deprecated function
+-- @return a function to show the warning on first call, and hand off to *fn*
+-- @usage funcname = deprecate (function (...) ... end, "funcname")
+local function DEPRECATED (version, name, extramsg, fn)
+  if fn == nil then fn, extramsg = extramsg, nil end
+
+  return function (...)
+    if not getcompat (name) then
+      io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
+      setcompat (name)
+    end
+    return fn (...)
+  end
+end
+
 
 
 --- @export
 M = {
-  argcheck   = argcheck,
-  argerror   = argerror,
-  argscheck  = argscheck,
-  say        = say,
-  trace      = trace,
+  DEPRECATED     = DEPRECATED,
+  DEPRECATIONMSG = DEPRECATIONMSG,
+  argcheck       = argcheck,
+  argerror       = argerror,
+  arglen         = arglen,
+  argscheck      = argscheck,
+  export         = export,
+  getcompat      = getcompat,
+  say            = say,
+  setcompat      = setcompat,
+  toomanyarg_fmt = toomanyarg_fmt,
+  trace          = trace,
 }
 
 

@@ -67,11 +67,12 @@
 
 local _ARGCHECK = require "std.debug_init"._ARGCHECK
 
-local base = require "std.base"
+local base  = require "std.base"
+local debug = require "std.debug"
 
 local ipairs, pairs = base.ipairs, base.pairs
 local prototype = base.prototype
-local argcheck, export = base.argcheck, base.export
+local argcheck, export = debug.argcheck, debug.export
 
 
 
@@ -237,7 +238,7 @@ local M = {
 
 if _ARGCHECK then
 
-  local arglen, toomanyarg_fmt = base.arglen, base.toomanyarg_fmt
+  local arglen, toomanyarg_fmt = debug.arglen, debug.toomanyarg_fmt
 
   M.__call = function (self, x, ...)
     local mt = getmetatable (self)

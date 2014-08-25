@@ -59,7 +59,7 @@ local function round (n, p)
 end
 
 
-local export = require "std.base".export
+local export = require "std.debug".export
 
 --- @export
 M = {

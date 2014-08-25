@@ -11,6 +11,7 @@
 ]]
 
 local base   = require "std.base"
+local debug  = require "std.debug"
 local strbuf = require "std.strbuf"
 local table  = require "std.table"
 
@@ -491,7 +492,7 @@ local function pickle (x)
 end
 
 
-local export = base.export
+local export = debug.export
 
 --- @export
 M = {
@@ -525,7 +526,7 @@ M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = base.DEPRECATED
+local DEPRECATED = debug.DEPRECATED
 
 
 M.assert = DEPRECATED ("41", "'std.string.assert'",
