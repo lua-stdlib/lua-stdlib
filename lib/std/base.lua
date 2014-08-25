@@ -24,7 +24,6 @@
 
 
 local callable = require "std.base.functional".callable
-local compare  = require "std.base.list".compare
 local bstring  = require "std.base.string"
 local copy, render, split = bstring.copy, bstring.render, bstring.split
 
@@ -122,6 +121,27 @@ end
 local function assert (expect, f, arg1, ...)
   local msg = (arg1 ~= nil) and string.format (f, arg1, ...) or f or ""
   return expect or error (msg, 2)
+end
+
+
+local function compare (l, m)
+  for i = 1, math.min (#l, #m) do
+    local li, mi = tonumber (l[i]), tonumber (m[i])
+    if li == nil or mi == nil then
+      li, mi = l[i], m[i]
+    end
+    if li < mi then
+      return -1
+    elseif li > mi then
+      return 1
+    end
+  end
+  if #l < #m then
+    return -1
+  elseif #l > #m then
+    return 1
+  end
+  return 0
 end
 
 
@@ -629,13 +649,13 @@ end
 -- element in the *types* table with `argcheck`, if the final element of
 -- *types* ends with an asterisk, remaining unchecked arguments are checked
 -- against that type.
--- @function export
--- @tparam table M module table
+-- @string[opt] mname module name (default: looked up with *decl*)
 -- @string decl function type declaration string
--- @func fn value to store at *name* in *M*
 -- @usage
 -- export (M, "round (number, int?)", std.math.round)
-local function export (decl, ...)
+local function export (mname, decl)
+  if decl == nil then mname, decl = nil, mname end
+
   -- Parse "fname (argtype, argtype, argtype...)".
   local name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
   if types == "" then
@@ -646,6 +666,11 @@ local function export (decl, ...)
     name = decl:match "([%w_][%d%w_]*)"
   end
   local fqfname, inner = getinfo (name, 2)
+
+  -- Trust the user *mname* argument, if given.
+  if mname then
+    fqfname = mname .. "." .. name
+  end
 
   local fn = inner
 
@@ -808,6 +833,9 @@ return setmetatable ({
   ripairs  = ripairs,
   require  = require,
   tostring = tostring,
+
+  -- list.lua --
+  compare = compare,
 
   -- object.lua --
   prototype = prototype,

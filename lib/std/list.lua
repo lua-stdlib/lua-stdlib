@@ -64,7 +64,7 @@ end
 -- @tparam table m another list
 -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
 --   if `l` is greater than `m`
-local compare = base.list.compare
+local compare = base.compare
 
 
 --- Concatenate arguments into a list.
@@ -143,7 +143,7 @@ local export = base.export
 --- @export
 local M = {
   append  = export "append  (List, any)",
-  compare = export "compare (List, List|table)",
+  compare = export ("std.list", "compare (List, List|table)"),
   concat  = export "concat  (List, List|table*)",
   cons    = export "cons    (List, any)",
   rep     = export "rep     (List, int)",
