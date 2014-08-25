@@ -563,6 +563,11 @@ specify std.debug:
         table.concat (require "std.functional".map (mkwrap, {...}), ", "))
       end
 
+      f = M.say
+
+  - it uses stdlib tostring:
+      expect (luaproc [[require "std.debug".say {"debugging"}]]).
+        to_contain_error (require "std".tostring {"debugging"})
   - context when _DEBUG is disabled:
     - it does nothing when message level is not set:
         expect (luaproc (mksay (false, "nothing to see here"))).

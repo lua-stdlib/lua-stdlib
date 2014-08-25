@@ -30,37 +30,12 @@
 
 
 local _DEBUG     = require "std.debug_init"._DEBUG
-
 local base       = require "std.base"
-local functional = require "std.functional"
-local string     = require "std.string"
 
-local ielems = base.ielems
+local tostring   = base.tostring
 
 local M
 
-
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
---- Stringify a list of objects, then tabulate the resulting list of strings.
--- @tparam table list of elements
--- @treturn string tab delimited string
--- @usage s = tabify {...}
-local tabify = functional.compose (
-        -- map (elementfn, iterfn, unnbound_table_arg)
-        functional.bind (functional.map, {string.tostring, ielems}),
-        -- table.concat (unbound_strbuf_table, "\t")
-        functional.bind (table.concat, {[2] = "\t"}))
-
-
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
 
 
 --- Control std.debug function behaviour.
@@ -78,7 +53,7 @@ local tabify = functional.compose (
 
 
 --- Print a debugging message to `io.stderr`.
--- Display arguments passed through `std.string.tostring` and separated by tab
+-- Display arguments passed through `std.tostring` and separated by tab
 -- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
 -- is a number greater than or equal to *n*.  If `_DEBUG` is false or
 -- nil, nothing is written.
@@ -99,7 +74,9 @@ local function say (n, ...)
     ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
       _DEBUG.level >= level)
        or level <= 1) then
-    io.stderr:write (tabify (arg) .. "\n")
+    local t = {}
+    for k, v in pairs (arg) do t[k] = tostring (v) end
+    io.stderr:write (table.concat (t, "\t") .. "\n")
   end
 end
 
@@ -117,7 +94,8 @@ local level = 0
 -- local debug = require "std.debug"
 local function trace (event)
   local t = debug.getinfo (3)
-  local s = " >>> " .. string.rep (" ", level)
+  local s = " >>> "
+  for i = 1, level do s = s .. " " end
   if t ~= nil and t.currentline >= 0 then
     s = s .. t.short_src .. ":" .. t.currentline .. " "
   end
