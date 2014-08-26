@@ -14,8 +14,8 @@
 local base  = require "std.base"
 local debug = require "std.debug"
 
-local collect       = base.functional.collect
-local leaves        = base.tree.leaves
+local collect       = base.collect
+local leaves        = base.leaves
 local ielems, ipairs, pairs = base.ielems, base.ipairs, base.pairs
 
 

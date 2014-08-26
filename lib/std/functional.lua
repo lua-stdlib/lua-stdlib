@@ -14,8 +14,7 @@ local operator = require "std.operator"
 
 local ipairs, ireverse, len, pairs =
   base.ipairs, base.ireverse, base.len, base.pairs
-local callable, reduce =
-  base.functional.callable, base.functional.reduce
+local callable, reduce = base.callable, base.reduce
 
 
 local function bind (fn, ...)
@@ -311,7 +310,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any*)", base.functional.collect),
+  collect = X ("collect ([func], any*)", base.collect),
 
   --- Compose functions.
   -- @function compose

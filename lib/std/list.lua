@@ -191,7 +191,7 @@ end
 
 local function flatten (l)
   local r = List {}
-  for v in base.tree.leaves (ipairs, l) do
+  for v in base.leaves (ipairs, l) do
     r[#r + 1] = v
   end
   return r
@@ -204,7 +204,7 @@ local function foldl (fn, d, t)
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
-  return base.functional.reduce (fn, d, ipairs, t)
+  return base.reduce (fn, d, ipairs, t)
 end
 
 
@@ -214,7 +214,7 @@ local function foldr (fn, d, t)
     for i = 1, last - 1 do u[#u + 1] = d[i] end
     d, t = d[last], u
   end
-  return base.functional.reduce (
+  return base.reduce (
     function (x, y) return fn (y, x) end, d, ipairs, base.ireverse (t))
 end
 

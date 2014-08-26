@@ -82,14 +82,6 @@ dist_luastd_DATA =			\
 	lib/std/vector.lua		\
 	$(NOTHING_ELSE)
 
-luastdbasedir = $(luastddir)/base
-
-dist_luastdbase_DATA =			\
-	lib/std/base/functional.lua	\
-	lib/std/base/string.lua		\
-	lib/std/base/tree.lua		\
-	$(NOTHING_ELSE)
-
 # For bugwards compatibility with LuaRocks 2.1, while ensuring that
 # `require "std.debug_init"` continues to work, we have to install
 # the former `$(luadir)/std/debug_init.lua` to `debug_init/init.lua`.

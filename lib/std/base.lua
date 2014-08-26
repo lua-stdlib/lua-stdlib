@@ -23,16 +23,31 @@
 ]]
 
 
-local callable = require "std.base.functional".callable
-local bstring  = require "std.base.string"
-local copy, render, split = bstring.copy, bstring.render, bstring.split
-
-
-
 local function len (t)
   -- Lua < 5.2 doesn't call `__len` automatically!
   local m = (getmetatable (t) or {}).__len
   return m and m (t) or #t
+end
+
+
+local function copy (t)
+  local new = {}
+  for k, v in pairs (t) do new[k] = v end
+  return new
+end
+
+
+local function leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
 end
 
 
@@ -150,6 +165,19 @@ local function eval (s)
 end
 
 
+local function split (s, sep)
+  sep = sep or "%s+"
+  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
+  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
+  while b <= len do
+    local e, n, m = string.find (s, patt, b + 1)
+    t[#t + 1] = m or s:sub (b + 1, len)
+    b = n or len + 1
+  end
+  return t
+end
+
+
 local function vcompare (a, b)
   return compare (split (a, "%."), split (b, "%."))
 end
@@ -172,6 +200,60 @@ local function require (module, min, too_big, pattern)
 end
 
 
+-- Write pretty-printing based on:
+--
+--   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
+--
+--   Based on "The Design of a Pretty-printing Library in Advanced
+--   Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
+--   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
+--   Heavily modified by Simon Peyton Jones, Dec 96
+--
+--   Haskell types:
+--   data Doc     list of lines
+--   quote :: Char -> Char -> Doc -> Doc    Wrap document in ...
+--   (<>) :: Doc -> Doc -> Doc              Beside
+--   (<+>) :: Doc -> Doc -> Doc             Beside, separated by space
+--   ($$) :: Doc -> Doc -> Doc              Above; if there is no overlap it "dovetails" the two
+--   nest :: Int -> Doc -> Doc              Nested
+--   punctuate :: Doc -> [Doc] -> [Doc]     punctuate p [d1, ... dn] = [d1 <> p, d2 <> p, ... dn-1 <> p, dn]
+--   render      :: Int                     Line length
+--               -> Float                   Ribbons per line
+--               -> (TextDetails -> a -> a) What to do with text
+--               -> a                       What to do at the end
+--               -> Doc                     The document
+--               -> a                       Result
+
+local function render (x, open, close, elem, pair, sep, roots)
+  local function stop_roots (x)
+    return roots[x] or render (x, open, close, elem, pair, sep, copy (roots))
+  end
+  roots = roots or {}
+  if type (x) ~= "table" or type ((getmetatable (x) or {}).__tostring) == "function" then
+    return elem (x)
+  else
+    local s = {}
+    s[#s + 1] =  open (x)
+    roots[x] = elem (x)
+
+    -- create a sorted list of keys
+    local ord = {}
+    for k, _ in pairs (x) do ord[#ord + 1] = k end
+    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
+
+    -- render x elements in order
+    local i, v = nil, nil
+    for _, j in ipairs (ord) do
+      local w = x[j]
+      s[#s + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
+      i, v = j, w
+    end
+    s[#s + 1] = sep (x, i, v, nil, nil) .. close (x)
+    return table.concat (s)
+  end
+end
+
+
 local _tostring = _G.tostring
 
 local function tostring (x)
@@ -185,20 +267,53 @@ end
 
 
 
---[[ ========================= ]]--
---[[ Documented in object.lua. ]]--
---[[ ========================= ]]--
-
-
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 
 
---- Metamethods
--- @section Metamethods
+local function callable (x)
+  if type (x) == "function" then
+    return x
+  else
+    x = (getmetatable (x) or {}).__call
+    if type (x) == "function" then
+      return x
+    end
+  end
+end
 
-return setmetatable ({
+
+local function collect (ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = ipairs, {ifn, ...}
+  end
+
+  local r = {}
+  for k, v in ifn (unpack (argt)) do
+    if v == nil then k, v = #r + 1, k end
+    r[k] = v
+  end
+  return r
+end
+
+
+local function reduce (fn, d, ifn, ...)
+  local nextfn, state, k = ifn (...)
+  local t = {nextfn (state, k)}
+
+  local r = d
+  while t[1] ~= nil do
+    r = fn (r, t[#t])
+    t = {nextfn (state, t[1])}
+  end
+  return r
+end
+
+
+return {
+  copy = copy,
   len = len,
 
   -- std.lua --
@@ -215,7 +330,10 @@ return setmetatable ({
   tostring = tostring,
 
   -- functional.lua --
-  nop = function () end,
+  callable = callable,
+  collect  = collect,
+  nop      = function () end,
+  reduce   = reduce,
 
   -- list.lua --
   compare = compare,
@@ -230,23 +348,7 @@ return setmetatable ({
   -- table.lua --
   getmetamethod = getmetamethod,
 
-}, {
+  -- tree.lua --
+  leaves = leaves,
 
-  --- Lazy loading of shared base modules.
-  -- Don't load everything on initial startup, wait until first attempt
-  -- to access a submodule, and then load it on demand.
-  -- @function __index
-  -- @string name submodule name
-  -- @treturn table|nil the submodule that was loaded to satisfy the missing
-  --   `name`, otherwise `nil` if nothing was found
-  -- @usage
-  -- local base    = require "base"
-  -- local memoize = base.functional.memoize
-  __index = function (self, name)
-              local ok, t = pcall (require, "std.base." .. name)
-              if ok then
-		rawset (self, name, t)
-		return t
-	      end
-	    end,
-})
+}

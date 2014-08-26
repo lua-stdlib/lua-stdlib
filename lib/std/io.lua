@@ -16,7 +16,7 @@ local debug = require "std.debug"
 
 local ipairs, pairs = base.ipairs, base.pairs
 local argerror = debug.argerror
-local leaves   = base.tree.leaves
+local leaves   = base.leaves
 local split    = base.split
 
 local dirsep = string.match (package.config, "^(%S+)\n")

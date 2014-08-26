@@ -34,8 +34,8 @@ local base       = require "std.base"
 
 local _ARGCHECK  = debug_init._ARGCHECK
 local _DEBUG     = debug_init._DEBUG
-local callable   = base.functional.callable
-local split, tostring = base.string.split, base.tostring
+local callable   = base.callable
+local split, tostring = base.split, base.tostring
 
 local M
 
@@ -240,7 +240,7 @@ local argcheck, argscheck, export  -- forward declarations
 
 if _ARGCHECK then
 
-  local copy, prototype = base.string.copy, base.prototype
+  local copy, prototype = base.copy, base.prototype
 
   --- Concatenate a table of strings using ", " and " or " delimiters.
   -- @tparam table alternatives a table of strings
