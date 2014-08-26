@@ -42,8 +42,8 @@ local Container = container {}
 
 local typeof = type
 
-local argcheck, argscheck, pairs, prototype =
-  debug.argcheck, debug.argscheck, base.pairs, base.prototype
+local argcheck, pairs, prototype =
+  debug.argcheck, base.pairs, base.prototype
 
 
 --[[ ================= ]]--
@@ -104,7 +104,7 @@ local core_functions = {
   --- Remove the right-most element.
   -- @function pop
   -- @return the right-most element
-  -- @usage removed = anvector:pop ()
+  -- @usage removed = avector:pop ()
   pop = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer)
@@ -115,7 +115,7 @@ local core_functions = {
   -- @function push
   -- @param elem new element to be pushed
   -- @return elem
-  -- @usage added = anvector:push (anelement)
+  -- @usage added = avector:push (anelement)
   push = function (self, elem)
     local length = self.length + 1
     self.buffer[length] = elem
@@ -128,7 +128,7 @@ local core_functions = {
   -- @function realloc
   -- @int n the number of elements required
   -- @treturn std.vector the vector
-  -- @usage anvector = anvector:realloc (anvector.length)
+  -- @usage avector = avector:realloc (avector.length)
   realloc = function (self, n)
     argcheck ("realloc", 2, "int", n)
 
@@ -148,10 +148,11 @@ local core_functions = {
   -- @param v value to store
   -- @int n number of elements to set
   -- @treturn std.vector the vector
-  -- @usage anvector:realloc (anvector.length):set (1, -1, anvector.length)
+  -- @usage avector:realloc (avector.length):set (1, -1, avector.length)
   set = function (self, from, v, n)
-    argscheck ("set", {"Vector", "int", "any", "int"},
-               {self, from, v, n})
+    argcheck ("set", 2, "int", from)
+    argcheck ("set", 3, "any", v)
+    argcheck ("set", 4, "int", n)
 
     local length = self.length
     if from < 0 then from = from + length + 1 end
@@ -169,7 +170,7 @@ local core_functions = {
   -- This makes the vector 1 element shorter than it was before the shift.
   -- @function shift
   -- @return the removed element.
-  -- @usage removed = anvector:shift ()
+  -- @usage removed = avector:shift ()
   shift = function (self)
     self.length = math.max (self.length - 1, 0)
     return table.remove (self.buffer, 1)
@@ -180,7 +181,7 @@ local core_functions = {
   -- @function unshift
   -- @param elem new element to be pushed
   -- @treturn elem
-  -- @usage added = anvector:unshift (anelement)
+  -- @usage added = avector:unshift (anelement)
   unshift = function (self, elem)
     self.length = self.length + 1
     table.insert (self.buffer, 1, elem)
@@ -300,7 +301,7 @@ core_metatable = {
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
   -- @treturn string the element at index `n`
-  -- @usage rightmost = anvector[anvector.length]
+  -- @usage rightmost = avector[avector.length]
   __index = function (self, n)
     argcheck ("__index", 2, "int|string", n)
 
@@ -320,7 +321,7 @@ core_metatable = {
   -- @int n 1-based index
   -- @param elem value to store at index n
   -- @treturn std.vector the vector
-  -- @usage anvector[1] = newvalue
+  -- @usage avector[1] = newvalue
   __newindex = function (self, n, elem)
     argcheck ("__newindex", 2, "int",  n)
 
@@ -345,7 +346,7 @@ core_metatable = {
   -- `vector.length` if you care about portability.
   -- @function __len
   -- @treturn int number of elements
-  -- @usage length = #anvector
+  -- @usage length = #avector
   __len = function (self)
     argcheck ("__len", 1, "Vector", self)
 
@@ -356,7 +357,7 @@ core_metatable = {
   --- Return a string representation of the contents of this vector.
   -- @function __tostring
   -- @treturn string string representation
-  -- @usage print (anvector)
+  -- @usage print (avector)
   __tostring = function (self)
     argcheck ("__tostring", 1, "Vector", self)
 
@@ -424,8 +425,9 @@ local alien_functions = {
 
 
   set = function (self, from, v, n)
-    argscheck ("set", {"Vector", "int", "number", "int"},
-               {self, from, v, n})
+    argcheck ("set", 2, "int", from)
+    argcheck ("set", 3, "number", v)
+    argcheck ("set", 4, "int", n)
 
     local used = self.length
     if from < 0 then from = from + used + 1 end
