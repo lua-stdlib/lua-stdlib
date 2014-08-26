@@ -525,9 +525,6 @@ local M = {
 }
 
 
-M.op = operator  -- for backwards compatibility
-
-
 
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
@@ -544,6 +541,24 @@ M.eval = DEPRECATED ("41", "'std.functional.eval'",
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", reduce)
 
+
+local function DEPRECATEOP (t, k)
+  return DEPRECATED ("41", "'std.functional.op[" .. k .. "]'",
+    "use 'std.functional.operator[" .. k .. "]' instead", t[k])
+end
+
+M.op = {
+  ["[]"]  = DEPRECATEOP (operator, "[]"),
+  ["+"]   = DEPRECATEOP (operator, "+"),
+  ["-"]   = DEPRECATEOP (operator, "-"),
+  ["*"]   = DEPRECATEOP (operator, "*"),
+  ["/"]   = DEPRECATEOP (operator, "/"),
+  ["and"] = DEPRECATEOP (operator, "and"),
+  ["or"]  = DEPRECATEOP (operator, "or"),
+  ["not"] = DEPRECATEOP (operator, "not"),
+  ["=="]  = DEPRECATEOP (operator, "=="),
+  ["~="]  = DEPRECATEOP (operator, "~="),
+}
 
 return M
 

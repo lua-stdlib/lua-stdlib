@@ -16,10 +16,10 @@ Stdlib NEWS - User visible changes
  - New `debug.export` function, which returns a wrapper function for
    checking all arguments of an inner function against a type list.
 
- - New `_DEBUG.argcheck` field that disables `debug.argcheck`,
-   `debug.argscheck` and changes `debug.export` to return its function
-   argument unwrapped, for production code.  Similarly `_DEBUG = false`
-   deactivates these functions in the same way.
+ - New `_DEBUG.argcheck` field that disables `debug.argcheck`, and
+   changes `debug.argscheck` to return its function argument unwrapped,
+   for production code.  Similarly `_DEBUG = false` deactivates these
+   functions in the same way.
 
  - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types
@@ -155,6 +155,9 @@ Stdlib NEWS - User visible changes
 
  - `functional.fold` has been renamed to `functional.reduce`, the old
    name now gives a deprecation warning.
+
+ - `functional.op` has been moved to a new `std.operator` module, the
+   old name now gives a deprecation warning.
 
  - `list.depair` and `list.enpair` have been moved to `table.depair` and
    `table.enpair`, the old names now give deprecation warnings.

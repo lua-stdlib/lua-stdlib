@@ -266,6 +266,7 @@ specify std.functional:
 
 - describe fold:
   - before:
+      op = require "std.operator"
       f = M.fold
 
   - it writes a deprecation warning on first call:
@@ -275,21 +276,22 @@ specify std.functional:
         not_to_contain_error "was deprecated"
 
   - it works with an empty table:
-      expect (f (M.op["+"], 2, ipairs, {})).to_be (2)
+      expect (f (op["+"], 2, ipairs, {})).to_be (2)
   - it calls a binary function over single return value iterator results:
-      expect (f (M.op["+"], 2, base.ielems, {3})).
+      expect (f (op["+"], 2, base.ielems, {3})).
         to_be (2 + 3)
-      expect (f (M.op["*"], 2, base.ielems, {3, 4})).
+      expect (f (op["*"], 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it calls a binary function over key:value iterator results:
-      expect (f (M.op["+"], 2, ipairs, {3})).to_be (2 + 3)
-      expect (f (M.op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+      expect (f (op["+"], 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldl:
   - before:
+      op = require "std.operator"
       f, badarg = init (M, this_module,  "foldl")
 
   - it diagnoses missing arguments:
@@ -303,17 +305,18 @@ specify std.functional:
       expect (f (f, 42, {}, false)).to_raise (badarg (4))
 
   - it works with an empty table:
-      expect (f (M.op["+"], 10000, {})).to_be (10000)
+      expect (f (op["+"], 10000, {})).to_be (10000)
   - it folds a binary function through a table:
-      expect (f (M.op["+"], 10000, {1, 10, 100})).to_be (10111)
+      expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
   - it folds from left to right:
-      expect (f (M.op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it supports eliding init argument:
-      expect (f (M.op["^"], {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op["^"], {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldr:
   - before:
+      op = require "std.operator"
       f, badarg = init (M, this_module,  "foldr")
 
   - it diagnoses missing arguments:
@@ -327,13 +330,13 @@ specify std.functional:
       expect (f (f, 42, {}, false)).to_raise (badarg (4))
 
   - it works with an empty table:
-      expect (f (M.op["+"], 1, {})).to_be (1)
+      expect (f (op["+"], 1, {})).to_be (1)
   - it folds a binary function through a table:
-      expect (f (M.op["+"], {10000, 100, 10, 1})).to_be (10111)
+      expect (f (op["+"], {10000, 100, 10, 1})).to_be (10111)
   - it folds from right to left:
-      expect (f (M.op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
+      expect (f (op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
   - it supports eliding init argument:
-      expect (f (M.op["/"], {10000, 100, 10})).to_be (10000 / (100 / 10))
+      expect (f (op["/"], {10000, 100, 10})).to_be (10000 / (100 / 10))
 
 
 - describe id:
@@ -513,8 +516,172 @@ specify std.functional:
       expect (f (1, "two", false)).to_be (nil)
 
 
+- describe op:
+  - context with []:
+    - before:
+        f = M.op["[]"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {{2}, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {{2}, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it dereferences a table:
+        expect (f ({}, 1)).to_be (nil)
+        expect (f ({"foo", "bar"}, 1)).to_be "foo"
+        expect (f ({foo = "bar"}, "foo")).to_be "bar"
+
+  - context with +:
+    - before:
+        f = M.op["+"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the sum of its arguments:
+        expect (f (99, 2)).to_be (99 + 2)
+
+  - context with -:
+    - before:
+        f = M.op["-"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the difference of its arguments:
+        expect (f (99, 2)).to_be (99 - 2)
+
+  - context with *:
+    - before:
+        f = M.op["*"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the product of its arguments:
+        expect (f (99, 2)).to_be (99 * 2)
+
+  - context with /:
+    - before:
+        f = M.op["/"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the quotient of its arguments:
+        expect (f (99, 2)).to_be (99 / 2)
+
+  - context with and:
+    - before:
+        f = M.op["and"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {true, false})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {true, false})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical and of its arguments:
+        expect (f (false, false)).to_be (false)
+        expect (f (false, true)).to_be (false)
+        expect (f (true, false)).to_be (false)
+        expect (f (true, true)).to_be (true)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (nil)
+        expect (f (0)).to_be (nil)
+        expect (f (nil, 0)).to_be (nil)
+        expect (f (0, "false")).to_be ("false")
+
+  - context with or:
+    - before:
+        f = M.op["or"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {true, false})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {true, false})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical or of its arguments:
+        expect (f (false, false)).to_be (false)
+        expect (f (false, true)).to_be (true)
+        expect (f (true, false)).to_be (true)
+        expect (f (true, true)).to_be (true)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (nil)
+        expect (f (0)).to_be (0)
+        expect (f (nil, 0)).to_be (0)
+        expect (f (0, "false")).to_be (0)
+
+  - context with not:
+    - before:
+        f = M.op["not"]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {true})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {true})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical not of its argument:
+        expect (f (false)).to_be (true)
+        expect (f (true)).to_be (false)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (true)
+        expect (f (0)).to_be (false)
+
+  - context with ==:
+    - before:
+        f = M.op["=="]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns true if the arguments are equal:
+        expect (f ()).to_be (true)
+        expect (f ("foo", "foo")).to_be (true)
+    - it returns false if the arguments are unequal:
+        expect (f (1)).to_be (false)
+        expect (f ("foo", "bar")).to_be (false)
+
+  - context with ~=:
+    - before:
+        f = M.op["~="]
+
+    - it writes a deprecation warning on first call:
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns false if the arguments are equal:
+        expect (f (1, 1)).to_be (false)
+        expect (f ("foo", "foo")).to_be (false)
+    - it returns true if the arguments are unequal:
+        expect (f (1, 2)).to_be (true)
+        expect (f ("foo", "bar")).to_be (true)
+        expect (f ({}, {})).to_be (true)
+
+
 - describe reduce:
   - before:
+      op = require "std.operator"
       f, badarg = init (M, this_module,  "reduce")
 
   - it diagnoses missing arguments:
@@ -526,17 +693,17 @@ specify std.functional:
       expect (f (f, 1, false)).to_raise (badarg (3, "function", "boolean"))
 
   - it works with an empty table:
-      expect (f (M.op["+"], 2, ipairs, {})).to_be (2)
+      expect (f (op["+"], 2, ipairs, {})).to_be (2)
   - it calls a binary function over single return value iterator results:
-      expect (f (M.op["+"], 2, base.ielems, {3})).
+      expect (f (op["+"], 2, base.ielems, {3})).
         to_be (2 + 3)
-      expect (f (M.op["*"], 2, base.ielems, {3, 4})).
+      expect (f (op["*"], 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it calls a binary function over key:value iterator results:
-      expect (f (M.op["+"], 2, ipairs, {3})).to_be (2 + 3)
-      expect (f (M.op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+      expect (f (op["+"], 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it reduces elements from left to right:
-      expect (f (M.op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe zip:
