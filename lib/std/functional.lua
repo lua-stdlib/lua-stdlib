@@ -299,9 +299,7 @@ end
 -- local fast = memoize (function (...) --[[ slow code ]] end)
 local function memoize (fn, normalize)
   if normalize == nil then
-    -- Call require here, to avoid pulling in all of 'std.string'
-    -- even when memoize is never called.
-    normalize = function (...) return require "std.base".tostring {...} end
+    normalize = function (...) return base.tostring {...} end
   end
 
   return setmetatable ({}, {
