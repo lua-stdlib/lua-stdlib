@@ -41,18 +41,46 @@ local M
 
 
 
---- Control std.debug function behaviour.
--- To activate debugging set _DEBUG either to any true value
--- (equivalent to {level = 1}), or as documented below.
--- @class table
--- @name _DEBUG
--- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
--- @tfield[opt=false] boolean call do call trace debugging
--- @field[opt=nil] compat if `false`, always complain whenever a deprecated
---   api is called; if `nil` complain on first use of each deprecated api;
---   any other value disables deprecation warnings altogether
--- @tfield[opt=1] int level debugging level
--- @usage _DEBUG = { argcheck = false, level = 9 }
+--- Determine whether *key* will show a deprecation warning on next access.
+local compat = {}
+
+local function setcompat (key)
+  compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
+end
+
+
+local function getcompat (key)
+  if compat[key] == nil then
+    -- Whether to warn on first access.
+    compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
+  end
+  return compat[key]
+end
+
+
+local function DEPRECATIONMSG (version, name, extramsg, level)
+  if level == nil then level, extramsg = extramsg, nil end
+  extramsg = extramsg or "and will be removed entirely in a future release"
+
+  local _, where = pcall (function () error ("", level + 3) end)
+  if not getcompat (name) then
+    setcompat (name)
+    return (where .. string.format ("%s was deprecated in release %s, %s.\n",
+                                    name, tostring (version), extramsg))
+  end
+
+  return ""
+end
+
+
+local function DEPRECATED (version, name, extramsg, fn)
+  if fn == nil then fn, extramsg = extramsg, nil end
+
+  return function (...)
+    io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
+    return fn (...)
+  end
+end
 
 
 --- Extend `debug.setfenv` to unwrap functables correctly.
@@ -110,94 +138,6 @@ local getfenv = getfenv or function (fn)
 end
 
 
---- Print a debugging message to `io.stderr`.
--- Display arguments passed through `std.tostring` and separated by tab
--- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
--- is a number greater than or equal to *n*.  If `_DEBUG` is false or
--- nil, nothing is written.
--- @int[opt=1] n debugging level, smaller is higher priority
--- @param ... objects to print (as for print)
--- @usage
--- local _DEBUG = require "std.debug_init"._DEBUG
--- _DEBUG.level = 3
--- say (2, "_DEBUG table contents:", _DEBUG)
-local function say (n, ...)
-  local level = 1
-  local arg = {n, ...}
-  if type (arg[1]) == "number" then
-    level = arg[1]
-    table.remove (arg, 1)
-  end
-  if _DEBUG and
-    ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
-      _DEBUG.level >= level)
-       or level <= 1) then
-    local t = {}
-    for k, v in pairs (arg) do t[k] = tostring (v) end
-    io.stderr:write (table.concat (t, "\t") .. "\n")
-  end
-end
-
-
---- Trace function calls.
--- Use as debug.sethook (trace, "cr"), which is done automatically
--- when `_DEBUG.call` is set.
--- Based on test/trace-calls.lua from the Lua distribution.
--- @function trace
--- @string event event causing the call
--- @usage
--- _DEBUG = { call = true }
--- local debug = require "std.debug"
-
-local level = 0
-
-local function trace (event)
-  local t = debug.getinfo (3)
-  local s = " >>> "
-  for i = 1, level do s = s .. " " end
-  if t ~= nil and t.currentline >= 0 then
-    s = s .. t.short_src .. ":" .. t.currentline .. " "
-  end
-  t = debug.getinfo (2)
-  if event == "call" then
-    level = level + 1
-  else
-    level = math.max (level - 1, 0)
-  end
-  if t.what == "main" then
-    if event == "call" then
-      s = s .. "begin " .. t.short_src
-    else
-      s = s .. "end " .. t.short_src
-    end
-  elseif t.what == "Lua" then
-    s = s .. event .. " " .. (t.name or "(Lua)") .. " <" ..
-      t.linedefined .. ":" .. t.short_src .. ">"
-  else
-    s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
-  end
-  io.stderr:write (s .. "\n")
-end
-
--- Set hooks according to _DEBUG
-if type (_DEBUG) == "table" and _DEBUG.call then
-  debug.sethook (trace, "cr")
-end
-
-
---- Raise a bad argument error.
--- Equivalent to luaL_argerror in the Lua C API. This function does not
--- return.  The `level` argument behaves just like the core `error`
--- function.
--- @string name function to callout in error message
--- @int i argument number
--- @string[opt] extramsg additional text to append to message inside parentheses
--- @int[opt=1] level call stack level to blame for the error
--- @usage
--- local function slurp (file)
---   local h, err = input_handle (file)
---   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
---   ...
 local function argerror (name, i, extramsg, level)
   level = level or 1
   local s = string.format ("bad argument #%d to '%s'", i, name)
@@ -208,11 +148,6 @@ local function argerror (name, i, extramsg, level)
 end
 
 
---- Argument list length.
--- Like #table, but does not stop at the first nil value.
--- @tparam table t a table
--- @treturn int largest integer key in *t*
--- @usage tmax = arglen (t)
 local function arglen (t)
   local len = 0
   for k in pairs (t) do
@@ -222,11 +157,6 @@ local function arglen (t)
 end
 
 
---- Format a standard "too many arguments" error message.
--- @string name function name
--- @number expect maximum number of arguments accepted
--- @number actual number of arguments received
--- @treturn string standard "too many arguments" error message
 local function toomanyargmsg (name, expect, actual)
   local fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
   return string.format (fmt, name, expect, actual)
@@ -498,51 +428,6 @@ if _ARGCHECK then
   end
 
 
-  --- Check the type of an argument against expected types.
-  -- Equivalent to luaL_argcheck in the Lua C API.
-  --
-  -- Call `argerror` if there is a type mismatch.
-  --
-  -- Argument `actual` must match one of the types from in `expected`, each
-  -- of which can be the name of a primitive Lua type, a stdlib object type,
-  -- or one of the special options below:
-  --
-  --    #table    accept any non-empty table
-  --    any       accept any non-nil argument type
-  --    file      accept an open file object
-  --    function  accept a function, or object with a __call metamethod
-  --    int       accept an integer valued number
-  --    list      accept a table where all keys are a contiguous 1-based integer range
-  --    #list     accept any non-empty list
-  --    object    accept any std.Object derived type
-  --    :foo      accept only the exact string ":foo", works for any :-prefixed string
-  --
-  -- The `:foo` format allows for type-checking of self-documenting
-  -- boolean-like constant string parameters predicated on `nil` versus
-  -- `:option` instead of `false` versus `true`.  Or you could support
-  -- both:
-  --
-  --    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
-  --
-  -- A very common pattern is to have a list of possible types including
-  -- "nil" when the argument is optional.  Rather than writing long-hand
-  -- as above, append a question mark to at least one of the list types
-  -- and omit the explicit "nil" entry:
-  --
-  --    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
-  --
-  -- Normally, you should not need to use the `level` parameter, as the
-  -- default is to blame the caller of the function using `argcheck` in
-  -- error messages; which is almost certainly what you want.
-  -- @string name function to blame in error message
-  -- @int i argument number to blame in error message
-  -- @string expected specification for acceptable argument types
-  -- @param actual argument passed
-  -- @int[opt=2] level call stack level to blame for the error
-  -- @usage
-  -- local function case (with, branches)
-  --   argcheck ("std.functional.case", 2, "#table", branches)
-  --   ...
   function argcheck (name, i, expected, actual, level)
     level = level or 2
     expected = normalize (split (expected, "|"))
@@ -573,15 +458,6 @@ if _ARGCHECK then
   end
 
 
-  --- Wrap a function definition with argument type and arity checking.
-  -- In addition to checking that each argument type matches the corresponding
-  -- element in the *types* table with `argcheck`, if the final element of
-  -- *types* ends with an asterisk, remaining unchecked arguments are checked
-  -- against that type.
-  -- @string decl function type declaration string
-  -- @func inner function to wrap with argument checking
-  -- @usage
-  -- M.square = argscheck ("util.square (number)", function (n) return n * n end)
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
     local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%((.*)%)"
@@ -675,88 +551,207 @@ else
 end
 
 
--- Whether to show a deprecation warning the next time a give key is set.
-local compat = {}
-
-
---- Determine whether *key* will show a deprecation warning on next access.
--- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
--- if `_DEBUG.compat` is false, warn every time *fn* is called;
--- otherwise don't write any warnings, and run *fn* normally.
--- @param key unique identifier for a deprecated API.
-local function setcompat (key)
-  compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
-end
-
-
---- Get the deprecation warning status for *key*.
--- @param key unique identifier for a deprecated API.
--- @treturn boolean whether to show a deprecation warning.
-local function getcompat (key)
-  if compat[key] == nil then
-    -- Whether to warn on first access.
-    compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
+local function say (n, ...)
+  local level = 1
+  local arg = {n, ...}
+  if type (arg[1]) == "number" then
+    level = arg[1]
+    table.remove (arg, 1)
   end
-  return compat[key]
-end
-
-
---- Format a deprecation warning message.
--- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
--- if `_DEBUG.compat` is false, warn every time *fn* is called;
--- otherwise don't write any warnings, and run *fn* normally.
--- @string version first deprecation release version
--- @string name function name for automatic warning message
--- @string[opt] extramsg additional warning text
--- @int level call stack level to blame for the error
--- @treturn string deprecation warning message, or empty string
--- @usage
--- io.stderr:write (DEPRECATIONMSG ("42", "multi-argument 'module.fname'", 2))
-local function DEPRECATIONMSG (version, name, extramsg, level)
-  if level == nil then level, extramsg = extramsg, nil end
-  extramsg = extramsg or "and will be removed entirely in a future release"
-
-  local _, where = pcall (function () error ("", level + 3) end)
-  if not getcompat (name) then
-    setcompat (name)
-    return (where .. string.format ("%s was deprecated in release %s, %s.\n",
-                                    name, tostring (version), extramsg))
-  end
-
-  return ""
-end
-
-
---- Write a deprecation warning to stderr.
--- @string version first deprecation release version
--- @string name function name for automatic warning message
--- @string[opt] extramsg additional warning text
--- @func fn deprecated function
--- @return a function to show the warning on first call, and hand off to *fn*
--- @usage
--- M.op = DEPRECATED ("41", "'std.functional.op'", std.operator)
-local function DEPRECATED (version, name, extramsg, fn)
-  if fn == nil then fn, extramsg = extramsg, nil end
-
-  return function (...)
-    io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-    return fn (...)
+  if _DEBUG and
+    ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
+      _DEBUG.level >= level)
+       or level <= 1) then
+    local t = {}
+    for k, v in pairs (arg) do t[k] = tostring (v) end
+    io.stderr:write (table.concat (t, "\t") .. "\n")
   end
 end
 
 
+local level = 0
 
---- @export
+local function trace (event)
+  local t = debug.getinfo (3)
+  local s = " >>> "
+  for i = 1, level do s = s .. " " end
+  if t ~= nil and t.currentline >= 0 then
+    s = s .. t.short_src .. ":" .. t.currentline .. " "
+  end
+  t = debug.getinfo (2)
+  if event == "call" then
+    level = level + 1
+  else
+    level = math.max (level - 1, 0)
+  end
+  if t.what == "main" then
+    if event == "call" then
+      s = s .. "begin " .. t.short_src
+    else
+      s = s .. "end " .. t.short_src
+    end
+  elseif t.what == "Lua" then
+    s = s .. event .. " " .. (t.name or "(Lua)") .. " <" ..
+      t.linedefined .. ":" .. t.short_src .. ">"
+  else
+    s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
+  end
+  io.stderr:write (s .. "\n")
+end
+
+-- Set hooks according to _DEBUG
+if type (_DEBUG) == "table" and _DEBUG.call then
+  debug.sethook (trace, "cr")
+end
+
+
+
 M = {
-  DEPRECATED     = DEPRECATED,
+  --- Write a deprecation warning to stderr.
+  -- @function DEPRECATED
+  -- @string version first deprecation release version
+  -- @string name function name for automatic warning message
+  -- @string[opt] extramsg additional warning text
+  -- @func fn deprecated function
+  -- @return a function to show the warning on first call, and hand off to *fn*
+  -- @usage
+  -- M.op = DEPRECATED ("41", "'std.functional.op'", std.operator)
+  DEPRECATED = DEPRECATED,
+
+  --- Format a deprecation warning message.
+  -- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
+  -- if `_DEBUG.compat` is false, warn every time *fn* is called;
+  -- otherwise don't write any warnings, and run *fn* normally.
+  -- @function DEPRECATIONMSG
+  -- @string version first deprecation release version
+  -- @string name function name for automatic warning message
+  -- @string[opt] extramsg additional warning text
+  -- @int level call stack level to blame for the error
+  -- @treturn string deprecation warning message, or empty string
+  -- @usage
+  -- io.stderr:write (DEPRECATIONMSG ("42", "multi-argument 'module.fname'", 2))
   DEPRECATIONMSG = DEPRECATIONMSG,
-  argcheck       = argcheck,
-  argerror       = argerror,
-  arglen         = arglen,
-  argscheck      = argscheck,
-  say            = say,
-  toomanyargmsg  = toomanyargmsg,
-  trace          = trace,
+
+  --- Check the type of an argument against expected types.
+  -- Equivalent to luaL_argcheck in the Lua C API.
+  --
+  -- Call `argerror` if there is a type mismatch.
+  --
+  -- Argument `actual` must match one of the types from in `expected`, each
+  -- of which can be the name of a primitive Lua type, a stdlib object type,
+  -- or one of the special options below:
+  --
+  --    #table    accept any non-empty table
+  --    any       accept any non-nil argument type
+  --    file      accept an open file object
+  --    function  accept a function, or object with a __call metamethod
+  --    int       accept an integer valued number
+  --    list      accept a table where all keys are a contiguous 1-based integer range
+  --    #list     accept any non-empty list
+  --    object    accept any std.Object derived type
+  --    :foo      accept only the exact string ":foo", works for any :-prefixed string
+  --
+  -- The `:foo` format allows for type-checking of self-documenting
+  -- boolean-like constant string parameters predicated on `nil` versus
+  -- `:option` instead of `false` versus `true`.  Or you could support
+  -- both:
+  --
+  --    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
+  --
+  -- A very common pattern is to have a list of possible types including
+  -- "nil" when the argument is optional.  Rather than writing long-hand
+  -- as above, append a question mark to at least one of the list types
+  -- and omit the explicit "nil" entry:
+  --
+  --    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+  --
+  -- Normally, you should not need to use the `level` parameter, as the
+  -- default is to blame the caller of the function using `argcheck` in
+  -- error messages; which is almost certainly what you want.
+  -- @function argcheck
+  -- @string name function to blame in error message
+  -- @int i argument number to blame in error message
+  -- @string expected specification for acceptable argument types
+  -- @param actual argument passed
+  -- @int[opt=2] level call stack level to blame for the error
+  -- @usage
+  -- local function case (with, branches)
+  --   argcheck ("std.functional.case", 2, "#table", branches)
+  --   ...
+  argcheck = argcheck,
+
+  --- Raise a bad argument error.
+  -- Equivalent to luaL_argerror in the Lua C API. This function does not
+  -- return.  The `level` argument behaves just like the core `error`
+  -- function.
+  -- @function argerror
+  -- @string name function to callout in error message
+  -- @int i argument number
+  -- @string[opt] extramsg additional text to append to message inside parentheses
+  -- @int[opt=1] level call stack level to blame for the error
+  -- @usage
+  -- local function slurp (file)
+  --   local h, err = input_handle (file)
+  --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+  --   ...
+  argerror = argerror,
+
+  --- Argument list length.
+  -- Like #table, but does not stop at the first nil value.
+  -- @function arglen
+  -- @tparam table t a table
+  -- @treturn int largest integer key in *t*
+  -- @usage tmax = arglen {...}
+  arglen = arglen,
+
+  --- Wrap a function definition with argument type and arity checking.
+  -- In addition to checking that each argument type matches the corresponding
+  -- element in the *types* table with `argcheck`, if the final element of
+  -- *types* ends with an asterisk, remaining unchecked arguments are checked
+  -- against that type.
+  -- @function argscheck
+  -- @string decl function type declaration string
+  -- @func inner function to wrap with argument checking
+  -- @usage
+  -- M.square = argscheck ("util.square (number)", function (n) return n * n end)
+  argscheck = argscheck,
+
+  --- Print a debugging message to `io.stderr`.
+  -- Display arguments passed through `std.tostring` and separated by tab
+  -- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
+  -- is a number greater than or equal to *n*.  If `_DEBUG` is false or
+  -- nil, nothing is written.
+  -- @function say
+  -- @int[opt=1] n debugging level, smaller is higher priority
+  -- @param ... objects to print (as for print)
+  -- @usage
+  -- local _DEBUG = require "std.debug_init"._DEBUG
+  -- _DEBUG.level = 3
+  -- say (2, "_DEBUG table contents:", _DEBUG)
+  say = say,
+
+  --- Format a standard "too many arguments" error message.
+  -- @function toomanyargmsg
+  -- @string name function name
+  -- @number expect maximum number of arguments accepted
+  -- @number actual number of arguments received
+  -- @treturn string standard "too many arguments" error message
+  -- @usage
+  -- if arglen {...} > 1 then
+  --   io.stderr:write ("module.fname", 7, arglen {...})
+  -- ...
+  toomanyargmsg = toomanyargmsg,
+
+  --- Trace function calls.
+  -- Use as debug.sethook (trace, "cr"), which is done automatically
+  -- when `_DEBUG.call` is set.
+  -- Based on test/trace-calls.lua from the Lua distribution.
+  -- @function trace
+  -- @string event event causing the call
+  -- @usage
+  -- _DEBUG = { call = true }
+  -- local debug = require "std.debug"
+  trace = trace,
 }
 
 
@@ -777,3 +772,18 @@ local metatable = {
 }
 
 return setmetatable (M, metatable)
+
+
+
+--- Control std.debug function behaviour.
+-- To activate debugging set _DEBUG either to any true value
+-- (equivalent to {level = 1}), or as documented below.
+-- @class table
+-- @name _DEBUG
+-- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
+-- @tfield[opt=false] boolean call do call trace debugging
+-- @field[opt=nil] compat if `false`, always complain whenever a deprecated
+--   api is called; if `nil` complain on first use of each deprecated api;
+--   any other value disables deprecation warnings altogether
+-- @tfield[opt=1] int level debugging level
+-- @usage _DEBUG = { argcheck = false, level = 9 }
