@@ -128,7 +128,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.io." .. decl, fn)
+  return debug.argscheck ("std.io." .. decl, fn)
 end
 
 

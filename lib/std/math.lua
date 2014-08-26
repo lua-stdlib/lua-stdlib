@@ -48,7 +48,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.math." .. decl, fn)
+  return debug.argscheck ("std.math." .. decl, fn)
 end
 
 

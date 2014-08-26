@@ -217,7 +217,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.table." .. decl, fn)
+  return debug.argscheck ("std.table." .. decl, fn)
 end
 
 M = {

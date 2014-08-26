@@ -232,7 +232,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.container." .. decl, fn)
+  return debug.argscheck ("std.container." .. decl, fn)
 end
 
 local M = {

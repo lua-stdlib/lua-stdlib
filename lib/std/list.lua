@@ -92,7 +92,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.list." .. decl, fn)
+  return debug.argscheck ("std.list." .. decl, fn)
 end
 
 

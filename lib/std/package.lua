@@ -112,7 +112,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.export ("std.package." .. decl, fn)
+  return debug.argscheck ("std.package." .. decl, fn)
 end
 
 M = {

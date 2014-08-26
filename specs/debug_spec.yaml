@@ -4,8 +4,7 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "arglen", "argscheck", "export", "say", "toomanyargmsg",
-                   "trace" }
+                   "arglen", "argscheck", "say", "toomanyargmsg", "trace" }
 
   M = require (this_module)
 
@@ -533,93 +532,6 @@ specify std.debug:
         expect (fn ("#table?|table?", {})).not_to_raise "any error"
 
 
-- describe argscheck:
-  - before: |
-      function fn (...) return M.argscheck ('expect', ...) end
-
-      function mkstack (debugp)
-        return string.format ([[
-          _DEBUG = %s                                               -- line 1
-          local debug = require "std.debug"                         -- line 2
-          function ohnoes (t, n)                                    -- line 3
-            debug.argscheck ("ohnoes", {"table", "number"}, {t, n}) -- line 4
-          end                                                       -- line 5
-          function caller ()                                        -- line 6
-            local r = ohnoes ({}, "not a number")                   -- line 7
-            return "not a tail call"                                -- line 8
-          end                                                       -- line 9
-          caller ()                                                 -- line 10
-        ]], tostring (debugp))
-      end
-
-      f, badarg = init (M, this_module,  "argscheck")
-
-  - it diagnoses missing arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f "foo").to_raise (badarg (2, "non-empty list"))
-      expect (f ("foo", {"bar"})).to_raise (badarg (3, "table"))
-  - it diagnoses wrong argument types:
-      pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("foo", false)).
-        to_raise (badarg (2, "non-empty list", "boolean"))
-      expect (f ("foo", {"bar"}, false)).to_raise (badarg (3, "table", "boolean"))
-  - it diagnoses too many arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f ("foo", {"bar"}, {}, false)).to_raise (badarg (4))
-
-  - it blames the calling function: |
-      expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
-  - it can be disabled by setting _DEBUG to false:
-      expect (luaproc (mkstack (false))).
-        not_to_contain_error "bad argument"
-  - it can be disabled by setting _DEBUG.argcheck to false:
-      expect (luaproc (mkstack ("{ argcheck = false }"))).
-        not_to_contain_error "bad argument"
-  - it is not disabled by setting _DEBUG.argcheck to true:
-      expect (luaproc (mkstack ("{ argcheck = true }"))).
-        to_contain_error "bad argument"
-  - it is not disabled by leaving _DEBUG.argcheck unset:
-      expect (luaproc (mkstack ("{}"))).
-        to_contain_error "bad argument"
-  - context with single argument table:
-    - it diagnoses missing argument:
-        expect (fn ({"boolean"}, {nil})).
-          to_raise "boolean expected, got no value"
-    - it reports the correct missing argument number:
-        expect (fn ({"boolean"}, {nil})).to_raise "#1 "
-    - it diagnoses mismatched argument:
-        expect (fn ({"boolean"}, {"false"})).
-          to_raise "boolean expected, got string"
-    - it reports the correct mismatched argument number:
-        expect (fn ({"boolean"}, {"false"})).to_raise "#1 "
-    - it matches argument type:
-        expect (fn ({"boolean"}, {false})).not_to_raise "any error"
-  - context with multi-argument table:
-    - it diagnoses missing argument:
-        expect (fn ({"boolean", "table"}, {false, nil})).
-          to_raise "table expected, got no value"
-        expect (fn ({"boolean", "table", "string"}, {false, nil, "nil"})).
-          to_raise "table expected, got no value"
-    - it reports the correct missing argument number:
-        expect (fn ({"boolean", "table"}, {false, nil})).to_raise "#2 "
-        expect (fn ({"boolean", "table", "string"}, {false, nil, "nil"})).
-          to_raise "#2 "
-    - it diagnoses mismatched argument:
-        expect (fn ({"boolean", "table"}, {false, "false"})).
-          to_raise "table expected, got string"
-        expect (fn ({"boolean", "table", "string"}, {false, "nil", "nil"})).
-          to_raise "table expected, got string"
-    - it reports the correct mismatched argument number:
-        expect (fn ({"boolean", "table"}, {false, "false"})).to_raise "#2 "
-        expect (fn ({"boolean", "table", "string"}, {false, "nil", "nil"})).
-          to_raise "#2 "
-    - it matches argument type:
-        expect (fn ({"boolean", "table"}, {false, {}})).not_to_raise "any error"
-        expect (fn ({"boolean", "table", "string"}, {false, {}, "{}"})).
-          not_to_raise "any error"
-
-
 - describe debug:
   - before: |
       function mkwrap (k, v)
@@ -658,19 +570,19 @@ specify std.debug:
         to_contain_error "debugging"
 
 
-- describe export:
+- describe argscheck:
   - before: |
       function mkstack (name, spec)
         return string.format ([[
-          local export = require "std.debug".export      -- line 1
-          local function caller ()                       -- line 2
-            export ("%s", function () end)               -- line 3
-          end                                            -- line 4
-          caller ()                                      -- line 5
+          local argscheck = require "std.debug".argscheck -- line 1
+          local function caller ()                        -- line 2
+            argscheck ("%s", function () end)             -- line 3
+          end                                             -- line 4
+          caller ()                                       -- line 5
         ]], tostring (name), tostring (spec))
       end
 
-      f, badarg = init (M, this_module, "export")
+      f, badarg = init (M, this_module, "argscheck")
 
       mkmagic = function () return "MAGIC" end
       wrapped = f ("inner ()", mkmagic)
@@ -682,9 +594,9 @@ specify std.debug:
       script = [[
         _DEBUG = false
         local debug = require "std.debug_init"
-        local export = require "std.debug".export
+        local argscheck = require "std.debug".argscheck
         local function inner () return "MAGIC" end
-        local wrapped = export ("inner (any?)", inner)
+        local wrapped = argscheck ("inner (any?)", inner)
         os.exit (wrapped == inner and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()

@@ -236,7 +236,7 @@ local function toomanyargmsg (name, expect, actual)
 end
 
 
-local argcheck, argscheck, export  -- forward declarations
+local argcheck, argscheck  -- forward declarations
 
 if _ARGCHECK then
 
@@ -577,26 +577,7 @@ if _ARGCHECK then
   end
 
 
-  --- Check that all arguments match specified types.
-  -- @function argscheck
-  -- @string name function to blame in error message
-  -- @tparam table expected a list of acceptable argument types
-  -- @tparam table actual table of argument values
-  -- @usage
-  -- local function curry (f, n)
-  --   argscheck ("std.functional.curry", {"function", "int"}, {f, n})
-  --   ...
-  function argscheck (name, expected, actual)
-    if type (expected) ~= "table" then expected = {expected} end
-    if type (actual) ~= "table" then actual = {actual} end
-
-    for i, v in ipairs (expected) do
-      argcheck (name, i, expected[i], actual[i], 3)
-    end
-  end
-
-
-  --- Export a function definition, optionally with argument type checking.
+  --- Wrap a function definition with argument type and arity checking.
   -- In addition to checking that each argument type matches the corresponding
   -- element in the *types* table with `argcheck`, if the final element of
   -- *types* ends with an asterisk, remaining unchecked arguments are checked
@@ -604,8 +585,8 @@ if _ARGCHECK then
   -- @string decl function type declaration string
   -- @func inner function to wrap with argument checking
   -- @usage
-  -- M.square = export ("util.square (number)", function (n) return n * n end)
-  function export (decl, inner)
+  -- M.square = argscheck ("util.square (number)", function (n) return n * n end)
+  function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
     local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%((.*)%)"
     if types == "" then
@@ -693,9 +674,7 @@ else
   -- a false valued `argcheck` field.
 
   argcheck  = base.nop
-  argscheck = base.nop
-
-  export   = function (decl, inner) return inner end
+  argscheck = function (decl, inner) return inner end
 
 end
 
@@ -778,7 +757,6 @@ M = {
   argerror       = argerror,
   arglen         = arglen,
   argscheck      = argscheck,
-  export         = export,
   say            = say,
   toomanyargmsg  = toomanyargmsg,
   trace          = trace,
