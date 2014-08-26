@@ -56,7 +56,6 @@ local M
 
 
 --- Extend `debug.setfenv` to unwrap functables correctly.
--- @function setfenv
 -- @tparam function|functable fn target function
 -- @tparam table env new function environment
 -- @treturn function *fn*
@@ -91,7 +90,6 @@ end
 
 
 --- Extend `debug.getfenv` to unwrap functables correctly.
--- @function getfenv
 -- @tparam int|function|functable fn target function, or stack level
 -- @treturn table environment of *fn*
 local getfenv = getfenv or function (fn)
@@ -191,7 +189,6 @@ end
 -- Equivalent to luaL_argerror in the Lua C API. This function does not
 -- return.  The `level` argument behaves just like the core `error`
 -- function.
--- @function argerror
 -- @string name function to callout in error message
 -- @int i argument number
 -- @string[opt] extramsg additional text to append to message inside parentheses
@@ -537,7 +534,6 @@ if _ARGCHECK then
   -- Normally, you should not need to use the `level` parameter, as the
   -- default is to blame the caller of the function using `argcheck` in
   -- error messages; which is almost certainly what you want.
-  -- @function argcheck
   -- @string name function to blame in error message
   -- @int i argument number to blame in error message
   -- @string expected specification for acceptable argument types
@@ -715,7 +711,7 @@ end
 -- @int level call stack level to blame for the error
 -- @treturn string deprecation warning message, or empty string
 -- @usage
--- io.stderr:write ("42", "multi-argument 'module.fname", 2)
+-- io.stderr:write (DEPRECATIONMSG ("42", "multi-argument 'module.fname'", 2))
 local function DEPRECATIONMSG (version, name, extramsg, level)
   if level == nil then level, extramsg = extramsg, nil end
   extramsg = extramsg or "and will be removed entirely in a future release"
@@ -737,7 +733,8 @@ end
 -- @string[opt] extramsg additional warning text
 -- @func fn deprecated function
 -- @return a function to show the warning on first call, and hand off to *fn*
--- @usage funcname = deprecate (function (...) ... end, "funcname")
+-- @usage
+-- M.op = DEPRECATED ("41", "'std.functional.op'", std.operator)
 local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
