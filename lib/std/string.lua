@@ -19,59 +19,20 @@ local StrBuf = strbuf {}
 
 local getmetamethod = base.getmetamethod
 local pairs         = base.pairs
+local render        = base.render
 local totable       = table.totable
-
-local _format   = string.format
-local _tostring = base.tostring
 
 local M
 
 
 
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
+local _tostring = base.tostring
 
-
---- Pack return arguments for `tfind`.
--- @int from start of match
--- @int to end of match
--- @param ... captures
--- @treturn int from
--- @treturn int to
--- @treturn table captures
--- @usage return tfind_pack (string.find
-local function tpack (from, to, ...)
-  return from, to, {...}
-end
-
-
-
---[[ ============ ]]--
---[[ Metamethods. ]]--
---[[ ============ ]]--
-
-
---- String concatenation operation.
--- @string s initial string
--- @param o object to stringify and concatenate
--- @return s .. tostring (o)
--- @usage
--- local string = require "std.string".monkey_patch ()
--- concatenated = "foo" .. {"bar"}
 local function __concat (s, o)
   return _tostring (s) .. _tostring (o)
 end
 
 
---- String subscript operation.
--- @string s string
--- @tparam int|string i index or method name
--- @return `s:sub (i, i)` if i is a number, otherwise
---   fall back to a `std.string` metamethod (if any).
--- @usage
--- getmetatable ("").__index = require "std.string".__index
--- third = ("12345")[3]
 local function __index (s, i)
   if type (i) == "number" then
     return s:sub (i, i)
@@ -82,52 +43,22 @@ local function __index (s, i)
 end
 
 
+local _format   = string.format
 
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
-
-
---- Extend to work better with one argument.
--- If only one argument is passed, no formatting is attempted.
--- @function format
--- @string f format string
--- @param[opt] ... arguments to format
--- @return formatted string
--- @usage print (format "100% stdlib!")
 local function format (f, arg1, ...)
   return (arg1 ~= nil) and _format (f, arg1, ...) or f
 end
 
 
---- Do `string.find`, returning a table of captures.
--- @function tfind
--- @string s target string
--- @string pattern pattern to match in *s*
--- @int[opt=1] init start position
--- @bool[opt] plain inhibit magic characters
--- @treturn int start of match
--- @treturn int end of match
--- @treturn table list of captured strings
--- @see std.string.finds
--- @usage b, e, captures = tfind ("the target string", "%s", 10)
+local function tpack (from, to, ...)
+  return from, to, {...}
+end
+
 local function tfind (s, ...)
   return tpack (s:find (...))
 end
 
 
---- Repeatedly `string.find` until target string is exhausted.
--- @function finds
--- @string s target string
--- @string pattern pattern to match in *s*
--- @int[opt=1] init start position
--- @bool[opt] plain inhibit magic characters
--- @return list of `{from, to; capt = {captures}}`
--- @see std.string.tfind
--- @usage
--- for t in std.elems (finds ("the target string", "%S+")) do
---   print (tostring (t.capt))
--- end
 local function finds (s, p, i, ...)
   i = i or 1
   local l = {}
@@ -143,27 +74,6 @@ local function finds (s, p, i, ...)
 end
 
 
---- Split a string at a given separator.
--- Separator is a Lua pattern, so you have to escape active characters,
--- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
--- @function split
--- @string s to split
--- @string[opt="%s+"] sep separator pattern
--- @return list of strings
--- @usage words = split "a very short sentence"
-local split = base.split
-
-
---- Overwrite core methods and metamethods with `std` enhanced versions.
---
--- Adds auto-stringification to `..` operator on core strings, and
--- integer indexing of strings with `[]` dereferencing.
---
--- Also replaces core `tostring` functions with `std.string` version.
--- @function monkey_patch
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table the module table
--- @usage local string = require "std.string".monkey_patch ()
 local function monkey_patch (namespace)
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat
@@ -173,55 +83,21 @@ local function monkey_patch (namespace)
 end
 
 
---- Capitalise each word in a string.
--- @function caps
--- @string s any string
--- @treturn string *s* with each word capitalized
--- @usage userfullname = caps (input_string)
 local function caps (s)
   return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end)
 end
 
 
---- Remove any final newline from a string.
--- @function chomp
--- @string s any string
--- @treturn string *s* with any single trailing newline removed
--- @usage line = chomp (line)
-local function chomp (s)
-  return s:gsub ("\n$", "")
-end
-
-
---- Escape a string to be used as a pattern.
--- @function escape_pattern
--- @string s any string
--- @treturn string *s* with active pattern characters escaped
--- @usage substr = inputstr:match (escape_pattern (literal))
 local function escape_pattern (s)
   return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
 end
 
 
---- Escape a string to be used as a shell token.
--- Quotes spaces, parentheses, brackets, quotes, apostrophes and
--- whitespace.
--- @function escape_shell
--- @string s any string
--- @treturn string *s* with active shell characters escaped
--- @usage os.execute ("echo " .. escape_shell (outputstr))
 local function escape_shell (s)
   return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
 end
 
 
---- Return the English suffix for an ordinal.
--- @function ordinal_suffix
--- @tparam int|string n any integer value
--- @treturn string English suffix for *n*
--- @usage
--- local now = os.date "*t"
--- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
 local function ordinal_suffix (n)
   n = math.abs (n) % 100
   local d = n % 10
@@ -237,16 +113,6 @@ local function ordinal_suffix (n)
 end
 
 
---- Justify a string.
--- When the string is longer than w, it is truncated (left or right
--- according to the sign of w).
--- @function pad
--- @string s a string to justify
--- @int w width to justify to (-ve means right-justify; +ve means
---   left-justify)
--- @string[opt=" "] p string to pad with
--- @treturn string *s* justified to *w* characters wide
--- @usage print (pad (trim (outputstr, 78)) .. "\n")
 local function pad (s, w, p)
   p = string.rep (p or " ", math.abs (w))
   if w < 0 then
@@ -256,15 +122,6 @@ local function pad (s, w, p)
 end
 
 
---- Wrap a string into a paragraph.
--- @function wrap
--- @string s a paragraph of text
--- @int[opt=78] w width to wrap to
--- @int[opt=0] ind indent
--- @int[opt=ind] ind1 indent of first line
--- @treturn string *s* wrapped to *w* columns
--- @usage
--- print (wrap (copyright, 72, 4))
 local function wrap (s, w, ind, ind1)
   w = w or 78
   ind = ind or 0
@@ -293,12 +150,6 @@ local function wrap (s, w, ind, ind1)
 end
 
 
---- Write a number using SI suffixes.
--- The number is always written to 3 s.f.
--- @function numbertosi
--- @tparam number|string n any numeric value
--- @treturn string *n* simplifed using largest available SI suffix.
--- @usage print (numbertosi (bitspersecond) .. "bps")
 local function numbertosi (n)
   local SIprefix = {
     [-8] = "y", [-7] = "z", [-6] = "a", [-5] = "f",
@@ -318,95 +169,12 @@ local function numbertosi (n)
 end
 
 
---- Remove leading matter from a string.
--- @function ltrim
--- @string s any string
--- @string[opt="%s+"] r leading pattern
--- @treturn string *s* with leading *r* stripped
--- @usage print ("got: " .. ltrim (userinput))
-local function ltrim (s, r)
-  r = r or "%s+"
-  return s:gsub ("^" .. r, "")
-end
-
-
---- Remove trailing matter from a string.
--- @function rtrim
--- @string s any string
--- @string[opt="%s+"] r trailing pattern
--- @treturn string *s* with trailing *r* stripped
--- @usage print ("got: " .. rtrim (userinput))
-local function rtrim (s, r)
-  r = r or "%s+"
-  return s:gsub (r .. "$", "")
-end
-
-
---- Remove leading and trailing matter from a string.
--- @function trim
--- @string s any string
--- @string[opt="%s+"] r trailing pattern
--- @treturn string *s* with leading and trailing *r* stripped
--- @usage print ("got: " .. trim (userinput))
 local function trim (s, r)
   r = r or "%s+"
   return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
 end
 
 
--- Write pretty-printing based on:
---
---   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
---
---   Based on "The Design of a Pretty-printing Library in Advanced
---   Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
---   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
---   Heavily modified by Simon Peyton Jones, Dec 96
---
---   Haskell types:
---   data Doc     list of lines
---   quote :: Char -> Char -> Doc -> Doc    Wrap document in ...
---   (<>) :: Doc -> Doc -> Doc              Beside
---   (<+>) :: Doc -> Doc -> Doc             Beside, separated by space
---   ($$) :: Doc -> Doc -> Doc              Above; if there is no overlap it "dovetails" the two
---   nest :: Int -> Doc -> Doc              Nested
---   punctuate :: Doc -> [Doc] -> [Doc]     punctuate p [d1, ... dn] = [d1 <> p, d2 <> p, ... dn-1 <> p, dn]
---   render      :: Int                     Line length
---               -> Float                   Ribbons per line
---               -> (TextDetails -> a -> a) What to do with text
---               -> a                       What to do at the end
---               -> Doc                     The document
---               -> a                       Result
-
-
---- Turn tables into strings with recursion detection.
--- N.B. Functions calling render should not recurse, or recursion
--- detection will not work.
--- @function render
--- @param x object to convert to string
--- @tparam opentablecb open open table rendering function
--- @tparam closetablecb close close table rendering function
--- @tparam elementcb elem element rendering function
--- @tparam paircb pair pair rendering function
--- @tparam separatorcb sep separator rendering function
--- @tparam[opt] table roots accumulates table references to detect recursion
--- @return string representation of *x*
--- @usage
--- function tostring (x)
---   return render (x, lambda '="{"', lambda '="}"', tostring,
---                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
---                  lambda '=","')
--- end
-local render = base.render
-
-
---- Pretty-print a table, or other object.
--- @function prettytostring
--- @param x object to convert to string
--- @string[opt="\t"] indent indent between levels
--- @string[opt=""] spacing space before every line
--- @treturn string pretty string rendering of *x*
--- @usage print (prettytostring (std, "  "))
 local function prettytostring (x, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
@@ -461,14 +229,6 @@ local function prettytostring (x, indent, spacing)
 end
 
 
---- Convert a value to a string.
--- The string can be passed to `functional.eval` to retrieve the value.
--- @todo Make it work for recursive tables.
--- @param x object to pickle
--- @treturn string reversible string rendering of *x*
--- @see std.eval
--- @usage
--- function slow_identity (x) return functional.eval (pickle (x)) end
 local function pickle (x)
   if type (x) == "string" then
     return format ("%q", x)
@@ -492,31 +252,228 @@ local function pickle (x)
 end
 
 
-local export = debug.export
 
---- @export
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.export ("std.string." .. decl, fn)
+end
+
 M = {
-  __concat       = __concat,
-  __index        = __index,
-  caps           = export "caps (string)",
-  chomp          = export "chomp (string)",
-  escape_pattern = export "escape_pattern (string)",
-  escape_shell   = export "escape_shell (string)",
-  finds          = export "finds (string, string, int?, boolean|:plain?)",
-  format         = export "format (string, any?*)",
-  ltrim          = export "ltrim (string, string?)",
-  monkey_patch   = export "monkey_patch (table?)",
-  numbertosi     = export "numbertosi (number|string)",
-  ordinal_suffix = export "ordinal_suffix (int|string)",
-  pad            = export "pad (string, int, string?)",
-  pickle         = pickle,
-  prettytostring = export "prettytostring (any?, string?, string?)",
-  render         = export "render (any?, func, func, func, func, func, table?)",
-  rtrim          = export "rtrim (string, string?)",
-  split          = export "split (string, string?)",
-  tfind          = export "tfind (string, string, int?, boolean|:plain?)",
-  trim           = export "trim (string, string?)",
-  wrap           = export "wrap (string, int?, int?, int?)",
+  --- String concatenation operation.
+  -- @string s initial string
+  -- @param o object to stringify and concatenate
+  -- @return s .. tostring (o)
+  -- @usage
+  -- local string = require "std.string".monkey_patch ()
+  -- concatenated = "foo" .. {"bar"}
+  __concat = __concat,
+
+  --- String subscript operation.
+  -- @string s string
+  -- @tparam int|string i index or method name
+  -- @return `s:sub (i, i)` if i is a number, otherwise
+  --   fall back to a `std.string` metamethod (if any).
+  -- @usage
+  -- getmetatable ("").__index = require "std.string".__index
+  -- third = ("12345")[3]
+  __index = __index,
+
+  --- Capitalise each word in a string.
+  -- @function caps
+  -- @string s any string
+  -- @treturn string *s* with each word capitalized
+  -- @usage userfullname = caps (input_string)
+  caps = X ("caps (string)", caps),
+
+  --- Remove any final newline from a string.
+  -- @function chomp
+  -- @string s any string
+  -- @treturn string *s* with any single trailing newline removed
+  -- @usage line = chomp (line)
+  chomp = X ("chomp (string)", function (s) return s:gsub ("\n$", "") end),
+
+  --- Escape a string to be used as a pattern.
+  -- @function escape_pattern
+  -- @string s any string
+  -- @treturn string *s* with active pattern characters escaped
+  -- @usage substr = inputstr:match (escape_pattern (literal))
+  escape_pattern = X ("escape_pattern (string)", escape_pattern),
+
+  --- Escape a string to be used as a shell token.
+  -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
+  -- whitespace.
+  -- @function escape_shell
+  -- @string s any string
+  -- @treturn string *s* with active shell characters escaped
+  -- @usage os.execute ("echo " .. escape_shell (outputstr))
+  escape_shell = X ("escape_shell (string)", escape_shell),
+
+  --- Repeatedly `string.find` until target string is exhausted.
+  -- @function finds
+  -- @string s target string
+  -- @string pattern pattern to match in *s*
+  -- @int[opt=1] init start position
+  -- @bool[opt] plain inhibit magic characters
+  -- @return list of `{from, to; capt = {captures}}`
+  -- @see std.string.tfind
+  -- @usage
+  -- for t in std.elems (finds ("the target string", "%S+")) do
+  --   print (tostring (t.capt))
+  -- end
+  finds = X ("finds (string, string, int?, boolean|:plain?)", finds),
+
+  --- Extend to work better with one argument.
+  -- If only one argument is passed, no formatting is attempted.
+  -- @function format
+  -- @string f format string
+  -- @param[opt] ... arguments to format
+  -- @return formatted string
+  -- @usage print (format "100% stdlib!")
+  format = X ("format (string, any?*)", format),
+
+  --- Remove leading matter from a string.
+  -- @function ltrim
+  -- @string s any string
+  -- @string[opt="%s+"] r leading pattern
+  -- @treturn string *s* with leading *r* stripped
+  -- @usage print ("got: " .. ltrim (userinput))
+  ltrim = X ("ltrim (string, string?)",
+             function (s, r) return s:gsub ("^" .. (r or "%s+"), "") end),
+
+  --- Overwrite core methods and metamethods with `std` enhanced versions.
+  --
+  -- Adds auto-stringification to `..` operator on core strings, and
+  -- integer indexing of strings with `[]` dereferencing.
+  --
+  -- Also replaces core `tostring` functions with `std.string` version.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage local string = require "std.string".monkey_patch ()
+  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+
+  --- Write a number using SI suffixes.
+  -- The number is always written to 3 s.f.
+  -- @function numbertosi
+  -- @tparam number|string n any numeric value
+  -- @treturn string *n* simplifed using largest available SI suffix.
+  -- @usage print (numbertosi (bitspersecond) .. "bps")
+  numbertosi = X ("numbertosi (number|string)", numbertosi),
+
+  --- Return the English suffix for an ordinal.
+  -- @function ordinal_suffix
+  -- @tparam int|string n any integer value
+  -- @treturn string English suffix for *n*
+  -- @usage
+  -- local now = os.date "*t"
+  -- print ("%d%s day of the week", now.day, ordinal_suffix (now.day))
+  ordinal_suffix = X ("ordinal_suffix (int|string)", ordinal_suffix),
+
+  --- Justify a string.
+  -- When the string is longer than w, it is truncated (left or right
+  -- according to the sign of w).
+  -- @function pad
+  -- @string s a string to justify
+  -- @int w width to justify to (-ve means right-justify; +ve means
+  --   left-justify)
+  -- @string[opt=" "] p string to pad with
+  -- @treturn string *s* justified to *w* characters wide
+  -- @usage print (pad (trim (outputstr, 78)) .. "\n")
+  pad = X ("pad (string, int, string?)", pad),
+
+  --- Convert a value to a string.
+  -- The string can be passed to `functional.eval` to retrieve the value.
+  -- @todo Make it work for recursive tables.
+  -- @param x object to pickle
+  -- @treturn string reversible string rendering of *x*
+  -- @see std.eval
+  -- @usage
+  -- function slow_identity (x) return functional.eval (pickle (x)) end
+  pickle = pickle,
+
+  --- Pretty-print a table, or other object.
+  -- @function prettytostring
+  -- @param x object to convert to string
+  -- @string[opt="\t"] indent indent between levels
+  -- @string[opt=""] spacing space before every line
+  -- @treturn string pretty string rendering of *x*
+  -- @usage print (prettytostring (std, "  "))
+  prettytostring = X ("prettytostring (any?, string?, string?)", prettytostring),
+
+  --- Turn tables into strings with recursion detection.
+  -- N.B. Functions calling render should not recurse, or recursion
+  -- detection will not work.
+  -- @function render
+  -- @param x object to convert to string
+  -- @tparam opentablecb open open table rendering function
+  -- @tparam closetablecb close close table rendering function
+  -- @tparam elementcb elem element rendering function
+  -- @tparam paircb pair pair rendering function
+  -- @tparam separatorcb sep separator rendering function
+  -- @tparam[opt] table roots accumulates table references to detect recursion
+  -- @return string representation of *x*
+  -- @usage
+  -- function tostring (x)
+  --   return render (x, lambda '="{"', lambda '="}"', tostring,
+  --                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
+  --                  lambda '=","')
+  -- end
+  render = X ("render (any?, func, func, func, func, func, table?)", render),
+
+  --- Remove trailing matter from a string.
+  -- @function rtrim
+  -- @string s any string
+  -- @string[opt="%s+"] r trailing pattern
+  -- @treturn string *s* with trailing *r* stripped
+  -- @usage print ("got: " .. rtrim (userinput))
+  rtrim = X ("rtrim (string, string?)",
+             function (s, r) return s:gsub ((r or "%s+") .. "$", "") end),
+
+  --- Split a string at a given separator.
+  -- Separator is a Lua pattern, so you have to escape active characters,
+  -- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
+  -- @function split
+  -- @string s to split
+  -- @string[opt="%s+"] sep separator pattern
+  -- @return list of strings
+  -- @usage words = split "a very short sentence"
+  split = X ("split (string, string?)", base.split),
+
+  --- Do `string.find`, returning a table of captures.
+  -- @function tfind
+  -- @string s target string
+  -- @string pattern pattern to match in *s*
+  -- @int[opt=1] init start position
+  -- @bool[opt] plain inhibit magic characters
+  -- @treturn int start of match
+  -- @treturn int end of match
+  -- @treturn table list of captured strings
+  -- @see std.string.finds
+  -- @usage b, e, captures = tfind ("the target string", "%s", 10)
+  tfind = X ("tfind (string, string, int?, boolean|:plain?)", tfind),
+
+  --- Remove leading and trailing matter from a string.
+  -- @function trim
+  -- @string s any string
+  -- @string[opt="%s+"] r trailing pattern
+  -- @treturn string *s* with leading and trailing *r* stripped
+  -- @usage print ("got: " .. trim (userinput))
+  trim = X ("trim (string, string?)", trim),
+
+  --- Wrap a string into a paragraph.
+  -- @function wrap
+  -- @string s a paragraph of text
+  -- @int[opt=78] w width to wrap to
+  -- @int[opt=0] ind indent
+  -- @int[opt=ind] ind1 indent of first line
+  -- @treturn string *s* wrapped to *w* columns
+  -- @usage
+  -- print (wrap (copyright, 72, 4))
+  wrap = X ("wrap (string, int?, int?, int?)", wrap),
 }
 
 

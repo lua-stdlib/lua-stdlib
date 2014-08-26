@@ -236,7 +236,7 @@ local function toomanyargmsg (name, expect, actual)
 end
 
 
-local argcheck, argscheck, _export  -- forward declarations
+local argcheck, argscheck, export  -- forward declarations
 
 if _ARGCHECK then
 
@@ -596,7 +596,26 @@ if _ARGCHECK then
   end
 
 
-  function _export (inner, name, fqfname, types)
+  --- Export a function definition, optionally with argument type checking.
+  -- In addition to checking that each argument type matches the corresponding
+  -- element in the *types* table with `argcheck`, if the final element of
+  -- *types* ends with an asterisk, remaining unchecked arguments are checked
+  -- against that type.
+  -- @string decl function type declaration string
+  -- @func inner function to wrap with argument checking
+  -- @usage
+  -- M.square = export ("util.square (number)", function (n) return n * n end)
+  function export (decl, inner)
+    -- Parse "fname (argtype, argtype, argtype...)".
+    local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%((.*)%)"
+    if types == "" then
+      types = {}
+    elseif types then
+      types = split (types, ",%s+")
+    else
+      fname = decl:match "([%w_][%d%d%w_]*)"
+    end
+
     -- If the final element of types ends with "*", then set max to a
     -- sentinel value to denote type-checking of *all* remaining
     -- unchecked arguments against that type-spec is required.
@@ -647,18 +666,18 @@ if _ARGCHECK then
 	  if contents and type (args[i]) == "table" then
 	    for k, v in pairs (args[i]) do
 	      if not checktype (contents, v) then
-	        argerror (fqfname or name, i, formaterror (expected, v, k), 2)
+	        argerror (fname, i, formaterror (expected, v, k), 2)
 	      end
 	    end
 	  end
         end
 
 	-- Otherwise the argument type itself was mismatched.
-	argerror (fqfname or name, i, formaterror (expected, args[i]), 2)
+	argerror (fname, i, formaterror (expected, args[i]), 2)
       end
 
       if argc > max then
-        error (toomanyargmsg (fqfname or name, max, argc), 2)
+        error (toomanyargmsg (fname, max, argc), 2)
       end
 
       -- Propagate outer environment to inner function.
@@ -676,83 +695,8 @@ else
   argcheck  = base.nop
   argscheck = base.nop
 
-  _export   = function (inner) return inner end
+  export   = function (decl, inner) return inner end
 
-end
-
-
-local dirsep, pathsep, path_mark = package.config:match "^(%S+)\n(%S+)\n(%S+)\n"
-local pathpatt, markpatt = "[^" .. pathsep .. "]+", path_mark:gsub ("%p", "%%%0")
-
-local function whatpath (name, src)
-  local r
-  package.path:gsub (pathpatt, function (s)
-    local substituted = s:gsub (markpatt, (name:gsub ("%.", dirsep)))
-    if substituted == src then r = name end
-  end)
-  return r
-end
-
-
-local function getinfo (what, level)
-  local fqfname, s, fn
-
-  for i = 1, math.huge do
-    s, fn = debug.getlocal (level + 1, i)
-
-    if s == nil then
-      break
-
-    elseif s == what or fn == what then
-      local t, src = {}, debug.getinfo (callable (fn), "S").source:gsub ("^@(.*)$", "%1")
-      src:gsub ("/([^/]+)", function (m) t[#t + 1] = m:gsub ("%.lua", "") end)
-
-      local tryme
-      for i = #t, 1, -1 do
-        tryme = tryme and (t[i] .. "." .. tryme) or t[i]
-        if whatpath (tryme, src) then
-          fqfname = (tryme .. "." .. s):gsub ("^(std%.)base%.", "%1")
-          break
-        end
-      end
-      break
-
-    end
-  end
-
-  return fqfname, fn
-end
-
-
---- Export a function definition, optionally with argument type checking.
--- In addition to checking that each argument type matches the corresponding
--- element in the *types* table with `argcheck`, if the final element of
--- *types* ends with an asterisk, remaining unchecked arguments are checked
--- against that type.
--- @string[opt] mname module name (default: looked up with *decl*)
--- @string decl function type declaration string
--- @usage
--- M.round = export "round (number, int?)"
-local function export (mname, decl)
-  if decl == nil then mname, decl = nil, mname end
-
-  -- Parse "fname (argtype, argtype, argtype...)".
-  local name, types = decl:match "([%w_][%d%w_]*)%s+%((.*)%)"
-  if types == "" then
-    types = {}
-  elseif types then
-    types = split (types, ",%s+")
-  else
-    name = decl:match "([%w_][%d%w_]*)"
-  end
-  local fqfname, inner = getinfo (name, 2)
-
-  -- Trust the user *mname* argument, if given.
-  if mname then
-    fqfname = mname .. "." .. name
-  end
-
-  return _export (inner, name, fqfname, types)
 end
 
 

@@ -14,28 +14,17 @@
 local base  = require "std.base"
 local debug = require "std.debug"
 
-local package = {
-  dirsep  = string.match (package.config, "^([^\n]+)\n"),
-}
-
 local ipairs, pairs = base.ipairs, base.pairs
 local argerror = debug.argerror
 local leaves   = base.tree.leaves
 local split    = base.split
 
+local dirsep = string.match (package.config, "^(%S+)\n")
+
 
 local M
 
 
-
---[[ ================= ]]--
---[[ Helper Functions. ]]--
---[[ ================= ]]--
-
-
---- Get an input file handle.
--- @tparam[opt=io.input()] file|string h file handle or name
--- @return file handle, or nil on error
 local function input_handle (h)
   if h == nil then
     return io.input ()
@@ -46,19 +35,6 @@ local function input_handle (h)
 end
 
 
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
-
-
---- Slurp a file handle.
--- @function slurp
--- @tparam[opt=io.input()] file|string file file handle or name;
---   if file is a file handle, that file is closed after reading
--- @return contents of file or handle, or nil if error
--- @see process_files
--- @usage contents = slurp (filename)
 local function slurp (file)
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
@@ -71,13 +47,6 @@ local function slurp (file)
 end
 
 
---- Read a file or file handle into a list of lines.
--- The lines in the returned list are not `\n` terminated.
--- @function readlines
--- @tparam[opt=io.input()] file|string file file handle or name;
---   if file is a file handle, that file is closed after reading
--- @treturn list lines
--- @usage list = readlines "/etc/passwd"
 local function readlines (file)
   local h, err = input_handle (file)
   if h == nil then argerror ("std.io.readlines", 1, err, 2) end
@@ -91,12 +60,6 @@ local function readlines (file)
 end
 
 
---- Write values adding a newline after each.
--- @function writelines
--- @tparam[opt=io.output()] file h open writable file handle;
---   the file is **not** closed after writing
--- @tparam string|number ... values to write (as for write)
--- @usage writelines (io.stdout, "first line", "next line")
 local function writelines (h, ...)
   if io.type (h) ~= "file" then
     io.write (h, "\n")
@@ -108,13 +71,6 @@ local function writelines (h, ...)
 end
 
 
---- Overwrite core methods and metamethods with `std` enhanced versions.
---
--- Adds @{readlines} and @{writelines} metamethods to core file objects.
--- @function monkey_patch
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table the `std.io` module table
--- @usage local io = require "std.io".monkey_patch ()
 local function monkey_patch (namespace)
   namespace = namespace or _G
 
@@ -126,65 +82,6 @@ local function monkey_patch (namespace)
 end
 
 
---- Split a directory path into components.
--- Empty components are retained: the root directory becomes `{"", ""}`.
--- @function splitdir
--- @param path path
--- @return list of path components
--- @see catdir
--- @usage dir_components = splitdir (filepath)
-local function splitdir (path)
-  return split (path, package.dirsep)
-end
-
-
---- Concatenate one or more directories and a filename into a path.
--- @function catfile
--- @string ... path components
--- @treturn string path
--- @see catdir
--- @see splitdir
--- @usage filepath = catfile ("relative", "path", "filename")
-local function catfile (...)
-  return table.concat ({...}, package.dirsep)
-end
-
-
---- Concatenate directory names into a path.
--- @function catdir
--- @string ... path components
--- @return path without trailing separator
--- @see catfile
--- @usage dirpath = catdir ("", "absolute", "directory")
-local function catdir (...)
-  return table.concat ({...}, package.dirsep):gsub("^$", package.dirsep)
-end
-
-
---- Perform a shell command and return its output.
--- @function shell
--- @string c command
--- @treturn string output, or nil if error
--- @see os.execute
--- @usage users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
-local function shell (c)
-  return slurp (io.popen (c))
-end
-
-
---- Process files specified on the command-line.
--- Each filename is made the default input source with `io.input`, and
--- then the filename and argument number are passed to the callback
--- function. In list of filenames, `-` means `io.stdin`.  If no
--- filenames were given, behave as if a single `-` was passed.
--- @todo Make the file list an argument to the function.
--- @function process_files
--- @tparam fileprocessor fn function called for each file argument
--- @usage
--- #! /usr/bin/env lua
--- -- minimal cat command
--- local io = require "std.io"
--- io.process_files (function () io.write (io.slurp ()) end)
 local function process_files (fn)
   -- N.B. "arg" below refers to the global array of command-line args
   if #arg == 0 then
@@ -201,25 +98,6 @@ local function process_files (fn)
 end
 
 
---- Give warning with the name of program and file (if any).
--- If there is a global `prog` table, prefix the message with
--- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
--- if there is a global `opts` table, prefix the message with
--- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
--- returns an `opts` table that provides the required `program`
--- field, as long as you assign it back to `_G.opts`.
--- @function warn
--- @string msg format string
--- @param ... additional arguments to plug format string specifiers
--- @see std.optparse:parse
--- @see die
--- @usage
---   local OptionParser = require "std.optparse"
---   local parser = OptionParser "eg 0\nUsage: eg\n"
---   _G.arg, _G.opts = parser:parse (_G.arg)
---   if not _G.opts.keep_going then
---     require "std.io".warn "oh noes!"
---   end
 local function warn (msg, ...)
   local prefix = ""
   if (prog or {}).name then
@@ -243,37 +121,137 @@ local function warn (msg, ...)
 end
 
 
---- Die with error.
--- This function uses the same rules to build a message prefix
--- as @{warn}.
--- @function die
--- @string msg format string
--- @param ... additional arguments to plug format string specifiers
--- @see warn
--- @usage die ("oh noes! (%s)", tostring (obj))
-local function die (...)
-  warn (...)
-  error ()
+
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.export ("std.io." .. decl, fn)
 end
 
 
-local export = debug.export
-
---- @export
 M = {
-  catdir        = export "catdir (string*)",
-  catfile       = export "catfile (string*)",
-  die           = export "die (string, any?*)",
-  monkey_patch  = export "monkey_patch (table?)",
-  process_files = export "process_files (function)",
-  readlines     = export "readlines (file|string|nil)",
-  shell         = export "shell (string)",
-  slurp         = export "slurp (file|string|nil)",
-  splitdir      = export "splitdir (string)",
-  warn          = export "warn (string, any?*)",
-  writelines    = export "writelines (file|string|number?, string|number?*)",
-}
+  --- Concatenate directory names into a path.
+  -- @function catdir
+  -- @string ... path components
+  -- @return path without trailing separator
+  -- @see catfile
+  -- @usage dirpath = catdir ("", "absolute", "directory")
+  catdir = X ("catdir (string*)", function (...)
+	        return table.concat ({...}, dirsep):gsub("^$", dirsep)
+	      end),
 
+  --- Concatenate one or more directories and a filename into a path.
+  -- @function catfile
+  -- @string ... path components
+  -- @treturn string path
+  -- @see catdir
+  -- @see splitdir
+  -- @usage filepath = catfile ("relative", "path", "filename")
+  catfile = X ("catfile (string*)",
+               function (...) return table.concat ({...}, dirsep) end),
+
+  --- Die with error.
+  -- This function uses the same rules to build a message prefix
+  -- as @{warn}.
+  -- @function die
+  -- @string msg format string
+  -- @param ... additional arguments to plug format string specifiers
+  -- @see warn
+  -- @usage die ("oh noes! (%s)", tostring (obj))
+  die = X ("die (string, any?*)", function (...) warn (...); error () end),
+
+  --- Overwrite core methods and metamethods with `std` enhanced versions.
+  --
+  -- Adds @{readlines} and @{writelines} metamethods to core file objects.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the `std.io` module table
+  -- @usage local io = require "std.io".monkey_patch ()
+  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+
+  --- Process files specified on the command-line.
+  -- Each filename is made the default input source with `io.input`, and
+  -- then the filename and argument number are passed to the callback
+  -- function. In list of filenames, `-` means `io.stdin`.  If no
+  -- filenames were given, behave as if a single `-` was passed.
+  -- @todo Make the file list an argument to the function.
+  -- @function process_files
+  -- @tparam fileprocessor fn function called for each file argument
+  -- @usage
+  -- #! /usr/bin/env lua
+  -- -- minimal cat command
+  -- local io = require "std.io"
+  -- io.process_files (function () io.write (io.slurp ()) end)
+  process_files = X ("process_files (function)", process_files),
+
+  --- Read a file or file handle into a list of lines.
+  -- The lines in the returned list are not `\n` terminated.
+  -- @function readlines
+  -- @tparam[opt=io.input()] file|string file file handle or name;
+  --   if file is a file handle, that file is closed after reading
+  -- @treturn list lines
+  -- @usage list = readlines "/etc/passwd"
+  readlines = X ("readlines (file|string|nil)", readlines),
+
+  --- Perform a shell command and return its output.
+  -- @function shell
+  -- @string c command
+  -- @treturn string output, or nil if error
+  -- @see os.execute
+  -- @usage users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
+  shell = X ("shell (string)", function (c) return slurp (io.popen (c)) end),
+
+  --- Slurp a file handle.
+  -- @function slurp
+  -- @tparam[opt=io.input()] file|string file file handle or name;
+  --   if file is a file handle, that file is closed after reading
+  -- @return contents of file or handle, or nil if error
+  -- @see process_files
+  -- @usage contents = slurp (filename)
+  slurp = X ("slurp (file|string|nil)", slurp),
+
+  --- Split a directory path into components.
+  -- Empty components are retained: the root directory becomes `{"", ""}`.
+  -- @function splitdir
+  -- @param path path
+  -- @return list of path components
+  -- @see catdir
+  -- @usage dir_components = splitdir (filepath)
+  splitdir = X ("splitdir (string)",
+                function (path) return split (path, dirsep) end),
+
+  --- Give warning with the name of program and file (if any).
+  -- If there is a global `prog` table, prefix the message with
+  -- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
+  -- if there is a global `opts` table, prefix the message with
+  -- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
+  -- returns an `opts` table that provides the required `program`
+  -- field, as long as you assign it back to `_G.opts`.
+  -- @function warn
+  -- @string msg format string
+  -- @param ... additional arguments to plug format string specifiers
+  -- @see std.optparse:parse
+  -- @see die
+  -- @usage
+  --   local OptionParser = require "std.optparse"
+  --   local parser = OptionParser "eg 0\nUsage: eg\n"
+  --   _G.arg, _G.opts = parser:parse (_G.arg)
+  --   if not _G.opts.keep_going then
+  --     require "std.io".warn "oh noes!"
+  --   end
+  warn = X ("warn (string, any?*)", warn),
+
+  --- Write values adding a newline after each.
+  -- @function writelines
+  -- @tparam[opt=io.output()] file h open writable file handle;
+  --   the file is **not** closed after writing
+  -- @tparam string|number ... values to write (as for write)
+  -- @usage writelines (io.stdout, "first line", "next line")
+  writelines = X ("writelines (file|string|number?, string|number?*)", writelines),
+}
 
 
 for k, v in pairs (io) do

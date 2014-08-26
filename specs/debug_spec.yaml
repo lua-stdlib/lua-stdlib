@@ -192,7 +192,7 @@ specify std.debug:
 - describe argcheck:
   - before: |
       Object = require 'std.object'
-      List = require "std.list"
+      List = Object { _type = "List" }
       Foo = Object { _type = "Foo" }
 
       function fn (...) return M.argcheck ('expect', 1, ...) end
@@ -664,7 +664,7 @@ specify std.debug:
         return string.format ([[
           local export = require "std.debug".export      -- line 1
           local function caller ()                       -- line 2
-            export ({%s}, "%s", function () end)         -- line 3
+            export ("%s", function () end)               -- line 3
           end                                            -- line 4
           caller ()                                      -- line 5
         ]], tostring (name), tostring (spec))
@@ -673,8 +673,7 @@ specify std.debug:
       f, badarg = init (M, this_module, "export")
 
       mkmagic = function () return "MAGIC" end
-      local inner = mkmagic
-      wrapped = f "inner ()"
+      wrapped = f ("inner ()", mkmagic)
 
   - it returns the wrapped function:
       expect (wrapped).not_to_be (inner)
@@ -685,7 +684,7 @@ specify std.debug:
         local debug = require "std.debug_init"
         local export = require "std.debug".export
         local function inner () return "MAGIC" end
-        local wrapped = export "inner (any?)"
+        local wrapped = export ("inner (any?)", inner)
         os.exit (wrapped == inner and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()
@@ -701,8 +700,7 @@ specify std.debug:
   - context when checking single argument function:
     - before:
         _, badarg = init (M, "", "inner")
-        local inner = mkmagic
-        wrapped = f "inner (#table)"
+        wrapped = f ("inner (#table)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "non-empty table"))
     - it diagnoses wrong argument types:
@@ -715,8 +713,7 @@ specify std.debug:
   - context when checking multi-argument function:
     - before:
         _, badarg = init (M, "", "inner")
-        local inner = mkmagic
-        wrapped = f "inner (table, function)"
+        wrapped = f ("inner (table, function)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "table"))
         expect (wrapped ({})).to_raise (badarg (2, "function"))
@@ -731,8 +728,7 @@ specify std.debug:
   - context when checking optional argument function:
     - before:
         _, badarg = init (M, "", "inner")
-        local inner = mkmagic
-        wrapped = f "inner ([int])"
+        wrapped = f ("inner ([int])", mkmagic)
     - it diagnoses wrong argument types:
         expect (wrapped (false)).to_raise (badarg (1, "int or nil", "boolean"))
     - it diagnoses too many arguments:
@@ -744,8 +740,7 @@ specify std.debug:
   - context when checking optional multi-argument function:
     - before:
         _, badarg = init (M, "", "inner")
-        local inner = mkmagic
-        wrapped = f "inner ([int], string)"
+        wrapped = f ("inner ([int], string)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "int or string"))
         expect (wrapped (1)).to_raise (badarg (2, "string"))

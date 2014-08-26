@@ -72,7 +72,7 @@ local debug = require "std.debug"
 
 local ipairs, pairs = base.ipairs, base.pairs
 local prototype = base.prototype
-local argcheck, export = debug.argcheck, debug.export
+local argcheck  = debug.argcheck
 
 
 
@@ -231,8 +231,12 @@ local function __call (self, x, ...)
 end
 
 
+local function X (decl, fn)
+  return debug.export ("std.container." .. decl, fn)
+end
+
 local M = {
-  mapfields = export "mapfields (table, table|object, table?)",
+  mapfields = X ("mapfields (table, table|object, table?)", mapfields),
 }
 
 

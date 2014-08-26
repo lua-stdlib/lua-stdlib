@@ -20,6 +20,29 @@ local function copy (t)
 end
 
 
+-- Write pretty-printing based on:
+--
+--   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
+--
+--   Based on "The Design of a Pretty-printing Library in Advanced
+--   Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
+--   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
+--   Heavily modified by Simon Peyton Jones, Dec 96
+--
+--   Haskell types:
+--   data Doc     list of lines
+--   quote :: Char -> Char -> Doc -> Doc    Wrap document in ...
+--   (<>) :: Doc -> Doc -> Doc              Beside
+--   (<+>) :: Doc -> Doc -> Doc             Beside, separated by space
+--   ($$) :: Doc -> Doc -> Doc              Above; if there is no overlap it "dovetails" the two
+--   nest :: Int -> Doc -> Doc              Nested
+--   punctuate :: Doc -> [Doc] -> [Doc]     punctuate p [d1, ... dn] = [d1 <> p, d2 <> p, ... dn-1 <> p, dn]
+--   render      :: Int                     Line length
+--               -> Float                   Ribbons per line
+--               -> (TextDetails -> a -> a) What to do with text
+--               -> a                       What to do at the end
+--               -> Doc                     The document
+--               -> a                       Result
 
 local function render (x, open, close, elem, pair, sep, roots)
   local function stop_roots (x)

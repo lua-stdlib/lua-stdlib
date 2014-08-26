@@ -11,15 +11,10 @@
 ]]
 
 
+local debug = require "std.debug"
+
 local M
 
-
---- Extend `math.floor` to take the number of decimal places.
--- @function floor
--- @number n number
--- @int[opt=0] p number of decimal places to truncate to
--- @treturn number `n` truncated to `p` decimal places
--- @usage tenths = floor (magnitude, 1)
 
 local _floor  = math.floor
 
@@ -33,13 +28,6 @@ local function floor (n, p)
 end
 
 
---- Overwrite core methods with `std` enhanced versions.
---
--- Replaces core `math.floor` with `std.math` version.
--- @function monkey_patch
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table the module table
--- @usage require "std.math".monkey_patch ()
 local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.math.floor = M.floor
@@ -47,25 +35,48 @@ local function monkey_patch (namespace)
 end
 
 
---- Round a number to a given number of decimal places
--- @function round
--- @number n number
--- @int[opt=0] p number of decimal places to round to
--- @treturn number `n` rounded to `p` decimal places
--- @usage roughly = round (exactly, 2)
 local function round (n, p)
   local e = 10 ^ (p or 0)
   return _floor (n * e + 0.5) / e
 end
 
 
-local export = require "std.debug".export
 
---- @export
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.export ("std.math." .. decl, fn)
+end
+
+
 M = {
-  floor        = export "floor (number, int?)",
-  monkey_patch = export "monkey_patch (table?)",
-  round        = export "round (number, int?)",
+  --- Extend `math.floor` to take the number of decimal places.
+  -- @function floor
+  -- @number n number
+  -- @int[opt=0] p number of decimal places to truncate to
+  -- @treturn number `n` truncated to `p` decimal places
+  -- @usage tenths = floor (magnitude, 1)
+  floor = X ("floor (number, int?)", floor),
+
+  --- Overwrite core methods with `std` enhanced versions.
+  --
+  -- Replaces core `math.floor` with `std.math` version.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage require "std.math".monkey_patch ()
+  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+
+  --- Round a number to a given number of decimal places
+  -- @function round
+  -- @number n number
+  -- @int[opt=0] p number of decimal places to round to
+  -- @treturn number `n` rounded to `p` decimal places
+  -- @usage roughly = round (exactly, 2)
+  round = X ("round (number, int?)", round),
 }
 
 

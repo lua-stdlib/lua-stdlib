@@ -27,158 +27,6 @@ local base = require "std.base"
 
 local M
 
-
-
---- Enhance core `assert` to also allow formatted arguments.
--- @function assert
--- @param expect expression, expected to be *truthy*
--- @string[opt=""] f format string
--- @param[opt] ... arguments to format
--- @return value of *expect*, if *truthy*
--- @usage
--- std.assert (expected ~= nil, "100% unexpected!")
--- std.assert (expected ~= nil, "%s unexpected!", expected)
-local assert = base.assert
-
-
---- An iterator over all elements of a sequence.
--- If *t* has a `__pairs` metamethod, use that to iterate.
--- @function elems
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*, the table being iterated over
--- @return *key*, the previous iteration key
--- @see ielems
--- @see pairs
--- @usage
--- for value in std.elems {a = 1, b = 2, c = 5} do process (value) end
-local elems = base.elems
-
-
---- Evaluate a string as Lua code.
--- @function eval
--- @string s string of Lua code
--- @return result of evaluating `s`
--- @usage std.eval "math.pow (2, 10)"
-local eval = base.eval
-
-
---- An iterator over the integer keyed elements of a sequence.
--- If *t* has a `__len` metamethod, iterate up to the index it returns.
--- @function ielems
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*, the table being iterated over
--- @treturn int *index*, the previous iteration index
--- @see elems
--- @see ipairs
--- @usage
--- for v in std.ielems {"a", "b", "c"} do process (v) end
-local ielems = base.ielems
-
-
---- An iterator over elements `1..#t`, respecting `__len` metamethod.
---
--- Unlike Lua 5.1, which ignores `__len`, and Lua 5.2, which looks for
--- and uses `__ipairs`, this iterator always iterates over elements with
--- integer keys starting at 1, up to and including `#t`.
--- @function ipairs
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*, the table being iterated over
--- @treturn int *index*, the previous iteration index
--- @see ielems
--- @see pairs
--- @usage
--- -- don't stop at first nil
--- args = {"first", "second", nil, "last"}
--- setmetatable (args, { __len = std.functional.lambda "=4" })
--- for i, v in std.ipairs (args) do process (i, v) end
-local ipairs = base.ipairs
-
-
---- Return a new table with element order reversed.
--- Apart from the order of the elments returned, this function follows
--- the same rules as @{ipairs} for determining first and last elements.
--- @function ireverse
--- @tparam table t a table
--- @treturn table a new table with integer keyed elements in reverse
---   order with respect to *t*
--- @see ielems
--- @see ipairs
--- @usage
--- local rielems = std.functional.compose (std.ireverse, std.ielems)
--- for e in rielems (l) do process (e) end
-local ireverse = base.ireverse
-
-
---- Return named metamethod, if any, otherwis `nil`.
--- @function getmetamethod
--- @tparam table t table to get metamethod of
--- @string n name of metamethod to get
--- @treturn function|nil metamethod function, or `nil` if no metamethod
--- @usage lookup = std.getmetamethod (require "std.object", "__index")
-local getmetamethod = base.getmetamethod
-
-
---- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
--- @function pairs
--- @tparam table t a table
--- @treturn function iterator function
--- @treturn table *t*, the table being iterated over
--- @return *key*, the previous iteration key
--- @see elems
--- @see ipairs
--- @usage
--- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
-local pairs = base.pairs
-
-
---- Enhance core `require` to assert version number compatibility.
--- By default match against the last substring of (dot-delimited)
--- digits in the module version string.
--- @function require
--- @string module module to require
--- @string[opt] min lowest acceptable version
--- @string[opt] too_big lowest version that is too big
--- @string[opt] pattern to match version in `module.version` or
---  `module._VERSION` (default: `"([%.%d]+)%D*$"`)
--- @usage
--- -- posix.version == "posix library for Lua 5.2 / 32"
--- posix = require ("posix", "29")
-local require = base.require
-
-
---- An iterator like ipairs, but in reverse.
--- Apart from the order of the elments returned, this function follows
--- the same rules as @{ipairs} for determining first and last elements.
--- @function ripairs
--- @tparam table t any table
--- @treturn function iterator function
--- @treturn table *t*
--- @treturn number `#t + 1`
--- @usage for i, v = ripairs (t) do ... end
-local ripairs = base.ripairs
-
-
---- Enhance core `tostring` to render table contents as a string.
--- @function tostring
--- @param x object to convert to string
--- @treturn string compact string rendering of *x*
--- @usage
--- -- {1=baz,foo=bar}
--- print (std.tostring {foo="bar","baz"})
-local tostring = base.tostring
-
-
---- Overwrite core methods and metamethods with `std` enhanced versions.
---
--- Write all functions from this module, except `std.barrel` and
--- `std.monkey_patch`, into the given namespace.
--- @function monkey_patch
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table the module table
--- @usage local std = require "std".monkey_patch ()
 local function monkey_patch (namespace)
   namespace = namespace or _G
 
@@ -192,15 +40,6 @@ local function monkey_patch (namespace)
 end
 
 
---- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
---
--- Apply **all** `monkey_patch` functions.  Additionally, for backwards
--- compatibility only, write a selection of sub-module functions into
--- the given namespace.
--- @function barrel
--- @tparam[opt=_G] table namespace where to install global functions
--- @treturn table module table
--- @usage local std = require "std".barrel ()
 local function barrel (namespace)
   namespace = namespace or _G
 
@@ -244,24 +83,164 @@ end
 -- @table std
 -- @field version release version string
 
-local export = require "std.debug".export
+local function X (decl, fn)
+  return require "std.debug".export ("std." .. decl, fn)
+end
 
 M = {
-  assert        = export "assert   (any?, string?, any?*)",
-  barrel        = export "barrel   (table?)",
-  elems         = export "elems    (table)",
-  eval          = export "eval     (string)",
-  ielems        = export "ielems   (table)",
-  ipairs        = export "ipairs   (table)",
-  ireverse      = export "ireverse (table)",
-  getmetamethod = export "getmetamethod (object|table, string)",
-  monkey_patch  = export "monkey_patch (table?)",
-  pairs         = export "pairs    (table)",
-  require       = export "require  (string, string?, string?, string?)",
-  ripairs       = export "ripairs  (table)",
-  tostring      = export "tostring (any?)",
-
   version       = "General Lua libraries / @VERSION@",
+
+  --- Enhance core `assert` to also allow formatted arguments.
+  -- @function assert
+  -- @param expect expression, expected to be *truthy*
+  -- @string[opt=""] f format string
+  -- @param[opt] ... arguments to format
+  -- @return value of *expect*, if *truthy*
+  -- @usage
+  -- std.assert (expected ~= nil, "100% unexpected!")
+  -- std.assert (expected ~= nil, "%s unexpected!", expected)
+  assert = X ("assert (any?, string?, any?*)", base.assert),
+
+  --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
+  --
+  -- Apply **all** `monkey_patch` functions.  Additionally, for backwards
+  -- compatibility only, write a selection of sub-module functions into
+  -- the given namespace.
+  -- @function barrel
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table module table
+  -- @usage local std = require "std".barrel ()
+  barrel = X ("barrel (table?)", barrel),
+
+  --- An iterator over all elements of a sequence.
+  -- If *t* has a `__pairs` metamethod, use that to iterate.
+  -- @function elems
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table *t*, the table being iterated over
+  -- @return *key*, the previous iteration key
+  -- @see ielems
+  -- @see pairs
+  -- @usage
+  -- for value in std.elems {a = 1, b = 2, c = 5} do process (value) end
+  elems         = X ("elems (table)", base.elems),
+
+  --- Evaluate a string as Lua code.
+  -- @function eval
+  -- @string s string of Lua code
+  -- @return result of evaluating `s`
+  -- @usage std.eval "math.pow (2, 10)"
+  eval          = X ("eval (string)", base.eval),
+
+  --- An iterator over the integer keyed elements of a sequence.
+  -- If *t* has a `__len` metamethod, iterate up to the index it returns.
+  -- @function ielems
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table *t*, the table being iterated over
+  -- @treturn int *index*, the previous iteration index
+  -- @see elems
+  -- @see ipairs
+  -- @usage
+  -- for v in std.ielems {"a", "b", "c"} do process (v) end
+  ielems = X ("ielems (table)", base.ielems),
+
+  --- An iterator over elements `1..#t`, respecting `__len` metamethod.
+  --
+  -- Unlike Lua 5.1, which ignores `__len`, and Lua 5.2, which looks for
+  -- and uses `__ipairs`, this iterator always iterates over elements with
+  -- integer keys starting at 1, up to and including `#t`.
+  -- @function ipairs
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table *t*, the table being iterated over
+  -- @treturn int *index*, the previous iteration index
+  -- @see ielems
+  -- @see pairs
+  -- @usage
+  -- -- don't stop at first nil
+  -- args = {"first", "second", nil, "last"}
+  -- setmetatable (args, { __len = std.functional.lambda "=4" })
+  -- for i, v in std.ipairs (args) do process (i, v) end
+  ipairs = X ("ipairs (table)", base.ipairs),
+
+  --- Return a new table with element order reversed.
+  -- Apart from the order of the elments returned, this function follows
+  -- the same rules as @{ipairs} for determining first and last elements.
+  -- @function ireverse
+  -- @tparam table t a table
+  -- @treturn table a new table with integer keyed elements in reverse
+  --   order with respect to *t*
+  -- @see ielems
+  -- @see ipairs
+  -- @usage
+  -- local rielems = std.functional.compose (std.ireverse, std.ielems)
+  -- for e in rielems (l) do process (e) end
+  ireverse = X ("ireverse (table)", base.ireverse),
+
+  --- Return named metamethod, if any, otherwis `nil`.
+  -- @function getmetamethod
+  -- @tparam table t table to get metamethod of
+  -- @string n name of metamethod to get
+  -- @treturn function|nil metamethod function, or `nil` if no metamethod
+  -- @usage lookup = std.getmetamethod (require "std.object", "__index")
+  getmetamethod = X ("getmetamethod (object|table, string)", base.getmetamethod),
+
+  --- Overwrite core methods and metamethods with `std` enhanced versions.
+  --
+  -- Write all functions from this module, except `std.barrel` and
+  -- `std.monkey_patch`, into the given namespace.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage local std = require "std".monkey_patch ()
+  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+
+  --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
+  -- @function pairs
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table *t*, the table being iterated over
+  -- @return *key*, the previous iteration key
+  -- @see elems
+  -- @see ipairs
+  -- @usage
+  -- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
+  pairs = X ("pairs (table)", base.pairs),
+
+  --- Enhance core `require` to assert version number compatibility.
+  -- By default match against the last substring of (dot-delimited)
+  -- digits in the module version string.
+  -- @function require
+  -- @string module module to require
+  -- @string[opt] min lowest acceptable version
+  -- @string[opt] too_big lowest version that is too big
+  -- @string[opt] pattern to match version in `module.version` or
+  --  `module._VERSION` (default: `"([%.%d]+)%D*$"`)
+  -- @usage
+  -- -- posix.version == "posix library for Lua 5.2 / 32"
+  -- posix = require ("posix", "29")
+  require = X ("require (string, string?, string?, string?)", base.require),
+
+  --- An iterator like ipairs, but in reverse.
+  -- Apart from the order of the elments returned, this function follows
+  -- the same rules as @{ipairs} for determining first and last elements.
+  -- @function ripairs
+  -- @tparam table t any table
+  -- @treturn function iterator function
+  -- @treturn table *t*
+  -- @treturn number `#t + 1`
+  -- @usage for i, v = ripairs (t) do ... end
+  ripairs = X ("ripairs (table)", base.ripairs),
+
+  --- Enhance core `tostring` to render table contents as a string.
+  -- @function tostring
+  -- @param x object to convert to string
+  -- @treturn string compact string rendering of *x*
+  -- @usage
+  -- -- {1=baz,foo=bar}
+  -- print (std.tostring {foo="bar","baz"})
+  tostring = X ("tostring (any?)", base.tostring),
 }
 
 

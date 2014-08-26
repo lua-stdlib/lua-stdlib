@@ -32,25 +32,14 @@ local func    = require "std.functional"
 local object  = require "std.object"
 
 local Object  = object {}
-local List      -- forward declaration
 
-local ipairs, pairs = base.ipairs, base.pairs
-local ielems    = base.ielems
+local ielems, ipairs, pairs = base.ielems, base.ipairs, base.pairs
+local compare   = base.compare
 local prototype = base.prototype
 
-local M = {}
+local M, List
 
 
-
---[[ ================= ]]--
---[[ Module Functions. ]]--
---[[ ================= ]]--
-
-
---- Append an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
   local r = l {}
   r[#r + 1] = x
@@ -58,21 +47,6 @@ local function append (l, x)
 end
 
 
---- Compare two lists element-by-element, from left-to-right.
---
---     if a_list:compare (another_list) == 0 then print "same" end
--- @tparam List l a list
--- @tparam table m another list
--- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
---   if `l` is greater than `m`
-local compare = base.compare
-
-
---- Concatenate arguments into a list.
--- @tparam List l a list
--- @param ... tuple of lists
--- @treturn List new list containing
---   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
 local function concat (l, ...)
   local r = List {}
   for e in ielems {l, ...} do
@@ -84,19 +58,6 @@ local function concat (l, ...)
 end
 
 
---- Prepend an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  return List {x, unpack (l)}
-end
-
-
---- Repeat a list.
--- @tparam List l a list
--- @int n number of times to repeat
--- @treturn List `n` copies of `l` appended together
 local function rep (l, n)
   local r = List {}
   for i = 1, n do
@@ -106,13 +67,6 @@ local function rep (l, n)
 end
 
 
---- Return a sub-range of a list.
--- (The equivalent of `string.sub` on strings; negative list indices
--- count from the end of the list.)
--- @tparam List l a list
--- @int from start of range (default: 1)
--- @int to end of range (default: `#l`)
--- @treturn List new list containing `{l[from], ..., l[to]}`
 local function sub (l, from, to)
   local r = List {}
   local len = #l
@@ -131,25 +85,65 @@ local function sub (l, from, to)
 end
 
 
---- Return a list with its first element removed.
--- @tparam List l a list
--- @treturn List new list containing `{l[2], ..., l[#l]}`
-local function tail (l)
-  return sub (l, 2)
+
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.export ("std.list." .. decl, fn)
 end
 
 
-local export = debug.export
+M = {
+  --- Append an item to a list.
+  -- @tparam List l a list
+  -- @param x item
+  -- @treturn List new list containing `{l[1], ..., l[#l], x}`
+  append = X ("append (List, any)", append),
 
---- @export
-local M = {
-  append  = export "append  (List, any)",
-  compare = export ("std.list", "compare (List, List|table)"),
-  concat  = export "concat  (List, List|table*)",
-  cons    = export "cons    (List, any)",
-  rep     = export "rep     (List, int)",
-  sub     = export "sub     (List, int?, int?)",
-  tail    = export "tail    (List)",
+  --- Compare two lists element-by-element, from left-to-right.
+  --
+  --     if a_list:compare (another_list) == 0 then print "same" end
+  -- @tparam List l a list
+  -- @tparam table m another list
+  -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
+  --   if `l` is greater than `m`
+  compare = X ("compare (List, List|table)", compare),
+
+  --- Concatenate arguments into a list.
+  -- @tparam List l a list
+  -- @param ... tuple of lists
+  -- @treturn List new list containing
+  --   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
+  concat = X ("concat (List, List|table*)", concat),
+
+  --- Prepend an item to a list.
+  -- @tparam List l a list
+  -- @param x item
+  -- @treturn List new list containing `{x, unpack (l)}`
+  cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
+
+  --- Repeat a list.
+  -- @tparam List l a list
+  -- @int n number of times to repeat
+  -- @treturn List `n` copies of `l` appended together
+  rep = X ("rep (List, int)", rep),
+
+  --- Return a sub-range of a list.
+  -- (The equivalent of `string.sub` on strings; negative list indices
+  -- count from the end of the list.)
+  -- @tparam List l a list
+  -- @int from start of range (default: 1)
+  -- @int to end of range (default: `#l`)
+  -- @treturn List new list containing `{l[from], ..., l[to]}`
+  sub = X ("sub (List, int?, int?)", sub),
+
+  --- Return a list with its first element removed.
+  -- @tparam List l a list
+  -- @treturn List new list containing `{l[2], ..., l[#l]}`
+  tail = X ("tail (List)", function (l) return sub (l, 2) end),
 }
 
 

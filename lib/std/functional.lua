@@ -14,16 +14,10 @@ local operator = require "std.operator"
 
 local ipairs, ireverse, len, pairs =
   base.ipairs, base.ireverse, base.len, base.pairs
+local callable, reduce =
+  base.functional.callable, base.functional.reduce
 
 
-
---- Partially apply a function.
--- @function bind
--- @func fn function to apply partially
--- @tparam table argt table of *fn* arguments to bind
--- @return function with *argt* arguments already bound
--- @usage
--- cube = bind (lambda "^", {[2] = 3})
 local function bind (fn, ...)
   local argt = {...}
   if type (argt[1]) == "table" and argt[2] == nil then
@@ -49,33 +43,6 @@ local function bind (fn, ...)
 end
 
 
---- Identify callable types.
--- @function callable
--- @param x an object or primitive
--- @return `true` if *x* can be called, otherwise `false`
--- @usage
--- if callable (functable) then functable (args) end
-local callable = base.functional.callable
-
-
---- A rudimentary case statement.
--- Match *with* against keys in *branches* table.
--- @function case
--- @param with expression to match
--- @tparam table branches map possible matches to functions
--- @return the value associated with a matching key, or the first non-key
---   value if no key matches. Function or functable valued matches are
---   called using *with* as the sole argument, and the result of that call
---   returned; otherwise the matching value associated with the matching
---   key is returned directly; or else `nil` if there is no match and no
---   default.
--- @see cond
--- @usage
--- return case (type (object), {
---   table  = "table",
---   string = function ()  return "string" end,
---            function (s) error ("unhandled type: " .. s) end,
--- })
 local function case (with, branches)
   local match = branches[with] or branches[1]
   if callable (match) then
@@ -85,32 +52,6 @@ local function case (with, branches)
 end
 
 
---- Collect the results of an iterator.
--- @function collect
--- @func[opt=std.ipairs] ifn iterator function
--- @param ... *ifn* arguments
--- @treturn table of results from running *ifn* on *args*
--- @see filter
--- @see map
--- @usage
--- --> {"a", "b", "c"}
--- collect {"a", "b", "c", x=1, y=2, z=5}
-local collect = base.functional.collect
-
-
---- Compose functions.
--- @function compose
--- @func ... functions to compose
--- @treturn function composition of fnN .. fn1: note that this is the
--- reverse of what you might expect, but means that code like:
---
---     functional.compose (function (x) return f (x) end,
---                         function (x) return g (x) end))
---
--- can be read from top to bottom.
--- @usage
--- vpairs = compose (table.invert, ipairs)
--- for v, i in vpairs {"a", "b", "c"} do process (v, i) end
 local function compose (...)
   local arg = {...}
   local fns, n = arg, #arg
@@ -128,26 +69,6 @@ local function compose (...)
 end
 
 
---- A rudimentary condition-case statement.
--- If *expr* is "truthy" return *branch* if given, otherwise *expr*
--- itself. If the return value is a function or functable, then call it
--- with *expr* as the sole argument and return the result; otherwise
--- return it explicitly.  If *expr* is "falsey", then recurse with the
--- first two arguments stripped.
--- @function cond
--- @param expr a Lua expression
--- @param branch a function, functable or value to use if *expr* is
---   "truthy"
--- @param ... additional arguments to retry if *expr* is "falsey"
--- @see case
--- @usage
--- -- recursively calculate the nth triangular number
--- function triangle (n)
---   return cond (
---     n <= 0, 0,
---     n == 1, 1,
---             function () return n + triangle (n - 1) end)
--- end
 local function cond (expr, branch, ...)
   if branch == nil and select ("#", ...) == 0 then
     expr, branch = true, expr
@@ -162,14 +83,6 @@ local function cond (expr, branch, ...)
 end
 
 
---- Curry a function.
--- @function curry
--- @func fn function to curry
--- @int n number of arguments
--- @treturn function curried version of *fn*
--- @usage
--- add = curry (function (x, y) return x + y end, 2)
--- incr, decr = add (1), add (-1)
 local function curry (fn, n)
   if n <= 1 then
     return fn
@@ -181,17 +94,6 @@ local function curry (fn, n)
 end
 
 
---- Filter an iterator with a predicate.
--- @function filter
--- @tparam predicate pfn predicate function
--- @func[opt=std.pairs] ifn iterator function
--- @param ... iterator arguments
--- @treturn table elements e for which `pfn (e)` is not "falsey".
--- @see collect
--- @see map
--- @usage
--- --> {2, 4}
--- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
 local function filter (pfn, ifn, ...)
   local argt = {...}
   if not callable (ifn) then
@@ -217,33 +119,6 @@ local function filter (pfn, ifn, ...)
 end
 
 
---- Fold a binary function into an iterator.
--- @function reduce
--- @func fn reduce function
--- @param d initial first argument
--- @func ifn iterator function
--- @param ... iterator arguments
--- @return result
--- @see foldl
--- @see foldr
--- @usage
--- --> 2 ^ 3 ^ 4 ==> 4096
--- reduce (lambda '^', 2, std.ipairs, {3, 4})
-local reduce = base.functional.reduce
-
-
---- Fold a binary function left associatively.
--- If parameter *d* is omitted, the first element of *t* is used,
--- and *t* treated as if it had been passed without that element.
--- @function foldl
--- @func fn binary function
--- @param[opt=t[1]] d initial left-most argument
--- @tparam table t a table
--- @return result
--- @see foldr
--- @see reduce
--- @usage
--- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
 local function foldl (fn, d, t)
   if t == nil then
     local tail = {}
@@ -254,18 +129,6 @@ local function foldl (fn, d, t)
 end
 
 
---- Fold a binary function right associatively.
--- If parameter *d* is omitted, the last element of *t* is used,
--- and *t* treated as if it had been passed without that element.
--- @function foldr
--- @func fn binary function
--- @param[opt=t[1]] d initial right-most argument
--- @tparam table t a table
--- @return result
--- @see foldl
--- @see reduce
--- @usage
--- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
 local function foldr (fn, d, t)
   if t == nil then
     local u, last = {}, len (d)
@@ -276,27 +139,11 @@ local function foldr (fn, d, t)
 end
 
 
---- Identity function.
--- @function id
--- @param ... arguments
--- @return *arguments*
 local function id (...)
   return ...
 end
 
 
---- Memoize a function, by wrapping it in a functable.
---
--- To ensure that memoize always returns the same results for the same
--- arguments, it passes arguments to *fn*. You can specify a more
--- sophisticated function if memoize should handle complicated argument
--- equivalencies.
--- @function memoize
--- @func fn pure function: a function with no side effects
--- @tparam[opt=std.tostring] normalize normfn function to normalize arguments
--- @treturn functable memoized function
--- @usage
--- local fast = memoize (function (...) --[[ slow code ]] end)
 local function memoize (fn, normalize)
   if normalize == nil then
     normalize = function (...) return base.tostring {...} end
@@ -316,28 +163,6 @@ local function memoize (fn, normalize)
 end
 
 
---- Compile a lambda string into a Lua function.
---
--- A valid lambda string takes one of the following forms:
---
---   1. `'operator'`: where *op* is a key in @{std.operator}, equivalent to that operation
---   1. `'=expression'`: equivalent to `function (...) return (expression) end`
---   1. `'|args|expression'`: equivalent to `function (args) return (expression) end`
---
--- The second form (starting with `=`) automatically assigns the first
--- nine arguments to parameters `_1` through `_9` for use within the
--- expression body.
---
--- The results are memoized, so recompiling an previously compiled
--- lambda string is extremely fast.
--- @function lambda
--- @string s a lambda string
--- @treturn table compiled lambda string, can be called like a function
--- @usage
--- -- The following are all equivalent:
--- lambda '<'
--- lambda '= _1 < _2'
--- lambda '|a,b| a<b'
 local lambda = memoize (function (s)
   local expr
 
@@ -379,18 +204,6 @@ local lambda = memoize (function (s)
 end, id)
 
 
---- Map a function over an iterator.
--- @function map
--- @func fn map function
--- @func[opt=std.pairs] ifn iterator function
--- @param ... iterator arguments
--- @treturn table results
--- @see filter
--- @see map_with
--- @see zip
--- @usage
--- --> {1, 4, 9, 16}
--- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
 local function map (mapfn, ifn, ...)
   local argt = {...}
   if not callable (ifn) or not next (argt) then
@@ -414,17 +227,6 @@ local function map (mapfn, ifn, ...)
 end
 
 
---- Map a function over a table of argument lists.
--- @function map_with
--- @func fn map function
--- @tparam table tt a table of *fn* argument lists
--- @treturn table new table of *fn* results
--- @see map
--- @see zip_with
--- @usage
--- --> {"123", "45"}, {a="123", b="45"}
--- conc = bind (map_with, {lambda '|...|table.concat {...}'})
--- conc {{1, 2, 3}, {4, 5}}, conc {a={1, 2, 3, x="y"}, b={4, 5, z=6}}
 local function map_with (mapfn, tt)
   local r = {}
   for k, v in pairs (tt) do
@@ -434,26 +236,6 @@ local function map_with (mapfn, tt)
 end
 
 
---- No operation.
--- This function ignores all arguments, and returns no values.
--- @function nop
--- @usage
--- if unsupported then vtable["memrmem"] = nop end
-local nop = base.nop
-
-
---- Zip a table of tables.
--- Make a new table, with lists of elements at the same index in the
--- original table. This function is effectively its own inverse.
--- @function zip
--- @tparam table tt a table of tables
--- @treturn table new table with lists of elements of the same key
---   from *tt*
--- @see map
--- @see zip_with
--- @usage
--- --> {{1, 3, 5}, {2, 4}}, {a={x=1, y=3, z=5}, b={x=2, y=4}}
--- zip {{1, 2}, {3, 4}, {5}}, zip {x={a=1, b=2}, y={a=3, b=4}, z={a=5}}
 local function zip (tt)
   local r = {}
   for outerk, inner in pairs (tt) do
@@ -466,52 +248,286 @@ local function zip (tt)
 end
 
 
---- Zip a list of tables together with a function.
--- @function zip_with
--- @tparam function fn function
--- @tparam table tt table of tables
--- @treturn table a new table of results from calls to *fn* with arguments
---   made from all elements the same key in the original tables; effectively
---   the "columns" in a simple list
--- of lists.
--- @see map_with
--- @see zip
--- @usage
--- --> {"135", "24"}, {a="1", b="25"}
--- conc = bind (zip_with, {lambda '|...|table.concat {...}'})
--- conc {{1, 2}, {3, 4}, {5}}, conc {{a=1, b=2}, x={a=3, b=4}, {b=5}}
 local function zip_with (fn, tt)
   return map_with (fn, zip (tt))
 end
 
 
-local export = debug.export
 
---- @export
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.export ("std.functional." .. decl, fn)
+end
+
 local M = {
-  bind     = export "bind     (func, any?*)",
-  callable = callable,
-  case     = export "case     (any?, #table)",
-  collect  = export "collect  ([func], any*)",
-  compose  = export "compose  (func*)",
-  cond     = cond,
-  curry    = export "curry    (func, int)",
-  filter   = export "filter   (func, [func], any*)",
-  foldl    = export "foldl    (function, [any], table)",
-  foldr    = export "foldr    (function, [any], table)",
-  id       = id,
-  lambda   = export "lambda   (string)",
-  map      = export "map      (func, [func], any*)",
-  map_with = export "map_with (function, table of tables)",
-  memoize  = export "memoize  (func, func?)",
-  nop      = nop,
-  reduce   = export "reduce   (func, any, func, any*)",
-  zip      = export "zip      (table of tables)",
-  zip_with = export "zip_with (function, table of tables)",
+  --- Partially apply a function.
+  -- @function bind
+  -- @func fn function to apply partially
+  -- @tparam table argt table of *fn* arguments to bind
+  -- @return function with *argt* arguments already bound
+  -- @usage
+  -- cube = bind (lambda "^", {[2] = 3})
+  bind = X ("bind (func, any?*)", bind),
+
+  --- Identify callable types.
+  -- @function callable
+  -- @param x an object or primitive
+  -- @return `true` if *x* can be called, otherwise `false`
+  -- @usage
+  -- if callable (functable) then functable (args) end
+  callable = X ("callable (any)", callable),
+
+  --- A rudimentary case statement.
+  -- Match *with* against keys in *branches* table.
+  -- @function case
+  -- @param with expression to match
+  -- @tparam table branches map possible matches to functions
+  -- @return the value associated with a matching key, or the first non-key
+  --   value if no key matches. Function or functable valued matches are
+  --   called using *with* as the sole argument, and the result of that call
+  --   returned; otherwise the matching value associated with the matching
+  --   key is returned directly; or else `nil` if there is no match and no
+  --   default.
+  -- @see cond
+  -- @usage
+  -- return case (type (object), {
+  --   table  = "table",
+  --   string = function ()  return "string" end,
+  --            function (s) error ("unhandled type: " .. s) end,
+  -- })
+  case = X ("case (any?, #table)", case),
+
+  --- Collect the results of an iterator.
+  -- @function collect
+  -- @func[opt=std.ipairs] ifn iterator function
+  -- @param ... *ifn* arguments
+  -- @treturn table of results from running *ifn* on *args*
+  -- @see filter
+  -- @see map
+  -- @usage
+  -- --> {"a", "b", "c"}
+  -- collect {"a", "b", "c", x=1, y=2, z=5}
+  collect = X ("collect ([func], any*)", base.functional.collect),
+
+  --- Compose functions.
+  -- @function compose
+  -- @func ... functions to compose
+  -- @treturn function composition of fnN .. fn1: note that this is the
+  -- reverse of what you might expect, but means that code like:
+  --
+  --     functional.compose (function (x) return f (x) end,
+  --                         function (x) return g (x) end))
+  --
+  -- can be read from top to bottom.
+  -- @usage
+  -- vpairs = compose (table.invert, ipairs)
+  -- for v, i in vpairs {"a", "b", "c"} do process (v, i) end
+  compose = X ("compose (func*)", compose),
+
+  --- A rudimentary condition-case statement.
+  -- If *expr* is "truthy" return *branch* if given, otherwise *expr*
+  -- itself. If the return value is a function or functable, then call it
+  -- with *expr* as the sole argument and return the result; otherwise
+  -- return it explicitly.  If *expr* is "falsey", then recurse with the
+  -- first two arguments stripped.
+  -- @function cond
+  -- @param expr a Lua expression
+  -- @param branch a function, functable or value to use if *expr* is
+  --   "truthy"
+  -- @param ... additional arguments to retry if *expr* is "falsey"
+  -- @see case
+  -- @usage
+  -- -- recursively calculate the nth triangular number
+  -- function triangle (n)
+  --   return cond (
+  --     n <= 0, 0,
+  --     n == 1, 1,
+  --             function () return n + triangle (n - 1) end)
+  -- end
+  cond = cond, -- any number of any type arguments!
+
+  --- Curry a function.
+  -- @function curry
+  -- @func fn function to curry
+  -- @int n number of arguments
+  -- @treturn function curried version of *fn*
+  -- @usage
+  -- add = curry (function (x, y) return x + y end, 2)
+  -- incr, decr = add (1), add (-1)
+  curry = X ("curry (func, int)", curry),
+
+  --- Filter an iterator with a predicate.
+  -- @function filter
+  -- @tparam predicate pfn predicate function
+  -- @func[opt=std.pairs] ifn iterator function
+  -- @param ... iterator arguments
+  -- @treturn table elements e for which `pfn (e)` is not "falsey".
+  -- @see collect
+  -- @see map
+  -- @usage
+  -- --> {2, 4}
+  -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
+  filter = X ("filter (func, [func], any*)", filter),
+
+  --- Fold a binary function left associatively.
+  -- If parameter *d* is omitted, the first element of *t* is used,
+  -- and *t* treated as if it had been passed without that element.
+  -- @function foldl
+  -- @func fn binary function
+  -- @param[opt=t[1]] d initial left-most argument
+  -- @tparam table t a table
+  -- @return result
+  -- @see foldr
+  -- @see reduce
+  -- @usage
+  -- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
+  foldl = X ("foldl (function, [any], table)", foldl),
+
+  --- Fold a binary function right associatively.
+  -- If parameter *d* is omitted, the last element of *t* is used,
+  -- and *t* treated as if it had been passed without that element.
+  -- @function foldr
+  -- @func fn binary function
+  -- @param[opt=t[1]] d initial right-most argument
+  -- @tparam table t a table
+  -- @return result
+  -- @see foldl
+  -- @see reduce
+  -- @usage
+  -- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
+  foldr = X ("foldr (function, [any], table)", foldr),
+
+  --- Identity function.
+  -- @function id
+  -- @param ... arguments
+  -- @return *arguments*
+  id = id,  -- any number of any type arguments!
+
+  --- Compile a lambda string into a Lua function.
+  --
+  -- A valid lambda string takes one of the following forms:
+  --
+  --   1. `'operator'`: where *op* is a key in @{std.operator}, equivalent to that operation
+  --   1. `'=expression'`: equivalent to `function (...) return (expression) end`
+  --   1. `'|args|expression'`: equivalent to `function (args) return (expression) end`
+  --
+  -- The second form (starting with `=`) automatically assigns the first
+  -- nine arguments to parameters `_1` through `_9` for use within the
+  -- expression body.
+  --
+  -- The results are memoized, so recompiling an previously compiled
+  -- lambda string is extremely fast.
+  -- @function lambda
+  -- @string s a lambda string
+  -- @treturn table compiled lambda string, can be called like a function
+  -- @usage
+  -- -- The following are all equivalent:
+  -- lambda '<'
+  -- lambda '= _1 < _2'
+  -- lambda '|a,b| a<b'
+  lambda = X ("lambda (string)", lambda),
+
+  --- Map a function over an iterator.
+  -- @function map
+  -- @func fn map function
+  -- @func[opt=std.pairs] ifn iterator function
+  -- @param ... iterator arguments
+  -- @treturn table results
+  -- @see filter
+  -- @see map_with
+  -- @see zip
+  -- @usage
+  -- --> {1, 4, 9, 16}
+  -- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
+  map = X ("map (func, [func], any*)", map),
+
+  --- Map a function over a table of argument lists.
+  -- @function map_with
+  -- @func fn map function
+  -- @tparam table tt a table of *fn* argument lists
+  -- @treturn table new table of *fn* results
+  -- @see map
+  -- @see zip_with
+  -- @usage
+  -- --> {"123", "45"}, {a="123", b="45"}
+  -- conc = bind (map_with, {lambda '|...|table.concat {...}'})
+  -- conc {{1, 2, 3}, {4, 5}}, conc {a={1, 2, 3, x="y"}, b={4, 5, z=6}}
+  map_with = X ("map_with (function, table of tables)", map_with),
+
+  --- Memoize a function, by wrapping it in a functable.
+  --
+  -- To ensure that memoize always returns the same results for the same
+  -- arguments, it passes arguments to *fn*. You can specify a more
+  -- sophisticated function if memoize should handle complicated argument
+  -- equivalencies.
+  -- @function memoize
+  -- @func fn pure function: a function with no side effects
+  -- @tparam[opt=std.tostring] normalize normfn function to normalize arguments
+  -- @treturn functable memoized function
+  -- @usage
+  -- local fast = memoize (function (...) --[[ slow code ]] end)
+  memoize = X ("memoize (func, func?)", memoize),
+
+  --- No operation.
+  -- This function ignores all arguments, and returns no values.
+  -- @function nop
+  -- @see id
+  -- @usage
+  -- if unsupported then vtable["memrmem"] = nop end
+  nop = base.nop, -- ignores all arguments
+
+  --- Fold a binary function into an iterator.
+  -- @function reduce
+  -- @func fn reduce function
+  -- @param d initial first argument
+  -- @func ifn iterator function
+  -- @param ... iterator arguments
+  -- @return result
+  -- @see foldl
+  -- @see foldr
+  -- @usage
+  -- --> 2 ^ 3 ^ 4 ==> 4096
+  -- reduce (lambda '^', 2, std.ipairs, {3, 4})
+  reduce = X ("reduce (func, any, func, any*)", reduce),
+
+  --- Zip a table of tables.
+  -- Make a new table, with lists of elements at the same index in the
+  -- original table. This function is effectively its own inverse.
+  -- @function zip
+  -- @tparam table tt a table of tables
+  -- @treturn table new table with lists of elements of the same key
+  --   from *tt*
+  -- @see map
+  -- @see zip_with
+  -- @usage
+  -- --> {{1, 3, 5}, {2, 4}}, {a={x=1, y=3, z=5}, b={x=2, y=4}}
+  -- zip {{1, 2}, {3, 4}, {5}}, zip {x={a=1, b=2}, y={a=3, b=4}, z={a=5}}
+  zip = X ("zip (table of tables)", zip),
+
+  --- Zip a list of tables together with a function.
+  -- @function zip_with
+  -- @tparam function fn function
+  -- @tparam table tt table of tables
+  -- @treturn table a new table of results from calls to *fn* with arguments
+  --   made from all elements the same key in the original tables; effectively
+  --   the "columns" in a simple list
+  -- of lists.
+  -- @see map_with
+  -- @see zip
+  -- @usage
+  -- --> {"135", "24"}, {a="1", b="25"}
+  -- conc = bind (zip_with, {lambda '|...|table.concat {...}'})
+  -- conc {{1, 2}, {3, 4}, {5}}, conc {{a=1, b=2}, x={a=3, b=4}, {b=5}}
+  zip_with = X ("zip_with (function, table of tables)", zip_with),
 }
 
 
 M.op = operator  -- for backwards compatibility
+
 
 
 --[[ ============= ]]--
