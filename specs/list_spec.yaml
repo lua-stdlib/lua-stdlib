@@ -493,45 +493,45 @@ specify std.list:
         f = M.foldl
 
     - it writes a deprecation warning on first call:
-        expect (capture (f, {op["+"], 1, l})).
+        expect (capture (f, {op.sum, 1, l})).
          to_contain_error "was deprecated"
-        expect (capture (f, {op["+"], 1, l})).
+        expect (capture (f, {op.sum, 1, l})).
          not_to_contain_error "was deprecated"
 
     - context with a table:
       - it works with an empty table:
-          expect (f (op["+"], 10000, {})).to_be (10000)
+          expect (f (op.sum, 10000, {})).to_be (10000)
       - it folds a binary function through a table:
-          expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
+          expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
       - it folds from left to right:
-          expect (f (op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+          expect (f (op.pow, 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
     - context with a List:
       - it works with an empty List:
-          expect (f (op["+"], 10000, List {})).to_be (10000)
+          expect (f (op.sum, 10000, List {})).to_be (10000)
       - it folds a binary function through a List:
-          expect (f (op["+"], 10000, List {1, 10, 100})).
+          expect (f (op.sum, 10000, List {1, 10, 100})).
             to_be (10111)
       - it folds from left to right:
-          expect (f (op["^"], 2, List {3, 4})).to_be ((2 ^ 3) ^ 4)
+          expect (f (op.pow, 2, List {3, 4})).to_be ((2 ^ 3) ^ 4)
 
   - context as an object method:
     - before:
         f = l.foldl
 
     - it writes a deprecation warning on first call:
-        expect (capture (f, {l, op["+"], 1})).
+        expect (capture (f, {l, op.sum, 1})).
           to_contain_error "was deprecated"
-        expect (capture (f, {l, op["+"], 1})).
+        expect (capture (f, {l, op.sum, 1})).
           not_to_contain_error "was deprecated"
 
     - it works with an empty List:
         l = List {}
-        expect (f (l, op["+"], 2)).to_be (2)
+        expect (f (l, op.sum, 2)).to_be (2)
     - it folds a binary function through a List:
-        expect (f (l, op["+"], 2)).to_be (9)
+        expect (f (l, op.sum, 2)).to_be (9)
     - it folds from left to right:
-        expect (f (l, op["^"], 2)).to_be ((2 ^ 3) ^ 4)
+        expect (f (l, op.pow, 2)).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldr:
@@ -544,27 +544,27 @@ specify std.list:
         f = M.foldr
 
     - it writes a deprecation warning on first call:
-        expect (capture (f, {op["+"], 1, {10}})).
+        expect (capture (f, {op.sum, 1, {10}})).
          to_contain_error "was deprecated"
-        expect (capture (f, {op["+"], 1, {10}})).
+        expect (capture (f, {op.sum, 1, {10}})).
          not_to_contain_error "was deprecated"
 
     - context with a table:
       - it works with an empty table:
-          expect (f (op["+"], 10000, {})).to_be (10000)
+          expect (f (op.sum, 10000, {})).to_be (10000)
       - it folds a binary function through a table:
-          expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
+          expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
       - it folds from right to left:
-          expect (f (op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
+          expect (f (op.quot, 10, {10000, 100})).to_be (10000 / (100 / 10))
 
     - context with a List:
       - it works with an empty List:
-          expect (f (op["+"], 10000, List {})).to_be (10000)
+          expect (f (op.sum, 10000, List {})).to_be (10000)
       - it folds a binary function through a List:
-          expect (f (op["+"], 10000, List {1, 10, 100})).
+          expect (f (op.sum, 10000, List {1, 10, 100})).
             to_be (10111)
       - it folds from right to left:
-          expect (f (op["/"], 10, List {10000, 100})).
+          expect (f (op.quot, 10, List {10000, 100})).
             to_be (10000 / (100 / 10))
 
   - context as an object method:
@@ -572,18 +572,18 @@ specify std.list:
         f = l.foldr
 
     - it writes a deprecation warning on first call:
-        expect (capture (f, {l, op["+"], 1})).
+        expect (capture (f, {l, op.sum, 1})).
           to_contain_error "was deprecated"
-        expect (capture (f, {l, op["+"], 1})).
+        expect (capture (f, {l, op.sum, 1})).
           not_to_contain_error "was deprecated"
 
     - it works with an empty List:
         l = List {}
-        expect (f (l, op["+"], 10)).to_be (10)
+        expect (f (l, op.sum, 10)).to_be (10)
     - it folds a binary function through a List:
-        expect (f (l, op["+"], 10)).to_be (10110)
+        expect (f (l, op.sum, 10)).to_be (10110)
     - it folds from right to left:
-        expect (f (l, op["/"], 10)).to_be (10000 / (100 / 10))
+        expect (f (l, op.quot, 10)).to_be (10000 / (100 / 10))
 
 
 - describe index_key:

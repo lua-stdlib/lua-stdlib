@@ -21,15 +21,17 @@ Stdlib NEWS - User visible changes
    for production code.  Similarly `_DEBUG = false` deactivates these
    functions in the same way.
 
+ - New `std.operator` module, with easier to type operator names (`deref`,
+   `diff`, `eq`, `neq`, `prod`, `quot`, and `sum`), plus brand new
+   functional operators for concatenation `concat`, table construction
+   `cons`, list length `length`; plus new mathematical operators `mod`,
+   and `pow`; and relational operators `lt`, `lte`, `gt` and `gte`.
+   The `length` operator respects the `__len` metamethod, if any, even on
+   Lua 5.1.
+
  - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types
    are compatible, uses alien.buffers for efficient element management.
-
- - New `std.operator` module, with new functional operators for
-   concatenation `..`, tablification `{}`, stringification `""`, length
-   `#` and matching `~`, plus new mathematical operators `%` and `^`, and
-   relational operators, `<`, `<=`, `>` and `>=`.  The `#` operator
-   respects the `__len` metamethod, if any, even on Lua 5.1.
 
  - `functional.case` now accepts non-callable branch values, which are
    simply returned as is, and functable values which are called and

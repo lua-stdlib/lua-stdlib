@@ -227,7 +227,7 @@ Tree = Container {
   --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
   __index = function (self, i)
     if prototype (i) == "table" then
-      return reduce (operator["[]"], self, ielems, i)
+      return reduce (operator.deref, self, ielems, i)
     else
       return rawget (self, i)
     end

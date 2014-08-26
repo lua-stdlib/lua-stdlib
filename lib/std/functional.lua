@@ -542,22 +542,22 @@ M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", reduce)
 
 
-local function DEPRECATEOP (t, k)
-  return DEPRECATED ("41", "'std.functional.op[" .. k .. "]'",
-    "use 'std.functional.operator[" .. k .. "]' instead", t[k])
+local function DEPRECATEOP (t, old, new)
+  return DEPRECATED ("41", "'std.functional.op[" .. old .. "]'",
+    "use 'std.functional.operator." .. new .. "' instead", t[new])
 end
 
 M.op = {
-  ["[]"]  = DEPRECATEOP (operator, "[]"),
-  ["+"]   = DEPRECATEOP (operator, "+"),
-  ["-"]   = DEPRECATEOP (operator, "-"),
-  ["*"]   = DEPRECATEOP (operator, "*"),
-  ["/"]   = DEPRECATEOP (operator, "/"),
-  ["and"] = DEPRECATEOP (operator, "and"),
-  ["or"]  = DEPRECATEOP (operator, "or"),
-  ["not"] = DEPRECATEOP (operator, "not"),
-  ["=="]  = DEPRECATEOP (operator, "=="),
-  ["~="]  = DEPRECATEOP (operator, "~="),
+  ["[]"]  = DEPRECATEOP (operator, "[]",  "deref"),
+  ["+"]   = DEPRECATEOP (operator, "+",   "sum"),
+  ["-"]   = DEPRECATEOP (operator, "-",   "diff"),
+  ["*"]   = DEPRECATEOP (operator, "*",   "prod"),
+  ["/"]   = DEPRECATEOP (operator, "/",   "quot"),
+  ["and"] = DEPRECATEOP (operator, "and", "and"),
+  ["or"]  = DEPRECATEOP (operator, "or",  "or"),
+  ["not"] = DEPRECATEOP (operator, "not", "not"),
+  ["=="]  = DEPRECATEOP (operator, "==",  "eq"),
+  ["~="]  = DEPRECATEOP (operator, "~=",  "neq"),
 }
 
 return M

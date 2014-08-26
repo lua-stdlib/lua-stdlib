@@ -276,17 +276,17 @@ specify std.functional:
         not_to_contain_error "was deprecated"
 
   - it works with an empty table:
-      expect (f (op["+"], 2, ipairs, {})).to_be (2)
+      expect (f (op.sum, 2, ipairs, {})).to_be (2)
   - it calls a binary function over single return value iterator results:
-      expect (f (op["+"], 2, base.ielems, {3})).
+      expect (f (op.sum, 2, base.ielems, {3})).
         to_be (2 + 3)
-      expect (f (op["*"], 2, base.ielems, {3, 4})).
+      expect (f (op.prod, 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it calls a binary function over key:value iterator results:
-      expect (f (op["+"], 2, ipairs, {3})).to_be (2 + 3)
-      expect (f (op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+      expect (f (op.sum, 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (op.prod, 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it folds elements from left to right:
-      expect (f (op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op.pow, 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldl:
@@ -305,13 +305,13 @@ specify std.functional:
       expect (f (f, 42, {}, false)).to_raise (badarg (4))
 
   - it works with an empty table:
-      expect (f (op["+"], 10000, {})).to_be (10000)
+      expect (f (op.sum, 10000, {})).to_be (10000)
   - it folds a binary function through a table:
-      expect (f (op["+"], 10000, {1, 10, 100})).to_be (10111)
+      expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
   - it folds from left to right:
-      expect (f (op["^"], 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op.pow, 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it supports eliding init argument:
-      expect (f (op["^"], {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op.pow, {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldr:
@@ -330,13 +330,13 @@ specify std.functional:
       expect (f (f, 42, {}, false)).to_raise (badarg (4))
 
   - it works with an empty table:
-      expect (f (op["+"], 1, {})).to_be (1)
+      expect (f (op.sum, 1, {})).to_be (1)
   - it folds a binary function through a table:
-      expect (f (op["+"], {10000, 100, 10, 1})).to_be (10111)
+      expect (f (op.sum, {10000, 100, 10, 1})).to_be (10111)
   - it folds from right to left:
-      expect (f (op["/"], 10, {10000, 100})).to_be (10000 / (100 / 10))
+      expect (f (op.quot, 10, {10000, 100})).to_be (10000 / (100 / 10))
   - it supports eliding init argument:
-      expect (f (op["/"], {10000, 100, 10})).to_be (10000 / (100 / 10))
+      expect (f (op.quot, {10000, 100, 10})).to_be (10000 / (100 / 10))
 
 
 - describe id:
@@ -693,17 +693,17 @@ specify std.functional:
       expect (f (f, 1, false)).to_raise (badarg (3, "function", "boolean"))
 
   - it works with an empty table:
-      expect (f (op["+"], 2, ipairs, {})).to_be (2)
+      expect (f (op.sum, 2, ipairs, {})).to_be (2)
   - it calls a binary function over single return value iterator results:
-      expect (f (op["+"], 2, base.ielems, {3})).
+      expect (f (op.sum, 2, base.ielems, {3})).
         to_be (2 + 3)
-      expect (f (op["*"], 2, base.ielems, {3, 4})).
+      expect (f (op.prod, 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it calls a binary function over key:value iterator results:
-      expect (f (op["+"], 2, ipairs, {3})).to_be (2 + 3)
-      expect (f (op["*"], 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+      expect (f (op.sum, 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (op.prod, 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
   - it reduces elements from left to right:
-      expect (f (op["^"], 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op.pow, 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
 
 
 - describe zip:

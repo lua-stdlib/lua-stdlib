@@ -17,9 +17,9 @@ specify std.operator:
           to_equal {}
 
 
-- describe ..:
+- describe concat:
   - before:
-      f = M[".."]
+      f = M.concat
 
   - it stringifies its arguments:
       expect (f (1, "")).to_be "1"
@@ -27,18 +27,18 @@ specify std.operator:
   - it concatenates its arguments:
       expect (f (1, 2)).to_be "12"
 
-- describe []:
+- describe deref:
   - before:
-      f = M["[]"]
+      f = M.deref
 
   - it dereferences a table:
       expect (f ({}, 1)).to_be (nil)
       expect (f ({"foo", "bar"}, 1)).to_be "foo"
       expect (f ({foo = "bar"}, "foo")).to_be "bar"
 
-- describe {}:
+- describe cons:
   - before:
-      f = M["{}"]
+      f = M.cons
 
   - it packs its arguments into a table:
       expect (f ()).to_equal {}
@@ -46,26 +46,9 @@ specify std.operator:
       expect (f ("foo", "bar")).to_equal {"foo", "bar"}
       expect (f ("a", "b", "c", 1, 2, 3)).to_equal {"a", "b", "c", 1, 2, 3}
 
-- describe "":
+- describe length:
   - before:
-      f = M['""']
-
-  - it stringifies its argument:
-      expect (f ()).to_be "nil"
-      expect (f (42)).to_be "42"
-      expect (f ("foo")).to_be "foo"
-
-- describe ~:
-  - before:
-      f = M["~"]
-
-  - it finds a pattern match in a string:
-      haystack = "foo bar baz"
-      expect (haystack:sub (f (haystack, "ba."))).to_be "bar"
-
-- 'describe #':
-  - before:
-      f = M["#"]
+      f = M.length
 
   - it returns the length of a string:
       expect (f "1234567890").to_be (10)
@@ -74,44 +57,44 @@ specify std.operator:
   - it uses the __len metamethod:
       expect (f (setmetatable ({}, { __len = function () return 42 end }))).to_be (42)
 
-- describe +:
+- describe sum:
   - before:
-      f = M["+"]
+      f = M.sum
 
   - it returns the sum of its arguments:
       expect (f (99, 2)).to_be (99 + 2)
 
-- describe -:
+- describe diff:
   - before:
-      f = M["-"]
+      f = M.diff
 
   - it returns the difference of its arguments:
       expect (f (99, 2)).to_be (99 - 2)
 
-- describe *:
+- describe prod:
   - before:
-      f = M["*"]
+      f = M.prod
 
   - it returns the product of its arguments:
       expect (f (99, 2)).to_be (99 * 2)
 
-- describe /:
+- describe quot:
   - before:
-      f = M["/"]
+      f = M.quot
 
   - it returns the quotient of its arguments:
       expect (f (99, 2)).to_be (99 / 2)
 
-- describe %:
+- describe mod:
   - before:
-      f = M["%"]
+      f = M.mod
 
   - it returns the modulus of its arguments:
       expect (f (99, 2)).to_be (99 % 2)
 
-- describe ^:
+- describe pow:
   - before:
-      f = M["^"]
+      f = M.pow
 
   - it returns the power of its arguments:
       expect (f (99, 2)).to_be (math.pow (99, 2))
@@ -157,9 +140,9 @@ specify std.operator:
       expect (f ()).to_be (true)
       expect (f (0)).to_be (false)
 
-- describe ==:
+- describe eq:
   - before:
-      f = M["=="]
+      f = M.eq
 
   - it returns true if the arguments are equal:
       expect (f ()).to_be (true)
@@ -168,21 +151,21 @@ specify std.operator:
       expect (f (1)).to_be (false)
       expect (f ("foo", "bar")).to_be (false)
 
-- describe ~=:
+- describe neq:
   - before:
-      f = M["=="]
+      f = M.neq
 
   - it returns false if the arguments are equal:
-      expect (f (1)).to_be (false)
-      expect (f ("foo", "bar")).to_be (false)
-      expect (f ({}, {})).to_be (false)
+      expect (f (1, 1)).to_be (false)
+      expect (f ("foo", "foo")).to_be (false)
   - it returns true if the arguments are unequal:
-      expect (f ()).to_be (true)
-      expect (f ("foo", "foo")).to_be (true)
+      expect (f (1)).to_be (true)
+      expect (f ("foo", "bar")).to_be (true)
+      expect (f ({}, {})).to_be (true)
 
-- describe <:
+- describe lt:
   - before:
-      f = M["<"]
+      f = M.lt
 
   - it returns true if the arguments are in ascending order:
       expect (f (1, 2)).to_be (true)
@@ -198,9 +181,9 @@ specify std.operator:
       expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
       expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
 
-- describe <=:
+- describe lte:
   - before:
-      f = M["<="]
+      f = M.lte
 
   - it returns true if the arguments are not in descending order:
       expect (f (1, 2)).to_be (true)
@@ -216,9 +199,9 @@ specify std.operator:
       expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (true)
       expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
 
-- describe >:
+- describe gt:
   - before:
-      f = M[">"]
+      f = M.gt
 
   - it returns true if the arguments are in descending order:
       expect (f (2, 1)).to_be (true)
@@ -234,9 +217,9 @@ specify std.operator:
       expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
       expect (f (List {1, 2, 3}, List {1, 2, 4})).to_be (false)
 
-- describe >=:
+- describe gte:
   - before:
-      f = M[">="]
+      f = M.gte
 
   - it returns true if the arguments are not in ascending order:
       expect (f (2, 1)).to_be (true)

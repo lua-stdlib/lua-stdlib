@@ -361,7 +361,7 @@ M = {
 
   --- Make table.sort return its result.
   -- @tparam table t unsorted table
-  -- @tparam[opt=std.operator["<"]] comparator c ordering function callback
+  -- @tparam[opt=std.operator.lt] comparator c ordering function callback
   --   lua `<` operator
   -- @return *t* with keys sorted accordind to *c*
   -- @usage table.concat (sort (object))
