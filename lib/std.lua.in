@@ -84,7 +84,7 @@ end
 -- @field version release version string
 
 local function X (decl, fn)
-  return require "std.debug".export ("std." .. decl, fn)
+  return require "std.debug".argscheck ("std." .. decl, fn)
 end
 
 M = {
