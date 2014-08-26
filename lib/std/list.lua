@@ -319,9 +319,7 @@ local function transpose (ls)
     for i = 1, math.max (unpack (dims)) do
       rs[i] = List {}
       for j = 1, len do
-	-- FIXME: the if wrapper is only needed to stop the i index
-	--        falling through to the metatable[2] index :(
-        if i <= #ls[j] then rs[i][j] = ls[j][i] end
+        rs[i][j] = ls[j][i]
       end
     end
   end
