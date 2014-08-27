@@ -273,7 +273,8 @@ M = {
 
   --- Enhance core *table.insert* to return its result.
   -- If *pos* is not given, respect `__len` metamethod when calculating
-  -- default append.
+  -- default append.  Also, diagnose out of bounds *pos* arguments
+  -- consistently on any supported version of Lua.
   -- @function insert
   -- @tparam table t a table
   -- @int[opt=len (t)] pos index at which to insert new element

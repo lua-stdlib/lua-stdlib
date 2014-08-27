@@ -33,85 +33,9 @@ local function argerror (name, i, extramsg, level)
 end
 
 
-local function callable (x)
-  if type (x) == "function" then
-    return x
-  else
-    x = (getmetatable (x) or {}).__call
-    if type (x) == "function" then
-      return x
-    end
-  end
-end
-
-
-local function len (t)
-  -- Lua < 5.2 doesn't call `__len` automatically!
-  local m = (getmetatable (t) or {}).__len
-  return callable (m) and m (t) or #t
-end
-
-
-local function last (t) return t[len (t)] end
-
-
-local function copy (t)
-  local new = {}
-  for k, v in pairs (t) do new[k] = v end
-  return new
-end
-
-
-local function leaves (it, tr)
-  local function visit (n)
-    if type (n) == "table" then
-      for _, v in it (n) do
-        visit (v)
-      end
-    else
-      coroutine.yield (n)
-    end
-  end
-  return coroutine.wrap (visit), tr
-end
-
-
-local _pairs = pairs
-
--- Respect __pairs metamethod, even in Lua 5.1.
-local function pairs (t)
-  return ((getmetatable (t) or {}).__pairs or _pairs) (t)
-end
-
-
--- Iterate over keys 1..#l, like Lua 5.3.
-local function ipairs (l)
-  local tlen = len (l)
-
-  return function (l, n)
-    n = n + 1
-    if n <= tlen then
-      return n, l[n]
-    end
-  end, l, 0
-end
-
-
-local function ripairs (t)
-  return function (t, n)
-    n = n - 1
-    if n > 0 then
-      return n, t[n]
-    end
-  end, t, len (t) + 1
-end
-
-
--- Be careful not to compact holes from `t` when reversing.
-local function ireverse (t)
-  local r, tlen = {}, len (t)
-  for i = 1, tlen do r[tlen - i + 1] = t[i] end
-  return r
+local function assert (expect, fmt, arg1, ...)
+  local msg = (arg1 ~= nil) and string.format (fmt, arg1, ...) or fmt or ""
+  return expect or error (msg, 2)
 end
 
 
@@ -127,40 +51,43 @@ local function getmetamethod (x, n)
 end
 
 
---- Iterator adaptor for discarding first value from core iterator function.
--- @func factory iterator to be wrapped
--- @param ... *factory* arguments
--- @treturn function iterator that discards first returned value of
---   factory iterator
--- @return invariant state from *factory*
--- @return `true`
--- @usage
--- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
-local function wrapiterator (factory, ...)
-  -- Capture wrapped ctrl variable into an upvalue...
-  local fn, istate, ctrl = factory (...)
-  -- Wrap the returned iterator fn to maintain wrapped ctrl.
-  return function (state, _)
-           local v
-	   ctrl, v = fn (state, ctrl)
-	   if ctrl then return v end
-	 end, istate, true -- wrapped initial state, and wrapper ctrl
+local function callable (x)
+  if type (x) == "function" then return x end
+  return  getmetamethod (x, "__call")
 end
 
 
-local function elems (t)
-  return wrapiterator ((getmetatable (t) or {}).__pairs or pairs, t)
+-- Lua < 5.2 doesn't call `__len` automatically!
+local function len (t)
+  local m = getmetamethod (t, "__len")
+  return m and m (t) or #t
 end
 
 
-local function ielems (l)
-  return wrapiterator (ipairs, l)
+local function ipairs (l)
+  local lenl = len (l)
+
+  return function (l, n)
+    n = n + 1
+    if n <= lenl then
+      return n, l[n]
+    end
+  end, l, 0
 end
 
 
-local function assert (expect, f, arg1, ...)
-  local msg = (arg1 ~= nil) and string.format (f, arg1, ...) or f or ""
-  return expect or error (msg, 2)
+local function collect (ifn, ...)
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = ipairs, {ifn, ...}
+  end
+
+  local r = {}
+  for k, v in ifn (unpack (argt)) do
+    if v == nil then k, v = #r + 1, k end
+    r[k] = v
+  end
+  return r
 end
 
 
@@ -186,8 +113,67 @@ local function compare (l, m)
 end
 
 
+local _pairs = pairs
+
+-- Respect __pairs metamethod, even in Lua 5.1.
+local function pairs (t)
+  return (getmetamethod (t, "__pairs") or _pairs) (t)
+end
+
+
+local function copy (t)
+  local r = {}
+  for k, v in pairs (t) do r[k] = v end
+  return r
+end
+
+
+--- Iterator adaptor for discarding first value from core iterator function.
+-- @func factory iterator to be wrapped
+-- @param ... *factory* arguments
+-- @treturn function iterator that discards first returned value of
+--   factory iterator
+-- @return invariant state from *factory*
+-- @return `true`
+-- @usage
+-- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
+local function wrapiterator (factory, ...)
+  -- Capture wrapped ctrl variable into an upvalue...
+  local fn, istate, ctrl = factory (...)
+  -- Wrap the returned iterator fn to maintain wrapped ctrl.
+  return function (state, _)
+           local v
+	   ctrl, v = fn (state, ctrl)
+	   if ctrl then return v end
+	 end, istate, true -- wrapped initial state, and wrapper ctrl
+end
+
+
+local function elems (t)
+  return wrapiterator (pairs, t)
+end
+
+
 local function eval (s)
   return loadstring ("return " .. s)()
+end
+
+
+-- Iterate over keys 1..#l, like Lua 5.3.
+local function ipairs (l)
+  local tlen = len (l)
+
+  return function (l, n)
+    n = n + 1
+    if n <= tlen then
+      return n, l[n]
+    end
+  end, l, 0
+end
+
+
+local function ielems (l)
+  return wrapiterator (ipairs, l)
 end
 
 
@@ -203,43 +189,46 @@ local function insert (t, pos, v)
 end
 
 
-local function split (s, sep)
-  local r, patt = {}
-  if sep == "" then
-    patt = "(.)"
-    insert (r, "")
-  else
-    patt = "(.-)" .. (sep or "%s+")
-  end
-  local b, lens = 0, len (s)
-  while b <= lens do
-    local e, n, m = string.find (s, patt, b + 1)
-    insert (r, m or s:sub (b + 1, lens))
-    b = n or lens + 1
-  end
+-- Be careful not to compact holes from `t` when reversing.
+local function ireverse (t)
+  local r, tlen = {}, len (t)
+  for i = 1, tlen do r[tlen - i + 1] = t[i] end
   return r
 end
 
 
-local function vcompare (a, b)
-  return compare (split (a, "%."), split (b, "%."))
+local function last (t) return t[len (t)] end
+
+
+local function leaves (it, tr)
+  local function visit (n)
+    if type (n) == "table" then
+      for _, v in it (n) do
+        visit (v)
+      end
+    else
+      coroutine.yield (n)
+    end
+  end
+  return coroutine.wrap (visit), tr
 end
 
 
-local _require = require
+local function prototype (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
 
-local function require (module, min, too_big, pattern)
-  local m = _require (module)
-  local v = (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
-  if min then
-    assert (vcompare (v, min) >= 0, "require '" .. module ..
-            "' with at least version " .. min .. ", but found version " .. v)
+
+local function reduce (fn, d, ifn, ...)
+  local nextfn, state, k = ifn (...)
+  local t = {nextfn (state, k)}
+
+  local r = d
+  while t[1] ~= nil do
+    r = fn (r, t[#t])
+    t = {nextfn (state, t[1])}
   end
-  if too_big then
-    assert (vcompare (v, too_big) < 0, "require '" .. module ..
-            "' with version less than " .. too_big .. ", but found version " .. v)
-  end
-  return m
+  return r
 end
 
 
@@ -297,6 +286,56 @@ local function render (x, open, close, elem, pair, sep, roots)
 end
 
 
+local function ripairs (t)
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, len (t) + 1
+end
+
+
+local function split (s, sep)
+  local r, patt = {}
+  if sep == "" then
+    patt = "(.)"
+    insert (r, "")
+  else
+    patt = "(.-)" .. (sep or "%s+")
+  end
+  local b, lens = 0, len (s)
+  while b <= lens do
+    local e, n, m = string.find (s, patt, b + 1)
+    insert (r, m or s:sub (b + 1, lens))
+    b = n or lens + 1
+  end
+  return r
+end
+
+
+local function vcompare (a, b)
+  return compare (split (a, "%."), split (b, "%."))
+end
+
+
+local _require = require
+
+local function require (module, min, too_big, pattern)
+  local m = _require (module)
+  local v = (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
+  if min then
+    assert (vcompare (v, min) >= 0, "require '" .. module ..
+            "' with at least version " .. min .. ", but found version " .. v)
+  end
+  if too_big then
+    assert (vcompare (v, too_big) < 0, "require '" .. module ..
+            "' with version less than " .. too_big .. ", but found version " .. v)
+  end
+  return m
+end
+
+
 local _tostring = _G.tostring
 
 local function tostring (x)
@@ -308,39 +347,6 @@ local function tostring (x)
 		 function (_, i, _, j) return i and j and "," or "" end)
 end
 
-
-
-local function prototype (o)
-  return (getmetatable (o) or {})._type or io.type (o) or type (o)
-end
-
-
-local function collect (ifn, ...)
-  local argt = {...}
-  if not callable (ifn) then
-    ifn, argt = ipairs, {ifn, ...}
-  end
-
-  local r = {}
-  for k, v in ifn (unpack (argt)) do
-    if v == nil then k, v = #r + 1, k end
-    r[k] = v
-  end
-  return r
-end
-
-
-local function reduce (fn, d, ifn, ...)
-  local nextfn, state, k = ifn (...)
-  local t = {nextfn (state, k)}
-
-  local r = d
-  while t[1] ~= nil do
-    r = fn (r, t[#t])
-    t = {nextfn (state, t[1])}
-  end
-  return r
-end
 
 
 return {

@@ -1,3 +1,16 @@
+ - Minimise forward declarations of functions, because having some
+   declared as `local` in line, and others not is ugly and can easily
+   cause rogue `local` keywords to be introduced that end up shadowing
+   the intended declaration.  Mutually recursive functions, and
+   alternate definitions are acceptable, in which case keep the forward
+   declarations and definitions as close together as possible to
+   minimise any possible misunderstandings later.
+
+ - Try to maintain asciibetical ordering of function definitions in
+   each source file, except where doing so would require forward
+   declarations.  In that case use topological ordering to avoid the
+   forward declarations.
+
  - Unless a table cannot possibly have a __len metamethod (i.e. it
    was constructed without one in the current scope), always use
   `base.insert` and `base.len` rather than core `table.insert` and
@@ -8,3 +21,15 @@
    always use `base.pairs` or `base.ipairs` rather than core `pairs`
    and `ipairs`, which do not honor __pairs or __len in all
    implementations.
+
+ - Use consistent short names for common parameters:
+
+     fh  a file handle, usually from io.open or similar
+     fmt a format string
+     fn  a function
+     i   an index
+     k   a value, usually from pairs or similar
+     l   a list-like table
+     n   a number
+     s   a string
+     t   a table
