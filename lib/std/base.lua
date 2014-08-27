@@ -23,6 +23,16 @@
 ]]
 
 
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad argument #%d to '%s'", i, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
+end
+
+
 local function callable (x)
   if type (x) == "function" then
     return x
@@ -185,6 +195,9 @@ local _insert = table.insert
 
 local function insert (t, pos, v)
   if v == nil then pos, v = len (t) + 1, pos end
+  if pos < 1 or pos > len (t) + 1 then
+    argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
+  end
   _insert (t, pos, v)
   return t
 end
@@ -345,6 +358,9 @@ return {
   ripairs  = ripairs,
   require  = require,
   tostring = tostring,
+
+  -- debug.lua --
+  argerror = argerror,
 
   -- functional.lua --
   callable = callable,

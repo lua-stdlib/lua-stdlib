@@ -252,9 +252,9 @@ specify std.table:
   - it diagnoses wrong argument types:
       expect (f (false)).to_raise (badarg (1, "table", "boolean"))
   - it diagnoses out of bounds pos arguments:
-      expect (f ({}, 0, "x")).to_raise "position out of bounds"
-      expect (f ({}, 2, "x")).to_raise "position out of bounds"
-      expect (f ({1}, 5, "x")).to_raise "position out of bounds"
+      expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
+      expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
+      expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
   - it diagnoses too many arguments:
       expect (f ({}, 1, 2, false)).to_raise (badarg (4))
       pending "#issue 76"

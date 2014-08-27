@@ -34,7 +34,8 @@ local base       = require "std.base"
 
 local _ARGCHECK   = debug_init._ARGCHECK
 local _DEBUG      = debug_init._DEBUG
-local maxn = table.maxn
+local maxn        = table.maxn
+local argerror    = base.argerror
 local split, tostring = base.split, base.tostring
 local insert, last, len = base.insert, base.last, base.len
 local ipairs, pairs = base.ipairs, base.pairs
@@ -137,16 +138,6 @@ local getfenv = getfenv or function (fn)
     name, env = debug.getupvalue (fn, up)
   until name == '_ENV' or name == nil
   return env
-end
-
-
-local function argerror (name, i, extramsg, level)
-  level = level or 1
-  local s = string.format ("bad argument #%d to '%s'", i, name)
-  if extramsg ~= nil then
-    s = s .. " (" .. extramsg .. ")"
-  end
-  error (s, level + 1)
 end
 
 
