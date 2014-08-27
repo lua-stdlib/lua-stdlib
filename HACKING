@@ -1,3 +1,5 @@
+## Lua
+
  - Minimise forward declarations of functions, because having some
    declared as `local` in line, and others not is ugly and can easily
    cause rogue `local` keywords to be introduced that end up shadowing
@@ -33,3 +35,15 @@
      n   a number
      s   a string
      t   a table
+
+## LDocs
+
+ - `backtick_references` is disabled for stdlib, if you want an inline
+   cross-reference, use `@{reference}`.
+
+ - Be liberal with `@see` references to similar apis.
+
+ - Refer to other argument names with italics (`*italic*` in markdown).
+
+ - Try to add entries for callback function signatures, and name them with
+   the suffix `cb`.

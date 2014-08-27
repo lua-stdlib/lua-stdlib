@@ -38,9 +38,9 @@ local dirsep, pathsep, path_mark, execdir, igmark =
 local function pathsub (path)
   return path:gsub ("%%?.", function (capture)
     if capture == "?" then
-      return M.path_mark
+      return path_mark
     elseif capture == "/" then
-      return M.dirsep
+      return dirsep
     else
       return capture:gsub ("^%%", "", 1)
     end
@@ -49,7 +49,7 @@ end
 
 
 local function find (pathstrings, patt, init, plain)
-  local paths = split (pathstrings, M.pathsep)
+  local paths = split (pathstrings, pathsep)
   if plain then patt = escape_pattern (patt) end
   init = init or 1
   if init < 0 then init = #paths - init end
@@ -116,14 +116,14 @@ local function X (decl, fn)
 end
 
 M = {
-  --- Look for a path segment match of `patt` in `pathstrings`.
+  --- Look for a path segment match of *patt* in *pathstrings*.
   -- @function find
   -- @string pathstrings `pathsep` delimited path elements
-  -- @string patt a Lua pattern to search for in `pathstrings`
+  -- @string patt a Lua pattern to search for in *pathstrings*
   -- @int[opt=1] init element (not byte index!) to start search at.
   --   Negative numbers begin counting backwards from the last element
-  -- @bool[opt=false] plain unless false, treat `patt` as a plain
-  --   string, not a pattern. Note that if `plain` is given, then `init`
+  -- @bool[opt=false] plain unless false, treat *patt* as a plain
+  --   string, not a pattern. Note that if *plain* is given, then *init*
   --   must be given as well.
   -- @return the matching element number (not byte index!) and full text
   --   of the matching element, if any; otherwise nil
@@ -133,7 +133,7 @@ M = {
   --- Insert a new element into a `package.path` like string of paths.
   -- @function insert
   -- @string pathstrings a `package.path` like string
-  -- @int[opt=n+1] pos element index at which to insert `value`, where `n` is
+  -- @int[opt=n+1] pos element index at which to insert *value*, where `n` is
   --   the number of elements prior to insertion
   -- @string value new path element to insert
   -- @treturn string a new string with the new element inserted
@@ -144,9 +144,9 @@ M = {
   --- Call a function with each element of a path string.
   -- @function mappath
   -- @string pathstrings a `package.path` like string
-  -- @tparam mappath_callback callback function to call for each element
-  -- @param ... additional arguments passed to `callback`
-  -- @return nil, or first non-nil returned by `callback`
+  -- @tparam mappathcb callback function to call for each element
+  -- @param ... additional arguments passed to *callback*
+  -- @return nil, or first non-nil returned by *callback*
   -- @usage mappath (package.path, searcherfn, transformfn)
   mappath = X ("mappath (string, function, any?*)", mappath),
 
@@ -191,7 +191,7 @@ return M
 -- @section Types
 
 --- Function signature of a callback for @{mappath}.
--- @function mappath_callback
+-- @function mappathcb
 -- @string element an element from a `pathsep` delimited string of
 --   paths
 -- @param ... additional arguments propagated from @{mappath}
