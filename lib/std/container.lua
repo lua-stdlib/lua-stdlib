@@ -73,6 +73,7 @@ local debug = require "std.debug"
 local ipairs, pairs = base.ipairs, base.pairs
 local prototype = base.prototype
 local argcheck  = debug.argcheck
+local maxn      = table.maxn
 
 
 
@@ -242,7 +243,7 @@ local M = {
 
 if _ARGCHECK then
 
-  local arglen, toomanyargmsg = debug.arglen, debug.toomanyargmsg
+  local toomanyargmsg = debug.toomanyargmsg
 
   M.__call = function (self, x, ...)
     local mt = getmetatable (self)
@@ -255,7 +256,7 @@ if _ARGCHECK then
       -- it just refers back to the object being called: `Container {"x"}.
       argcheck (name, 1, "table", x)
       if next (argt) then
-        error (toomanyargmsg (name, 1, 1 + arglen (argt)), 2)
+        error (toomanyargmsg (name, 1, 1 + maxn (argt)), 2)
       end
     end
 

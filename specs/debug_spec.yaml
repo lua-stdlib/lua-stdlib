@@ -4,7 +4,7 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "arglen", "argscheck", "say", "toomanyargmsg", "trace" }
+                   "argscheck", "say", "toomanyargmsg", "trace" }
 
   M = require (this_module)
 
@@ -172,20 +172,6 @@ specify std.debug:
       expect (f ('expect', 12345)).to_raise "#12345"
   - it reports extra message in parentheses:
       expect (f ('expect', 1, "extramsg")).to_raise " (extramsg)"
-
-
-- describe arglen:
-  - before:
-      f = M.arglen
-
-  - it returns the length of a table:
-      expect (f {1, 2, 5}).to_be (3)
-  - it works with an empty table:
-      expect (f {}).to_be (0)
-  - it ignores the hash part of a table:
-      expect (f {1, x=2, y=3, 4, 5}).to_be (3)
-  - it counts nil values in the array part of a table:
-      expect (f {1, nil, 2, 5}).to_be (4)
 
 
 - describe argcheck:

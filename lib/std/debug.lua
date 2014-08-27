@@ -35,6 +35,7 @@ local base       = require "std.base"
 local _ARGCHECK  = debug_init._ARGCHECK
 local _DEBUG     = debug_init._DEBUG
 local callable   = base.callable
+local maxn       = table.maxn
 local split, tostring = base.split, base.tostring
 
 local M
@@ -145,15 +146,6 @@ local function argerror (name, i, extramsg, level)
     s = s .. " (" .. extramsg .. ")"
   end
   error (s, level + 1)
-end
-
-
-local function arglen (t)
-  local len = 0
-  for k in pairs (t) do
-    if type (k) == "number" and k > len then len = k end
-  end
-  return len
 end
 
 
@@ -297,7 +289,7 @@ if _ARGCHECK then
   -- @tparam boolean allargs whether to match all arguments
   -- @treturn int|nil position of first mismatch in *types*
   local function match (types, args, allargs)
-    local typec, argc = #types, arglen (args)
+    local typec, argc = #types, maxn (args)
     for i = 1, typec do
       local ok = pcall (argcheck, "pcall", i, types[i], args[i])
       if not ok then return i end
@@ -485,7 +477,7 @@ if _ARGCHECK then
 
     return function (...)
       local args = {...}
-      local argc, bestmismatch, at = arglen (args), 0, 0
+      local argc, bestmismatch, at = maxn (args), 0, 0
 
       for i, types in ipairs (type_specs) do
         local mismatch = match (types, args, max == math.huge)
@@ -696,14 +688,6 @@ M = {
   --   ...
   argerror = argerror,
 
-  --- Argument list length.
-  -- Like #table, but does not stop at the first nil value.
-  -- @function arglen
-  -- @tparam table t a table
-  -- @treturn int largest integer key in *t*
-  -- @usage tmax = arglen {...}
-  arglen = arglen,
-
   --- Wrap a function definition with argument type and arity checking.
   -- In addition to checking that each argument type matches the corresponding
   -- element in the *types* table with `argcheck`, if the final element of
@@ -737,8 +721,8 @@ M = {
   -- @number actual number of arguments received
   -- @treturn string standard "too many arguments" error message
   -- @usage
-  -- if arglen {...} > 1 then
-  --   io.stderr:write ("module.fname", 7, arglen {...})
+  -- if table.maxn {...} > 1 then
+  --   io.stderr:write ("module.fname", 7, table.maxn {...})
   -- ...
   toomanyargmsg = toomanyargmsg,
 
