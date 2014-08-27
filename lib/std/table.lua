@@ -17,7 +17,7 @@ local debug = require "std.debug"
 local collect       = base.collect
 local leaves        = base.leaves
 local ipairs, pairs = base.ipairs, base.pairs
-local insert, len   = base.insert, base.len
+local len           = base.len
 
 
 local M
@@ -279,7 +279,7 @@ M = {
   -- @int[opt=len (t)] pos index at which to insert new element
   -- @param v value to insert into *t*
   -- @treturn table *t*
-  insert = X ("insert (table, [int], any?)", base.insert),
+  insert = X ("insert (table, [int], any)", base.insert),
 
   --- Invert a table.
   -- @function invert

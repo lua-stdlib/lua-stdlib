@@ -242,6 +242,42 @@ specify std.table:
       expect (f (t)).to_equal {"one", "two", "three", "four"}
 
 
+- describe insert:
+  - before:
+      f, badarg = init (M, this_module, "insert")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+      expect (f {}).to_raise (badarg (2, "int or any value"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses out of bounds pos arguments:
+      expect (f ({}, 0, "x")).to_raise "position out of bounds"
+      expect (f ({}, 2, "x")).to_raise "position out of bounds"
+      expect (f ({1}, 5, "x")).to_raise "position out of bounds"
+  - it diagnoses too many arguments:
+      expect (f ({}, 1, 2, false)).to_raise (badarg (4))
+      pending "#issue 76"
+      expect (f ({}, false, false)).to_raise (badarg (3))
+
+  - it returns the modified table:
+      t = {}
+      expect (f (t, 1)).to_be (t)
+  - it append a new element at the end by default:
+      expect (f ({1, 2}, "x")).to_equal {1, 2, "x"}
+  - it fills holes by default:
+      expect (f ({1, 2, [5]=3}, "x")).to_equal {1, 2, "x", [5]=3}
+  - it respects __len when appending:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t, "x")).to_equal {1, 2, [5]=3, [43]="x"}
+  - it moves other elements up if necessary:
+      expect (f ({1, 2}, 1, "x")).to_equal {"x", 1, 2}
+      expect (f ({1, 2}, 2, "x")).to_equal {1, "x", 2}
+      expect (f ({1, 2}, 3, "x")).to_equal {1, 2, "x"}
+  - it inserts a new element according to pos argument:
+      expect (f ({}, 1, "x")).to_equal {"x"}
+
+
 - describe invert:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
@@ -317,7 +353,7 @@ specify std.table:
   - it diagnoses too many arguments: |
       expect (f ({}, {}, {}, ":nometa", false)).
         to_raise (badarg (5))
-      pending "issue #78"
+      pending "issue #76"
       expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
 
   - it does not create a whole new table:
@@ -384,7 +420,7 @@ specify std.table:
   - it diagnoses too many arguments: |
       expect (f ({}, {}, {}, ":nometa", false)).
         to_raise (badarg (5))
-      pending "issue #78"
+      pending "issue #76"
       expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
 
   - it does not create a whole new table:
