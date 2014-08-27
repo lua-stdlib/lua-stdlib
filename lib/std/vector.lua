@@ -42,8 +42,9 @@ local Container = container {}
 
 local typeof = type
 
-local argcheck, pairs, prototype =
-  debug.argcheck, base.pairs, base.prototype
+local argcheck = debug.argcheck
+local pairs, prototype = base.pairs, base.prototype
+local insert, len = base.insert, base.len
 
 
 --[[ ================= ]]--
@@ -184,7 +185,7 @@ local core_functions = {
   -- @usage added = avector:unshift (anelement)
   unshift = function (self, elem)
     self.length = self.length + 1
-    table.insert (self.buffer, 1, elem)
+    insert (self.buffer, 1, elem)
     return elem
   end,
 }
@@ -242,7 +243,7 @@ core_metatable = {
       -- of `type`, so we'll use Lua tables and core_metatable:
       local b = {}
       if typeof (init) == "table" then
-        for i = 1, #init do
+        for i = 1, len (init) do
           b[i] = init[i]
         end
       else
@@ -266,11 +267,12 @@ core_metatable = {
       -- We have alien, and it knows how to manage elements of `type`,
       -- so we'll use an alien.buffer and alien_metatable:
       if typeof (init) == "table" then
-        obj.allocated = #init
-        obj.buffer    = buffer (size * #init)
-        obj.length    = #init
+	local initlen = len (init)
+        obj.allocated = initlen
+        obj.buffer    = buffer (size * initlen)
+        obj.length    = initlen
 
-        for i = 1, #init do
+        for i = 1, initlen do
           obj.buffer:set ((i - 1) * size + 1, init[i], type)
         end
       else

@@ -1,0 +1,10 @@
+ - Unless a table cannot possibly have a __len metamethod (i.e. it
+   was constructed without one in the current scope), always use
+  `base.insert` and `base.len` rather than core `table.insert` and
+  the `#` operator, which do not honor __len in all implementations.
+
+ - Unless a table cannot possibly have __pairs or __len metamethods
+   (i.e. it was constructed without them in the current scope),
+   always use `base.pairs` or `base.ipairs` rather than core `pairs`
+   and `ipairs`, which do not honor __pairs or __len in all
+   implementations.

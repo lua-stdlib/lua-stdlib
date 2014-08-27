@@ -14,8 +14,9 @@
 local base  = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, pairs = base.ipairs, base.pairs
 local argerror = debug.argerror
+local ipairs, pairs = base.ipairs, base.pairs
+local insert, len = base.insert, base.len
 local leaves   = base.leaves
 local split    = base.split
 
@@ -84,8 +85,8 @@ end
 
 local function process_files (fn)
   -- N.B. "arg" below refers to the global array of command-line args
-  if #arg == 0 then
-    arg[#arg + 1] = "-"
+  if len (arg) == 0 then
+    insert (arg, "-")
   end
   for i, v in ipairs (arg) do
     if v == "-" then

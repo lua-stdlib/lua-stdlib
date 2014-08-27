@@ -18,6 +18,7 @@ local table  = require "std.table"
 local StrBuf = strbuf {}
 
 local getmetamethod = base.getmetamethod
+local insert, len   = base.insert, base.len
 local pairs         = base.pairs
 local render        = base.render
 local totable       = table.totable
@@ -66,7 +67,7 @@ local function finds (s, p, i, ...)
   repeat
     from, to, r = tfind (s, p, i, ...)
     if from ~= nil then
-      l[#l + 1] = {from, to, capt = r}
+      insert (l, {from, to, capt = r})
       i = to + 1
     end
   until not from
@@ -129,10 +130,10 @@ local function wrap (s, w, ind, ind1)
   assert (ind1 < w and ind < w,
           "the indents must be less than the line width")
   local r = StrBuf { string.rep (" ", ind1) }
-  local i, lstart, len = 1, ind1, #s
-  while i <= #s do
+  local i, lstart, lens = 1, ind1, len (s)
+  while i <= lens do
     local j = i + w - lstart
-    while #s[j] > 0 and s[j] ~= " " and j > i do
+    while len (s[j]) > 0 and s[j] ~= " " and j > i do
       j = j - 1
     end
     local ni = j + 1
@@ -141,7 +142,7 @@ local function wrap (s, w, ind, ind1)
     end
     r:concat (s:sub (i, j))
     i = ni
-    if i < #s then
+    if i < lens then
       r:concat ("\n" .. string.rep (" ", ind))
       lstart = ind
     end

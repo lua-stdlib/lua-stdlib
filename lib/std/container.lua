@@ -71,6 +71,7 @@ local base  = require "std.base"
 local debug = require "std.debug"
 
 local ipairs, pairs = base.ipairs, base.pairs
+local insert, len   = base.insert, base.len
 local prototype = base.prototype
 local argcheck  = debug.argcheck
 local maxn      = table.maxn
@@ -159,7 +160,7 @@ local function mapfields (obj, src, map)
       local kind = type (key)
       if kind == "string" and key:sub (1, 1) == "_" then
         dst = mt
-      elseif kind == "number" and #dst + 1 < key then
+      elseif kind == "number" and len (dst) + 1 < key then
         -- When map is given, but has fewer entries than src, stop copying
         -- fields when map is exhausted.
         break
@@ -280,24 +281,24 @@ function M.__tostring (self)
   local array = instantiate (totable (self))
   local other = instantiate (array)
   local s = ""
-  if #other > 0 then
+  if len (other) > 0 then
     for i in ipairs (other) do other[i] = nil end
   end
   for k in pairs (other) do array[k] = nil end
   for i, v in ipairs (array) do array[i] = tostring (v) end
 
   local keys, dict = {}, {}
-  for k in pairs (other) do keys[#keys + 1] = k end
+  for k in pairs (other) do insert (keys, k) end
   table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
   for _, k in ipairs (keys) do
-    dict[#dict + 1] = tostring (k) .. "=" .. tostring (other[k])
+    insert (dict, tostring (k) .. "=" .. tostring (other[k]))
   end
 
-  if #array > 0 then
+  if len (array) > 0 then
     s = s .. table.concat (array, ", ")
     if next (dict) ~= nil then s = s .. "; " end
   end
-  if #dict > 0 then
+  if len (dict) > 0 then
     s = s .. table.concat (dict, ", ")
   end
 

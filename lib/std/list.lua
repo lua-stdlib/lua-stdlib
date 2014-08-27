@@ -33,7 +33,8 @@ local object  = require "std.object"
 
 local Object  = object {}
 
-local ielems, ipairs, pairs = base.ielems, base.ipairs, base.pairs
+local ipairs, pairs = base.ipairs, base.pairs
+local len       = base.len
 local compare   = base.compare
 local prototype = base.prototype
 
@@ -49,8 +50,8 @@ end
 
 local function concat (l, ...)
   local r = List {}
-  for e in ielems {l, ...} do
-    for v in ielems (e) do
+  for _, e in ipairs {l, ...} do
+    for _, v in ipairs (e) do
       r[#r + 1] = v
     end
   end
@@ -69,14 +70,14 @@ end
 
 local function sub (l, from, to)
   local r = List {}
-  local len = #l
+  local lenl = len (l)
   from = from or 1
-  to = to or len
+  to = to or lenl
   if from < 0 then
-    from = from + len + 1
+    from = from + lenl + 1
   end
   if to < 0 then
-    to = to + len + 1
+    to = to + lenl + 1
   end
   for i = from, to do
     r[#r + 1] = l[i]
@@ -162,7 +163,7 @@ local DEPRECATED = debug.DEPRECATED
 
 local function depair (ls)
   local t = {}
-  for v in ielems (ls) do
+  for _, v in ipairs (ls) do
     t[v[1]] = v[2]
   end
   return t
@@ -180,7 +181,7 @@ end
 
 local function filter (pfn, l)
   local r = List {}
-  for e in base.ielems (l) do
+  for _, e in ipairs (l) do
     if pfn (e) then
       r[#r + 1] = e
     end
@@ -245,7 +246,7 @@ end
 
 local function map (fn, l)
   local r = List {}
-  for e in base.ielems (l) do
+  for _, e in ipairs (l) do
     local v = fn (e)
     if v ~= nil then
       r[#r + 1] = v
@@ -288,10 +289,10 @@ local function shape (s, l)
     end
   end
   if zero then
-    s[zero] = math.ceil (#l / size)
+    s[zero] = math.ceil (len (l) / size)
   end
   local function fill (i, d)
-    if d > #s then
+    if d > len (s) then
       return l[i], i + 1
     else
       local r = List {}
@@ -308,11 +309,11 @@ end
 
 
 local function transpose (ls)
-  local rs, len, dims = List {}, base.len (ls), map (base.len, ls)
-  if #dims > 0 then
+  local rs, lenls, dims = List {}, len (ls), map (len, ls)
+  if len (dims) > 0 then
     for i = 1, math.max (unpack (dims)) do
       rs[i] = List {}
-      for j = 1, len do
+      for j = 1, lenls do
         rs[i][j] = ls[j][i]
       end
     end

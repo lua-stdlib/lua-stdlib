@@ -3,17 +3,19 @@
  @classmod std.strbuf
 ]]
 
-
+local base   = require "std.base"
 local object = require "std.object"
+
 local Object = object {}
+
+local insert = base.insert
 
 
 --- Add a string to a buffer.
 -- @tparam string s string to add
 -- @treturn std.strbuf modified buffer
 local function concat (self, s)
-  self[#self + 1] = s
-  return self
+  return insert (self, s)
 end
 
 

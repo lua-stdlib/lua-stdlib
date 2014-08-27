@@ -23,11 +23,26 @@
 ]]
 
 
+local function callable (x)
+  if type (x) == "function" then
+    return x
+  else
+    x = (getmetatable (x) or {}).__call
+    if type (x) == "function" then
+      return x
+    end
+  end
+end
+
+
 local function len (t)
   -- Lua < 5.2 doesn't call `__len` automatically!
   local m = (getmetatable (t) or {}).__len
-  return m and m (t) or #t
+  return callable (m) and m (t) or #t
 end
+
+
+local function last (t) return t[len (t)] end
 
 
 local function copy (t)
@@ -140,7 +155,8 @@ end
 
 
 local function compare (l, m)
-  for i = 1, math.min (#l, #m) do
+  local lenl, lenm = len (l), len (m)
+  for i = 1, math.min (lenl, lenm) do
     local li, mi = tonumber (l[i]), tonumber (m[i])
     if li == nil or mi == nil then
       li, mi = l[i], m[i]
@@ -151,9 +167,9 @@ local function compare (l, m)
       return 1
     end
   end
-  if #l < #m then
+  if lenl < lenm then
     return -1
-  elseif #l > #m then
+  elseif lenl > lenm then
     return 1
   end
   return 0
@@ -165,16 +181,30 @@ local function eval (s)
 end
 
 
-local function split (s, sep)
-  sep = sep or "%s+"
-  local b, len, t, patt = 0, #s, {}, "(.-)" .. sep
-  if sep == "" then patt = "(.)"; t[#t + 1] = "" end
-  while b <= len do
-    local e, n, m = string.find (s, patt, b + 1)
-    t[#t + 1] = m or s:sub (b + 1, len)
-    b = n or len + 1
-  end
+local _insert = table.insert
+
+local function insert (t, pos, v)
+  if v == nil then pos, v = len (t) + 1, pos end
+  _insert (t, pos, v)
   return t
+end
+
+
+local function split (s, sep)
+  local r, patt = {}
+  if sep == "" then
+    patt = "(.)"
+    insert (r, "")
+  else
+    patt = "(.-)" .. (sep or "%s+")
+  end
+  local b, lens = 0, len (s)
+  while b <= lens do
+    local e, n, m = string.find (s, patt, b + 1)
+    insert (r, m or s:sub (b + 1, lens))
+    b = n or lens + 1
+  end
+  return r
 end
 
 
@@ -232,8 +262,8 @@ local function render (x, open, close, elem, pair, sep, roots)
   if type (x) ~= "table" or type ((getmetatable (x) or {}).__tostring) == "function" then
     return elem (x)
   else
-    local s = {}
-    s[#s + 1] =  open (x)
+    local r = {}
+    r[#r + 1] =  open (x)
     roots[x] = elem (x)
 
     -- create a sorted list of keys
@@ -245,11 +275,11 @@ local function render (x, open, close, elem, pair, sep, roots)
     local i, v = nil, nil
     for _, j in ipairs (ord) do
       local w = x[j]
-      s[#s + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
+      r[#r + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
       i, v = j, w
     end
-    s[#s + 1] = sep (x, i, v, nil, nil) .. close (x)
-    return table.concat (s)
+    r[#r + 1] = sep (x, i, v, nil, nil) .. close (x)
+    return table.concat (r)
   end
 end
 
@@ -269,18 +299,6 @@ end
 
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
-end
-
-
-local function callable (x)
-  if type (x) == "function" then
-    return x
-  else
-    x = (getmetatable (x) or {}).__call
-    if type (x) == "function" then
-      return x
-    end
-  end
 end
 
 
@@ -314,7 +332,6 @@ end
 
 return {
   copy = copy,
-  len = len,
 
   -- std.lua --
   assert   = assert,
@@ -347,6 +364,9 @@ return {
 
   -- table.lua --
   getmetamethod = getmetamethod,
+  insert        = insert,
+  last          = last,
+  len           = len,
 
   -- tree.lua --
   leaves = leaves,

@@ -32,11 +32,12 @@
 local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
-local _ARGCHECK  = debug_init._ARGCHECK
-local _DEBUG     = debug_init._DEBUG
-local callable   = base.callable
-local maxn       = table.maxn
+local _ARGCHECK   = debug_init._ARGCHECK
+local _DEBUG      = debug_init._DEBUG
+local maxn = table.maxn
 local split, tostring = base.split, base.tostring
+local insert, last, len = base.insert, base.last, base.len
+local ipairs, pairs = base.ipairs, base.pairs
 
 local M
 
@@ -166,7 +167,7 @@ if _ARGCHECK then
   -- @treturn string string of elements from alternatives delimited by ", "
   --   and " or "
   local function concat (alternatives)
-    if #alternatives > 1 then
+    if len (alternatives) > 1 then
       local t = copy (alternatives)
       local top = table.remove (t)
       t[#t] = t[#t] .. " or " .. top
@@ -244,25 +245,25 @@ if _ARGCHECK then
     for i, v in ipairs (types) do
       -- Remove sentinels before appending `v` to each list.
       for _, v in ipairs (p) do
-        if v[#v] == sentinel then table.remove (v) end
+        if last (v) == sentinel then table.remove (v) end
       end
 
       local opt = v:match "%[(.+)%]"
       if opt == nil then
         -- Append non-optional type-spec to each permutation.
-        for b = 1, #p do table.insert (p[b], v) end
+        for b = 1, len (p) do insert (p[b], v) end
       else
         -- Duplicate all existing permutations, and add optional type-spec
         -- to the unduplicated permutations.
-        local o = #p
+        local o = len (p)
         for b = 1, o do
           p[b + o] = copy (p[b])
-	  table.insert (p[b], opt)
+	  insert (p[b], opt)
         end
 
         -- Leave a marker for optional argument in final position.
         for _, v in ipairs (p) do
-	  table.insert (v, sentinel)
+	  insert (v, sentinel)
         end
       end
     end
@@ -289,7 +290,7 @@ if _ARGCHECK then
   -- @tparam boolean allargs whether to match all arguments
   -- @treturn int|nil position of first mismatch in *types*
   local function match (types, args, allargs)
-    local typec, argc = #types, maxn (args)
+    local typec, argc = len (types), maxn (args)
     for i = 1, typec do
       local ok = pcall (argcheck, "pcall", i, types[i], args[i])
       if not ok then return i end
@@ -391,7 +392,7 @@ if _ARGCHECK then
 
     elseif check == "list" or check == "#list" then
       if actualtype == "table" or actualtype == "List" then
-        local len, count = #actual, 0
+        local len, count = len (actual), 0
         local i = next (actual)
         repeat
 	  if i ~= nil then count = count + 1 end
@@ -464,16 +465,16 @@ if _ARGCHECK then
     -- If the final element of types ends with "*", then set max to a
     -- sentinel value to denote type-checking of *all* remaining
     -- unchecked arguments against that type-spec is required.
-    local max, fin = #types, (types[#types] or ""):match "^(.+)%*$"
+    local max, fin = len (types), (last (types) or ""):match "^(.+)%*$"
     if fin then
       max = math.huge
-      types[#types] = fin
+      types[len (types)] = fin
     end
 
     -- For optional arguments wrapped in square brackets, make sure
     -- type-specs allow for passing or omitting an argument of that
     -- type.
-    local typec, type_specs = #types, permutations (types)
+    local typec, type_specs = len (types), permutations (types)
 
     return function (...)
       local args = {...}
@@ -498,7 +499,7 @@ if _ARGCHECK then
 	  local tables = {}
 	  for i, types in ipairs (type_specs) do
             if types[bestmismatch] then
-              tables[#tables + 1] = types[bestmismatch]
+              insert (tables, types[bestmismatch])
 	    end
 	  end
 	  expected = merge (unpack (tables))

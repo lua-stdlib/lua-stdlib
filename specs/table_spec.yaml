@@ -4,8 +4,8 @@ before: |
   global_table        = "_G"
 
   extend_base         = { "clone", "clone_rename", "clone_select", "depair",
-                          "empty", "enpair", "flatten", "invert", "keys",
-                          "merge", "merge_select", "metamethod",
+                          "empty", "enpair", "flatten", "insert", "invert",
+                          "keys", "len", "merge", "merge_select", "metamethod",
                           "monkey_patch", "new", "pack", "project", "ripairs",
                           "shape", "size", "sort", "totable", "values" }
 

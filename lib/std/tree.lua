@@ -20,6 +20,7 @@ local Container = container {}
 
 local ielems, ipairs, base_leaves, pairs, prototype =
   base.ielems, base.ipairs, base.leaves, base.pairs, base.prototype
+local last, len = base.last, base.len
 local reduce = func.reduce
 
 local Tree -- forward declaration
@@ -241,13 +242,13 @@ Tree = Container {
   -- @param v value
   __newindex = function (self, i, v)
     if prototype (i) == "table" then
-      for n = 1, #i - 1 do
+      for n = 1, len (i) - 1 do
         if prototype (self[i[n]]) ~= "Tree" then
           rawset (self, i[n], Tree {})
         end
         self = self[i[n]]
       end
-      rawset (self, i[#i], v)
+      rawset (self, last (i), v)
     else
       rawset (self, i, v)
     end

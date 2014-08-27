@@ -17,6 +17,7 @@ local debug = require "std.debug"
 local collect       = base.collect
 local leaves        = base.leaves
 local ipairs, pairs = base.ipairs, base.pairs
+local insert, len   = base.insert, base.len
 
 
 local M
@@ -128,10 +129,10 @@ local function shape (dims, t)
     end
   end
   if zero then
-    dims[zero] = math.ceil (#t / size)
+    dims[zero] = math.ceil (len (t) / size)
   end
   local function fill (i, d)
-    if d > #dims then
+    if d > len (dims) then
       return t[i], i + 1
     else
       local r = {}
@@ -212,6 +213,7 @@ M = {
   --- Make a shallow copy of a table, including any metatable.
   --
   -- To make deep copies, use @{tree.clone}.
+  -- @function clone
   -- @tparam table t source table
   -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
   -- @bool[opt] nometa if non-nil don't copy metatable
@@ -227,6 +229,7 @@ M = {
   --- Make a partial clone of a table.
   --
   -- Like `clone`, but does not copy any fields by default.
+  -- @function clone_select
   -- @tparam table t source table
   -- @tparam[opt={}] table keys list of keys to copy
   -- @bool[opt] nometa if non-nil don't copy metatable
@@ -241,6 +244,7 @@ M = {
 
   --- Turn a list of pairs into a table.
   -- @todo Find a better name.
+  -- @function depair
   -- @tparam table ls list of lists `{{i1, v1}, ..., {in, vn}}`
   -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
   -- @see enpair
@@ -248,36 +252,59 @@ M = {
 
   --- Turn a table into a list of pairs.
   -- @todo Find a better name.
+  -- @function enpair
   -- @tparam table t  a table `{i1=v1, ..., in=vn}`
   -- @treturn table a new list of pairs containing `{{i1, v1}, ..., {in, vn}}`
   -- @see depair
   enpair = X ("enpair (table)", enpair),
 
   --- Return whether table is empty.
+  -- @function empty
   -- @tparam table t any table
   -- @treturn boolean `true` if *t* is empty, otherwise `false`
   -- @usage if empty (t) then error "ohnoes" end
   empty = X ("empty (table)", function (t) return not next (t) end),
 
   --- Flatten a nested table into a list.
+  -- @function flatten
   -- @tparam table t a table
   -- @treturn table a list of all non-table elements of *t*
   flatten = X ("flatten (table)", flatten),
 
+  --- Enhance core *table.insert* to return its result.
+  -- If *pos* is not given, respect `__len` metamethod when calculating
+  -- default append.
+  -- @function insert
+  -- @tparam table t a table
+  -- @int[opt=len (t)] pos index at which to insert new element
+  -- @param v value to insert into *t*
+  -- @treturn table *t*
+  insert = X ("insert (table, [int], any?)", base.insert),
+
   --- Invert a table.
+  -- @function invert
   -- @tparam table t a table with `{k=v, ...}`
   -- @treturn table inverted table `{v=k, ...}`
   -- @usage values = invert (t)
   invert = X ("invert (table)", invert),
 
   --- Make the list of keys in table.
+  -- @function keys
   -- @tparam table t a table
   -- @treturn table list of keys from *t*
   -- @see values
   -- @usage globals = keys (_G)
   keys = X ("keys (table)", keys),
 
+  --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
+  -- @function len
+  -- @tparam table t a table
+  -- @treturn int length of list part of *t*
+  -- @usage for i = 1, len (t) do process (t[i]) end
+  len = X ("len (table)", base.len),
+
   --- Destructively merge another table's fields into another.
+  -- @function merge
   -- @tparam table t destination table
   -- @tparam table u table with fields to merge
   -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
@@ -291,6 +318,7 @@ M = {
   --- Destructively merge another table's named fields into *table*.
   --
   -- Like `merge`, but does not merge any fields by default.
+  -- @function merge_select
   -- @tparam table t destination table
   -- @tparam table u table with fields to merge
   -- @tparam[opt={}] table keys list of keys to copy
@@ -304,6 +332,7 @@ M = {
                     merge_namedfields),
 
   --- Make a table with a default value for unset keys.
+  -- @function new
   -- @param[opt=nil] x default entry value
   -- @tparam[opt={}] table t initial table
   -- @treturn table table whose unset elements are *x*
@@ -311,11 +340,13 @@ M = {
   new = X ("new (any?, table?)", new),
 
   --- Turn a tuple into a list.
+  -- @function pack
   -- @param ... tuple
   -- @return list
   pack = function (...) return {...} end,
 
   --- Project a list of fields from a list of tables.
+  -- @function project
   -- @param fkey field to project
   -- @tparam table tt a list of tables
   -- @treturn table list of *fkey* fields from *tt*
@@ -337,18 +368,21 @@ M = {
   --
   -- @todo Use ileaves instead of flatten (needs a while instead of a
   -- for in fill function)
+  -- @function shape
   -- @tparam table dims table of dimensions `{d1, ..., dn}`
   -- @tparam table t a table of elements
   -- @return reshaped list
   shape = X ("shape (table, table)", shape),
 
   --- Find the number of elements in a table.
+  -- @function size
   -- @tparam table t any table
   -- @treturn int number of non-nil values in *t*
   -- @usage count = size {foo = true, bar = true, baz = false}
   size = X ("size (table)", size),
 
-  --- Make table.sort return its result.
+  --- Enhance core *table.sort* to return its result.
+  -- @function sort
   -- @tparam table t unsorted table
   -- @tparam[opt=std.operator.lt] comparator c ordering function callback
   --   lua `<` operator
@@ -359,6 +393,7 @@ M = {
   --- Overwrite core methods with `std` enhanced versions.
   --
   -- Replaces core `table.sort` with `std.table` version.
+  -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
   -- @usage local table = require "std.table".monkey_patch ()
@@ -372,6 +407,7 @@ M = {
   totable = X ("totable (object|table|string)", totable),
 
   --- Make the list of values of a table.
+  -- @function values
   -- @tparam table t any table
   -- @treturn table list of values in *t*
   -- @see keys

@@ -134,6 +134,12 @@ Stdlib NEWS - User visible changes
  - New `std.ripairs` function for returning index & value pairs in
    reverse order, while respecting `__len`.
 
+ - New `table.len` function for returning the length of a table, much like
+   the core `#` operation, but respecing `__len` even on Lua 5.1.
+
+ - New `table.insert` returns its result, and uses `table.len` to
+   calculate default *pos* parameter.
+
 ** Deprecations:
 
  - Deprecated APIs are kept for a minimum of 1 year following the first

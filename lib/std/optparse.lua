@@ -77,6 +77,7 @@
 local base = require "std.base"
 
 local ipairs, pairs = base.ipairs, base.pairs
+local insert, last, len = base.insert, base.last, base.len
 
 local OptionParser -- forward declaration
 
@@ -119,7 +120,7 @@ local optional, required
 local function normalise (self, arglist)
   local normal = {}
   local i = 0
-  while i < #arglist do
+  while i < len (arglist) do
     i = i + 1
     local opt = arglist[i]
 
@@ -131,8 +132,8 @@ local function normalise (self, arglist)
 
 	-- Only split recognised long options.
 	if self[optname] then
-          normal[#normal + 1] = optname
-          normal[#normal + 1] = opt:sub (x + 1)
+          insert (normal, optname)
+          insert (normal, opt:sub (x + 1))
 	else
 	  x = nil
 	end
@@ -140,7 +141,7 @@ local function normalise (self, arglist)
 
       if x == nil then
 	-- No '=', or substring before '=' is not a known option name.
-        normal[#normal + 1] = opt
+        insert (normal, opt)
       end
 
     elseif opt:sub (1, 1) == "-" and string.len (opt) > 2 then
@@ -172,9 +173,9 @@ local function normalise (self, arglist)
       until opt == nil
 
       -- Append split options to normalised list
-      for _, v in ipairs (split) do normal[#normal + 1] = v end
+      for _, v in ipairs (split) do insert (normal, v) end
     else
-      normal[#normal + 1] = opt
+      insert (normal, opt)
     end
   end
 
@@ -193,7 +194,7 @@ local function set (self, opt, value)
   local opts = self.opts[key]
 
   if type (opts) == "table" then
-    opts[#opts + 1] = value
+    insert (opts, value)
   elseif opts ~= nil then
     self.opts[key] = { opts, value }
   else
@@ -227,7 +228,7 @@ end
 --   argument, or a default value if encountered without an optarg
 -- @treturn int index of next element of `arglist` to process
 function optional (self, arglist, i, value)
-  if i + 1 <= #arglist and arglist[i + 1]:sub (1, 1) ~= "-" then
+  if i + 1 <= len (arglist) and arglist[i + 1]:sub (1, 1) ~= "-" then
     return self:required (arglist, i, value)
   end
 
@@ -272,7 +273,7 @@ end
 -- @treturn int index of next element of `arglist` to process
 function required (self, arglist, i, value)
   local opt = arglist[i]
-  if i + 1 > #arglist then
+  if i + 1 > len (arglist) then
     self:opterr ("option '" .. opt .. "' requires an argument")
     return i + 1
   end
@@ -303,10 +304,10 @@ end
 -- @int i index of last processed element of `arglist`
 -- @treturn int index of next element of `arglist` to process
 local function finished (self, arglist, i)
-  for opt = i + 1, #arglist do
-    self.unrecognised[#self.unrecognised + 1] = arglist[opt]
+  for opt = i + 1, len (arglist) do
+    insert (self.unrecognised, arglist[opt])
   end
-  return 1 + #arglist
+  return 1 + len (arglist)
 end
 
 
@@ -499,16 +500,16 @@ local function on (self, opts, handler, value)
                     if opt:match ("^%-[^%-]+") ~= nil then
                       -- '-xyz' => '-x -y -z'
                       for i = 2, string.len (opt) do
-                        normal[#normal + 1] = "-" .. opt:sub (i, i)
+                        insert (normal, "-" .. opt:sub (i, i))
                       end
                     else
-                      normal[#normal + 1] = opt
+                      insert (normal, opt)
                     end
                   end)
   end
 
   -- strip leading '-', and convert non-alphanums to '_'
-  local key = normal[#normal]:match ("^%-*(.*)$"):gsub ("%W", "_")
+  local key = last (normal):match ("^%-*(.*)$"):gsub ("%W", "_")
 
   for _, opt in ipairs (normal) do
     self[opt] = { key = key, handler = handler, value = value }
@@ -560,16 +561,16 @@ local function parse (self, arglist, defaults)
   arglist = normalise (self, arglist)
 
   local i = 1
-  while i > 0 and i <= #arglist do
+  while i > 0 and i <= len (arglist) do
     local opt = arglist[i]
 
     if self[opt] == nil then
-      self.unrecognised[#self.unrecognised + 1] = opt
+      insert (self.unrecognised, opt)
       i = i + 1
 
       -- Following non-'-' prefixed argument is an optarg.
-      if i <= #arglist and arglist[i]:match "^[^%-]" then
-        self.unrecognised[#self.unrecognised + 1] = arglist[i]
+      if i <= len (arglist) and arglist[i]:match "^[^%-]" then
+        insert (self.unrecognised, arglist[i])
         i = i + 1
       end
 
@@ -643,7 +644,7 @@ function OptionParser (spec)
   -- by a '-'.
   local specs = {}
   parser.helptext:gsub ("\n  %s*(%-[^\n]+)",
-                        function (spec) specs[#specs + 1] = spec end)
+                        function (spec) insert (specs, spec) end)
 
   -- Register option handlers according to the help text.
   for _, spec in ipairs (specs) do
@@ -679,7 +680,7 @@ function OptionParser (spec)
       local _, c = spec:gsub ("^%-([-%w]),?%s+(.*)$",
                               function (opt, rest)
                                 if opt == "-" then opt = "--" end
-                                options[#options + 1] = opt
+                                insert (options, opt)
                                 spec = rest
                               end)
 
@@ -689,7 +690,7 @@ function OptionParser (spec)
         -- Consume long option.
         spec:gsub ("^%-%-([%-%w]+),?%s+(.*)$",
                    function (opt, rest)
-                     options[#options + 1] = opt
+                     insert (options, opt)
                      spec = rest
                    end)
       end
