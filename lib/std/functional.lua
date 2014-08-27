@@ -10,7 +10,6 @@
 
 local base     = require "std.base"
 local debug    = require "std.debug"
-local operator = require "std.operator"
 
 local ipairs, ireverse, len, pairs =
   base.ipairs, base.ireverse, base.len, base.pairs
@@ -165,11 +164,6 @@ end
 local lambda = memoize (function (s)
   local expr
 
-  -- Support operator table lookup.
-  if operator[s] then
-    return operator[s]
-  end
-
   -- Support "|args|expression" format.
   local args, body = s:match "^|([^|]*)|%s*(.+)$"
   if args and body then
@@ -269,7 +263,7 @@ local M = {
   -- @tparam table argt table of *fn* arguments to bind
   -- @return function with *argt* arguments already bound
   -- @usage
-  -- cube = bind (lambda "^", {[2] = 3})
+  -- cube = bind (std.operator.pow, {[2] = 3})
   bind = X ("bind (func, any?*)", bind),
 
   --- Identify callable types.
@@ -383,7 +377,7 @@ local M = {
   -- @see foldr
   -- @see reduce
   -- @usage
-  -- foldl (lambda "/", {10000, 100, 10}) == (10000 / 100) / 10
+  -- foldl (std.operator.quot, {10000, 100, 10}) == (10000 / 100) / 10
   foldl = X ("foldl (function, [any], table)", foldl),
 
   --- Fold a binary function right associatively.
@@ -397,7 +391,7 @@ local M = {
   -- @see foldl
   -- @see reduce
   -- @usage
-  -- foldr (lambda "/", {10000, 100, 10}) == 10000 / (100 / 10)
+  -- foldr (std.operator.quot, {10000, 100, 10}) == 10000 / (100 / 10)
   foldr = X ("foldr (function, [any], table)", foldr),
 
   --- Identity function.
@@ -410,11 +404,10 @@ local M = {
   --
   -- A valid lambda string takes one of the following forms:
   --
-  --   1. `'operator'`: where *op* is a key in @{std.operator}, equivalent to that operation
   --   1. `'=expression'`: equivalent to `function (...) return (expression) end`
   --   1. `'|args|expression'`: equivalent to `function (args) return (expression) end`
   --
-  -- The second form (starting with `=`) automatically assigns the first
+  -- The first form (starting with `=`) automatically assigns the first
   -- nine arguments to parameters `_1` through `_9` for use within the
   -- expression body.
   --
@@ -424,8 +417,7 @@ local M = {
   -- @string s a lambda string
   -- @treturn table compiled lambda string, can be called like a function
   -- @usage
-  -- -- The following are all equivalent:
-  -- lambda '<'
+  -- -- The following are equivalent:
   -- lambda '= _1 < _2'
   -- lambda '|a,b| a<b'
   lambda = X ("lambda (string)", lambda),
@@ -490,7 +482,7 @@ local M = {
   -- @see foldr
   -- @usage
   -- --> 2 ^ 3 ^ 4 ==> 4096
-  -- reduce (lambda '^', 2, std.ipairs, {3, 4})
+  -- reduce (std.operator.pow, 2, std.ipairs, {3, 4})
   reduce = X ("reduce (func, any, func, any*)", reduce),
 
   --- Zip a table of tables.
@@ -542,22 +534,24 @@ M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", reduce)
 
 
-local function DEPRECATEOP (t, old, new)
+local operator = require "std.operator"
+
+local function DEPRECATEOP (old, new)
   return DEPRECATED ("41", "'std.functional.op[" .. old .. "]'",
-    "use 'std.operator." .. new .. "' instead", t[new])
+    "use 'std.operator." .. new .. "' instead", operator[new])
 end
 
 M.op = {
-  ["[]"]  = DEPRECATEOP (operator, "[]",  "deref"),
-  ["+"]   = DEPRECATEOP (operator, "+",   "sum"),
-  ["-"]   = DEPRECATEOP (operator, "-",   "diff"),
-  ["*"]   = DEPRECATEOP (operator, "*",   "prod"),
-  ["/"]   = DEPRECATEOP (operator, "/",   "quot"),
-  ["and"] = DEPRECATEOP (operator, "and", "conj"),
-  ["or"]  = DEPRECATEOP (operator, "or",  "disj"),
-  ["not"] = DEPRECATEOP (operator, "not", "neg"),
-  ["=="]  = DEPRECATEOP (operator, "==",  "eq"),
-  ["~="]  = DEPRECATEOP (operator, "~=",  "neq"),
+  ["[]"]  = DEPRECATEOP ("[]",  "deref"),
+  ["+"]   = DEPRECATEOP ("+",   "sum"),
+  ["-"]   = DEPRECATEOP ("-",   "diff"),
+  ["*"]   = DEPRECATEOP ("*",   "prod"),
+  ["/"]   = DEPRECATEOP ("/",   "quot"),
+  ["and"] = DEPRECATEOP ("and", "conj"),
+  ["or"]  = DEPRECATEOP ("or",  "disj"),
+  ["not"] = DEPRECATEOP ("not", "neg"),
+  ["=="]  = DEPRECATEOP ("==",  "eq"),
+  ["~="]  = DEPRECATEOP ("~=",  "neq"),
 }
 
 return M

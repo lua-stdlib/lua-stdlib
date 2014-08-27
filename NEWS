@@ -63,9 +63,6 @@ Stdlib NEWS - User visible changes
 
      table.sort (t, lambda "= _1 < _2"
 
-   or, equivalently using `std.operator` references:
-
-     table.sort (t, lambda "<")
 
  - New `functional.map_with` that returns a new table with keys matching
    the argument table, and values made by mapping the supplied function
