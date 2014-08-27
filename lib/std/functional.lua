@@ -544,7 +544,7 @@ M.fold = DEPRECATED ("41", "'std.functional.fold'",
 
 local function DEPRECATEOP (t, old, new)
   return DEPRECATED ("41", "'std.functional.op[" .. old .. "]'",
-    "use 'std.functional.operator." .. new .. "' instead", t[new])
+    "use 'std.operator." .. new .. "' instead", t[new])
 end
 
 M.op = {
@@ -553,9 +553,9 @@ M.op = {
   ["-"]   = DEPRECATEOP (operator, "-",   "diff"),
   ["*"]   = DEPRECATEOP (operator, "*",   "prod"),
   ["/"]   = DEPRECATEOP (operator, "/",   "quot"),
-  ["and"] = DEPRECATEOP (operator, "and", "and"),
-  ["or"]  = DEPRECATEOP (operator, "or",  "or"),
-  ["not"] = DEPRECATEOP (operator, "not", "not"),
+  ["and"] = DEPRECATEOP (operator, "and", "conj"),
+  ["or"]  = DEPRECATEOP (operator, "or",  "disj"),
+  ["not"] = DEPRECATEOP (operator, "not", "neg"),
   ["=="]  = DEPRECATEOP (operator, "==",  "eq"),
   ["~="]  = DEPRECATEOP (operator, "~=",  "neq"),
 }

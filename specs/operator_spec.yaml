@@ -36,27 +36,6 @@ specify std.operator:
       expect (f ({"foo", "bar"}, 1)).to_be "foo"
       expect (f ({foo = "bar"}, "foo")).to_be "bar"
 
-- describe cons:
-  - before:
-      f = M.cons
-
-  - it packs its arguments into a table:
-      expect (f ()).to_equal {}
-      expect (f (42)).to_equal {42}
-      expect (f ("foo", "bar")).to_equal {"foo", "bar"}
-      expect (f ("a", "b", "c", 1, 2, 3)).to_equal {"a", "b", "c", 1, 2, 3}
-
-- describe length:
-  - before:
-      f = M.length
-
-  - it returns the length of a string:
-      expect (f "1234567890").to_be (10)
-  - it returns the length of a table:
-      expect (f {1, 2, 3, 4, 5}).to_be (5)
-  - it uses the __len metamethod:
-      expect (f (setmetatable ({}, { __len = function () return 42 end }))).to_be (42)
-
 - describe sum:
   - before:
       f = M.sum
@@ -99,9 +78,9 @@ specify std.operator:
   - it returns the power of its arguments:
       expect (f (99, 2)).to_be (math.pow (99, 2))
 
-- describe and:
+- describe conj:
   - before:
-      f = M["and"]
+      f = M.conj
 
   - it returns the logical and of its arguments:
       expect (f (false, false)).to_be (false)
@@ -114,9 +93,9 @@ specify std.operator:
       expect (f (nil, 0)).to_be (nil)
       expect (f (0, "false")).to_be ("false")
 
-- describe or:
+- describe disj:
   - before:
-      f = M["or"]
+      f = M.disj
 
   - it returns the logical or of its arguments:
       expect (f (false, false)).to_be (false)
@@ -129,9 +108,9 @@ specify std.operator:
       expect (f (nil, 0)).to_be (0)
       expect (f (0, "false")).to_be (0)
 
-- describe not:
+- describe neg:
   - before:
-      f = M["not"]
+      f = M.neg
 
   - it returns the logical not of its argument:
       expect (f (false)).to_be (true)

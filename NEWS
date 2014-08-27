@@ -21,13 +21,11 @@ Stdlib NEWS - User visible changes
    for production code.  Similarly `_DEBUG = false` deactivates these
    functions in the same way.
 
- - New `std.operator` module, with easier to type operator names (`deref`,
-   `diff`, `eq`, `neq`, `prod`, `quot`, and `sum`), plus brand new
-   functional operators for concatenation `concat`, table construction
-   `cons`, list length `length`; plus new mathematical operators `mod`,
-   and `pow`; and relational operators `lt`, `lte`, `gt` and `gte`.
-   The `length` operator respects the `__len` metamethod, if any, even on
-   Lua 5.1.
+ - New `std.operator` module, with easier to type operator names (`conj`,
+   `deref`, `diff`, `disj`, `eq`, `neg`, `neq`, `prod`, `quot`, and `sum`),
+   and a functional operator for concatenation `concat`; plus new mathematical
+   operators `mod`, and `pow`; and relational operators `lt`, `lte`, `gt` and
+   `gte`.
 
  - New `std.vector` object, for clean and fast queue-like or stack-like
    container management.  When alien is installed, and element types
@@ -166,7 +164,7 @@ Stdlib NEWS - User visible changes
    name now gives a deprecation warning.
 
  - `functional.op` has been moved to a new `std.operator` module, the
-   old name now gives a deprecation warning.
+   old function names now gives deprecation warnings.
 
  - `list.depair` and `list.enpair` have been moved to `table.depair` and
    `table.enpair`, the old names now give deprecation warnings.
