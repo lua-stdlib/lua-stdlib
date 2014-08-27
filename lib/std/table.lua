@@ -16,52 +16,45 @@ local debug = require "std.debug"
 
 local collect       = base.collect
 local leaves        = base.leaves
-local ielems, ipairs, pairs = base.ielems, base.ipairs, base.pairs
+local ipairs, pairs = base.ipairs, base.pairs
 
 
 local M
 
 
 local function merge_allfields (t, u, map, nometa)
-  map = map or {}
   if type (map) ~= "table" then
-    map, nometa = {}, map
+    map, nometa = nil, map
   end
 
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for k, v in pairs (u) do
-    t[map[k] or k] = v
+  if map then
+    for k, v in pairs (u) do t[map[k] or k] = v end
+  else
+    for k, v in pairs (u) do t[k] = v end
   end
   return t
 end
 
 
 local function merge_namedfields (t, u, keys, nometa)
-  keys = keys or {}
   if type (keys) ~= "table" then
-    keys, nometa = {}, keys
+    keys, nometa = nil, keys
   end
 
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for _, k in ipairs (keys) do
-    t[k] = u[k]
-  end
+  for _, k in pairs (keys or {}) do t[k] = u[k] end
   return t
-end
-
-
-local function clone (...)
-  return merge_allfields ({}, ...)
 end
 
 
 local function depair (ls)
   local t = {}
-  for v in ielems (ls) do
+  for _, v in ipairs (ls) do
     t[v[1]] = v[2]
   end
   return t
@@ -93,7 +86,7 @@ end
 
 local function keys (t)
   local l = {}
-  for k, _ in pairs (t) do
+  for k in pairs (t) do
     l[#l + 1] = k
   end
   return l
@@ -106,11 +99,6 @@ local function new (x, t)
                        {__index = function (t, i)
                                     return x
                                   end})
-end
-
-
-local function pack (...)
-  return {...}
 end
 
 
@@ -233,7 +221,8 @@ M = {
   -- @see clone_select
   -- @usage
   -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
-  clone = X ("clone (table, [table], boolean|:nometa?)", clone),
+  clone = X ("clone (table, [table], boolean|:nometa?)",
+             function (...) return merge_allfields ({}, ...) end),
 
   --- Make a partial clone of a table.
   --
@@ -400,7 +389,7 @@ local DEPRECATED = debug.DEPRECATED
 M.clone_rename = DEPRECATED ("39", "'std.table.clone_rename'",
   "use the new `map` argument to 'std.table.clone' instead",
   function (map, t)
-    local r = clone (t)
+    local r = merge_allfields ({}, t)
     for i, v in pairs (map) do
       r[v] = t[i]
       r[i] = nil
