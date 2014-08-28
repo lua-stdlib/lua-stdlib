@@ -136,8 +136,8 @@ specify std:
       end
   - it installs std.table monkey patches:
       for _, api in ipairs { "clone", "clone_select", "depair", "empty",
-        "enpair", "flatten", "insert", "invert", "keys", "len", "merge",
-        "merge_select", "monkey_patch", "new", "pack", "project",
+        "enpair", "flatten", "insert", "invert", "keys", "len", "maxn",
+        "merge", "merge_select", "monkey_patch", "new", "pack", "project",
         "shape", "size", "sort", "totable", "values" }
       do
         expect (namespace.table[api]).to_be (M.table[api])

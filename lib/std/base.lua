@@ -214,6 +214,15 @@ local function leaves (it, tr)
 end
 
 
+local maxn = table.maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
+end
+
+
 local function merge (dest, src)
   for k, v in pairs (src) do dest[k] = dest[k] or v end
   return dest
@@ -396,6 +405,7 @@ return {
   insert        = insert,
   last          = last,
   len           = len,
+  maxn          = maxn,
 
   -- tree.lua --
   leaves = leaves,

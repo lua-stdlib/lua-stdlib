@@ -5,9 +5,9 @@ before: |
 
   extend_base         = { "clone", "clone_select", "depair", "empty",
                           "enpair", "flatten", "insert", "invert", "keys",
-                          "len", "merge", "merge_select", "monkey_patch",
-                          "new", "pack", "project", "shape", "size", "sort",
-                          "totable", "values" }
+                          "len", "maxn", "merge", "merge_select",
+                          "monkey_patch", "new", "pack", "project",
+                          "shape", "size", "sort", "totable", "values" }
   deprecations        = { "clone_rename", "metamethod", "ripairs" }
 
   M = require "std.table"
@@ -331,6 +331,52 @@ specify std.table:
       -- returned table will have all 10000 keys in the same order...
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).not_to_equal (subject)
+
+
+- describe len:
+  - before:
+      f, badarg = init (M, this_module, "len")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_raise (badarg (2))
+
+  - it returns the length of a table:
+      expect (f {"a", "b", "c"}).to_be (3)
+      expect (f {1, 2, 5, a=10, 3}).to_be (4)
+  - it works with an empty table:
+      expect (f {}).to_be (0)
+  - it ignores elements after a hole:
+      expect (f {1, 2, [5]=3}).to_be (2)
+  - it respects __len metamethod:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t)).to_be (42)
+
+
+- describe maxn:
+  - before:
+      f, badarg = init (M, this_module, "maxn")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_raise (badarg (2))
+
+  - it returns the largest numeric key of a table:
+      expect (f {"a", "b", "c"}).to_be (3)
+      expect (f {1, 2, 5, a=10, 3}).to_be (4)
+  - it works with an empty table:
+      expect (f {}).to_be (0)
+  - it ignores holes:
+      expect (f {1, 2, [5]=3}).to_be (5)
+  - it ignores __len metamethod:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t)).to_be (5)
 
 
 - describe merge:

@@ -307,6 +307,11 @@ M = {
   -- @usage for i = 1, len (t) do process (t[i]) end
   len = X ("len (table)", base.len),
 
+  --- Largest integer key in a table.
+  -- @tparam table t a table
+  -- @treturn int largest integer key in *t*
+  maxn = X ("maxn (table)", base.maxn),
+
   --- Destructively merge another table's fields into another.
   -- @function merge
   -- @tparam table t destination table
@@ -334,6 +339,13 @@ M = {
   -- @usage merge_select (_G, require "std.debug", {"say"}, false)
   merge_select = X ("merge_select (table, table, [table], boolean|:nometa?)",
                     merge_namedfields),
+
+  --- Overwrite core `table` methods with `std` enhanced versions.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage local table = require "std.table".monkey_patch ()
+  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
 
   --- Make a table with a default value for unset keys.
   -- @function new
@@ -392,13 +404,6 @@ M = {
   -- @return *t* with keys sorted accordind to *c*
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, function?)", sort),
-
-  --- Overwrite core `table` methods with `std` enhanced versions.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local table = require "std.table".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
 
   --- Turn an object into a table according to `__totable` metamethod.
   -- @function totable

@@ -71,10 +71,9 @@ local base  = require "std.base"
 local debug = require "std.debug"
 
 local ipairs, pairs = base.ipairs, base.pairs
-local insert, len   = base.insert, base.len
+local insert, len, maxn = base.insert, base.len, base.maxn
 local prototype = base.prototype
 local argcheck  = debug.argcheck
-local maxn      = table.maxn
 
 
 

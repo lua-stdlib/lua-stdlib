@@ -136,6 +136,9 @@ Stdlib NEWS - User visible changes
    calculate default *pos* parameter, as well as diagnosing out of bounds
    *pos* parameters consistently on any supported version of Lua.
 
+ - New `table.maxn` is available when Lua compiled without
+   compatibility, but uses the core implementation otherwise.
+
 ** Deprecations:
 
  - Deprecated APIs are kept for a minimum of 1 year following the first
