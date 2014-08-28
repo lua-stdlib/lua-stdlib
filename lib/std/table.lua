@@ -16,6 +16,7 @@ local core = _G.table
 local base  = require "std.base"
 local debug = require "std.debug"
 
+local argerror      = debug.argerror
 local collect       = base.collect
 local leaves        = base.leaves
 local ipairs, pairs = base.ipairs, base.pairs
@@ -162,6 +163,18 @@ local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.table = base.copy (namespace.table or {}, monkeys)
   return namespace.table
+end
+
+
+local _remove = table.remove
+
+local function remove (t, pos)
+  local lent = len (t)
+  pos = pos or lent
+  if pos < math.min (1, lent) or pos > lent + 1 then -- +1? whu? that's what 5.2.3 does!?!
+    argerror ("std.table.remove", 2, "position " .. pos .. " out of bounds", 2)
+  end
+  return _remove (t, pos)
 end
 
 
@@ -339,6 +352,15 @@ M = {
   -- @tparam table tt a list of tables
   -- @treturn table list of *fkey* fields from *tt*
   project = X ("project (any, list of tables)", project),
+
+  --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
+  -- Also, diagnose out of bounds *pos* arguments consistently on any supported
+  -- version of Lua.
+  -- @function remove
+  -- @tparam table t a table
+  -- @int[opt=len (t)] pos index from which to remove an element
+  -- @treturn removed value, or else `nil`
+  remove = X ("remove (table, int?)", remove),
 
   --- Shape a table according to a list of dimensions.
   --

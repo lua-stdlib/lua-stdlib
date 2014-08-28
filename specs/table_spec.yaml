@@ -7,7 +7,8 @@ before: |
                           "enpair", "flatten", "insert", "invert", "keys",
                           "len", "maxn", "merge", "merge_select",
                           "monkey_patch", "new", "pack", "project",
-                          "shape", "size", "sort", "totable", "values" }
+                          "remove", "shape", "size", "sort", "totable",
+                          "values" }
   deprecations        = { "clone_rename", "metamethod", "ripairs" }
 
   M = require "std.table"
@@ -634,6 +635,45 @@ specify std.table:
       expect (f ("third", l)).to_equal {true, 3, "3rd"}
   - it projects fields with a falsey value correctly:
       expect (f ("first", l)).to_equal {false, 1, "1st"}
+
+
+- describe remove:
+  - before:
+      f, badarg = init (M, this_module, "remove")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses out of bounds pos arguments:
+      expect (f ({1}, 0)).to_raise "position 0 out of bounds"
+      expect (f ({1}, 3)).to_raise "position 3 out of bounds"
+      expect (f ({1}, 5)).to_raise "position 5 out of bounds"
+  - it diagnoses too many arguments:
+      expect (f ({}, 1, false)).to_raise (badarg (3))
+
+  - it returns the removed element:
+      t = {"one", "two", "five"}
+      expect (f ({"one", 2, 5}, 1)).to_be "one"
+  - it removes an element from the end by default:
+      expect (f {1, 2, "five"}).to_be "five"
+  - it ignores holes:
+      t = {"second", "first", [5]="invisible"}
+      expect (f (t)).to_be "first"
+      expect (f (t)).to_be "second"
+  - it respects __len when defaulting pos:
+      t = setmetatable ({1, 2, [43]="invisible"}, {__len = function () return 42 end})
+      expect (f (t)).to_be (nil)
+      expect (f (t)).to_be (nil)
+      expect (t).to_equal {1, 2, [43]="invisible"}
+  - it moves other elements down if necessary:
+      t = {1, 2, 5, "third", "first", "second", 42}
+      expect (f (t, 5)).to_be "first"
+      expect (t).to_equal {1, 2, 5, "third", "second", 42}
+      expect (f (t, 5)).to_be "second"
+      expect (t).to_equal {1, 2, 5, "third", 42}
+      expect (f (t, 4)).to_be "third"
+      expect (t).to_equal {1, 2, 5, 42}
 
 
 - describe ripairs:

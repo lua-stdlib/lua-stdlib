@@ -132,12 +132,14 @@ Stdlib NEWS - User visible changes
  - New `table.len` function for returning the length of a table, much like
    the core `#` operation, but respecing `__len` even on Lua 5.1.
 
- - New `table.insert` returns its result, and uses `table.len` to
+ - New `table.insert` and `table.remove` that use `table.len` to
    calculate default *pos* parameter, as well as diagnosing out of bounds
    *pos* parameters consistently on any supported version of Lua.
 
- - New `table.maxn` is available when Lua compiled without
-   compatibility, but uses the core implementation otherwise.
+ - `table.insert` returns the modified table.
+
+ - New `table.maxn` is available even when Lua compiled without
+   compatibility, but uses the core implementation when possible.
 
 ** Deprecations:
 
