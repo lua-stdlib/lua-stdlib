@@ -233,9 +233,12 @@ M = {
   --- Turn a list of pairs into a table.
   -- @todo Find a better name.
   -- @function depair
-  -- @tparam table ls list of lists `{{i1, v1}, ..., {in, vn}}`
-  -- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
+  -- @tparam table ls list of lists
+  -- @treturn table a flat table with keys and values from *ls*
   -- @see enpair
+  -- @usage
+  -- --> {a=1, b=2, c=3}
+  -- depair {{"a", 1}, {"b", 2}, {"c", 3}}
   depair = X ("depair (list of lists)", depair),
 
   --- Turn a table into a list of pairs.
@@ -244,6 +247,9 @@ M = {
   -- @tparam table t  a table `{i1=v1, ..., in=vn}`
   -- @treturn table a new list of pairs containing `{{i1, v1}, ..., {in, vn}}`
   -- @see depair
+  -- @usage
+  -- --> {{1, "a"}, {2, "b"}, {3, "c"}}
+  -- enpair {"a", "b", "c"}
   enpair = X ("enpair (table)", enpair),
 
   --- Return whether table is empty.
@@ -257,6 +263,9 @@ M = {
   -- @function flatten
   -- @tparam table t a table
   -- @treturn table a list of all non-table elements of *t*
+  -- @usage
+  -- --> {1, 2, 3, 4, 5}
+  -- flatten {{1, {{2}, 3}, 4}, 5}
   flatten = X ("flatten (table)", flatten),
 
   --- Enhance core *table.insert* to return its result.
@@ -268,13 +277,18 @@ M = {
   -- @int[opt=len (t)] pos index at which to insert new element
   -- @param v value to insert into *t*
   -- @treturn table *t*
+  -- @usage
+  -- --> {1, "x", 2, 3, "y"}
+  -- insert (insert ({1, 2, 3}, 2, "x"), "y")
   insert = X ("insert (table, [int], any)", base.insert),
 
   --- Invert a table.
   -- @function invert
   -- @tparam table t a table with `{k=v, ...}`
   -- @treturn table inverted table `{v=k, ...}`
-  -- @usage values = invert (t)
+  -- @usage
+  -- --> {a=1, b=2, c=3}
+  -- invert {"a", "b", "c"}
   invert = X ("invert (table)", base.invert),
 
   --- Make the list of keys in table.
@@ -293,8 +307,12 @@ M = {
   len = X ("len (table)", base.len),
 
   --- Largest integer key in a table.
+  -- @function maxn
   -- @tparam table t a table
   -- @treturn int largest integer key in *t*
+  -- @usage
+  -- --> 42
+  -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
   maxn = X ("maxn (table)", base.maxn),
 
   --- Destructively merge another table's fields into another.
@@ -344,6 +362,9 @@ M = {
   -- @function pack
   -- @param ... tuple
   -- @return list
+  -- @usage
+  -- --> {1, 2, "ax"}
+  -- pack (("ax1"):find "(%D+)")
   pack = function (...) return {...} end,
 
   --- Project a list of fields from a list of tables.
@@ -351,6 +372,9 @@ M = {
   -- @param fkey field to project
   -- @tparam table tt a list of tables
   -- @treturn table list of *fkey* fields from *tt*
+  -- @usage
+  -- --> {1, 3, "yy"}
+  -- project ("xx", {{"a", xx=1, yy="z"}, {"b", yy=2}, {"c", xx=3}, {xx="yy"})
   project = X ("project (any, list of tables)", project),
 
   --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
@@ -359,7 +383,11 @@ M = {
   -- @function remove
   -- @tparam table t a table
   -- @int[opt=len (t)] pos index from which to remove an element
-  -- @treturn removed value, or else `nil`
+  -- @return removed value, or else `nil`
+  -- @usage
+  -- --> {1, 2, 5}
+  -- t = {1, 2, "x", 5}
+  -- remove (t, 3) == "x" and t
   remove = X ("remove (table, int?)", remove),
 
   --- Shape a table according to a list of dimensions.
@@ -382,13 +410,18 @@ M = {
   -- @tparam table dims table of dimensions `{d1, ..., dn}`
   -- @tparam table t a table of elements
   -- @return reshaped list
+  -- @usage
+  -- --> {{"a", "b"}, {"c", "d"}, {"e", "f"}}
+  -- shape ({3, 2}, {"a", "b", "c", "d", "e", "f"})
   shape = X ("shape (table, table)", shape),
 
   --- Find the number of elements in a table.
   -- @function size
   -- @tparam table t any table
   -- @treturn int number of non-nil values in *t*
-  -- @usage count = size {foo = true, bar = true, baz = false}
+  -- @usage
+  -- --> 3
+  -- size {foo = true, bar = true, baz = false}
   size = X ("size (table)", size),
 
   --- Enhance core *table.sort* to return its result.
@@ -411,6 +444,9 @@ M = {
   -- @tparam table t any table
   -- @treturn table list of values in *t*
   -- @see keys
+  -- @usage
+  -- --> {"a", "c", 42}
+  -- values {"a", b="c", [-1]=42}
   values = X ("values (table)", values),
 }
 
