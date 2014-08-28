@@ -28,10 +28,8 @@
 
 local base    = require "std.base"
 local debug   = require "std.debug"
-local func    = require "std.functional"
-local object  = require "std.object"
 
-local Object  = object {}
+local Object  = require "std.object" {}
 
 local ipairs, pairs = base.ipairs, base.pairs
 local len       = base.len

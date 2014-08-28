@@ -12,16 +12,14 @@
 
 local base   = require "std.base"
 local debug  = require "std.debug"
-local strbuf = require "std.strbuf"
-local table  = require "std.table"
 
-local StrBuf = strbuf {}
+local StrBuf = require "std.strbuf" {}
 
 local getmetamethod = base.getmetamethod
 local insert, len   = base.insert, base.len
 local pairs         = base.pairs
 local render        = base.render
-local totable       = table.totable
+local totable       = base.totable
 
 local M
 
@@ -89,11 +87,6 @@ end
 
 local function caps (s)
   return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end)
-end
-
-
-local function escape_pattern (s)
-  return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
 end
 
 
@@ -305,7 +298,7 @@ M = {
   -- @string s any string
   -- @treturn string *s* with active pattern characters escaped
   -- @usage substr = inputstr:match (escape_pattern (literal))
-  escape_pattern = X ("escape_pattern (string)", escape_pattern),
+  escape_pattern = X ("escape_pattern (string)", base.escape_pattern),
 
   --- Escape a string to be used as a shell token.
   -- Quotes spaces, parentheses, brackets, quotes, apostrophes and

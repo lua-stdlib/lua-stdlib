@@ -15,12 +15,12 @@ local base  = require "std.base"
 local debug = require "std.debug"
 
 local argerror = debug.argerror
+local dirsep = base.dirsep
 local ipairs, pairs = base.ipairs, base.pairs
 local insert, len = base.insert, base.len
 local leaves   = base.leaves
 local split    = base.split
 
-local dirsep = string.match (package.config, "^(%S+)\n")
 
 
 local M, monkeys
@@ -155,8 +155,7 @@ M = {
   -- @see catdir
   -- @see splitdir
   -- @usage filepath = catfile ("relative", "path", "filename")
-  catfile = X ("catfile (string*)",
-               function (...) return table.concat ({...}, dirsep) end),
+  catfile = X ("catfile (string*)", base.catfile),
 
   --- Die with error.
   -- This function uses the same rules to build a message prefix

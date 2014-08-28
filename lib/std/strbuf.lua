@@ -4,9 +4,8 @@
 ]]
 
 local base   = require "std.base"
-local object = require "std.object"
 
-local Object = object {}
+local Object = require "std.object" {}
 
 local insert = base.insert
 

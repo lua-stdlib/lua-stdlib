@@ -6,6 +6,25 @@
    when writing throw-away scripts, there's also `std.barrel()`, to
    replicate the behaviour of pre-hygienic stdlib.
 
+ - Any stdlib module may `require "std.base"`, and use any functions
+   from there, as well as functions from `std.debug` (and `debug_init`);
+   but, all other modules export argument checked functions that should
+   not be called from anywhere in stdlib -- this is the client API.  If
+   a function is needed by more than one module, move it to `std.base`
+   without argument checking, and re-export with `argscheck` if necess-
+   ary.
+
+   Obviously, for objects it's perfectly fine to require the file that
+   defines the object being derived from.  But to prevent accidentally
+   calling argchecked methods, we always immediately create a prototype
+   object with, e.g:
+
+       local Container = require "std.container" {}
+
+   (`std.object` is an exception to this rule because of how tightly
+   bound to `std.container` it is, and does directly call some of
+   containers methods by design).
+
  - Minimise forward declarations of functions, because having some
    declared as `local` in line, and others not is ugly and can easily
    cause rogue `local` keywords to be introduced that end up shadowing

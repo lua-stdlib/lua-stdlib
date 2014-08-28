@@ -13,10 +13,9 @@
 
 local base           = require "std.base"
 local debug          = require "std.debug"
-local catfile        = require "std.io".catfile
-local invert         = require "std.table".invert
-local escape_pattern = require "std.string".escape_pattern
 
+local catfile, escape_pattern, invert =
+  base.catfile, base.escape_pattern, base.invert
 local ipairs, pairs, split = base.ipairs, base.pairs, base.split
 
 local M

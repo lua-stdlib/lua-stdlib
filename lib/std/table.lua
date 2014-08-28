@@ -78,15 +78,6 @@ local function flatten (t)
 end
 
 
-local function invert (t)
-  local i = {}
-  for k, v in pairs (t) do
-    i[v] = k
-  end
-  return i
-end
-
-
 local function keys (t)
   local l = {}
   for k in pairs (t) do
@@ -94,7 +85,6 @@ local function keys (t)
   end
   return l
 end
-
 
 
 local function new (x, t)
@@ -172,24 +162,6 @@ local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.table = base.copy (namespace.table or {}, monkeys)
   return namespace.table
-end
-
-
-local getmetamethod = base.getmetamethod
-
-local function totable (x)
-  local m = getmetamethod (x, "__totable")
-  if m then
-    return m (x)
-  elseif type (x) == "table" then
-    return x
-  elseif type (x) == "string" then
-    local t = {}
-    x:gsub (".", function (c) t[#t + 1] = c end)
-    return t
-  else
-    return nil
-  end
 end
 
 
@@ -290,7 +262,7 @@ M = {
   -- @tparam table t a table with `{k=v, ...}`
   -- @treturn table inverted table `{v=k, ...}`
   -- @usage values = invert (t)
-  invert = X ("invert (table)", invert),
+  invert = X ("invert (table)", base.invert),
 
   --- Make the list of keys in table.
   -- @function keys
@@ -410,7 +382,7 @@ M = {
   -- @tparam object|table|string x object to turn into a table
   -- @treturn table resulting table or `nil`
   -- @usage print (table.concat (totable (object)))
-  totable = X ("totable (object|table|string)", totable),
+  totable = X ("totable (object|table|string)", base.totable),
 
   --- Make the list of values of a table.
   -- @function values

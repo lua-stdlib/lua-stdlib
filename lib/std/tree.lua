@@ -12,16 +12,14 @@
 ]]
 
 local base      = require "std.base"
-local container = require "std.container"
-local func      = require "std.functional"
 local operator  = require "std.operator"
 
-local Container = container {}
+local Container = require "std.container" {}
 
 local ielems, ipairs, base_leaves, pairs, prototype =
   base.ielems, base.ipairs, base.leaves, base.pairs, base.prototype
 local last, len = base.last, base.len
-local reduce = func.reduce
+local reduce = base.reduce
 
 local Tree -- forward declaration
 

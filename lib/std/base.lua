@@ -23,6 +23,9 @@
 ]]
 
 
+local dirsep = string.match (package.config, "^(%S+)\n")
+
+
 local function argerror (name, i, extramsg, level)
   level = level or 1
   local s = string.format ("bad argument #%d to '%s'", i, name)
@@ -54,6 +57,11 @@ end
 local function callable (x)
   if type (x) == "function" then return x end
   return  getmetamethod (x, "__call")
+end
+
+
+local function catfile (...)
+  return table.concat ({...}, dirsep)
 end
 
 
@@ -154,6 +162,11 @@ local function elems (t)
 end
 
 
+local function escape_pattern (s)
+  return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
+end
+
+
 local function eval (s)
   return loadstring ("return " .. s)()
 end
@@ -186,6 +199,15 @@ local function insert (t, pos, v)
   end
   _insert (t, pos, v)
   return t
+end
+
+
+local function invert (t)
+  local i = {}
+  for k, v in pairs (t) do
+    i[v] = k
+  end
+  return i
 end
 
 
@@ -363,6 +385,22 @@ local function tostring (x)
 end
 
 
+local function totable (x)
+  local m = getmetamethod (x, "__totable")
+  if m then
+    return m (x)
+  elseif type (x) == "table" then
+    return x
+  elseif type (x) == "string" then
+    local t = {}
+    x:gsub (".", function (c) t[#t + 1] = c end)
+    return t
+  else
+    return nil
+  end
+end
+
+
 
 return {
   copy  = copy,
@@ -390,22 +428,31 @@ return {
   nop      = function () end,
   reduce   = reduce,
 
+  -- io.lua --
+  catfile = catfile,
+
   -- list.lua --
   compare = compare,
 
   -- object.lua --
   prototype = prototype,
 
+  -- package.lua --
+  dirsep = dirsep,
+
   -- string.lua --
-  render   = render,
-  split    = split,
+  escape_pattern = escape_pattern,
+  render         = render,
+  split          = split,
 
   -- table.lua --
   getmetamethod = getmetamethod,
   insert        = insert,
+  invert        = invert,
   last          = last,
   len           = len,
   maxn          = maxn,
+  totable       = totable,
 
   -- tree.lua --
   leaves = leaves,

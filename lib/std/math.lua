@@ -12,7 +12,6 @@
 
 
 local base  = require "std.base"
-local debug = require "std.debug"
 
 local M
 
@@ -49,7 +48,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.math." .. decl, fn)
+  return require "std.debug".argscheck ("std.math." .. decl, fn)
 end
 
 

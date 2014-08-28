@@ -12,9 +12,9 @@
  ]]
 
 local base      = require "std.base"
-local container = require "std.container"
 
-local Container = container {}
+local Container = require "std.container" {}
+
 local ielems, pairs, prototype = base.ielems, base.pairs, base.prototype
 
 
