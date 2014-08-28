@@ -11,6 +11,8 @@
 ]]
 
 
+local core = _G.table
+
 local base  = require "std.base"
 local debug = require "std.debug"
 
@@ -20,7 +22,7 @@ local ipairs, pairs = base.ipairs, base.pairs
 local len           = base.len
 
 
-local M
+local M, monkeys
 
 
 local function merge_allfields (t, u, map, nometa)
@@ -167,8 +169,9 @@ end
 
 
 local function monkey_patch (namespace)
-  namespace.table.sort = M.sort
-  return M
+  namespace = namespace or _G
+  namespace.table = base.copy (namespace.table or {}, monkeys)
+  return namespace.table
 end
 
 
@@ -390,9 +393,7 @@ M = {
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, function?)", sort),
 
-  --- Overwrite core methods with `std` enhanced versions.
-  --
-  -- Replaces core `table.sort` with `std.table` version.
+  --- Overwrite core `table` methods with `std` enhanced versions.
   -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
@@ -413,6 +414,9 @@ M = {
   -- @see keys
   values = X ("values (table)", values),
 }
+
+
+monkeys = base.copy ({}, M)  -- before deprecations and core merge
 
 
 --[[ ============= ]]--
@@ -443,11 +447,7 @@ M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",
 
 
 
-for k, v in pairs (table) do
-  M[k] = M[k] or v
-end
-
-return M
+return base.merge (M, table)
 
 
 

@@ -25,18 +25,11 @@
 
 local base = require "std.base"
 
-local M
+local M, monkeys
+
 
 local function monkey_patch (namespace)
-  namespace = namespace or _G
-
-  for n, fn in pairs (M) do
-    if type (fn) == "function" and n ~= "barrel" and n ~= "monkey_patch" then
-      namespace[n] = fn
-    end
-  end
-
-  return M
+  return base.copy (namespace or _G, monkeys)
 end
 
 
@@ -44,26 +37,28 @@ local function barrel (namespace)
   namespace = namespace or _G
 
   -- Older releases installed the following into _G by default.
-  for v in base.ielems {
+  for _, name in pairs {
     "functional.bind", "functional.collect", "functional.compose",
     "functional.curry", "functional.filter", "functional.id",
-    "functional.map", "functional.op",
+    "functional.map",
 
     "io.die", "io.warn",
 
     "string.pickle", "string.prettytostring", "string.render",
-    "string.require_version",
 
-    "table.metamethod", "table.pack", "table.totable",
+    "table.pack", "table.totable",
 
     "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
   } do
-    local module, method = v:match "^(.*)%.(.-)$"
+    local module, method = name:match "^(.*)%.(.-)$"
     namespace[method] = M[module][method]
   end
 
-  -- Support fold, even though we renamed to reduce in v41.
+  -- Support old api names, for backwards compatibility.
   namespace.fold = M.functional.reduce
+  namespace.metamethod = M.getmetamethod
+  namespace.op = M.operator
+  namespace.require_version = M.require
 
   require "std.io".monkey_patch (namespace)
   require "std.math".monkey_patch (namespace)
@@ -88,8 +83,6 @@ local function X (decl, fn)
 end
 
 M = {
-  version       = "General Lua libraries / @VERSION@",
-
   --- Enhance core `assert` to also allow formatted arguments.
   -- @function assert
   -- @param expect expression, expected to be *truthy*
@@ -123,14 +116,14 @@ M = {
   -- @see pairs
   -- @usage
   -- for value in std.elems {a = 1, b = 2, c = 5} do process (value) end
-  elems         = X ("elems (table)", base.elems),
+  elems = X ("elems (table)", base.elems),
 
   --- Evaluate a string as Lua code.
   -- @function eval
   -- @string s string of Lua code
   -- @return result of evaluating `s`
   -- @usage std.eval "math.pow (2, 10)"
-  eval          = X ("eval (string)", base.eval),
+  eval = X ("eval (string)", base.eval),
 
   --- An iterator over the integer keyed elements of a sequence.
   -- If *t* has a `__len` metamethod, iterate up to the index it returns.
@@ -241,7 +234,17 @@ M = {
   -- -- {1=baz,foo=bar}
   -- print (std.tostring {foo="bar","baz"})
   tostring = X ("tostring (any?)", base.tostring),
+
+  version = "General Lua libraries / @VERSION@",
 }
+
+
+monkeys = base.copy ({}, M)
+
+-- Don't monkey_patch these apis into _G!
+for _, api in ipairs {"barrel", "monkey_patch", "version"} do
+  monkeys[api] = nil
+end
 
 
 --- Metamethods

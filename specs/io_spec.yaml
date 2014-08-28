@@ -143,27 +143,34 @@ specify std.io:
 
 - describe monkey_patch:
   - before:
-      mt = {}
-      t  = {
-        io = {
-          stdin  = setmetatable ({}, mt),
-          stdout = setmetatable ({}, mt),
-          stderr = setmetatable ({}, mt),
-        },
-      }
+      namespace = {}
 
-      f, badarg = init (M, this_module,  "monkey_patch")
+      f, badarg = init (M, this_module, "monkey_patch")
 
   - it diagnoses wrong argument types:
       expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
       expect (f (t, false)).to_raise (badarg (2))
 
-  - it installs readlines metamethod:
-      f (t)
+  - it returns the monkey_patched io entry from namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.io)
+  - it injects std.io apis into the given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.io[api]).to_be (M[api])
+      end
+  - it installs file methods:
+      mt = { "file metatable" }
+      io = f {
+        io = {
+          stdin  = setmetatable ({ "stdin"  }, mt),
+          stdout = setmetatable ({ "stdout" }, mt),
+          stderr = setmetatable ({ "stderr" }, mt)
+        }
+      }
       expect (mt.readlines).to_be (M.readlines)
-  - it installs writelines metamethod:
-      f (t)
       expect (mt.writelines).to_be (M.writelines)
 
 

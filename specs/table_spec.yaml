@@ -3,11 +3,12 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  extend_base         = { "clone", "clone_rename", "clone_select", "depair",
-                          "empty", "enpair", "flatten", "insert", "invert",
-                          "keys", "len", "merge", "merge_select", "metamethod",
-                          "monkey_patch", "new", "pack", "project", "ripairs",
-                          "shape", "size", "sort", "totable", "values" }
+  extend_base         = { "clone", "clone_select", "depair", "empty",
+                          "enpair", "flatten", "insert", "invert", "keys",
+                          "len", "merge", "merge_select", "monkey_patch",
+                          "new", "pack", "project", "shape", "size", "sort",
+                          "totable", "values" }
+  deprecations        = { "clone_rename", "metamethod", "ripairs" }
 
   M = require "std.table"
 
@@ -21,8 +22,12 @@ specify std.table:
         expect (show_apis {added_to=base_module, by=this_module}).
           to_equal {}
     - it contains apis from the core table table:
+        apis = require "std.base".copy (extend_base)
+        for _, v in ipairs (deprecations) do
+          apis[#apis + 1] = v
+        end
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (apis)
 
   - context via the std module:
     - it does not touch the global table:
@@ -484,18 +489,20 @@ specify std.table:
   - before:
       f, badarg = init (M, this_module, "monkey_patch")
 
-      t = {
-        table = {},
-      }
-      f (t)
-
   - it diagnoses wrong argument types:
       expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
   - it diagnoses too many arguments:
       expect (f ({}, false)).to_raise (badarg (2))
 
-  - it installs table.sort function:
-      expect (t.table.sort).to_be (M.sort)
+  - it returns the monkey_patched table entry from namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.table)
+  - it injects std.table apis into given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.table[api]).to_be (M[api])
+      end
 
 
 - describe new:

@@ -1,5 +1,11 @@
 ## Lua
 
+ - Requiring any stdlib module must not leak any symbols into the
+   global namespace.  To help users who want to do that, there are
+   monkey_patch functions in the relevant modules.  For convenience
+   when writing throw-away scripts, there's also `std.barrel()`, to
+   replicate the behaviour of pre-hygienic stdlib.
+
  - Minimise forward declarations of functions, because having some
    declared as `local` in line, and others not is ugly and can easily
    cause rogue `local` keywords to be introduced that end up shadowing

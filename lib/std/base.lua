@@ -121,10 +121,10 @@ local function pairs (t)
 end
 
 
-local function copy (t)
-  local r = {}
-  for k, v in pairs (t) do r[k] = v end
-  return r
+local function copy (dest, src)
+  if src == nil then dest, src = {}, dest end
+  for k, v in pairs (src) do dest[k] = v end
+  return dest
 end
 
 
@@ -211,6 +211,12 @@ local function leaves (it, tr)
     end
   end
   return coroutine.wrap (visit), tr
+end
+
+
+local function merge (dest, src)
+  for k, v in pairs (src) do dest[k] = dest[k] or v end
+  return dest
 end
 
 
@@ -350,7 +356,8 @@ end
 
 
 return {
-  copy = copy,
+  copy  = copy,
+  merge = merge,
 
   -- std.lua --
   assert   = assert,

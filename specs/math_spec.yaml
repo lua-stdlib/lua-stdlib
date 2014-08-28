@@ -58,10 +58,6 @@ specify std.math:
 
 - describe monkey_patch:
   - before:
-      t  = {
-        math = {},
-      }
-
       f, badarg = init (M, this_module, "monkey_patch")
 
   - it diagnoses wrong argument types: |
@@ -69,9 +65,15 @@ specify std.math:
   - it diagnoses too many arguments:
       expect (f (t, false)).to_raise (badarg (2))
 
-  - it installs math.floor function:
-      f (t)
-      expect (t.math.floor).to_be (M.floor)
+  - it returns the monkey_patched math entry namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.math)
+  - it injects std.math apis into the given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.math[api]).to_be (M[api])
+      end
 
 
 - describe round:

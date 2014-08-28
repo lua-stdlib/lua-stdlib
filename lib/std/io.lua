@@ -23,7 +23,7 @@ local split    = base.split
 local dirsep = string.match (package.config, "^(%S+)\n")
 
 
-local M
+local M, monkeys
 
 
 local function input_handle (h)
@@ -74,12 +74,16 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
+  namespace.io = base.copy (namespace.io or {}, monkeys)
 
-  local file_metatable = getmetatable (namespace.io.stdin)
-  file_metatable.readlines  = M.readlines
-  file_metatable.writelines = M.writelines
+  if namespace.io.stdin then
+    local mt = getmetatable (namespace.io.stdin) or {}
+    mt.readlines  = M.readlines
+    mt.writelines = M.writelines
+    setmetatable (namespace.io.stdin, mt)
+  end
 
-  return M
+  return namespace.io
 end
 
 
@@ -164,9 +168,9 @@ M = {
   -- @usage die ("oh noes! (%s)", tostring (obj))
   die = X ("die (string, any?*)", function (...) warn (...); error () end),
 
-  --- Overwrite core methods and metamethods with `std` enhanced versions.
+  --- Overwrite core `io` methods with `std` enhanced versions.
   --
-  -- Adds @{readlines} and @{writelines} metamethods to core file objects.
+  -- Also adds @{readlines} and @{writelines} metamethods to core file objects.
   -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the `std.io` module table
@@ -255,11 +259,10 @@ M = {
 }
 
 
-for k, v in pairs (io) do
-  M[k] = M[k] or v
-end
+monkeys = base.copy ({}, M)  -- before deprecations and core merge
 
-return M
+
+return base.merge (M, io)
 
 
 

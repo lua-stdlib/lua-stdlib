@@ -76,11 +76,14 @@ end
 
 
 local function monkey_patch (namespace)
+  namespace = namespace or _G
+  namespace.string = base.copy (namespace.string or {}, M)
+
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat
   string_metatable.__index = M.__index
 
-  return M
+  return namespace.string
 end
 
 
@@ -345,12 +348,10 @@ M = {
   ltrim = X ("ltrim (string, string?)",
              function (s, r) return s:gsub ("^" .. (r or "%s+"), "") end),
 
-  --- Overwrite core methods and metamethods with `std` enhanced versions.
+  --- Overwrite core `string` methods with `std` enhanced versions.
   --
-  -- Adds auto-stringification to `..` operator on core strings, and
+  -- Also adds auto-stringification to `..` operator on core strings, and
   -- integer indexing of strings with `[]` dereferencing.
-  --
-  -- Also replaces core `tostring` functions with `std.string` version.
   -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
@@ -500,11 +501,7 @@ M.tostring = DEPRECATED ("41", "'std.string.tostring'",
 
 
 
-for k, v in pairs (string) do
-  M[k] = M[k] or v
-end
-
-return M
+return base.merge (M, string)
 
 
 

@@ -11,6 +11,7 @@
 ]]
 
 
+local base  = require "std.base"
 local debug = require "std.debug"
 
 local M
@@ -30,8 +31,8 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.math.floor = M.floor
-  return M
+  namespace.math = base.copy (namespace.math or {}, M)
+  return namespace.math
 end
 
 
@@ -61,9 +62,7 @@ M = {
   -- @usage tenths = floor (magnitude, 1)
   floor = X ("floor (number, int?)", floor),
 
-  --- Overwrite core methods with `std` enhanced versions.
-  --
-  -- Replaces core `math.floor` with `std.math` version.
+  --- Overwrite core `math` methods with `std` enhanced versions.
   -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
@@ -80,8 +79,4 @@ M = {
 }
 
 
-for k, v in pairs (math) do
-  M[k] = M[k] or v
-end
-
-return M
+return base.merge (M, math)

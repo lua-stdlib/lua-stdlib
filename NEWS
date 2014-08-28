@@ -222,6 +222,12 @@ Stdlib NEWS - User visible changes
 
 ** Incompatible changes:
 
+ - `std.monkey_patch` works the same way as the other submodule
+   monkey_patch functions now, by injecting its methods into the given
+   (or global) namespace.  To get the previous effect of running all the
+   monkey_patch functions, either run them all manually, or call
+   `std.barrel ()` as before.
+
  - `functional.bind` sets fixed positional arguments when called as
    before, but when the newly bound function is called, those arguments
    fill remaining unfixed positions rather than being overwritten by
