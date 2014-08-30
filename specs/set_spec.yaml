@@ -1,7 +1,6 @@
 before:
   Set       = require "std.set"
   prototype = require "std.object".prototype
-  totable   = require "std.table".totable
   s         = Set {"foo", "bar", "bar"}
 
 specify std.set:
@@ -305,20 +304,6 @@ specify std.set:
     - it coerces a table argument to a set:
         expect (r + {"quux"}).
           to_equal (Set {"foo", "bar", "baz", "quux"})
-
-
-- describe __totable:
-  - before:
-      s = Set {"foo", "bar", "baz"}
-
-  - it returns a table:
-      expect (prototype (totable (s))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (s)).to_contain.all_of {"foo", "bar", "baz"}
-  - it contains fields of set in order:
-      expect (totable (s)).to_equal {"bar", "baz", "foo"}
-  - it does not contain any hidden fields of object:
-      expect (totable (s)).to_equal {"bar", "baz", "foo"}
 
 
 - describe __tostring:

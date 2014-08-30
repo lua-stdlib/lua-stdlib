@@ -114,15 +114,3 @@ specify std.container:
         not_to_contain ";"
       expect (tostring (things {one = true, two = true, three = true})).
         to_contain ";"
-
-
-- describe tablification:
-  - before:
-      totable = require "std.table".totable
-      Derived = Container {_type = "Derived", "one", "two", three = true}
-  - it returns a table:
-      expect (prototype (totable (Derived))).to_be "table"
-  - it contains all non-hidden fields of container:
-      expect (totable (Derived)).to_contain.all_of {"one", "two", "three"}
-  - it does not contain any hidden fields of container:
-      expect (totable (Derived)).to_equal {"one", "two", three = true}

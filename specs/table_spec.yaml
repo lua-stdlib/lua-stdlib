@@ -7,9 +7,8 @@ before: |
                           "enpair", "flatten", "insert", "invert", "keys",
                           "len", "maxn", "merge", "merge_select",
                           "monkey_patch", "new", "pack", "project",
-                          "remove", "shape", "size", "sort", "totable",
-                          "values" }
-  deprecations        = { "clone_rename", "metamethod", "ripairs" }
+                          "remove", "shape", "size", "sort", "values" }
+  deprecations        = { "clone_rename", "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
 
@@ -784,12 +783,9 @@ specify std.table:
 
       f, badarg = init (M, this_module, "totable")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "object, table or string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "object, table or string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - it writes a deprecation warning on first call:
+      expect (capture (f, {{}})).to_contain_error "was deprecated"
+      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
   - it calls object's __totable metamethod:
       object = setmetatable ({content = t}, mt)

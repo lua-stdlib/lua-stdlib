@@ -121,7 +121,9 @@ Stdlib NEWS - User visible changes
    Lua 5.1.
 
    All of stdlib's implementation now uses `std.pairs` rather than `pairs`
-   internally.
+   internally. Among other improvements, this makes for a much more
+   elegant imlementation of `std.object`, which also behaves intuitively
+   and consistently when passed to `std.pairs`.
 
  - `std.require` now give a verbose error message when loaded module does not
    meet version numbers passed.
@@ -225,6 +227,8 @@ Stdlib NEWS - User visible changes
  - `table.ripairs` has been moved to `std.ripairs`, the old name now
    gives a deprecation warning.
 
+ - `table.totable` has been deprecated and now gives a warning when used.
+
 ** Incompatible changes:
 
  - `std.monkey_patch` works the same way as the other submodule
@@ -269,6 +273,15 @@ Stdlib NEWS - User visible changes
    as argument checking is disabled.  Under normal circumstances,
    passing a non-string will now raise an error as specified in the api
    documentation.
+
+ - `table.totable` is deprecated, and thus objects no longer provide or
+   use a `__totable` metamethod.  Instead, using a `__pairs` metamethod
+   to return key/value pairs, and that will automatically be used by
+   `__tostring`, `object.mapfields` etc.  The base object now provides a
+   `__pairs` metamethod that returns key/value pairs in order, and
+   ignores private fields.  If you have objects that relied on the
+   previous treatment of `__totable`, please convert them to set a
+   custom `__pairs` instead.
 
 
 ** Bug fixes:

@@ -385,22 +385,6 @@ local function tostring (x)
 end
 
 
-local function totable (x)
-  local m = getmetamethod (x, "__totable")
-  if m then
-    return m (x)
-  elseif type (x) == "table" then
-    return x
-  elseif type (x) == "string" then
-    local t = {}
-    x:gsub (".", function (c) t[#t + 1] = c end)
-    return t
-  else
-    return nil
-  end
-end
-
-
 
 return {
   copy  = copy,
@@ -452,7 +436,6 @@ return {
   last          = last,
   len           = len,
   maxn          = maxn,
-  totable       = totable,
 
   -- tree.lua --
   leaves = leaves,

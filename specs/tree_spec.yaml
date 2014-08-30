@@ -7,7 +7,6 @@ before: |
 specify std.tree:
 - before:
     prototype = (require "std.object").prototype
-    totable   = (require "std.table").totable
     t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
     tr = Tree (t)
 
@@ -396,13 +395,6 @@ specify std.tree:
       tr[{"foo", "branch", "bar"}] = "leaf1"
       tr[{"foo", "branch", "baz"}] = "leaf2"
       expect (tr).to_equal (Tree {foo=Tree {branch=Tree {bar="leaf1", baz="leaf2"}}})
-
-- describe __totable:
-  - it returns a table:
-      expect (prototype (totable (tr))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (tr)).to_contain.
-        all_of {"foo", branch={bar="bar", baz="baz"}, "quux"}
 
 - describe __tostring:
   - it returns a string:

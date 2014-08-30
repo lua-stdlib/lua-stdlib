@@ -46,7 +46,7 @@ local function barrel (namespace)
 
     "string.pickle", "string.prettytostring", "string.render",
 
-    "table.pack", "table.totable",
+    "table.pack",
 
     "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
   } do

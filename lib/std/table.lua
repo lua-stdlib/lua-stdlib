@@ -432,13 +432,6 @@ M = {
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, function?)", sort),
 
-  --- Turn an object into a table according to `__totable` metamethod.
-  -- @function totable
-  -- @tparam object|table|string x object to turn into a table
-  -- @treturn table resulting table or `nil`
-  -- @usage print (table.concat (totable (object)))
-  totable = X ("totable (object|table|string)", base.totable),
-
   --- Make the list of values of a table.
   -- @function values
   -- @tparam table t any table
@@ -479,6 +472,24 @@ M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
 
 M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",
   "use 'std.ripairs' instead", base.ripairs)
+
+
+M.totable = DEPRECATED ("41", "'std.table.totable'",
+  "use 'std.pairs' instead",
+  function (x)
+    local m = base.getmetamethod (x, "__totable")
+    if m then
+      return m (x)
+    elseif type (x) == "table" then
+      return x
+    elseif type (x) == "string" then
+      local t = {}
+      x:gsub (".", function (c) t[#t + 1] = c end)
+      return t
+    else
+      return nil
+    end
+  end)
 
 
 

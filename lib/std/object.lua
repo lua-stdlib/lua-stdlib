@@ -215,6 +215,14 @@ return Container {
   -- new = Object {"initialisation", "elements"}
 
 
+  --- Return an in-order iterator over public object fields.
+  -- @function __pairs
+  -- @treturn function iterator function
+  -- @treturn object *self*
+  -- @usage
+  -- for k, v in std.pairs (anobject) do process (k, v) end
+
+
   --- Return a string representation of this object.
   --
   -- First the object type, and then between { and } a list of the
@@ -224,20 +232,7 @@ return Container {
   -- This function doesn't recurse explicity, but relies upon suitable
   -- `__tostring` metamethods in field values.
   -- @function __tostring
-  -- @treturn string stringified container representation
+  -- @treturn string stringified object representation
   -- @see tostring
   -- @usage print (anobject)
-
-
-  --- Return a shallow copy of non-private object fields.
-  --
-  -- Used by @{clone} to get the base contents of the new object. Can
-  -- be overridden in other objects for greater control of which fields
-  -- are considered non-private.
-  -- @function __totable
-  -- @treturn table a shallow copy of non-private object fields
-  -- @see std.table.totable
-  -- @usage
-  -- tostring = require "std.string".tostring
-  -- print (totable (anobject))
 }

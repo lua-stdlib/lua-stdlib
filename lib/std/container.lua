@@ -95,11 +95,17 @@ local argcheck  = debug.argcheck
 -- @treturn table a new table with fields from proto and t merged in.
 local function instantiate (proto, t)
   local obj = {}
-  for k, v in pairs (proto) do
+  local k, v = next (proto)
+  while k do
     obj[k] = v
+    k, v = next (proto, k)
   end
-  for k, v in pairs (t or {}) do
+
+  t = t or {}
+  k, v = next (t)
+  while k do
     obj[k] = v
+    k, v = next (t, k)
   end
   return obj
 end
@@ -136,16 +142,6 @@ end
 --[[ ================= ]]--
 
 
---- Return `obj` with references to the fields of `src` merged in.
--- @function mapfields
--- @static
--- @tparam table obj destination object
--- @tparam table src fields to copy into clone
--- @tparam[opt={}] table map `{old_key=new_key, ...}`
--- @treturn table *obj* with non-private fields from *src* merged, and
---   a metatable with private fields (if any) merged, both sets of keys
---   renamed according to *map*
--- @see std.object.mapfields
 local function mapfields (obj, src, map)
   local mt = getmetatable (obj) or {}
 
@@ -154,17 +150,20 @@ local function mapfields (obj, src, map)
   -- when map is provided (i.e. if `map == {}`, copy nothing).
   if map == nil or next (map) then
     map = map or {}
-    for k, v in pairs (src) do
+    local k, v = next (src)
+    while k do
       local key, dst = map[k] or k, obj
       local kind = type (key)
       if kind == "string" and key:sub (1, 1) == "_" then
-        dst = mt
-      elseif kind == "number" and len (dst) + 1 < key then
+        mt[key] = v
+      elseif next (map) and kind == "number" and len (dst) + 1 < key then
         -- When map is given, but has fewer entries than src, stop copying
         -- fields when map is exhausted.
         break
+      else
+        dst[key] = v
       end
-      dst[key] = v
+      k, v = next (src, k)
     end
   end
 
@@ -173,8 +172,11 @@ local function mapfields (obj, src, map)
   mt._functions = nil
 
   -- Inject module functions.
-  for k, v in pairs (src._functions or {}) do
+  local t = src._functions or {}
+  local k, v = next (t)
+  while (k) do
     obj[k] = modulefunction (v)
+    k, v = next (t, k)
   end
 
   -- Only set non-empty metatable.
@@ -185,16 +187,6 @@ local function mapfields (obj, src, map)
 end
 
 
---- Return a clone of this container.
--- @function __call
--- @param x a table if prototype `_init` is a table, otherwise first
---   argument for a function type `_init`
--- @param ... any additional arguments for `_init`
--- @treturn std.container a clone of the called container.
--- @see std.object:__call
--- @usage
--- local Container = require "std.container" {} -- not a typo!
--- local new = Container {"init", {"elements"}, 2, "insert"}
 local function __call (self, x, ...)
   local mt     = getmetatable (self)
   local obj_mt = mt
@@ -204,10 +196,12 @@ local function __call (self, x, ...)
   -- a lot of fields to test and copy.  If you need to clone a lot of
   -- objects from a prototype with several module functions, it's much
   -- faster to clone objects from each other than the prototype!
-  for k, v in pairs (self) do
+  local k, v = next (self)
+  while (k) do
     if type (v) ~= "table" or v._type ~= "modulefunction" then
       obj[k] = v
     end
+    k, v = next (self, k)
   end
 
   if type (mt._init) == "function" then
@@ -270,56 +264,50 @@ else
 end
 
 
---- Return a string representation of this container.
--- @function __tostring
--- @treturn string stringified container representation
--- @see std.object.__tostring
--- @usage print (acontainer)
-function M.__tostring (self)
-  local totable = getmetatable (self).__totable
-  local array = instantiate (totable (self))
-  local other = instantiate (array)
-  local s = ""
-  if len (other) > 0 then
-    for i in ipairs (other) do other[i] = nil end
-  end
-  for k in pairs (other) do array[k] = nil end
-  for i, v in ipairs (array) do array[i] = tostring (v) end
-
-  local keys, dict = {}, {}
-  for k in pairs (other) do insert (keys, k) end
-  table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
-  for _, k in ipairs (keys) do
-    insert (dict, tostring (k) .. "=" .. tostring (other[k]))
+function M.__pairs (self)
+  local keys = {}
+  local k = next (self)
+  while k do
+    keys[#keys + 1] = k
+    k = next (self, k)
   end
 
-  if len (array) > 0 then
-    s = s .. table.concat (array, ", ")
-    if next (dict) ~= nil then s = s .. "; " end
-  end
-  if len (dict) > 0 then
-    s = s .. table.concat (dict, ", ")
-  end
+  -- Sort numbers first then asciibetically
+  table.sort (keys, function (a, b)
+    if type (a) == "number" then
+      return type (b) ~= "number" or a < b
+    else
+      return type (b) ~= "number" and tostring (a) < tostring (b)
+    end
+  end)
 
-  return prototype (self) .. " {" .. s .. "}"
+  local n, lenkeys = 0, #keys
+  return function (t, k)
+    n = n + 1
+    if n <= lenkeys then
+      local key = keys[n]
+      return key, self[key]
+    end
+  end, self, nil
 end
 
 
---- Return a table representation of this container.
--- @function __totable
--- @treturn table a shallow copy of non-private container fields
--- @see std.object:__totable
--- @usage
--- local tostring = require "std.string".tostring
--- print (totable (acontainer))
-function M.__totable (self)
-  local t = {}
+function M.__tostring (self)
+  local n, ibuf, kbuf = 1, {}, {}
   for k, v in pairs (self) do
-    if type (k) ~= "string" or k:sub (1, 1) ~= "_" then
-      t[k] = v
+    if type (k) == "number" and k == n then
+      ibuf[#ibuf + 1] = tostring (v)
+      n = n + 1
+    else
+      kbuf[#kbuf + 1] = tostring (k) .. "=" .. tostring (v)
     end
   end
-  return t
+
+  local buf = {}
+  if next (ibuf) then buf[#buf + 1] = table.concat (ibuf, ", ") end
+  if next (kbuf) then buf[#buf + 1] = table.concat (kbuf, ", ") end
+
+  return prototype (self) .. " {" .. table.concat (buf, "; ") .. "}"
 end
 
 
@@ -344,5 +332,5 @@ return setmetatable ({
 
   __call     = M.__call,
   __tostring = M.__tostring,
-  __totable  = M.__totable,
+  __pairs    = M.__pairs,
 })

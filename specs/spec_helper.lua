@@ -213,23 +213,6 @@ function show_apis (argt)
 end
 
 
--- Not local, so that it is available to spec examples.
-function totable (x)
-  local _, m = pcall (function (x) return getmetatable (x)["__totable"] end, x)
-  if type (m) == "function" then
-    return m (x)
-  elseif type (x) == "table" then
-    return x
-  elseif type (x) == "string" then
-    local t = {}
-    x:gsub (".", function (c) t[#t + 1] = c end)
-    return t
-  else
-    return nil
-  end
-end
-
-
 -- Stub inprocess.capture if necessary; new in Specl 12.
 capture = inprocess.capture or
           function (f, arg) return nil, nil, f (unpack (arg or {})) end

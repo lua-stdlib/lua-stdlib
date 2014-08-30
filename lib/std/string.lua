@@ -15,11 +15,11 @@ local debug  = require "std.debug"
 
 local StrBuf = require "std.strbuf" {}
 
+local copy          = base.copy
 local getmetamethod = base.getmetamethod
 local insert, len   = base.insert, base.len
 local pairs         = base.pairs
 local render        = base.render
-local totable       = base.totable
 
 local M
 
@@ -233,7 +233,7 @@ local function pickle (x)
     type (x) == "nil" then
     return tostring (x)
   else
-    x = totable (x) or x
+    x = copy (x) or x
     if type (x) == "table" then
       local s, sep = "{", ""
       for i, v in pairs (x) do

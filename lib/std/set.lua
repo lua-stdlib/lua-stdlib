@@ -279,16 +279,16 @@ Set = Container {
   __lt  = proper_subset,
 
 
-  -- Set to table conversion.
-  -- @treturn table table representation of a set.
-  -- @see std.table.totable
-  __totable  = function (self)
-                 local t = {}
-                 for e in elems (self) do
-                   t[#t + 1] = e
+  -- Return a string representation of this set.
+  -- @treturn string string representation of a set.
+  -- @see std.tostring
+  __tostring = function (self)
+                 local keys = {}
+                 for k in pairs (self) do
+                   keys[#keys + 1] = tostring (k)
                  end
-                 table.sort (t)
-                 return t
+                 table.sort (keys)
+                 return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
                end,
 
 
