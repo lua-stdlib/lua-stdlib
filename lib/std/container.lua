@@ -15,51 +15,17 @@
  @{std.object} module functions, or anywhere else a @{std.object} is
  expected.
 
- Container derived objects returned directly from a `require` statement
- may also provide module functions, which can be called only from the
- initial prototype object returned by `require`, but are **not** passed
- on to derived objects during cloning:
-
-      > container = require "std.container"  -- module table
-      > Container = container {}             -- prototype object
-      > = container:prototype ()
-      Object
-      > = Container:prototype ()
-      stdin:1: attempt to call field 'prototype' (a nil value)
-      ...
-
- To add module functions to your own prototype containers, pass a table
- of those module functions in the `_functions` private field before
- cloning, and they will not be inherited by subsequent clones.
-
-      > Graph = Container {
-      >>   _type = "Graph",
-      >>   _functions = {
-      >>     nodes = function (graph)
-      >>       local n = 0
-      >>       for _ in pairs (graph) do n = n + 1 end
-      >>       return n
-      >>     end,
-      >>   },
-      >> }
-      > g = Graph { "node1", "node2" }
-      > = Graph.nodes (g)
-      2
-      > = g.nodes
-      nil
-
- Cloning from the module table itself is somewhat slower than cloning
- derived objects -- due to the time spent skipping over the module
- table's `_function` entries by the clone constructor. You can avoid
- that overhead by creating an explicit *prototype object*:
-
-     local container = require "std.container"  -- module table
-     local Container = container {}             -- prototype object
-
  When making your own prototypes, derive from @{std.container} if you want
  to access the contents of your objects with the `[]` operator, or from
  @{std.object} if you want to access the functionality of your objects with
  named object methods.
+
+ Prototype Chain
+ ---------------
+
+      table
+       `-> Object
+            `-> Container
 
  @classmod std.container
 ]]
@@ -313,12 +279,25 @@ end
 
 --- Container prototype.
 -- @table std.container
--- @string[opt="Container"] _type type of Container, returned by
---   @{std.object.prototype}
--- @tfield table|function _init a table of field names, or
---   initialisation function, used by @{std.object.__call}
--- @tfield[opt=nil] table _functions a table of module functions not copied
---   by @{std.object.__call}
+-- @see std.object
+-- @usage
+-- local std = require "std"
+-- local Container = std.container {}
+--
+-- local Graph = Container {
+--   _type = "Graph",
+--   _functions = {
+--     nodes = function (graph)
+--       local n = 0
+--       for _ in std.pairs (graph) do n = n + 1 end
+--       return n
+--     end,
+--   },
+-- }
+-- local g = Graph { "node1", "node2" }
+-- --> 2
+-- print (Graph.nodes (g))
+
 return setmetatable ({
 
   -- Normally, these are set and wrapped automatically during cloning.
