@@ -247,14 +247,14 @@ specify std.debug:
         expect (fn ("number", {0})).to_raise "number expected, got table"
         expect (fn ("string", {0})).to_raise "string expected, got table"
         expect (fn ("table", false)).to_raise "table expected, got boolean"
-        expect (fn ("table", require "std.object")).
-          to_raise "table expected, got Object"
     - it matches types:
         expect (fn ("boolean", true)).not_to_raise "any error"
         expect (fn ("file", io.stderr)).not_to_raise "any error"
         expect (fn ("number", 1)).not_to_raise "any error"
         expect (fn ("string", "s")).not_to_raise "any error"
         expect (fn ("table", {})).not_to_raise "any error"
+        expect (fn ("table", require "std.object")).not_to_raise "any error"
+
   - context with int:
     - it diagnoses missing types:
         expect (fn ("int", nil)).to_raise "int expected, got no value"

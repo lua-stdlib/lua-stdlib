@@ -352,34 +352,38 @@ if _ARGCHECK then
   -- @treturn boolean `true` if *actual* is of type *check*, otherwise
   --   `false`
   local function checktype (check, actual)
-    local actualtype = prototype (actual)
-    if check == "#table" then
+    if check == "any" and actual ~= nil then
+      return true
+    elseif check == "file" and io.type (actual) == "file" then
+      return true
+    end
+
+    local actualtype = type (actual)
+    if check == actualtype then
+      return true
+    elseif check == "#table" then
       if actualtype == "table" and next (actual) then
         return true
       end
-
-    elseif check == "any" then
-      if actual ~= nil then
-        return true
-      end
-
-    elseif check == "file" then
-      if io.type (actual) == "file" then
-        return true
-      end
-
     elseif check == "function" or check == "func" then
       if actualtype == "function" or
           (getmetatable (actual) or {}).__call ~= nil
       then
          return true
       end
-
     elseif check == "int" then
       if actualtype == "number" and actual == math.floor (actual) then
         return true
       end
+    elseif type (check) == "string" and check:sub (1, 1) == ":" then
+      if check == actual then
+        return true
+      end
+    end
 
+    actualtype = prototype (actual)
+    if check == actualtype then
+      return true
     elseif check == "list" or check == "#list" then
       if actualtype == "table" or actualtype == "List" then
         local len, count = len (actual), 0
@@ -392,19 +396,10 @@ if _ARGCHECK then
           return true
         end
       end
-
     elseif check == "object" then
       if actualtype ~= "table" and type (actual) == "table" then
         return true
       end
-
-    elseif type (check) == "string" and check:sub (1, 1) == ":" then
-      if check == actual then
-        return true
-      end
-
-    elseif check == actualtype then
-      return true
     end
 
     return false
