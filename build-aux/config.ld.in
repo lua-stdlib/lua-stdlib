@@ -28,6 +28,8 @@ file = {
   "../lib/std/vector.lua",
 }
 
+new_type ("object", "Objects", false, "Fields")
+
 format = "markdown"
 backtick_references = false
 sort = true

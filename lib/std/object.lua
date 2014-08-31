@@ -42,25 +42,36 @@ local getmetamethod, prototype = base.getmetamethod, base.prototype
 --
 -- Changing the values of these fields in a new object will change the
 -- corresponding behaviour.
--- @table std.object
--- @string[opt="Object"] _type type of Object, returned by @{prototype}
--- @tfield table|function _init a table of field names, or
---   initialisation function, used by @{clone}
--- @tfield[opt=nil] table _functions a table of module functions not copied
---   by @{__call}
+-- @object Object
+-- @string[opt="Object"] _type object name
+-- @tfield[opt={}] table|function _init object initialisation
+-- @tfield table _functions module functions omitted when cloned
+-- @see __call
 -- @usage
 -- -- `_init` can be a list of keys; then the unnamed `init_1` through
 -- -- `init_m` values from the argument table are assigned to the
 -- -- corresponding keys in `new_object`.
--- new_object = proto_object {
---   init_1, ..., init_m;
---   field_1 = value_1,
---   field_n = value_n,
+-- local Process = Object {
+--   _type = "Process",
+--   _init = { "status", "out", "err" },
+-- }
+-- local process = Process {
+--   procs[pid].status, procs[pid].out, procs[pid].err, -- auto assigned
+--   command = pipeline[pid],                           -- manual assignment
 -- }
 -- @usage
 -- -- Or it can be a function, in which the arguments passed to the
 -- -- prototype during cloning are simply handed to the `_init` function.
--- new_object = proto_object (arg, ...)
+-- local Bag = Object {
+--   _type = "Bag",
+--   _init = function (obj, ...)
+--     for e in std.elems {...} do
+--       obj[#obj + 1] = e
+--     end
+--     return obj
+--   end,
+-- }
+-- local bag = Bag ("function", "arguments", "sent", "to", "_init")
 
 return Container {
   _type  = "Object",
@@ -81,17 +92,16 @@ return Container {
     -- metatable for `new_object` that also happens to contain a copy of all
     -- the entries from the `proto_object` metatable.
     --
-    -- While clones of @{std.object} inherit all properties of their prototype,
+    -- While clones of @{Object} inherit all properties of their prototype,
     -- it's idiomatic to always keep separate tables for the module table and
     -- the root object itself: That way you can't mistakenly engage the slower
-    -- clone-from-module-table process accidentally if the underlying object
-    -- later changes from being an `Object` to being a `Container`.
+    -- clone-from-module-table process unnecessarily.
     -- @static
     -- @function clone
-    -- @tparam std.object obj an object
-    -- @param ... a list of arguments if `obj._init` is a function, or a
-    --   single table if `obj._init` is a table.
-    -- @treturn std.object a clone of *obj*
+    -- @tparam Object obj an object
+    -- @param ... a list of arguments if *obj.\_init* is a function, or a
+    --   single table if *obj.\_init* is a table.
+    -- @treturn Object a clone of *obj*
     -- @see __call
     -- @usage
     -- local object = require "std.object"  -- module table
@@ -110,65 +120,65 @@ return Container {
     --- Type of an object, or primitive.
     --
     -- It's conventional to organise similar objects according to a
-    -- string valued `_type` field, which can then be queried using this
+    -- string valued *\_type* field, which can then be queried using this
     -- function.
     --
-    -- Additionally, this function returns the results of `io.type` for
-    -- file objects, or `type` otherwise.
+    -- Additionally, this function returns the results of @{io.type} for
+    -- file objects, or @{type} otherwise.
     --
     -- @static
     -- @function prototype
     -- @param x anything
     -- @treturn string type of *x*
     -- @usage
-    --   local Stack = Object {
-    --     _type = "Stack",
+    -- local Stack = Object {
+    --   _type = "Stack",
     --
-    --     __tostring = function (self) ... end,
+    --   __tostring = function (self) ... end,
     --
-    --     __index = {
-    --       push = function (self) ... end,
-    --       pop  = function (self) ... end,
-    --     },
-    --   }
-    --   local stack = Stack {}
-    --   assert (stack:prototype () == getmetatable (stack)._type)
+    --   __index = {
+    --     push = function (self) ... end,
+    --     pop  = function (self) ... end,
+    --   },
+    -- }
+    -- local stack = Stack {}
+    -- assert (stack:prototype () == getmetatable (stack)._type)
     --
-    --   local prototype = Object.prototype
-    --   assert (prototype (stack) == getmetatable (stack)._type)
+    -- local prototype = Object.prototype
+    -- assert (prototype (stack) == getmetatable (stack)._type)
     --
-    --   local h = io.open (os.tmpname (), "w")
-    --   assert (prototype (h) == io.type (h))
+    -- local h = io.open (os.tmpname (), "w")
+    -- assert (prototype (h) == io.type (h))
     --
-    --   assert (prototype {} == type {})
+    -- assert (prototype {} == type {})
     prototype = prototype,
 
 
-    --- Return `obj` with references to the fields of `src` merged in.
+    --- Return *obj* with references to the fields of *src* merged in.
     --
-    -- More importantly, split the fields in `src` between `obj` and its
-    -- metatable. If any field names begin with `_`, attach a metatable
-    -- to `obj` if it doesn't have one yet, and copy the "private" `_`
-    -- prefixed fields there.
+    -- More importantly, split the fields in *src* between *obj* and its
+    -- metatable. If any field names begin with "_", attach a metatable
+    -- to *obj* by cloning the metatable from *src*, and then copy the
+    -- "private" `_` prefixed fields there.
     --
     -- You might want to use this function to instantiate your derived
-    -- objct clones when the prototype's `_init` is a function -- when
-    -- `_init` is a table, the default (inherited unless you overwrite
-    -- it) clone method calls `mapfields` automatically.  When you're
-    -- using a function `_init` setting, `clone` doesn't know what to
+    -- object clones when the *src.\_init* is a function -- when
+    -- *src.\_init* is a table, the default (inherited unless you overwrite
+    -- it) clone method calls @{mapfields} automatically.  When you're
+    -- using a function `_init` setting, @{clone} doesn't know what to
     -- copy into a new object from the `_init` function's arguments...
-    -- so you're on your own.  Except that calling `mapfields` inside
+    -- so you're on your own.  Except that calling @{mapfields} inside
     -- `_init` is safer than manually splitting `src` into `obj` and
-    -- its metatable, because you'll pick up fixes and changes when you
-    -- upgrade stdlib.
+    -- its metatable, because you'll pick up any fixes and changes when
+    -- you upgrade stdlib.
     -- @static
     -- @function mapfields
     -- @tparam table obj destination object
     -- @tparam table src fields to copy int clone
-    -- @tparam[opt={}] table map `{old_key=new_key, ...}`
-    -- @treturn table `obj` with non-private fields from `src` merged,
+    -- @tparam[opt={}] table map key renames as `{old_key=new_key, ...}`
+    -- @treturn table *obj* with non-private fields from *src* merged,
     --   and a metatable with private fields (if any) merged, both sets
-    --   of keys renamed according to `map`
+    --   of keys renamed according to *map*
     -- @usage
     -- myobject.mapfields = function (obj, src, map)
     --   object.mapfields (obj, src, map)
@@ -186,8 +196,8 @@ return Container {
   --
   -- Private fields are stored in the metatable.
   -- @function __call
-  -- @param ... arguments for `_init`
-  -- @treturn std.object a clone of the this object.
+  -- @param ... arguments for prototype's *\_init*
+  -- @treturn Object a clone of the this object.
   -- @see clone
   -- @usage
   -- local Object = require "std.object" {} -- not a typo!
@@ -197,7 +207,7 @@ return Container {
   --- Return an in-order iterator over public object fields.
   -- @function __pairs
   -- @treturn function iterator function
-  -- @treturn object *self*
+  -- @treturn Object *self*
   -- @usage
   -- for k, v in std.pairs (anobject) do process (k, v) end
 
