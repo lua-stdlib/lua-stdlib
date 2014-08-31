@@ -1,5 +1,13 @@
 --[[--
  String buffers.
+
+ Prototype Chain
+ ---------------
+
+      table
+       `-> Object
+            `-> StrBuf
+
  @classmod std.strbuf
 ]]
 

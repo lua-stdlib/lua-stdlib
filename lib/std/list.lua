@@ -1,9 +1,6 @@
 --[[--
  Tables as lists.
 
- Every List is also an Object, and thus inherits all of the `std.object`
- methods, particularly use of object cloning for making new List objects.
-
  In addition to calling methods on List objects in OO style...
 
      local list = require "std.list"  -- module table
@@ -21,6 +18,13 @@
        => foo
        => bar
        => quux
+
+ Prototype Chain
+ ---------------
+
+      table
+       `-> Object
+            `-> List
 
  @classmod std.list
 ]]

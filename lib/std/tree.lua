@@ -7,6 +7,14 @@
  prototype return by requiring this module, because Container objects
  cannot have object methods.
 
+ Prototype Chain
+ ---------------
+
+      table
+       `-> Object
+            `-> Container
+                 `-> Tree
+
  @classmod std.tree
  @see std.container
 ]]

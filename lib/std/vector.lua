@@ -27,6 +27,14 @@
  of homogenous Lua objects with an array-like, stack-like or queue-like
  API.
 
+ Prototype Chain
+ ---------------
+
+      table
+       `-> Object
+            `-> Container
+	         `-> Vector
+
  @classmod std.vector
 ]]
 
