@@ -1,29 +1,19 @@
 --[[--
- Vector of homogenous objects.
+ Vector container prototype.
 
  A vector is usually a block of contiguous memory, divided into equal
  sized elements that can be indexed quickly.
 
- Create a new vector with:
-
-     > vector = require "std.vector"
-     > Vector = vector ()
-     > a = Vector ("int", {0xdead, 0xbeef, 0xfeed})
-     > =a[1], a[2], a[3], a[-3], a[-4]
-     57005	48879	65261	57005	nil
-
- All the indices passed to vector methods use 1-based counting.
-
- If the Lua alien module is installed, and the `type` argument passed
+ If the Lua alien module is installed, and the *type* argument passed
  when cloning a new vector object is suitable (i.e. the name of a numeric
  C type that `alien.sizeof` understands), then the vector contents are
  managed in an `alien.buffer`.
 
- If alien is not installed, or does not understand the `type` argument
+ If alien is not installed, or does not understand the *type* argument
  given when cloning, then a much slower (but API compatible) Lua table
  is transparently used to manage elements instead.
 
- In either case, `std.vector` provides a means for managing collections
+ In either case, @{Vector} provides a means for managing collections
  of homogenous Lua objects with an array-like, stack-like or queue-like
  API.
 
@@ -33,7 +23,7 @@
       table
        `-> Object
             `-> Container
-	         `-> Vector
+                 `-> Vector
 
  @classmod std.vector
 ]]
@@ -132,7 +122,7 @@ local core_functions = {
   end,
 
 
-  --- Change the number of elements allocated to be at least `n`.
+  --- Change the number of elements allocated to be at least *n*.
   -- @function realloc
   -- @int n the number of elements required
   -- @treturn std.vector the vector
@@ -150,7 +140,7 @@ local core_functions = {
   end,
 
 
-  --- Set `n` elements starting at `from` to `v`.
+  --- Set *n* elements starting at *from* to *v*.
   -- @function set
   -- @int from index of first element to set
   -- @param v value to store
@@ -188,7 +178,7 @@ local core_functions = {
   --- Shift the whole vector to the right by inserting a new left-most element.
   -- @function unshift
   -- @param elem new element to be pushed
-  -- @treturn elem
+  -- @return *elem*
   -- @usage added = avector:unshift (anelement)
   unshift = function (self, elem)
     self.length = self.length + 1
@@ -208,12 +198,14 @@ core_metatable = {
   -- `alien.sizeof` will use the fast `alien.buffer` managed memory buffer
   -- for vector contents; otherwise, a much slower Lua emulation is used.
   -- @function __call
-  -- @string type element type name
-  -- @tparam[opt] int|table init initial size or list of initial elements
+  -- @string[opt="any"] type element type name
+  -- @tparam[opt={}] int|table init initial size or list of initial elements
   -- @treturn std.vector a new vector object
   -- @usage
   -- local Vector = require "std.vector" {} -- not a typo!
-  -- local new = Vector ("int", {1, 2, 3})
+  -- local new = Vector ("int", {0xdead, 0xbeef, 0xfeed})
+  -- --> 57005	48879	65261	57005	nil
+  -- print (a[1], a[2], a[3], a[-3], a[-4])
   __call = function (self, type, init)
     if _ARGCHECK then
       if init ~= nil then
@@ -306,10 +298,14 @@ core_metatable = {
   end,
 
 
-  --- Return the `n`th element in this vector.
+  --- Return the *n*th element in this vector.
+  --
+  -- Unlike normal @{std.container.Container}, access is not limited to
+  -- only metamethods, integer keys are used to fetch element, and
+  -- string keys for method names.
   -- @function __index
   -- @int n 1-based index, or negative to index starting from the right
-  -- @treturn string the element at index `n`
+  -- @treturn string the element at index *n*
   -- @usage rightmost = avector[avector.length]
   __index = function (self, n)
     argcheck ("__index", 2, "int|string", n)
@@ -325,7 +321,7 @@ core_metatable = {
   end,
 
 
-  --- Set the `n`th element of this vector to `elem`.
+  --- Set the *n*th element of this vector to *elem*.
   -- @function __newindex
   -- @int n 1-based index
   -- @param elem value to store at index n
@@ -351,11 +347,11 @@ core_metatable = {
 
   --- Return the number of elements in this vector.
   --
-  -- Beware that Lua 5.1 does not respect this metamethod; use
-  -- `vector.length` if you care about portability.
+  -- Beware that Lua 5.1 `#` operator does not respect this metamethod;
+  -- use `vector.length` or @{std.table.len} if you care about portability.
   -- @function __len
   -- @treturn int number of elements
-  -- @usage length = #avector
+  -- @usage length = table.len (avector)
   __len = function (self)
     argcheck ("__len", 1, "Vector", self)
 
@@ -539,9 +535,15 @@ local function dispatch (name)
 end
 
 
-------
--- An efficient vector of homogenous objects.
--- @table std.vector
+--- Vector prototype object.
+--
+-- Vector also inherits all the fields and methods from
+-- @{std.container.Container}, however the api is not limited to only
+-- metamethods like other Containers, because element access uses only
+-- integer keys, and so method name strings work too!
+-- @object Vector
+-- @string[opt="Vector"] _type object name
+-- @tfield __call __call instantiation function
 -- @int allocated number of allocated element slots, for `alien.buffer`
 --  managed elements
 -- @tfield alien.buffer|table buffer a block of indexable memory
@@ -549,6 +551,12 @@ end
 -- @int size length of each stored element, or 0 when `alien.buffer` is
 --  not managing this vector
 -- @string type type name for elements
+-- @see std.container
+-- @see __index
+-- @usage
+-- local std = require "std"
+-- std.prototype (std.vector) --> "Vector"
+-- os.exit (0)
 local Vector = Container {
   _type = "Vector",
 
