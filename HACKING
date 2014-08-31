@@ -72,3 +72,12 @@
 
  - Try to add entries for callback function signatures, and name them with
    the suffix `cb`.
+
+ - Rely on the reader to understand how `:` call syntax works in Lua, and
+   don't waste effort documenting methods that are already documented as
+   functions.
+
+ - Do document the prototype chain.  Don't document methods inherited from
+   the prototype, even they have been overridden to behave consistently
+   from a UI perspective even though the implementation needs to be
+   different to provide that same UI.

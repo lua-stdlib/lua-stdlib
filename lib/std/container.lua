@@ -316,7 +316,7 @@ end
 -- @string[opt="Container"] _type type of Container, returned by
 --   @{std.object.prototype}
 -- @tfield table|function _init a table of field names, or
---   initialisation function, used by @{__call}
+--   initialisation function, used by @{std.object.__call}
 -- @tfield[opt=nil] table _functions a table of module functions not copied
 --   by @{std.object.__call}
 return setmetatable ({
