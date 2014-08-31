@@ -1,5 +1,5 @@
 --[[--
- Container object.
+ Container prototype.
 
  A container is a @{std.object} with no methods.  It's functionality is
  instead defined by its *meta*methods.
@@ -278,8 +278,13 @@ end
 
 
 --- Container prototype.
--- @table std.container
+--
+-- Container also inherits all the fields and methods from
+-- @{std.object.Object}.
+-- @object Container
+-- @string[opt="Container"] _type object name
 -- @see std.object
+-- @see std.object.__call
 -- @usage
 -- local std = require "std"
 -- local Container = std.container {}
