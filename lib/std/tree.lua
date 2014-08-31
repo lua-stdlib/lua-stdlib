@@ -1,7 +1,5 @@
 --[[--
- Tree container.
-
- Derived from @{std.container}, and inherits Container's metamethods.
+ Tree container prototype.
 
  Note that Functions listed below are only available from the Tree
  prototype return by requiring this module, because Container objects
@@ -39,11 +37,11 @@ local Tree -- forward declaration
 
 
 --- Tree iterator.
--- @tparam  function it iterator function
--- @tparam  tree|table tr tree or tree-like table
--- @treturn string   type ("leaf", "branch" (pre-order) or "join" (post-order))
--- @treturn table    path to node ({i\_1...i\_k})
--- @return           node
+-- @tparam function it iterator function
+-- @tparam tree|table tr tree or tree-like table
+-- @treturn string type ("leaf", "branch" (pre-order) or "join" (post-order))
+-- @treturn table path to node (`{i1, ...in}`)
+-- @treturn node node
 local function _nodes (it, tr)
   local p = {}
   local function visit (n)
@@ -70,11 +68,19 @@ end
 
 
 --- Tree iterator which returns just numbered leaves, in order.
--- @function ileaves
 -- @static
--- @tparam  tree|table tr tree or tree-like table
+-- @function ileaves
+-- @tparam Tree|table tr tree or tree-like table
 -- @treturn function iterator function
--- @treturn tree|table the tree `tr`
+-- @treturn Tree|table the tree *tr*
+-- @see inodes
+-- @see leaves
+-- @usage
+-- --> t = {"one", "three", "five"}
+-- for leaf in ileaves {"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"}
+-- do
+--   t[#t + 1] = leaf
+-- end
 local function ileaves (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'ileaves' (table expected, got " .. type (tr) .. ")")
@@ -83,11 +89,20 @@ end
 
 
 --- Tree iterator which returns just leaves.
--- @function leaves
 -- @static
--- @tparam  tree|table tr tree or tree-like table
+-- @function leaves
+-- @tparam Tree|table tr tree or tree-like table
 -- @treturn function iterator function
--- @treturn tree|table the tree, `tr`
+-- @treturn Tree|table the tree, *tr*
+-- @see ileaves
+-- @see nodes
+-- @usage
+-- for leaf in leaves {"one", {two=2}, {{"three"}, four=4}}, foo="bar", "five"}
+-- do
+--   t[#t + 1] = leaf
+-- end
+-- --> t = {2, 4, "five", "foo", "one", "three"}
+-- table.sort (t, lambda "=tostring(_1) < tostring(_2)")
 local function leaves (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'leaves' (table expected, got " .. type (tr) .. ")")
@@ -96,19 +111,23 @@ end
 
 
 --- Make a deep copy of a tree, including any metatables.
---
--- To make fast shallow copies, use @{std.table.clone}.
--- @tparam  table|tree t table or tree to be cloned
--- @tparam  boolean nometa if non-nil don't copy metatables
--- @treturn table|tree a deep copy of `t`
-local function clone (t, nometa)
-  assert (type (t) == "table",
-          "bad argument #1 to 'clone' (table expected, got " .. type (t) .. ")")
+-- @tparam Tree|table tr tree or tree-like table
+-- @tparam boolean nometa if non-`nil` don't copy metatables
+-- @treturn Tree|table a deep copy of *tr*
+-- @see std.table.clone
+-- @usage
+-- tr = {"one", {two=2}, {{"three"}, four=4}}
+-- copy = clone (tr)
+-- copy[2].two=5
+-- assert (tr[2].two == 2)
+local function clone (tr, nometa)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'clone' (table expected, got " .. type (tr) .. ")")
   local r = {}
   if not nometa then
-    setmetatable (r, getmetatable (t))
+    setmetatable (r, getmetatable (tr))
   end
-  local d = {[t] = r}
+  local d = {[tr] = r}
   local function copy (o, x)
     for i, v in pairs (x) do
       if type (v) == "table" then
@@ -127,7 +146,7 @@ local function clone (t, nometa)
     end
     return o
   end
-  return copy (r, t)
+  return copy (r, tr)
 end
 
 
@@ -139,34 +158,31 @@ end
 -- list of keys used to reach this node, and `tree-node` is the current
 -- node.
 --
--- Given a `tree` to represent:
---
---     + root
---        +-- node1
---        |    +-- leaf1
---        |    '-- leaf2
---        '-- leaf 3
---
---     tree = std.tree { std.tree { "leaf1", "leaf2"}, "leaf3" }
---
--- A series of calls to `tree.nodes` will return:
---
---     "branch", {},    {{"leaf1", "leaf2"}, "leaf3"}
---     "branch", {1},   {"leaf1", "leaf"2")
---     "leaf",   {1,1}, "leaf1"
---     "leaf",   {1,2}, "leaf2"
---     "join",   {1},   {"leaf1", "leaf2"}
---     "leaf",   {2},   "leaf3"
---     "join",   {},    {{"leaf1", "leaf2"}, "leaf3"}
---
 -- Note that the `tree-path` reuses the same table on each iteration, so
 -- you must `table.clone` a copy if you want to take a snap-shot of the
 -- current state of the `tree-path` list before the next iteration
 -- changes it.
--- @tparam  tree|table tr tree or tree-like table to iterate over
+-- @tparam Tree|table tr tree or tree-like table to iterate over
 -- @treturn function iterator function
--- @treturn tree|table the tree, `tr`
+-- @treturn Tree|table the tree, *tr*
 -- @see inodes
+-- @usage
+-- -- tree = +-- node1
+-- --        |    +-- leaf1
+-- --        |    '-- leaf2
+-- --        '-- leaf 3
+-- tree = Tree { Tree { "leaf1", "leaf2"}, "leaf3" }
+-- for node_type, path, node in nodes (tree) do
+--   print (node_type, path, node)
+-- end
+-- --> "branch"   {}      {{"leaf1", "leaf2"}, "leaf3"}
+-- --> "branch"   {1}     {"leaf1", "leaf"2")
+-- --> "leaf"     {1,1}   "leaf1"
+-- --> "leaf"     {1,2}   "leaf2"
+-- --> "join"     {1}     {"leaf1", "leaf2"}
+-- --> "leaf"     {2}     "leaf3"
+-- --> "join"     {}      {{"leaf1", "leaf2"}, "leaf3"}
+-- os.exit (0)
 local function nodes (tr)
   assert (type (tr) == "table",
           "bad argument #1 to 'nodes' (table expected, got " .. type (tr) .. ")")
@@ -177,10 +193,10 @@ end
 --- Tree iterator over numbered nodes, in order.
 --
 -- The iterator function behaves like @{nodes}, but only traverses the
--- array part of the nodes of `tr`, ignoring any others.
--- @tparam  tree|table tr tree to iterate over
+-- array part of the nodes of *tr*, ignoring any others.
+-- @tparam Tree|table tr tree or tree-like table to iterate over
 -- @treturn function iterator function
--- @treturn tree|table the tree, `tr`
+-- @treturn tree|table the tree, *tr*
 -- @see nodes
 local function inodes (tr)
   assert (type (tr) == "table",
@@ -190,21 +206,23 @@ end
 
 
 --- Destructively deep-merge one tree into another.
--- @tparam  tree|table t destination tree or table
--- @tparam  tree|table u tree or table with nodes to merge
--- @treturn tree|table `t` with nodes from `u` merged in
+-- @tparam Tree|table tr destination tree or table
+-- @tparam Tree|table ur tree or table with nodes to merge
+-- @treturn Tree|table *tr* with nodes from *ur* merged in
 -- @see std.table.merge
-local function merge (t, u)
-  assert (type (t) == "table",
-          "bad argument #1 to 'merge' (table expected, got " .. type (t) .. ")")
-  assert (type (u) == "table",
-          "bad argument #2 to 'merge' (table expected, got " .. type (u) .. ")")
-  for ty, p, n in nodes (u) do
+-- @usage
+-- merge (dest, {{exists=1}, {{not = {present = { inside = "dest" }}}}})
+local function merge (tr, ur)
+  assert (type (tr) == "table",
+          "bad argument #1 to 'merge' (table expected, got " .. type (tr) .. ")")
+  assert (type (ur) == "table",
+          "bad argument #2 to 'merge' (table expected, got " .. type (ur) .. ")")
+  for ty, p, n in nodes (ur) do
     if ty == "leaf" then
-      t[p] = n
+      tr[p] = n
     end
   end
-  return t
+  return tr
 end
 
 
@@ -215,48 +233,48 @@ end
 
 
 --- Tree prototype object.
--- @table std.tree
--- @string[opt="Tree"] _type type of Tree, returned by
---   @{std.object.prototype}
--- @tfield[opt={}] table|function _init a table of field names, or
---   initialisation function, see @{std.object.__call}
--- @tfield nil|table _functions a table of module functions not copied
---   by @{std.object.__call}
+-- @object Tree
+-- @string[opt="Tree"] _type object name
 Tree = Container {
-  -- Derived object type.
   _type = "Tree",
 
-  --- Tree `__index` metamethod.
+  --- Deep retrieval.
+  -- @static
   -- @function __index
-  -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
-  -- @return `self[i]...[i\_n]` if i is a table, or `self[i]` otherwise
+  -- @tparam Tree tr a tree
+  -- @param i non-table, or list of keys `{i1, ...i_n}`
+  -- @return `tr[i1]...[i_n]` if *i* is a key list, `tr[i]` otherwise
   -- @todo the following doesn't treat list keys correctly
-  --       e.g. self[{{1, 2}, {3, 4}}], maybe flatten first?
-  __index = function (self, i)
+  --       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
+  -- @usage
+  -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
+  __index = function (tr, i)
     if prototype (i) == "table" then
-      return reduce (operator.deref, self, ielems, i)
+      return reduce (operator.deref, tr, ielems, i)
     else
-      return rawget (self, i)
+      return rawget (tr, i)
     end
   end,
 
-  --- Tree `__newindex` metamethod.
-  --
-  -- Sets `self[i\_1]...[i\_n] = v` if i is a table, or `self[i] = v` otherwise
+  --- Deep insertion.
+  -- @static
   -- @function __newindex
-  -- @param i non-table, or list of keys `{i\_1 ... i\_n}`
+  -- @tparam Tree tr a tree
+  -- @param i non-table, or list of keys `{i1, ...i_n}`
   -- @param v value
-  __newindex = function (self, i, v)
+  -- @usage
+  -- function bindkey (keylist, fn) keymap[keylist] = fn end
+  __newindex = function (tr, i, v)
     if prototype (i) == "table" then
       for n = 1, len (i) - 1 do
-        if prototype (self[i[n]]) ~= "Tree" then
-          rawset (self, i[n], Tree {})
+        if prototype (tr[i[n]]) ~= "Tree" then
+          rawset (tr, i[n], Tree {})
         end
-        self = self[i[n]]
+        tr = tr[i[n]]
       end
-      rawset (self, last (i), v)
+      rawset (tr, last (i), v)
     else
-      rawset (self, i, v)
+      rawset (tr, i, v)
     end
   end,
 
