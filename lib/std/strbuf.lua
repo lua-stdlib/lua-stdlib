@@ -19,42 +19,62 @@ local insert = base.insert
 
 
 --- Add a string to a buffer.
--- @tparam string s string to add
--- @treturn std.strbuf modified buffer
+-- @static
+-- @function concat
+-- @string s string to add
+-- @treturn StrBuf modified buffer
+-- @usage
+-- buf = concat (buf, "append this")
 local function concat (self, s)
   return insert (self, s)
 end
 
 
 --- Convert a buffer to a string.
--- @treturn string stringified `self`
-local function tostring (self)
-  return table.concat (self)
+-- @static
+-- @function tostring
+-- @treturn string stringified `buf`
+-- @usage
+-- string = buf:tostring ()
+local function tostring (buf)
+  return table.concat (buf)
 end
 
 
+--- StrBuf prototype object.
+--
+-- Set also inherits all the fields and methods from
+-- @{std.object.Object}.
+-- @object StrBuf
+-- @string[opt="StrBuf"] _type object name
+-- @see std.container
+-- @see std.object.__call
+-- @usage
+-- local std = require "std"
+-- std.prototype (std.strbuf) --> "StrBuf"
+-- os.exit (0)
 return Object {
   -- Derived object type.
   _type = "StrBuf",
 
-  ------
-  -- Support concatenation of StrBuf objects.
-  --     buffer = buffer .. str
+  --- Support concatenation to StrBuf objects.
   -- @function __concat
-  -- @tparam std.strbuf buffer StrBuf object
-  -- @tparam string str a string or string-like object
-  -- @treturn std.strbuf modified `buffer`
+  -- @tparam StrBuf buffer object
+  -- @string s a string
+  -- @treturn StrBuf modified *buf*
   -- @see concat
+  -- @usage
+  -- buf = buf .. str
   __concat   = concat,
 
 
-  ------
-  -- Support fast conversion to Lua string.
-  --     str = tostring (buffer)
+  --- Support fast conversion to Lua string.
   -- @function __tostring
-  -- @tparam std.strbuf buffer Strbuf object
+  -- @tparam StrBuf buffer object
   -- @treturn string concatenation of buffer contents
   -- @see tostring
+  -- @usage
+  -- str = tostring (buf)
   __tostring = tostring,
 
 
