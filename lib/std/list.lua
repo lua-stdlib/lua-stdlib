@@ -1,24 +1,6 @@
 --[[--
  Tables as lists.
 
- In addition to calling methods on List objects in OO style...
-
-     local list = require "std.list"  -- module table
-     local List = list {}             -- prototype object
-     local l = List {"foo", "bar"}
-     for e in ielems (l:cons ("baz")) do print (e) end
-       => foo
-       => bar
-       => baz
-
- ...they can also be called as module functions with an explicit list
- argument in the first parameter:
-
-     for e in ielems (list.cons (l, "quux")) do print (e) end
-       => foo
-       => bar
-       => quux
-
  Prototype Chain
  ---------------
 
@@ -101,51 +83,82 @@ end
 
 M = {
   --- Append an item to a list.
+  -- @static
+  -- @function append
   -- @tparam List l a list
   -- @param x item
-  -- @treturn List new list containing `{l[1], ..., l[#l], x}`
+  -- @treturn List new list with *x* appended
+  -- @usage
+  -- longer = append (short, "last")
   append = X ("append (List, any)", append),
 
   --- Compare two lists element-by-element, from left-to-right.
-  --
-  --     if a_list:compare (another_list) == 0 then print "same" end
+  -- @static
+  -- @function compare
   -- @tparam List l a list
-  -- @tparam table m another list
-  -- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
-  --   if `l` is greater than `m`
+  -- @tparam List|table m another list, or table
+  -- @return -1 if *l* is less than *m*, 0 if they are the same, and 1
+  --   if *l* is greater than *m*
+  -- @usage
+  -- if a_list:compare (another_list) == 0 then print "same" end
   compare = X ("compare (List, List|table)", compare),
 
-  --- Concatenate arguments into a list.
+  --- Concatenate the elements from any number of lists.
+  -- @static
+  -- @function concat
   -- @tparam List l a list
   -- @param ... tuple of lists
-  -- @treturn List new list containing
-  --   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
+  -- @treturn List new list with elements from arguments
+  -- @usage
+  -- --> {1, 2, 3, {4, 5}, 6, 7}
+  -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
   concat = X ("concat (List, List|table*)", concat),
 
   --- Prepend an item to a list.
+  -- @static
+  -- @function cons
   -- @tparam List l a list
   -- @param x item
-  -- @treturn List new list containing `{x, unpack (l)}`
+  -- @treturn List new list with *x* followed by elements of *l*
+  -- @usage
+  -- --> {"x", 1, 2, 3}
+  -- list.cons ({1, 2, 3}, "x")
   cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
 
   --- Repeat a list.
+  -- @static
+  -- @function rep
   -- @tparam List l a list
   -- @int n number of times to repeat
-  -- @treturn List `n` copies of `l` appended together
+  -- @treturn List *n* copies of *l* appended together
+  -- @usage
+  -- --> {1, 2, 3, 1, 2, 3, 1, 2, 3}
+  -- list.rep ({1, 2, 3}, 3)
   rep = X ("rep (List, int)", rep),
 
   --- Return a sub-range of a list.
-  -- (The equivalent of `string.sub` on strings; negative list indices
+  -- (The equivalent of @{string.sub} on strings; negative list indices
   -- count from the end of the list.)
+  -- @static
+  -- @function sub
   -- @tparam List l a list
-  -- @int from start of range (default: 1)
-  -- @int to end of range (default: `#l`)
-  -- @treturn List new list containing `{l[from], ..., l[to]}`
+  -- @int[opt=1] from start of range
+  -- @int[opt=#l] to end of range
+  -- @treturn List new list containing elements between *from* and *to*
+  --   inclusive
+  -- @usage
+  -- --> {3, 4, 5}
+  -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
   sub = X ("sub (List, int?, int?)", sub),
 
   --- Return a list with its first element removed.
+  -- @static
+  -- @function tail
   -- @tparam List l a list
-  -- @treturn List new list containing `{l[2], ..., l[#l]}`
+  -- @treturn List new list with all but the first element of *l*
+  -- @usage
+  -- --> {3, {4, 5}, 6, 7}
+  -- list.tail {{1, 2}, 3, {4, 5}, 6, 7}
   tail = X ("tail (List)", function (l) return sub (l, 2) end),
 }
 
@@ -448,7 +461,7 @@ M.zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
 
 
 --- An Object derived List.
--- @table List
+-- @object List
 
 List = Object {
   -- Derived object type.
@@ -458,36 +471,42 @@ List = Object {
 
   ------
   -- Concatenate lists.
-  --     new = list .. table
   -- @function __concat
-  -- @tparam List list a list
-  -- @tparam table table another list, hash part is ignored
+  -- @tparam List l a list
+  -- @tparam List|table m another list, or table (hash part is ignored)
   -- @see concat
+  -- @usage
+  -- new = alist .. {"append", "these", "elements"}
   __concat = concat,
 
   ------
   -- Append element to list.
-  --     list = list + element
   -- @function __add
-  -- @tparam List list a list
-  -- @param element element to append
+  -- @tparam List l a list
+  -- @param e element to append
   -- @see append
+  -- @usage
+  -- list = list + "element"
   __add = append,
 
   ------
   -- List order operator.
-  --     max = list1 > list2 and list1 or list2
-  -- @tparam List list1 a list
-  -- @tparam List list2 another list
-  -- @see std.list:compare
+  -- @function __lt
+  -- @tparam List l a list
+  -- @tparam List m another list
+  -- @see compare
+  -- @usage
+  -- max = list1 > list2 and list1 or list2
   __lt = function (list1, list2) return compare (list1, list2) < 0 end,
 
   ------
   -- List equality or order operator.
-  --     min = list1 <= list2 and list1 or list2
-  -- @tparam List list1 a list
-  -- @tparam List list2 another list
-  -- @see std.list:compare
+  -- @function __le
+  -- @tparam List l a list
+  -- @tparam List m another list
+  -- @see compare
+  -- @usage
+  -- min = list1 <= list2 and list1 or list2
   __le = function (list1, list2) return compare (list1, list2) <= 0 end,
 }
 
