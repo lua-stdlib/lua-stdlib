@@ -36,7 +36,7 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 local base  = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, pairs, keysort = base.ipairs, base.pairs, base.keysort
+local ipairs, pairs, okeys = base.ipairs, base.pairs, base.okeys
 local insert, len, maxn = base.insert, base.len, base.maxn
 local prototype = base.prototype
 local argcheck  = debug.argcheck
@@ -230,30 +230,10 @@ else
 end
 
 
-function M.__pairs (self)
-  local keys = {}
-  local k = next (self)
-  while k do
-    keys[#keys + 1] = k
-    k = next (self, k)
-  end
-
-  table.sort (keys, keysort)
-
-  local n, lenkeys = 0, #keys
-  return function (t, k)
-    n = n + 1
-    if n <= lenkeys then
-      local key = keys[n]
-      return key, self[key]
-    end
-  end, self, nil
-end
-
-
 function M.__tostring (self)
   local n, ibuf, kbuf = 1, {}, {}
-  for k, v in pairs (self) do
+  for _, k in ipairs (okeys (self)) do
+    local v = self[k]
     if type (k) == "number" and k == n then
       ibuf[#ibuf + 1] = tostring (v)
       n = n + 1
