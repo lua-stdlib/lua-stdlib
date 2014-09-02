@@ -219,6 +219,24 @@ local function ireverse (t)
 end
 
 
+-- Sort numbers first then asciibetically
+local function keysort (a, b)
+  if type (a) == "number" then
+    return type (b) ~= "number" or a < b
+  else
+    return type (b) ~= "number" and tostring (a) < tostring (b)
+  end
+end
+
+
+local function okeys (t)
+  local r = {}
+  for k in pairs (t) do r[#r + 1] = k end
+  table.sort (r, keysort)
+  return r
+end
+
+
 local function last (t) return t[len (t)] end
 
 
@@ -305,14 +323,8 @@ local function render (x, open, close, elem, pair, sep, roots)
     r[#r + 1] =  open (x)
     roots[x] = elem (x)
 
-    -- create a sorted list of keys
-    local ord = {}
-    for k, _ in pairs (x) do ord[#ord + 1] = k end
-    table.sort (ord, function (a, b) return tostring (a) < tostring (b) end)
-
-    -- render x elements in order
     local i, v = nil, nil
-    for _, j in ipairs (ord) do
+    for _, j in ipairs (okeys (x)) do
       local w = x[j]
       r[#r + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
       i, v = j, w
@@ -387,8 +399,10 @@ end
 
 
 return {
-  copy  = copy,
-  merge = merge,
+  copy    = copy,
+  keysort = keysort,
+  merge   = merge,
+  okeys   = okeys,
 
   -- std.lua --
   assert   = assert,

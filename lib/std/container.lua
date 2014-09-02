@@ -36,7 +36,7 @@ local _ARGCHECK = require "std.debug_init"._ARGCHECK
 local base  = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, pairs = base.ipairs, base.pairs
+local ipairs, pairs, keysort = base.ipairs, base.pairs, base.keysort
 local insert, len, maxn = base.insert, base.len, base.maxn
 local prototype = base.prototype
 local argcheck  = debug.argcheck
@@ -238,14 +238,7 @@ function M.__pairs (self)
     k = next (self, k)
   end
 
-  -- Sort numbers first then asciibetically
-  table.sort (keys, function (a, b)
-    if type (a) == "number" then
-      return type (b) ~= "number" or a < b
-    else
-      return type (b) ~= "number" and tostring (a) < tostring (b)
-    end
-  end)
+  table.sort (keys, keysort)
 
   local n, lenkeys = 0, #keys
   return function (t, k)

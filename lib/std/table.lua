@@ -295,6 +295,7 @@ M = {
   -- @function keys
   -- @tparam table t a table
   -- @treturn table list of keys from *t*
+  -- @see okeys
   -- @see values
   -- @usage globals = keys (_G)
   keys = X ("keys (table)", keys),
@@ -357,6 +358,14 @@ M = {
   -- @treturn table table whose unset elements are *x*
   -- @usage t = new (0)
   new = X ("new (any?, table?)", new),
+
+  --- Make an ordered list of keys in table.
+  -- @function okeys
+  -- @tparam table t a table
+  -- @treturn table ordered list of keys from *t*
+  -- @see keys
+  -- @usage globals = keys (_G)
+  okeys = X ("okeys (table)", base.okeys),
 
   --- Turn a tuple into a list.
   -- @function pack

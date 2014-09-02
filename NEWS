@@ -143,6 +143,14 @@ Stdlib NEWS - User visible changes
  - New `table.maxn` is available even when Lua compiled without
    compatibility, but uses the core implementation when possible.
 
+ - New `table.okeys` function, like `table.keys` except that the list of
+   keys is returned with numerical keys in order followed by remaining
+   keys in asciibetical order.
+
+ - `std.tostring`, `std.string.prettytostring` and the base `std.object`
+   `__tostring` metamethod now all use `table.okeys` to sort keys in the
+   generated stringification of a table.
+
 ** Deprecations:
 
  - Deprecated APIs are kept for a minimum of 1 year following the first

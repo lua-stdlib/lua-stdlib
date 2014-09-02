@@ -6,7 +6,7 @@ before: |
   extend_base         = { "clone", "clone_select", "depair", "empty",
                           "enpair", "flatten", "insert", "invert", "keys",
                           "len", "maxn", "merge", "merge_select",
-                          "monkey_patch", "new", "pack", "project",
+                          "monkey_patch", "new", "okeys", "pack", "project",
                           "remove", "shape", "size", "sort", "values" }
   deprecations        = { "clone_rename", "metamethod", "ripairs", "totable" }
 
@@ -589,6 +589,26 @@ specify std.table:
       default = { "unique object" }
       t = f (default)
       expect (t[1]).to_be (default)
+
+
+- describe okeys:
+  - before:
+      subject = { "v1", k1 = 1, "v2", k2 = 2, "v3", k3 = 3, [10]="v10" }
+
+      f, badarg = init (M, this_module, "okeys")
+
+  - it diagnoses missing arguments:
+      expect (f ()).to_raise (badarg (1, "table"))
+  - it diagnoses wrong argument types:
+      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
+  - it diagnoses too many arguments:
+      expect (f ({}, false)).to_raise (badarg (2))
+
+  - it returns an empty list when subject is empty:
+      expect (f {}).to_equal {}
+  - it makes an ordered list of table keys:
+      expect (f (subject)).
+        to_equal {1, 2, 3, 10, "k1", "k2", "k3"}
 
 
 - describe pack:
