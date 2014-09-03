@@ -295,42 +295,30 @@ end
 --   Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
 --   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
 --   Heavily modified by Simon Peyton Jones, Dec 96
---
---   Haskell types:
---   data Doc     list of lines
---   quote :: Char -> Char -> Doc -> Doc    Wrap document in ...
---   (<>) :: Doc -> Doc -> Doc              Beside
---   (<+>) :: Doc -> Doc -> Doc             Beside, separated by space
---   ($$) :: Doc -> Doc -> Doc              Above; if there is no overlap it "dovetails" the two
---   nest :: Int -> Doc -> Doc              Nested
---   punctuate :: Doc -> [Doc] -> [Doc]     punctuate p [d1, ... dn] = [d1 <> p, d2 <> p, ... dn-1 <> p, dn]
---   render      :: Int                     Line length
---               -> Float                   Ribbons per line
---               -> (TextDetails -> a -> a) What to do with text
---               -> a                       What to do at the end
---               -> Doc                     The document
---               -> a                       Result
 
-local function render (x, open, close, elem, pair, sep, roots)
-  local function stop_roots (x)
-    return roots[x] or render (x, open, close, elem, pair, sep, copy (roots))
-  end
+local function render (x, opencb, closecb, elemcb, paircb, sepcb, roots)
   roots = roots or {}
-  if type (x) ~= "table" or type ((getmetatable (x) or {}).__tostring) == "function" then
-    return elem (x)
-  else
-    local r = {}
-    r[#r + 1] =  open (x)
-    roots[x] = elem (x)
+  local function stop_roots (x)
+    return roots[x] or render (x, opencb, closecb, elemcb, paircb, sepcb, copy (roots))
+  end
 
-    local i, v = nil, nil
-    for _, j in ipairs (okeys (x)) do
-      local w = x[j]
-      r[#r + 1] = sep (x, i, v, j, w) .. pair (x, j, w, stop_roots (j), stop_roots (w))
-      i, v = j, w
+  if type (x) ~= "table" or getmetamethod (x, "__tostring") then
+    return elemcb (x)
+  else
+    local buf, k_, v_ = { opencb (x) }		-- pre-buffer table open
+    roots[x] = elemcb (x)			-- initialise recursion protection
+
+    for _, k in ipairs (okeys (x)) do		-- for ordered table members
+      local v = x[k]
+      buf[#buf + 1] = sepcb (x, k_, v_, k, v)	-- | buffer separator
+      buf[#buf + 1] = paircb (x, k, v, stop_roots (k), stop_roots (v))
+						-- | buffer key/value pair
+      k_, v_ = k, v
     end
-    r[#r + 1] = sep (x, i, v, nil, nil) .. close (x)
-    return table.concat (r)
+    buf[#buf + 1] = sepcb (x, k_, v_)		-- buffer trailing separator
+    buf[#buf + 1] = closecb (x)			-- buffer table close
+
+    return table.concat (buf)			-- stringify buffer
   end
 end
 
@@ -393,7 +381,7 @@ local function tostring (x)
 		 function () return "}" end,
                  _tostring,
                  function (_, _, _, is, vs) return is .."=".. vs end,
-		 function (_, i, _, j) return i and j and "," or "" end)
+		 function (_, i, _, k) return i and k and "," or "" end)
 end
 
 

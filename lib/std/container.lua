@@ -38,8 +38,8 @@ local debug = require "std.debug"
 
 local ipairs, pairs, okeys = base.ipairs, base.pairs, base.okeys
 local insert, len, maxn = base.insert, base.len, base.maxn
-local prototype = base.prototype
-local argcheck  = debug.argcheck
+local okeys, prototype, tostring = base.okeys, base.prototype, base.tostring
+local argcheck = debug.argcheck
 
 
 
@@ -231,22 +231,35 @@ end
 
 
 function M.__tostring (self)
-  local n, ibuf, kbuf = 1, {}, {}
-  for _, k in ipairs (okeys (self)) do
+  local n, k_ = 1, nil
+  local buf = { prototype (self), " {" }	-- pre-buffer object open
+  for _, k in ipairs (okeys (self)) do		-- for ordered public members
     local v = self[k]
-    if type (k) == "number" and k == n then
-      ibuf[#ibuf + 1] = tostring (v)
+
+    if k_ ~= nil then				-- | buffer separator
+      if k ~= n and type (k_) == "number" and k_ == n - 1 then
+        -- `;` separates `v` elements from `k=v` elements
+        buf[#buf + 1] = "; "
+      elseif k ~= nil then
+	-- `,` separator everywhere else
+        buf[#buf + 1] = ", "
+      end
+    end
+
+    if type (k) == "number" and k == n then	-- | buffer key/value pair
+      -- render initial array-like elements as just `v`
+      buf[#buf + 1] = tostring (v)
       n = n + 1
     else
-      kbuf[#kbuf + 1] = tostring (k) .. "=" .. tostring (v)
+      -- render remaining elements as `k=v`
+      buf[#buf + 1] = tostring (k) .. "=" .. tostring (v)
     end
+
+    k_ = k -- maintain loop invariant: k_ is previous key
   end
+  buf[#buf + 1] = "}"				-- buffer object close
 
-  local buf = {}
-  if next (ibuf) then buf[#buf + 1] = table.concat (ibuf, ", ") end
-  if next (kbuf) then buf[#buf + 1] = table.concat (kbuf, ", ") end
-
-  return prototype (self) .. " {" .. table.concat (buf, "; ") .. "}"
+  return table.concat (buf)			-- stringify buffer
 end
 
 

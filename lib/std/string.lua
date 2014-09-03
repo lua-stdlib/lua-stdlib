@@ -192,20 +192,20 @@ local function prettytostring (x, indent, spacing)
                      return tostring (x)
                    end
                  end,
-                 function (x, i, v, is, vs)
+                 function (x, k, v, ks, vs)
                    local s = spacing
-		   if type (i) ~= "string" or i:match "[^%w_]" then
+		   if type (k) ~= "string" or k:match "[^%w_]" then
 		     s = s .. "["
-                     if type (i) == "table" then
+                     if type (k) == "table" then
                        s = s .. "\n"
                      end
-                     s = s .. is
-                     if type (i) == "table" then
+                     s = s .. ks
+                     if type (k) == "table" then
                        s = s .. "\n"
                      end
                      s = s .. "]"
 		   else
-		     s = s .. i
+		     s = s .. k
 		   end
 		   s = s .. " ="
                    if type (v) == "table" then
@@ -216,9 +216,9 @@ local function prettytostring (x, indent, spacing)
                    s = s .. vs
                    return s
                  end,
-                 function (_, i)
+                 function (_, k)
                    local s = "\n"
-                   if i then
+                   if k then
                      s = "," .. s
                    end
                    return s
