@@ -57,8 +57,7 @@ end
 -- @usage
 -- for byte = 32,126 do set.insert (isprintable, string.char (byte)) end
 local function insert (set, e)
-  rawset (set, e, true)
-  return set
+  return rawset (set, e, true)
 end
 
 
@@ -69,8 +68,7 @@ end
 -- @usage
 -- set.delete (available, found)
 local function delete (set, e)
-  rawset (set, e, nil)
-  return set
+  return rawset (set, e, nil)
 end
 
 
