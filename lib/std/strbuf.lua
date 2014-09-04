@@ -15,29 +15,9 @@ local base   = require "std.base"
 
 local Object = require "std.object" {}
 
-local insert = base.insert
 
-
---- Add a string to a buffer.
--- @static
--- @function concat
--- @string s string to add
--- @treturn StrBuf modified buffer
--- @usage
--- buf = concat (buf, "append this")
-local function concat (self, s)
-  return insert (self, s)
-end
-
-
---- Convert a buffer to a string.
--- @static
--- @function tostring
--- @treturn string stringified `buf`
--- @usage
--- string = buf:tostring ()
-local function tostring (buf)
-  return table.concat (buf)
+local function X (decl, fn)
+  return require "std.debug".argscheck ("std.strbuf." .. decl, fn)
 end
 
 
@@ -47,14 +27,15 @@ end
 -- @{std.object.Object}.
 -- @object StrBuf
 -- @string[opt="StrBuf"] _type object name
--- @see std.container
 -- @see std.object.__call
 -- @usage
 -- local std = require "std"
--- std.prototype (std.strbuf) --> "StrBuf"
+-- local StrBuf = std.strbuf {}
+-- local buf = StrBuf {"initial buffer contents"}
+-- buf = buf .. "append to buffer"
+-- print (buf) -- implicit `tostring` concatenates everything
 -- os.exit (0)
 return Object {
-  -- Derived object type.
   _type = "StrBuf",
 
   --- Support concatenation to StrBuf objects.
@@ -65,8 +46,7 @@ return Object {
   -- @see concat
   -- @usage
   -- buf = buf .. str
-  __concat   = concat,
-
+  __concat = X ("__concat (StrBuf, string)", base.insert),
 
   --- Support fast conversion to Lua string.
   -- @function __tostring
@@ -75,12 +55,25 @@ return Object {
   -- @see tostring
   -- @usage
   -- str = tostring (buf)
-  __tostring = tostring,
+  __tostring = X ("__tostring (StrBuf)", table.concat),
 
 
-  --- @export
   __index = {
-    concat   = concat,
-    tostring = tostring,
+    --- Add a string to a buffer.
+    -- @static
+    -- @function concat
+    -- @string s string to add
+    -- @treturn StrBuf modified buffer
+    -- @usage
+    -- buf = concat (buf, "append this")
+    concat = X ("concat (StrBuf, string)", base.insert),
+
+    --- Convert a buffer to a string.
+    -- @static
+    -- @function tostring
+    -- @treturn string stringified `buf`
+    -- @usage
+    -- string = buf:tostring ()
+    tostring = X ("tostring (StrBuf)", table.concat),
   },
 }
