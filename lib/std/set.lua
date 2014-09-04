@@ -65,60 +65,42 @@ local difference, symmetric_difference, intersection, union, subset,
 
 
 function difference (set1, set2)
-  if prototype (set2) == "table" then
-    set2 = Set (set2)
-  end
-  local t = Set {}
+  local r = Set {}
   for e in elems (set1) do
     if not member (set2, e) then
-      insert (t, e)
+      insert (r, e)
     end
   end
-  return t
+  return r
 end
 
 
 function symmetric_difference (set1, set2)
-  if prototype (set2) == "table" then
-    set2 = Set (set2)
-  end
   return difference (union (set1, set2), intersection (set2, set1))
 end
 
 
 function intersection (set1, set2)
-  if prototype (set2) == "table" then
-    set2 = Set (set2)
-  end
-  local t = Set {}
+  local r = Set {}
   for e in elems (set1) do
     if member (set2, e) then
-      insert (t, e)
+      insert (r, e)
     end
   end
-  return t
+  return r
 end
 
 
 function union (set1, set2)
-  if prototype (set2) == "table" then
-    set2 = Set (set2)
-  end
-  local t = Set {}
-  for e in elems (set1) do
-    insert (t, e)
-  end
+  local r = set1 {}
   for e in elems (set2) do
-    insert (t, e)
+    insert (r, e)
   end
-  return t
+  return r
 end
 
 
 function subset (set1, set2)
-  if prototype (set2) == "table" then
-    set2 = Set (set2)
-  end
   for e in elems (set1) do
     if not member (set2, e) then
       return false
@@ -129,9 +111,6 @@ end
 
 
 function proper_subset (set1, set2)
-  if prototype (set2) == "table" then
-    t = Set (set2)
-  end
   return subset (set1, set2) and not subset (set2, set1)
 end
 
@@ -152,25 +131,12 @@ local function X (decl, fn)
 end
 
 
---- Signature for cloning Set prototype object.
--- @function Set_Clone
--- @tparam table elements a list of additional elements
--- @treturn Set clone of prototype, with *elements* merged in
--- @usage
--- local Set = require "std.set" {}
--- local set_a = Set {1, 2, 3, 4}
--- local set_b = set_a {2, 4, 6, 8}
--- print (set_b) --> Set {1, 2, 3, 4, 6, 8}
--- os.exit (0)
-
-
 --- Set prototype object.
 --
 -- Set also inherits all the fields and methods from
 -- @{std.container.Container}.
 -- @object Set
 -- @string[opt="Set"] _type object name
--- @tfield Set_Clone _init initialisation function
 -- @see std.container
 -- @see std.object.__call
 -- @usage
@@ -187,90 +153,85 @@ Set = Container {
                  return self
                end,
 
-
   --- Union operator.
   -- @static
   -- @function __add
-  -- @tparam Set s a set
-  -- @tparam table|Set t another set, or table
-  -- @treturn Set union of *s* and *t*
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set everything from *set1* plus everything from *set2*
   -- @see union
   -- @usage
-  -- union = set + {"table"}
-  __add = union,
-
+  -- union = set1 + set2
+  __add = X ("__add (Set, Set)", union),
 
   --- Difference operator.
   -- @static
   -- @function __sub
-  -- @tparam Set s a set
-  -- @tparam table|Set t another set, or table
-  -- @treturn Set difference between *s* and *t*
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set everything from *set1* that is not also in *set2*
   -- @see difference
   -- @usage
-  -- difference = set - {"table"}
-  __sub = difference,
-
+  -- difference = set1 - set2
+  __sub = X ("__sub (Set, Set)", difference),
 
   --- Intersection operator.
   -- @static
   -- @function __mul
-  -- @tparam Set s a set
-  -- @tparam table|Set t another set, or table
-  -- @treturn Set intersection of *s* and *t*
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set anything this is in both *set1* and *set2*
   -- @see intersection
   -- @usage
-  -- intersection = set * {"table"}
-  __mul = intersection,
-
+  -- intersection = set1 * set2
+  __mul = X ("__mul (Set, Set)", intersection),
 
   --- Symmetric difference operator.
   -- @function __div
   -- @static
-  -- @tparam Set s a set
-  -- @tparam table|Set t another set, or table
-  -- @treturn Set symmetric difference between *s* and *t*
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set everything from *set1* or *set2* but not both
   -- @see symmetric_difference
   -- @usage
-  -- symmetric_difference = set / {"table"}
-  __div = symmetric_difference,
-
+  -- symmetric_difference = set1 / set2
+  __div = X ("__div (Set, Set)", symmetric_difference),
 
   --- Subset operator.
   -- @static
   -- @function __le
-  -- @tparam Set s a set
-  -- @tparam table|Set t another set, or table
-  -- @treturn boolean `true` if *s* is a subset of *t*
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn boolean `true` if everything in *set1* is also in *set2*
   -- @see subset
   -- @usage
-  -- set = set <= {"table"}
-  __le  = subset,
-
+  -- issubset = set1 <= set2
+  __le  = X ("__le (Set, Set)", subset),
 
   --- Proper subset operator.
   -- @static
   -- @function __lt
-  -- @tparam Set s set
-  -- @tparam table|Set t another set or table
-  -- @treturn boolean `true` if *s* is a proper subset of *t*
+  -- @tparam Set set1 set
+  -- @tparam Set set2 another set
+  -- @treturn boolean `true` if *set2* is not equal to *set1*, but does
+  --   contain everything from *set1*
   -- @see proper_subset
   -- @usage
-  -- proper_subset = set < {"table"}
-  __lt  = proper_subset,
-
+  -- ispropersubset = set1 < set2
+  __lt  = X ("__lt (Set, Set)", proper_subset),
 
   -- Return a string representation of this set.
   -- @treturn string string representation of a set.
   -- @see std.tostring
-  __tostring = function (self)
-                 local keys = {}
-                 for k in pairs (self) do
-                   keys[#keys + 1] = tostring (k)
-                 end
-                 table.sort (keys)
-                 return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
-               end,
+  __tostring = X ("__tostring (Set)",
+                  function (self)
+                    local keys = {}
+                    for k in pairs (self) do
+                      keys[#keys + 1] = tostring (k)
+                    end
+                    table.sort (keys)
+                    return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
+                  end),
 
 
   _functions = {
@@ -289,16 +250,17 @@ Set = Container {
     -- @static
     -- @function difference
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn Set a copy of *set1* with elements of *set2* removed
     -- @usage
     -- all = set.difference (all, {32, 49, 56})
-    difference = X ("difference (Set, Set|table)", difference),
+    difference = X ("difference (Set, Set)", difference),
 
     --- Iterator for sets.
     -- @static
     -- @function elems
     -- @tparam Set set a set
+    -- @treturn *set* iterator
     -- @todo Make the iterator return only the key
     -- @usage
     -- for code in set.elems (isprintable) do print (code) end
@@ -308,12 +270,12 @@ Set = Container {
     -- @static
     -- @function equal
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn boolean `true` if *set1* and *set2* each contain identical
     --   elements, `false` otherwise
     -- @usage
     -- if set.equal (keys, {META, CTRL, "x"}) then process (keys) end
-    equal = X ( "equal (Set, Set|table)", equal),
+    equal = X ( "equal (Set, Set)", equal),
 
     --- Insert an element into a set.
     -- @static
@@ -331,11 +293,11 @@ Set = Container {
     -- @static
     -- @function intersection
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn Set a new set with elements in both *set1* and *set2*
     -- @usage
     -- common = set.intersection (a, b)
-    intersection = X ("intersection (Set, Set|table)", intersection),
+    intersection = X ("intersection (Set, Set)", intersection),
 
     --- Say whether an element is in a set.
     -- @static
@@ -352,41 +314,50 @@ Set = Container {
     -- @static
     -- @function proper_subset
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn boolean `true` if *set2* contains all elements in *set1*
     --   but not only those elements, `false` otherwise
-    proper_subset = X ("proper_subset (Set, Set|table)", proper_subset),
+    -- @usage
+    -- if set.proper_subset (a, b) then
+    --   for e in set.elems (set.difference (b, a)) do
+    --     set.delete (b, e)
+    --   end
+    -- end
+    -- assert (set.equal (a, b))
+    proper_subset = X ("proper_subset (Set, Set)", proper_subset),
 
     --- Find whether one set is a subset of another.
     -- @static
     -- @function subset
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn boolean `true` if all elements in *set1* are also in *set2*,
     --   `false` otherwise
-    subset = X ("subset (Set, Set|table)", subset),
+    -- @usage
+    -- if set.subset (a, b) then a = b end
+    subset = X ("subset (Set, Set)", subset),
 
     --- Find the symmetric difference of two sets.
     -- @static
     -- @function symmetric_difference
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn Set a new set with elements that are in *set1* or *set2*
     --   but not both
     -- @usage
     -- unique = set.symmetric_difference (a, b)
-    symmetric_difference = X ("symmetric_difference (Set, Set|table)",
+    symmetric_difference = X ("symmetric_difference (Set, Set)",
                               symmetric_difference),
 
     --- Find the union of two sets.
     -- @static
     -- @function union
     -- @tparam Set set1 a set
-    -- @tparam table|Set set2 another set, or table
+    -- @tparam Set set2 another set
     -- @treturn Set a copy of *set1* with elements in *set2* merged in
     -- @usage
     -- all = set.union (a, b)
-    union = X ("union (Set, Set|table)", union),
+    union = X ("union (Set, Set)", union),
   },
 }
 

@@ -276,6 +276,16 @@ Stdlib NEWS - User visible changes
  - `io.catdir` now raises an error when called with no arguments, for
    consistency with `io.catfile`.
 
+ - `std.set` objects used to be lax about enforcing type correctness in
+   function arguments, but now that we have strict type-checking on all
+   apis, table arguments are not coerced to Set objects but raise an
+   error.  Due to an accident of implementation, you can get the old
+   inconsistent behaviour back for now by turning off type checking
+   before loading any stdlib modules:
+
+     _DEBUG = { argcheck = false }
+     local set = require "std.set"
+
  - `string.pad` will still (by implementation accident) coerce non-
    string initial arguments to a string using `string.tostring` as long
    as argument checking is disabled.  Under normal circumstances,
