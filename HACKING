@@ -61,7 +61,22 @@
      s   a string
      t   a table
 
+ - Do argument check all module functions (functions available in the table
+   returned from requiring that module -- or listed in the `_functions`
+   subtable of an object module), preferably using a `debug.argscheck`
+   wrapper from the module export table, so that functions can call each
+   other inside the implementation without excessive rechecking of argument
+   types.
+
+ - Don't argument check metamethods, rely on the Lua runtime to diagnose any
+   errors there.
+
 ## LDocs
+
+ - LDocs should be next to each function's argcheck wrapper (if it has one)
+   in the export table, so that it's easy to check the consistency between
+   the types declared in the LDocs and the argument types enforced by
+   `debug.argscheck` or equivalent.
 
  - `backtick_references` is disabled for stdlib, if you want an inline
    cross-reference, use `@{reference}`.
