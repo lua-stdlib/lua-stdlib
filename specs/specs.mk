@@ -1,16 +1,6 @@
 # Specl specs make rules.
 
 
-## ------------ ##
-## Environment. ##
-## ------------ ##
-
-## !!WARNING!! When bootstrap.conf:buildreq specl setting requires specl
-##             12 or higher, remove this entire Environment section!
-
-SPECL_ENV = LUA_PATH="$(std_path);$(LUA_PATH)" LUA_INIT= LUA_INIT_5_2=
-
-
 ## ------ ##
 ## Specs. ##
 ## ------ ##

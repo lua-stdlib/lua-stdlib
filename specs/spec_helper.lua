@@ -2,8 +2,16 @@ local hell      = require "specl.shell"
 local inprocess = require "specl.inprocess"
 local std       = require "specl.std"
 
-package.path = std.package.normalize ("lib/?.lua", "lib/?/init.lua", package.path)
+local top_srcdir = os.getenv "top_srcdir" or "."
+local top_builddir = os.getenv "top_builddir" or "."
 
+package.path = std.package.normalize (
+                 top_builddir .. "/lib/?.lua",
+                 top_builddir .. "/lib/?/init.lua",
+                 top_srcdir .. "/lib/?.lua",
+                 top_srcdir .. "/lib/?/init.lua",
+                 package.path
+               )
 
 -- Allow user override of LUA binary used by hell.spawn, falling
 -- back to environment PATH search for "lua" if nothing else works.
