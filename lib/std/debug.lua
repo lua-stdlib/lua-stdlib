@@ -423,13 +423,13 @@ if _DEBUG.argcheck then
 
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
-    local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%((.*)%)"
+    local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
     if types == "" then
       types = {}
     elseif types then
-      types = split (types, ",%s+")
+      types = split (types, ",%s*")
     else
-      fname = decl:match "([%w_][%d%d%w_]*)"
+      fname = decl:match "([%w_][%.%d%w_]*)"
     end
 
     -- If the final element of types ends with "*", then set max to a
