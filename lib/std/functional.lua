@@ -32,7 +32,7 @@ local function bind (fn, ...)
              arg[i] = v
            end
            local i = 1
-           for _, v in pairs {...} do
+           for _, v in ipairs {...} do
              while arg[i] ~= nil do i = i + 1 end
              arg[i] = v
            end
