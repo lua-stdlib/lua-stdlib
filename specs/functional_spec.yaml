@@ -38,10 +38,12 @@ specify std.functional:
   - it diagnoses wrong argument types:
       expect (f (false)).to_raise (badarg (1, "function", "boolean"))
 
-  - it writes an argument passing deprecation warning on first call:
-        expect (capture (f, {init, M, fname})).
+  - it writes an argument passing deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {init, M, fname})).
           to_contain_error "was deprecated"
-        expect (capture (f, {init, M, fname})).
+      setdebug { deprecate = false }
+      expect (capture (f, {init, M, fname})).
           not_to_contain_error "was deprecated"
 
   - it does not affect normal operation if no arguments are bound:
@@ -216,8 +218,10 @@ specify std.functional:
   - before:
       f = M.eval
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {"42"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {"42"})).not_to_contain_error "was deprecated"
 
   - it diagnoses invalid lua:
@@ -269,9 +273,11 @@ specify std.functional:
       op = require "std.operator"
       f = M.fold
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {M.id, 1, ipairs, {}})).
         to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {M.id, 1, ipairs, {}})).
         not_to_contain_error "was deprecated"
 
@@ -521,9 +527,11 @@ specify std.functional:
     - before:
         f = M.op["[]"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {{2}, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {{2}, 1})).
           not_to_contain_error "was deprecated"
 
@@ -536,9 +544,11 @@ specify std.functional:
     - before:
         f = M.op["+"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 
@@ -549,9 +559,11 @@ specify std.functional:
     - before:
         f = M.op["-"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 
@@ -562,9 +574,11 @@ specify std.functional:
     - before:
         f = M.op["*"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 
@@ -575,9 +589,11 @@ specify std.functional:
     - before:
         f = M.op["/"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning on:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 
@@ -588,9 +604,11 @@ specify std.functional:
     - before:
         f = M.op["and"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {true, false})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {true, false})).
           not_to_contain_error "was deprecated"
 
@@ -609,9 +627,11 @@ specify std.functional:
     - before:
         f = M.op["or"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {true, false})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {true, false})).
           not_to_contain_error "was deprecated"
 
@@ -630,9 +650,11 @@ specify std.functional:
     - before:
         f = M.op["not"]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {true})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {true})).
           not_to_contain_error "was deprecated"
 
@@ -647,9 +669,11 @@ specify std.functional:
     - before:
         f = M.op["=="]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 
@@ -664,9 +688,11 @@ specify std.functional:
     - before:
         f = M.op["~="]
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {2, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {2, 1})).
           not_to_contain_error "was deprecated"
 

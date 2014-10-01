@@ -4,7 +4,8 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "say", "toomanyargmsg", "trace" }
+                   "argscheck", "say", "toomanyargmsg", "trace",
+                   "_setdebug" }
 
   M = require (this_module)
 
@@ -77,27 +78,25 @@ specify std.debug:
             fn ()  -- line 3
             fn ()  -- line 4
           ]]
-      - it warns only on first call by default:
-          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
-          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
-      - it warns only on first call with _DEBUG set to true:
-          script = "_DEBUG = true " .. script
-          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
-          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
-      - it warns only on first call with _DEBUG.compat unset:
-          script = "_DEBUG = {} " .. script
-          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
-          expect (luaproc (script)).not_to_match_error "\n%S+:4:.*deprecated"
-      - it does not warn at all when set to false: |
-          script = "_DEBUG = false " .. script
-          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
-      - it does not warn at all when compat field is set to true: |
-          script = "_DEBUG = { compat = true } " .. script
-          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
-      - it warns on every call with compat field set to false:
-          script = "_DEBUG = { compat = false } " .. script
+      - it warns every call by default:
           expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
           expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
+      - it does not warn at all with _DEBUG set to false:
+          script = "_DEBUG = false " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it does not define the function with _DEBUG set to true: |
+          script = "_DEBUG = true " .. script
+          expect (luaproc (script)).to_contain_error ":3: attempt to call global 'fn'"
+      - it warns on every call with _DEBUG.deprecate unset:
+          script = "_DEBUG = {} " .. script
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
+      - it does not warn at all with _DEBUG.deprecate set to false:
+          script = "_DEBUG = { deprecate = false } " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it warns on every call with _DEBUG.deprecate set to true: |
+          script = "_DEBUG = { deprecate = true } " .. script
+          expect (luaproc (script)).to_contain_error ":3: attempt to call global 'fn'"
 
 
 - describe DEPRECATIONMSG:

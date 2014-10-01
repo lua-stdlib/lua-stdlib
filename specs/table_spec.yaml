@@ -91,8 +91,10 @@ specify std.table:
       fname = "clone_rename"
       f = M[fname]
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it copies the subject:
@@ -519,8 +521,10 @@ specify std.table:
 
       f = M.metamethod
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it returns nil for missing metamethods:
@@ -699,8 +703,10 @@ specify std.table:
   - before:
       f = M.ripairs
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
 
   - it returns a function, the table and a number:
@@ -803,8 +809,10 @@ specify std.table:
 
       f, badarg = init (M, this_module, "totable")
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {{}})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
   - it calls object's __totable metamethod:

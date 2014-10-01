@@ -10,6 +10,10 @@ package.path = std.package.normalize ("lib/?.lua", "lib/?/init.lua", package.pat
 local LUA = os.getenv "LUA" or "lua"
 
 
+-- Tweak _DEBUG without tripping over Specl nested environments.
+setdebug = require "std.debug"._setdebug
+
+
 -- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
 -- prevent everything else from working.
 function prototype (o)

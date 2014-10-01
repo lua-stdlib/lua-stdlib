@@ -325,8 +325,10 @@ specify std.list:
     - before:
         f = M.depair
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a primitive table:
@@ -341,8 +343,10 @@ specify std.list:
     - before:
         f = l.depair
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a primitive table:
@@ -358,8 +362,10 @@ specify std.list:
     - before:
         f = M.elems
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {{}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
     - it is an iterator over List members:
@@ -375,8 +381,10 @@ specify std.list:
     - before:
         f = l.elems
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is an iterator over List members:
@@ -394,8 +402,10 @@ specify std.list:
      t = {"first", "second", third = 4}
      f = M.enpair
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {t})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {t})).not_to_contain_error "was deprecated"
 
   - context as a module function:
@@ -417,8 +427,10 @@ specify std.list:
     - before:
         f = M.filter
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {p, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {p, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -432,8 +444,10 @@ specify std.list:
     - before:
         f = l.filter
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, p})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, p})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -452,8 +466,10 @@ specify std.list:
     - before:
         f = M.flatten
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -469,8 +485,10 @@ specify std.list:
     - before:
         f = l.flatten
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -492,9 +510,11 @@ specify std.list:
     - before:
         f = M.foldl
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {op.sum, 1, l})).
          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {op.sum, 1, l})).
          not_to_contain_error "was deprecated"
 
@@ -519,9 +539,11 @@ specify std.list:
     - before:
         f = l.foldl
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, op.sum, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, op.sum, 1})).
           not_to_contain_error "was deprecated"
 
@@ -543,9 +565,11 @@ specify std.list:
     - before:
         f = M.foldr
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {op.sum, 1, {10}})).
          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {op.sum, 1, {10}})).
          not_to_contain_error "was deprecated"
 
@@ -571,9 +595,11 @@ specify std.list:
     - before:
         f = l.foldr
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, op.sum, 1})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, op.sum, 1})).
           not_to_contain_error "was deprecated"
 
@@ -591,9 +617,11 @@ specify std.list:
     - before:
         f = M.index_key
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {1, List {{1}}})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {1, List {{1}}})).
           not_to_contain_error "was deprecated"
 
@@ -620,8 +648,10 @@ specify std.list:
     - before:
         f = l.index_key
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
 
     - it makes a map of matched table field values to table List offsets:
@@ -649,9 +679,11 @@ specify std.list:
     - before:
         f = M.index_value
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {1, List {{1}}})).
           to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {1, List {{1}}})).
           not_to_contain_error "was deprecated"
 
@@ -680,8 +712,10 @@ specify std.list:
 
         f = l.index_value
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
 
     - it makes a table of matched table field values to table List references:
@@ -713,8 +747,10 @@ specify std.list:
     - before:
         f, badarg = init (M, this_module, "map")
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {sq, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {sq, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -734,8 +770,10 @@ specify std.list:
     - before:
         f = l.map
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, sq})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, sq})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -762,8 +800,10 @@ specify std.list:
     - before:
         f = M.map_with
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {fn, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {fn, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -785,8 +825,10 @@ specify std.list:
     - before:
         f = l.map_with
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -817,8 +859,10 @@ specify std.list:
     - before:
         f = M.project
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {"third", l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {"third", l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -834,8 +878,10 @@ specify std.list:
     - before:
         f = l.project
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, "third"})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, "third"})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -853,8 +899,10 @@ specify std.list:
     - before:
         f = M.relems
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is a reverse iterator over List members:
@@ -870,8 +918,10 @@ specify std.list:
     - before:
         f = l.relems
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it is a reverse iterator over List members:
@@ -929,8 +979,10 @@ specify std.list:
     - before:
         f = M.reverse
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {{}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -949,8 +1001,10 @@ specify std.list:
     - before:
         f = l.reverse
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -973,8 +1027,10 @@ specify std.list:
     - before:
         f = M.shape
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {{0}, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {{0}, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -1001,8 +1057,10 @@ specify std.list:
     - before:
         f = l.shape
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, {0}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, {0}})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -1126,8 +1184,10 @@ specify std.list:
     - before:
         f = M.transpose
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -1146,8 +1206,10 @@ specify std.list:
     - before:
         f = l.transpose
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -1173,8 +1235,10 @@ specify std.list:
     - before:
         f = M.zip_with
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
@@ -1193,8 +1257,10 @@ specify std.list:
     - before:
         f = l.zip_with
 
-    - it writes a deprecation warning on first call:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
         expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
         expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a List object:

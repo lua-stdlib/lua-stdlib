@@ -31,7 +31,7 @@
 ]]
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
+local _DEBUG = require "std.debug_init"._DEBUG
 
 local base  = require "std.base"
 local debug = require "std.debug"
@@ -201,7 +201,7 @@ local M = {
 }
 
 
-if _ARGCHECK then
+if _DEBUG.argcheck then
 
   local toomanyargmsg = debug.toomanyargmsg
 

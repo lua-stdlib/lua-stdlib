@@ -156,18 +156,30 @@ Stdlib NEWS - User visible changes
  - Deprecated APIs are kept for a minimum of 1 year following the first
    release that contains the deprecations.  With each new release of
    lua-stdlib, any APIs that have been deprecated for longer than that
-   will most likely be removed entirely.
+   will most likely be removed entirely.  You can prevent that by
+   raising an issue at <https://github.com/lua-stdlib/lua-stdlib/issues>
+   explaining why any deprecation should be reinstated or at least kept
+   around for more than 1 year.
 
- - By default, deprecated APIs will issue a warning to stderr on first
-   use only.  However, you can turn off these warnings entirely with:
+ - By default, deprecated APIs will issue a warning to stderr on every
+   call.  However, in production code, you can turn off these warnings
+   entirely with any of:
 
-     _DEBUG = { compat = true }
+     _DEBUG = false
+     _DEBUG = { deprecate = false }
+     require "std.debug_init".deprecate = false
 
-   Or, you can issue the warnings on every use with:
+   Or, to confirm you're not trying to call a deprecated function at
+   runtime, you can prevent deprecated functions from being defined at
+   all with any of:
 
-     _DEBUG = { compat = false }
+     _DEBUG = true
+     _DEBUG = { deprecate = true }
+     require "std.debug_init".deprecate = true
 
-   The `_DEBUG` global must be set before requiring any stdlib modules.
+   The `_DEBUG` global must be set before requiring any stdlib modules,
+   but you can adjust the fields in the `std.debug_init` table at any
+   time.
 
  - `functional.eval` has been moved to `std.eval`, the old name now
    gives a deprecation warning.

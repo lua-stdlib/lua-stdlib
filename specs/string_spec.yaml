@@ -65,8 +65,10 @@ specify std.string:
   - before:
       f = M.assert
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
 
   - context when it does not trigger:
@@ -557,8 +559,10 @@ specify std.string:
   - before:
       f = M.require_version
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
 
   - it diagnoses non-existent module:
@@ -730,8 +734,10 @@ specify std.string:
   - before:
       f = M.tostring
 
-  - it writes a deprecation warning on first call:
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
       expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
       expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
 
   - it renders primitives exactly like system tostring:

@@ -29,7 +29,7 @@
 ]]
 
 
-local _ARGCHECK = require "std.debug_init"._ARGCHECK
+local _DEBUG = require "std.debug_init"._DEBUG
 
 local have_alien, alien = pcall (require, "alien")
 local base      = require "std.base"
@@ -207,7 +207,7 @@ core_metatable = {
   -- --> 57005	48879	65261	57005	nil
   -- print (a[1], a[2], a[3], a[-3], a[-4])
   __call = function (self, type, init)
-    if _ARGCHECK then
+    if _DEBUG.argcheck then
       if init ~= nil then
         -- When called with 2 arguments:
         argcheck ("Vector", 1, "string", type)

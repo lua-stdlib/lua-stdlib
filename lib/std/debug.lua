@@ -32,7 +32,6 @@
 local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
-local _ARGCHECK   = debug_init._ARGCHECK
 local _DEBUG      = debug_init._DEBUG
 local argerror    = base.argerror
 local split, tostring = base.split, base.tostring
@@ -42,31 +41,13 @@ local ipairs, pairs = base.ipairs, base.pairs
 local M
 
 
-
---- Determine whether *key* will show a deprecation warning on next access.
-local compat = {}
-
-local function setcompat (key)
-  compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat == nil) or _DEBUG == true
-end
-
-
-local function getcompat (key)
-  if compat[key] == nil then
-    -- Whether to warn on first access.
-    compat[key] = (type (_DEBUG) == "table" and _DEBUG.compat) or _DEBUG == false
-  end
-  return compat[key]
-end
-
-
+-- Return a deprecation message if _DEBUG.deprecate is `nil`, otherwise "".
 local function DEPRECATIONMSG (version, name, extramsg, level)
   if level == nil then level, extramsg = extramsg, nil end
   extramsg = extramsg or "and will be removed entirely in a future release"
 
   local _, where = pcall (function () error ("", level + 3) end)
-  if not getcompat (name) then
-    setcompat (name)
+  if _DEBUG.deprecate == nil then
     return (where .. string.format ("%s was deprecated in release %s, %s.\n",
                                     name, tostring (version), extramsg))
   end
@@ -75,12 +56,16 @@ local function DEPRECATIONMSG (version, name, extramsg, level)
 end
 
 
+-- Define deprecated functions when _DEBUG.deprecate is not "truthy",
+-- and write `DEPRECATIONMSG` output to stderr.
 local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
-  return function (...)
-    io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-    return fn (...)
+  if not _DEBUG.deprecate then
+    return function (...)
+      io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
+      return fn (...)
+    end
   end
 end
 
@@ -148,7 +133,7 @@ end
 
 local argcheck, argscheck  -- forward declarations
 
-if _ARGCHECK then
+if _DEBUG.argcheck then
 
   local copy, prototype = base.copy, base.prototype
 
@@ -530,18 +515,15 @@ end
 
 
 local function say (n, ...)
-  local level = 1
-  local arg = {n, ...}
-  if type (arg[1]) == "number" then
-    level = arg[1]
-    table.remove (arg, 1)
+  local level, argt = n, {...}
+  if type (n) ~= "number" then
+    level, argt = 1, {n, ...}
   end
-  if _DEBUG and
-    ((type (_DEBUG) == "table" and type (_DEBUG.level) == "number" and
-      _DEBUG.level >= level)
-       or level <= 1) then
+  if _DEBUG.level ~= math.huge and
+      ((type (_DEBUG.level) == "number" and _DEBUG.level >= level) or level <= 1)
+  then
     local t = {}
-    for k, v in pairs (arg) do t[k] = tostring (v) end
+    for k, v in pairs (argt) do t[k] = tostring (v) end
     io.stderr:write (table.concat (t, "\t") .. "\n")
   end
 end
@@ -585,7 +567,10 @@ end
 
 
 M = {
-  --- Write a deprecation warning to stderr.
+  --- Provide a deprecated function definition according to _DEBUG.deprecate.
+  -- You can check whether your covered code uses deprecated functions by
+  -- setting `_DEBUG.deprecate` to  `true` before loading any stdlib modules,
+  -- or silence deprecation warnings by setting `_DEBUG.deprecate = false`.
   -- @function DEPRECATED
   -- @string version first deprecation release version
   -- @string name function name for automatic warning message
@@ -597,9 +582,6 @@ M = {
   DEPRECATED = DEPRECATED,
 
   --- Format a deprecation warning message.
-  -- If `_DEBUG.compat` is not set, warn only the first time *fn* is called;
-  -- if `_DEBUG.compat` is false, warn every time *fn* is called;
-  -- otherwise don't write any warnings, and run *fn* normally.
   -- @function DEPRECATIONMSG
   -- @string version first deprecation release version
   -- @string name function name for automatic warning message
@@ -701,6 +683,7 @@ M = {
   say = say,
 
   --- Format a standard "too many arguments" error message.
+  -- @fixme remove this wart!
   -- @function toomanyargmsg
   -- @string name function name
   -- @number expect maximum number of arguments accepted
@@ -722,6 +705,15 @@ M = {
   -- _DEBUG = { call = true }
   -- local debug = require "std.debug"
   trace = trace,
+
+
+  -- Private:
+  _setdebug = function (t)
+    for k, v in pairs (t) do
+      if v == "nil" then v = nil end
+      _DEBUG[k] = v
+    end
+  end,
 }
 
 
@@ -746,14 +738,16 @@ return setmetatable (M, metatable)
 
 
 --- Control std.debug function behaviour.
--- To activate debugging set _DEBUG either to any true value
--- (equivalent to {level = 1}), or as documented below.
+-- To declare debugging state, set _DEBUG either to `false` to disable all
+-- runtime debugging; to any "truthy" value (equivalent to enabling everything
+-- except *call*, or as documented below.
 -- @class table
 -- @name _DEBUG
 -- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
 -- @tfield[opt=false] boolean call do call trace debugging
--- @field[opt=nil] compat if `false`, always complain whenever a deprecated
---   api is called; if `nil` complain on first use of each deprecated api;
---   any other value disables deprecation warnings altogether
+-- @field[opt=nil] deprecate if `false`, deprecated APIs are defined,
+--   and do not issue deprecation warnings when used; if `nil` issue a
+--   deprecation warning each time a deprecated api is used; any other
+--   value causes deprecated APIs not to be defined at all
 -- @tfield[opt=1] int level debugging level
 -- @usage _DEBUG = { argcheck = false, level = 9 }
