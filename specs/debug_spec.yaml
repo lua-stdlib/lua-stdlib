@@ -236,13 +236,13 @@ specify std.debug:
   - context with primitives:
     - it diagnoses missing types:
         expect (fn ("boolean", nil)).to_raise "boolean expected, got no value"
-        expect (fn ("file", nil)).to_raise "file expected, got no value"
+        expect (fn ("file", nil)).to_raise "FILE* expected, got no value"
         expect (fn ("number", nil)).to_raise "number expected, got no value"
         expect (fn ("string", nil)).to_raise "string expected, got no value"
         expect (fn ("table", nil)).to_raise "table expected, got no value"
     - it diagnoses mismatched types:
         expect (fn ("boolean", {0})).to_raise "boolean expected, got table"
-        expect (fn ("file", {0})).to_raise "file expected, got table"
+        expect (fn ("file", {0})).to_raise "FILE* expected, got table"
         expect (fn ("number", {0})).to_raise "number expected, got table"
         expect (fn ("string", {0})).to_raise "string expected, got table"
         expect (fn ("table", false)).to_raise "table expected, got boolean"

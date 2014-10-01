@@ -1,6 +1,8 @@
-local hell      = require "specl.shell"
 local inprocess = require "specl.inprocess"
+local hell      = require "specl.shell"
 local std       = require "specl.std"
+
+badargs = require "specl.badargs"
 
 local top_srcdir = os.getenv "top_srcdir" or "."
 local top_builddir = os.getenv "top_builddir" or "."
@@ -20,6 +22,13 @@ local LUA = os.getenv "LUA" or "lua"
 
 -- Tweak _DEBUG without tripping over Specl nested environments.
 setdebug = require "std.debug"._setdebug
+
+
+-- Wrap up badargs function in a succinct single call.
+function init (M, mname, fname)
+  local name = (mname .. "." .. fname):gsub ("^%.", "")
+  return M[fname], function (...) return badargs.format (name, ...) end
+end
 
 
 -- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
@@ -103,40 +112,6 @@ local function tabulate_output (code)
       if x ~= "" then r[x] = true end
     end)
   return r
-end
-
-
---- Return a formatted bad argument string.
--- @tparam table M module table
--- @string fname base-name of the erroring function
--- @int i argument number
--- @string want expected argument type
--- @string[opt="no value"] got actual argument type
--- @usage
---   expect (f ()).to_error (badarg (fname, mname, 1, "function"))
-local function badarg (mname, fname, i, want, got)
-  if want == nil then i, want = i - 1, i end
-
-  local fqfname = (mname .. "." .. fname):gsub ("^%.", "")
-
-  if got == nil and type (want) == "number" then
-    local s = "too many arguments to '%s' (no more than %d expected, got %d)"
-    return string.format (s, fqfname, i, want)
-  end
-  return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
-                        i, fqfname, want, got or "no value")
-end
-
-
---- Initialise custom function and argument error handlers.
--- @tparam table M module table
--- @string fname function name to bind
--- @treturn string *fname*
--- @treturn function `M[fname]` if any, otherwise `nil`
--- @treturn function badarg with *M* and *fname* prebound
--- @treturn function toomanyarg with *M* and *fname* prebound
-function init (M, mname, fname)
-  return M[fname], bind (badarg, {mname, fname})
 end
 
 
@@ -228,7 +203,6 @@ end
 -- Stub inprocess.capture if necessary; new in Specl 12.
 capture = inprocess.capture or
           function (f, arg) return nil, nil, f (unpack (arg or {})) end
-
 
 
 do

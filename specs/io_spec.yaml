@@ -11,6 +11,7 @@ before: |
 
   M = require (this_module)
 
+
 specify std.io:
 - context when required:
   - context by name:
@@ -35,14 +36,10 @@ specify std.io:
 
 - describe catdir:
   - before: |
-      f, badarg = init (M, this_module,  "catdir")
+      f = M.catdir
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("", false)).to_raise (badarg (2, "string", "boolean"))
-      expect (f ("", "false", false)).to_raise (badarg (3, "string", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.catdir (string*)")
 
   - it treats initial empty string as root directory:
       expect (f ("")).to_be (dirsep)
@@ -58,14 +55,10 @@ specify std.io:
 
 - describe catfile:
   - before:
-      f, badarg = init (M, this_module,  "catfile")
+      f = M.catfile
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("", false)).to_raise (badarg (2, "string", "boolean"))
-      expect (f ("", "false", false)).to_raise (badarg (3, "string", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.catfile (string*)")
 
   - it treats initial empty string as root directory:
       expect (f ("", "")).to_be (dirsep)
@@ -83,12 +76,10 @@ specify std.io:
   - before: |
       script = [[require "std.io".die "By 'eck!"]]
 
-      f, badarg = init (M, this_module,  "die")
+      f = M.die
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.die (string, ?any*)")
 
   - it outputs a message to stderr:
       expect (luaproc (script)).to_fail_with "By 'eck!\n"
@@ -145,12 +136,10 @@ specify std.io:
   - before:
       namespace = {}
 
-      f, badarg = init (M, this_module, "monkey_patch")
+      f = M.monkey_patch
 
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (t, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.monkey_patch (?table)")
 
   - it returns the monkey_patched io entry from namespace:
       namespace = {}
@@ -191,18 +180,19 @@ specify std.io:
         require "std.io".process_files (function () io.write (io.input ():read "*a") end)
       ]]
 
-      f, badarg = init (M, this_module,  "process_files")
+      f = M.process_files
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-  - it diagnoses wrong argument types: |
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
-        "cannot open file 'not-an-existing-file'",            -- Lua 5.2
-        "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.process_files (func)")
+
+      examples {
+        ["it diagnoses non-file 'arg' elements"] = function ()
+          expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
+            "cannot open file 'not-an-existing-file'",            -- Lua 5.2
+            "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
+          }
+        end
       }
-  - it diagnoses too many arguments:
-      expect (f (f, false)).to_raise (badarg (2))
 
   - it defaults to `-` if no arguments were passed:
       expect (luaproc (ascript)).to_output "-\n"
@@ -237,16 +227,21 @@ specify std.io:
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
 
-  - it diagnoses wrong argument types: |
-      expect (f (false)).to_raise (badarg (1, "file, string or nil", "boolean"))
-      expect (f "not-an-existing-file").
-        to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
-  - it diagnoses closed file argument:
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.readlines (?file|string)")
+
+      examples {
+        ["it diagnoses non-existent file"] = function ()
+          expect (f "not-an-existing-file").
+            to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
+        end
+      }
       closed = io.open (name, "r") closed:close ()
-      expect (f (closed)).
-        to_raise (badarg (1, "file, string or nil", "closed file"))
-  - it diagnoses too many arguments:
-      expect (f ("string", false)).to_raise (badarg (2))
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+        end
+      }
 
   - it closes file handle upon completion:
       h = io.open (name)
@@ -264,14 +259,10 @@ specify std.io:
 
 - describe shell:
   - before:
-      f, badarg = init (M, this_module,  "shell")
+      f = M.shell
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("string", false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.shell (string)")
 
   - it returns the output from a shell command string:
       expect (f [[printf '%s\n' 'foo' 'bar']]).to_be "foo\nbar\n"
@@ -289,16 +280,21 @@ specify std.io:
   - after:
       if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
 
-  - it diagnoses wrong argument types: |
-      expect (f (false)).to_raise (badarg (1, "file, string or nil", "boolean"))
-      expect (f "not-an-existing-file").
-        to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
-  - it diagnoses closed file argument:
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.slurp (?file|string)")
+
+      examples {
+        ["it diagnoses non-existent file"] = function ()
+          expect (f "not-an-existing-file").
+            to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+        end
+      }
       closed = io.open (name, "r") closed:close ()
-      expect (f (closed)).
-        to_raise (badarg (1, "file, string or nil", "closed file"))
-  - it diagnoses too many arguments:
-      expect (f ("string", false)).to_raise (badarg (2))
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+        end
+      }
 
   - it reads content from an existing named file:
       expect (f (name)).to_be (content)
@@ -316,14 +312,10 @@ specify std.io:
 
 - describe splitdir:
   - before:
-      f, badarg = init (M, this_module,  "splitdir")
+      f = M.splitdir
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("string", false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.splitdir (string)")
 
   - it returns a filename as a one element list:
       expect (f ("hello")).to_equal {"hello"}
@@ -340,12 +332,10 @@ specify std.io:
 - describe warn:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
-      f, badarg = init (M, this_module,  "warn")
+      f = M.warn
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.warn (string, ?any*)")
 
   - it outputs a message to stderr:
       expect (luaproc (script)).to_output_error "Ayup!\n"
@@ -408,13 +398,15 @@ specify std.io:
       h:close ()
       os.remove (name)
 
-  - it diagnoses wrong argument types: |
-      expect (f (false)).
-        to_raise (badarg (1, "file, string, number or nil", "boolean"))
-  - it diagnoses closed file argument: |
-      closed = io.open (name) closed:close ()
-      expect (f (closed)).
-        to_raise (badarg (1, "file, string, number or nil", "closed file"))
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.writelines (?file|string|number, ?string|number*)")
+
+      closed = io.open (name, "r") closed:close ()
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
+        end
+      }
 
   - it does not close the file handle upon completion:
       expect (io.type (h)).not_to_be "closed file"

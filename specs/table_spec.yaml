@@ -12,6 +12,7 @@ before: |
 
   M = require "std.table"
 
+
 specify std.table:
 - context when required:
   - context by name:
@@ -41,18 +42,10 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      f, badarg = init (M, this_module, "clone")
+      f = M.clone
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, "nometa")).
-        to_raise (badarg (2, "table, boolean, :nometa or nil", "string"))
-      expect (f ({}, {}, "nometa")).
-        to_raise (badarg (3, "boolean, :nometa or nil", "string"))
-  - it diagnoses too many arguments:
-      expect (f ({}, {}, nil, false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.clone (table, [table], ?boolean|:nometa)")
 
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
@@ -120,18 +113,10 @@ specify std.table:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
 
-      f, badarg = init (M, this_module, "clone_select")
+      f = M.clone_select
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, "nometa")).
-        to_raise (badarg (2, "table, boolean, :nometa or nil", "string"))
-      expect (f ({}, {}, "nometa")).
-        to_raise (badarg (3, "boolean, :nometa or nil", "string"))
-  - it diagnoses too many arguments:
-      expect (f ({}, {}, nil, false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.clone_select (table, [table], ?boolean|:nometa)")
 
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
@@ -163,18 +148,10 @@ specify std.table:
       t = {"first", "second", third = 4}
       l = M.enpair (t)
 
-      f, badarg = init (M, this_module, "depair")
+      f = M.depair
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "list"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "list", "boolean"))
-      expect (f {0}).
-        to_raise (badarg (1, "list of lists", "number at index 1"))
-      expect (f {{"a", "b"}, ""}).
-        to_raise (badarg (1, "list of lists", "string at index 2"))
-  - it diagnoses too many arguments:
-      expect (f ({{"a", "b"}}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.depair (list of lists)")
 
   - it returns a primitive table:
       expect (prototype (f (l))).to_be "table"
@@ -186,14 +163,10 @@ specify std.table:
 
 - describe empty:
   - before:
-      f, badarg = init (M, this_module, "empty")
+      f = M.empty
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.empty (table)")
 
   - it returns true for an empty table:
       expect (f {}).to_be (true)
@@ -209,14 +182,10 @@ specify std.table:
       t = {"first", "second", third = 4}
       l = M.enpair (t)
 
-      f, badarg = init (M, this_module, "enpair")
+      f = M.enpair
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.enpair (table)")
 
   - it returns a table:
       expect (prototype (f (t))).to_be "table"
@@ -232,14 +201,10 @@ specify std.table:
   - before:
       t = {{{"one"}}, "two", {{"three"}, "four"}}
 
-      f, badarg = init (M, this_module, "flatten")
+      f = M.flatten
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (t, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.flatten (table)")
 
   - it returns a table:
       expect (type (f (t))).to_be "table"
@@ -251,21 +216,24 @@ specify std.table:
 
 - describe insert:
   - before:
-      f, badarg = init (M, this_module, "insert")
+      f, badarg = init (M, this_module,  "insert")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-      expect (f {}).to_raise (badarg (2, "int or any value"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses out of bounds pos arguments:
-      expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
-      expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
-      expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
-  - it diagnoses too many arguments:
-      expect (f ({}, 1, 2, false)).to_raise (badarg (4))
-      pending "#issue 76"
-      expect (f ({}, false, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.insert (table, [int], any)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, false, false)).to_raise (badarg (3))
+        end
+      }
+      examples {
+        ["it diagnoses out of bounds pos arguments"] = function ()
+          expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
+          expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
+          expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
+        end
+      }
 
   - it returns the modified table:
       t = {}
@@ -289,14 +257,10 @@ specify std.table:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
 
-      f, badarg = init (M, this_module, "invert")
+      f = M.invert
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.invert (table)")
 
   - it returns a new table:
       expect (f (subject)).not_to_be (subject)
@@ -313,14 +277,10 @@ specify std.table:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
 
-      f, badarg = init (M, this_module, "keys")
+      f = M.keys
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.keys (table)")
 
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
@@ -337,14 +297,10 @@ specify std.table:
 
 - describe len:
   - before:
-      f, badarg = init (M, this_module, "len")
+      f = M.len
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.len (table)")
 
   - it returns the length of a table:
       expect (f {"a", "b", "c"}).to_be (3)
@@ -360,14 +316,10 @@ specify std.table:
 
 - describe maxn:
   - before:
-      f, badarg = init (M, this_module, "maxn")
+      f = M.maxn
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.maxn (table)")
 
   - it returns the largest numeric key of a table:
       expect (f {"a", "b", "c"}).to_be (3)
@@ -393,21 +345,15 @@ specify std.table:
 
       f, badarg = init (M, this_module, "merge")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-      expect (f ({})).to_raise (badarg (2, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "table", "boolean"))
-      expect (f ({}, {}, "nometa")).
-        to_raise (badarg (3, "table, boolean, :nometa or nil", "string"))
-      expect (f ({}, {}, {}, "nometa")).
-        to_raise (badarg (4, "boolean, :nometa or nil", "string"))
-  - it diagnoses too many arguments: |
-      expect (f ({}, {}, {}, ":nometa", false)).
-        to_raise (badarg (5))
-      pending "issue #76"
-      expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.merge (table, table, [table], ?boolean|:nometa)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+        end
+      }
 
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
@@ -460,21 +406,15 @@ specify std.table:
 
       f, badarg = init (M, this_module, "merge_select")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-      expect (f ({})).to_raise (badarg (2, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "table", "boolean"))
-      expect (f ({}, {}, "nometa")).
-        to_raise (badarg (3, "table, boolean, :nometa or nil", "string"))
-      expect (f ({}, {}, {}, "nometa")).
-        to_raise (badarg (4, "boolean, :nometa or nil", "string"))
-  - it diagnoses too many arguments: |
-      expect (f ({}, {}, {}, ":nometa", false)).
-        to_raise (badarg (5))
-      pending "issue #76"
-      expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.merge_select (table, table, [table], ?boolean|:nometa)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+        end
+      }
 
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
@@ -537,12 +477,10 @@ specify std.table:
 
 - describe monkey_patch:
   - before:
-      f, badarg = init (M, this_module, "monkey_patch")
+      f = M.monkey_patch
 
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.monkey_patch (?table)")
 
   - it returns the monkey_patched table entry from namespace:
       namespace = {}
@@ -557,12 +495,10 @@ specify std.table:
 
 - describe new:
   - before:
-      f, badarg = init (M, this_module, "new")
+      f = M.new
 
-  - it diagnoses wrong argument types:
-      expect (f (nil, false)).to_raise (badarg (2, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, {}, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.new (?any, ?table)")
 
   - context when not setting a default:
     - before: default = nil
@@ -599,14 +535,10 @@ specify std.table:
   - before:
       subject = { "v1", k1 = 1, "v2", k2 = 2, "v3", k3 = 3, [10]="v10" }
 
-      f, badarg = init (M, this_module, "okeys")
+      f = M.okeys
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.okeys (table)")
 
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
@@ -636,19 +568,10 @@ specify std.table:
         {first = "1st", second = "2nd", third = "3rd"},
       }
 
-      f, badarg = init (M, this_module, "project")
+      f = M.project
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "any value"))
-      expect (f ("x")).to_raise (badarg (2, "list"))
-  - it diagnoses wrong argument types:
-      expect (f ("x", false)).to_raise (badarg (2, "list", "boolean"))
-      expect (f ("x", {false})).
-        to_raise (badarg (2, "list of tables", "boolean at index 1"))
-      expect (f ("x", {{}, false})).
-        to_raise (badarg (2, "list of tables", "boolean at index 2"))
-  - it diagnoses too many arguments:
-      expect (f ("x", l, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.project (any, list of tables)")
 
   - it returns a table:
       expect (prototype (f ("third", l))).to_be "table"
@@ -662,18 +585,18 @@ specify std.table:
 
 - describe remove:
   - before:
-      f, badarg = init (M, this_module, "remove")
+      f = M.remove
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses out of bounds pos arguments:
-      expect (f ({1}, 0)).to_raise "position 0 out of bounds"
-      expect (f ({1}, 3)).to_raise "position 3 out of bounds"
-      expect (f ({1}, 5)).to_raise "position 5 out of bounds"
-  - it diagnoses too many arguments:
-      expect (f ({}, 1, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.remove (table, ?int)")
+
+      examples {
+        ["it diagnoses out of bounds pos arguments"] = function ()
+          expect (f ({1}, 0)).to_raise "position 0 out of bounds"
+          expect (f ({1}, 3)).to_raise "position 3 out of bounds"
+          expect (f ({1}, 5)).to_raise "position 5 out of bounds"
+        end
+      }
 
   - it returns the removed element:
       t = {"one", "two", "five"}
@@ -726,16 +649,10 @@ specify std.table:
   - before:
       l = {1, 2, 3, 4, 5, 6}
 
-      f, badarg = init (M, this_module, "shape")
+      f = M.shape
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-      expect (f ({})).to_raise (badarg (2, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, l, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.shape (table, table)")
 
   - it returns a table:
       expect (prototype (f ({2, 3}, l))).to_be "table"
@@ -763,14 +680,10 @@ specify std.table:
       --          - 1 -  --------- 2 ----------  -- 3 --
       subject = { "one", { { "two" }, "three" }, four = 5 }
 
-      f, badarg = init (M, this_module, "size")
+      f = M.size
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.size (table)")
 
   - it counts the number of keys in a table:
       expect (f (subject)).to_be (3)
@@ -784,15 +697,10 @@ specify std.table:
       target  = { 0, 1, 2, 3, 4, 5 }
       cmp     = function (a, b) return a < b end
 
-      f, badarg = init (M, this_module, "sort")
+      f = M.sort
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "function or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, f, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.sort (table, ?function)")
 
   - it sorts elements in place:
       f (subject, cmp)
@@ -807,7 +715,7 @@ specify std.table:
       mt = { _type = "MockObject",
              __totable = function (self) return self.content end }
 
-      f, badarg = init (M, this_module, "totable")
+      f = M.totable
 
   - it writes a deprecation warning:
       setdebug { deprecate = "nil" }
@@ -828,14 +736,10 @@ specify std.table:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
 
-      f, badarg = init (M, this_module, "values")
+      f = M.values
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.values (table)")
 
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}

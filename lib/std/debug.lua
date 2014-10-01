@@ -126,8 +126,8 @@ end
 
 
 local function toomanyargmsg (name, expect, actual)
-  local fmt = "too many arguments to '%s' (no more than %d expected, got %d)"
-  return string.format (fmt, name, expect, actual)
+  local fmt = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
+  return string.format (fmt, expect + 1, name, expect, expect > 1 and "s" or "", actual)
 end
 
 
@@ -314,6 +314,8 @@ if _DEBUG.argcheck then
           t[i] = "function"
         elseif v == "any" then
           t[i] = "any value"
+	elseif v == "file" then
+          t[i] = "FILE*"
         elseif not index then
           t[i] = v:match "(%S+) of %S+" or v
         else

@@ -11,6 +11,7 @@ before:
 
   M = require (this_module)
 
+
 specify std.functional:
 - context when required:
   - context by name:
@@ -30,21 +31,18 @@ specify std.functional:
 
 - describe bind:
   - before:
-      fname = "bind"
-      f, badarg = init (M, this_module,  fname)
-
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
+      f = M.bind
 
   - it writes an argument passing deprecation warning:
       setdebug { deprecate = "nil" }
-      expect (capture (f, {init, M, fname})).
+      expect (capture (f, {nop, M, "bind"})).
           to_contain_error "was deprecated"
       setdebug { deprecate = false }
-      expect (capture (f, {init, M, fname})).
+      expect (capture (f, {nop, M, "bind"})).
           not_to_contain_error "was deprecated"
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.bind (function, ?any*)")
 
   - it does not affect normal operation if no arguments are bound:
       expect (f (math.min, {}) (2, 3, 4)).to_be (2)
@@ -66,6 +64,10 @@ specify std.functional:
 - describe callable:
   - before:
       f = M.callable
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.callable (?any)")
+
   - it returns the function associated with a callable:
       Container = require "std.container" { __call = M.nop }
       for _, v in ipairs {
@@ -88,15 +90,10 @@ specify std.functional:
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
 
-      f, badarg = init (M, this_module,  "case")
+      f = M.case
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (2, "non-empty table"))
-  - it diagnoses wrong argument types:
-      expect (f ("no", false)).
-        to_raise (badarg (2, "non-empty table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (1, {2}, false)).to_raise (badarg (3))
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.functional.case (?any, #table)")
 
   - it matches against branch keys:
       expect (f ("yes", branches)).to_be (true)
@@ -115,7 +112,7 @@ specify std.functional:
   - it evaluates returned functables:
       functable = setmetatable ({}, {__call = function (t, with) return with end})
       expect (f ("functable", {functable})).to_be "functable"
-  - it evaluates 'with` exactly once:
+  - it evaluates 'with' exactly once:
       s = "prince"
       function acc () s = s .. "s"; return s end
       expect (f (acc (), {
@@ -128,10 +125,10 @@ specify std.functional:
 
 - describe collect:
   - before:
-      f, badarg = init (M, this_module,  "collect")
+      f = M.collect
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function or any value"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.collect ([func], any*)")
 
   - it collects a list of single return value iterator results:
       expect (f (base.ielems, {"a", "b", "c"})).to_equal {"a", "b", "c"}
@@ -144,13 +141,10 @@ specify std.functional:
 
 - describe compose:
   - before:
-      f, badarg = init (M, this_module,  "compose")
+      f = M.compose
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, false)).to_raise (badarg (2, "function", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.compose (func*)")
 
   - it composes a single function correctly:
       expect (f (M.id) (1)).to_be (1)
@@ -189,16 +183,10 @@ specify std.functional:
 
 - describe curry:
   - before:
-      f, badarg = init (M, this_module,  "curry")
+      f = M.curry
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f)).to_raise (badarg (2, "int"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, 1.234)).to_raise (badarg (2, "int", "number"))
-  - it diagnoses too many arguments:
-      expect (f (f, 2, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.curry (func, int)")
 
   - it returns a zero argument function uncurried:
       expect (f (f, 0)).to_be (f)
@@ -236,13 +224,10 @@ specify std.functional:
      elements = {"a", "b", "c", "d", "e"}
      inverse  = require "std.table".invert (elements)
 
-     f, badarg = init (M, this_module,  "filter")
+     f = M.filter
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f)).to_raise (badarg (2, "function or any value"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.filter (func, [func], any*)")
 
   - it works with an empty table:
       expect (f (M.id, pairs, {})).to_equal {}
@@ -298,17 +283,10 @@ specify std.functional:
 - describe foldl:
   - before:
       op = require "std.operator"
-      f, badarg = init (M, this_module,  "foldl")
+      f = M.foldl
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f, nil)).to_raise (badarg (2, "any value or table"))
-      expect (f (f, 42)).to_raise (badarg (3, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, 42, false)).to_raise (badarg (3, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (f, 42, {}, false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.foldl (func, [any], table)")
 
   - it works with an empty table:
       expect (f (op.sum, 10000, {})).to_be (10000)
@@ -323,17 +301,10 @@ specify std.functional:
 - describe foldr:
   - before:
       op = require "std.operator"
-      f, badarg = init (M, this_module,  "foldr")
+      f = M.foldr
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f, nil)).to_raise (badarg (2, "any value or table"))
-      expect (f (f, 42)).to_raise (badarg (3, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, 42, false)).to_raise (badarg (3, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (f, 42, {}, false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.foldr (func, [any], table)")
 
   - it works with an empty table:
       expect (f (op.sum, 1, {})).to_be (1)
@@ -357,19 +328,18 @@ specify std.functional:
 
 - describe lambda:
   - before:
-      f, badarg = init (M, this_module,  "lambda")
+      f = M.lambda
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong arguments types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("foo", false)).to_raise (badarg (2))
-  - it diagnoses bad lambda string:
-      expect (select (2, f "foo")).to_be "invalid lambda string 'foo'"
-  - it diagnoses an uncompilable expression:
-      expect (select (2, f "||+")).to_be "invalid lambda string '||+'"
-      expect (select (2, f "=")).to_be "invalid lambda string '='"
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.lambda (string)")
+
+      examples {["it diagnoses bad lambda string"] = function ()
+        expect (select (2, f "foo")).to_be "invalid lambda string 'foo'"
+      end}
+      examples {["it diagnoses an uncompilable expression"] = function ()
+        expect (select (2, f "||+")).to_be "invalid lambda string '||+'"
+        expect (select (2, f "=")).to_be "invalid lambda string '='"
+      end}
 
   - context with argument format:
     - it returns a function:
@@ -393,16 +363,13 @@ specify std.functional:
 
 - describe map:
   - before:
-     elements = {"a", "b", "c", "d", "e"}
-     inverse  = require "std.table".invert (elements)
+      elements = {"a", "b", "c", "d", "e"}
+      inverse  = require "std.table".invert (elements)
 
-     f, badarg = init (M, this_module,  "map")
+      f = M.map
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f)).to_raise (badarg (2, "function or any value"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.map (func, [func], any*)")
 
   - it works with an empty table:
       expect (f (M.id, ipairs, {})).to_equal {}
@@ -438,18 +405,10 @@ specify std.functional:
       t = {{1, 2, 3}, {4, 5}}
       fn = function (...) return select ("#", ...) end
 
-      f, badarg = init (M, this_module,  "map_with")
+      f = M.map_with
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (fn)).to_raise (badarg (2, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (fn, false)).to_raise (badarg (2, "table", "boolean"))
-      expect (f (fn, {{}, false})).
-        to_raise (badarg (2, "table of tables", "boolean at index 2"))
-  - it diagnoses too many arguments:
-      expect (f (fn, t, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.map_with (func, table of tables)")
 
   - it works for an empty table:
       expect (f (fn, {})).to_equal ({})
@@ -472,19 +431,14 @@ specify std.functional:
 
 - describe memoize:
   - before:
-      f, badarg = init (M, this_module,  "memoize")
+      f = M.memoize
 
       memfn = f (function (x)
                    if x then return {x} else return nil, "bzzt" end
                  end)
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, false)).to_raise (badarg (2, "function or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (f, f, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.memoize (func, ?func)")
 
   - it propagates multiple return values:
       expect (select (2, memfn (false))).to_be "bzzt"
@@ -708,15 +662,11 @@ specify std.functional:
 - describe reduce:
   - before:
       op = require "std.operator"
-      f, badarg = init (M, this_module,  "reduce")
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (f)).to_raise (badarg (2, "any value"))
-      expect (f (f, 1)).to_raise (badarg (3, "function"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (f, 1, false)).to_raise (badarg (3, "function", "boolean"))
+      f = M.reduce
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.reduce (func, any, func, any*)")
 
   - it works with an empty table:
       expect (f (op.sum, 2, ipairs, {})).to_be (2)
@@ -736,14 +686,10 @@ specify std.functional:
   - before:
       tt = {{1, 2}, {3, 4}, {5, 6}}
 
-      f, badarg = init (M, this_module,  "zip")
+      f = M.zip
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (tt, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.zip (table)")
 
   - it works for an empty table:
       expect (f {}).to_equal {}
@@ -760,18 +706,10 @@ specify std.functional:
       tt = {{1, 2}, {3, 4}, {5}}
       fn = function (...) return tonumber (table.concat {...}) end
 
-      f, badarg = init (M, this_module,  "zip_with")
+      f = M.zip_with
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "function"))
-      expect (f (fn)).to_raise (badarg (2, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "function", "boolean"))
-      expect (f (fn, false)).to_raise (badarg (2, "table", "boolean"))
-      expect (f (fn, {{}, false})).
-        to_raise (badarg (2, "table of tables", "boolean at index 2"))
-  - it diagnoses too many arguments:
-      expect (f (fn, tt, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.zip_with (function, table of tables)")
 
   - it works for an empty table:
       expect (f (fn, {})).to_equal {}

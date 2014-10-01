@@ -14,6 +14,7 @@ before:
   l       = List {"foo", "bar", "baz"}
 
 
+
 specify std.list:
 - context when required:
   - context by name:
@@ -75,15 +76,10 @@ specify std.list:
 
 - describe append:
   - before:
-      f, badarg = init (M, this_module, "append")
+      f = M.append
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-      expect (f (l)).to_raise (badarg (2, "any value"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (l, 42, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.append (List, any)")
 
   - context as a module function:
     - it returns a List object:
@@ -120,16 +116,10 @@ specify std.list:
   - before:
       a, b = List {"foo", "bar"}, List {"foo", "baz"}
 
-      f, badarg = init (M, this_module, "compare")
+      f = M.compare
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-      expect (f (l)).to_raise (badarg (2, "List or table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-      expect (f (a, false)).to_raise (badarg (2, "List or table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (a, b, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.compare (List, List|table)")
 
   - context as a module function:
     - it returns -1 when the first list is less than the second:
@@ -220,16 +210,10 @@ specify std.list:
   - before:
       l = List {"foo", "bar"}
 
-      f, badarg = init (M, this_module, "concat")
+      f = M.concat
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-      expect (f (l)).to_raise (badarg (2, "List or table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-      expect (f (l, false)).to_raise (badarg (2, "List or table", "boolean"))
-      expect (f (l, l, false)).
-        to_raise (badarg (3, "List or table", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.concat (List, List|table*)")
 
   - context as a module function:
     - it returns a List object:
@@ -286,15 +270,10 @@ specify std.list:
 
 - describe cons:
   - before:
-      f, badarg = init (M, this_module, "cons")
+      f = M.cons
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-      expect (f (List {})).to_raise (badarg (2, "any value"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (List {}, "x", false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.cons (List, any)")
 
   - context as a module function:
     - it returns a List object:
@@ -938,16 +917,10 @@ specify std.list:
   - before:
       l = List {"foo", "bar"}
 
-      f, badarg = init (M, this_module, "rep")
+      f = M.rep
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-      expect (f (l)).to_raise (badarg (2, "int"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-      expect (f (l, false)).to_raise (badarg (2, "int", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (l, 2, false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.rep (List, int)")
 
   - context as a module function:
     - it returns a List object:
@@ -1088,16 +1061,10 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
 
-      f, badarg = init (M, this_module, "sub")
+      f = M.sub
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-      expect (f (l, false)).to_raise (badarg (2, "int or nil", "boolean"))
-      expect (f (l, 1, false)).to_raise (badarg (3, "int or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (l, 1, 2, false)).to_raise (badarg (4))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.sub (List, ?int, ?int)")
 
   - context as a module function:
     - it returns a List object:
@@ -1143,14 +1110,10 @@ specify std.list:
   - before:
       l = List {1, 2, 3, 4, 5, 6, 7}
 
-      f, badarg = init (M, this_module, "tail")
+      f = M.tail
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "List"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "List", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (l, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.tail (List)")
 
   - context as a module function:
     - it returns a List object:

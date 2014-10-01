@@ -27,6 +27,7 @@ before: |
 
   M = require (this_module)
 
+
 specify std:
 - context when required:
   - it does not touch the global table:
@@ -51,10 +52,10 @@ specify std:
 
 - describe assert:
   - before:
-      f, badarg = init (M, this_module, "assert")
+      f = M.assert
 
-  - it diagnoses wrong argument types:
-      expect (f (false, false)).to_raise (badarg (2, "string or nil", "boolean"))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.assert (?any, ?string, ?any*)")
 
   - context when it does not trigger:
     - it has a truthy initial argument:
@@ -90,14 +91,12 @@ specify std:
         },
       }
 
-      f, badarg = init (M, this_module, "barrel")
+      f = M.barrel
 
       f (namespace)
 
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.barrel (?table)")
 
   - it installs std monkey patches:
       for _, api in ipairs (exported_apis) do
@@ -171,14 +170,10 @@ specify std:
 
 - describe elems:
   - before:
-      f, badarg = init (M, this_module, "elems")
+      f = M.elems
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.elems (table)")
 
   - it is an iterator over table values:
       t = {}
@@ -199,14 +194,10 @@ specify std:
 
 - describe eval:
   - before:
-      f, badarg = init (M, this_module, "eval")
+      f = M.eval
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("1", false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.eval (string)")
 
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable "=" code.
@@ -217,16 +208,10 @@ specify std:
 
 - describe getmetamethod:
   - before:
-      f, badarg = init (M, this_module, "getmetamethod")
+      f = M.getmetamethod
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "object or table"))
-      expect (f ({})).to_raise (badarg (2, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "object or table", "boolean"))
-      expect (f ({}, false)).to_raise (badarg (2, "string", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, "foo", false)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.getmetamethod (object|table, string)")
 
   - context with a table:
     - before:
@@ -257,14 +242,10 @@ specify std:
 
 - describe ielems:
   - before:
-      f, badarg = init (M, this_module, "ielems")
+      f = M.ielems
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ielems (table)")
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -290,14 +271,10 @@ specify std:
 
 - describe ipairs:
   - before:
-      f, badarg = init (M, this_module, "ipairs")
+      f = M.ipairs
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ipairs (table)")
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -323,14 +300,10 @@ specify std:
 
 - describe ireverse:
   - before:
-      f, badarg = init (M, this_module, "ireverse")
+      f = M.ireverse
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ireverse (table)")
 
   - it returns a new list:
       t = {1, 2, 5}
@@ -358,14 +331,12 @@ specify std:
         table = {},
       }
 
-      f, badarg = init (M, this_module, "monkey_patch")
+      f = M.monkey_patch
 
       f (t)
 
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.monkey_patch (?table)")
 
   - it installs std module functions:
       for _, v in ipairs (exported_apis) do
@@ -377,14 +348,10 @@ specify std:
 
 - describe pairs:
   - before:
-      f, badarg = init (M, this_module, "pairs")
+      f = M.pairs
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.pairs (table)")
 
   - it is an iterator over all table values:
       t = {}
@@ -405,20 +372,10 @@ specify std:
 
 - describe require:
   - before:
-      f, badarg = init (M, this_module, "require")
+      f = M.require
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "string"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("module", false)).to_raise (badarg (2, "string or nil", "boolean"))
-      expect (f ("module", "min", false)).
-        to_raise (badarg (3, "string or nil", "boolean"))
-      expect (f ("module", "min", "too_big", false)).
-        to_raise (badarg (4, "string or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ("module", "min", "too_big", "pattern", false)).
-        to_raise (badarg (5))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.require (string, ?string, ?string, ?string)")
 
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
@@ -496,14 +453,10 @@ specify std:
 
 - describe ripairs:
   - before:
-      f, badarg = init (M, this_module, "ripairs")
+      f = M.ripairs
 
-  - it diagnoses missing arguments:
-      expect (f ()).to_raise (badarg (1, "table"))
-  - it diagnoses wrong argument types:
-      expect (f (false)).to_raise (badarg (1, "table", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f ({}, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ripairs (table)")
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
@@ -531,10 +484,10 @@ specify std:
 
 - describe tostring:
   - before:
-      f, badarg = init (M, this_module, "tostring")
+      f = M.tostring
 
-  - it diagnoses too many arguments:
-      expect (f (true, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.tostring (?any)")
 
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))

@@ -1,4 +1,4 @@
-before: |
+before:
   base_module  = "math"
   this_module  = "std.math"
   global_table = "_G"
@@ -6,6 +6,7 @@ before: |
   extend_base  = { "floor", "monkey_patch", "round" }
 
   M = require (this_module)
+
 
 specify std.math:
 - context when required:
@@ -31,15 +32,10 @@ specify std.math:
 
 - describe floor:
   - before:
-      f, badarg = init (M, this_module, "floor")
+      f = M.floor
 
-  - it diagnoses missing arguments: |
-      expect (f ()).to_raise (badarg (1, "number"))
-  - it diagnoses wrong argument types: |
-      expect (f (1.2, false)).to_raise (badarg (2, "int or nil", "boolean"))
-      expect (f (1.2, 3.4)).to_raise (badarg (2, "int or nil", "number"))
-  - it diagnoses too many arguments:
-      expect (f (1, 2, 3)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.floor (number, ?int)")
 
   - it rounds to the nearest smaller integer:
       expect (f (1.2)).to_be (1)
@@ -58,12 +54,10 @@ specify std.math:
 
 - describe monkey_patch:
   - before:
-      f, badarg = init (M, this_module, "monkey_patch")
+      f = M.monkey_patch
 
-  - it diagnoses wrong argument types: |
-      expect (f (false)).to_raise (badarg (1, "table or nil", "boolean"))
-  - it diagnoses too many arguments:
-      expect (f (t, false)).to_raise (badarg (2))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.monkey_patch (?table)")
 
   - it returns the monkey_patched math entry namespace:
       namespace = {}
@@ -78,17 +72,10 @@ specify std.math:
 
 - describe round:
   - before:
-      f, badarg = init (M, this_module, "round")
+      f = M.round
 
-  - it diagnoses missing arguments: |
-      expect (f ()).to_raise (badarg (1, "number"))
-  - it diagnoses wrong argument types: |
-      expect (f (1.2, false)).
-        to_raise (badarg (2, "int or nil", "boolean"))
-      expect (f (1.2, 3.4)).
-        to_raise (badarg (2, "int or nil", "number"))
-  - it diagnoses too many arguments:
-      expect (f (1, 2, 3)).to_raise (badarg (3))
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.round (number, ?int)")
 
   - it rounds to the nearest integer:
       expect (f (1.2)).to_be (1)
