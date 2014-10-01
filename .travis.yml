@@ -56,7 +56,8 @@ script:
   # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
   - $LUAROCKS install lyaml; $LUAROCKS install ldoc
   # Temporarily install git specl for required unreleased fixes
-  - $LUAROCKS install https://raw.githubusercontent.com/gvvaughan/specl/master/specl-git-1.rockspec
+  - $LUAROCKS install
+      https://raw.githubusercontent.com/gvvaughan/specl/master/specl-git-1.rockspec
 
   # Make git rockspec for this stdlib
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
