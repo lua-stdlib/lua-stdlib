@@ -23,7 +23,7 @@ Installation
 The simplest way to install stdlib is with [LuaRocks][]. To install the
 latest release (recommended):
 
-    luarocks --server=http://rocks.moonscript.org install stdlib
+    luarocks install stdlib
 
 To install current git master (for testing):
 
@@ -60,7 +60,7 @@ Documentation
 -------------
 
 The libraries are [documented in LDoc][github.io]. Pre-built HTML
-files are included.
+files are included in the release.
 
 [github.io]: http://lua-stdlib.github.io/lua-stdlib
 
