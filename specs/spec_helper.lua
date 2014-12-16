@@ -3,6 +3,7 @@ local hell      = require "specl.shell"
 local std       = require "specl.std"
 
 badargs = require "specl.badargs"
+unpack  = table.unpack or unpack
 
 local top_srcdir = os.getenv "top_srcdir" or "."
 local top_builddir = os.getenv "top_builddir" or "."

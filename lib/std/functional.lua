@@ -14,6 +14,7 @@ local debug    = require "std.debug"
 local ielems, ipairs, ireverse, len, pairs =
   base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
 local callable, reduce = base.callable, base.reduce
+local unpack = table.unpack or unpack
 
 
 local function bind (fn, ...)
@@ -176,6 +177,7 @@ local lambda = memoize (function (s)
     if body then
       expr = [[
         return function (...)
+          local unpack = table.unpack or unpack
           local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
 	  local _ = _1
 	  return ]] .. body .. [[

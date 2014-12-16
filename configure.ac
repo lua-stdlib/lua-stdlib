@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE([-Wall])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
-AX_PROG_LUA([5.1], [5.3])
+AX_PROG_LUA([5.1], [5.4])
 AC_PATH_PROG([LDOC], [ldoc], [:])
 AC_PATH_PROG([SPECL], [specl], [:])
 AC_PROG_EGREP

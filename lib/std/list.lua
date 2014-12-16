@@ -21,6 +21,7 @@ local ipairs, pairs = base.ipairs, base.pairs
 local len       = base.len
 local compare   = base.compare
 local prototype = base.prototype
+local unpack    = table.unpack or unpack
 
 local M, List
 

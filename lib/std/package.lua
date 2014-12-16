@@ -80,7 +80,7 @@ local function normalize (...)
 end
 
 
-local unpack = unpack or table.unpack
+local unpack = table.unpack or unpack
 
 local function insert (pathstrings, ...)
   local paths = split (pathstrings, pathsep)

@@ -4,6 +4,8 @@ Stdlib NEWS - User visible changes
 
 ** New features:
 
+ - Preliminary Lua 5.3.0 compatibility.
+
  - `object.prototype` now reports "file" for open file handles, and
    "closed file" for closed file handles.
 

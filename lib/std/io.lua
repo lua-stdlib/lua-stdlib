@@ -18,6 +18,7 @@ local argerror = debug.argerror
 local catfile, dirsep, insert, len, leaves, split =
   base.catfile, base.dirsep, base.insert, base.len, base.leaves, base.split
 local ipairs, pairs = base.ipairs, base.pairs
+local setmetatable  = debug.setmetatable
 
 
 

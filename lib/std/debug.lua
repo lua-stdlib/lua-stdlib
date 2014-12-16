@@ -37,6 +37,7 @@ local argerror    = base.argerror
 local split, tostring = base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
+local unpack = table.unpack or unpack
 
 local M
 
