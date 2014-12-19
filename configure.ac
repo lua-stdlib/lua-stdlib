@@ -36,6 +36,5 @@ AC_PROG_EGREP
 AC_PROG_SED
 
 dnl Generate output files
-SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_FILES([Makefile build-aux/config.ld])
 AC_OUTPUT
