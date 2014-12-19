@@ -23,8 +23,9 @@
 ]]
 
 
-local dirsep = string.match (package.config, "^(%S+)\n")
-local unpack = table.unpack or unpack
+local dirsep     = string.match (package.config, "^(%S+)\n")
+local loadstring = loadstring or load
+local unpack     = table.unpack or unpack
 
 
 local function argerror (name, i, extramsg, level)

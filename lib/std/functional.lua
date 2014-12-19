@@ -14,7 +14,8 @@ local debug    = require "std.debug"
 local ielems, ipairs, ireverse, len, pairs =
   base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
 local callable, reduce = base.callable, base.reduce
-local unpack = table.unpack or unpack
+local loadstring = loadstring or load
+local unpack     = table.unpack or unpack
 
 
 local function bind (fn, ...)
