@@ -15,11 +15,9 @@ local base  = require "std.base"
 local debug = require "std.debug"
 
 local argerror = debug.argerror
-local dirsep = base.dirsep
+local catfile, dirsep, insert, len, leaves, split =
+  base.catfile, base.dirsep, base.insert, base.len, base.leaves, base.split
 local ipairs, pairs = base.ipairs, base.pairs
-local insert, len = base.insert, base.len
-local leaves   = base.leaves
-local split    = base.split
 
 
 
@@ -166,6 +164,16 @@ M = {
   -- @see warn
   -- @usage die ("oh noes! (%s)", tostring (obj))
   die = X ("die (string, any?*)", function (...) warn (...); error () end),
+
+  --- Remove the last dirsep delimited element from a path.
+  -- @function dirname
+  -- @string path file path
+  -- @treturn string a new path with the last dirsep and following
+  --   truncated
+  -- @usage dir = dirname "/base/subdir/filename"
+  dirname = X ("dirname (string)", function (path)
+                 return path:gsub (catfile ("", "[^", "]*$"), "")
+	       end),
 
   --- Overwrite core `io` methods with `std` enhanced versions.
   --

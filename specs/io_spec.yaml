@@ -3,7 +3,7 @@ before: |
   this_module        = "std.io"
   global_table       = "_G"
 
-  extend_base        = { "catdir", "catfile", "die", "monkey_patch",
+  extend_base        = { "catdir", "catfile", "die", "dirname", "monkey_patch",
                          "process_files", "readlines", "shell", "slurp",
                          "splitdir", "warn", "writelines" }
 
@@ -130,6 +130,18 @@ specify std.io:
   - it appends `opts.line` if any, to `opts.program`: |
       script = [[opts = { line = 99, program = "program" };]] .. script
       expect (luaproc (script)).to_fail_with "program:99: By 'eck!\n"
+
+
+- describe dirname:
+  - before:
+      f = M.dirname
+      path = table.concat ({"", "one", "two", "three"}, dirsep)
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.dirname (string)")
+
+  - it removes final separator and following:
+      expect (f (path)).to_be (table.concat ({"", "one", "two"}, dirsep))
 
 
 - describe monkey_patch:
