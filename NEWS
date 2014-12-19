@@ -27,10 +27,6 @@ Stdlib NEWS - User visible changes
    operators `mod`, and `pow`; and relational operators `lt`, `lte`, `gt` and
    `gte`.
 
- - New `std.vector` object, for clean and fast queue-like or stack-like
-   container management.  When alien is installed, and element types
-   are compatible, uses alien.buffers for efficient element management.
-
  - `functional.case` now accepts non-callable branch values, which are
    simply returned as is, and functable values which are called and
    their return value propagated back to the case caller.  Function

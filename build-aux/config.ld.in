@@ -25,7 +25,6 @@ file = {
   "../lib/std/optparse.lua",
   "../lib/std/set.lua",
   "../lib/std/strbuf.lua",
-  "../lib/std/vector.lua",
 }
 
 new_type ("object", "Objects", false, "Fields")

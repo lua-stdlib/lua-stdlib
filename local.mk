@@ -79,7 +79,6 @@ dist_luastd_DATA =			\
 	lib/std/string.lua		\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
-	lib/std/vector.lua		\
 	$(NOTHING_ELSE)
 
 # For bugwards compatibility with LuaRocks 2.1, while ensuring that
@@ -134,7 +133,6 @@ dist_classes_DATA +=					\
 	$(srcdir)/doc/classes/std.set.html		\
 	$(srcdir)/doc/classes/std.strbuf.html		\
 	$(srcdir)/doc/classes/std.tree.html		\
-	$(srcdir)/doc/classes/std.vector.html		\
 	$(NOTHING_ELSE)
 
 dist_modules_DATA +=					\
