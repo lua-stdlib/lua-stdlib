@@ -162,7 +162,7 @@ local function numbertosi (n)
   local shift = exp - siexp * 3
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
-  return tostring (man) .. s
+  return format ("%0.f", man) .. s
 end
 
 
