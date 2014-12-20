@@ -163,7 +163,7 @@ end
 
 
 local function escape_pattern (s)
-  return s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0")
+  return (s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
 
 

@@ -86,12 +86,12 @@ end
 
 
 local function caps (s)
-  return s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end)
+  return (s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end))
 end
 
 
 local function escape_shell (s)
-  return (string.gsub (s, "([ %(%)%\\%[%]\"'])", "\\%1"))
+  return (s:gsub ("([ %(%)%\\%[%]\"'])", "\\%1"))
 end
 
 
@@ -168,7 +168,7 @@ end
 
 local function trim (s, r)
   r = r or "%s+"
-  return s:gsub ("^" .. r, ""):gsub (r .. "$", "")
+  return (s:gsub ("^" .. r, ""):gsub (r .. "$", ""))
 end
 
 
@@ -291,7 +291,7 @@ M = {
   -- @string s any string
   -- @treturn string *s* with any single trailing newline removed
   -- @usage line = chomp (line)
-  chomp = X ("chomp (string)", function (s) return s:gsub ("\n$", "") end),
+  chomp = X ("chomp (string)", function (s) return (s:gsub ("\n$", "")) end),
 
   --- Escape a string to be used as a pattern.
   -- @function escape_pattern
@@ -339,7 +339,7 @@ M = {
   -- @treturn string *s* with leading *r* stripped
   -- @usage print ("got: " .. ltrim (userinput))
   ltrim = X ("ltrim (string, string?)",
-             function (s, r) return s:gsub ("^" .. (r or "%s+"), "") end),
+             function (s, r) return (s:gsub ("^" .. (r or "%s+"), "")) end),
 
   --- Overwrite core `string` methods with `std` enhanced versions.
   --
@@ -426,7 +426,7 @@ M = {
   -- @treturn string *s* with trailing *r* stripped
   -- @usage print ("got: " .. rtrim (userinput))
   rtrim = X ("rtrim (string, string?)",
-             function (s, r) return s:gsub ((r or "%s+") .. "$", "") end),
+             function (s, r) return (s:gsub ((r or "%s+") .. "$", "")) end),
 
   --- Split a string at a given separator.
   -- Separator is a Lua pattern, so you have to escape active characters,
