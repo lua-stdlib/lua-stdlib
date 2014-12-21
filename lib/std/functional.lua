@@ -165,18 +165,19 @@ local lambda = memoize (function (s)
   local expr
 
   -- Support "|args|expression" format.
-  local args, body = s:match "^|([^|]*)|%s*(.+)$"
+  local args, body = s:match "^%s*|%s*([^|]*)|%s*(.+)%s*$"
   if args and body then
     expr = "return function (" .. args .. ") return " .. body .. " end"
   end
 
-  -- Support "=expression" format.
+  -- Support "expression" format.
   if not expr then
-    body = s:match "^=%s*(.+)$"
+    body = s:match "^%s*(_.*)%s*$" or s:match "^=%s*(.+)%s*$"
     if body then
       expr = [[
         return function (...)
           local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
+	  local _ = _1
 	  return ]] .. body .. [[
         end
       ]]
@@ -404,18 +405,20 @@ local M = {
   --
   -- A valid lambda string takes one of the following forms:
   --
-  --   1. `'=expression'`: equivalent to `function (...) return (expression) end`
-  --   1. `'|args|expression'`: equivalent to `function (args) return (expression) end`
+  --   1. `'=expression'`: equivalent to `function (...) return expression end`
+  --   1. `'|args|expression'`: equivalent to `function (args) return expression end`
   --
-  -- The first form (starting with `=`) automatically assigns the first
-  -- nine arguments to parameters `_1` through `_9` for use within the
-  -- expression body.
+  -- The first form (starting with `'='`) automatically assigns the first
+  -- nine arguments to parameters `'_1'` through `'_9'` for use within the
+  -- expression body.  The parameter `'_1'` is aliased to `'_'`, and if the
+  -- first non-whitespace of the whole expression is `'_'`, then the
+  -- leading `'='` can be omitted.
   --
-  -- The results are memoized, so recompiling an previously compiled
+  -- The results are memoized, so recompiling a previously compiled
   -- lambda string is extremely fast.
   -- @function lambda
   -- @string s a lambda string
-  -- @treturn table compiled lambda string, can be called like a function
+  -- @treturn functable compiled lambda string, can be called like a function
   -- @usage
   -- -- The following are equivalent:
   -- lambda '= _1 < _2'

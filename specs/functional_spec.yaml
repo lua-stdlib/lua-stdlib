@@ -352,13 +352,16 @@ specify std.functional:
         expect (fn (1,2,3)).to_equal {1,2,3}
   - context with expression format:
     - it returns a function:
-        expect (prototype (f "=1")).to_be "function"
+        expect (prototype (f "_")).to_be "function"
     - it compiles to a working Lua function:
         fn = f "=42"
         expect (fn ()).to_be (42)
     - it sets auto-argument values:
-        fn = f "=_1*_1"
+        fn = f "_*_"
         expect (fn (42)).to_be (1764)
+    - it sets numeric auto-argument values:
+        fn = f "_1+_2+_3"
+        expect (fn (1, 2, 5)).to_be (8)
 
 
 - describe map:
