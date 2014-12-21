@@ -127,7 +127,7 @@ end
 
 local function toomanyargmsg (name, expect, actual)
   local fmt = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
-  return string.format (fmt, expect + 1, name, expect, expect > 1 and "s" or "", actual)
+  return string.format (fmt, expect + 1, name, expect, expect == 1 and "" or "s", actual)
 end
 
 
