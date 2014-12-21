@@ -36,6 +36,18 @@ specify std.operator:
       expect (f ({"foo", "bar"}, 1)).to_be "foo"
       expect (f ({foo = "bar"}, "foo")).to_be "bar"
 
+- describe set:
+  - before:
+      f = M.set
+
+  - it sets a table entry:
+      expect (f ({}, 1, 42)).to_equal {42}
+      expect (f ({}, "foo", 42)).to_equal {foo=42}
+  - it overwrites an existing entry:
+      expect (f ({1, 2}, 1, 42)).to_equal {42, 2}
+      expect (f ({foo="bar", baz="quux"}, "foo", 42)).
+        to_equal {foo=42, baz="quux"}
+
 - describe sum:
   - before:
       f = M.sum

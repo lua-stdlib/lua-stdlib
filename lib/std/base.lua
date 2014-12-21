@@ -275,13 +275,19 @@ end
 
 
 local function reduce (fn, d, ifn, ...)
-  local nextfn, state, k = ifn (...)
-  local t = {nextfn (state, k)}
+  local argt = {...}
+  if not callable (ifn) then
+    ifn, argt = pairs, {ifn, ...}
+  end
 
-  local r = d
-  while t[1] ~= nil do
-    r = fn (r, t[#t])
-    t = {nextfn (state, t[1])}
+  local nextfn, state, k = ifn (unpack (argt))
+  local t = {nextfn (state, k)}	-- table of iteration 1
+
+  local r = d			-- initialise accumulator
+  while t[1] ~= nil do		-- until iterator returns nil
+    k = t[1]
+    r = fn (r, unpack (t))	-- pass all iterator results to fn
+    t = {nextfn (state, k)}	-- maintain loop invariant
   end
   return r
 end

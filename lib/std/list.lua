@@ -220,7 +220,7 @@ local function foldl (fn, d, t)
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
-  return base.reduce (fn, d, ipairs, t)
+  return base.reduce (fn, d, base.ielems, t)
 end
 
 
@@ -231,7 +231,7 @@ local function foldr (fn, d, t)
     d, t = d[last], u
   end
   return base.reduce (
-    function (x, y) return fn (y, x) end, d, ipairs, base.ireverse (t))
+    function (x, y) return fn (y, x) end, d, base.ielems, base.ireverse (t))
 end
 
 

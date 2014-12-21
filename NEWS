@@ -59,7 +59,6 @@ Stdlib NEWS - User visible changes
 
      table.sort (t, lambda "= _1 < _2"
 
-
  - New `functional.map_with` that returns a new table with keys matching
    the argument table, and values made by mapping the supplied function
    over value tables.  This replaces the misplaced, and less powerful
@@ -269,11 +268,27 @@ Stdlib NEWS - User visible changes
    need to remove the previously ignored arguments that correspond to
    the fixed argument positions in the `bind` invocation.
 
- - `functional.collect`, `functional.filter` and `functional.map` still
-   make a list from the results from an iterator that returns single
-   values, but when an iterator returns multiple values they now make a
-   table with key:value pairs taken from the first two returned values of
-   each iteration.
+ - `functional.collect`, `functional.filter`, `functional.map` and
+   `functional.reduce` still make a list from the results from an
+   iterator that returns single values, but when an iterator returns
+   multiple values they now make a table with key:value pairs taken from
+   the first two returned values of each iteration.
+
+ - `functional.reduce` now passes all iterator results to the reduce
+   function along with the accumlator.  This means if you were
+   previously relying on all but the last result being discarded, you
+   either need to rewrite your reduce function or else select a
+   different iterator to compensate.  Instead of:
+
+     reduce (function (d, v) return d + v end, 2, ipairs, {4, 6, 8})
+
+   either, rewrite the reduce function:
+
+     reduce (function (d, i, v) return d + v end, 2, ipairs, {4, 6, 8})
+
+   or, use the index discarding iterator:
+
+     reduce (function (d, v) return d + v end, 2, ielems, {4, 6, 8})
 
  - The `functional.op` table has been factored out into its own new
    module `std.operator`.  It will also continue to be available from the

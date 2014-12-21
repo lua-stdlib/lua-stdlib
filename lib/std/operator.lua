@@ -16,7 +16,7 @@ local M = {
   -- @return concatenation of stringified arguments.
   -- @usage
   -- --> "=> 1000010010"
-  -- functional.reduce (concat, "=> ", ipairs, {10000, 100, 10})
+  -- functional.foldl (concat, "=> ", {10000, 100, 10})
   concat = function (a, b) return tostring (a) .. tostring (b) end,
 
   --- Dereference a table.
@@ -25,8 +25,19 @@ local M = {
   -- @return value stored at *t[k]* if any, otherwise `nil`
   -- @usage
   -- --> 4
-  -- functional.reduce (deref, {1, {{2, 3, 4}, 5}}, std.ielems, {2, 1, 3})
+  -- functional.foldl (deref, {1, {{2, 3, 4}, 5}}, {2, 1, 3})
   deref = function (t, k) return t and t[k] or nil end,
+
+  --- Set a table element, honoring metamethods.
+  -- @tparam table t a table
+  -- @param k a key to lookup in *t*
+  -- @param v a value to set for *k*
+  -- @treturn table *t*
+  -- @usage
+  -- -- destructive table merge:
+  -- --> {"one", bar="baz", two=5}
+  -- functional.reduce (set, {"foo", bar="baz"}, {"one", two=5})
+  set = function (t, k, v) t[k]=v; return t end,
 
   --- Return the sum of the arguments.
   -- @param a an argument
@@ -43,7 +54,7 @@ local M = {
   -- @return the difference between *a* and *b*
   -- @usage
   -- --> 890
-  -- functional.foldl (sum, {10000, 100, 10})
+  -- functional.foldl (diff, {10000, 100, 10})
   diff = function (a, b) return a - b end,
 
   --- Return the product of the arguments.
@@ -52,7 +63,7 @@ local M = {
   -- @return the product of *a* and *b*
   -- @usage
   -- --> 10000000
-  -- functional.foldl (sum, {10000, 100, 10})
+  -- functional.foldl (prod, {10000, 100, 10})
   prod = function (a, b) return a * b end,
 
   --- Return the quotient of the arguments.

@@ -149,7 +149,7 @@ specify std:
         curry           = M.functional.curry,
         die             = M.io.die,
         filter          = M.functional.filter,
-        fold            = M.functional.reduce,
+        fold            = M.functional.fold,
         id              = M.functional.id,
         ileaves         = M.tree.ileaves,
         inodes          = M.tree.inodes,

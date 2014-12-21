@@ -55,7 +55,7 @@ local function barrel (namespace)
   end
 
   -- Support old api names, for backwards compatibility.
-  namespace.fold = M.functional.reduce
+  namespace.fold = M.functional.fold
   namespace.metamethod = M.getmetamethod
   namespace.op = M.operator
   namespace.require_version = M.require

@@ -53,9 +53,10 @@ specify std.container:
   - context with module functions:
     - before:
         reduce = require "std.functional".reduce
+        elems  = require "std".elems
         functions = {
           count = function (bag)
-            return reduce (function (r, k) return r + k end, 0, pairs, bag)
+            return reduce (function (r, k) return r + k end, 0, elems, bag)
           end,
         }
         Bag = Container {

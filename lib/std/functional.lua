@@ -11,8 +11,8 @@
 local base     = require "std.base"
 local debug    = require "std.debug"
 
-local ipairs, ireverse, len, pairs =
-  base.ipairs, base.ireverse, base.len, base.pairs
+local ielems, ipairs, ireverse, len, pairs =
+  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
 local callable, reduce = base.callable, base.reduce
 
 
@@ -123,7 +123,7 @@ local function foldl (fn, d, t)
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
-  return reduce (fn, d, ipairs, t)
+  return reduce (fn, d, ielems, t)
 end
 
 
@@ -133,7 +133,7 @@ local function foldr (fn, d, t)
     for i = 1, last - 1 do u[#u + 1] = d[i] end
     d, t = d[last], u
   end
-  return reduce (function (x, y) return fn (y, x) end, d, ipairs, ireverse (t))
+  return reduce (function (x, y) return fn (y, x) end, d, ielems, ireverse (t))
 end
 
 
@@ -478,15 +478,15 @@ local M = {
   -- @function reduce
   -- @func fn reduce function
   -- @param d initial first argument
-  -- @func ifn iterator function
+  -- @func[opt=std.pairs] ifn iterator function
   -- @param ... iterator arguments
   -- @return result
   -- @see foldl
   -- @see foldr
   -- @usage
   -- --> 2 ^ 3 ^ 4 ==> 4096
-  -- reduce (std.operator.pow, 2, std.ipairs, {3, 4})
-  reduce = X ("reduce (func, any, func, any*)", reduce),
+  -- reduce (std.operator.pow, 2, std.ielems, {3, 4})
+  reduce = X ("reduce (func, any, [func], any*)", reduce),
 
   --- Zip a table of tables.
   -- Make a new table, with lists of elements at the same index in the
@@ -533,8 +533,20 @@ M.eval = DEPRECATED ("41", "'std.functional.eval'",
   "use 'std.eval' instead", base.eval)
 
 
+local function fold (fn, d, ifn, ...)
+  local nextfn, state, k = ifn (...)
+  local t = {nextfn (state, k)}
+
+  local r = d
+  while t[1] ~= nil do
+    r = fn (r, t[#t])
+    t = {nextfn (state, t[1])}
+  end
+  return r
+end
+
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
-  "use 'std.functional.reduce' instead", reduce)
+  "use 'std.functional.reduce' instead", fold)
 
 
 local operator = require "std.operator"

@@ -669,7 +669,7 @@ specify std.functional:
       f = M.reduce
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.functional.reduce (func, any, func, any*)")
+      badargs.diagnose (f, "std.functional.reduce (func, any, [func], any*)")
 
   - it works with an empty table:
       expect (f (op.sum, 2, ipairs, {})).to_be (2)
@@ -679,10 +679,12 @@ specify std.functional:
       expect (f (op.prod, 2, base.ielems, {3, 4})).
         to_be (2 * 3 * 4)
   - it calls a binary function over key:value iterator results:
-      expect (f (op.sum, 2, ipairs, {3})).to_be (2 + 3)
-      expect (f (op.prod, 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+      expect (f (op.sum, 2, base.ielems, {3})).to_be (2 + 3)
+      expect (f (op.prod, 2, base.ielems, {3, 4})).to_be (2 * 3 * 4)
   - it reduces elements from left to right:
-      expect (f (op.pow, 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+      expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
+  - it passes all iterator results to accumulator function:
+      expect (f (rawset, {}, {"one", two=5})).to_equal {"one", two=5}
 
 
 - describe zip:
