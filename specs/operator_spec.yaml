@@ -27,9 +27,9 @@ specify std.operator:
   - it concatenates its arguments:
       expect (f (1, 2)).to_be "12"
 
-- describe deref:
+- describe get:
   - before:
-      f = M.deref
+      f = M.get
 
   - it dereferences a table:
       expect (f ({}, 1)).to_be (nil)

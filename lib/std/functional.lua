@@ -557,7 +557,7 @@ local function DEPRECATEOP (old, new)
 end
 
 M.op = {
-  ["[]"]  = DEPRECATEOP ("[]",  "deref"),
+  ["[]"]  = DEPRECATEOP ("[]",  "get"),
   ["+"]   = DEPRECATEOP ("+",   "sum"),
   ["-"]   = DEPRECATEOP ("-",   "diff"),
   ["*"]   = DEPRECATEOP ("*",   "prod"),

@@ -22,10 +22,10 @@ Stdlib NEWS - User visible changes
    functions in the same way.
 
  - New `std.operator` module, with easier to type operator names (`conj`,
-   `deref`, `diff`, `disj`, `eq`, `neg`, `neq`, `prod`, `quot`, and `sum`),
-   and a functional operator for concatenation `concat`; plus new mathematical
-   operators `mod`, and `pow`; and relational operators `lt`, `lte`, `gt` and
-   `gte`.
+   `get`, `diff`, `disj`, `eq`, `neg`, `neq`, `prod`, `quot`, and `sum`),
+   a new `set` operator, and a functional operator for concatenation
+   `concat`; plus new mathematical operators `mod`, and `pow`; and
+   relational operators `lt`, `lte`, `gt` and `gte`.
 
  - `functional.case` now accepts non-callable branch values, which are
    simply returned as is, and functable values which are called and

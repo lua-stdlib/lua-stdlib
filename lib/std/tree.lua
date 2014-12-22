@@ -140,7 +140,7 @@ Tree = Container {
   __index = X ("__index (Tree, any)",
                function (tr, i)
                  if prototype (i) == "table" then
-                   return reduce (operator.deref, tr, ielems, i)
+                   return reduce (operator.get, tr, ielems, i)
                  else
                    return rawget (tr, i)
                  end

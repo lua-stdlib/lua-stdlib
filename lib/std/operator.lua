@@ -25,8 +25,8 @@ local M = {
   -- @return value stored at *t[k]* if any, otherwise `nil`
   -- @usage
   -- --> 4
-  -- functional.foldl (deref, {1, {{2, 3, 4}, 5}}, {2, 1, 3})
-  deref = function (t, k) return t and t[k] or nil end,
+  -- functional.foldl (get, {1, {{2, 3, 4}, 5}}, {2, 1, 3})
+  get = function (t, k) return t and t[k] or nil end,
 
   --- Set a table element, honoring metamethods.
   -- @tparam table t a table
