@@ -86,7 +86,10 @@ specify std.debug:
           expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
       - it does not define the function with _DEBUG set to true: |
           script = "_DEBUG = true " .. script
-          expect (luaproc (script)).to_contain_error ":3: attempt to call global 'fn'"
+          expect (luaproc (script)).to_contain_error.any_of {
+            ":3: attempt to call global 'fn'",
+            ":3: attempt to call a nil value (global 'fn')",
+          }
       - it warns on every call with _DEBUG.deprecate unset:
           script = "_DEBUG = {} " .. script
           expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
@@ -96,7 +99,10 @@ specify std.debug:
           expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
       - it warns on every call with _DEBUG.deprecate set to true: |
           script = "_DEBUG = { deprecate = true } " .. script
-          expect (luaproc (script)).to_contain_error ":3: attempt to call global 'fn'"
+          expect (luaproc (script)).to_contain_error.any_of {
+            ":3: attempt to call global 'fn'",
+            ":3: attempt to call a nil value (global 'fn')",
+          }
 
 
 - describe DEPRECATIONMSG:

@@ -67,7 +67,10 @@ specify std.container:
         expect (things.count).to_be (nil)
     - it does not provide object methods: |
         things = Bag {}
-        expect (things:count ()).to_raise "attempt to call method 'count'"
+        expect (things:count ()).to_raise.any_of {
+          "attempt to call method 'count'",
+          "attempt to call a nil value (method 'count'"
+        }
     - it does retain module functions:
         things = Bag { apples = 1, oranges = 3 }
         expect (Bag.count (things)).to_be (4)
