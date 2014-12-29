@@ -297,6 +297,9 @@
   - `io.catdir` now raises an error when called with no arguments, for
     consistency with `io.catfile`.
 
+  - `io.die` no longer calls `io.warn` to write the error message to
+    stderr, but passes that error message to the core `error` function.
+
   - `std.set` objects used to be lax about enforcing type correctness in
     function arguments, but now that we have strict type-checking on all
     apis, table arguments are not coerced to Set objects but raise an

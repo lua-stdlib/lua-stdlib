@@ -102,7 +102,7 @@ local function process_files (fn)
 end
 
 
-local function warn (msg, ...)
+local function warnfmt (msg, ...)
   local prefix = ""
   if (prog or {}).name then
     prefix = prog.name .. ":"
@@ -121,7 +121,12 @@ local function warn (msg, ...)
     end
   end
   if #prefix > 0 then prefix = prefix .. " " end
-  writelines (io.stderr, prefix .. string.format (msg, ...))
+  return prefix .. string.format (msg, ...)
+end
+
+
+local function warn (msg, ...)
+  writelines (io.stderr, warnfmt (msg, ...))
 end
 
 
@@ -164,7 +169,9 @@ M = {
   -- @param ... additional arguments to plug format string specifiers
   -- @see warn
   -- @usage die ("oh noes! (%s)", tostring (obj))
-  die = X ("die (string, any?*)", function (...) warn (...); error () end),
+  die = X ("die (string, any?*)", function (...)
+	     error (warnfmt (...), 0)
+           end),
 
   --- Remove the last dirsep delimited element from a path.
   -- @function dirname
