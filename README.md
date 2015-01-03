@@ -9,7 +9,7 @@ by the [stdlib project][github]
 [![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
 
 
-This is a collection of Lua libraries for Lua 5.1 and 5.2. The
+This is a collection of Lua libraries for Lua 5.1, 5.2 and 5.3. The
 libraries are copyright by their authors 2000-2015 (see the AUTHORS
 file for details), and released under the MIT license (the same
 license as Lua itself). There is no warranty.

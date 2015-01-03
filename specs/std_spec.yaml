@@ -436,7 +436,7 @@ specify std:
     - before:
         std = require "std"
         ver = std.version
-        std.version = "standard library for Lua 5.2 / 41"
+        std.version = "standard library for Lua 5.3 / 41.0.0"
     - after:
         std.version = ver
     - it diagnoses module too old:
