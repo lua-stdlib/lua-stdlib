@@ -1,5 +1,4 @@
 .DS_Store
-/*.rockspec
 /.autom4te.cfg
 /.gitmodules
 /ChangeLog
@@ -29,4 +28,6 @@
 /m4/ax_lua.m4
 /m4/slingshot.m4
 /stdlib-*.tar.gz
+/stdlib-*.rockspec
+!/stdlib-git-*.rockspec
 /travis.yml.in
