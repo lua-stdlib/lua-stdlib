@@ -122,7 +122,7 @@ M = {
   -- @function eval
   -- @string s string of Lua code
   -- @return result of evaluating `s`
-  -- @usage std.eval "math.pow (2, 10)"
+  -- @usage std.eval "math.min (2, 10)"
   eval = X ("eval (string)", base.eval),
 
   --- An iterator over the integer keyed elements of a sequence.

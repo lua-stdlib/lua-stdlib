@@ -88,7 +88,7 @@ specify std.operator:
       f = M.pow
 
   - it returns the power of its arguments:
-      expect (f (99, 2)).to_be (math.pow (99, 2))
+      expect (f (99, 2)).to_be (99 ^ 2)
 
 - describe conj:
   - before:

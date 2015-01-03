@@ -31,6 +31,8 @@ specify std.functional:
 
 - describe bind:
   - before:
+      op = require "std.operator"
+
       f = M.bind
 
   - it writes an argument passing deprecation warning:
@@ -54,11 +56,11 @@ specify std.functional:
       div = function (a, b) return a / b end
       expect (f (div, {100}) (25)).to_be (4)
   - it supports out of order extra arguments:
-      expect (f (math.pow, {[2] = 3}) (2)).to_be (8)
+      expect (f (op.pow, {[2] = 3}) (2)).to_be (8)
   - it supports the legacy api:
       expect (f (math.min) (2, 3, 4)).to_be (2)
       expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
-      expect (f (math.pow, nil, 3) (2)).to_be (8)
+      expect (f (op.pow, nil, 3) (2)).to_be (8)
 
 
 - describe callable:
@@ -183,6 +185,8 @@ specify std.functional:
 
 - describe curry:
   - before:
+      op = require "std.operator"
+
       f = M.curry
 
   - context with bad arguments:
@@ -197,9 +201,9 @@ specify std.functional:
   - it evaluates intermediate arguments one at a time:
       expect (f (math.min, 3) (2) (3) (4)).to_equal (2)
   - it returns a curried function that can be partially applied:
-      bin = f (math.pow, 2) (2)
-      expect (bin (2)).to_be (math.pow (2, 2))
-      expect (bin (10)).to_be (math.pow (2, 10))
+      bin = f (op.pow, 2) (2)
+      expect (bin (2)).to_be (op.pow (2, 2))
+      expect (bin (10)).to_be (op.pow (2, 10))
 
 
 - describe eval:
@@ -216,7 +220,7 @@ specify std.functional:
       # Some internal error when eval tries to call uncompilable "=" code.
       expect (f "=").to_raise ()
   - it evaluates a string of lua code:
-      expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
+      expect (f "math.min (2, 10)").to_be (math.min (2, 10))
 
 
 - describe filter:

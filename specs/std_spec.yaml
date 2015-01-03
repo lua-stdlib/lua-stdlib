@@ -203,7 +203,7 @@ specify std:
       # Some internal error when eval tries to call uncompilable "=" code.
       expect (f "=").to_raise ()
   - it evaluates a string of lua code:
-      expect (f "math.pow (2, 10)").to_be (math.pow (2, 10))
+      expect (f "math.min (2, 10)").to_be (math.min (2, 10))
 
 
 - describe getmetamethod:
