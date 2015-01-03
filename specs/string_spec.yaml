@@ -690,7 +690,7 @@ specify std.string:
   - before:
       subject = "This is a collection of Lua libraries for Lua 5.1 " ..
         "and 5.2. The libraries are copyright by their authors 2000" ..
-        "-2014 (see the AUTHORS file for details), and released und" ..
+        "-2015 (see the AUTHORS file for details), and released und" ..
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
 
@@ -702,21 +702,21 @@ specify std.string:
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries are\ncopyright by their authors 2000" ..
-        "-2014 (see the AUTHORS file for details), and\nreleased un" ..
+        "-2015 (see the AUTHORS file for details), and\nreleased un" ..
         "der the MIT license (the same license as Lua itself). Ther" ..
         "e is no\nwarranty."
       expect (f (subject)).to_be (target)
   - it honours a column width parameter:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries\nare copyright by their authors 2000" ..
-        "-2014 (see the AUTHORS file for\ndetails), and released un" ..
+        "-2015 (see the AUTHORS file for\ndetails), and released un" ..
         "der the MIT license (the same license as Lua\nitself). The" ..
         "re is no warranty."
       expect (f (subject, 72)).to_be (target)
   - it supports indenting by a fixed number of columns:
       target = "        This is a collection of Lua libraries for L" ..
         "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
-        "eir authors 2000-2014 (see the\n        AUTHORS file for d" ..
+        "eir authors 2000-2015 (see the\n        AUTHORS file for d" ..
         "etails), and released under the MIT license\n        (the " ..
         "same license as Lua itself). There is no warranty."
       expect (f (subject, 72, 8)).to_be (target)
@@ -724,7 +724,7 @@ specify std.string:
     - before:
         target = "    This is a collection of Lua libraries for Lua 5" ..
           ".1 and 5.2.\n  The libraries are copyright by their author" ..
-          "s 2000-2014 (see\n  the AUTHORS file for details), and rel" ..
+          "s 2000-2015 (see\n  the AUTHORS file for details), and rel" ..
           "eased under the MIT\n  license (the same license as Lua it" ..
           "self). There is no\n  warranty."
     - it can indent the first line differently:

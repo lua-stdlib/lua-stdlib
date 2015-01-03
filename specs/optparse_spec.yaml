@@ -8,7 +8,7 @@ specify std.optparse:
     help = [[
     parseme (stdlib spec) 0α1
 
-    Copyright © 2014 Gary V. Vaughan
+    Copyright © 2015 Gary V. Vaughan
     This test program comes with ABSOLUTELY NO WARRANTY.
 
     Usage: parseme [<options>] <file>...

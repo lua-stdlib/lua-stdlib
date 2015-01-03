@@ -1,6 +1,6 @@
 dnl configure.ac
 dnl
-dnl Copyright (c) 2012-2014 Free Software Foundation, Inc.
+dnl Copyright (C) 2012-2015 Gary V. Vaughan
 dnl Written by Gary V. Vaughan, 2012
 dnl
 dnl This program is free software; you can redistribute it and/or modify
