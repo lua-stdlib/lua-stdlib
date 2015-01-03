@@ -1,6 +1,6 @@
 # Local Make rules.
 #
-# Copyright (C) 2013-2014 Gary V. Vaughan
+# Copyright (C) 2013-2015 Gary V. Vaughan
 # Written by Gary V. Vaughan, 2013
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
 ## Environment. ##
 ## ------------ ##
 
-std_path = $(abs_srcdir)/lib/?.lua
+std_path = $(abs_srcdir)/lib/?.lua;$(abs_srcdir)/lib/?/init.lua
 LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 
 
@@ -29,7 +29,7 @@ LUA_ENV  = LUA_PATH="$(std_path);$(LUA_PATH)"
 ## Bootstrap. ##
 ## ---------- ##
 
-old_NEWS_hash = 606609f9586288cfe6d9df676719570a
+old_NEWS_hash = d41d8cd98f00b204e9800998ecf8427e
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas)' \
@@ -70,6 +70,7 @@ dist_luastd_DATA =			\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/object.lua		\
+	lib/std/operator.lua		\
 	lib/std/optparse.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
@@ -80,12 +81,11 @@ dist_luastd_DATA =			\
 	lib/std/tree.lua		\
 	$(NOTHING_ELSE)
 
-
 # For bugwards compatibility with LuaRocks 2.1, while ensuring that
 # `require "std.debug_init"` continues to work, we have to install
 # the former `$(luadir)/std/debug_init.lua` to `debug_init/init.lua`.
-# When everyone has upgraded to a LuaRocks that works, move this
-# file back to dist_luastd_DATA above and rename to debug_init.lua.
+# When LuaRocks works again, move this file back to dist_luastd_DATA
+# above and rename to debug_init.lua.
 
 luastddebugdir = $(luastddir)/debug_init
 
@@ -141,6 +141,7 @@ dist_modules_DATA +=					\
 	$(srcdir)/doc/modules/std.functional.html	\
 	$(srcdir)/doc/modules/std.io.html		\
 	$(srcdir)/doc/modules/std.math.html		\
+	$(srcdir)/doc/modules/std.operator.html		\
 	$(srcdir)/doc/modules/std.package.html		\
 	$(srcdir)/doc/modules/std.strict.html		\
 	$(srcdir)/doc/modules/std.string.html		\

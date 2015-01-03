@@ -3,12 +3,15 @@ before: |
   this_module         = "std.table"
   global_table        = "_G"
 
-  extend_base         = { "clone", "clone_rename", "clone_select", "empty",
-                          "invert", "keys", "merge", "merge_select",
-                          "metamethod", "monkey_patch", "new", "pack",
-                          "ripairs", "size", "sort", "totable", "values" }
+  extend_base         = { "clone", "clone_select", "depair", "empty",
+                          "enpair", "flatten", "insert", "invert", "keys",
+                          "len", "maxn", "merge", "merge_select",
+                          "monkey_patch", "new", "okeys", "pack", "project",
+                          "remove", "shape", "size", "sort", "values" }
+  deprecations        = { "clone_rename", "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
+
 
 specify std.table:
 - context when required:
@@ -20,8 +23,12 @@ specify std.table:
         expect (show_apis {added_to=base_module, by=this_module}).
           to_equal {}
     - it contains apis from the core table table:
+        apis = require "std.base".copy (extend_base)
+        for _, v in ipairs (deprecations) do
+          apis[#apis + 1] = v
+        end
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (apis)
 
   - context via the std module:
     - it does not touch the global table:
@@ -34,7 +41,12 @@ specify std.table:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
-      f       = M.clone
+
+      f = M.clone
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.clone (table, [table], ?boolean|:nometa)")
+
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it does copy the subject:
@@ -51,11 +63,11 @@ specify std.table:
     - it copies the metatable by default:
         expect (getmetatable (f (withmt))).to_be (getmetatable (withmt))
     - it treats non-table arg2 as nometa parameter:
-        expect (getmetatable (f (withmt, "nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, ":nometa"))).to_be (nil)
     - it treats table arg2 as a map parameter:
         expect (getmetatable (f (withmt, {}))).to_be (getmetatable (withmt))
     - it supports 3 arguments with nometa as arg3:
-        expect (getmetatable (f (withmt, {}, "nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, {}, ":nometa"))).to_be (nil)
 
   - context when renaming some keys:
     - it renames during cloning:
@@ -64,23 +76,20 @@ specify std.table:
     - it does not perturb the value in the renamed key field:
         expect (f (subject, {k1 = "newkey"}).newkey).to_be (subject.k1)
 
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
-
 
 - describe clone_rename:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f       = M.clone_rename
-  - it writes a deprecation warning to standard error on first call: |
-      _, err = capture (f, {{}, subject})
-      if err ~= nil then
-        -- skip this test when using Specl < 12 capture stub
-        expect (err).to_contain "clone_rename is deprecated"
-      end
-      _, err = capture (f, {{}, subject})
-      expect (err).to_be (nil)
+
+      fname = "clone_rename"
+      f = M[fname]
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
+
   - it copies the subject:
       expect (f ({}, subject)).to_copy (subject)
   - it only makes a shallow copy:
@@ -95,15 +104,19 @@ specify std.table:
         expect (f ({k1 = "newkey"}, subject).newkey).to_be (subject.k1)
 
   - it diagnoses non-table arguments:
-      expect (f {}).to_error ("table expected")
-      expect (f ({}, "foo")).to_error ("table expected")
+      expect (f {}).to_raise ("table expected")
+      expect (f ({}, "foo")).to_raise ("table expected")
 
 
 - describe clone_select:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
       withmt  = setmetatable (M.clone (subject), {"meta!"})
-      f       = M.clone_select
+
+      f = M.clone_select
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.clone_select (table, [table], ?boolean|:nometa)")
 
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
@@ -121,22 +134,40 @@ specify std.table:
 
   - context with metatables:
     - it treats non-table arg2 as nometa parameter:
-        expect (getmetatable (f (withmt, "nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, ":nometa"))).to_be (nil)
     - it treats table arg2 as a map parameter:
         expect (getmetatable (f (withmt, {}))).to_be (getmetatable (withmt))
         expect (getmetatable (f (withmt, {"k1"}))).to_be (getmetatable (withmt))
     - it supports 3 arguments with nometa as arg3:
-        expect (getmetatable (f (withmt, {}, "nometa"))).to_be (nil)
-        expect (getmetatable (f (withmt, {"k1"}, "nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, {}, ":nometa"))).to_be (nil)
+        expect (getmetatable (f (withmt, {"k1"}, ":nometa"))).to_be (nil)
 
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
+
+- describe depair:
+  - before:
+      t = {"first", "second", third = 4}
+      l = M.enpair (t)
+
+      f = M.depair
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.depair (list of lists)")
+
+  - it returns a primitive table:
+      expect (prototype (f (l))).to_be "table"
+  - it works with an empty table:
+      expect (f {}).to_equal {}
+  - it is the inverse of enpair:
+      expect (f (l)).to_equal (t)
 
 
 - describe empty:
   - before:
       f = M.empty
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.empty (table)")
+
   - it returns true for an empty table:
       expect (f {}).to_be (true)
       expect (f {nil}).to_be (true)
@@ -144,15 +175,93 @@ specify std.table:
       expect (f {"stuff"}).to_be (false)
       expect (f {{}}).to_be (false)
       expect (f {false}).to_be (false)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
+
+
+- describe enpair:
+  - before:
+      t = {"first", "second", third = 4}
+      l = M.enpair (t)
+
+      f = M.enpair
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.enpair (table)")
+
+  - it returns a table:
+      expect (prototype (f (t))).to_be "table"
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it turns a table into a table of pairs:
+      expect (f (t)).to_equal {{1, "first"}, {2, "second"}, {"third", 4}}
+  - it is the inverse of depair:
+      expect (f (t)).to_equal (l)
+
+
+- describe flatten:
+  - before:
+      t = {{{"one"}}, "two", {{"three"}, "four"}}
+
+      f = M.flatten
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.flatten (table)")
+
+  - it returns a table:
+      expect (type (f (t))).to_be "table"
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it flattens a nested table:
+      expect (f (t)).to_equal {"one", "two", "three", "four"}
+
+
+- describe insert:
+  - before:
+      f, badarg = init (M, this_module,  "insert")
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.insert (table, [int], any)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, false, false)).to_raise (badarg (3))
+        end
+      }
+      examples {
+        ["it diagnoses out of bounds pos arguments"] = function ()
+          expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
+          expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
+          expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
+        end
+      }
+
+  - it returns the modified table:
+      t = {}
+      expect (f (t, 1)).to_be (t)
+  - it append a new element at the end by default:
+      expect (f ({1, 2}, "x")).to_equal {1, 2, "x"}
+  - it fills holes by default:
+      expect (f ({1, 2, [5]=3}, "x")).to_equal {1, 2, "x", [5]=3}
+  - it respects __len when appending:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t, "x")).to_equal {1, 2, [5]=3, [43]="x"}
+  - it moves other elements up if necessary:
+      expect (f ({1, 2}, 1, "x")).to_equal {"x", 1, 2}
+      expect (f ({1, 2}, 2, "x")).to_equal {1, "x", 2}
+      expect (f ({1, 2}, 3, "x")).to_equal {1, 2, "x"}
+  - it inserts a new element according to pos argument:
+      expect (f ({}, 1, "x")).to_equal {"x"}
 
 
 - describe invert:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = M.invert
+
+      f = M.invert
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.invert (table)")
+
   - it returns a new table:
       expect (f (subject)).not_to_be (subject)
   - it inverts keys and values in the returned table:
@@ -162,15 +271,17 @@ specify std.table:
   - it seems to copy a list of 1..n numbers:
       subject = { 1, 2, 3 }
       expect (f (subject)).to_copy (subject)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
 
 
 - describe keys:
   - before:
       subject = { k1 = 1, k2 = 2, k3 = 3 }
-      f       = M.keys
+
+      f = M.keys
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.keys (table)")
+
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
   - it makes a list of table keys:
@@ -182,9 +293,44 @@ specify std.table:
       -- returned table will have all 10000 keys in the same order...
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).not_to_equal (subject)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
+
+
+- describe len:
+  - before:
+      f = M.len
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.len (table)")
+
+  - it returns the length of a table:
+      expect (f {"a", "b", "c"}).to_be (3)
+      expect (f {1, 2, 5, a=10, 3}).to_be (4)
+  - it works with an empty table:
+      expect (f {}).to_be (0)
+  - it ignores elements after a hole:
+      expect (f {1, 2, [5]=3}).to_be (2)
+  - it respects __len metamethod:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t)).to_be (42)
+
+
+- describe maxn:
+  - before:
+      f = M.maxn
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.maxn (table)")
+
+  - it returns the largest numeric key of a table:
+      expect (f {"a", "b", "c"}).to_be (3)
+      expect (f {1, 2, 5, a=10, 3}).to_be (4)
+  - it works with an empty table:
+      expect (f {}).to_be (0)
+  - it ignores holes:
+      expect (f {1, 2, [5]=3}).to_be (5)
+  - it ignores __len metamethod:
+      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+      expect (f (t)).to_be (5)
 
 
 - describe merge:
@@ -193,11 +339,22 @@ specify std.table:
       t1   = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
       t2   = { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = t1.k1 }
       t1mt = setmetatable (M.clone (t1), {"meta!"})
-      f    = M.merge
-
       target = {}
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
+
+      f, badarg = init (M, this_module, "merge")
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.merge (table, table, [table], ?boolean|:nometa)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+        end
+      }
+
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
   - it does not change t1 when t2 is empty:
@@ -219,13 +376,13 @@ specify std.table:
         expect (getmetatable (f ({}, t1mt))).to_be (getmetatable (t1mt))
         expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
     - it treats non-table arg3 as nometa parameter:
-        expect (getmetatable (f ({}, t1mt, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, ":nometa"))).to_be (nil)
     - it treats table arg3 as a map parameter:
         expect (getmetatable (f ({}, t1mt, {}))).to_be (getmetatable (t1mt))
         expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
     - it supports 4 arguments with nometa as arg4:
-        expect (getmetatable (f ({}, t1mt, {}, "nometa"))).to_be (nil)
-        expect (getmetatable (f ({}, t1mt, {"k1"}, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {}, ":nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {"k1"}, ":nometa"))).to_be (nil)
 
   - context when renaming some keys:
     - it renames during merging:
@@ -233,10 +390,6 @@ specify std.table:
         expect (f ({}, t1, {k1 = "newkey"})).to_equal (target)
     - it does not perturb the value in the renamed key field:
         expect (f ({}, t1, {k1 = "newkey"}).newkey).to_be (t1.k1)
-
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f ("foo", "bar")).to_error ("table expected")
 
 
 - describe merge_select:
@@ -247,11 +400,22 @@ specify std.table:
       t1mt     = setmetatable (M.clone (t1), {"meta!"})
       t2       = { ["if"] = true, [tablekey] = false, _ = "underscore", k3 = t1.k1 }
       t2keys   = { "if", tablekey, "_", "k3" }
-      f        = M.merge_select
-
       target = {}
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
+
+      f, badarg = init (M, this_module, "merge_select")
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.merge_select (table, table, [table], ?boolean|:nometa)")
+
+      examples {
+        ["it diagnoses more than 2 arguments with no pos"] = function ()
+          pending "#issue 76"
+          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+        end
+      }
+
   - it does not create a whole new table:
       expect (f (t1, t2)).to_be (t1)
   - it does not change t1 when t2 is empty:
@@ -277,35 +441,64 @@ specify std.table:
         expect (getmetatable (f ({}, t1mt))).to_be (getmetatable (t1mt))
         expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
     - it treats non-table arg3 as nometa parameter:
-        expect (getmetatable (f ({}, t1mt, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, ":nometa"))).to_be (nil)
     - it treats table arg3 as a map parameter:
         expect (getmetatable (f ({}, t1mt, {}))).to_be (getmetatable (t1mt))
         expect (getmetatable (f ({}, t1mt, {"k1"}))).to_be (getmetatable (t1mt))
     - it supports 4 arguments with nometa as arg4:
-        expect (getmetatable (f ({}, t1mt, {}, "nometa"))).to_be (nil)
-        expect (getmetatable (f ({}, t1mt, {"k1"}, "nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {}, ":nometa"))).to_be (nil)
+        expect (getmetatable (f ({}, t1mt, {"k1"}, ":nometa"))).to_be (nil)
 
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f ("foo", "bar")).to_error ("table expected")
+
+- describe metamethod:
+  - before:
+      Object = require "std.object"
+      objmethod = function () end
+      obj = Object {
+        _type = "DerivedObject",
+        _method = objmethod,
+      }
+
+      f = M.metamethod
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
+
+  - it returns nil for missing metamethods:
+      expect (f (obj, "not a method on obj")).to_be (nil)
+  - it returns nil for non-function metatable entries:
+      expect (f (obj, "_type")).to_be (nil)
+  - it returns a method from the metatable:
+      expect (f (obj, "_method")).to_be (objmethod)
 
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
-      t  = {
-        table = {},
-      }
-      f (t)
-  - it installs table.sort function:
-      expect (t.table.sort).to_be (M.sort)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.monkey_patch (?table)")
+
+  - it returns the monkey_patched table entry from namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.table)
+  - it injects std.table apis into given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.table[api]).to_be (M[api])
+      end
 
 
 - describe new:
   - before:
       f = M.new
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.new (?any, ?table)")
 
   - context when not setting a default:
     - before: default = nil
@@ -336,28 +529,166 @@ specify std.table:
       default = { "unique object" }
       t = f (default)
       expect (t[1]).to_be (default)
-  - it diagnoses non-tables/non-nil in the second argument:
-      expect (f (nil, "foo")).to_error ("table expected")
+
+
+- describe okeys:
+  - before:
+      subject = { "v1", k1 = 1, "v2", k2 = 2, "v3", k3 = 3, [10]="v10" }
+
+      f = M.okeys
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.okeys (table)")
+
+  - it returns an empty list when subject is empty:
+      expect (f {}).to_equal {}
+  - it makes an ordered list of table keys:
+      expect (f (subject)).
+        to_equal {1, 2, 3, 10, "k1", "k2", "k3"}
 
 
 - describe pack:
+  - before:
+      unpack = unpack or table.unpack
+      t = {"one", "two", "five"}
+      f = M.pack
+  - it creates an empty table with no arguments:
+      expect (f ()).to_equal {}
+  - it creates a table with arguments as elements:
+      expect (f ("one", "two", "five")).to_equal (t)
+  - it is the inverse operation to unpack:
+      expect (f (unpack (t))).to_equal (t)
+
+
+- describe project:
+  - before:
+      l = {
+        {first = false, second = true, third = true},
+        {first = 1, second = 2, third = 3},
+        {first = "1st", second = "2nd", third = "3rd"},
+      }
+
+      f = M.project
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.project (any, list of tables)")
+
+  - it returns a table:
+      expect (prototype (f ("third", l))).to_be "table"
+  - it works with an empty table:
+      expect (f ("third", {})).to_equal {}
+  - it projects a table of fields from a table of tables:
+      expect (f ("third", l)).to_equal {true, 3, "3rd"}
+  - it projects fields with a falsey value correctly:
+      expect (f ("first", l)).to_equal {false, 1, "1st"}
+
+
+- describe remove:
+  - before:
+      f = M.remove
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.remove (table, ?int)")
+
+      examples {
+        ["it diagnoses out of bounds pos arguments"] = function ()
+          expect (f ({1}, 0)).to_raise "position 0 out of bounds"
+          expect (f ({1}, 3)).to_raise "position 3 out of bounds"
+          expect (f ({1}, 5)).to_raise "position 5 out of bounds"
+        end
+      }
+
+  - it returns the removed element:
+      t = {"one", "two", "five"}
+      expect (f ({"one", 2, 5}, 1)).to_be "one"
+  - it removes an element from the end by default:
+      expect (f {1, 2, "five"}).to_be "five"
+  - it ignores holes:
+      t = {"second", "first", [5]="invisible"}
+      expect (f (t)).to_be "first"
+      expect (f (t)).to_be "second"
+  - it respects __len when defaulting pos:
+      t = setmetatable ({1, 2, [43]="invisible"}, {__len = function () return 42 end})
+      expect (f (t)).to_be (nil)
+      expect (f (t)).to_be (nil)
+      expect (t).to_equal {1, 2, [43]="invisible"}
+  - it moves other elements down if necessary:
+      t = {1, 2, 5, "third", "first", "second", 42}
+      expect (f (t, 5)).to_be "first"
+      expect (t).to_equal {1, 2, 5, "third", "second", 42}
+      expect (f (t, 5)).to_be "second"
+      expect (t).to_equal {1, 2, 5, "third", 42}
+      expect (f (t, 4)).to_be "third"
+      expect (t).to_equal {1, 2, 5, 42}
 
 
 - describe ripairs:
+  - before:
+      f = M.ripairs
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
+
+  - it returns a function, the table and a number:
+      fn, t, i = f {1, 2, 3}
+      expect ({type (fn), t, type (i)}).to_equal {"function", {1, 2, 3}, "number"}
+  - it iterates over a array part of a table:
+      t, u = {1, 2, 3; a=4, b=5, c=6}, {}
+      for i, v in f (t) do u[i] = v end
+      expect (u).to_equal {1, 2, 3}
+  - it returns elements in reverse order:
+      t, u = {"one", "two", "five"}, {}
+      for _, v in f (t) do u[#u + 1] = v end
+      expect (u).to_equal {"five", "two", "one"}
+
+
+- describe shape:
+  - before:
+      l = {1, 2, 3, 4, 5, 6}
+
+      f = M.shape
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.shape (table, table)")
+
+  - it returns a table:
+      expect (prototype (f ({2, 3}, l))).to_be "table"
+  - it works for an empty table:
+      expect (f ({0}, {})).to_equal ({})
+  - it returns the result in a new table:
+      expect (f ({2, 3}, l)).not_to_be (l)
+  - it does not perturb the argument table:
+      f ({2, 3}, l)
+      expect (l).to_equal {1, 2, 3, 4, 5, 6}
+  - it reshapes a table according to given dimensions:
+      expect (f ({2, 3}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({3, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
+  - it treats 0-valued dimensions as an indefinite number:
+      expect (f ({2, 0}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({0, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
 
 
 - describe size:
   - before: |
       --          - 1 -  --------- 2 ----------  -- 3 --
       subject = { "one", { { "two" }, "three" }, four = 5 }
+
       f = M.size
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.size (table)")
+
   - it counts the number of keys in a table:
       expect (f (subject)).to_be (3)
   - it counts no keys in an empty table:
       expect (f {}).to_be (0)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
 
 
 - describe sort:
@@ -365,24 +696,51 @@ specify std.table:
       subject = { 5, 2, 4, 1, 0, 3 }
       target  = { 0, 1, 2, 3, 4, 5 }
       cmp     = function (a, b) return a < b end
-      f       = M.sort
+
+      f = M.sort
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.sort (table, ?function)")
+
   - it sorts elements in place:
       f (subject, cmp)
       expect (subject).to_equal (target)
   - it returns the sorted table:
       expect (f (subject, cmp)).to_equal (target)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
 
 
 - describe totable:
+  - before:
+      t  = {"one", "two", "five"}
+      mt = { _type = "MockObject",
+             __totable = function (self) return self.content end }
+
+      f = M.totable
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+
+  - it calls object's __totable metamethod:
+      object = setmetatable ({content = t}, mt)
+      expect (f (object)).to_be (t)
+  - it returns a table with no __totable metamethod unchanged:
+      t = {content = t}
+      object = setmetatable (t, { _type = "Thing" })
+      expect (f (object)).to_be (t)
 
 
 - describe values:
   - before:
       subject = { k1 = {1}, k2 = {2}, k3 = {3} }
-      f       = M.values
+
+      f = M.values
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.table.values (table)")
+
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
   - it makes a list of table values:
@@ -393,6 +751,3 @@ specify std.table:
       -- is this a good test? or just requiring an implementation quirk?
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).to_equal (subject)
-  - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")

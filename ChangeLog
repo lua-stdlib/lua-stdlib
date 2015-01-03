@@ -1,4 +1,2781 @@
+2015-01-03  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.0.0
+	* NEWS.md: Record release date.
+
+	maint: don't use math.pow, which some Lua 5.3 builds don't support.
+	When compiled without -DLUA_COMPAT_5_2, Lua 5.3 removes a good
+	chunk of the math library, including math.pow.
+	* lib/std.lua.in (eval): Use math.min in LDocs usage.
+	* specs/functional_spec.yaml (bind, curry, eval): Instead of
+	math.pow, use math.min where sensible, otherwise std.operator.pow.
+	* specs/operator_spec.yaml (pow): Compare with result calculated
+	using ^ infix operator.
+	* specs/std_spec.yaml (eval): Use math.min over math.pow.
+
+	std: ireverse only operates on the proper sequence part.
+	* lib/std/base.lua (ireverse): Ignore any holes in the argument
+	table, returning only the reversed proper sequence part.
+	* NEWS.md: Update.
+
+	std: make ripairs respect contiguous integer keys like ipairs.
+	* lib/std/base.lua (ripairs): Start from lowest contiguous integer
+	key with a nil value, and iterate backwards to 1.
+	* NEWS.md: Update.
+
+	std: revert std.ipairs to return all contiguous key pairs 1..n.
+	Now that Lua 5.3 returned to an ipairs implementation that returns
+	contiguous key-value pairs from 1..n, where n is the last non-nil
+	integer key, stdlib can do the same for simpler compliance with
+	all supported Lua versions.
+	* lib/std/base.lua (ipairs): Simplify accordingly.
+	* lib/std.lua.in (ipairs): Update LDocs accordingly.
+	* NEWS.md: Update.
+
+	maint: commit git rockspec to master branch.
+	* .gitignore: Allow git rockspecs.
+	* stdlib-git-1.rockspec: New file.
+
+	configury: add ansicolors to travis_extra_rocks.
+	* bootstrap.conf (buildreq): Bump Specl requirement to 14.1.0.
+	(travis_extra_rocks): Add ansicolors for color specl output.
+	* .travis.yml: Regenerate.
+
+	maint: add 5.3 to compatibility statement.
+	* README.md: Add 5.3 to compatibility statement.
+	* specs/std_spec.yaml (std.version): Update accordingly.
+
+	maint: update copyrights.
+	* COPYING, README.md, bootstrap.conf, configure.ac, local.mk,
+	specs/optparse_spec.yaml, specs/string_spec.yaml: Add 2015 to
+	copyright statement.
+
+	rockspec: Lua 5.4 and higher not yet supported.
+	* rockspec.conf (dependencies): Add lua < 5.4 constraint.
+
+	io: pass io.die message as an error() string.
+	* lib/std/io.lua (warnfmt): New function factored out of warn().
+	Adjust callers.
+	(die): Pass result of warnfmt to error instead of writing directly
+	to stderr.
+	* specs/io_spec.yaml, specs/optparse_spec.yaml: Adjust
+	specifications accordingly.
+	* NEWS.md: Update.
+
+	specs: support Lua 5.3 variants of core error messages.
+	* specs/container_spec.yaml, specs/debug_spec.ymal: Also accept
+	slightly different error message formats from Lua 5.3 core.
+
+	slingshot: sync with upstream, for Lua 5.3.0 compatibility.
+	* slingshot: Sync with upstream.
+	* bootstrap: Update from slingshot.
+	* NEWS: Move from here...
+	* NEWS.md: ...to here.  Reformat as Markdown and update.
+	* local.mk (old_NEWS_hash): Update.
+	* .gitignore: Add NEWS.
+	* .travis.yml: Regenerate.
+
+2014-12-29  Gary V. Vaughan  <gary@gnu.org>
+
+	string: consistent numbertosi output in Lua 5.3.
+	* lib/std/string.lua (numbertosi): Be careful to output an
+	integer even when handling a number ('double') in Lua 5.3.
+
+	maint: 5.3 uses load instead of loadstring.
+	* lib/std/base.lua (loadstring): Set to load if loadstring is not
+	available.
+	* lib/std/functional.lua (loadstring): Likewise.
+
+	maint: preliminary Lua 5.3.0 compatibility.
+	* configure.ac (AX_PROG_LUA): Accept Lua 5.3 interpreters.
+	* lib/std/io.lua (setmetatable): Define locally to
+	debug.setmetatable for resetting FILE* metatable in given
+	namespace.
+	* lib/std/base.lua, lib/std/debug.lua, lib/std/functional.lua,
+	lib/std/list.lua, lib/std/package.lua (unpack): Set to either
+	table.unpack or _G.unpack to satisfy Lua 5.1, 5.2 and 5.3.
+	* specs/spec_helper.lua (unpack): Set appropriately for all
+	supported Lua releases.
+	* NEWS: Update.
+
+2014-12-24  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: use correct Specl > 13 arity for bad argument errors.
+	Now that Specl's badargs module is generating examples with
+	the correct messages, we can now say 'no more than 0 arguments'.
+	* lib/std/debug.lua (toomanyargmsg): Return singular 'argument'
+	in error message only for exactly 1 expected argument, otherwise
+	plural.
+	* bootstrap.conf (buildreq): Bump specl requirement.
+
+	refactor: rename operator.deref to operator.get.
+	* specs/operator_spec.yaml (deref): Rename from this...
+	(get): ...to this.
+	* lib/std/operator.lua (deref): Rename from this...
+	(get): ...to this.
+	Adjust all callers.
+	* NEWS: Update.
+
+	functional: generalize reduce to any table.
+	* specs/functional_spec.yaml (reduce): Specify optional iterator
+	argument defaulting to std.pairs.
+	Specify requirement for std.ielems when ignoring reduced table
+	keys.
+	* specs/operator_spec.yaml (set): Specify behaviours for a new
+	table element setting operator.
+	* specs/container_spec.yaml: Use appropriate iterator functions
+	for new reduce API.
+	* lib/std/functional.lua (reduce): Diagnose optional iterator
+	argument to std.pairs.
+	(fold): Copy old reduce implementation into deprecated call.
+	* lib/std.lua.in (barrel): Adjust accordingly.
+	* lib/std/base.lua (reduce): Default optional iterator argument
+	to std.pairs.
+	Pass all iterator results to accumulator function.
+	Adjust all clients.
+	* lib/std/operator.lua (set): Implement according to new specs.
+	* NEWS: Update.
+
+	functional: improve lambda expressiveness.
+	* specs/functional_spec.yaml: Specify new behaviours with omitted
+	optional '=', and '_' alias argument.
+	* lib/std/functional.lua (lambda): Strip more useless whitespace
+	in parsing to improve memoize cache hits.
+	Support omitting leading '=' when first non-whitespace of lambda
+	string is '_'.
+	Add '_' alias to '_1' for lambda string compiled expressions.
+	Update LDocs.
+
+	doc: show release version in LDocs column headings.
+	* build-aux/config.ld.in (project): Add release version.
+
+2014-12-21  Gary V. Vaughan  <gary@gnu.org>
+
+	string: don't return spurious additional values.
+	* lib/std/base.lua (escape_pattern): Wrap gsub return value in
+	parens to strip all but the first string return value.
+	* lib/std/string.lua (caps, chomp, escape_shell, ltrim, rtrim)
+	(trim): Likewise.
+
+	io: add dirname function again.
+	* specs/io_spec.yaml (dirname): Specify behaviour of a new
+	function to discard the final path separator in a string and all
+	that follows.
+	* lib/std/io.lua (M.dirname): Implement it.
+	* NEWS: Update.
+
+	vector: remove unneeded module.
+	On second thoughts, this is not necessary.  Adding methods to core
+	table would give us the API benefits, and posix.curses.chstr is a
+	much easier way of handling arrays of attributed strings.
+	* lib/std/vector.lua: Remove.
+	* build-aux/config.ld.in (file): Remove lib/std/vector.lua.
+	* local.mk (dist_luastd_DATA): Likewise.
+	(dist_classes_DATA): Remove doc/classes/std.vector.html.
+	* specs/vector_spec.yaml: Remove.
+	* specs/string_spec.yaml (render): Remove vector examples.
+	* specs/specs.mk (specl_SPECS): Remove specs/vector_spec.yaml.
+	* NEWS: Remove vector references.
+
+2014-12-16  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: adopt semantic versioning.
+	* configure.ac (AC_INIT): Set version to 41.0.0.
+
+2014-11-05  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: fix bitrot in README.
+	* README.md: Update.
+
+2014-10-05  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: simplify bad argument checking with specl.badargs.
+	* specs/spec_helper.lua (badargs):  Expose specl.badargs to the
+	example execution environment.
+	(badarg, init): Remove.  Superseded by badargs.init.
+	* specs/debug_spec.yaml, specs/string_spec.yaml: Use badargs.init
+	instead of init.
+	* specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/package_spec.yaml, specs/std_spec.yaml,
+	specs/table_spec.yaml: Use badargs.diagnose to write bad argument
+	diagnostics examples automatically.
+	* bootstrap.conf (buildreq): Use moonscript rocks server URLs.
+
+	travis: remove temporary specl-git-1.rockspec dependency.
+	* .travis.yml (script): Regenerate from travis.yml.n.
+
+2014-10-01  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream for SPECL_ENV improvements.
+	* slingshot: Sync with upstream.
+	* specs/specs.mk: Simplify accordingly.
+	* specs/spec_helper.lua (package.path): Set according to slingshot
+	recommendations.
+	* bootstrap.conf: Require latest specl, and tidy accordingly.
+
+	functional: fill unbound arguments in order with bind.
+	* lib/std/functional (bind): When filling unbound arguments, be
+	sure to traverse the remaining arguments *in* order!
+
+	debug: improve argscheck parsing patterns.
+	* lib/std/debug.lua (argscheck): Strip leading and trailing
+	whitespace from argument type list.
+	Allow commas without trailing whitespace.
+	Allow periods in `fname` pattern.
+
+	travis: reformat .travis.yml.
+	* .travis.yml: Reformat.
+
+	travis: use specl-git-1.rockspec from specl git master branch.
+	* .travis.yml (script): Adjust specl-git-1.rockspec URL.
+
+	refactor: rationalize deprecation interfaces.
+	Tracking one deprecation warning per deprecated function is
+	fiddly and confusing.  Change the semantics to this: by
+	default calling deprecated API fires a warning message; turn
+	off the messages with `_DEBUG.deprecate = false`; elide
+	deprecated APIs entirely with `_DEBUG.deprecate = true`.
+	Easy and useful :)
+	* lib/std/debug_init/init.lua (_ARGCHECK): Remove.  Adjust all
+	callers to use _DEBUG.argcheck instead.
+	(_DEBUG): Always a table, with fields initialised according to
+	global _DEBUG if necessary.  Simplify all callers accordingly.
+	* lib/std/debug.lua (setcompat, getcompat): Remove.
+	(DEPRECATIONMSG): If _DEBUG.deprecate is nil, always return a
+	deprecation message, otherwise the empty string.
+	(DEPRECATED): If _DEBUG.deprecate is truthy, don't return a
+	function at all.
+	(_setdebug): New private function.  A reliable way to jigger the
+	_DEBUG table contents, without worrying about nested specl
+	environments.
+	* specs/spec_helper.lua (setdebug): Import std.debug._setdebug
+	into the outermost execution environment.
+	* specs/debug_spec.yaml (extend_base): Add _setdebug.
+	Adjust other behaviour specs to match saner _DEBUG.deprecate
+	semantics.
+	* specs/functional_spec.yaml, specs/list_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml: Adjust deprecation
+	warning behaviour examples to match new semantics.
+	* NEWS: Update.
+
+2014-09-04  Gary V. Vaughan  <gary@gnu.org>
+
+	tree: use argscheck on exported apis.
+	* lib/std/tree.lua: Move LDocs and add argschecks to returned
+	Tree object function declarations.
+
+	set: check for strict Set type arguments.
+	Since we have type checking to help maintain correctness, don't
+	undermine ourselves and add complexity by adding type coercions
+	and looser type safety.  When we're using Set's, passing a table
+	instead of a Set is probably an error, so treat it as one!
+	* specs/set_spec.yaml: Remove specifications for type coercions.
+	* lib/std/set.lua: Remove type coercions and require strict Set
+	arguments everywhere.
+	Add type checks to metamethods.
+	* NEWS: Update.
+
+	strbuf: use argscheck on exported apis.
+	* lib/std/strbuf.lua: Move LDocs and add argschecks to returned
+	StrBuf object declarations.
+	* HACKING: Update.
+
+	set: use argscheck on exported apis.
+	* lib/std/set.lua: Move LDocs and add argschecks to returned Set
+	object declaration.
+	* HACKING: Add items about best practices for `debug.argscheck`.
+
+2014-09-03  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: simplify primitive std.set functions.
+	* lib/std/set.lua (insert, delete): Return results of calling
+	rawset.
+
+	refactor: simplify string.render and clients.
+	* lib/std/base.lua (render): Use `cb` suffix for callback
+	parameter names.
+	Rename j and w locals to k_ and v_, as they represent the values
+	of k and v resp. from the previous iteration.
+	Remove unrelated Haskell comments.
+	* lib/std/string.lua (prettytostring): Likewise.
+	* lib/std/container.lua (__tostring): Manually unroll render
+	invocation with base.tostring functions plugged in.
+
+2014-09-02  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: factor away std.container.__pairs.
+	Object pairs iteration shouldn't rely on slow in-order traversal,
+	we only care about key order when printing.
+	* lib/std/container.lua (__pairs): Remove.  By the time this is
+	called, private keys are already moved into the metatable, and
+	the client would be using ipairs and okeys for ordered traversal.
+	(__tostring): Use ipairs and okeys here, because we do care about
+	ordering.
+
+	std: use numeric keys first ordering when stringifying a table.
+	Closes #81.
+	* specs/table_spec.yaml (okeys): Specify behaviours of a new
+	ordered keys function.
+	* lib/std/container.lua (__pairs): Factor key sorting algorithm
+	from here...
+	* lib/std/base.lua (keysort): New function. ...to here.
+	(okeys): Use keysort to extract a sorted key list from a table.
+	* lib/std/table.lua (okeys): Re-export from here.
+	* lib/std/base.lua (render): Simplify accordingly, and always
+	sort keys nicely as a pleasant side-effect.
+	* NEWS: Update.
+
+2014-09-01  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: Use LDoc @object type for std.vector.
+	Closes #65.
+	* lib/std/vector.lua: Improve documentation.
+
+2014-08-31  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: use LDoc @object type for std.tree.
+	* lib/std/tree.lua: Improve documentation.
+
+	doc: use LDoc @object type for std.strbuf.
+	* lib/std/strbuf.lua: Improve documentation.
+
+	doc: use LDoc @object type for std.list
+	* lib/std/list.lua: Improve documentation.
+
+	refactor: upgrade OptionParser implementation to a std.object.
+	* lib/std/optparse.lua (OptionParser): Reimplement as a std.object,
+	and simplify accordingly.
+
+	doc: use LDoc @object type for std.set.
+	* lib/std/set.lua: Improve documentation.
+
+	doc: use LDoc @object type for std.container.
+	* lib/std/container.lua: Improve documentation.
+
+	doc: use LDoc @object type for std.object.
+	* build-aux/config.ld.in (object): New type for documenting
+	objects.
+	* lib/std/object.lua: Improve documentation.
+
+	doc: add prototype chains to object LDocs.
+	* lib/std/list.lua, lib/std/set.lua, lib/std/strbuf.lua,
+	lib/std/tree.lua, lib/std/vector.lua: LDocument prototype chains.
+
+	doc: simplify and clarify container and object LDocs.
+	* lib/std/object.lua, lib/std/container.lua: Simplify and clarify
+	LDocs.
+
+	doc: fix a broken cross-reference.
+	* lib/std/container.lua (std.container): Now that we're not
+	documenting inherited methods, reference std.object.__call from
+	the prototype object.
+	* HACKING: Document rationale for slimming LDocs in this way.
+
+	debug: argcheck accepts objects as valid table type arguments.
+	Closes #84.
+	Really, table is the base type of object (or strictly speaking,
+	container), and its almost always desirable to be able to pass
+	objects to functions that operate on tables.
+	* specs/debug_spec.yaml (argcheck): Specify this behaviour when
+	an object argument is given where a table is required.
+	* lib/std/debug.lua (argcheck): Accept any object argument
+	where a table parameter is expected.
+
+2014-08-30  Gary V. Vaughan  <gary@gnu.org>
+
+	table: deprecate totable.
+	Closes #74.
+	* specs/container_spec.yaml (tablification): Remove specs.
+	* specs/object_spec.yaml (copy): Use this new function instead of
+	`totable`.
+	* specs/object_spec.yaml, specs/set_spec.yaml,
+	specs/strbuf_spec.yaml, specs/tree_spec.yaml (__totable): Remove.
+	* specs/table_spec.yaml (totable): Deprecate this function.
+	* specs/spec_helper.lua (totable): Remove.
+	* lib/std/table.lua (totable): Likewise.
+	* lib/std/base.lua (totable): Remove implementation.
+	* lib/std.lua.in (barrel): Remove "table.totable".
+	* lib/std/container.lua (__totable): Remove.
+	(__pairs): Return elements in order, omitting private elements.
+	(__tostring): Use it to concatenate elements in order.
+	(__call, instantiate, mapfields): Iterate with `next` to fetch
+	raw elements, rather than ordered object __pairs elements.
+	* lib/std/object (__totable): Remove reference.
+	* lib/std/set.lua (__totable): Remove.
+	(__tostring): Fetch keys for display using std.pairs.
+	* lib/std/string.lua (pickle): Likewise.
+	* NEWS: Update.
+
+2014-08-29  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: overhaul LDocs for std.table.
+	* lib/std/table.lua: Tidy up LDocs, and add @usage examples.
+
+2014-08-28  Gary V. Vaughan  <gary@gnu.org>
+
+	table: add remove for orthogonality with insert.
+	* specs/table_spec.yaml (remove): Specify expected behaviour.
+	* lib/std/table.lua (remove): Implement specified behaviors.
+	* NEWS: Update.
+
+	refactor: modules can only require std.base and std.debug.
+	* lib/std/table.lua (totable): Move implementation from here...
+	* lib/std/base.lua (totable): ...to here.
+	* lib/std/string.lua: Import core implementation from std.base
+	instead of argcheck wrapper from std.table.
+	* lib/std/io.lua (dirsep, catfile): Move implementations from
+	here...
+	* lib/std/string.lua (escape_pattern): ...here...
+	* lib/std/table.lua (invert): ... and here...
+	* lib/std/base.lua (dirsep, catfile, invert): ...to here.
+	* lib/std/package.lua: Import core implementations from std.base
+	instead eof argcheck wrappers from user interface files.
+	* lib/std/list.lua, lib/std/tree.lua (func): Remove spurious
+	require.
+	* lib/std/set.lua, lib/std/tree.lua, lib/std/vector.lua
+	(container): Fold into Container prototype constructor.
+	* lib/std/list.lua, lib/std/strbuf.lua (object): Fold into
+	Object prototype constructor.
+	* lib/std/string.lua (strbuf): Fold into StrBuf prototype
+	constructor.
+	* lib/std/math.lua (debug): Fold into X definition.
+	* HACKING: Add a description of how to use `require`
+	idiomatically in stdlib source.
+
+	table: ensure there is always a maxn function.
+	* specs/table_spec.yaml (maxn): Specify behaviour of maxn.
+	(len): Add missing specifications.
+	* specs/std_spec.yaml (barrel): Add maxn to list of monkey_patch
+	apis from std.table.
+	* lib/std/base.lua (maxn): Use core table.maxn if available, or
+	else define our own.
+	* lib/std/container.lua, lib/std/debug.lua: Use it!
+	* lib/std/table.lua (maxn): Export it.
+	* NEWS: Update.
+
+	refactor: make all monkey_patch functions work the same.
+	* specs/std_spec.yaml, specs/io_spec.yaml, specs/math_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml (monkey_patch):
+	Specify injection of all exported apis into the given namespace.
+	* lib/std/base.lua (copy): Support an optional `dest` argument.
+	(merge): Like copy, but don't overwrite pre-existing entries at
+	the same key.
+	* lib/std.lua.in, lib/std/io.lua, lib/std/math.lua,
+	lib/std/string.lua, lib/std/table.lua: Use merge and copy to
+	simplify tracking and injecting monkey_patches.
+	* specs/std_specl.yaml (barrel): Specify behaviour of running all
+	monkey_patch functions, and recreating the legacy global api by
+	additionally injecting those functions.
+	* lib/std.lua.in (barrel): Update to meet tighter specifications.
+	* HACKING: Note about global hygiene and use of monkey_patch ().
+	* NEWS: Update.
+
+2014-08-27  Gary V. Vaughan  <gary@gnu.org>
+
+	package: tidy up LDocs, and remove unnecessary M references.
+	* lib/std/package.lua (pathsub, find): Remove spurious `M.`
+	prefixes.
+	(mappath_callback): Rename from this...
+	(mappathcb): ...to this.
+	* HACKING: Add LDoc style notes.
+
+	functional: remove std.operator expansions from lambda.
+	There's no good reason to clog up the lambda functable with a copy
+	of std.operator, when we can just pass the operators without
+	interposing lambda if we need to.
+	* lib/std/functional.lua (lambda): Remove std.operator expansions.
+	* NEWS: Update.
+
+	operator: more RSI-reducing operator function name changes.
+	* specs/operator_spec.yaml (cons, length): Remove - just pass
+	`table.pack` or `table.len` instead, resp.
+	(["and"], ["or"], ["not"]): Rename these...
+	(conj, disj, neg): ...to these.
+	* lib/std/operator.lua: Likewise.
+	Give full and proper LDocs for each function.
+	* lib/std/functional.lua (M.op): Update deprecation redirections.
+	* NEWS: Update.
+
+	refactor: reorder function definitions in base.lua.
+	* lib/std/base.lua: Rather than mostly random order, subject to
+	interdepencies, put functions in asciibetical order as far as
+	possible while avoiding forward declarations.
+	* HACKING: Update.
+
+	table: diagnose insert out of bounds arguments on all Lua.
+	* specs/table_spec.yaml (insert): Adjust errors to include out of
+	bounds position.
+	* lib/std/debug.lua (argerror): Move implementation from here...
+	* lib/std/base.lua (argerror): ...to here.
+	(insert): Use it to diagnose out of bounds arguments.
+	* NEWS: Update.
+
+	table: add missing specs for table.insert, and correct argtypes.
+	* specs/table_spec.yaml (insert): Specify behaviours.
+	* lib/std/table.lua (insert): Don't double import.
+	(M): Don't allow nil valued final argument.
+
+	table: new insert method.
+	* specs/table_spec.yaml (insert, len): Specify behaviours.
+	* lib/std/base.lua (insert, last): New functions that
+	respect `__len` when calculating table length.
+	(len): Use callable to extract __len metamethod.
+	* HACKING: New file to document coding style and design choices.
+	* lib/std/base.lua, lib/std/container.lua, lib/std/debug.lua,
+	lib/std/io.lua, lib/std/list.lua, lib/std/optparse.lua,
+	lib/std/strbuf.lua, lib/std/string.lua, lib/std/table.lua,
+	lib/std/tree.lua, lib/std/vector.lua: Follow HACKING rules for
+	use of len and insert.
+	* NEWS: Update.
+
+	refactor: assorted simplifications to std.table.
+	* lib/std/table.lua (merge_allfields): Use `nil` for unspecified
+	`map` argument, and when `nil` use a faster inner loop for
+	copying.
+	(merge_namedfields): Use `nil` for unspecified `keys` argument.
+	(clone): Unroll into export table.
+	(depair, keys): Use ipairs and dummy variable, rather than ielems.
+	(pack): Remove duplicate definition.
+
+	refactor: remove arglen, duplicates table.maxn functionality.
+	* specs/debug_spec.yaml (arglen): Remove specifications.
+	* lib/std/debug.lua (arglen): Remove.
+	* lib/std/container.lua (M.__call), lib/std/debug.lua (match)
+	(argcheck): Change all callers to use table.maxn instead.
+
+2014-08-26  Gary V. Vaughan  <gary@gnu.org>
+
+	operator: use non-RSI inducing operator function names.
+	* lib/std/operator.lua ([".."], ["[]"], ["{}"], ["#"], ["+"])
+	(["-"], ["*"], ["/"], ["%"], ["^"], ["=="], ["~="], ["<"], ["<="])
+	([">"], [">="]): Rename from these...
+	(concat, deref, cons, length, sum, diff, prod, quot, mod, pow, eq)
+	(neq, lt, lte, gt, gte): ...to these.
+	(['""']): Remove. Just pass the tostring function.
+	(["~"]): Remove. Just pass string.find.
+	Adjust all callers.
+	* NEWS: Update.
+
+	functional: deprecate functional.op properly.
+	* specs/functional_spec.yaml (op): Specify deprecation warnings
+	when using old functional.op API.
+	* lib/std/functional.lua (M.op): Deprecate old APIs.
+	* NEWS: Update.
+
+	refactor: modernize std/debug.lua.
+	* lib/std/debug.lua: Reorder declarations and LDocs to match
+	latest style.
+
+	std: commit missed change to lib/std.lua.in.
+	* lib/std.lua.in (X): Update export call to argscheck.
+
+	doc: improve LDoc usage examples in std.debug.
+	* lib/std/debug (DEPRECATIONMSG, DEPRECATED): Improve LDoc usage
+	examples.
+
+	refactor: merge debug.argscheck and debug.export.
+	* lib/std/debug.lua (argscheck): Remove.
+	(export): Rename to argscheck.
+	Adjust all callers.
+
+	refactor: merge lib/std/base files into std.base.
+	* lib/std/base/functional.lua (callable, collect, reduce): Move
+	from here...
+	* lib/std/base/string.lua (copy, render, split): ...here...
+	* lib/std/base/tree.lua (leaves): ...and here...
+	* lib/std/base.lua (callable, collect, reduce, copy, render)
+	(split, leaves): ...to here.
+	Adjust all callers.
+	* lib/std/base/functional.lua, lib/std/base/string.lua,
+	lib/std/base/tree.lua: Remove files.
+	* local.mk (luastdbasedir, dist_luastdbase_DATA): Remove.
+
+	refactor: std.vector simplifications.
+	* lib/std/vector.lua: Fix usage examples to use `avector` instead
+	of `anvector`.
+	(set): Factor away use of debug.argscheck.
+
+	refactor: simplify export implementation and api.
+	* specs/debug_spec.yaml (export): specify behaviours with
+	explicit arguments instead of introspection.
+	* lib/std/debug.lua (export): expect explicit declaration string
+	with argument types, and inner function.
+	(whatpath, getinfo): Remove unused introspection functions.
+	* lib/std.lua.in, lib/std/base/string.lua, lib/std/functional.lua,
+	lib/std/io.lua, lib/std/list.lua, lib/std/math.lua,
+	lib/std/package.lua, lib/std/string.lua, lib/std/table.lua:
+	Move LDocs and export declarations to module table constructors.
+
+	refactor: remove obsolete __ipairs specs.
+	stdlib no longer supports __ipairs metamethods.
+	* specs/vector_spec.yaml (__ipairs): Remove.
+
+	list: remove workaround for old module metadata layout.
+	* lib/std/list.lua (transpose): Remove workaround for old module
+	data layout.
+
+	refactor: simplify functional.memoize.
+	* lib/std/functional.lua (memoize): Remove spurious require and
+	associated comment.
+
+2014-08-25  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: use toomanyargmsg function instead of toomanyarg_fmt string.
+	* lib/std/debug.lua (toomanyarg_fmt): Remove.
+	(toomanyargmsg): A replacement function that returns the formatted
+	string.  Adjust all callers.
+	* specs/debug_spec.yaml (extend_base): Adjust accordingly.
+
+	refactor: factor getcompat and setcompat out of debug api.
+	* specs/debug_spec.yaml (getcompat, setcompat): Remove.
+	* lib/std/debug.lua (DEPRECATIONMSG): Use getcompat and setcompat
+	internally, returning an empty string if necessary.
+	(DEPRECATED): Don't use getcompat or setcompat now that
+	DEPRECATIONMSG does that.
+	(M): Remove getcompat and setcompat.
+	* lib/std/functional.lua (bind): Simplify.
+
+	refactor: move DEPRECATED, export et.al. from `base` to `debug`.
+	* specs/base_spec.yaml (export, DEPRECATED): Move from here...
+	* specs/debug_spec.yaml (export, DEPRECATED): ...to here.
+	* specs/base_spec.yaml: Remove unused file.
+	* specs/specs.mk (specl_SPECS): Remove specs/base_spec.yaml.
+	* lib/std/base.lua (DEPRECATED, DEPRECATIONMSG, argcheck)
+	(argerror, arglen, argscheck, export, getcompat, setcompat)
+	(toomanyarg_fmt): Move from here...
+	* lib/std/debug.lua (DEPRECATED, DEPRECATIONMSG, argcheck)
+	(argerror, arglen, argscheck, export, getcompat, setcompat)
+	(toomanyarg_fmt): ...to here.  Adjust all callers.
+	* lib/std/base.lua (argpairs, checktype, concat, formaterror)
+	(getfenv, getinfo, match, merge, normalize, permutations)
+	(setfenv, whatpath): Move from here...
+	* lib/std/debug.lua (argpairs, checktype, concat, formaterror)
+	(getfenv, getinfo, match, merge, normalize, permutations)
+	(setfenv, whatpath): ...to here, but elide their definitions
+	if _DEBUG.argcheck is false, or equivalent.
+	* NEWS: Update.
+
+	refactor: break std.debug dependency on std.functional and std.string.
+	* specs/debug.spec (say): Specify usage of std.tostring.
+	* lib/std/debug.lua (tabify): Remove.
+	(say) Manually unroll functional compose sequence, formerly
+	knows as tabify.
+	(trace): Manually unroll and consequently remove string.rep call.
+
+	base: support module name override with std.base.export.
+	* lib/std/base/list.lua (compare): Move from here...
+	* lib/std/base.lua (compare): ...to here.
+	* lib/std/base/list.lua: Remove.
+	* local.mk (dist_luastdbase_DATA): Remove lib/std/base/list.lua.
+	* lib/std/list.lua (M.compare): Provide explicit module name
+	argument.
+	* lib/std/base.lua (export): If an explicit module name was
+	passed, use that instead of reverse engineering it from the
+	source file containing an exported function.
+
+2014-08-24  Gary V. Vaughan  <gary@gnu.org>
+
+	base: remove export table metadata.
+	* lib/std/base.lua: Remove export table metadata.
+
+	refactor: simplify std.require, and improve error diagnostics.
+	Closes #78.
+	* specs/std_spec.yaml (require): Specify better diagnostics on
+	failure.
+	* lib/std/list.lua (compare): Move from here...
+	* lib/std/base/list.lua (compare): ...to here.
+	* local.mk (dist_luastdbase_DATA): Add lib/std/base/list.lua.
+	* lib/std/base.lua: Break dependency on "std.list".
+	(require): Use base.list.compare directly, and show verbose
+	diagnostics on failure.
+	(module_version, version_to_list): Remove; no longer used.
+	* NEWS: Update.
+
+	refactor: remove spurious comments from base.lua.
+	* lib/std/base.lua: Remove spurious comments.
+
+2014-08-23  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: fix a typo in std.lua.in.
+	* lib/std.lua.in (export): Import this symbol correctly.
+
+	refactor: simplify use of export by looking up local functions.
+	Prior to this changeset, export worked by creating an argument
+	checking wrapper function when called with an inner function, a
+	destination table containing metadata and the argument spec
+	string.  The metadata leaked out into the library interface, as
+	well as other assorted clunkiness. Clean up and simplify the
+	whole thing.
+	* specs/spec_helper.lua (badarg): Adjust to produce consolidated
+	error messages.
+	* specs/functional_spec.yaml, specs/list_spec.yaml,
+	specs/std_spec.yaml: Remove element `1` from expected entries in
+	export table, now that metadata isn't leaked.
+	* specs/base_spec.yaml (DEPRECATED, export): Remove argument
+	checking specifications.
+	* lib/std/base.lua (getinfo): New functions. Use `debug.getinfo`
+	to lookup a local function in the given scope given only its
+	name.
+	(whatpath): Cross reference the package.path and function source
+	file from `debug.getinfo` to reverse engineer the module path
+	passed to require that was used to load this function.
+	(export): Remove all vestiges of hard-coded module metadata from
+	the destination table, and passing of an inner function; instead
+	look everything up using introspection and the new functions
+	above.  Don't stash the result in a table parameter, return it.
+	Adjust all callers.
+	(copy, render, split): Move from here...
+	* lib/std/base/string.lua (copy, render, split): New file.  ...to
+	here, so that base.whatpath reports the correct module path.
+	* local.mk (dist_luastdbase_DATA): Add lib/std/base/string.lua.
+	* lib/std/container.lua, lib/std/debug.lua,
+	lib/std/functional.lua, lib/std/io.lua, lib/std/list.lua,
+	lib/std/math.lua, lib/std/package.lua, lib/std/string.lua,
+	lib/std/table.lua (M): Remove metadata, rebuild after exported
+	functions' local declarations.
+	* NEWS: Update.
+
+2014-08-21  Gary V. Vaughan  <gary@gnu.org>
+
+	functional: have callable return the function rather than a bool.
+	* specs/functional_spec.yaml (callable): Adjust to check that
+	return values are the actual function.
+	* lib/std/base/functional.lua (callable): Return the actual
+	function.
+
+	specs: break dependency on M[1], M[2] in badarg.
+	That is, polluting the exported module tables with the module
+	name (M = {"std.base"}) and object name (M = {"std.list", "List"})
+	for argument error message text generation is ugly.
+	* specs/spec_helper.lua (badarg): Require an explicit module
+	name arg, and use it instead of relying on M[1].
+	* specs/base_spec.yaml, specs/debug_spec.yaml,
+	specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/package_spec.yaml, specs/std_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml: Pass the explicit
+	module name arg to badarg calls.
+	* specs/list_spec.yaml: The goal is not to output different
+	error messages when called with ':' syntax than with '.' syntax.
+	Move module function argument check specifications into higher
+	scope; remove object method argument check specifications
+	entirely.
+
+2014-08-18  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: prepare lib/std/list.lua for deprecation-apocalypse!
+	Almost half of lib/std/list.lua is only there to take care of
+	warning about deprecated usage.
+	* lib/std/list.lua: Group all deprecation support code in one
+	huge block ready for quick and easy annihilation in due course.
+
+	refactor: move list.depair and list.enpair into std.table.
+	* specs/table_spec.yaml (depair, enpair): Specify full behaviours.
+	* specs/list_spec.yaml (depair, enpair): Specify deprecation
+	warnings.
+	* lib/std/list.lua (depair, enpair): Move from here...
+	* lib/std/table.lua (depair, enpair): ...to here.
+	* NEWS: Update.
+
+2014-08-18  Gary V. Vaughan  <gary@gnu.org>
+
+	Revert "list: exchange parameter order for list.cons."
+	This reverts commit 1b290ee40f638b03a4dd4b3c4f5b8faa6cdd2479.
+
+
+	Conflicts:
+		lib/std/list.lua
+		specs/list_spec.yaml
+
+2014-08-18  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: disable specl rock version check by bootstrap.
+	Specl 13 is not released yet, but we're relying on some fixes
+	it has.
+	* bootstrap.conf (buildreq): Disable specl temporarily.
+
+	travis: use unreleased specl rockspec.
+	* .travis.yml (script): Use specl-git-1.rockspec from github.
+
+	refactor: move `list.project` to `table.project`.
+	* specs/table_spec.yaml (project): Specify behaviours of project.
+	* specs/list_spec.yaml (project): Specify deprecation warnings.
+	* lib/std/list.lua (project): Move from here...
+	* lib/std/table.lua (project): ...to here.
+	* NEWS: Update.
+
+	refactor: move `list.shape` to `table.shape`.
+	* specs/table_spec.yaml (shape): Specify full behaviours.
+	* specs/list_spec.yaml (shape): Specify deprecation warnings.
+	* lib/std/list.lua (shape): Move from here...
+	* lib/std/table.lua (shape): ...to here.
+	* NEWS: Update.
+
+2014-08-18  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move list.flatten to table.flatten.
+	* specs/list_spec.yaml (flatten): Specify deprecation warnings.
+	* specs/functional_spec.yaml (flatten): Move from here...
+	* specs/table_spec.yaml (flatten): ...to here.
+	* lib/std/list.lua (flatten): Move from here...
+	* lib/std/table.lua (fatten): ...to here.
+	* lib/std/functional.lua (collect): Move core from here...
+	* lib/std/base/functional.lua (collect): ...to here.
+
+	* specs/list_spec.yaml (flatten): Deprecated properly.
+	* lib/std/list.lua (flatten): Wrap object method in deprecation
+	warning.
+
+2014-08-18  Gary V. Vaughan  <gary@gnu.org>
+
+	list: deprecate filter in favour of functional.filter.
+	* specs/list_spec.yaml (filter): Specify deprecation messages.
+	* lib/std/list.lua (filter): Deprecated.
+	* NEWS: Update.
+
+	list: properly deprecate `list.map` to match NEWS.
+	* specs/list_spec.yaml (map): Deprecated properly.
+	* lib/std/base/functional.lua (map): Move from here...
+	* lib/std/functional.lua (map): ...back to here.
+	* lib/std/list.lua (map): Reinstate deprecated version of this
+	function locally, for simplicity.
+
+	doc: document list.cons arguments in the correct order.
+	* lib/std/list.lua (cons): Fix LDoc to display parameters in the
+	correct order.
+
+	list: export all apis for automatic argument type checking.
+	* specs/list_spec.yaml: Specify argument checking of all apis.
+	* lib/std/functional.lua (map): Move core function from here...
+	* lib/std/base/functional.lua (map): ...to here.
+	* lib/std/list.lua (project, map, map_with, transpose): Use it.
+	(m): Collect exported object methods here.
+	(List.__index): Set to m.
+
+	refactor: simplify deprecation specs.
+	* lib/std/base.lua (DEPRECATED): Use `name` as the key into the
+	table for recording whether each deprecation message has been
+	output yet... it's more likely to be unique than the inner
+	function address, which might be shared between a module function
+	and object method.
+	* specs/functional_spec.yaml, specs/list_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml: Simplify
+	specifications for deprecation warning.
+
+	specs: fix os.execute thinko.
+	* specs/spec_helper.lua (LUA): No need to repeat ourselves by
+	looking for lua in the PATH with which and again at runtime.
+
+	configury: use static specs/spec_helper.lua.
+	No need to generate this file just to substitute @LUA@, just
+	use os.getenv "LUA" in a static file instead.
+	* specs/spec_helper.lua.in: Move from here...
+	* specs/spec_helper.lua: New file. ...to here.
+	(LUA): Set from LUA environment, or call `which lua` or just rely
+	on path search for "lua".
+	* .gitignore: Remove specs/spec_helper.lua.
+	* configure.ac (AC_CONFIG_FILES): Remove specs/spec_helper.lua
+	generator.
+	* specs/specs.mk (specs_path, spec-check-local): Remove.
+	(SPECL_ENV): Simplify.
+	(EXTRA_DIST): Adjust.
+	* specs/io_spec.yaml (process_files, readlines, slurp)
+	(writelines): Don't rely on specs/spec_helper.lua being in the
+	builddir, in case of VPATH builds.
+
+	travis: add .slackid for slack notifications.
+	* .slackid: New file.
+	* .travis.yml: Regenerate.
+
+	slingshot: sync with upstream, for slack notifications.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	maint: remove stale files from .gitignore.
+	* .gitignore: Remove unused /m4/ax_compare_version.m4.
+
+2014-08-17  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: use to_raise matcher alias consistently.
+	Slingshot sanity checks flag strings with an initial capital
+	following 'error' as bad style.  Rather than switch off that
+	check, use a matcher alias.
+	* build-aux/sanity-cfg.mk (sc_error_message_uppercase): Remove
+	spec-files from regexp.
+	specs/base_spec.yaml, specs/container_spec.yaml,
+	specs/debug_spec.yaml, specs/functional_spec.yaml,
+	specs/io_spec.yaml, specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/optparse_spec.yaml, specs/package_spec.yaml,
+	specs/std_spec.yaml, specs/string_spec.yaml,
+	specs/table_spec.yaml, specs/tree_spec.yaml,
+	specs/vector_spec.yaml: s/to_error/to_raise/
+	s/not_to_raise ()/not_to_raise "any error"/
+
+	refactor: simplify argument error specifications.
+	* specs/spec_helper.lua.in (toomanyarg): Remove.
+	(badarg): Now file local, and treats one or two numeric args as
+	a `too many arguments` error request.
+	(init): Prebind badarg module and function names.
+	* lib/std/base.lua: Add M[1] for error message matching.
+	* specs/container_spec.yaml (construction): Unroll non-generated
+	bad argument error messages.
+	* specs/base_spec.yaml, specs/debug_spec.yaml,
+	specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/math_spec.yaml,
+	specs/package_spec.yaml, specs/std_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml: Simplify argument
+	error specifications.
+
+2014-08-16  Gary V. Vaughan  <gary@gnu.org>
+
+	base: support zero argument exports.
+	* specs/base_spec.yaml (export): Remove specification for zero
+	argument export error.
+	* lib/std/base.lua (export): Remove zero argument error.
+	* specs/base_spec.yaml (export): Specify argument checking of
+	zero argument exports.
+	* lib/std/base.lua (export): Support zero arguments.
+
+	base: ensure export errors report callsite in stack trace.
+	* specs/base_spec.yaml (export): Finish and simplify mkstack().
+	Specify callsite line numbers in export errors.
+	* lib/std/base.lua (formaterror): Allow expectedtypes to be a
+	string.
+	(export): Use it to generate error messages.
+	(export): Set levels correctly for correct callsite reporting.
+
+2014-08-15  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move list.flatten to functional.flatten.
+	* lib/std/list.lua (flatten): Deprecate.
+	* lib/std/functional.lua (flatten): Export from here.
+	* specs/list_spec.yaml, specs/functional_spec.yaml: Adjust.
+	* NEWS: Update.
+
+	refactor: merge most of std.base.functional back into functional.
+	* lib/std/base/functional.lua: Remove comment about needing to
+	wait until deprecated access points are gone before merging.
+	(foldl, foldr, memoize, nop): Move from here...
+	* lib/std/functional.lua (foldl, foldr, memoize, nop): ...to here.
+	* lib/std/list.lua (foldl, foldr): Keep a file local copy of
+	these functions to satisfy deprecated access points.
+
+	refactor: share leaves implementation from new std.base.tree.
+	* lib/std/base.lua (leaves): Move from here...
+	* lib/std/base/tree.lua (leaves): New file.  ...to here.
+	* local.mk (dist_luastdbase_DATA): Add lib/std/base/tree.lua.
+	* lib/std/io.lua, lib/std/list.lua, lib/std/tree.lua: Adjust.
+
+	refactor: use new functional apis in std.tree.
+	* lib/std/tree.lua (reduce, operator): Use these...
+	(fold, op): ...instead of these.
+
+	functional: new zip and zip_with replace list transpose and zip_with.
+	* specs/functional_spec.yaml (zip, zip_with): Specify behaviour
+	of new general zip and zip_with apis.
+	* lib/std/functional.lua (zip, zip_with): New functions.
+	* lib/std/list.lua (transpose, zip_with): Deprecate.
+	* specs/list_spec.yaml (transpose, zip_with): Specify deprecation
+	warning behaviours.
+	* NEWS: Update.
+
+2014-08-14  Gary V. Vaughan  <gary@gnu.org>
+
+	list: deprecate list.map.
+	* specs/list_spec.yaml (map): Specify output of deprecation
+	warning on first call.
+	* specs/debug_spec.yaml (debug, say): Use functional.map for
+	mkwrap instead of deprecated list.map.
+	* lib/std/list.lua (map): Deprecate.
+	* NEWS: Update.
+
+	functional: support default iterators where possible.
+	* specs/functional_spec.yaml (collect, filter, map): Specify
+	behaviours when iterator argument is omitted.
+	* lib/std/functional.lua (collect): Default iterator to ipairs.
+	(filter, map): Default iterator to pairs.
+	* NEWS: Update.
+
+	functional: new callable module function.
+	* specs/functional_spec.yaml (callable): Specify correct behaviour
+	for new callable function.
+	* lib/std/functional.lua (iscallable): Move from here...
+	* lib/std/base/functional.lua (callable): ...to here.  Adjust all
+	callers.
+	* lib/std/functional.lua (M.callable): Reexport as a public api.
+	* NEWS: Update.
+
+	functional: improve LDocs for consistency and clarity.
+	* lib/std/functional.lua: Be consistent with parameter names in
+	all functions.
+	Be consistent with usage example formats.
+	Be consistent with lambda string quoting in examples.
+
+2014-08-13  Gary V. Vaughan  <gary@gnu.org>
+
+	functional: replace list.map_with using new functional.map_with.
+	* specs/functional_spec.yaml (map_with): Specify behaviour of
+	improved map_with implementation that handles tables.
+	* lib/std/functional.lua (map_with): Improved implementation of
+	`list.map_with`.
+	* lib/std/list.lua (map_with): Deprecate.
+	* specs/list_spec.yaml (map_with): Adjust accordingly.
+	* NEWS: Update.
+
+	list: factor out manual argument checking.
+	* lib/std/list.lua (depair, map_with, project, transpose)
+	(zip_with): Use new "container of thing" support in export type-
+	lists to replace manual checks.
+	(_ARGCHECK): Remove. No longer used.
+	* specs/list_spec.yaml (depair, map_with, project, transpose)
+	(zip_with): Adjust error expectations accordingly.
+
+	debug: support "container of homogenous_thing" in argcheck.
+	* specs/debug_spec.yaml (argcheck): Specify behaviours when
+	checking for combinations of "List of table" variations.
+	* lib/std/base.lua (formaterror): Add optional index parameter,
+	and diagnose errors that use it with new "type at index N"
+	format; otherwise, simplify "List of table" strings in
+	expectedtypes to just "List" when the error is in the outer
+	type matching.
+	(checktype): Abstracted out of `argcheck`.
+	(argcheck): Simplify accordingly.
+	Detect and diagnose element mismatches with "List of table"
+	expected types.
+	(export): Likewise.
+	(typeof): Factored out entirely.
+
+	list: update LDocs.
+	* lib/std/list.lua: Add @function and @static keywords.
+
+	list: base.export module functions for improved argchecks.
+	* lib/std/list.lua (_functions): Rename from this...
+	(M): ...to this.  Add a module name entry for export.
+	* specs/list_spec.yaml (exported_apis): Adjust accordingly.
+	(append, compare, concat, filter, flatten, map, project, rep)
+	(sub, tail, transpose, zip_with): Modernize badarg error
+	specifications.  Specify "too many arguments" error behaviours.
+	* lib/std/list.lua (cons): Store in M; adjust getcompat/setcompat
+	id.
+	(map_with, project, transpose, zip_with): Use export for improved
+	argchecks.
+	(append, compare, concat, depair, enpair, filter, flatten, map)
+	(rep, shape, sub, tail): Likewise.  Remove manual argcheck calls.
+
+	specs: specify `std.list` apis.
+	* specs/list_spec.yaml (std.list): Add specs for exported apis,
+	and global table hygiene.
+
+	string: remove unused local.
+	* lib/std/string.lua (render): Remove unused local.
+
+	refactor: split out base functions for `std.functional`.
+	* lib/std/base.lua (foldl, foldr, memoize, nop, reduce): Move
+	from here...
+	* lib/std/base/functional.lua (foldl, foldr, memoize, nop)
+	(reduce): New file. ...to here.
+	* lib/std/functional.lua, lib/std/list.lua: Adjust imports
+	accordingly.
+	* local.mk (luastdbasedir, dist_luastdbase_DATA): Install new
+	file correctly.
+
+	refactor: move list.foldl and list.foldr to std.functional.
+	Move the documented location for foldl and foldr from list.lua
+	to functional.lua, modernizing specs as we go.  Keep the old
+	access points, with a deprecation warning.
+	* lib/std/list.lua (foldl, foldr): Move from here...
+	* lib/std/base.lua (foldl, foldr): ...to here.
+	* lib/std/functional.lua (reduce): Move from here...
+	* lib/std/base.lua (reduce): ...to here, where foldl and foldr
+	can use it.
+	* specs/list_spec.yaml (foldl, foldr): Copy from here...
+	* specs/functional_spec.yaml (foldl, foldr): ...to here.
+	* specs/base_spec.yaml (before): Don't depend on the location of
+	implementation of nop.
+	* NEWS: Update.
+
+	travis: add slack notifications.
+	* .travis.yml (notifications): Add slack.
+
+2014-08-11  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move lambda back to std.functional.
+	* lib/std.lua.in (lambda): Move from here...
+	* lib/std/base.lua (lamba): ...and here...
+	* lib/std/functional.lua (lambda): ...to here.
+	* specs/functional_spec.yaml, specs/std_spec.yaml: Adjust
+	accordingly.
+	* lib/std/base.lua (tostring): Unroll lambda calls.
+	* lib/std/operator.lua ("#"): Move implementation from here...
+	* lib/std/base.lua (len): ...to here. Adjust all callers.
+	(_len): Remove.
+	(operator): Remove unused require statement
+	* lib/std/list.lua (transpose): Unroll lambda call.
+	* NEWS: Update.
+
+	functional: new `cond` function.
+	* specs/functional_spec.yaml (cond): Specify behaviour of a new
+	cond function.
+	* lib/std/functional.lua (cond): Satisfy specified behaviours.
+	* NEWS: Update.
+
+	functional: process non-function branch values with case.
+	* specs/functional_spec.yaml (case): Specify behaviours with new
+	functable and non-callable branch values.
+	* lib/std/functional.lua (case): Call functables as if they were
+	regular functions, and return non-callable values directly.
+	* NEWS: Update.
+
+	specs: add exported api specification to functional_spec.yaml.
+	* specs/functional_spec.yaml (std.functional): Specify exported
+	apis.
+
+	refactor: functional.eval issues a deprecation warning.
+	* specs/functional_spec.yaml (eval): Specify deprecation warning.
+	* lib/std/functional.lua (eval): Deprecated.
+	* NEWS: Update.
+
+	refactor: move memoize back to std.functional.
+	* specs/std_spec.yaml (memoize): Move from here...
+	* specs/functional_spec.yaml (memoize): ...to here.
+	* lib/std.lua.in (memoize): Move from here...
+	* lib/std/functional.lua (memoize): ...to here.
+	* NEWS: Update.
+
+	refactor: move case back to std.functional.
+	* specs/std_spec.yaml (case): Move from here...
+	* specs/functional_spec.yaml (case): ...to here.
+	* lib/std/base.lua (case): Move implementation from here..
+	* lib/std.lua.in (case): ...and argcheck wrapper from here...
+	* lib/std/functional.lua (case): ...to here.
+	* lib/std/package.lua (path_sub): Decouple from std.functional by
+	comparing manually rather than using functional.case.
+
+2014-08-07  Gary V. Vaughan  <gary@gnu.org>
+
+	functional: rename fold to reduce.
+	* specs/functional_spec.yaml (fold): Remove argument checking
+	specifications.
+	Add deprecation warning specification.
+	(reduce): Specify identical behaviour to old fold api.
+	* lib/std/functional.lua (fold): Rename from this...
+	(reduce): ...to this.
+	(fold): Show a deprecation warning on first use.
+	* specs/container_spec.yaml (construction): Adjust.
+	* lib/std/list.lua (foldl, foldr): Use functional.reduce instead
+	of deprecated functional.fold.
+	* lib/std.lua.in (barrel): Install _G.fold from
+	`std.functional.reduce`.
+	* specs/std_spec.yaml (barrel): Adjust.
+	* NEWS: Update.
+
+	functional: map supports key:value remapping functions.
+	* specs/functional_spec.yaml (map): Specify behaviour of passing
+	all iteration return values to mapping function; and remapping
+	when mapping function returns a key:value pair.
+	* lib/std/functional.lua (map): Collect all iteration return
+	values and propagate them to the mapping callback function.
+	If there are two values returned from the callback, treat them as
+	a key and value for setting in the results table.
+	* NEWS: Update.
+
+	functional: fold supports multi-return iterators.
+	* specs/functional_spec.yaml (fold): Specify behaviour with
+	iterators that return multiple values.
+	* lib/std/functional.lua (fold): Collect all values returned by
+	iterator and operate on the last one of those.
+	* specs/container_spec.yaml (construction): Fold dereferences
+	automatically, no need to manually dereference any more.
+	* NEWS: Update.
+
+	doc: add LDoc Type section for callback function signatures.
+	* lib/std.lua.in (normalizecb): Document signature of memoize
+	callback function.
+	(memoize): Set type of *normalize* argument to new `normalizecb`
+	signature.
+	* lib/std/functional.lua (predicate): Document signature for a
+	predicate function.
+	(filter): Set type of *p* argument to new `predicate` signature.
+	* lib/std/io.lua (fileprocessor): Document signature of
+	process_files callback function.
+	(process_files): Set type of *fn* to new `fileprocessor` function.
+	* lib/std/string.lua (opentablecb, closetablecb, elementcb)
+	(paircb, separatorcb): Document signature for render callback
+	functions.
+	(render): Set type of callback functions accordingly.
+	* lib/std/table.lua (comparator): Document signature of sort
+	comparison function.
+	(sort): Set type of *c* argument to new `comparator` signature.
+
+	functional: filter supports multi-parameter predicates.
+	* specs/functional_spec.yaml (filter): Specify behaviours when
+	called with an iterator that returns multiple values, and
+	predicate that accepts multiple parameters.
+	* lib/std/functional.lua (filter): Collect all results from
+	iterator function, and propagate them all to the predicate call.
+	* NEWS: Update.
+
+	functional: collect creates tables from multi-return iterators.
+	* specs/functional_spec.yaml (collect): Differentiate behaviours
+	of calling collect with single return versus multiple return
+	iterators.
+	* lib/std/functional.lua (collect): Inject new elements into the
+	collected values table using key:value pairs when the iterator
+	returns more than one value.
+	* NEWS: Update.
+
+	maint: bump copyright years.
+	* README.md: Bump copyright years to include 2014.
+
+	maint: Update AUTHORS file.
+	* AUTHORS: Update.
+
+	maint: use fully qualified api names in all deprecation messages.
+	* specs/list_spec.yaml (elems, index_key, index_value, relems)
+	(reverse, :depair, :map_with, :transpose, :zip_with): Specify
+	fully qualified api name in deprecation message.
+	* specs/string_spec.yaml (assert, require_version, tostring):
+	Likewise.
+	* specs/table_spec.yaml (clone_rename, metamethod, ripairs):
+	Likewise.
+	* lib/std/list.lua (elems, index_key, index_value, relems)
+	(reverse, :depair, :map_with, :transpose, :zip_with): Add `std.`
+	prefix to deprecation messages.
+	* lib/std/string.lua (assert, require_version, tostring):
+	Likewise.
+	* lib/table.lua (clone_rename, metamethod, ripairs): Likewise.
+
+	functional: report bind api deprecations correctly.
+	* specs/functional.yaml (bind): Specify deprecation warning
+	behaviour when called with the legacy multi-argument parameter
+	passing.
+	* lib/std/functional.lua (bind): Use new getcompat/setcompat
+	internal apis to report deprecation of legacy calling convention.
+
+	base: unwrap functables before calling debug.setenv on Lua 5.1.
+	* lib/std/base.lua (setfenv): Unwrap functables unconditionally,
+	before delegating to `debug.setfenv` or Lua 5.2 emulation.
+
+	base: propagate environments through export argcheck wrappers.
+	* lib/std/base.lua (debug): Rename from this...
+	(debug_init): ...to this.
+	(_ARGCHECK, _DEBUG): Adjust accordingly.
+	(getfenv, setfenv): Compatibility functions for Lua 5.2.
+	(export): When returning argchecking wrapper function, propagate
+	the wrapper's function environment to the inner function.
+	* specs/base_spec.yaml (export): Adjust mkmagic not to rely on
+	out-of-scope MAGIC table.
+
+2014-08-05  Gary V. Vaughan  <gary@gnu.org>
+
+	list: exchange parameter order for list.cons.
+	Closes #72.
+	* specs/list_spec.yaml (cons): Modernize specifications.
+	Specify deprecation warning behaviour when calling cons with
+	arguments in legacy order.
+	* lib/std/list.lua (cons): If arguments appear to be in the
+	wrong order, issue a deprecation warning and rewrite them into
+	the correct order.
+	* NEWS: Update.
+
+	refactor: break apart base.DEPRECATED for component reuse.
+	* lib/std/base.lua (DEPRECATIONMSG, getcompat, setcompat): New
+	functions, factored out of...
+	(DEPRECATED): ...here.  Simplify accordingly.
+
+	refactor: use std.ipairs and std.pairs everywhere internally.
+	* lib/std/container.lua, lib/std/functional.lua, lib/std/io.lua,
+	lib/std/list.lua, lib/std/optparse.lua, lib/std/package.lua,
+	lib/std/set.lua, lib/std/string.lua, lib/std/table.lua,
+	lib/std/tree.lua, lib/std/vector.lua: Import and use `base.ipairs`
+	and `base.pairs` everywhere
+	* NEWS: Update.
+
+	specs: capture list.map_with deprecation warning.
+	* specs/list_spec.yaml (map_with): Modernize specifications for
+	argument checking, split module function and object method
+	specifications, and capture deprecation warning for list:map_with
+	on first invocation.
+
+	std: remove __ipairs support in favour of 1..#t iteration.
+	* specs/std_spec.yaml (ipairs, ireverse, ripairs): Adjust
+	specifications to verify treatment of __len metamethod, and
+	ignore __ipairs metamethod.
+	* lib/base.lua (ipairs): Using __len if available, or # operator
+	otherwise, iterate over elments 1..#t.
+	(unwrap__ipairs): Remove.  Simplifications above make this
+	function superfluous.
+	(ripairs, ireverse): Adjust accordingly.
+	* lib/std/vector.lua (core_metatable.__ipairs)
+	(alien_functions.__ipairs): Remove.
+	* lib/std.lua.in (ipairs, ireverse, ripairs): Update LDocs.
+	* NEWS: Update.
+
+2014-08-04  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: factor away math.pow.
+	Upcoming Lua 5.3 deprecates `math.pow` in favour of the `^`
+	operator.  We can easily eliminate stdlib's references to
+	`math.pow` for future compatibility.
+	* lib/std/operator.lua ("^"): Use `^` rather than `math.pow`.
+	* lib/std/functional.lua (bind, fold): Use "^" lambda function
+	instead of `math.pow` in LDocs.
+
+2014-08-02  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: simplify deprecation management.
+	Closes #73.
+	* specs/base_spec.yaml (DEPRECATED): Specify behaviours of an
+	improved internal deprecation API.
+	* specs/list_spec.yaml (elems, index_key, index_value, relems)
+	(reverse): Specify default deprecation behaviours.
+	* specs/string_spec.yaml (assert, require_version, tostring):
+	Likewise.
+	* specs/table_spec.yaml (clone_rename, metamethod, ripairs):
+	Likewise.
+	* lib/std/debug.lua (_DEBUG): Document new compat field.
+	* lib/std/base.lua (_DEBUG): Set from debug_init.lua.
+	(deprecate): Rename from this...
+	(DEPRECATED): ...to this, and improve API.
+	* lib/std/functional.lua (bind): Use it to mark the old bind
+	API as deprecated since release 39.
+	* lib/std/list.lua (elems, index_key, index_value, relems)
+	(reverse): Collect in a new section and deprecate with the
+	improved API.
+	* lib/std/string.lua (assert, require_version, tostring):
+	Likewise.
+	* lib/std/table.lua (clone_rename, metamethod, ripairs):
+	Likewise.
+	* build-aux/sanity-cfg.mk (exclude_file_name_regexp): Don't choke
+	on error specs in specs/list_spec.yaml
+	* NEWS (Deprecations): Collect deprecated API NEWS for this
+	release.
+
+	string: reference totable correctly in string.pickle.
+	Closes #79.
+	* lib/std/string.lua (totable): Set to table.totable.
+	Reported by Simon Cozens.
+
+	list: specify shape method behaviours.
+	* specs/list_spec.yaml (shape): Specify method behaviours.
+
+	list: specify list.zip_with, and fix revealed bugs.
+	* specs/list_spec.yaml (zip_with): Specify behaviour of zip_with
+	method.
+	* lib/std/list.lua (zip_with): Call list.map with correctly
+	* ordered arguments.
+	* NEWS: Update.
+
+	list: specify list.transpose, and fix revealed bugs.
+	* specs/list_spec.yaml (transpose): Specify behaviour of transpose
+	method.
+	* lib/std/list.lua (transpose): Handle empty list argument.
+	Call list.map with correctly ordered arguments.
+	* NEWS: Update.
+
+	maint: reinstate specl package.path workaround for luarocks bug.
+	Now that we're supporting LuaRocks' `init.lua suffixed filenames
+	get installed to an init installation directory` bug again, we
+	must adjust Specl's in-tree package.path to accommodate.
+	* specs/spec_helper.lua.in (package.path): Add "lib/?/init.lua".
+	* local.mk (std_path): Likewise
+
+	specs: don't rely on `_G.arg[-1]:match "/lua[0-9.]*$"`
+	When `specs/optparse_spec.yaml` came over from Specl, I forgot to
+	upgrade the direct `hell.spawn` invocations to nicely abstracted
+	`spec_helper.lua:luaproc` calls.
+	* specs/optparse_spec.yaml (parser): Replace hell.spawn calls
+	with luaproc calls, so that Lua interpreter is set correctly.
+
+2014-07-31  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream for upload and moonscript support.
+	* slingshot: Sync with upstream.
+	* bootstrap.conf (slingshot_files): Delete removed
+	ax_compare_version.m4.
+	* README.md (Installation): Show moonscript rocks repo.
+	* .travis.yml: Regenerate.
+
+2014-07-29  Gary V. Vaughan  <gary@gnu.org>
+
+	std: `std.require` now matches last dot-delimited version number.
+	* specs/std_spec.yaml (require): Specify behaviours when a version
+	string contains more than one substring with dot-delimited digits.
+	* lib/std/base.lua (module_version): Anchor the version matching
+	pattern at the end of the string.
+	* lib/std.lua.in (require): Improve LDocs accordingly.
+	* NEWS: Update.
+
+	maint: reinstate LuaRocks init install bug workaround.
+	Latest LuaRocks still has the bug where Lua source files ending
+	in `init.lua` are installed to a subdirectory.  Put back the
+	workaround I removed prematurely.
+	* lib/std/debug_init.lua: Move from here...
+	* lib/std/debug_init/init.lua: ...to here.
+	* local.mk (dist_luastd_DATA): Remove lib/std/debug_init.lua.
+	(dist_luastddebug_DATA): Add lib/std/debug_init/init.lua.
+
+2014-07-25  Gary V. Vaughan  <gary@gnu.org>
+
+	spec: modernize and normalize std specs.
+	* specs/std_spec.yaml: Reduce redundancy, and update to modern
+	style with fully argchecked apis.
+	* lib/std.lua.in (barrel): Scribble deprecated functions into
+	global namespace.
+
+	doc: improve LDocs for std.lua.
+	* lib/std.lua.in: Tidy up and normalize LDocs.
+
+	refactor: move `table.metamethod` to `std.getmetamethod`.
+	Be more in keeping with the style of core Lua.
+	* lib/std/table.lua (metamethod): Deprecate.
+	* lib/std.lua.in (getmetamethod): Export from here instead.
+	* specs/table_spec.yaml, specs/std_spec.yaml: Adjust accordingly.
+	* NEWS: Update.
+
+	refactor: move `std.string.tostring` to `std.tostring`.
+	* lib/std/string.lua (render, tostring): Move from here...
+	* lib/std/base.lua (render, tostring): ...to here, with argchecks
+	removed.
+	* lib/std/string.lua (render): Re-export base.render from here.
+	(tostring): Re-export base.tostring with a deprecation notice.
+	* lib/std.lua.in (tostring): Re-export base.tostring from here.
+	(memoize): Simplify accordingly.
+	* specs/debug_spec.yaml, specs/string_spec.yaml,
+	specs/std_spec.yaml: Adjust accordingly.
+	* NEWS: Update.
+
+	refactor: relocate std.lua contents to std.base and std.
+	* specs/lua_spec.yaml: Remove. All specs moved from here...
+	* specs/std_spec.yaml: ...to here.
+	* specs/specs.mk (specl_SPECS): Remove specs/lua_spec.yaml.
+	* lib/std/operator.lua (getmetamethod): Remove to break a
+	require loop.
+	* lib/std/lua.lua (assert, case, elems, eval, ielems, ipairs)
+	(ireverse, lambda, memoize, pairs, require, ripairs): Move from
+	here...
+	* lib/std/base.lua (assert, case, elems, eval, ielems, ipairs)
+	(ireverse, lambda, memoize, pairs, require, ripairs): ...to here,
+	removing argchecks...
+	* lib/std.lua.in (assert, case, elems, eval, ielems, ipairs)
+	(ireverse, lambda, memoize, pairs, require, ripairs): ...and
+	re-export from here with argcheck wrappers.
+	(barrel, monkey_patch): Adjust accordingly.
+	* lib/std/functional.lua (filter, fold, map): Adjust LDocs.
+	(case, eval, memoize): Re-export with argcheck wrappers.
+	* lib/std/string.lua (assert, require_version): Deprecate.
+	* build-aux/config.ld.in (file): Remove lib/std/lua.lua.
+	* local.mk (dist_luastd_DATA): Remove lib/std/lua.lua.
+	* specs/functional_spec.yaml (fold): Adjust require imports.
+	* NEWS: Update.
+
+2014-07-24  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move `table.ripairs` to `lua.ripairs`.
+	* specs/table_spec.yaml (ripairs): Specify deprecation warning
+	on first use.
+	* specs/lua_spec.yaml (ripairs): Specify all behaviours for
+	ripairs.
+	* lib/std/base.lua (ripairs): Shared core functionality for
+	ripairs, respecting `__ipairs` metamethod even on Lua 5.1.
+	* lib/std/table.lua (ripairs): Use it, with a deprecation
+	warning on first use.
+	* lib/std/lua.lua (ripairs): Re-export it from here with full
+	argchecks.
+	* NEWS: Update.
+
+2014-07-23  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: replace `list.reverse` with `lua.ireverse`.
+	* specs/lua_spec.yaml (ireverse): Specify behaviour of new
+	ireverse function.
+	* specs/list_spec.yaml (relems, reverse): Specify new deprecated
+	behaviours of these functions.
+	* lib/std/list.lua (relems, reverse): Deprecated.
+	* lib/std/base.lua (ireverse): New `__ipairs` aware generator of
+	new reversed array-part of any table.
+	* lib/std/lua.lua (ireverse): Export `base.ireverse`.
+	(monkey_patch): Inject ireverse into given namespace.
+	* specs/std_spec.yaml (monkey_patch): Adjust accordingly.
+	* NEWS: Updated.
+
+2014-07-21  Gary V. Vaughan  <gary@gnu.org>
+
+	operator: break a require loop.
+	* lib/std/base.lua: Remove unused `require "std.operator"` to
+	break a require loop.
+
+	operator: make '#' operator Lua 5.1 compatible.
+	* specs/operator_spec.yaml (#): Specify behaviour of # operator.
+	* lib/std/operator.lua (#): If there's a `__len` metamethod, call
+	it manually before falling back to actual `#` operator.
+
+2014-07-18  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: improve render LDocs @usage examples.
+	* lib/std/string.lua (render, render_separator): Improve LDocs
+	@usage examples.
+
+	doc: add missing @function to prettytostring LDocs.
+	* lib/std/string.lua (prettytostring): Add missing @function.
+
+	refactor: move assert and require from std.string to std.lua.
+	* specs/string_spec.yaml (assert, require): Move from here...
+	* specs/lua_spec.yaml (assert, require): ...to here.
+	* lib/std/string.lua (assert, module_version, require,
+	version_to_list): Move from here...
+	* lib/std/lua.lua (assert, module_version, require,
+	version_to_list): ...to here.
+	* lib/std/string.lua (assert): Propagate invocations to std.lua,
+	with a deprecation warning.
+	* NEWS: Update.
+
+	refactor: decouple std.lua from other modules.
+	* lib/std/lua.lua (wrapiterator): Move from here...
+	* lib/std/base.lua (wrapiterator): ...to here.
+	(ielems): Non-argchecked implementation.
+	* lib/std/lua.lua (ielems): Use it.
+	* lib/std/debug.lua, lib/std/list.lua, lib/std/set.lua,
+	lib/std/tree.lua: Use base.ielems internally.
+	* lib/std/functional.lua (case, eval, lambda, memoize): Load
+	std.lua on demand when these functions are called rather than
+	depending on it at require time.
+	* lib/std/table.lua: Remove unused std.lua requirement.
+
+	lua: add a monkey_patch function.
+	* specs/lua_spec.yaml (monkey_patch): Specify behaviour of lua
+	monkey_patch function.
+	* lib/std/lua.lua (monkey_patch): Install lua functions into the
+	given namespace.
+	* lib/std/std.lua.in (monkey_patch): Add lua.monkey_patch
+	invocation.
+	(barrel): Remove double injection of `std.lua` functions.
+	* specs/std_spec.yaml (barrel): Add new 'std.lua' functions.
+
+2014-07-17  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'waffle-iron-master'
+
+2014-07-17  Making GitHub Delicious.  <iron@waffle.io>
+
+	add waffle.io badge
+
+2014-07-17  Gary V. Vaughan  <gary@gnu.org>
+
+	lua: support __ipairs and __pairs metamethods on Lua 5.1.
+	* specs/lua_spec.yaml (ipairs, pairs): Specify portable behaviour
+	for new functions.
+	* lib/std/lua.lua (ipairs, pairs): New functions that support
+	__ipairs and __pairs metamethods, even on Lua 5.1.
+	(ielems, elems): Improve LDocs and argchecks.
+	* specs/lua_spec.yaml (elems, ielems): Adjust error message specs.
+	* NEWS: Update.
+
+	debug: argcheck accepts a List object for a list parameter.
+	* specs/debug_spec.yaml (argcheck): Remove specifications for
+	mismatch errors between list parameters and List arguments.
+	* lib/std/base.lua (argcheck): Accept an empty List object for a
+
+	refactor: simplify list.flatten implementation.
+	* lib/std/list.lua (flatten): Simplify.
+
+	container: don't rewrap existing modulefunction functables.
+	* lib/std/container.lua (modulefunction): When re-exporting
+	module functions from another module, don't wrap inside another
+	functable.
+
+2014-07-16  Gary V. Vaughan  <gary@gnu.org>
+
+	list: deprecate list.elems module function.
+	* lib/std/list.lua (elems): Deprecate.
+	* specs/list_spec.yaml (elems): Specify deprecation warning
+	behaviour.
+
+	refactor: consolidate and speed-up ielems and elems functions.
+	* specs/table_spec.yaml (elems, ielems): Move from here...
+	* specs/lua_spec.yaml (elems, ielems): ...to here.
+	* specs/functional_spec.yaml (fold): Adjust ielems import.
+	* lib/std/base.lua (ielems): Remove.
+	* lib/std/table.lua (elems, ielems): Remove.
+	* lib/std/lua.lua (elems, ielems): Wrap ipairs and pairs, taking
+	care to honor __ipairs and __pairs metamethods, for a noticeable
+	speedup.
+	* lib/std/debug.lua, lib/std/list.lua, lib/std/tree.lua: Adjust
+	ielems imports and examples.
+	* build-aux/sanity-cfg.mk (sc_error_message_uppercase): Add
+	specs/lua_spec.yaml.
+	* NEWS: Update.
+
+2014-07-14  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move language features to a new  `std.lua` module.
+	* specs/functional_spec.yaml (case, eval, lambda, memoize): Move
+	from here...
+	* specs/lua_spec.yaml: New file. ...to here.
+	* specs/std_spec.yaml: Adjust accordingly.
+	* specs/specs.mk (specl_SPECS): Add specs/lua_spec.yaml.
+	* build-aux/config.ld.in (file): Add lib/std/lua.lua.
+	* lib/std/base.lua (lambda): Move from here...
+	* lib/std/lua.lua (lambda): New file. ...to here.
+	* local.mk (dist_luastd_DATA): Add lib/std/lua.lua.
+	* lib/std/functional.lua (case, eval, lambda, memoize): Move from
+	here...
+	* lib/std/lua.lua (case, eval, lambda, memoize): ...to here.
+	* lib/std/string.lua (pickle): Adjust LDocs eval cross reference.
+	* NEWS: Update.
+
+2014-07-11  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: revert automatic lambda string compilation.
+	* lib/std/base.lua (lambda): Core Lua APIs require actual
+	functions, so to be useful for passing lambda strings to core
+	APIs and stdlib APIs alike, return a raw function rather than a
+	functable.
+	(argcheck): Don't accept a compilable lambda string where a
+	function argument is expected.
+	* lib/std/debug.lua (lambda, argcheck): Adjust LDocs.
+	* lib/std/functional.lua: Likewise.
+	(bind, case, collect, compose, curry, filter, fold, map)
+	(memoize): Remove lambda argument compilation.
+	* lib/std/io.lua (process_files): Likewise.
+	* lib/std/list.lua (filter, foldl, foldr, map, map_with)
+	(zip_with): Likewise.
+	* lib/std/package.lua (mappath): Likewise.
+	* lib/std/string.lua (render): Likewise.
+	* lib/std/table.lua (sort): Likewise.
+	* specs/debug_spec.yaml, specs/functional_spec.yaml,
+	specs/io_spec.yaml, specs/list_spec.yaml,
+	specs/package_spec.yaml, specs/string_spec.yaml,
+	specs/table_spec.yaml: Adjust lambda specs.
+	* NEWS: Update.
+
+	specs: don't load std.object for std.list spec examples.
+	* specs/spec_helper.lua.in (prototype): Copied from
+	lib/std/base.lua.
+	* specs/list_spec.yaml: Don't load 'std.object', use prototype
+	from spec_helper.
+
+	base: provide better errors from exported object methods.
+	* specs/base_spec.yaml (export): Specify behaviour of exported
+	object methods.
+	* lib/std/base.lua (export): Use separator ':' between module name
+	and method name when dealing with methods, as opposed to '.' when
+	dealing with functions.
+	Count method arguments starting at '0' for self in error messages.
+	* build-aux/sanity-cfg.mk (sc_error_message_uppercase): Add
+	specs/base_spec.yaml.
+
+2014-07-10  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: object and container _functions fields are optional.
+	* lib/std/container.lua (Container): _functions field is optional.
+	* lib/std/object.lua (Object): Likewise.
+
+	doc: clarify use of compiled lambda strings.
+	* lib/std/functional.lua (Lambda): Add LDocs cross-references,
+	and a usage example with call field.
+	(lambda): Fix usage example not to show calling core Lua
+	table.sort with a functable!
+
+	refactor: simplify std.base.lambda.
+	* lib/std/base.lua (lambda): Use `unpack` unconditionally.
+	Save lambda string in Lambda object.
+
+	doc: add LDocs for functional.lambda return functables.
+	* lib/std/functional.lua (Lambda): Add LDocs.
+	(lambda): Document return type correctly.
+
+	doc: improve debug module LDocs.
+	* lib/std/debug.lua (_DEBUG): Document default field values.
+	(argerror): Document interaction between function and lambda
+	strings.
+
+	doc: improve functional module LDocs.
+	* lib/std/functional.lua: Improve module header LDocs.
+
+	functional: make nop an official functional method.
+	* specs/functional_spec.yaml (nop): Specify behaviour of new nop
+	module method.
+	* specs/spec_helper.lua.in (nop): Remove one-off nop declaration.
+	* specs/string_spec.yaml (finds): Specify in-situ nop.
+	* specs/base_spec.yaml (std.base): Likewise.
+	* lib/std/base.lua (nop): Declare an official nop function.
+	* lib/std/functional.lua (nop): Re-export std.base.nop.
+	* NEWS: Update.
+
+2014-07-09  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: clean up NEWS.
+	* NEWS: Update bitrotted recent entries to match reality.
+
+	std: accept lamda strings as an alternative to functions.
+	* specs/functional_spec.yaml, specs/io_spec.yaml,
+	specs/list_spec.yaml, specs/package_spec.yaml,
+	specs/string_spec.yaml, specs/table_spec.yaml: Specify behaviours
+	of API calls that accept functions when given a lambda string
+	instead.
+	* lib/std/functional.lua (Lambda, lambda): Move from here...
+	* lib/std/base.lua (Lambda, lamba): ...to here.
+	(Lambda): Save arguments in table fields.
+	(argcheck): Accept a valid lambda string in lieu of a Lua
+	function.
+	* lib/std/table.lua (sort): When passed a lambda string, pass the
+	associated function to core table.sort.
+	* lib/std/functional.lua (bind, case, collect, curry, filter)
+	(fold, map, memoize): Accept lamda strings in lieu of Lua
+	functions.
+	* lib/std/io.lua (process_files): Likewise.
+	* lib/std/list.lua (filter, foldl, foldr, map, map_with)
+	(zip_with): Likewise.
+	* lib/std/string.lua (render): Likewise.
+	* NEWS: Update.
+
+	specs: add specifications for std.operator.
+	* specs/operator_spec.yaml: New file.  Specify behaviours for
+	operator functions.
+	* specs/specs.mk (specl_SPECS): Add specs/operator_spec.yaml.
+
+2014-07-08  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: factor functional.op into new std.operator module.
+	* lib/std/functional.lua (op): Move from here...
+	* lib/std/operator.lua (M): ...to here.
+	(M[".."], M["{}"], M[#"], M["~"], M["%"], M["^"]): New operators.
+	* local.mk (dist_luastd_DATA): Add lib/std/operator.lua.
+	* build-aux/config.ld.in (files): Likewise.
+	* local.mk (dist_module_DATA): Add std.operator.html.
+	* NEWS: Update.
+
+2014-07-07  Gary V. Vaughan  <gary@gnu.org>
+
+	functional: new lambda function.
+	Support compiling an anonymous Lua function from a "lambda string".
+	* specs/functional_spec.yaml (lambda): Specify behaviour for a
+	new lambda function.
+	* lib/std/functional.lua (lambda): Satisfy specification.
+	* NEWS: Update.
+
+	functional: support multiple return values with memoize.
+	* specs/functional_spec.yaml (memoize): Specify behaviour when
+	passed a function with multiple return values.
+	* lib/std/functional.lua (memoize): Save return values from
+	wrapped function as a table, and unpack it when called again with
+	the same arguments.
+	* NEWS: Update.
+
+2014-07-04  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: fix functional.op LDocs.
+	* lib/std/functional.lua (op): Workaround LDoc's inability to
+	render non-alphanumeric @field names.
+
+	functional: support relational operators in op table.
+	* lib/std/functional.lua (op): Add `<`, `<=`, `>` and `>=`.
+	* NEWS: Update.
+
+	specs: avoid tickling sc_error_message_uppercase sanity check.
+	* specs/spec_helper.lua.in (raise): An alias to the error matcher
+	to subvert matching `error` followed by `"[A-Z]` that prevents
+	make dist from completing.
+	* specs/container_spec.yaml (construction): Use the raise alias.
+
+	reformat: order functional module functions asciibetically.
+	* lib/std/functional.lua: Reorder module functions asciibetically.
+
+	specs: don't pass a Tree to object constructor.
+	* specs/tree_spec.yaml (construction): Don't pass a Tree to an
+	object constructor.
+
+	refactor: use a function to export container module methods.
+	* specs/spec_helper.lua.in (badarg, toomanyarg): Format
+	appropriately when module name is not given.
+	* specs/container_spec.yaml (construction)
+	Update to latest style:
+	Add argcheck behaviour examples.
+	* lib/std/base.lua (olen): Rename from this...
+	(arglen): ...to this.
+	(M): Export arglen and toomanyarg_fmt.
+	* lib/std/container.lua (M): Add module name at element 1.
+	(__tostring, __totable): Reformat these...
+	(M.__tostring, M.__totable): ...as local table function
+	declarations.
+	(M.__call): When _ARGCHECK is not disabled, diagnose argument
+	type errors in table _init styl objects, to satisfy newly
+	specified behaviours.
+	(mapfields): Upgrade to base export declaration (for overhead
+	free argcheck calls with _DEBUG=false) and simplify accordingly.
+
+2014-07-03  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: rename array to vector.
+	In mathematics "array" suggests the possibility of multiple
+	dimensions, and while one can simulate that with a std.array
+	of std.arrays, the name "vector" is a better fit for what this
+	class supports.
+	* lib/std/array.lua, specs/array_spec.yaml: Move from here...
+	* lib/std/vector.lua, specs/vector_spec.yaml: ...to here.
+	Rename symbols accordingly.
+	* build-aux/config.ld.in (file): Adjust accordingly.
+	* local.mk (dist_luastd_DATA, dist_classes_DATA): Likewise.
+	* specs/specs.mk (specl_SPECS): Likewise.
+	* specs/string_spec.yaml (render): Adjust Array using example to
+	Vector.
+
+	refactor: use a function to export table apis.
+	* specs/table_spec.yaml (clone, clone_select, elems, empty)
+	(ielems, invert, keys, merge, merge_select, metamethod)
+	(monkey_patch, new, pack, ripairs, size, totable, values):
+	Update to latest style:
+	Add "too many argument" behaviour checks.
+	Simplify and standardise argument error message comparisons.
+	* lib/std/table.lua (M): Add module name at element 1.
+	(clone, clone_select, elems, empty, ielems, invert, keys)
+	(merge, merge_select, metamethod, monkey_patch, new, pack)
+	(ripairs, size, totable, values): Upgrade to base export
+	declarations (for overhead free argcheck calls with _DEBUG=false)
+	and simplify accordingly.
+
+	maint: settle on calling std api calls `Module Functions`.
+	* lib/std/debug.lua, lib/std/io.lua, lib/std/package.lua,
+	lib/std/table.lua, lib/std/tree.lua: Consolidate comment section
+	header as "Module Functions.".
+
+2014-07-02  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: don't flag `Lua` strings as invalid errors in spec-files.
+	* build-aux/sanity-cfg.mk (exclude_file_name_regexp): Add
+	specs/debug_spec.yaml.
+
+	debug: finish support for nil arguments in exported functions.
+	Because luajit (legitimately) stops counting on the first nil
+	value in a list, where Lua 5.1 and 5.2 keep counting, we have
+	to do our own size calculations on argument vectors to be
+	consistent.
+	* lib/std/base.lua (olen): Return the largest integer key from a
+	table.
+	(match, export): Use it to ignore `nil` elements in the argument
+	list when counting the number of arguments.
+
+	debug: support nil arguments in functions declared with export.
+	* lib/std/base.lua (opairs): Like ipairs, but does not stop at
+	the first nil value.
+
+2014-07-01  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: use a function to export string apis.
+	* specs/string_spec.yaml (__concat, __index, assert, caps, chomp)
+	(escape_pattern, escape_shell, finds, format, ltrim, monkey_patch)
+	(numbertosi, ordinal_suffix, pad, pickle, prettytostring, render)
+	(require, require_version, rtrim, split, tfind, tostring, trim)
+	(wrap): Update to latest style:
+	Add "too many argument" behaviour checks.
+	Simplify and standardise argument error message comparisons.
+	* lib/std/string.lua (M): Add module name at element 1.
+	(__concat, __index, assert, caps, chomp, escape_pattern)
+	(escape_shell, finds, format, ltrim, monkey_patch, numbertosi)
+	(ordinal_suffix, pad, pickle, prettytostring, render, require)
+	(require_version, rtrim, split, tfind, tostring, trim): Upgrade
+	to base.export declarations (for overhead free argcheck calls
+	with _DEBUG = false) and simplify accordingly.
+
+	refactor: simplify caps, chomp, escape_pattern and escape_shell.
+	* lib/std/string.lua (caps, chomp, escape_pattern, escape_shell):
+	Remove extraneous parens around return argument.
+	Use Lua :-method call sugar to shorten gsub invocations.
+
+	refactor: rename string.require_version to string.require.
+	* specs/string_spec.yaml (require): A copy of the require_version
+	specs.
+	(require_version): Also check for deprecation warning on first
+	use.
+	(monkey_patch): Check that new `require` function is written into
+	the given namespace.
+	* specs/std_spec.yaml (barrel): Likewise.
+	(monkey_patch): Check that the deprecated `require_version` is
+	still written into the global namespace.
+	* lib/std/string.lua (require_version): Rename from this...
+	(require): ...to this.
+	(require_version): A deprecated copy of `string.require`.
+	* NEWS: Update.
+
+	refactor: simplify std.string.require_version.
+	* lib/std/string.lua (version_to_list, module_version): Factored
+	out of require_version, rather than defining new temporary local
+	functions on each invocation of require_version.
+	(require_version): Simplify accordingly.
+
+	refactor: simplify std.string.tfind.
+	* lib/std/string.lua (tpack): Factored out of tfind, rather than
+	defining a new temporary local pack function on every invocation.
+	(tfind): Simplify accordingly.
+
+	refactor: simplify std.string.format.
+	* lib/std/string.lua (format): Simplify.
+
+	refactor: simplify std.string.assert.
+	* lib/std/string.lua (assert): Simplify.
+
+	refactor: no need for the underscore in local _floor.
+	There's no clash between M.floor and local floor now we're using
+	`export` to declare api calls.
+	* lib/std/math.lua (_floor): Rename from this...
+	(floor): ...to this.  Adjust all callers.
+
+	refactor: use a function to export package apis.
+	* specs/package_spec.yaml (find, insert, mappath, normalize)
+	(remove): Update to latest style.
+	Add "too many argument" behaviour checks.
+	Simplify and standardise argument error message comparisons.
+	* lib/std/package.lua (M): Add module name at element 1.
+	(find, insert, mappath, normalize, remove): Upgrade to
+	base.export declarations (for overhead free argcheck calls with
+	_DEBUG = false) and simplify accordingly.
+	(package): Improve LDocs.
+
+	specs: work around luajit argument counting gotcha.
+	Luajit truncates a variadic function call's argument list at
+	the first nil!
+	* specs/base_spec.yaml (export): Don't pass nil part way through
+	a variadic function call's argument list.
+
+	base: support optional arguments in export type declarations.
+	The algorithm is approximately to collect every possible
+	permutation of argument type-spec list with and without any
+	optional arguments.  An optional argument in the last position
+	must match the given type or nil, so that the permutation with
+	the final optional removed matches, allowing an uncaught
+	mismatched type at that position.  Then we try to match the
+	actual arguments against each permutation until one passes,
+	otherwise diagnose the mismatch, reporting that any type
+	at the mismatched index from all permutations is required.
+	* specs/base_spec.yaml (export): Specify behaviours when called
+	with a declaration containing an optional argument wrappend in
+	square brackets.
+	* lib/std/base.lua (match, formaterror): New functions; factored
+	out of argcheck.
+	(copy, match, normalize, permutations): New functions; support
+	classification of matchable argument type-specs.
+	(export): Use them to implement optional arguments in export
+	type declarations to satisfy new specifications.
+
+	doc: improve strict LDocs.
+	* lib/std/strict.lua: Improve LDocs.
+
+	doc: correct parameter descriptions on debug.argscheck.
+	* lib/std/debug.lua (argscheck): Improve LDocs.
+
+	specs: decouple spec_helper.lua from std.table and std.functional.
+	* specs/spec_helper.lua.in (bind): Use our own implmentation of
+	bind, otherwise if std.functional becomes unloadable, the whole
+	specl suite is unusable.
+	(totable): Likewise for std.table.totable.
+	(set): No need to rely on std.set, when a simple table index
+	dereference works equally well.
+
+	refactor: use a function to export io apis.
+	* specs/io_spec.yaml (catdir, catfile, die, monkey_patch)
+	(process_files, readlines, shell, slurp, splitdir, warn)
+	(writelines): Update to latest style.
+	Add "too many argument" behaviour checks.
+	Simplify and standardise argument error message comparisons.
+	* lib/std/io.lua (M): Add module name at element 1.
+	(catdir, catfile, die, monkey_patch, process_files, readlines)
+	(shell, slurp, splitdir, warn, writelines): Upgrade to
+	base.export declarations (for overhead free argcheck calls with
+	_DEBUG = false) and simplify accordingly.
+	(catdir, catfile, die, monkey_patch, process_files, readlines)
+	(shell, slurp, splitdir, warn, writelines): Improve LDocs.
+	* NEWS: Update.
+
+	debug: revert export of trace.
+	Both because the argument check wrapper is not properly tail-call
+	eliminated by Lua 5.1, and because as a core function callback
+	the function signature is fixed already, there's no good reason
+	to check arguments on debug.trace.
+	* specs/debug_spec.yaml (trace): Remove argument check behaviour
+	specifications.
+	* lib/std/debug.lua (trace): Remove the export wrapper.
+
+2014-06-30  Gary V. Vaughan  <gary@gnu.org>
+
+	debug: revert export of argerror, argcheck and argscheck.
+	Annoyingly, Lua 5.1 misses an obvious tail call elimination when
+	_DEBUG.argcheck is set, so the deep call to error gets the wrong
+	level, and reports argument errors in the wrong functions!! Rather
+	than uglify the code to remove the tail-calls and do a recount,
+	or add a fudge factor when Lua 5.1 is detected, it's cleaner to
+	remove the argchecking wrappers of the 3 affected functions -- at
+	least until we're ready to drop Lua 5.1 support entirely.
+	* specs/debug_spec.yaml (argerror, argcheck, argscheck): Mark the
+	argument checking behaviours as pending.
+	* lib/std/debug.lua (argerror, argcheck, argscheck): Comment out
+	the argument checking wrappers, and call the bare functions.
+
+2014-06-13  Gary V. Vaughan  <gary@gnu.org>
+
+	debug: improve argcheck list semantics.
+	Following the principle of least surprise, make a new `#list`
+	check type that has the same behaviour as `list` did previously,
+	for orthogonality with `#table`, and add a new `list`
+	implementation for orthogonality with `table`.
+	* specs/debug_spec.yaml (argcheck): Specify behaviours of `list`
+	and `#list` with new semantics.
+	* lib/std/debug.lua (argcheck): Update LDocs.
+	* lib/std/base.lua (argcheck): Count the elements of a `list`
+	and ensure that number is not greater than the result of the
+	length operator -- i.e. the table has no holes, and no non-
+	integer keys.
+	When building a type-mismatch error, write `empty list` where
+	appropriate.
+	* lib/std/debug.lua (argcheck): Make the 2nd argument a `#list`.
+
+	refactor: use export function to simplify debug argchecks.
+	* lib/std/debug.lua (argcheck, argerror, argscheck, trace): Add
+	argument checking.
+	* specs/debug_spec.yaml: Adjust.
+
+	refactor: use a string specifier instead of a table for export.
+	* specs/base_spec.yaml (export): Specify behaviours of export
+	function, particularly with argument errors.
+	* lib/std/base.lua (export): In place of an export name and a
+	table of expected argument types, parse a single `decl` argument
+	into an export name and table of argument types.
+	Support specified argument error behaviours.
+	* lib/std/math.lua (floor, monkey_patch, round): Simplify
+	accordingly.
+	* lib/std/functional.lua (bind, case, collect, compose, curry)
+	(eval, filter, fold, map, memoize): Likewise.
+
+	refactor: use pipe-delimited strings for argcheck type lists.
+	* specs/debug_spec.yaml (argcheck, argscheck): Adjust for
+	pipe-delimited string instead of table of strings.
+	* lib/std/base (argcheck): Use base.split to make a table from
+	expected argument.
+	* lib/std/array.lua, lib/std/container.lua, lib/std/debug.lua,
+	lib/std/io.lua, lib/std/list.lua, lib/std/package.lua,
+	lib/std/string.lua, lib/std/table.lua: Adjust argcheck and
+	argscheck types argument accordingly.
+
+	refactor: use a function to simplify bad argument specs.
+	* specs/spec_helper.lua.in (badarg, toomanyarg): Assemble a
+	suitable error string from arguments.
+	* specs/function_spec.yaml, specs/math_spec.yaml: Simplify
+	accordingly.
+
+	refactor: use a function to export functional apis.
+	* lib/std/base.lua (argcheck): Accept "func" as an alias for
+	"function".
+	(export): When the last types element ends with "*", check type
+	of remaining unchecked args against it.
+	If there is no "*" mark in the types list, and more arguments are
+	passed than types entries, throw a "too many arguments" error.
+	Return the unwrapped function argument, so it can be captured
+	back into a local by the caller.
+	* specs/functional_spec.yaml (case, curry, eval, memoize): Check
+	these fixed argument functions throw a "too many arguments" error
+	when called with too many arguments.
+	* specs/math_spec.yaml (floor, monkey_patch, round): Likewise.
+	* lib/std/functional.lua (bind, case, collect, compose, curry)
+	(eval, filter, fold, map, memoize): Use base.export for
+	conditional argument checking. Simplify accordingly.
+	(functional): Rename from this...
+	(M): ...to this.
+
+	refactor: use a function to export math apis.
+	* lib/std/base.lua (export): New function.  Add a function to the
+	module export table, with or without argument checking as
+	appropriate.
+	* lib/std/math.lua (floor, monkey_path, round): Simplify
+	accordingly.
+	(M): Store the module prefix at index 1, for export argerror
+	calls.
+	* specs/spec_helper.lua.in (show_apis): Ignore module prefix at
+	index 1 of export table.
+	* specs/math_spec.yaml (round): Correct a typo in argerrors.
+
+	list: deprecate index_key and index_value.
+	* specs/list_spec.yaml (index_key, index_value): Check that the
+	functions issue a depraction warning on first use.
+	* lib/std/list.lua (index_key, index_value): Add deprecation
+	warning with base.deprecate.
+	* NEWS (Incompatible changes): Update.
+
+	table: add elems and ielems module functions.
+	* specs/table_spec.yaml (elems, ielems): Specify behaviour of
+	new iterators.
+	* lib/std/table.lua (elems): Iterate over all values of a table,
+	for orthogonality with std.list and std.set.
+	(ielems): Expose base.ielems in a type checking wrapper.
+	* NEWS: Update.
+
+	doc: disable LDoc backtick references.
+	* build-aux/config.ld.in (backtick_references): Set to false, so
+	we can write fixed-width font words in LDoc comments.
+
+2014-06-10  Gary V. Vaughan  <gary@gnu.org>
+
+	list: prefer numeric comparison to asciibetical in compare.
+	Close #60.
+	* lib/std/list.lua (compare): If tonumber can make numbers out
+	of both arguments, use those results in preference to strings.
+	* specs/list_spec.yaml (compare): Specify behaviours with elements
+	that can be coerced to numbers.
+	* specs/string_spec.yaml (require_string): Remove pending #60
+	commands.  Add some more happy path examples.
+
+2014-06-09  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: differentiate module tables and prototype objects.
+	It turns out that documentation and code is much clearer when
+	we differentiate between `list` (the module table for `std.list`)
+	and `List` (the prototype List object), because that makes it
+	explicit whether we're calling a module function (`list.append`)
+	or performing an operation with the prototype (`List.clone {}`).
+	As a bonus, we gain a bit of speed by cloning the prototype
+	object from the module table, by virtue of not having a
+	`_functions` table to administer.
+	* lib/std/array.lua, lib/std/base.lua, lib/std/container.lua,
+	lib/std/debug.lua, lib/std/functional.lua, lib/std/io.lua,
+	lib/std/list.lua, lib/std/math.lua, lib/std/object.lua,
+	lib/std/optparse.lua, lib/std/set.lua, lib/std/strbuf.lua,
+	lib/std/string.lua, lib/std/table.lua, lib/std/tree.lua: Always
+	use the module table or prototype object as appropriate. Make
+	sure the LDocs don't contradict us.
+
+	doc: add functional.memoize usage example.
+	* lib/std/functional.lua (memoize): Add a usage example.
+
+	doc: fix some errors in functional usage docs.
+	* lib/std/functional.lua (collect): list.relems requires a List.
+	(map, filter, fold): list.elems requires a List.
+
+	refactor: set local _ARGCHECK instead of dereferencing debug_init.
+	* lib/std/array.lua, lib/std/base.lua, lib/std/function.lua,
+	lib/std/io.lua, lib/std/list.lua, lib/std/package.lua,
+	lib/std/string.lua, lib/std/table.lua: Set local _ARGCHECK
+	instead of importing std.debug_init and dereferencing it all the
+	time.
+
+	refactor: string.split is an argchecking base.split.
+	* lib/std/base.lua (split): Remove argument checking.
+	* lib/std/string.lua (split): Re-export base.split when we are
+	not argchecking, otherwise check types and call base.split when
+	successful.
+
+	refactor: table.metamethod is an argchecking base.getmetamethod.
+	* lib/std/base.lua (metamethod): Rename from this...
+	(getmetamethod): ...to this, and remove argument checking.
+	Adjust export table.
+	* lib/std/table.lua (metamethod): Re-export base.getmetamethod
+	when we are not argchecking, otherwise check types and call
+	base.getmetamethod when successful.
+	* lib/std/object.lua (clone): Adjust.
+	* lib/std/string.lua (render): Likewise.
+
+	refactor: list.elems is an argument checking base.ielem wrapper.
+	Functions in std.base are for internal use, and so all callers
+	have already validated arguments, so we shouldn't waste time
+	rechecking types on every call to base.elems.
+	Also this means list.elems can be strict about only accepting
+	List objects, and catch accidental table passing earlier.
+	* lib/std/base.lua (elems): Move from here...
+	(ielems): ...to here, and remove argument checking.  Adjust
+	export table.
+	* lib/std/list.lua (elems): Re-export base.ielems when we are not
+	argchecking, otherwise check types and call base.ielems when
+	successful.
+	* lib/std/debug.lua (tabify): Use non-argchecked base.ielems.
+	* lib/std/list.lua (concat, depair, filter, foldl, map)
+	(map_with): Likewise.
+	* lib/std/set.lua (Set._init): Likewise.
+	* lib/std/table.lua (merge_namedfields): Likewise.
+	* lib/std/tree.lua (Tree.__index): Likewise.
+	* specs/functional_spec.yaml (fold): Use List objects
+	consistently.
+	* specs/list_spec.yaml (elems): Adjust error message
+	expectations.
+
+	list: add argchecks.
+	* specs/list_spec.yaml (append, compare, concat, cons, depair)
+	(elems, enpair, filter, flatten, foldl, foldr, index_key)
+	(index_value, map, map_with, project, relems, rep, reverse)
+	(shape, sub, tail, traspose, zip_with): Specify behaviours for
+	missing or wrong type arguments.
+	8 specs/object_spec.yaml: Decouple from list implementation
+	details.
+	* lib/std/list.lua (append, compare, concat, cons, depair)
+	(elems, enpair, filter, flatten, foldl, foldr, index_key)
+	(index_value, map, map_with, project, relems, rep, reverse)
+	(shape, sub, tail, traspose, zip_with): Check argument types
+	when not disabled by _DEBUG.
+	* build-aux/sanity-cfg.mk: Disable bogus failures when rejecting
+	uppercase error messages with lib/std/list.lua.
+
+2014-06-08  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: use list copying constructor to simplify list.append.
+	* lib/std/list.lua (append): Use implicit copy of argument object
+	constructor rather than slower __call constructor and explicit
+	unpack of argument elements.
+
+	list: index_value and index_key return raw tables.
+	* specs/list_spec.yaml (index_key, index_value): Specify proper
+	behaviours.
+	* lib/std/list.lua (index_key, index_value): A non-contiguous
+	set of valid results cannot be represented as a std.list object,
+	so return a raw table.
+
+2014-06-07  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: improve object LDocs, and add usage examples.
+	* lib/std/object.lua: Add usage examples to apis.
+	(clone): Normally we'd use the __call metamethod to clone from a
+	given object, so mark the LDocs for clone as @static because it
+	is primarily a module function.
+	(prototype): Mark the function documentation as @static, and add
+	equivalent method documentation.
+
+	doc: add usage examples to container LDocs.
+	* lib/std/container.lua (__call, __tostring, __totable): Add
+	usage examples to LDocs.
+
+	container: argcheck apis.
+	* lib/std/container.lua (mapfields, __call, __tostring)
+	(__totable): While it would be extremely convoluted to dig out
+	the functions behind these apis to call them with non-object
+	initial arguments, add type checking for completeness.
+
+	doc: add usage examples to array LDocs.
+	* lib/std.array.lua: Add usage examples to LDocs.
+
+	doc: move stringification functions to their own section.
+	* lib/std/string.lua (render, tostring, prettytostring, pickle):
+	Move to a new 'Stringification Functions' section.
+
+	string: split on whitespace by default.
+	* specs/string_spec.yaml (split): Add an example with no explicit
+	split-pattern argument.
+	* lib/std/base.lua (split): Default split-pattern to `%s+` when
+	no argument provided.
+	* lib/std/string.lua (split): LDocs cite `%s+` as the default
+	pattern instead of `%s*`.
+	* NEWS: Update.
+
+2014-06-06  Gary V. Vaughan  <gary@gnu.org>
+
+	std: use argcheck instead of assert for type checking.
+	* specs/std_spec.yaml (barrel, monkey_patch): Make bad argument
+	examples more specific.
+	* lib/std.lua.in (barrel, monkey_patch): Use argcheck calls for
+	type checking insntead of assert.
+
+	debug: support trailing "?" in place of separate "nil" in argcheck.
+	* specs/debug_spec.yaml (argcheck): Specify behaviour of trailing
+	"?" in type specifiers.
+	* lib/std/base.lua (argcheck): Strip trailing "?" from acceptable
+	argument types, appending a "nil" entry to the list if any "?"
+	is stripped.
+	* lib/std/base.lua, lib/std/debug.lua, lib/std/functional.lua,
+	lib/std/math.lua, lib/std/package.lua, lib/std/string.lua,
+	lib/std/table.lua: Adjust all callers to use trailing "?" instead
+	of separate explicit "nil" in type list.
+
+	string: add argchecks and improve LDocs.
+	* specs/string_spec.yaml (assert, caps, chomp, escape_pattern)
+	(escape_shell, finds, format, ltrim, monkey_patch, numbertosi)
+	(ordinal_suffix, pad, prettytostring, render, require_version)
+	(rtrim, split, tfind, trim, wrap): Specify behaviours with bad
+	or missing arguments.
+	* lib/std/string.lua (assert, caps, chomp, escape_pattern)
+	(escape_shell, finds, format, ltrim, monkey_patch, numbertosi)
+	(ordinal_suffix, pad, prettytostring, render, require_version)
+	(rtrim, split, tfind, trim, wrap): Use argcheck or argscheck to
+	ensure argument types are validated when _DEBUG is not `false`.
+	Improve LDocs with @usage examples and parameter types.
+	* NEWS: Update.
+
+	specs: add missing std.string specs.
+	* specs/string_spec.yaml (assert, pickle, render, require_version)
+	(tostring): Specify behaviour of these calls.
+	(require_version): Add pending examples for newly discovered
+	issue with non-numeric ordering.
+
+2014-06-05  Gary V. Vaughan  <gary@gnu.org>
+
+	string: fix number extraction in require_version.
+	* lib/std/string.lua (require_version): Change the match pattern
+	to actually extract the numeric part of the version string.
+	Also update LDocs to cite correct module._VERSION (with an under-
+	score).
+	* NEWS: Update.
+
+	tree: remove std.object dependency.
+	No need to pull in all of std.object when loading std.tree.
+	* lib/std/tree.lua: Use base.prototype directly instead of via
+	re-exported object.prototype, which allows complete removal of
+	std.object dependency.
+	While we're here, use imported functions from locals to speed up
+	access a tiny bit.
+
+	tree: remove std.list dependency requirement.
+	No need to pull in all of std.list when loading std.tree, just
+	for the foldl function.
+	* lib/std/tree.lua (__index): Use func.fold and base.elems from
+	existing required modules instead of list.foldl.
+
+	string: remove unused string.__append metamethod.
+	The __append metamethod was added in commit 7a548ba, but only
+	ever had one client in the defunct std.lcs module which was
+	removed in commet 5f0a8af.
+	* lib/std/string.lua (__append): Remove. No longer required.
+	* specs/string_spec.yaml: Remove __append examples and references.
+
+	refactor: put api and helper functions in sections.
+	* lib/std/array.lua, lib/std/container.lua, lib/std/io.lua,
+	lib/std/optparse.lua, lib/std/package.lua, lib/std/set.lua,
+	lib/std/string.lua, lib/std/table.lua, lib/std/tree.lua: To make
+	it clear that user-facing code ("api functions") need argument
+	checking, but internal code ("helper functions") does not,
+	explicitly separate those kinds of functions, and add some
+	block headers.
+
+	array: remove duplicate nested argcheck, correctly this time.
+	* lib/std/array.lua: Where a function or metamethod is called via
+	`dispatch`, which already checks that the first argument is an
+	Array object, don't recheck type of self.  If that leaves only
+	arguments of type "any" then don't spend any time checking
+	argument types at all.
+
+	array: remove duplicate nested argcheck.
+	* lib/std/array.lua (dispatch): Remove duplicate nested argcheck.
+	The dispatched to functions already run a full argscheck, so no
+	need to check again here.
+
+	maint: minimize overhead with argchecks disabled.
+	* lib/std/array.lua (__call): Wrap argchecking block in
+	`if debug._ARGCHECK`.
+	* lib/std/functional.lua (compose): Likewise.
+	* lib/std/io.lua (catdir, catfile): Likewise.
+	* lib/std/package.lua (normalize, insert): Likewise.
+	* lib/std/base.lua (split): Use argscheck instead of assert.
+	* lib/std/math.lua (monkey_patch): Likewise.
+	* specs/math_spec.yaml (monkey_patch): Adjust bad argument
+	behaviours.
+
+	table: complete specs and improve LDocs.
+	* lib/std/table.lua (clone, clone_select, empty, invert, keys)
+	(merge, merge_select, monkey_patch, new, pack, ripairs, size)
+	(sort, totable, values): Add argcheck calls, and improve LDocs
+	with usage examples & cross-references.
+	(clone, clone_select, merge, merge_select): Minimise overhead
+	when argchecking is disabled by wrapping complex argument
+	checking in `if init._ARGCHECK`.
+	* specs/table_spec.yaml (pack, ripairs, totable): Add missing
+	specifications.
+	(clone, clone_select, empty, invert, keys, merge, merge_select)
+	(monkey_patch, new, size, sort, values): Improve specs to match
+	argcheck behaviours.
+
+2014-06-04  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move _ARGCHECK calculation into std.debug_init.
+	* lib/std/base.lua (_ARGCHECK): Move from here...
+	* lib/std/debug_init.lua (M._ARGCHECK): ...to here.
+	Adjust clients.
+
+	maint: remove workaround for legacy LuaRocks bug.
+	* local.mk (dist_luastddebug_DATA): Move
+	lib/std/debug_init/init.lua from here...
+	(dist_luastd_DATA): ...to lib/std/debug_init.lua.
+	(luastddebugdir, dit_luastddebug_DATA): Remove.
+
+	doc: consolidate LDoc headers for core extension modules.
+	* lib/std/debug.lua, lib/std/io.lua, lib/std/math.lua,
+	lib/std/package.lua, lib/std/string.lua, lib/std/table.lua:
+	Consolidate LDoc headers for consistency.
+
+2014-06-03  Gary V. Vaughan  <gary@gnu.org>
+
+	package: check api call argument types, and improve LDocs.
+	* specs/package_spec.yaml (find, insert, mappath, normalize)
+	(remove): Specify bad argument behaviours.
+	* lib/std/package.lua (find, insert, mappath, normalize)
+	(remove): Use argscheck to diagnose bad arguments.
+	Add usage examples to LDocs.
+
+	debug: support ":foo" parameter types with argcheck.
+	* specs/debug_spec.yaml (argcheck): Specify behaviours of using
+	":foo" as a parameter type.
+	* lib/std/base.lua (argcheck): Implement ":foo" parameter checking.
+	* lib/std/debug.lua (argcheck): Update LDocs.
+
+	refactor: reduce module dependencies of std.debug.
+	* lib/std/debug.lua: Remove std.io dependency by using core
+	file:write instead of std.io.writelines.
+	Remove std.list dependency by using lighter functional.map instead
+	of list.map.
+	Remove unused std.object dependency.
+	(tabify): Instead of a deeply nested in-situ call to list.map
+	and others, functionally compose an equivalent and use that to
+	simplify.
+
+	maint: use "int" argcheck type as appropriate.
+	* lib/std/array.lua, lib/std/functional.lua: Use "int" parameter
+	type with argcheck as appropriate.
+	* lib/std/debug.lua (argscheck): Adjust usage example.
+	* specs/array_spec.yaml, specs/functional_spec.yaml: Adjust.
+
+	math: check api call argument types.
+	* specs/math_spec.yaml (floor, round): Specify bad argument
+	behaviours.
+	* lib/std/math.yaml (floor, round): Use argscheck to diagnose
+	bad arguments.
+
+	debug: support "int" parameter type with argcheck.
+	* specs/debug_spec.yaml (argcheck): Specify behaviours of using
+	"int" as a parameter type.
+	* lib/std/base.lua (argcheck): Implement "int" parameter checking.
+
+	math: complete specs and improve LDocs.
+	* lib/std/math.lua (floor, monkey_patch, round): Improve LDocs
+	with usage examples.
+	* specs/io_spec.yaml (floor, round): Add missing specifications.
+
+	maint: add an LDoc module header to private std.base module.
+	* lib/std/base.lua: Add LDoc module header.
+
+	refactor: move split implementation from string to base.
+	Decouple std.io from std.string (and hence std.table, std.list,
+	std.functional, std.object, and std.container) by moving
+	implementation of split into lib/std/base.lua.
+	* lib/std/string.lua (split): Move from here...
+	* lib/std/base.lua (base): ...to here, and export.
+	* lib/std/string.lua: Re-export base.split as string.split.
+	* lib/std/io.lua: Don't pull all of string.lua and it's
+	dependencies into memory; use base.split instead of string.split.
+
+	maint: use 2 blank lines between function definitions.
+	* lib/std/package.lua, lib/std/strict.lua, lib/std/string.lua:
+	Use 2 blank lines between function definitions.
+
+	debug: complete specs and improve LDocs.
+	* lib/std/debug.lua (__call, _DEBUG, argcheck, argerror)
+	(argscheck, say, trace): Improve LDocs with usage examples and
+	cross-references.
+	* specs/debug_spec.yaml (_DEBUG): Remove. _DEBUG behaviours are
+	specified in the api calls that are affected by it.
+	(say, trace): Add missing specificatons.
+
+	specs: account for different error messages between 5.1 and 5.2.
+	* specs/io_spec.yaml (process_files): Accept either of the
+	error message formats for passing a non-existent file to io.input
+	for Lua 5.1 or Lua 5.2.
+
+2014-06-02  Gary V. Vaughan  <gary@gnu.org>
+
+	std: improve LDocs.
+	* lib/std.lua.in: Improve LDocs with usage examples and
+	clearer language.
+
+	io: complete specs and improve LDocs.
+	* lib/std/io.lua (catdir, catfile, die, monkey_patch)
+	(process_files, readlines, shell, slurp, splitdir, warn)
+	(writelines): Improve LDocs with usage examples and cross-
+	references.
+	* specs/io_spec.yaml (catdir, catfile, die, monkey_patch)
+	(process_files, readlines, shell, slurp, splitdir, warn)
+	(writelines): Add missing specificatons.
+	* specs/spec_helper.yaml (concat_file_content): New function to
+	support new specifications.
+	(luaproc): Support subprocess arguments and standard input.
+
+2014-06-01  Gary V. Vaughan  <gary@gnu.org>
+
+	object: enhance prototype to recognize file objects.
+	* specs/object_spec.yaml (prototype): Specify results of passing
+	file handles and Lua primitives to prototype.
+	* lib/std/object.lua (prototype): Improve LDocs.
+	* lib/std/base.lua (prototype): Enhance implementation to meet
+	new specifications.
+	* NEWS: Update.
+
+	io: use argcheck for api functions.
+	* specs/io_spec.yaml (catdir, catfile, die, monkey_patch)
+	(process_files, readlines, shell, slurp, splitdir, warn)
+	(writelines): Specify argument type mismatch messages.
+	* lib/std/io.lua (catdir, catfile, die, monkey_patch)
+	(process_files, readlines, shell, slurp, splitdir, warn)
+	(writelines): Call argcheck to validate arguments and meet
+	specifications.
+
+2014-05-31  Gary V. Vaughan  <gary@gnu.org>
+
+	debug: add file object matching to argcheck.
+	* specs/debug_spec.yaml (argcheck): Specify behaviour when
+	matching against a file type argument.
+	* lib/std/debug.lua (argcheck): Add LDocs for file type.
+	* lib/std/base.lua (argcheck): When the required type is "file"
+	use io.type () to ensure that an open file object argument was
+	passed.
+
+	io: don't pull in tree and dependencies with `require "io"`.
+	* lib/std/io.lua (tree): Remove requirement.
+	(base): Replace with much lighter module.
+	(writelines): Call base.leaves instead of tree.ileaves. In
+	addition to reducing coupling, this also saves another round
+	of `argscheck`ing, and a callstack frame.
+
+2014-05-30  Gary V. Vaughan  <gary@gnu.org>
+
+	array: support ipairs iteration over elements.
+	* specs/array_spec.yaml (__ipairs): Specify behaviour of ipairs
+	with arrays.
+	* lib/std/array.lua (core_metatable.__ipairs)
+	(alien_metatable.__ipairs): Implement ipairs support for table
+	and alien.buffer managed table elements.
+
+	maint: demonstrate new and legacy bind api correctly.
+	Seems like I was confused over which functional.bind api was the
+	old, and which was the new.  Correct that.
+	* specs/functional_spec.yaml (bind): Swap examples of new bind
+	api labelled legacy and vice versa.
+	* NEWS: Update.
+
+2014-05-29  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: merge std.base_array into std.array.
+	Instead of a one-way degrading from alien.buffer managed elements
+	to table managed elements with a sub-type, combine both sets of
+	optimised methods and metamethods back into a single `std.array`
+	container, which decides with each clone operation how to manage
+	elements of the named type.
+	* specs/array_spec.yaml: Specify behaviours for Array object that
+	dispatches module function calls at runtime, and assigns
+	optimized methods and metamethods on cloned objects according to
+	element type.
+	* lib/std/base_array.lua (pop, push, realloc, set, shift, unshift)
+	(__index, __newindex, __len, __tostring): Move from here...
+	* lib/std/array.lua (core_functions.pop, core_functions.push)
+	(core_functions.realloc, core_functions.set, core_functions.shift)
+	(core_functions.unshift, core_metatable.__index)
+	(core_metatable.__newindex, core_metatable.__len)
+	(core_metatable.__tostring: ...to here.
+	(pop, push, realloc, set, shift, unshift, __index, __newindex):
+	Move from here...
+	(alien_functions.pop, alien_functions.push, alien_functions.set)
+	(alien_functions.realloc, alien_functions,shift)
+	(alien_functions.unshift, alien_metatable.__index)
+	(alien_metatable.__newindex): ...to here.
+	(core_metatable.__call): Clone a new Array object, setting the
+	method and metatables with functions optimised for alien.buffer
+	or Lua table based element management according to availability of
+	alien, and element type name.
+	(dispatch): New runtime virtual table dispatch function.
+	(Array): Dispatch module functions at runtime based on element
+	type.
+	* lib/std/base_array.lua: Remove.
+	* local.mk (dist_luastd_DATA): Remove lib/std/base_array.lua.
+	* specs/base_array_spec.yaml: Remove.
+	* specs/specs.mk (specl_SPECS): Remove specs/base_array_spec.yaml.
+	* NEWS: Update.
+
+	functional: complete specs and improve LDocs.
+	* lib/std/functional.lua (bind, case, curry, compose, eval)
+	(collect, map, filter, fold): Improve LDocs with usage examples,
+	and cross-references.
+	* specs/functional_spec.yaml (collect, compose, curry, eval)
+	(filter, fold, id, map, memoize): Add missing specifications.
+
+	debug: argcheck can match functable with "function".
+	* specs/debug_spec.yaml (argcheck): Specify correct behaviour
+	when matching a functable against a "function" argument.
+	* lib/std/base.lua (argcheck): Allow functables when a "function"
+	type argument is required.
+	* lib/std/debug.lua (argcheck): Update LDocs.
+
+	functional: bind should not require respecifying fixed args.
+	* specs/functional_spec.yaml (bind): Move incumbent examples to
+	a new legacy example.  Rewrite original examples with new api.
+	Add specifications for behaviour when not all arguments are
+	given in the call to the bound function.
+	* lib/std/functional.lua (bind): Fill initial argument positions
+	from original bind arguments, and then propagate final call
+	arguments into non-fixed parameter positions.
+	* NEWS: Update.
+
+	functional: use argscheck for api functions.
+	* specs/functional_spec.yaml (metamethod): Remove.  This method
+	has moved to std.table.
+	(bind, case, collect, compose, curry, eval, filter, fold, map)
+	(memoize): Specify behaviour with missing or wrong type
+	arguments.
+	* lib/std/functional.yaml (bind, case, collect, compose, curry)
+	(eval, filter, fold, map, memoize): Add argscheck calls to
+	validate arguments when _DEBUG or _DEBUG.argcheck are not false.
+
+	refactor: omit spurious parentheses around require result dereferences.
+	* lib/std/container.lua, lib/std/object.lua, lib/std/set.lua,
+	lib/std/string.lua, lib/std/tree.lua, specs/container_spec.yaml,
+	specs/list_spec.yaml, specs/object_spec.yaml,
+	specs/set_spec.yaml, specs/spec_helper.lua.in: Omit spurious
+	parentheses around require result dereferences.
+
+	base: use argscheck for api functions.
+	* specs/base_spec.yaml (deprecate), specs/list_spec.yaml (elems):
+	Specify bad argument behaviours.
+	* specs/table_spec.yaml (metamethod): Add missing specifications,
+	including bad argument behaviours.
+	* lib/std/base.lua (deprecate, elems, metamethod): Use argscheck
+	to implement specified behaviours.
+
+	refactor: don't pull in all of debug's dependencies for array.
+	* lib/std/array.lua, lib/std/base_array.lua: Import argcheck and
+	argscheck from std.base.
+
+	refactor: move argscheck et.al. into std.base module.
+	Unfortunately, debug.say is a very high level function that pulls
+	in a lot of other modules, modules that we'd like to be able to
+	add debug.argscheck to... since argscheck has almost no pre-
+	requisites, move it into the base module where it can then be
+	available everywhere else.
+	* lib/std/container.lua (prototype): Move from here...
+	* lib/std/base.lua (prototype): ...to here.
+	* lib/std/debug.lua (concat, argerror, argcheck, argscheck):
+	Move from here...
+	* lib/std/base.lua (concat, argerror, argcheck, argscheck): ...to
+	here.
+	Be sure to disable argument checking if _DEBUG or _DEBUG.argcheck
+	are false.
+
+2014-05-27  Reuben Thomas  <rrt@sc3d.org>
+
+	functional.lua: add missing parameter name to docstring
+
+2014-05-24  Gary V. Vaughan  <gary@gnu.org>
+
+	alien: remove surplus std.alien module.
+	* lib/std/array.lua: Factor away dependencies on std.alien.
+	(__call): Instead of an _init call built for container.__call,
+	we now use a custom __call metamethod that returns a base_array
+	object that is optimized for Lua table buffers when the element
+	type is not recognized (either because there is no alien module
+	installed, or it does not support buffers of the given type), or
+	else builds an alien.buffer optimised object and returns that.
+	* lib/std/alien.lua, specs/alien_spec.yaml: Remove.
+	* build-aux/config.ld.in (file): Remove lib/std/alien.lua.
+	* local.mk (dist_luastd_DATA): Likewise.
+	(dist_modules_DATA): Remove doc/modules/std.alien.html.
+	* specs/specs.mk (specl_SPECS): Remove specs/alien_spec.yaml.
+
+	base_array: non-alien capable base class for std.array.
+	* specs/base_array_spec.yaml: New file.  Specify behaviour for
+	base_array.
+	* specs/specs.mk (specl_SPECS): Add specs/base_array_spec.yaml.
+	* lib/std/base_array.lua: New file. Implement base_array class to
+	satisfy specification.
+	* local.mk (dist_luastd_DATA): Add lib/std/base_array.lua.
+
+	debug: argcheck "any" does not match `nil`.
+	* specs/debug_spec.yaml (argcheck): Passing a nil argument does
+	not satisfy the "any" spec.
+	* lib/debug.lua (argcheck): Require non-nil argument before
+	setting passing status for an "any" spec.
+	(argscheck): Remove "any" shortcut.
+
+2014-05-21  Gary V. Vaughan  <gary@gnu.org>
+
+	optparse: fix another global symbol leak.
+	* lib/std/optparse.lua (on): Declare `key` as a local variable.
+
+	optparse: fix a global symbol leak.
+	* lib/std/optparse.lua (on): Declare `normal` as a local variable.
+	* NEWS (Bug fixes): Updated.
+
+	configury: don't require specific git version.
+	* bootstrap.conf (buildreq): Don't set a git version number, or
+	else `GIT=true ./bootstrap` doesn't work.
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with upstream for grep GNUism fix.
+
+2014-05-20  Gary V. Vaughan  <gary@gnu.org>
+
+	array: support simultaneous alien and Lua array objects.
+	* lib/std/array.lua (alien_type): A set of valid types for
+	arrays to be implemented with alien.array.
+	(topointer): Default offset to 1.
+	(setzero): Use memset for alien arrays, direct element buffer
+	copying for Lua arrays.
+	(shift, unshift): Use memmove for manipulating alien.arrays, or
+	else table.insert and table.remove for Lua tables.
+	(copy): Remove.
+	(clone): Use memmove for copying elements between same-size
+	element alien arrays, direct element buffer copying otherwise.
+	(_init): Simplify accordingly.
+
+	array: a new Object based array for queue and stack-like ops.
+	* specs/array_spec.yaml: New file. Specify base behaviours for a
+	new array object.
+	* specs/specs.mk (specl_SPECS): Add specs/array_spec.yaml.
+	* lib/std/array.lua: New file. Implement specified behaviours.
+	* build-aux/config.ld.in (files): Add lib/std/array.lua.
+	* local.mk (dist_classes_DATA): Add doc/std.array.html.
+	(dist_luastd_DATA): Add lib/std/array.lua.
+	* NEWS: Update.
+
+	debug: fix argerror diagnostics on luajit.
+	Luajit seems to treat `return error` (where error never returns
+	anyway) as subject to some kind of optimisation that loses a call
+	stack level by the time `error` looks up the line number for the
+	targetted level. Removing the `return` results in the same call
+	stack frame reference in luajit, 5.2 and 5.1.
+	* lib/std/debug.lua (argerror): Drop the extraneous `return`
+	statement.
+
+	debug: fix argcheck diagnostics on Lua 5.1.
+	Lua 5.2 seems to treat `return argerror` (where argerror never
+	returns anyway) as subject to some kind of optimisation that loses
+	a call stack level by the time control flow reaches the `error`
+	call inside. Removing the `return` results in the same call stack
+	frame reference in 5.2 and 5.1, but requires incrementing the
+	level for the correct result.
+	* lib/std/debug.lua (argcheck): Drop the extraneous `return`
+	statement, and increment `level` before calling `argerror`.
+
+2014-05-19  Gary V. Vaughan  <gary@gnu.org>
+
+	alien: implement a subset of alien to simplify wrappers.
+	* specs/alien_spec.yaml: Specify behaviour for a useful subset
+	of the alien APIs.
+	* specs/specs.mk (specl_SPECS): Add specs/alien_spec.yaml.
+	* local.mk (dist_modules_DATA): Add doc/modules/std.alien.html.
+	* lib/std/alien.lua: New file, provide pure Lua implementation
+	of alien.array, alien.memmove and alien.memset.
+	* build-aux/config.ld.in (files): Add lib/std/alien.lua.
+	* local.mk (dist_luastd_DATA): Add lib/std/alien.lua.
+
+	debug: make sure to use debug.getinfo ().
+	* lib/std/debug.lua (trace): Use debug.getinfo instead of bare
+	getinfo.
+	* NEWS: Update.
+
+	debug: add argcheck APIs.
+	* specs/debug_spec.yaml (argcheck, argerror, argscheck): Specify
+	behaviour of argument checking functions based on luaL_argerror
+	and luaL_argcheck, for standardised argument error diagnostics.
+	* lib/std/debug.lua: Tidy up LDocs.
+	(argcheck, argerror, argscheck): New functions to satisfy the
+	specifications.
+	* NEWS: Update.
+
 2014-05-01  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* configure.ac (AC_INIT): Bump version to 41.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 40
 	* NEWS: Record release date.
@@ -339,7 +3116,7 @@
 	* specs/spec_helper.lua.in: Use `package.normalize` to safely
 	inject ./lib/?.lua into the head of package.path.
 
-2014-04-16  Reuben Thomas  <rrt@sc3d.org>
+2014-04-15  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix a comment typo
 
@@ -361,7 +3138,7 @@
 	specs: fix a typo; there is no 'a' in should_output.
 	* specs/optparse_spec.yaml: Fix a typo.
 
-2014-04-15  Reuben Thomas  <rrt@sc3d.org>
+2014-04-14  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix a comment typo
 
@@ -541,7 +3318,7 @@
 	clone of the table we return.
 	* NEWS: Update.
 
-2014-01-22  Gary V. Vaughan  <gary@gnu.org>
+2014-01-21  Gary V. Vaughan  <gary@gnu.org>
 
 	configury: update rockspecs in buildreq.
 	* bootstrap.conf (buildreq): LDoc is now available in the required
@@ -549,8 +3326,6 @@
 
 	travis: remove unrelease ldoc workarounds.
 	* .travis.yml: Regenerate, to delete local patches for LDoc.
-
-2014-01-21  Gary V. Vaughan  <gary@gnu.org>
 
 	doc: vastly improve optparse LDocs.
 	* lib/std/optparse.lua: Vastly improve optparse LDocs.
@@ -608,7 +3383,7 @@
 	Revert "maint: post-release administrivia."
 	This reverts commit 846fd4e578cf8a57c8268979c9fbd2495b0e7b5b.
 
-2014-01-18  Gary V. Vaughan  <gary@gnu.org>
+2014-01-17  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: post-release administrivia.
 	* configure.ac (AC_INIT): Bump version to 38.
@@ -637,8 +3412,6 @@
 	specs: compatibility with Specl < 11.
 	* specs/specs.mk (specl_SPECS): Move std_spec.yaml to the end of
 	the list, where symbol leaks don't affect subsequent examples.
-
-2014-01-17  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: compensate for table.pack differences between Lua 5.1/5.2.
 	* specs/table_spec (before): Make sure `extend_base` and
@@ -720,6 +3493,8 @@
 	* slingshot: Sync with upstream.
 	* local.mk (mkrockspecs_args): Add `--repository lua-stdlib`.
 	* .travis.yml: Regenerate.
+
+2014-01-15  Gary V. Vaughan  <gary@gnu.org>
 
 	slingshot: sync with upstream, for bootstrap git detection fix.
 	* slingshot: Sync with upstream.
@@ -916,14 +3691,14 @@
 	* ext/std/object.lua, ext/std/set.lua, ext/std/strbuf.lua,
 	ext/std/strict.lua, ext/std/tree.lua: Update doc-comments.
 
+2013-11-27  Gary V. Vaughan  <gary@gnu.org>
+
 	tree: add specl specs, and fix simple API inconsistencies.
 	* specs/tree_spec.yaml: New file. Examples of how tree APIs
 	should behave.
 	* specs/specs.mk (specl_SPECS): Add specs/tree_spec.yaml.
 	* ext/std/base.lua (ileaves, leaves): Report non-table arguments.
 	* ext/std/tree.lua (clone, inodes, nodes, merge): Likewise.
-
-2013-11-27  Gary V. Vaughan  <gary@gnu.org>
 
 	string: report assert failures from assert caller level.
 	* ext/std/string.lua (assert): Call error with level 2, to report
@@ -935,7 +3710,7 @@
 	* ext/std/tree.lua (metatable.__index): Use new argument order
 	for list.foldl call.
 
-2013-11-27  Reuben Thomas  <rrt@sc3d.org>
+2013-11-26  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove some spurious comment markers in docstrings.
 	These were introduced by commit 31b314c835 converting doc-comments to
@@ -1469,6 +4244,8 @@
 	* configure.ac: Adjust.
 	* .travis.yml: Regenerate.
 
+2013-05-05  Gary V. Vaughan  <gary@gnu.org>
+
 	Revert "travis: force luadoc to run only using Lua 5.1."
 	This reverts commit d54819f8b58988b10f8a298746abc28ce30b41c8.
 
@@ -1542,8 +4319,6 @@
 	* .gitignore: Update.
 	* .travis.yml: Regenerate.
 
-2013-05-05  Gary V. Vaughan  <gary@gnu.org>
-
 	slingshot: add slingshot as a git submodule.
 	* .gitmodules: New file.
 	* slingshot: New submodule.
@@ -1564,7 +4339,7 @@
 	`package.path` and `package.cpath` being lost when set from
 	LUA_INIT, among many other potential issues.
 
-2013-04-14  Reuben Thomas  <rrt@sc3d.org>
+2013-04-13  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove non-core modules, which go into separate lua-rrtlib for ad-hoc modules
 
@@ -1611,7 +4386,7 @@
 	installing git master with Luarocks.
 	Liberal use of additional useful links.
 
-2013-04-08  Reuben Thomas  <rrt@sc3d.org>
+2013-04-07  Reuben Thomas  <rrt@sc3d.org>
 
 	README.md: simplify installation instructions, and other minor tweaks
 
@@ -1711,12 +4486,10 @@
 	* README: Add travis build status badge markup.  Plus some
 	indentation corrections for correct markdown code rendering.
 
-2013-04-02  Gary V. Vaughan  <gary@gnu.org>
+2013-04-01  Gary V. Vaughan  <gary@gnu.org>
 
 	docs: improved installation instructions.
 	* README: improve installation instructions.
-
-2013-04-01  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: The Grand Renaming™ - use `require "std.list"` etc.
 	* Makefile.am (SPEC_ENV, SPECL, SPECL_MIN, SPECS, MULTICHECK)
@@ -1989,7 +4762,7 @@
 	* src/getopt.lua (processArgs): Call local 'getOpt' function. Global
 	getopt.getOpt may never exist!
 
-2013-03-10  Reuben Thomas  <rrt@sc3d.org>
+2013-03-09  Reuben Thomas  <rrt@sc3d.org>
 
 	README: mention all extra dependencies of fstable
 
@@ -2024,7 +4797,7 @@
 	* specs/package_ext_spec.lua (it splits package.config up): Allow
 	for optional trailing \n present in 5.2 but not 5.1.
 
-2013-02-28  Gary V. Vaughan  <gary@gnu.org>
+2013-02-27  Gary V. Vaughan  <gary@gnu.org>
 
 	configury: bump release number to 34.
 	* configure.ac (AC_INIT): Bump release number to 34.
@@ -2119,7 +4892,7 @@
 	Remove TODO.
 	* template.lua, specs/specl: Update.
 
-2013-02-23  Reuben Thomas  <rrt@sc3d.org>
+2013-02-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix some spec failures in string.wrap, and one error in a spec.
 
@@ -2194,6 +4967,8 @@
 	configury: bump release number to 33.
 	* configure.ac (AC_INIT): Bump release number to 33.
 
+2013-02-21  Gary V. Vaughan  <gary@gnu.org>
+
 	configury: make the release rules more robust.
 	* Makefile.am (GIT, GIT_REMOTE, LN_S): Set as macros that can be
 	overridden during testing.
@@ -2209,8 +4984,6 @@
 
 	configury: bump release number to 32.
 	* configure.ac (AC_INIT): Bump release number to 32.
-
-2013-02-21  Gary V. Vaughan  <gary@gnu.org>
 
 	specs: add specl specification for package_ext module.
 	* specs/package_ext_spec.lua: New file. Specl specs for
@@ -2257,7 +5030,7 @@
 	* Makefile.am (SOURCES): Remove the GNU Make extensions used to
 	dynamically build the list, and just list each file statically.
 
-2013-02-21  Reuben Thomas  <rrt@sc3d.org>
+2013-02-20  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: bump version to 31.
 
@@ -2269,7 +5042,7 @@
 
 	Makefile.am: no longer need to re-bootstrap after checking in release files.
 
-2013-02-19  Reuben Thomas  <rrt@sc3d.org>
+2013-02-18  Reuben Thomas  <rrt@sc3d.org>
 
 	m4/ax_lua.m4: get latest version; no code changes, but some pleasing spelling corrections.
 
@@ -2279,7 +5052,7 @@
 	list.lua: make all methods that return lists make them with list.new, not {}.
 	Also rename result variables consistently to r, not, in some cases, m.
 
-2013-02-18  Reuben Thomas  <rrt@sc3d.org>
+2013-02-17  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: checking out release branch in same directory doesn't work; use another directory.
 
@@ -2291,7 +5064,7 @@
 
 	Makefile.am: only supply std.lua once (fixes make distcheck in some setups)
 
-2013-02-16  Reuben Thomas  <rrt@sc3d.org>
+2013-02-15  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: copy a couple of fixes from luaposix.
 
@@ -2328,14 +5101,14 @@
 	Merge pull request #11 from gvvaughan/pull-request/use-uninstalled-stdlib
 	configury: load local std modules as expected by mkrockspecs.lua.
 
-2013-02-12  Reuben Thomas  <rrt@sc3d.org>
+2013-02-11  Reuben Thomas  <rrt@sc3d.org>
 
 	parser.lua: update to current stdlib and Lua 5.2, fixing a couple of small bugs
 	Remove a debugging line accidentally left in before.
 
 	base.lua: fix die; previously produced rubbish!
 
-2013-02-12  Gary V. Vaughan  <gary@gnu.org>
+2013-02-11  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: update parser to use lua 5.2 style modules.
 	* src/parser.lua: Simply return the Parser object.
@@ -2348,8 +5121,6 @@
 	* src/strbuf.lua: Declare everything locally, and return a table
 	of interfaces, per lua 5.2 module style.
 	Adjust all callers.
-
-2013-02-11  Gary V. Vaughan  <gary@gnu.org>
 
 	maint: update mbox to use lua 5.2 style modules.
 	* src/mbox.lua: Declare parse locally, and return a table with a
@@ -2407,6 +5178,8 @@
 
 	rockspecs.lua: add luadoc as a dependency for git rockspec.
 
+2013-02-08  Reuben Thomas  <rrt@sc3d.org>
+
 	rockspecs.lua: fix build command for building from git.
 
 	mkrockspecs.lua: whitespace fix.
@@ -2414,8 +5187,6 @@
 	Add a rockspec for building from git, and machinery for building variant rockspecs.
 
 	tree.lua: add tree.merge.
-
-2013-02-08  Reuben Thomas  <rrt@sc3d.org>
 
 	set.lua: fix broken elems iterator (issue #10)
 
@@ -2428,6 +5199,8 @@
 	set.lua: add missing dependency on list.lua
 
 	Avoid rebuilding documentation in distributed sources, so users don't need luadoc installed.
+
+2013-02-06  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: some more fixups to release-by-git.
 
@@ -2449,8 +5222,6 @@
 
 	Makefile.am: enable building of documentation from git checkout.
 
-2013-02-06  Reuben Thomas  <rrt@sc3d.org>
-
 	Change to building (with LuaRocks) direct from git, not releasing a zip.
 
 	README: update installation instructions and mention GitHub, not LuaForge.
@@ -2461,7 +5232,7 @@
 
 	README: Make Lua 5.2 compatibility definite, and update copyright years.
 
-2012-12-24  Reuben Thomas  <rrt@sc3d.org>
+2012-12-23  Reuben Thomas  <rrt@sc3d.org>
 
 	stdlib.rockspec.in: remove redundant dir setting
 
@@ -2469,13 +5240,13 @@
 
 	.gitignore: add luarocks directory
 
-2012-10-29  Reuben Thomas  <rrt@sc3d.org>
+2012-10-28  Reuben Thomas  <rrt@sc3d.org>
 
 	Add testing of luarock against uploaded archive before mailing announcement
 
 	base.lua: user simpler default require_version pattern that works in more cases
 
-2012-10-29  Reuben Thomas  <rrt@sc3d.org>
+2012-10-28  Reuben Thomas  <rrt@sc3d.org>
 
 	Generate Lua version in rockspec from that in configure.ac
 	Bump version to 28
@@ -2485,7 +5256,7 @@
 	Tweak pattern used to substitute MD5 sum into rockspec to be
 	compatible with gnulib syntax checks, should we ever use them.
 
-2012-10-29  Reuben Thomas  <rrt@sc3d.org>
+2012-10-28  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 28, and simplify slightly, requiring automake 1.11
 
@@ -2497,13 +5268,15 @@
 
 	release: fix call to woger to generate correct URLs
 
+2012-10-03  Reuben Thomas  <rrt@sc3d.org>
+
 	rockspec: fix homepage URL
 
 	Makefile.am: really distribute all docs
 
 	rockspec: fix download URL (thanks, Hisham Muhammad)
 
-2012-10-02  Reuben Thomas  <rrt@sc3d.org>
+2012-10-01  Reuben Thomas  <rrt@sc3d.org>
 
 	base.lua: add require_version
 
@@ -2513,7 +5286,7 @@
 
 	Install documentation with 'make install' and from luarocks.
 
-2012-09-23  Reuben Thomas  <rrt@sc3d.org>
+2012-09-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Rename table.indices to table.keys, and use term 'keys' more.
 
@@ -2530,6 +5303,8 @@
 	getopt.lua: remove func member of Option; simply gather all option values into a list
 
 	getopt.lua: improve some comments and remove a redundant require
+
+2012-09-17  Reuben Thomas  <rrt@sc3d.org>
 
 	set.lua: fix last commit: elements should be elems
 
@@ -2583,20 +5358,20 @@
 
 	object.lua: fix inconsistency and missing HTML close tag in doc comments.
 
-2012-02-23  Reuben Thomas  <rrt@sc3d.org>
+2012-02-22  Reuben Thomas  <rrt@sc3d.org>
 
 	base.lua: Fix minor formatting variation.
 
 	Merge pull request #5 from gvvaughan/pull-request/for-fame-and-glory
 	AUTHORS: Add myself.
 
-2012-02-23  Gary V. Vaughan  <gary@gnu.org>
+2012-02-22  Gary V. Vaughan  <gary@gnu.org>
 
 	base.lua: new memoize function.
 	* src/base.lua (memoize): Memoize a single result function by
 	wrapping it in a functable.
 
-2012-02-23  Reuben Thomas  <rrt@sc3d.org>
+2012-02-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Update URL to point to github.
 
@@ -2607,7 +5382,7 @@
 	AUTHORS: Add myself.
 	* AUTHORS: List the few small contributions I've made.
 
-2012-02-19  Reuben Thomas  <rrt@sc3d.org>
+2012-02-18  Reuben Thomas  <rrt@sc3d.org>
 
 	Update rockspec for github.
 
@@ -2633,7 +5408,7 @@
 
 	strict.lua: improve error message.
 
-2012-01-20  Reuben Thomas  <rrt@sc3d.org>
+2012-01-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Add leaves, ileaves and inodes tree iterators; simplify nodes slightly.
 	Use ileaves to simplify flatten.
@@ -2645,15 +5420,13 @@
 
 	Fix FIXME in set: use leaves as elements to return only the key.
 
-2012-01-19  Reuben Thomas  <rrt@sc3d.org>
+2012-01-18  Reuben Thomas  <rrt@sc3d.org>
 
 	src/io_ext.lua: Improve docstring for readlines.
 
-2012-01-18  Reuben Thomas  <rrt@sc3d.org>
+2012-01-17  Reuben Thomas  <rrt@sc3d.org>
 
 	string_ext: fix new string.__concat metamethod to run tostring on both args, thus avoiding infinite recursion.
-
-2012-01-17  Reuben Thomas  <rrt@sc3d.org>
 
 	string_ext: add __concat metamethod for strings which runs tostring.
 	Reformat some code to please lua-mode and add some missing quotes in a
@@ -2663,7 +5436,7 @@
 
 	io_ext: Add slurp; use it in various places.
 
-2011-12-17  Reuben Thomas  <rrt@sc3d.org>
+2011-12-16  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 26.
 
@@ -2696,7 +5469,7 @@
 	and should be folded, but k1 (k1 = {key='a'}) is not a list and
 	should not.
 
-2011-10-01  Reuben Thomas  <rrt@sc3d.org>
+2011-09-30  Reuben Thomas  <rrt@sc3d.org>
 
 	io_ext: unset prog.file at the end of io.processFiles
 
@@ -2711,7 +5484,7 @@
 
 	Remove publicly Options constructor, as it’s not needed externally.
 
-2011-09-20  Reuben Thomas  <rrt@sc3d.org>
+2011-09-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: tweak rockspec's deps.
 
@@ -2728,8 +5501,6 @@
 	Makefile.am: distribute rockspec source.
 
 	.gitignore: ignore correct zip name.
-
-2011-09-19  Reuben Thomas  <rrt@sc3d.org>
 
 	configury: rename project to stdlib for consistency and to make luarocks happy.
 
@@ -2774,7 +5545,7 @@
 
 	Remove some non-LuaDoc markup.
 
-2011-08-20  Reuben Thomas  <rrt@sc3d.org>
+2011-08-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Fixup.
 
@@ -2794,20 +5565,24 @@
 
 	Convert documentation to LuaDoc, and retire ldoc.
 
+2011-06-05  Reuben Thomas  <rrt@sc3d.org>
+
 	Add index.html.
 
 2011-05-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix faulty ldoc tags.
 
+2011-05-21  Reuben Thomas  <rrt@sc3d.org>
+
 	Fix return code on --help to be 0.
 	Make dieWithUsage into plain usage, and don’t exit at end.
 
-2011-05-20  Reuben Thomas  <rrt@sc3d.org>
+2011-05-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Add some missing param tags.
 
-2011-05-04  Reuben Thomas  <rrt@sc3d.org>
+2011-05-03  Reuben Thomas  <rrt@sc3d.org>
 
 	Comment out strict from default set to make co-existence with other code easier.
 
@@ -2819,7 +5594,7 @@
 
 	Fix capitalization of readlines and writeline in docstrings.
 
-2011-04-16  David Favro  <lua@meta-dynamic.com>
+2011-04-15  David Favro  <lua@meta-dynamic.com>
 
 	Fixed bug: ldoc used writeLine() rather than writeline().
 
@@ -2831,7 +5606,7 @@
 
 	Rename readLines to readlines and writeLine to writeline.
 
-2011-03-24  Reuben Thomas  <rrt@sc3d.org>
+2011-03-23  Reuben Thomas  <rrt@sc3d.org>
 
 	Only set _DEBUG to false if it’s not already initialised.
 
@@ -2851,6 +5626,8 @@
 
 	Allow mk1file to generate customized sets of modules, with the standard set as the default.
 
+2011-03-08  Reuben Thomas  <rrt@sc3d.org>
+
 	Remove unnecessary posix. prefix.
 
 	Correct name of package_ext.
@@ -2861,9 +5638,9 @@
 
 	Merge branch 'origin' of github.com:rrthomas/lua-stdlib into origin
 
-2011-03-08  Reuben Thomas  <rrt@sc3d.org>
-
 	Remove posix_ext and object from standard set.
+
+2011-03-07  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove posix prefix from function calls.
 
@@ -2882,7 +5659,7 @@
 
 	Merge from HEAD.
 
-2011-02-27  Reuben Thomas  <rrt@sc3d.org>
+2011-02-26  Reuben Thomas  <rrt@sc3d.org>
 
 	In future, make zip distros.
 
@@ -2906,7 +5683,7 @@
 
 	Use undocumented package.config to get platform’s directory separator.
 
-2011-02-09  Reuben Thomas  <rrt@sc3d.org>
+2011-02-08  Reuben Thomas  <rrt@sc3d.org>
 
 	Improve release target to tag releases.
 
@@ -2914,7 +5691,7 @@
 
 	Fix missing math. prefix, and swap incorrect sign in sub. Thanks to Bob Chapman.
 
-2010-12-15  Reuben Thomas  <rrt@sc3d.org>
+2010-12-14  Reuben Thomas  <rrt@sc3d.org>
 
 	Speed up math.floor for case where p is 0 or absent (thanks, Lukáš Procházka).
 
@@ -2948,17 +5725,19 @@
 
 	Remove spurious full stop.
 
+2010-10-07  Reuben Thomas  <rrt@sc3d.org>
+
 	Add catfile and fix catdir to return `/' when necessary.
 
-2010-10-07  Reuben Thomas  <rrt@sc3d.org>
+2010-10-06  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix permissions.
 
-2010-06-21  rrt  <rrt>
+2010-06-20  rrt  <rrt>
 
 	Remove dubious metamethod fallback for string.__index.
 
-2010-06-14  rrt  <rrt>
+2010-06-13  rrt  <rrt>
 
 	Fix and simplify tree.__newindex: there was a variable name typo, and sub-tables should also be initialised to trees, as otherwise the relevant metamethods are not called.
 
@@ -2983,11 +5762,13 @@
 
 	Make the set metatable a local variable.
 
+2010-06-08  rrt  <rrt>
+
 	Add Lua distribution’s strict.lua to standard modules.
 
 	Have a single list of modules in modules.lua and use it to load them in std.lua and generate the single-file version in mk1file, which latter is now a Lua script.
 
-2010-06-08  rrt  <rrt>
+2010-06-07  rrt  <rrt>
 
 	Fix list.foldl, list.foldr, and the fold iterator combinator.
 	Simplify the op table functions to be exactly the primitive operators,
@@ -2995,7 +5776,7 @@
 
 	(Possibly) improve the commented-out simpler version of treeIter.
 
-2010-06-08  rrt  <rrt>
+2010-06-07  rrt  <rrt>
 
 	Remove table.subscripts function: it’s easily replaced by subscript plus string.split, as in its definition.
 
@@ -3008,7 +5789,7 @@
 
 	Improve some documentation.
 
-2010-06-03  rrt  <rrt>
+2010-06-02  rrt  <rrt>
 
 	Remove redundant redefinition of print (it already calls tostring).
 	Fix op table so that base can require list without breaking; fixes
@@ -3019,7 +5800,7 @@
 
 	Bump copyright year to 2010.
 
-2010-03-19  rrt  <rrt>
+2010-03-18  rrt  <rrt>
 
 	Add missing dependency on list.
 
@@ -3044,7 +5825,7 @@
 
 	Add explanatory comment.
 
-2009-09-01  rrt  <rrt>
+2009-08-31  rrt  <rrt>
 
 	Add requirement of posix and copyright notice to output.
 
@@ -3071,6 +5852,8 @@
 	Make 'make release' do 'make dist'
 
 	Simplify assert.
+
+2009-03-15  rrt  <rrt>
 
 	Simplify string.format.
 
@@ -3130,7 +5913,7 @@
 
 	Fix make dist; $REL -> ${REL}, add --exclude for .#*, and no longer exclude template-rrt.lua, which no longer lives in the tree.
 
-2008-06-21  niklas  <niklas>
+2008-06-20  niklas  <niklas>
 
 	Add collect, from Patrick Walton, to run an iterator and collect the results in a table.
 	As a result, rewrite all the table functionals to be iterator
@@ -3149,13 +5932,13 @@
 
 	Add some TODOs to make the prog structure a bit more sensible.
 
-2008-03-05  rrt  <rrt>
+2008-03-04  rrt  <rrt>
 
 	Make a note to compare pathSplit and pathConcat with Perl equivalents.
 
-2008-03-04  rrt  <rrt>
-
 	Add TODO to use LuaDoc instead.
+
+2008-03-03  rrt  <rrt>
 
 	Add Makefile with dist target
 
@@ -3167,11 +5950,9 @@
 
 	Remove _INTEGER_BITS and unneeded dependency
 
-2008-03-03  rrt  <rrt>
-
 	Update date and prerequisites.
 
-2008-03-02  rrt  <rrt>
+2008-03-01  rrt  <rrt>
 
 	Require external deps before neutering "require".
 
@@ -3183,33 +5964,33 @@
 
 	Use LFS for length() function.
 
-2008-01-20  niklas  <niklas>
+2008-01-19  niklas  <niklas>
 
 	Add pathSplit and pathConcat from nancy.
 
-2008-01-13  rrt  <rrt>
+2008-01-12  rrt  <rrt>
 
 	Make calls to find and gsub get the function from the pattern, meaning that in theory they could work with other regex engines than Lua's.
 
 	Remove pointless object notation on a string.
 
-2007-11-20  rrt  <rrt>
+2007-11-19  rrt  <rrt>
 
 	Now that INTEGER_BITS is added to the math namespace, no need to prefix it with _.
 
 	Note that bitlib is needed.
 
-2007-10-07  rrt  <rrt>
+2007-10-06  rrt  <rrt>
 
 	Rename 'permute' to the more accurate 'rearrange'
 
 	Update some comments to match changes in the Lua Gem about this code.
 
-2007-10-06  rrt  <rrt>
+2007-10-05  rrt  <rrt>
 
 	Fix from Roberto Ierusalimschy.
 
-2007-05-12  rrt  <rrt>
+2007-05-11  rrt  <rrt>
 
 	Fix up single-file stdlib
 
@@ -3228,26 +6009,26 @@
 
 	Revert to plain implementation of length to avoid using POSIX library which is currently unmaintained.
 
+2007-04-25  rrt  <rrt>
+
 	Clear up uses of old vararg "arg" syntax (thanks Matt).
 
-2007-03-02  rrt  <rrt>
+2007-03-01  rrt  <rrt>
 
 	Add list.rep
 
 	Add FIXME for commented-out require
-
-2007-03-01  rrt  <rrt>
 
 	Make join cope with empty lists.
 
 	Remove default separator in string.split, and hence a TODO.
 	Add string.join.
 
-2007-02-26  rrt  <rrt>
+2007-02-25  rrt  <rrt>
 
 	Mention the dependency on lrexlib.
 
-2007-02-25  rrt  <rrt>
+2007-02-24  rrt  <rrt>
 
 	Use __append metamethod, not __concat, which was wrong
 
@@ -3266,9 +6047,11 @@
 	avoid overflowing the parameter stack (with the unpack) when splitting
 	large strings. Clarify the comment for this code.
 
+2007-02-21  rrt  <rrt>
+
 	Fix indexKey and indexValue: the function passed to table.process wasn't returning the accumulator as it should have.
 
-2007-02-21  rrt  <rrt>
+2007-02-20  rrt  <rrt>
 
 	Make a note to find better names for enpair and depair, which are useful but confusing. Something like pairsToTable and tableToPairs?
 
@@ -3276,29 +6059,27 @@
 
 	Add missing dirname and basename
 
-2007-01-06  rrt  <rrt>
+2007-01-05  rrt  <rrt>
 
 	Sync with reality.
 
-2007-01-05  rrt  <rrt>
+2007-01-04  rrt  <rrt>
 
 	Document.
 	Set rex = rex_pcre, so that we actually have the functions we expect
 	under "rex".
 
-2007-01-04  rrt  <rrt>
-
 	Now that lrexlib no longer has a Lua component or a default library, add a library to load it (currently just require rex_pcre).
 
-2006-12-07  rrt  <rrt>
+2006-12-06  rrt  <rrt>
 
 	Remove TODOs that apply to lrexlib.
 
-2006-11-28  rrt  <rrt>
+2006-11-27  rrt  <rrt>
 
 	Use non-list-capable math.max correctly
 
-2006-11-21  rrt  <rrt>
+2006-11-20  rrt  <rrt>
 
 	Fix from Jerôme Vuarand to string subscription that deals with oldmetas that are functions.
 
@@ -3306,13 +6087,11 @@
 
 	Stop string subscription operator from hiding other methods.
 
-2006-11-06  rrt  <rrt>
+2006-11-05  rrt  <rrt>
 
 	Note that rex is now an external dependency.
 
 	Note problem with external dependencies.
-
-2006-11-05  rrt  <rrt>
 
 	Sort out adding to module metatables.
 
@@ -3346,7 +6125,7 @@
 
 	Remove listable and listabled functions. This wasn't really that useful, and could confuse.
 
-2006-11-02  rrt  <rrt>
+2006-11-01  rrt  <rrt>
 
 	Correct @function to @func
 
@@ -3362,7 +6141,7 @@
 
 	Fix list.concat (thanks to Avi Yagodnick for reporting the bug).
 
-2006-10-29  niklas  <niklas>
+2006-10-28  niklas  <niklas>
 
 	Remove require loops by commenting out looping requires. This needs fixing properly (by permitting them).
 	Where possible without further change, remove the "std" prefix from
@@ -3421,7 +6200,7 @@
 
 	table.getn --> #
 
-2006-10-01  rrt  <rrt>
+2006-09-30  rrt  <rrt>
 
 	Remove io.readDir, as it is replaced by posix.dir.
 
@@ -3439,11 +6218,9 @@
 
 	Escape square brackets too in string.escapeShell.
 
-2006-04-26  rrt  <rrt>
+2006-04-25  rrt  <rrt>
 
 	Prepend redefinition of require to the output.
-
-2006-04-25  rrt  <rrt>
 
 	Use string methods rather than functions so that the functions here work on regexs as well. Add a note to make the whole API work properly with regexs as well as Lua patterns.
 
@@ -3470,7 +6247,7 @@
 
 	Remove unnecessary local line from gmatch, and initialise st to 1, not 0 (thanks to Shmuel Zeigerman).
 
-2006-04-10  rrt  <rrt>
+2006-04-09  rrt  <rrt>
 
 	Reorganise libraries with simpler names
 
@@ -3490,7 +6267,7 @@
 
 	Rename algorithm.lcs to lcs
 
-2006-04-10  rrt  <rrt>
+2006-04-09  rrt  <rrt>
 
 	Rewrite string.split to be regex-system-neutral.
 	Change string.findl to return from and to in list form, not {from = f,
@@ -3541,7 +6318,7 @@
 
 	Add module calls everywhere, and do some necessary renaming to avoid clashes
 
-2006-03-23  rrt  <rrt>
+2006-03-22  rrt  <rrt>
 
 	Use module and require in properly 5.1-compatible way, and change module names to work better with 5.1.
 	This should all still work fine with 5.0 using compat-5.1.lua.
@@ -3550,7 +6327,7 @@
 
 	More fixes and tests from Shmuel Zeigerman.
 
-2006-01-29  rrt  <rrt>
+2006-01-28  rrt  <rrt>
 
 	Add tests from Shmuel Zeigerman, reorganised somewhat. They are run when the module is loaded.
 
@@ -3560,11 +6337,9 @@
 
 	More fixes from Shmuel to mimic string.gsub better.
 
-2006-01-25  rrt  <rrt>
+2006-01-24  rrt  <rrt>
 
 	Fix endless loop when pattern is .* (bug reported by Shmuel Zeigerman).
-
-2006-01-24  rrt  <rrt>
 
 	Cope with capture being false (Shmuel Zeigerman).
 
@@ -3574,36 +6349,32 @@
 
 	Fix from Shmuel Zeigerman to match string.gsub better: when the pattern contains no captures, pass the entire match to the replacement function.
 
-2006-01-22  rrt  <rrt>
+2006-01-21  rrt  <rrt>
 
 	More bug fixes; thanks to Shmuel Zeigerman for reporting the bugs and in one case giving the fix.
-
-2006-01-21  rrt  <rrt>
 
 	Fix bugs with %n replacements in rex.gsub
 
 	Make rex.gsub a full gsub for rex.
 
-2006-01-20  rrt  <rrt>
+2006-01-19  rrt  <rrt>
 
 	Don't escape & in entities
 
 	Improve rex.gsub
 
-2006-01-17  rrt  <rrt>
+2006-01-16  rrt  <rrt>
 
 	Escape <, > and & in XML output.
 
-2005-11-24  rrt  <rrt>
+2005-11-23  rrt  <rrt>
 
 	Replace deepipairs with treeIter to iterate properly over trees.
 
-2005-11-23  rrt  <rrt>
+2005-11-22  rrt  <rrt>
 
 	Remove table.filterItem, as it really only works for lists. Inline the function in list.filter.
 	Add table.map.
-
-2005-11-22  rrt  <rrt>
 
 	Add XML output, assuming Lua tables created by luaexpat.
 
@@ -3611,7 +6382,7 @@
 
 	Add generic printing framework, and use it to add prettytostring.
 
-2005-11-19  rrt  <rrt>
+2005-11-18  rrt  <rrt>
 
 	Use table.process to implement list processing functions.
 
@@ -3648,7 +6419,7 @@
 
 	Check error return when loading file, so that if file is not found we don't abort immediately so that all LUA_PATH entries are checked.
 
-2004-02-05  rrt  <rrt>
+2004-02-04  rrt  <rrt>
 
 	Tidy up abstract syntax rules: there's now only one per production.
 	Keep action functions for more complex rules. Looks as though we only
@@ -3661,19 +6432,19 @@
 	Return false instead of nil for empty parse trees, so as not to upset
 	ipairs iterations over lists.
 
-2004-02-05  rrt  <rrt>
+2004-02-04  rrt  <rrt>
 
 	Tidy up the code, mostly by shortening the names of frequently-used variables.
 
 	Allow import to report errors during importing.
 
-2004-02-04  rrt  <rrt>
+2004-02-03  rrt  <rrt>
 
 	Added Diego Nahab for his mbox parser.
 
 	Added Diego Nahab's mbox parser.
 
-2004-02-04  rrt  <rrt>
+2004-02-03  rrt  <rrt>
 
 	Rework the API: now has a single method exposed, parse, and the other methods have been moved inside parse as local functions. The constructor no longer takes a token list.
 	Also, provide support for producing an abstract parse tree rather than
@@ -3681,11 +6452,11 @@
 
 	Full details in the all-new documentation.
 
-2004-02-04  rrt  <rrt>
+2004-02-03  rrt  <rrt>
 
 	Clarify note about import and add TODO about markup tags.
 
-2004-02-02  rrt  <rrt>
+2004-02-01  rrt  <rrt>
 
 	Massacre the object implementation, reverting to implementing sets as simple tables, which seems to be better for general use. A lot of the code in this file is now non-functional; I'll be making it work later, integrating it with Jamie Webb's code. The module may get folded back into table.
 
@@ -3701,7 +6472,7 @@
 
 	Various modifications prompted by Jamie Webb's submission of his own standard library. So far I have assimilated improvements that map directly on to existing code, and also removed some functions that didn't seem to be that useful. Looking at the code again provoked other miscellaneous improvements.
 
-2004-02-01  rrt  <rrt>
+2004-01-31  rrt  <rrt>
 
 	In the previous commit, which had a bogus log message, I fixed io.readDir: split --> string.split.
 	In this one, I improved the formatting of io.readDir slightly.
@@ -3725,11 +6496,9 @@
 
 	Add math.floor and math.round, based on code from Johann Hibschman.
 
-2004-01-31  rrt  <rrt>
-
 	Fix pickle: format->string.format (thanks to Johann Hibschman).
 
-2004-01-29  rrt  <rrt>
+2004-01-28  rrt  <rrt>
 
 	Default the from and to parameters of list.slice to the start and end of the list respectively.
 
@@ -3768,18 +6537,18 @@
 
 	More Lua 5 tweaks, and a couple of minor bugfixes.
 
-2003-10-21  rrt  <rrt>
+2003-10-20  rrt  <rrt>
 
 	Oops; added file with incorrect name; re-add with correct name.
 
 	Add "import" from LTN 11 to overcome require's problem with circular dependencies.
 	Remove string.next, as string.gfind provides an equivalent iterator.
 
-2003-10-20  rrt  <rrt>
-
 	More renaming for consistency, and move more code around. This introduced the first cyclic dependency between modules since I moved to Lua 5, and I've had to cure this with a C include-style trick, since Lua 5 require just overflows the stack when there's a recursive call of require.
 
 	Add an iterator for the values in a set, and use it; methods are now organised into those that access the data structure and those that call other methods.
+
+2003-10-19  rrt  <rrt>
 
 	Objectify the implementation, and add LuaDoc-style markup to the comments.
 
@@ -3813,9 +6582,11 @@
 
 	Renamed some libraries for Lua 5-ification reasons.
 
+2003-10-17  rrt  <rrt>
+
 	Fix a minor bug and remove some debugging code.
 
-2003-10-18  rrt  <rrt>
+2003-10-17  rrt  <rrt>
 
 	A new module (and family): algorithm, with first member algorithm.lcs, which implements the longest common subsequence algorithm needed for diff.
 	std.object has been reworked, and now fits much better with Lua 5,
@@ -3828,19 +6599,19 @@
 
 	Fix call to writeLine (now io.writeLine).
 
-2003-09-28  rrt  <rrt>
+2003-09-27  rrt  <rrt>
 
 	More Lua 5-ification changes, mostly to the io modules this time.
 
-2003-09-26  uid30086  <uid30086>
+2003-09-25  uid30086  <uid30086>
 
 	Another round of changes for Lua 5-ification. This completes the changes to the string library (used to be the text library), and adds std.rex (complements my C rex library). Other changes are mostly to accomodate this; a few extras have snuck in.
 
-2003-09-25  rrt  <rrt>
+2003-09-24  rrt  <rrt>
 
 	First set of changes moving to Lua 5-like naming conventions for the libraries.
 
-2003-09-15  rrt  <rrt>
+2003-09-14  rrt  <rrt>
 
 	Use math.mod rather than bit.mod for wider compatibility.
 
@@ -3854,17 +6625,17 @@
 
 	Another few search-and-replace function names to update to Lua 5. Mostly string functions this time.
 
-2003-09-10  rrt  <rrt>
+2003-09-09  rrt  <rrt>
 
 	More search-and-replace and wholesale code removal (notably POSIX getopt) for Lua 5.
 
 	Another swathe of Lua 5 updates. Now my little script that I'm testing nearly works, which means that quite a lot of the code in the libraries is at least vaguely correct!
 
-2003-09-09  rrt  <rrt>
+2003-09-08  rrt  <rrt>
 
 	A slew of updates in the march to Lua-5-ify the libraries. I've just been working on a particular small script and changing things "on demand", and I've not even managed to make the script work yet, so there's almost certainly a lot of work still to go.
 
-2003-06-04  rrt  <rrt>
+2003-06-03  rrt  <rrt>
 
 	Convert to Lua 5.0, and some slight tidying.
 
@@ -3874,15 +6645,15 @@
 
 	Make readDir return an unsorted list of files. Unfortunately, -U isn't supported by ls on all platforms.
 
-2003-03-14  rrt  <rrt>
+2003-03-13  rrt  <rrt>
 
 	Update to match new directory structure (rather overdue!).
 
-2003-01-06  rrt  <rrt>
+2003-01-05  rrt  <rrt>
 
 	Use endOfLine in chomp and wrap.
 
-2002-10-18  rrt  <rrt>
+2002-10-17  rrt  <rrt>
 
 	Removed std.logic; now folded into std.data.logic
 
@@ -3902,12 +6673,14 @@
 
 	Revert to previous version to avoid losing precision (specifically, LSB).
 
+2002-09-09  rrt  <rrt>
+
 	Shorter implementation of bxor, and bnot thanks to a remark by Paul Hsieh on lual (Message-Id: <0H26009OMQ9J59@mta5.snfc21.pbi.net>).
 	Kept band (as the primitive to make bxor) and bor (because de
 	Morganising it would involve a call to bnot and two to band, hence
 	making it three times slower).
 
-2002-09-09  rrt  <rrt>
+2002-09-08  rrt  <rrt>
 
 	Poor man's logic functions (for those who can't use bitlib). Also calculate the number of bits in the word.
 
@@ -3996,6 +6769,8 @@
 
 	Rename std->modules and remove stray std.lua
 
+2002-08-14  rrt  <rrt>
+
 	Standardize code style, and make changes (mostly to the comments) to prepare for renaming to std.config, as per John's suggestion. This file will only secondarily contain require, and will typically be built into the Lua system anyway. When we move to Lua 5.0, require will disappear, anyway.
 
 	John Belmonte's replacement require implementation (5.0-compatible).
@@ -4026,6 +6801,8 @@
 
 	Correct punctuation.
 
+2002-08-12  rrt  <rrt>
+
 	Fix a typo loading pickle.lua in text.lua
 	Make pickle escape characters in strings that need it
 
@@ -4035,8 +6812,6 @@
 	just different renderers for the functions in stringifier.
 
 	Fix spacing in comments.
-
-2002-08-12  rrt  <rrt>
 
 	Allow new tostring methods to be registered.
 
@@ -4060,13 +6835,13 @@
 
 	Move print from assert to debug. This not only makes sense, but breaks a recursive dependency between assert and text/text.
 
-2002-07-31  rrt  <rrt>
+2002-07-30  rrt  <rrt>
 
 	Remove require for now-defunct time.lua, and tidy up the TODOs.
 
 	Correct endofLine -> endOfLine again; this must have crept back in with the last diff. Using CVS everywhere rather than manual copying will be a Good Thing in this respect!
 
-2002-07-30  rrt  <rrt>
+2002-07-29  rrt  <rrt>
 
 	Generalised daySuffix to ordinalSuffix. Still English-specific :-(
 

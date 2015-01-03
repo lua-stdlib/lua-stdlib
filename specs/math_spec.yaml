@@ -1,4 +1,4 @@
-before: |
+before:
   base_module  = "math"
   this_module  = "std.math"
   global_table = "_G"
@@ -6,6 +6,7 @@ before: |
   extend_base  = { "floor", "monkey_patch", "round" }
 
   M = require (this_module)
+
 
 specify std.math:
 - context when required:
@@ -30,19 +31,69 @@ specify std.math:
 
 
 - describe floor:
+  - before:
+      f = M.floor
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.floor (number, ?int)")
+
+  - it rounds to the nearest smaller integer:
+      expect (f (1.2)).to_be (1)
+      expect (f (1.9)).to_be (1)
+      expect (f (999e-2)).to_be (9)
+      expect (f (999e-3)).to_be (0)
+  - it rounds down to specified number of decimal places:
+      expect (f (1.2345, 0)).to_be (1.0)
+      expect (f (1.2345, 1)).to_be (1.2)
+      expect (f (1.2345, 2)).to_be (1.23)
+      expect (f (9.9999, 2)).to_be (9.99)
+      expect (f (99999e-3, 3)).to_be (99999e-3)
+      expect (f (99999e-4, 3)).to_be (9999e-3)
+      expect (f (99999e-5, 3)).to_be (999e-3)
 
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
-      t  = {
-        math = {},
-      }
-      f (t)
-  - it installs math.floor function:
-      expect (t.math.floor).to_be (M.floor)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.monkey_patch (?table)")
+
+  - it returns the monkey_patched math entry namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.math)
+  - it injects std.math apis into the given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.math[api]).to_be (M[api])
+      end
 
 
 - describe round:
+  - before:
+      f = M.round
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.math.round (number, ?int)")
+
+  - it rounds to the nearest integer:
+      expect (f (1.2)).to_be (1)
+      expect (f (1.9)).to_be (2)
+      expect (f (949e-2)).to_be (9)
+      expect (f (999e-2)).to_be (10)
+  - it rounds to specified number of decimal places:
+      expect (f (1.234, 0)).to_be (1.0)
+      expect (f (5.678, 0)).to_be (6.0)
+      expect (f (1.234, 1)).to_be (1.2)
+      expect (f (5.678, 1)).to_be (5.7)
+      expect (f (1.234, 2)).to_be (1.23)
+      expect (f (5.678, 2)).to_be (5.68)
+      expect (f (9.999, 2)).to_be (10)
+      expect (f (11111e-2, 3)).to_be (11111e-2)
+      expect (f (99999e-2, 3)).to_be (99999e-2)
+      expect (f (11111e-3, 3)).to_be (11111e-3)
+      expect (f (99999e-3, 3)).to_be (99999e-3)
+      expect (f (11111e-4, 3)).to_be (1111e-3)
+      expect (f (99999e-4, 3)).to_be (10)
+      expect (f (99999e-5, 3)).to_be (1)

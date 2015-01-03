@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Types">Types </a></li>
 </ul>
 
 
@@ -43,6 +44,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><strong>std.io</strong></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -64,8 +66,18 @@
 <div id="content">
 
 <h1>Module <code>std.io</code></h1>
-<p>Additions to the io module.</p>
+<p>Additions to the core io module.</p>
 <p>
+
+
+<p> The module table returned by <code>std.io</code> also contains all of the entries from
+ the core <code>io</code> module table.  An hygienic way to import this module, then,
+ is simply to override core <code>io</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">io</span> = <span class="global">require</span> <span class="string">"std.io"</span>
+</pre>
 
 </p>
 
@@ -74,26 +86,30 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#catdir">catdir (...)</a></td>
-	<td class="summary">Concatenate two or more directories into a path, removing the trailing slash.</td>
+	<td class="summary">Concatenate directory names into a path.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#catfile">catfile (...)</a></td>
 	<td class="summary">Concatenate one or more directories and a filename into a path.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#die">die (...)</a></td>
+	<td class="name" nowrap><a href="#die">die (msg, ...)</a></td>
 	<td class="summary">Die with error.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
+	<td class="name" nowrap><a href="#dirname">dirname (path)</a></td>
+	<td class="summary">Remove the last dirsep delimited element from a path.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#process_files">process_files (f)</a></td>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core <code>io</code> methods with <code>std</code> enhanced versions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#process_files">process_files (fn)</a></td>
 	<td class="summary">Process files specified on the command-line.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#readlines">readlines (h)</a></td>
+	<td class="name" nowrap><a href="#readlines">readlines ([file=io.input()])</a></td>
 	<td class="summary">Read a file or file handle into a list of lines.</td>
 	</tr>
 	<tr>
@@ -101,7 +117,7 @@
 	<td class="summary">Perform a shell command and return its output.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#slurp">slurp (h)</a></td>
+	<td class="name" nowrap><a href="#slurp">slurp ([file=io.input()])</a></td>
 	<td class="summary">Slurp a file handle.</td>
 	</tr>
 	<tr>
@@ -109,12 +125,19 @@
 	<td class="summary">Split a directory path into components.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#warn">warn (...)</a></td>
+	<td class="name" nowrap><a href="#warn">warn (msg, ...)</a></td>
 	<td class="summary">Give warning with the name of program and file (if any).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#writelines">writelines (h, ...)</a></td>
+	<td class="name" nowrap><a href="#writelines">writelines ([h=io.output()], ...)</a></td>
 	<td class="summary">Write values adding a newline after each.</td>
+	</tr>
+</table>
+<h2><a href="#Types">Types </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#fileprocessor">fileprocessor (filename, i)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.io.html#process_files">process_files</a> callback function.</td>
 	</tr>
 </table>
 
@@ -123,18 +146,20 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
     <dt>
     <a name = "catdir"></a>
     <strong>catdir (...)</strong>
     </dt>
     <dd>
-    Concatenate two or more directories into a path, removing the trailing slash.
+    Concatenate directory names into a path.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          path components
         </li>
     </ul>
@@ -142,11 +167,19 @@
     <h3>Returns:</h3>
     <ol>
 
-        path
+        path without trailing separator
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.io.html#catfile">catfile</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">dirpath = catdir (<span class="string">""</span>, <span class="string">"absolute"</span>, <span class="string">"directory"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -160,6 +193,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          path components
         </li>
     </ul>
@@ -167,27 +201,41 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         path
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.io.html#catdir">catdir</a></li>
+         <li><a href="../modules/std.io.html#splitdir">splitdir</a></li>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">filepath = catfile (<span class="string">"relative"</span>, <span class="string">"path"</span>, <span class="string">"filename"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "die"></a>
-    <strong>die (...)</strong>
+    <strong>die (msg, ...)</strong>
     </dt>
     <dd>
     Die with error.
  This function uses the same rules to build a message prefix
- as <a href="../modules/std.io.html#warn">std.io.warn</a>.
+ as <a href="../modules/std.io.html#warn">warn</a>.
 
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">msg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         format string
+        </li>
         <li><span class="parameter">...</span>
-         arguments for format
+         additional arguments to plug format string specifiers
         </li>
     </ul>
 
@@ -195,9 +243,45 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../modules/std.io.html#warn">std.io.warn</a>
+         <a href="../modules/std.io.html#warn">warn</a>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">die (<span class="string">"oh noes! (%s)"</span>, <span class="global">tostring</span> (obj))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "dirname"></a>
+    <strong>dirname (path)</strong>
+    </dt>
+    <dd>
+    Remove the last dirsep delimited element from a path.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         file path
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        a new path with the last dirsep and following
+   truncated
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">dir = dirname <span class="string">"/base/subdir/filename"</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -205,15 +289,15 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+    Overwrite core <code>io</code> methods with <code>std</code> enhanced versions. </p>
 
-<p> Adds <a href="../modules/std.io.html#readlines">readlines</a>  and <a href="../modules/std.io.html#writelines">writelines</a>  metamethods to core file objects.
+<p> Also adds <a href="../modules/std.io.html#readlines">readlines</a> and <a href="../modules/std.io.html#writelines">writelines</a> metamethods to core file objects.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -222,61 +306,83 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        the module table
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        the <code>std.io</code> module table
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">io</span> = <span class="global">require</span> <span class="string">"std.io"</span>.monkey_patch ()</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "process_files"></a>
-    <strong>process_files (f)</strong>
+    <strong>process_files (fn)</strong>
     </dt>
     <dd>
     Process files specified on the command-line.
- If no files given, process <code>io.stdin</code>; in list of files,
- <code>-</code> means <code>io.stdin</code>.
+ Each filename is made the default input source with <code>io.input</code>, and
+ then the filename and argument number are passed to the callback
+ function. In list of filenames, <code>-</code> means <code>io.stdin</code>.  If no
+ filenames were given, behave as if a single <code>-</code> was passed.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">f</span>
-         function to process files with, which is passed
- <code>(name, arg_no)</code>
+        <li><span class="parameter">fn</span>
+            <span class="types"><a class="type" href="../modules/std.io.html#fileprocessor">fileprocessor</a></span>
+         function called for each file argument
         </li>
     </ul>
 
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ #! /usr/bin/env lua
+ <span class="comment">-- minimal cat command
+</span> <span class="keyword">local</span> <span class="global">io</span> = <span class="global">require</span> <span class="string">"std.io"</span>
+ <span class="global">io</span>.process_files (<span class="keyword">function</span> () <span class="global">io</span>.write (<span class="global">io</span>.slurp ()) <span class="keyword">end</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "readlines"></a>
-    <strong>readlines (h)</strong>
+    <strong>readlines ([file=io.input()])</strong>
     </dt>
     <dd>
     Read a file or file handle into a list of lines.
+ The lines in the returned list are not <code>\n</code> terminated.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">h</span>
-         file handle or name (default: <code>io.input ()</code>);
- if h is a handle, the file is closed after reading
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">file</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         file handle or name;
+   if file is a file handle, that file is closed after reading
+         (<em>default</em> io.input())
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        list of lines
+           <span class="types"><a class="type" href="../classes/std.list.html">list</a></span>
+        lines
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">list = readlines <span class="string">"/etc/passwd"</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -290,6 +396,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">c</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          command
         </li>
     </ul>
@@ -297,16 +404,25 @@
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         output, or nil if error
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-os.execute">os.execute</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">users = shell <span class="string">[[cat /etc/passwd | awk -F: '{print $1;}']]</span></pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "slurp"></a>
-    <strong>slurp (h)</strong>
+    <strong>slurp ([file=io.input()])</strong>
     </dt>
     <dd>
     Slurp a file handle.
@@ -314,8 +430,11 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">h</span>
-         file handle or name (default: <code>io.input ()</code>)
+        <li><span class="parameter">file</span>
+            <span class="types"><span class="type">file</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         file handle or name;
+   if file is a file handle, that file is closed after reading
+         (<em>default</em> io.input())
         </li>
     </ul>
 
@@ -326,7 +445,15 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.io.html#process_files">process_files</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">contents = slurp (filename)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -352,38 +479,39 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.io.html#catdir">catdir</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">dir_components = splitdir (filepath)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "warn"></a>
-    <strong>warn (...)</strong>
+    <strong>warn (msg, ...)</strong>
     </dt>
     <dd>
-
-<p>Give warning with the name of program and file (if any).
+    Give warning with the name of program and file (if any).
  If there is a global <code>prog</code> table, prefix the message with
  <code>prog.name</code> or <code>prog.file</code>, and <code>prog.line</code> if any.  Otherwise
  if there is a global <code>opts</code> table, prefix the message with
  <code>opts.program</code> and <code>opts.line</code> if any.  <a href="../classes/std.optparse.html#std.optparse:parse">std.optparse:parse</a>
  returns an <code>opts</code> table that provides the required <code>program</code>
- field, as long as you assign it back to <code>_G.opts</code>:</p>
-
-<pre><code> local OptionParser = require "std.optparse"
- local parser = OptionParser "eg 0\nUsage: eg\n"
- _G.arg, _G.opts = parser:parse (_G.arg)
- if not _G.opts.keep_going then
-   require "std.io".warn "oh noes!"
- end
-</code></pre>
-
-
+ field, as long as you assign it back to <code>_G.opts</code>.
 
 
     <h3>Parameters:</h3>
     <ul>
+        <li><span class="parameter">msg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         format string
+        </li>
         <li><span class="parameter">...</span>
-         arguments for format
+         additional arguments to plug format string specifiers
         </li>
     </ul>
 
@@ -391,14 +519,25 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.optparse.html#std.optparse:parse">std.optparse:parse</a>
+         <li><a href="../classes/std.optparse.html#std.optparse:parse">std.optparse:parse</a></li>
+         <li><a href="../modules/std.io.html#die">die</a></li>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+   <span class="keyword">local</span> OptionParser = <span class="global">require</span> <span class="string">"std.optparse"</span>
+   <span class="keyword">local</span> parser = OptionParser <span class="string">"eg 0\nUsage: eg\n"</span>
+   _G.arg, _G.opts = parser:parse (_G.arg)
+   <span class="keyword">if</span> <span class="keyword">not</span> _G.opts.keep_going <span class="keyword">then</span>
+     <span class="global">require</span> <span class="string">"std.io"</span>.warn <span class="string">"oh noes!"</span>
+   <span class="keyword">end</span></pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "writelines"></a>
-    <strong>writelines (h, ...)</strong>
+    <strong>writelines ([h=io.output()], ...)</strong>
     </dt>
     <dd>
     Write values adding a newline after each.
@@ -407,9 +546,13 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">h</span>
-         file handle (default: <code>io.output ()</code>)
+            <span class="types"><span class="type">file</span></span>
+         open writable file handle;
+   the file is <strong>not</strong> closed after writing
+         (<em>default</em> io.output())
         </li>
         <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">number</span></span>
          values to write (as for write)
         </li>
     </ul>
@@ -417,6 +560,48 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">writelines (<span class="global">io</span>.stdout, <span class="string">"first line"</span>, <span class="string">"next line"</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Types"></a>Types </h2>
+
+
+    <dl class="function">
+    <dt>
+    <a name = "fileprocessor"></a>
+    <strong>fileprocessor (filename, i)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.io.html#process_files">process_files</a> callback function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">filename</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         filename
+        </li>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         argument number of <em>filename</em>
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> fileprocessor = <span class="keyword">function</span> (filename, i)
+   <span class="global">io</span>.write (<span class="global">tostring</span> (i) .. <span class="string">":\n===\n"</span> .. <span class="global">io</span>.slurp (filename) .. <span class="string">"\n"</span>)
+ <span class="keyword">end</span>
+ <span class="global">io</span>.process_files (fileprocessor)</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -425,7 +610,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

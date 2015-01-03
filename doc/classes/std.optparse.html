@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -32,6 +32,7 @@
 
 <h2>Contents</h2>
 <ul>
+<li><a href="#Objects">Objects</a></li>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
 <li><a href="#Methods">Methods</a></li>
@@ -55,6 +56,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -70,93 +72,38 @@
 <p>
 
 
-<pre><code> local OptionParser = require "std.optparse"
+<h2> Prototype Chain</h2>
 
- local parser = OptionParser [[
- any text VERSION
- Additional lines of text to show when the --version
- option is passed.
 
- Several lines or paragraphs are permitted.
-
- Usage: PROGNAME
-
- Banner text.
-
- Optional long description text to show when the --help
- option is passed.
-
- Several lines or paragraphs of long description are permitted.
-
- Options:
-
-   -b                       a short option with no long option
-       --long               a long option with no short option
-       --another-long       a long option with internal hypen
-   -v, --verbose            a combined short and long option
-   -n, --dryrun, --dry-run  several spellings of the same option
-   -u, --name=USER          require an argument
-   -o, --output=[FILE]      accept an optional argument
-       --version            display version information, then exit
-       --help               display this help, then exit
-
-Footer text.  Several lines or paragraphs are permitted.
-
-Please report bugs at bug-list@yourhost.com
-]]
-
-_G.arg, _G.opts = parser:parse (_G.arg)
-</code></pre>
-
-<p> Most often, everything else is handled automatically.  After calling
- <code>parser:parse</code> as shown above, <code>_G.arg</code> will contain unparsed arguments,
- usually filenames or similar, and <code>_G.opts</code> will be a table of parsed
- option values. The keys to the table are the long-options with leading
- hyphens stripped, and non-word characters turned to <code>_</code>.  For example
- if <code>--another-long</code> had been found in <code>_G.arg</code> then <code>_G.opts</code> would
- have a key named <code>another_long</code>.  If there is no long option name, then
- the short option is used, e.g. <code>_G.opts.b</code> will be set.  The values
- saved in those keys are controlled by the option handler, usually just
- <code>true</code> or the option argument string as appropriate.</p>
-
-<p> On those occasions where more complex processing is required, handlers
- can be replaced or added using parser:<a href="../classes/std.optparse.html#std.optparse:on">on</a>.  A good option to always
- add, is to make <code>--</code> signal the end of processed options, so that any
- options following <code>--</code> on the command line, even if they begin with a
- hyphen and look like options otherwise, are not processed but instead
- left in the modified <code>_G.arg</code> returned by <code>parser:parse</code>:</p>
-
-<pre><code> parser:on ('--', parser.finished)
-</code></pre>
-
-<p> See the documentation for <a href="../classes/std.optparse.html#std.optparse:on">std.optparse:on</a> for more details of how to
- use this powerful method.</p>
-
-<p> When writing your own handlers for <a href="../classes/std.optparse.html#std.optparse:on">std.optparse:on</a>, you only need
- to deal with normalised arguments, because combined short arguments
- (<code>-xyz</code>), equals separators to long options (<code>--long=ARG</code>) are fully
- expanded before any handler is called.</p>
-
-<p> Note that <a href="../modules/std.io.html#die">std.io.die</a> and <a href="../modules/std.io.html#warn">std.io.warn</a> will only prefix messages
- with <code>parser.program</code> if the parser options are assigned back to
- <code>_G.opts</code> as shown in the example above.</p>
+<pre>
+<span class="global">table</span>
+ <span class="backtick">`-&gt; Object
+      `</span>-&gt; OptionParser
+</pre>
 
 </p>
 
 
+<h2><a href="#Objects">Objects</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.optparse.OptionParser">std.optparse.OptionParser</a></td>
+	<td class="summary">OptionParser prototype object.</td>
+	</tr>
+</table>
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#std.optparse.OptionParser">std.optparse.OptionParser (spec)</a></td>
-	<td class="summary">Instantiate a new parser.</td>
+	<td class="name" nowrap><a href="#std.optparse.OptionParser_Init">std.optparse.OptionParser_Init (spec)</a></td>
+	<td class="summary">Signature for initialising a custom OptionParser.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.boolean">std.optparse.boolean (opt[, optarg="1"])</a></td>
-	<td class="summary">Return a Lua boolean equivalent of various <code>optarg</code> strings.</td>
+	<td class="summary">Return a Lua boolean equivalent of various <em>optarg</em> strings.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.file">std.optparse.file (opt, optarg)</a></td>
-	<td class="summary">Report an option parse error unless <code>optarg</code> names an
+	<td class="summary">Report an option parse error unless <em>optarg</em> names an
  existing file.</td>
 	</tr>
 	<tr>
@@ -202,10 +149,6 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 	<td class="summary">Parsed options table, with a key for each encountered option, each
  with value set by that option's <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>.</td>
 	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.optparse.parser">std.optparse.parser</a></td>
-	<td class="summary">Customized parser for your options.</td>
-	</tr>
 </table>
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
@@ -219,7 +162,7 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse:parse">std.optparse:parse (arglist[, defaults])</a></td>
-	<td class="summary">Parse <code>arglist</code>.</td>
+	<td class="summary">Parse an argument list.</td>
 	</tr>
 </table>
 
@@ -227,24 +170,131 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2><a name="Objects"></a>Objects</h2>
+
     <dl class="function">
     <dt>
     <a name = "std.optparse.OptionParser"></a>
-    <strong>std.optparse.OptionParser (spec)</strong>
+    <strong>std.optparse.OptionParser</strong>
     </dt>
     <dd>
-    Instantiate a new parser.
- Read the documented options from <code>spec</code> and return a new parser that
- can be passed to <a href="../classes/std.optparse.html#std.optparse:parse">parse</a> for parsing those options from an argument
- list.  Options are recognised as lines that begin with at least two
- spaces, followed by a hyphen.
+    OptionParser prototype object. </p>
+
+<p> Most often, after instantiating an <a href="../classes/std.optparse.html#std.optparse.OptionParser">OptionParser</a>, everything else
+ is handled automatically.</p>
+
+<p> Then, calling <code>parser:parse</code> as shown below saves unparsed arguments
+ into <code>_G.arg</code> (usually filenames or similar), and <code>_G.opts</code> will be a
+ table of successfully parsed option values. The keys into this table
+ are the long-options with leading hyphens stripped, and non-word
+ characters turned to <code>_</code>.  For example if <code>--another-long</code> had been
+ found in the initial <code>_G.arg</code>, then <code>_G.opts</code> will have a key named
+ <code>another_long</code>, with an appropriate value.  If there is no long
+ option name, then the short option is used, i.e. <code>_G.opts.b</code> will be
+ set.</p>
+
+<p> The values saved against those keys are controlled by the option
+ handler, usually just <code>true</code> or the option argument string as
+ appropriate.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">_init</span>
+            <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.OptionParser">OptionParser_Init</a></span>
+         initialisation function
+        </li>
+        <li><span class="parameter">program</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the first word following "Usage:" from <em>spec</em>
+        </li>
+        <li><span class="parameter">version</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the last white-space delimited word on the first line
+   of text from <em>spec</em>
+        </li>
+        <li><span class="parameter">versiontext</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         everything preceding "Usage:" from <em>spec</em>, and
+   which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.version">version</a> <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
+        </li>
+        <li><span class="parameter">helptext</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         everything including and following "Usage:" from
+   <em>spec</em> string and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.help">help</a>
+   <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+
+ <span class="keyword">local</span> optparser = std.optparse <span class="string">[[
+ any text VERSION
+ Additional lines of text to show when the --version
+ option is passed.
+
+ Several lines or paragraphs are permitted.
+
+ Usage: PROGNAME
+
+ Banner text.
+
+ Optional long description text to show when the --help
+ option is passed.
+
+ Several lines or paragraphs of long description are permitted.
+
+ Options:
+
+   -b                       a short option with no long option
+       --long               a long option with no short option
+       --another-long       a long option with internal hypen
+   -v, --verbose            a combined short and long option
+   -n, --dryrun, --dry-run  several spellings of the same option
+   -u, --name=USER          require an argument
+   -o, --output=[FILE]      accept an optional argument
+       --version            display version information, then exit
+       --help               display this help, then exit
+
+ Footer text.  Several lines or paragraphs are permitted.
+
+ Please report bugs at bug-list@yourhost.com
+ ]]</span>
+
+ <span class="comment">-- Note that <a href="../modules/std.io.html#die">std.io.die</a> and <a href="../modules/std.io.html#warn">std.io.warn</a> will only prefix messages
+</span> <span class="comment">-- with `parser.program` if the parser options are assigned back to
+</span> <span class="comment">-- `_G.opts`:
+</span> _G.arg, _G.opts = optparser:parse (_G.arg)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "std.optparse.OptionParser_Init"></a>
+    <strong>std.optparse.OptionParser_Init (spec)</strong>
+    </dt>
+    <dd>
+    Signature for initialising a custom OptionParser. </p>
+
+<p> Read the documented options from <em>spec</em> and return custom parser that
+ can be used for parsing the options described in <em>spec</em> from a run-time
+ argument list.  Options in <em>spec</em> are recognised as lines that begin
+ with at least two spaces, followed by a hyphen.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">spec</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          option parsing specification
         </li>
     </ul>
@@ -252,12 +302,16 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.parser">parser</a></span>
-        a parser for options described by <code>spec</code>
+           <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.OptionParser">OptionParser</a></span>
+        a parser for options described by <em>spec</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">customparser = std.optparse (optparse_spec)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -265,22 +319,22 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <strong>std.optparse.boolean (opt[, optarg="1"])</strong>
     </dt>
     <dd>
-    Return a Lua boolean equivalent of various <code>optarg</code> strings.
- Report an option parse error if <code>optarg</code> is not recognised.</p>
+    Return a Lua boolean equivalent of various <em>optarg</em> strings.
+ Report an option parse error if <em>optarg</em> is not recognised.</p>
 
 <p> Pass this as the <code>value</code> function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want various
- <em>truthy</em> or <em>falsey</em> option arguments to be coerced to a Lua <code>true</code>
+ "truthy" or "falsey" option arguments to be coerced to a Lua <code>true</code>
  or <code>false</code> respectively in the options table.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">opt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          option name
         </li>
         <li><span class="parameter">optarg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          option argument, must be a key in <a href="../classes/std.optparse.html#std.optparse.boolvals">boolvals</a>
          (<em>default</em> "1")
         </li>
@@ -295,6 +349,10 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"--enable-nls"</span>, parser.optional, parser.boolean)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -302,7 +360,7 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <strong>std.optparse.file (opt, optarg)</strong>
     </dt>
     <dd>
-    Report an option parse error unless <code>optarg</code> names an
+    Report an option parse error unless <em>optarg</em> names an
  existing file. </p>
 
 <p> Pass this as the <code>value</code> function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want to accept
@@ -312,11 +370,11 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">opt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          option name
         </li>
         <li><span class="parameter">optarg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          option argument, must be an existing file
         </li>
     </ul>
@@ -324,14 +382,16 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">`optarg`</span></span>
-
-
-
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>optarg</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"--config-file"</span>, parser.required, parser.file)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -354,7 +414,7 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -372,6 +432,10 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"--"</span>, parser.finished)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -397,16 +461,17 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
             <span class="types"><span class="type">int</span></span>
-         index of last processed element of <code>arglist</code>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option argument,
    or a value to store when this flag is encountered
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -414,11 +479,15 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-        index of next element of <code>arglist</code> to process
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on ({<span class="string">"--long-opt"</span>, <span class="string">"-x"</span>}, parser.flag)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -436,6 +505,10 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"-?"</span>, parser.version)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -446,13 +519,13 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     Report an option parse error, then exit with status 2. </p>
 
 <p> Use this in your custom option handlers for consistency with the
- error output from built-in <code>optparse</code> error messages.
+ error output from built-in <a href="../classes/std.optparse.html#">std.optparse</a> error messages.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          error message
         </li>
     </ul>
@@ -484,12 +557,12 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
             <span class="types"><span class="type">int</span></span>
-         index of last processed element of <code>arglist</code>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option
@@ -502,11 +575,15 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-        index of next element of <code>arglist</code> to process
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"--enable-nls"</span>, parser.option, parser.boolean)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -544,16 +621,17 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
             <span class="types"><span class="type">int</span></span>
-         index of last processed element of <code>arglist</code>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option argument,
    or a forced value to replace the user's option argument.
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -561,11 +639,15 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-        index of next element of <code>arglist</code> to process
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on ({<span class="string">"-o"</span>, <span class="string">"--output"</span>}, parser.required)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -583,10 +665,15 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">parser:on (<span class="string">"-V"</span>, parser.version)</pre>
+    </ul>
 
 </dd>
 </dl>
     <h2><a name="Tables"></a>Tables</h2>
+
     <dl class="function">
     <dt>
     <a name = "std.optparse.boolvals"></a>
@@ -664,59 +751,9 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 <p> If you write your own handlers, or otherwise specify custom
  handling of options with <a href="../classes/std.optparse.html#std.optparse:on">on</a>, then whatever value those handlers
- return will be assigned to the respective keys in <a href="../classes/std.optparse.html#std.optparse.opts">opts</a> .
+ return will be assigned to the respective keys in <code>opts</code>.
 
 
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.optparse.parser"></a>
-    <strong>std.optparse.parser</strong>
-    </dt>
-    <dd>
-    Customized parser for your options. </p>
-
-<p> This table is returned by <a href="../classes/std.optparse.html#std.optparse.OptionParser">OptionParser</a>, and most importantly has
- the <a href="../classes/std.optparse.html#std.optparse:parse">parse</a> method you call to fill the <a href="../classes/std.optparse.html#std.optparse.opts">opts</a>  table according to
- what command-line options were passed to your program.
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">program</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         the first word following <code>Usage:</code> in <a href="../classes/std.optparse.html#std.optparse.OptionParser">OptionParser</a>
-   spec string
-        </li>
-        <li><span class="parameter">version</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         the last white-space delimited word on the first line
-   of text in the spec string
-        </li>
-        <li><span class="parameter">versiontext</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         everything preceding <code>Usage:</code> in the spec string,
-   and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.version">version</a> <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
-        </li>
-        <li><span class="parameter">helptext</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         everything including and following <code>Usage:</code> in the
-   spec string and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.help">help</a>
-   <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
-        </li>
-        <li><span class="parameter">parse</span>
-            <span class="types"><span class="type">func</span></span>
-         see <a href="../classes/std.optparse.html#std.optparse:parse">parse</a>
-        </li>
-        <li><span class="parameter">on</span>
-            <span class="types"><span class="type">func</span></span>
-         see <a href="../classes/std.optparse.html#std.optparse:on">on</a>
-        </li>
-    </ul>
 
 
 
@@ -725,14 +762,14 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 </dd>
 </dl>
     <h2><a name="Methods"></a>Methods</h2>
+
     <dl class="function">
     <dt>
     <a name = "std.optparse:on"></a>
     <strong>std.optparse:on (name, handler, value)</strong>
     </dt>
     <dd>
-
-<p>Add an option handler. </p>
+    Add an option handler. </p>
 
 <p> When the automatically assigned option handlers don't do everything
  you require, or when you don't want to put an option into the
@@ -741,12 +778,10 @@ _G.arg, _G.opts = parser:parse (_G.arg)
  calling this function will replace the automatically assigned handler
  with your own.</p>
 
-<pre><code> parser:on ("--", parser.finished)
- parser:on ("-V", parser.version)
- parser:on ("--config-file", parser.required, parser.file)
- parser:on ("--enable-nls", parser.optional, parser.boolean)
-</code></pre>
-
+<p> When writing your own handlers for <a href="../classes/std.optparse.html#std.optparse:on">std.optparse:on</a>, you only need
+ to deal with normalised arguments, because combined short arguments
+ (<code>-xyz</code>), equals separators to long options (<code>--long=ARG</code>) are fully
+ expanded before any handler is called.
 
 
     <h3>Parameters:</h3>
@@ -757,7 +792,7 @@ _G.arg, _G.opts = parser:parse (_G.arg)
         </li>
         <li><span class="parameter">handler</span>
             <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse:on">on_handler</a></span>
-         function to call when any of <a href="../classes/std.optparse.html#std.optparse.opts">opts</a>  is
+         function to call when any of <em>opts</em> is
    encountered
         </li>
         <li><span class="parameter">value</span>
@@ -768,6 +803,12 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">-- Don't process any arguments after `--`
+</span> parser:on (<span class="string">'--'</span>, parser.finished)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -781,12 +822,12 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
             <span class="types"><span class="type">int</span></span>
-         index of last processed element of <code>arglist</code>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          additional <code>value</code> registered with <a href="../classes/std.optparse.html#std.optparse:on">on</a>
@@ -798,7 +839,7 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <ol>
 
            <span class="types"><span class="type">int</span></span>
-        index of next element of <code>arglist</code> to process
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
@@ -810,26 +851,27 @@ _G.arg, _G.opts = parser:parse (_G.arg)
     <strong>std.optparse:parse (arglist[, defaults])</strong>
     </dt>
     <dd>
-    Parse <code>arglist</code>.
+    Parse an argument list.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">defaults</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table of default option values
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        a list of unrecognised <code>arglist</code> elements</li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        a list of unrecognised <em>arglist</em> elements</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.opts">opts</a></span>
         parsing results</li>
@@ -845,7 +887,8 @@ _G.arg, _G.opts = parser:parse (_G.arg)
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

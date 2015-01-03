@@ -71,15 +71,3 @@ specify std.strbuf:
       b = b .. "baz"
       expect (object.type (b)).to_be "StrBuf"
       expect (tostring (b)).to_be "foobarbaz"
-
-
-- describe __totable:
-  - before:
-      totable = (require "std.table").totable
-
-  - it returns a table:
-      expect (object.type (totable (b))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (b)).to_contain.all_of {"foo", "bar"}
-  - it does not contain any hidden fields of object:
-      expect (totable (b)).to_equal {"foo", "bar"}

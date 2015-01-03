@@ -1,6 +1,6 @@
 before:
-  Container = require "std.container"
-  prototype = (require "std.object").prototype
+  Container = require "std.container" {}
+  prototype = require "std.object".prototype
 
 specify std.container:
 - context when required:
@@ -10,6 +10,21 @@ specify std.container:
           to_equal {}
 
 - describe construction:
+  - context with table _init:
+    - it diagnoses missing arguments: |
+        expect (Container ()).
+          to_raise "bad argument #1 to 'Container' (table expected, got no value)"
+    - it diagnoses too many arguments: |
+        expect (Container ({}, false)).
+          to_raise "bad argument #2 to 'Container' (no more than 1 argument expected, got 2)"
+  - context with function _init:
+    - before:
+        Thing = Container { _type = "Thing", _init = function (obj) return obj end }
+    - it doesn't diagnose missing arguments:
+        expect (Thing ()).not_to_raise "any error"
+    - it doesn't diagnose too many args:
+        expect (Thing ({}, false)).not_to_raise "any error"
+
   - context from Container prototype:
     - before:
         things = Container {"foo", "bar", baz="quux"}
@@ -37,10 +52,11 @@ specify std.container:
         expect (getmetatable (things)._baz).to_be "quux"
   - context with module functions:
     - before:
-        fold = (require "std.functional").fold
+        reduce = require "std.functional".reduce
+        elems  = require "std".elems
         functions = {
           count = function (bag)
-            return fold (function (r, k) return r + bag[k] end, 0, pairs, bag)
+            return reduce (function (r, k) return r + k end, 0, elems, bag)
           end,
         }
         Bag = Container {
@@ -51,7 +67,10 @@ specify std.container:
         expect (things.count).to_be (nil)
     - it does not provide object methods: |
         things = Bag {}
-        expect (things:count ()).to_error "attempt to call method 'count'"
+        expect (things:count ()).to_raise.any_of {
+          "attempt to call method 'count'",
+          "attempt to call a nil value (method 'count'"
+        }
     - it does retain module functions:
         things = Bag { apples = 1, oranges = 3 }
         expect (Bag.count (things)).to_be (4)
@@ -99,15 +118,3 @@ specify std.container:
         not_to_contain ";"
       expect (tostring (things {one = true, two = true, three = true})).
         to_contain ";"
-
-
-- describe tablification:
-  - before:
-      totable = (require "std.table").totable
-      Derived = Container {_type = "Derived", "one", "two", three = true}
-  - it returns a table:
-      expect (prototype (totable (Derived))).to_be "table"
-  - it contains all non-hidden fields of container:
-      expect (totable (Derived)).to_contain.all_of {"one", "two", "three"}
-  - it does not contain any hidden fields of container:
-      expect (totable (Derived)).to_equal {"one", "two", three = true}

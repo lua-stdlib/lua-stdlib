@@ -6,7 +6,7 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## terms of the MIT license reproduced below.
 
 ## ====================================================================
-## Copyright (C) 2013-2014 Gary V. Vaughan
+## Copyright (C) 2013-2015 Gary V. Vaughan
 ##
 ## Permission is hereby granted, free of charge, to any person
 ## obtaining a copy of this software and associated documentation
@@ -29,11 +29,13 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## ====================================================================
 
 
-_lua_version_re='"Lua 5."[12]*'
-_lua_binaries='lua lua5.2 lua52 lua5.1 lua51'
+_lua_version_re='"Lua 5."[123]*'
+_lua_binaries='lua lua5.3 lua53 lua5.2 lua52 luajit lua5.1 lua51'
 
+export LUA
 export LUA_INIT
 export LUA_INIT_5_2
+export LUA_INIT_5_3
 export LUA_PATH
 export LUA_CPATH
 
@@ -86,6 +88,7 @@ test -n "$LUA" || {
 
 LUA_INIT=
 LUA_INIT_5_2=
+LUA_INIT_5_3=
 
 # Reexecute using the interpreter suppiled in LUA, or found above.
 exec "$LUA" "$0" "$@"
@@ -155,7 +158,7 @@ Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
 end
 
 prog["--version"] = function ()
-  print [[mkrockspecs (slingshot) 7
+  print [[mkrockspecs (slingshot) 8.0.0
 Written by Gary V. Vaughan <gary@gnu.org>, 2013
 
 Copyright (C) 2013, Gary V. Vaughan
@@ -358,8 +361,8 @@ default.build = default.build or {
   build_command = "./configure " ..
     "LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' " .. configure_flags ..
     "--prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' " ..
-    "&& make clean all",
-  install_command = "make install luadir='$(LUADIR)'",
+    "--datarootdir='$(PREFIX)' && make clean all",
+  install_command = "make install luadir='$(LUADIR)' luaexecdir='$(LIBDIR)'",
   copy_directories = {},
 }
 

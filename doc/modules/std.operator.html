@@ -1,0 +1,755 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>stdlib 41.0.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib 41.0.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/std.html">std</a></li>
+  <li><a href="../modules/std.debug.html">std.debug</a></li>
+  <li><a href="../modules/std.functional.html">std.functional</a></li>
+  <li><a href="../modules/std.io.html">std.io</a></li>
+  <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><strong>std.operator</strong></li>
+  <li><a href="../modules/std.package.html">std.package</a></li>
+  <li><a href="../modules/std.strict.html">std.strict</a></li>
+  <li><a href="../modules/std.string.html">std.string</a></li>
+  <li><a href="../modules/std.table.html">std.table</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/std.tree.html">std.tree</a></li>
+  <li><a href="../classes/std.container.html">std.container</a></li>
+  <li><a href="../classes/std.object.html">std.object</a></li>
+  <li><a href="../classes/std.list.html">std.list</a></li>
+  <li><a href="../classes/std.optparse.html">std.optparse</a></li>
+  <li><a href="../classes/std.set.html">std.set</a></li>
+  <li><a href="../classes/std.strbuf.html">std.strbuf</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>std.operator</code></h1>
+<p>Functional forms of Lua operators.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#concat">concat (a, b)</a></td>
+	<td class="summary">Stringify and concatenate arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#conj">conj (a, b)</a></td>
+	<td class="summary">Return the logical conjunction of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#diff">diff (a, b)</a></td>
+	<td class="summary">Return the difference of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#disj">disj (a, b)</a></td>
+	<td class="summary">Return the logical disjunction of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#eq">eq (a, b)</a></td>
+	<td class="summary">Return the equality of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#get">get (t, k)</a></td>
+	<td class="summary">Dereference a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gt">gt (a, b)</a></td>
+	<td class="summary">Return whether the arguments are in descending order.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gte">gte (a, b)</a></td>
+	<td class="summary">Return whether the arguments are not in ascending order.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lt">lt (a, b)</a></td>
+	<td class="summary">Return whether the arguments are in ascending order.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lte">lte (a, b)</a></td>
+	<td class="summary">Return whether the arguments are not in descending order.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mod">mod (a, b)</a></td>
+	<td class="summary">Return the modulus of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#neg">neg (a)</a></td>
+	<td class="summary">Return the logical negation of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#neq">neq (a, b)</a></td>
+	<td class="summary">Return the inequality of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pow">pow (a, b)</a></td>
+	<td class="summary">Return the exponent of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#prod">prod (a, b)</a></td>
+	<td class="summary">Return the product of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#quot">quot (a, b)</a></td>
+	<td class="summary">Return the quotient of the arguments.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set">set (t, k, v)</a></td>
+	<td class="summary">Set a table element, honoring metamethods.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sum">sum (a, b)</a></td>
+	<td class="summary">Return the sum of the arguments.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "concat"></a>
+    <strong>concat (a, b)</strong>
+    </dt>
+    <dd>
+    Stringify and concatenate arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        concatenation of stringified arguments.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; "=&gt; 1000010010"
+</span> functional.foldl (concat, <span class="string">"=&gt; "</span>, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "conj"></a>
+    <strong>conj (a, b)</strong>
+    </dt>
+    <dd>
+    Return the logical conjunction of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        logical <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; true
+</span> functional.foldl (conj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="string">"false"</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "diff"></a>
+    <strong>diff (a, b)</strong>
+    </dt>
+    <dd>
+    Return the difference of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the difference between <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 890
+</span> functional.foldl (diff, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "disj"></a>
+    <strong>disj (a, b)</strong>
+    </dt>
+    <dd>
+    Return the logical disjunction of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        logical <em>a</em> or <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; true
+</span> functional.foldl (disj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="keyword">false</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "eq"></a>
+    <strong>eq (a, b)</strong>
+    </dt>
+    <dd>
+    Return the equality of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <em>a</em> is <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "get"></a>
+    <strong>get (t, k)</strong>
+    </dt>
+    <dd>
+    Dereference a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+        <li><span class="parameter">k</span>
+         a key to lookup in <em>t</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        value stored at <em>t[k]</em> if any, otherwise <code>nil</code>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 4
+</span> functional.foldl (get, {<span class="number">1</span>, {{<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>}, <span class="number">5</span>}}, {<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "gt"></a>
+    <strong>gt (a, b)</strong>
+    </dt>
+    <dd>
+    Return whether the arguments are in descending order.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <em>a</em> is greater then <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "gte"></a>
+    <strong>gte (a, b)</strong>
+    </dt>
+    <dd>
+    Return whether the arguments are not in ascending order.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <em>a</em> is not greater then <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lt"></a>
+    <strong>lt (a, b)</strong>
+    </dt>
+    <dd>
+    Return whether the arguments are in ascending order.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <em>a</em> is less then <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lte"></a>
+    <strong>lte (a, b)</strong>
+    </dt>
+    <dd>
+    Return whether the arguments are not in descending order.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if <em>a</em> is not greater then <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "mod"></a>
+    <strong>mod (a, b)</strong>
+    </dt>
+    <dd>
+    Return the modulus of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the modulus of <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 3
+</span> functional.foldl (mod, {<span class="number">65536</span>, <span class="number">100</span>, <span class="number">11</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "neg"></a>
+    <strong>neg (a)</strong>
+    </dt>
+    <dd>
+    Return the logical negation of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        not <em>a</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {true, false, false, false}
+</span> functional.bind (functional.map, {std.ielems, neg}) {<span class="keyword">false</span>, <span class="keyword">true</span>, <span class="number">1</span>, <span class="number">0</span>}</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "neq"></a>
+    <strong>neq (a, b)</strong>
+    </dt>
+    <dd>
+    Return the inequality of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>false</code> if <em>a</em> is <em>b</em>, otherwise <code>true</code>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; true
+</span> <span class="keyword">local</span> f = <span class="global">require</span> <span class="string">"std.functional"</span>
+ <span class="global">table</span>.empty (f.filter (f.bind (neq, {<span class="number">6</span>}), std.ielems, {<span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pow"></a>
+    <strong>pow (a, b)</strong>
+    </dt>
+    <dd>
+    Return the exponent of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the <em>a</em> to the power of <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 4096
+</span> functional.foldl (pow, {<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "prod"></a>
+    <strong>prod (a, b)</strong>
+    </dt>
+    <dd>
+    Return the product of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the product of <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 10000000
+</span> functional.foldl (prod, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "quot"></a>
+    <strong>quot (a, b)</strong>
+    </dt>
+    <dd>
+    Return the quotient of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the quotient <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 1000
+</span> functional.foldr (quot, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "set"></a>
+    <strong>set (t, k, v)</strong>
+    </dt>
+    <dd>
+    Set a table element, honoring metamethods.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+        <li><span class="parameter">k</span>
+         a key to lookup in <em>t</em>
+        </li>
+        <li><span class="parameter">v</span>
+         a value to set for <em>k</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        <em>t</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">-- destructive table merge:
+</span> <span class="comment">--&gt; {"one", bar="baz", two=5}
+</span> functional.reduce (set, {<span class="string">"foo"</span>, bar=<span class="string">"baz"</span>}, {<span class="string">"one"</span>, two=<span class="number">5</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "sum"></a>
+    <strong>sum (a, b)</strong>
+    </dt>
+    <dd>
+    Return the sum of the arguments.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         an argument
+        </li>
+        <li><span class="parameter">b</span>
+         another argument
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the sum of the <em>a</em> and <em>b</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 10110
+</span> functional.foldl (sum, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

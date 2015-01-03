@@ -8,7 +8,7 @@ specify std.optparse:
     help = [[
     parseme (stdlib spec) 0α1
 
-    Copyright © 2014 Gary V. Vaughan
+    Copyright © 2015 Gary V. Vaughan
     This test program comes with ABSOLUTELY NO WARRANTY.
 
     Usage: parseme [<options>] <file>...
@@ -58,42 +58,32 @@ specify std.optparse:
         to_match ("^Usage: parseme .*Banner .*Long .*Options:.*" ..
                       "Footer .*/issues>%.")
   - it diagnoses incorrect input text:
-      expect (OptionParser "garbage in").to_error "argument must match"
+      expect (OptionParser "garbage in").to_raise "argument must match"
 
 - describe parser:
   - before: |
-      f = os.tmpname ()
+      code = [[
+        package.path = "]] .. package.path .. [["
+        local OptionParser = require 'std.optparse'
+        local help = [=[]] .. help .. [[]=]
+        help = help:match ("^[%s\n]*(.-)[%s\n]*$")
 
-      function parse (arglist)
-        local d = f:gsub ("/[^/]*$", "", 1)
-        local h = io.open (f, "w")
+        local parser = OptionParser (help)
+        local arg, opts = parser:parse (_G.arg)
 
-        h:write ([[
-          package.path = "]] .. package.path .. [["
-          local OptionParser = require 'std.optparse'
-          local help = [=[]] .. help .. [[]=]
-          help = help:match ("^[%s\n]*(.-)[%s\n]*$")
-
-          local parser = OptionParser (help)
-          local arg, opts = parser:parse (_G.arg)
-
-          o = {}
-          for k, v in pairs (opts) do
-            table.insert (o, k .. " = " .. tostring (v))
-          end
-          if #o > 0 then
-            table.sort (o)
-            print ("opts = { " .. table.concat (o, ", ") .. " }")
-          end
-          if #arg > 0 then
-            print ("args = { " .. table.concat (arg, ", ") .. " }")
-          end
-        ]])
-        h:close ()
-
-        return hell.spawn {arg[-1], f, unpack (arglist)}
-      end
-  - after: os.remove (f)
+        o = {}
+        for k, v in pairs (opts) do
+          table.insert (o, k .. " = " .. tostring (v))
+        end
+        if #o > 0 then
+          table.sort (o)
+          print ("opts = { " .. table.concat (o, ", ") .. " }")
+        end
+        if #arg > 0 then
+          print ("args = { " .. table.concat (arg, ", ") .. " }")
+        end
+      ]]
+      parse = bind (luaproc, {code})
 
   - it responds to --version with version text:
       expect (parse {"--version"}).
@@ -240,20 +230,21 @@ specify std.optparse:
         end
     - it prefers `prog.name` to `opts.program`: |
         code = [[prog = { file = "file", name = "name" }]]
-        expect (runscript (code)).to_fail_with "name: By 'eck!\n"
+        expect (runscript (code)).to_fail_while_matching ": name: By 'eck!\n"
     - it prefers `prog.file` to `opts.program`: |
         code = [[prog = { file = "file" }]]
-        expect (runscript (code)).to_fail_with "file: By 'eck!\n"
+        expect (runscript (code)).to_fail_while_matching ": file: By 'eck!\n"
     - it appends `prog.line` if any to `prog.file` over using `opts`: |
         code = [[
           prog = { file = "file", line = 125 }; opts.line = 99]]
-        expect (runscript (code)).to_fail_with "file:125: By 'eck!\n"
+        expect (runscript (code)).
+          to_fail_while_matching ": file:125: By 'eck!\n"
     - it prefixes `opts.program` if any: |
-        expect (runscript ("")).to_fail_with "program: By 'eck!\n"
+        expect (runscript ("")).to_fail_while_matching ": program: By 'eck!\n"
     - it appends `opts.line` if any, to `opts.program`: |
         code = [[opts.line = 99]]
         expect (runscript (code)).
-          to_fail_with "program:99: By 'eck!\n"
+          to_fail_while_matching ": program:99: By 'eck!\n"
 
   - context with io.warn:
     - before: |
@@ -286,13 +277,8 @@ specify std.optparse:
 
 - describe parser:on:
   - before: |
-      f = os.tmpname ()
-
       function parseargs (onargstr, arglist)
-        local d = f:gsub ("/[^/]*$", "", 1)
-        local h = io.open (f, "w")
-
-        h:write ([[
+        code = [[
           package.path = "]] .. package.path .. [["
           local OptionParser = require 'std.optparse'
           local help = [=[]] .. help .. [[]=]
@@ -315,12 +301,10 @@ specify std.optparse:
           if #arg > 0 then
             print ("args = { " .. table.concat (arg, ", ") .. " }")
           end
-        ]])
-        h:close ()
+        ]]
 
-        return hell.spawn {arg[-1], f, unpack (arglist)}
+        return luaproc (code, arglist)
       end
-  - after: os.remove (f)
 
   - it recognises short options:
       expect (parseargs ([["x"]], {"-x"})).

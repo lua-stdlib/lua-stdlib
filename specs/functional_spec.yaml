@@ -1,8 +1,16 @@
-before: |
+before:
+  base = require "std.base"
+
   this_module  = "std.functional"
   global_table = "_G"
 
+  exported_apis = { "bind", "callable", "case", "collect", "compose",
+                    "cond", "curry", "eval", "filter", "fold", "foldl",
+                    "foldr", "id", "lambda", "map", "map_with",
+                    "memoize", "nop", "op", "reduce", "zip", "zip_with" }
+
   M = require (this_module)
+
 
 specify std.functional:
 - context when required:
@@ -10,6 +18,10 @@ specify std.functional:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
           to_equal {}
+  - it exports the documented apis:
+      t = {}
+      for k in pairs (M) do t[#t + 1] = k end
+      expect (t).to_contain.a_permutation_of (exported_apis)
 
   - context via the std module:
     - it does not touch the global table:
@@ -18,16 +30,60 @@ specify std.functional:
 
 
 - describe bind:
-  - it does not affect normal operation if no arguments are bound:
-      expect (M.bind (math.min, {}) (2, 3, 4)).
-        to_equal (2)
-  - it takes the extra arguments into account:
-      expect (M.bind (math.min, {1, 0}) (2, 3, 4)).
-        to_equal (0)
-  - it supports out of order extra arguments:
-      expect (M.bind (math.pow, {[2] = 3}) (2)).
-        to_equal (8)
+  - before:
+      op = require "std.operator"
 
+      f = M.bind
+
+  - it writes an argument passing deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {nop, M, "bind"})).
+          to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {nop, M, "bind"})).
+          not_to_contain_error "was deprecated"
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.bind (function, ?any*)")
+
+  - it does not affect normal operation if no arguments are bound:
+      expect (f (math.min, {}) (2, 3, 4)).to_be (2)
+  - it takes the extra arguments into account:
+      expect (f (math.min, {1, 0}) (2, 3, 4)).to_be (0)
+  - it appends final call arguments:
+      expect (f (math.max, {2, 3}) (4, 5, 1)).to_be (5)
+  - it does not require all arguments in final call:
+      div = function (a, b) return a / b end
+      expect (f (div, {100}) (25)).to_be (4)
+  - it supports out of order extra arguments:
+      expect (f (op.pow, {[2] = 3}) (2)).to_be (8)
+  - it supports the legacy api:
+      expect (f (math.min) (2, 3, 4)).to_be (2)
+      expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
+      expect (f (op.pow, nil, 3) (2)).to_be (8)
+
+
+- describe callable:
+  - before:
+      f = M.callable
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.callable (?any)")
+
+  - it returns the function associated with a callable:
+      Container = require "std.container" { __call = M.nop }
+      for _, v in ipairs {
+        true,
+        42,
+        "str",
+        io.stderr,
+        {},
+        M.nop,
+        setmetatable ({}, {__call = M.nop}),
+        Container,
+      } do
+        expect (f (v)).to_be (pcall (v, {}) and M.nop or nil)
+      end
 
 - describe case:
   - before:
@@ -35,17 +91,33 @@ specify std.functional:
       no      = function ()  return false end
       default = function (s) return s end
       branches = { yes = yes, no = no, default }
+
+      f = M.case
+
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.functional.case (?any, #table)")
+
   - it matches against branch keys:
-      expect (M.case ("yes", branches)).to_be (true)
-      expect (M.case ("no",  branches)).to_be (false)
+      expect (f ("yes", branches)).to_be (true)
+      expect (f ("no",  branches)).to_be (false)
   - it has a default for unmatched keys:
-      expect (M.case ("none", branches)).to_be "none"
+      expect (f ("none", branches)).to_be "none"
   - it returns nil for unmatched keys with no default:
-      expect (M.case ("none", { yes = yes, no = no })).to_be (nil)
-  - it evaluates `with` exactly once:
+      expect (f ("none", { yes = yes, no = no })).to_be (nil)
+  - it returns non-function matches:
+      expect (f ("t", {t = true})).to_be (true)
+  - it evaluates returned functions:
+      expect (f ("fn", {fn = function () return true end})).
+        to_be (true)
+  - it passes 'with' to function matches:
+      expect (f ("with", {function (s) return s end})).to_be "with"
+  - it evaluates returned functables:
+      functable = setmetatable ({}, {__call = function (t, with) return with end})
+      expect (f ("functable", {functable})).to_be "functable"
+  - it evaluates 'with' exactly once:
       s = "prince"
       function acc () s = s .. "s"; return s end
-      expect (M.case (acc (), {
+      expect (f (acc (), {
         prince   = function () return "one" end,
         princes  = function () return "many" end,
         princess = function () return "one" end,
@@ -54,33 +126,613 @@ specify std.functional:
 
 
 - describe collect:
+  - before:
+      f = M.collect
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.collect ([func], any*)")
+
+  - it collects a list of single return value iterator results:
+      expect (f (base.ielems, {"a", "b", "c"})).to_equal {"a", "b", "c"}
+  - it collects a table of key:value iterator results:
+      t = {"first", second="two", last=3}
+      expect (f (pairs, t)).to_equal (t)
+  - it defaults to ipairs iteration:
+      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2}
 
 
 - describe compose:
+  - before:
+      f = M.compose
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.compose (func*)")
+
+  - it composes a single function correctly:
+      expect (f (M.id) (1)).to_be (1)
   - it composes functions in the correct order:
-      expect (M.compose (math.sin, math.cos) (1)).
-        to_equal (math.cos (math.sin (1)))
+      expect (f (math.sin, math.cos) (1)).
+        to_be (math.cos (math.sin (1)))
+
+
+- describe cond:
+  - before:
+      yes     = function ()  return true end
+      no      = function ()  return false end
+      default = function (s) return s end
+      branches = { yes = yes, no = no, default }
+
+      f = M.cond
+
+  - it returns nil for no arguments:
+      expect (f ()).to_be (nil)
+  - it evaluates a single function argument:
+      expect (f (function () return true end)).to_be (true)
+  - it evaluates a single functable argument:
+      functable = setmetatable ({}, {__call = function () return true end})
+      expect (f (functable)).to_be (true)
+  - it returns a non-callable single argument directly:
+      expect (f "foo").to_be "foo"
+  - it evaluates a branch function if expr is truthy:
+      expect (f ("truthy", function (s) return s end)).to_be "truthy"
+  - it returns nil if the last expr is falsey:
+      expect (f (nil, function (s) return "falsey" end)).to_be (nil)
+      expect (f (false, true, false, true)).to_be (nil)
+  - it recurses with remaining arguments if first argument is falsey:
+      expect (f (nil, true, 42, M.id)).to_be (42)
+      expect (f (nil, true, false, false, 42, M.id)).to_be (42)
 
 
 - describe curry:
+  - before:
+      op = require "std.operator"
+
+      f = M.curry
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.curry (func, int)")
+
+  - it returns a zero argument function uncurried:
+      expect (f (f, 0)).to_be (f)
+  - it returns a one argument function uncurried:
+      expect (f (f, 1)).to_be (f)
+  - it curries a two argument function:
+      expect (f (f, 2)).not_to_be (f)
+  - it evaluates intermediate arguments one at a time:
+      expect (f (math.min, 3) (2) (3) (4)).to_equal (2)
+  - it returns a curried function that can be partially applied:
+      bin = f (op.pow, 2) (2)
+      expect (bin (2)).to_be (op.pow (2, 2))
+      expect (bin (10)).to_be (op.pow (2, 10))
 
 
 - describe eval:
+  - before:
+      f = M.eval
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {"42"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {"42"})).not_to_contain_error "was deprecated"
+
+  - it diagnoses invalid lua:
+      # Some internal error when eval tries to call uncompilable "=" code.
+      expect (f "=").to_raise ()
+  - it evaluates a string of lua code:
+      expect (f "math.min (2, 10)").to_be (math.min (2, 10))
 
 
 - describe filter:
+  - before:
+     elements = {"a", "b", "c", "d", "e"}
+     inverse  = require "std.table".invert (elements)
+
+     f = M.filter
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.filter (func, [func], any*)")
+
+  - it works with an empty table:
+      expect (f (M.id, pairs, {})).to_equal {}
+  - it iterates through element keys:
+      expect (f (M.id, base.ielems, elements)).to_equal {"a", "b", "c", "d", "e"}
+      expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
+  - it passes all iteration result values to filter predicate:
+      t = {}
+      f (function (k, v) t[k] = v end, pairs, elements)
+      expect (t).to_equal (elements)
+  - it returns a list of filtered single return value iterator results:
+      expect (f (function (e) return e:match "[aeiou]" end, base.ielems, elements)).
+        to_equal {"a", "e"}
+  - it returns a table of filtered key:value iterator results:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, pairs, t)).
+        to_equal {"first", last="three"}
+      expect (f (function (k, v) return k % 2 == 0 end, ipairs, elements)).
+        to_equal {[2]="b", [4]="d"}
+  - it defaults to pairs iteration:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, t)).
+        to_equal {"first", last="three"}
 
 
 - describe fold:
+  - before:
+      op = require "std.operator"
+      f = M.fold
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {M.id, 1, ipairs, {}})).
+        to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {M.id, 1, ipairs, {}})).
+        not_to_contain_error "was deprecated"
+
+  - it works with an empty table:
+      expect (f (op.sum, 2, ipairs, {})).to_be (2)
+  - it calls a binary function over single return value iterator results:
+      expect (f (op.sum, 2, base.ielems, {3})).
+        to_be (2 + 3)
+      expect (f (op.prod, 2, base.ielems, {3, 4})).
+        to_be (2 * 3 * 4)
+  - it calls a binary function over key:value iterator results:
+      expect (f (op.sum, 2, ipairs, {3})).to_be (2 + 3)
+      expect (f (op.prod, 2, ipairs, {3, 4})).to_be (2 * 3 * 4)
+  - it folds elements from left to right:
+      expect (f (op.pow, 2, ipairs, {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+
+- describe foldl:
+  - before:
+      op = require "std.operator"
+      f = M.foldl
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.foldl (func, [any], table)")
+
+  - it works with an empty table:
+      expect (f (op.sum, 10000, {})).to_be (10000)
+  - it folds a binary function through a table:
+      expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
+  - it folds from left to right:
+      expect (f (op.pow, 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+  - it supports eliding init argument:
+      expect (f (op.pow, {2, 3, 4})).to_be ((2 ^ 3) ^ 4)
+
+
+- describe foldr:
+  - before:
+      op = require "std.operator"
+      f = M.foldr
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.foldr (func, [any], table)")
+
+  - it works with an empty table:
+      expect (f (op.sum, 1, {})).to_be (1)
+  - it folds a binary function through a table:
+      expect (f (op.sum, {10000, 100, 10, 1})).to_be (10111)
+  - it folds from right to left:
+      expect (f (op.quot, 10, {10000, 100})).to_be (10000 / (100 / 10))
+  - it supports eliding init argument:
+      expect (f (op.quot, {10000, 100, 10})).to_be (10000 / (100 / 10))
 
 
 - describe id:
+  - before:
+      f = M.id
+  - it returns argument unchanged:
+      expect (f (true)).to_be (true)
+      expect (f {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
+  - it returns multiple arguments unchanged:
+      expect ({f (1, "two", false)}).to_equal {1, "two", false}
+
+
+- describe lambda:
+  - before:
+      f = M.lambda
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.lambda (string)")
+
+      examples {["it diagnoses bad lambda string"] = function ()
+        expect (select (2, f "foo")).to_be "invalid lambda string 'foo'"
+      end}
+      examples {["it diagnoses an uncompilable expression"] = function ()
+        expect (select (2, f "||+")).to_be "invalid lambda string '||+'"
+        expect (select (2, f "=")).to_be "invalid lambda string '='"
+      end}
+
+  - context with argument format:
+    - it returns a function:
+        expect (prototype (f "|x| 1+x")).to_be "function"
+    - it compiles to a working Lua function:
+        fn = f "||42"
+        expect (fn ()).to_be (42)
+    - it propagates argument values:
+        fn = f "|...| {...}"
+        expect (fn (1,2,3)).to_equal {1,2,3}
+  - context with expression format:
+    - it returns a function:
+        expect (prototype (f "_")).to_be "function"
+    - it compiles to a working Lua function:
+        fn = f "=42"
+        expect (fn ()).to_be (42)
+    - it sets auto-argument values:
+        fn = f "_*_"
+        expect (fn (42)).to_be (1764)
+    - it sets numeric auto-argument values:
+        fn = f "_1+_2+_3"
+        expect (fn (1, 2, 5)).to_be (8)
 
 
 - describe map:
+  - before:
+      elements = {"a", "b", "c", "d", "e"}
+      inverse  = require "std.table".invert (elements)
+
+      f = M.map
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.map (func, [func], any*)")
+
+  - it works with an empty table:
+      expect (f (M.id, ipairs, {})).to_equal {}
+  - it iterates through elements:
+      expect (f (M.id, ipairs, elements)).to_equal (elements)
+      expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
+  - it passes all iteration result values to map function:
+      t = {}
+      f (function (k, v) t[k] = v end, pairs, elements)
+      expect (t).to_equal (elements)
+  - it returns a list of mapped single return value iterator results:
+      expect (f (function (e) return e:match "[aeiou]" end, base.ielems, elements)).
+        to_equal {"a", "e"}
+      expect (f (function (e) return e .. "x" end, base.elems, elements)).
+        to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
+  - it returns a table of mapped key:value iterator results:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, pairs, t)).
+        to_contain.a_permutation_of {true, false, true}
+      expect (f (function (k, v) return k % 2 == 0 end, ipairs, elements)).
+        to_equal {false, true, false, true, false}
+  - it supports key:value results from mapping function:
+      expect (f (function (k, v) return v, k end, pairs, elements)).
+        to_equal (inverse)
+  - it defaults to pairs iteration:
+      t = {"first", second=2, last="three"}
+      expect (f (function (k, v) return type (v) == "string" end, t)).
+        to_contain.a_permutation_of {true, false, true}
+
+
+- describe map_with:
+  - before:
+      t = {{1, 2, 3}, {4, 5}}
+      fn = function (...) return select ("#", ...) end
+
+      f = M.map_with
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.map_with (func, table of tables)")
+
+  - it works for an empty table:
+      expect (f (fn, {})).to_equal ({})
+  - it returns a table:
+      u = f (fn, t)
+      expect (type (u)).to_be "table"
+  - it creates a new table:
+      old = t
+      u = f (fn, t)
+      expect (t).to_equal (old)
+      expect (u).not_to_equal (old)
+      expect (t).to_equal {{1, 2, 3}, {4, 5}}
+  - it maps a function over a list of argument lists:
+      expect (f (fn, t)).to_equal {3, 2}
+  - it discards hash-part arguments:
+      expect (f (fn, {{1,x=2,3}, {4,5,y="z"}})).to_equal {2, 2}
+  - it maps a function over a table of argument lists:
+      expect (f (fn, {a={1,2,3}, b={4,5}})).to_equal {a=3, b=2}
 
 
 - describe memoize:
+  - before:
+      f = M.memoize
+
+      memfn = f (function (x)
+                   if x then return {x} else return nil, "bzzt" end
+                 end)
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.memoize (func, ?func)")
+
+  - it propagates multiple return values:
+      expect (select (2, memfn (false))).to_be "bzzt"
+  - it returns the same object for the same arguments:
+      t = memfn (1)
+      expect (memfn (1)).to_be (t)
+  - it returns a different object for different arguments:
+      expect (memfn (1)).not_to_be (memfn (2))
+  - it returns the same object for table valued arguments:
+      t = memfn {1, 2, 3}
+      expect (memfn {1, 2, 3}).to_be (t)
+      t = memfn {foo = "bar", baz = "quux"}
+      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
+      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
+  - it returns a different object for different table arguments:
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
+      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
+  - it accepts alternative normalization function:
+      normalize = function (...) return select ("#", ...) end
+      memfn = f (function (x) return {x} end, normalize)
+      expect (memfn "same").to_be (memfn "not same")
+      expect (memfn (1, 2)).to_be (memfn (false, "x"))
+      expect (memfn "one").not_to_be (memfn ("one", "two"))
 
 
-- describe metamethod:
+- describe nop:
+  - before:
+      f = M.nop
+  - it accepts any number of arguments:
+      expect (f ()).to_be (nil)
+      expect (f (false)).to_be (nil)
+      expect (f (1, 2, 3, nil, "str", {}, f)).to_be (nil)
+  - it returns no values:
+      expect (f (1, "two", false)).to_be (nil)
+
+
+- describe op:
+  - context with []:
+    - before:
+        f = M.op["[]"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {{2}, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {{2}, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it dereferences a table:
+        expect (f ({}, 1)).to_be (nil)
+        expect (f ({"foo", "bar"}, 1)).to_be "foo"
+        expect (f ({foo = "bar"}, "foo")).to_be "bar"
+
+  - context with +:
+    - before:
+        f = M.op["+"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the sum of its arguments:
+        expect (f (99, 2)).to_be (99 + 2)
+
+  - context with -:
+    - before:
+        f = M.op["-"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the difference of its arguments:
+        expect (f (99, 2)).to_be (99 - 2)
+
+  - context with *:
+    - before:
+        f = M.op["*"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the product of its arguments:
+        expect (f (99, 2)).to_be (99 * 2)
+
+  - context with /:
+    - before:
+        f = M.op["/"]
+
+    - it writes a deprecation warning on:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the quotient of its arguments:
+        expect (f (99, 2)).to_be (99 / 2)
+
+  - context with and:
+    - before:
+        f = M.op["and"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {true, false})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {true, false})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical and of its arguments:
+        expect (f (false, false)).to_be (false)
+        expect (f (false, true)).to_be (false)
+        expect (f (true, false)).to_be (false)
+        expect (f (true, true)).to_be (true)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (nil)
+        expect (f (0)).to_be (nil)
+        expect (f (nil, 0)).to_be (nil)
+        expect (f (0, "false")).to_be ("false")
+
+  - context with or:
+    - before:
+        f = M.op["or"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {true, false})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {true, false})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical or of its arguments:
+        expect (f (false, false)).to_be (false)
+        expect (f (false, true)).to_be (true)
+        expect (f (true, false)).to_be (true)
+        expect (f (true, true)).to_be (true)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (nil)
+        expect (f (0)).to_be (0)
+        expect (f (nil, 0)).to_be (0)
+        expect (f (0, "false")).to_be (0)
+
+  - context with not:
+    - before:
+        f = M.op["not"]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {true})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {true})).
+          not_to_contain_error "was deprecated"
+
+    - it returns the logical not of its argument:
+        expect (f (false)).to_be (true)
+        expect (f (true)).to_be (false)
+    - it supports truthy and falsey arguments:
+        expect (f ()).to_be (true)
+        expect (f (0)).to_be (false)
+
+  - context with ==:
+    - before:
+        f = M.op["=="]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns true if the arguments are equal:
+        expect (f ()).to_be (true)
+        expect (f ("foo", "foo")).to_be (true)
+    - it returns false if the arguments are unequal:
+        expect (f (1)).to_be (false)
+        expect (f ("foo", "bar")).to_be (false)
+
+  - context with ~=:
+    - before:
+        f = M.op["~="]
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {2, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {2, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it returns false if the arguments are equal:
+        expect (f (1, 1)).to_be (false)
+        expect (f ("foo", "foo")).to_be (false)
+    - it returns true if the arguments are unequal:
+        expect (f (1, 2)).to_be (true)
+        expect (f ("foo", "bar")).to_be (true)
+        expect (f ({}, {})).to_be (true)
+
+
+- describe reduce:
+  - before:
+      op = require "std.operator"
+
+      f = M.reduce
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.reduce (func, any, [func], any*)")
+
+  - it works with an empty table:
+      expect (f (op.sum, 2, ipairs, {})).to_be (2)
+  - it calls a binary function over single return value iterator results:
+      expect (f (op.sum, 2, base.ielems, {3})).
+        to_be (2 + 3)
+      expect (f (op.prod, 2, base.ielems, {3, 4})).
+        to_be (2 * 3 * 4)
+  - it calls a binary function over key:value iterator results:
+      expect (f (op.sum, 2, base.ielems, {3})).to_be (2 + 3)
+      expect (f (op.prod, 2, base.ielems, {3, 4})).to_be (2 * 3 * 4)
+  - it reduces elements from left to right:
+      expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
+  - it passes all iterator results to accumulator function:
+      expect (f (rawset, {}, {"one", two=5})).to_equal {"one", two=5}
+
+
+- describe zip:
+  - before:
+      tt = {{1, 2}, {3, 4}, {5, 6}}
+
+      f = M.zip
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.zip (table)")
+
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it is the inverse of itself:
+      expect (f (f (tt))).to_equal (tt)
+  - it transposes rows and columns:
+      expect (f (tt)).to_equal {{1, 3, 5}, {2, 4, 6}}
+      expect (f {x={a=1, b=2}, y={a=3, b=4}, z={b=5}}).
+        to_equal {a={x=1, y=3}, b={x=2,y=4,z=5}}
+
+
+- describe zip_with:
+  - before:
+      tt = {{1, 2}, {3, 4}, {5}}
+      fn = function (...) return tonumber (table.concat {...}) end
+
+      f = M.zip_with
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.zip_with (function, table of tables)")
+
+  - it works for an empty table:
+      expect (f (fn, {})).to_equal {}
+  - it returns a table:
+      expect (type (f (fn, tt))).to_be "table"
+  - it returns the result in a new table:
+      expect (f (fn, tt)).not_to_be (tt)
+  - it does not perturb the argument list:
+      m = f (fn, tt)
+      expect (tt).to_equal {{1, 2}, {3, 4}, {5}}
+  - it combines column entries with a function:
+      expect (f (fn, tt)).to_equal {135, 24}
+  - it discards hash-part arguments:
+      expect (f (fn, {{1,2}, x={3,4}, {[2]=5}})).to_equal {1, 25}
+  - it combines matching key entries with a function:
+      expect (f (fn, {{a=1,b=2}, {a=3,b=4}, {b=5}})).
+        to_equal {a=13, b=245}

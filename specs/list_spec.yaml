@@ -1,7 +1,18 @@
 before:
-  Object  = require "std.object"
-  List    = require "std.list"
+  this_module  = "std.list"
+  global_table = "_G"
+
+  exported_apis = { "append", "compare", "concat", "cons", "depair",
+                    "elems", "enpair", "filter", "flatten", "foldl",
+                    "foldr", "index_key", "index_value", "map",
+                    "map_with", "project", "relems", "rep", "reverse",
+                    "shape", "sub", "tail", "transpose", "zip_with" }
+
+  M = require (this_module)
+
+  List    = M {}
   l       = List {"foo", "bar", "baz"}
+
 
 
 specify std.list:
@@ -10,68 +21,92 @@ specify std.list:
     - it does not touch the global table:
         expect (show_apis {added_to="_G", by="std.list"}).
           to_equal {}
+    - it exports the documented apis:
+        t = {}
+        for k in pairs (M) do t[#t + 1] = k end
+        expect (t).to_contain.a_permutation_of (exported_apis)
+
+  - context via the std module:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
 
 - describe construction:
   - context from List clone method:
     - it constructs a new list:
         l = List:clone {}
         expect (l).not_to_be (List)
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List:clone {"l"}, List:clone {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
-    - it initialises list with constructor parameters:
+    - it initialises List with constructor parameters:
         m = List:clone {"foo", "bar", "baz"}
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
-        obj = l:clone {}
-        expect (Object.type (obj)).to_be "List"
-        expect (obj).to_equal (l)
-        expect (getmetatable (obj)).to_be (getmetatable (l))
+        m = l:clone {}
+        expect (prototype (m)).to_be "List"
+        expect (m).to_equal (l)
+        expect (getmetatable (m)).to_be (getmetatable (l))
 
   # List {args} is just syntactic sugar for List:clone {args}
   - context from List object prototype:
-    - it constructs a new list:
+    - it constructs a new List:
         l = List {}
         expect (l).not_to_be (List)
-        expect (Object.type (l)).to_be "List"
+        expect (prototype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List {"l"}, List {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
-    - it initialises list with constructor parameters:
+    - it initialises List with constructor parameters:
         m = List {"foo", "bar", "baz"}
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
-        obj = l {}
-        expect (Object.type (obj)).to_be "List"
-        expect (obj).to_equal (l)
-        expect (getmetatable (obj)).to_be (getmetatable (l))
+        m = l {}
+        expect (prototype (m)).to_be "List"
+        expect (m).to_equal (l)
+        expect (getmetatable (m)).to_be (getmetatable (l))
 
 
 - describe metatable propagation:
   - it reuses the metatable for List constructed objects:
-      obj = List {"foo", "bar"}
-      expect (getmetatable (obj)).to_be (getmetatable (l))
+      m = List {"foo", "bar"}
+      expect (getmetatable (m)).to_be (getmetatable (l))
 
 
 - describe append:
-  - context when called as a list object method:
-    - it returns a list object:
-        l = l:append ("quux")
-        expect (Object.type (l)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:append ("quux")).to_equal (List {"quux"})
-    - it appends an item to a list:
-        expect (l:append ("quux")).
+  - before:
+      f = M.append
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.append (List, any)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l, "quux"))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, "quux")).to_equal (List {"quux"})
+    - it appends an item to a List:
+        expect (f (l, "quux")).
           to_equal (List {"foo", "bar", "baz", "quux"})
-  - context when called as a list metamethod:
-    - it returns a list object:
-        l = l + "quux"
-        expect (Object.type (l)).to_be "List"
+
+  - context as an object method:
+    - before:
+        f = l.append
+
+    - it returns a List object:
+        expect (prototype (f (l, "quux"))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, "quux")).to_equal (List {"quux"})
+    - it appends an item to a List:
+        expect (f (l, "quux")).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+
+  - context as a List metamethod:
+    - it returns a List object:
+        expect (prototype (l + "quux")).to_be "List"
     - it works for an empty list:
-        l = List {}
-        expect (l + "quux").to_equal (List {"quux"})
+        expect (List {} + "quux").to_equal (List {"quux"})
     - it appends an item to a list:
         expect (l + "quux").
           to_equal (List {"foo", "bar", "baz", "quux"})
@@ -80,139 +115,286 @@ specify std.list:
 - describe compare:
   - before:
       a, b = List {"foo", "bar"}, List {"foo", "baz"}
-  - context when called as a list object method:
-    - it returns -1 when the first list is less than the second: |
-        expect (a:compare {"foo", "baz"}).to_be (-1)
-        expect (a:compare (List {"foo", "baz"})).to_be (-1)
+
+      f = M.compare
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.compare (List, List|table)")
+
+  - context as a module function:
+    - it returns -1 when the first list is less than the second:
+        expect (f (a, {"foo", "baz"})).to_be (-1)
+        expect (f (a, List {"foo", "baz"})).to_be (-1)
+    - it returns -1 when the second list has additional elements:
+        expect (f (List {"foo"}, {"foo", "bar"})).to_be (-1)
+        expect (f (List {"foo"}, List {"foo", "bar"})).to_be (-1)
+    - it returns 0 when two lists are the same:
+        expect (f (a, {"foo", "bar"})).to_be (0)
+        expect (f (a, List {"foo", "bar"})).to_be (0)
+    - it returns +1 when the first list is greater than the second:
+        expect (f (a, {"baz", "quux"})).to_be (1)
+        expect (f (a, List {"baz", "quux"})).to_be (1)
+    - it returns +1 when the first list has additional elements:
+        expect (f (a, {"foo"})).to_be (1)
+        expect (f (a, List {"foo"})).to_be (1)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (f (a, b)).to_be (-1)
+
+  - context as an object method:
+    - before:
+        f = a.compare
+
+    - it returns -1 when the first list is less than the second:
+        expect (f (a, {"foo", "baz"})).to_be (-1)
+        expect (f (a, List {"foo", "baz"})).to_be (-1)
     - it returns -1 when the second list has additional elements: |
         b = List {"foo"}
-        expect (b:compare {"foo", "bar"}).to_be (-1)
+        expect (f (b, {"foo", "bar"})).to_be (-1)
         expect (List {"foo"}:compare (List {"foo", "bar"})).to_be (-1)
-    - it returns 0 when two lists are the same: |
-        expect (a:compare {"foo", "bar"}).to_be (0)
-        expect (a:compare (List {"foo", "bar"})).to_be (0)
-    - it returns +1 when the first list is greater than the second: |
-        expect (a:compare {"baz", "quux"}).to_be (1)
-        expect (a:compare (List {"baz", "quux"})).to_be (1)
-    - it returns +1 when the first list has additional elements: |
-        expect (a:compare {"foo"}).to_be (1)
-        expect (a:compare (List {"foo"})).to_be (1)
-  - context when called as a '<' list metamethod:
+    - it returns 0 when two lists are the same:
+        expect (f (a, {"foo", "bar"})).to_be (0)
+        expect (f (a, List {"foo", "bar"})).to_be (0)
+    - it returns +1 when the first list is greater than the second:
+        expect (f (a, {"baz", "quux"})).to_be (1)
+        expect (f (a, List {"baz", "quux"})).to_be (1)
+    - it returns +1 when the first list has additional elements:
+        expect (f (a, {"foo"})).to_be (1)
+        expect (f (a, List {"foo"})).to_be (1)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (f (a, b)).to_be (-1)
+
+  - context as a '<' List metamethod:
     - it succeeds when the first list is less than the second:
         expect (a < b).to_be (true)
     - it fails when the first list is not less than the second:
         expect (a < a).to_be (false)
         expect (b < a).to_be (false)
-  - context when called as a '>' list metamethod:
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a < b).to_be (true)
+
+  - context as a '>' List metamethod:
     - it succeeds when the first list is greater than the second:
         expect (b > a).to_be (true)
     - it fails when the first list is not greater than the second:
         expect (b > b).to_be (false)
         expect (a > b).to_be (false)
-  - context when called as a '<=' list metamethod:
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a > b).to_be (false)
+
+  - context as a '<=' List metamethod:
     - it succeeds when the first list is less than or equal to the second:
         expect (a <= b).to_be (true)
         expect (a <= a).to_be (true)
     - it fails when the first list is not less than or equal to the second:
         expect (b <= a).to_be (false)
-  - context when called as a '>=' list metamethod:
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a <= b).to_be (true)
+
+  - context as a '>=' List metamethod:
     - it succeeds when the first list is greater than or equal to the second:
         expect (b >= a).to_be (true)
         expect (b >= b).to_be (true)
     - it fails when the first list is not greater than or equal to the second:
         expect (a >= b).to_be (false)
+    - it compares numerically when both arguments can be coerced:
+        a, b = List {"1", "2", "3"}, List {"1", "2", "10"}
+        expect (a >= b).to_be (false)
 
 
 - describe concat:
-  - before: l = List {"foo", "bar"}
+  - before:
+      l = List {"foo", "bar"}
 
-  - context when called as a list object method:
-    - it returns a list object:
-        l = l:concat (List {"baz"})
-        expect (Object.type (l)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:concat (List {"baz"})).to_equal (List {"baz"})
-    - it concatenates lists:
-        expect (l:concat (List {"baz", "quux"})).
+      f = M.concat
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.concat (List, List|table*)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l, l))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, {"baz"})).to_equal (List {"baz"})
+        expect (f (List {}, List {"baz"})).to_equal (List {"baz"})
+    - it concatenates Lists:
+        expect (f (l, {"baz", "quux"})).
           to_equal (List {"foo", "bar", "baz", "quux"})
-        expect (l:concat (List {"baz"}, List {"quux"})).
+        expect (f (l, List {"baz", "quux"})).
           to_equal (List {"foo", "bar", "baz", "quux"})
-  - context whne called as a list metamethod:
-    - it returns a list object:
-        l = l .. List {"baz"}
-        expect (Object.type (l)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l .. List {"baz"}).to_equal (List {"baz"})
-    - it concatenates lists:
+        expect (f (l, {"baz"}, {"quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+        expect (f (l, List {"baz"}, List {"quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+
+  - context as an object method:
+    - before:
+        f = l.concat
+
+    - it returns a List object:
+        expect (prototype (f (l, l))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, {"baz"})).to_equal (List {"baz"})
+        expect (f (List {}, List {"baz"})).to_equal (List {"baz"})
+    - it concatenates Lists:
+        expect (f (l, {"baz", "quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+        expect (f (l, List {"baz", "quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+        expect (f (l, {"baz"}, {"quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+        expect (f (l, List {"baz"}, List {"quux"})).
+          to_equal (List {"foo", "bar", "baz", "quux"})
+
+  # Beware that .. operations are right associative
+  - context as a List metamethod:
+    - it returns a List object:
+        expect (prototype (l .. List {"baz"})).to_be "List"
+    - it works for an empty List:
+        expect (List {} .. {"baz"}).to_equal (List {"baz"})
+        expect (List {} .. List {"baz"}).to_equal (List {"baz"})
+    - it concatenates Lists:
+        expect (l .. {"baz", "quux"}).
+          to_equal (List {"foo", "bar", "baz", "quux"})
         expect (l .. List {"baz", "quux"}).
           to_equal (List {"foo", "bar", "baz", "quux"})
+        expect ({"baz"} .. {"quux"} .. l).
+          to_equal (List {"baz", "quux", "foo", "bar"})
         expect (l .. List {"baz"} .. List {"quux"}).
           to_equal (List {"foo", "bar", "baz", "quux"})
 
 
 - describe cons:
-  - context when called as a list object method:
-    - it returns a list object:
-        l = l:cons "quux"
-        expect (Object.type (l)).to_be "List"
-    - it works for empty lists:
-        l = List {}
-        expect (l:cons "quux").to_equal (List {"quux"})
-    - it prepends an item to a list:
-        expect (l:cons "quux").
-          to_equal (List {"quux", "foo", "bar", "baz"})
+  - before:
+      f = M.cons
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.cons (List, any)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l, "x"))).to_be "List"
+    - it prepends an item to a List:
+        expect (f (l, "x")).to_equal (List {"x", "foo", "bar", "baz"})
+    - it works for empty Lists:
+        expect (f (List {}, "x")).to_equal (List {"x"})
+
+  - context as an object method:
+    - before:
+        f = l.cons
+
+    - it returns a List object:
+        expect (prototype (f (l, "x"))).to_be "List"
+    - it prepends an item to a List:
+        expect (f (l, "x")).to_equal (List {"x", "foo", "bar", "baz"})
+    - it works for empty Lists:
+        expect (f (List {}, "x")).to_equal (List {"x"})
 
 
 - describe depair:
   - before:
+      l = List {List {1, "first"}, List {2, "second"}, List {"third", 4}}
       t = {"first", "second", third = 4}
-      l = List.enpair (t)
 
-  - it diagnoses an argument that is not a list of lists:
-  - context when called as a list object method:
+  - context as a module function:
+    - before:
+        f = M.depair
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
     - it returns a primitive table:
-        expect (Object.type (l:depair ())).to_be "table"
-    - it works with an empty list:
+        expect (prototype (f (l))).to_be "table"
+    - it works with an empty List:
         l = List {}
-        expect (l:depair ()).to_equal {}
+        expect (f (l)).to_equal {}
     - it is the inverse of enpair:
-        expect (l:depair ()).to_equal (t)
+        expect (f (l)).to_equal (t)
+
+  - context as an object method:
+    - before:
+        f = l.depair
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a primitive table:
+        expect (prototype (f (l))).to_be "table"
+    - it works with an empty List:
+        expect (f (List {})).to_equal {}
+    - it is the inverse of enpair:
+        expect (f (l)).to_equal (t)
 
 
 - describe elems:
-  - it is an iterator over list members:
-      t = {}
-      for e in List.elems (l) do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
-  - it works for an empty list:
-      t = {}
-      for e in List.elems (List {}) do table.insert (t, e) end
-      expect (t).to_equal {}
-  - it can be called from the list module:
-      t = {}
-      for e in List.elems (l) do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
-  - it can be called as a list object method:
-      t = {}
-      for e in l:elems () do table.insert (t, e) end
-      expect (t).to_equal {"foo", "bar", "baz"}
+  - context as a module function:
+    - before:
+        f = M.elems
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {{}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+
+    - it is an iterator over List members:
+        t = {}
+        for e in f (l) do table.insert (t, e) end
+        expect (t).to_equal {"foo", "bar", "baz"}
+    - it works for an empty List:
+        t = {}
+        for e in f (List {}) do table.insert (t, e) end
+        expect (t).to_equal {}
+
+  - context as an object method:
+    - before:
+        f = l.elems
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it is an iterator over List members:
+        t = {}
+        for e in l:elems () do table.insert (t, e) end
+        expect (t).to_equal {"foo", "bar", "baz"}
+    - it works for an empty List:
+        t, l = {}, List {}
+        for e in l:elems () do table.insert (t, e) end
+        expect (t).to_equal {}
 
 
 - describe enpair:
   - before:
      t = {"first", "second", third = 4}
+     f = M.enpair
 
-  - it diagnoses a missing argument:
-  - it diagnoses a non-table argument:
-  - it returns a list object:
-      expect (Object.type (List.enpair (t))).to_be "List"
-  - it works for an empty table:
-      expect (List.enpair {}).to_equal (List {})
-  - it turns a table into a list of pairs:
-      expect (List.enpair (t)).
-        to_equal (List {List {1, "first"}, List {2, "second"}, List {"third", 4}})
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {t})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {t})).not_to_contain_error "was deprecated"
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (t))).to_be "List"
+    - it works for an empty table:
+        expect (f {}).to_equal (List {})
+    - it turns a table into a List of pairs:
+        expect (f (t)).
+          to_equal (List {List {1, "first"}, List {2, "second"}, List {"third", 4}})
 
 
 - describe filter:
@@ -220,108 +402,428 @@ specify std.list:
       l = List {"foo", "bar", "baz", "quux"}
       p = function (e) return (e:match "a" ~= nil) end
 
-  - context when called as a list object method:
-    - it returns a list object:
-        m = l:filter (p)
-        expect (Object.type (m)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:filter (p)).to_equal (List {})
-    - it filters a list according to a predicate:
-        expect (l:filter (p)).to_equal (List {"bar", "baz"})
+  - context as a module function:
+    - before:
+        f = M.filter
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {p, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {p, l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (p, l))).to_be "List"
+    - it works for an empty List:
+        expect (f (p, List {})).to_equal (List {})
+    - it filters a List according to a predicate:
+        expect (f (p, l)).to_equal (List {"bar", "baz"})
+
+  - context as an object method:
+    - before:
+        f = l.filter
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, p})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, p})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l, p))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, p)).to_equal (List {})
+    - it filters a List according to a predicate:
+        expect (f (l, p)).to_equal (List {"bar", "baz"})
 
 
 - describe flatten:
   - before:
       l = List {List {List {"one"}}, "two", List {List {"three"}, "four"}}
 
-  - context when called as a list object method:
-    - it returns a list object:
-        m = List.flatten (l)
-        expect (Object.type (m)).to_be "List"
-    - it works for an empty list:
+  - context as a module function:
+    - before:
+        f = M.flatten
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
         l = List {}
-        expect (l:flatten ()).to_equal (List {})
-    - it flattens a list:
-        expect (l:flatten ()).
+        expect (f (l)).to_equal (List {})
+    - it flattens a List:
+        expect (f (l)).
+          to_equal (List {"one", "two", "three", "four"})
+
+  - context as an object method:
+    - before:
+        f = l.flatten
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
+        l = List {}
+        expect (f (l)).to_equal (List {})
+    - it flattens a List:
+        expect (f (l)).
           to_equal (List {"one", "two", "three", "four"})
 
 
 - describe foldl:
   - before:
-      op = (require "std.functional").op
-      l = List {1, 10, 100}
+      op = require "std.operator"
+      l = List {3, 4}
 
-  - context when called as a list object method:
-    - it works with an empty list:
+  - context as a module function:
+    - before:
+        f = M.foldl
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {op.sum, 1, l})).
+         to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {op.sum, 1, l})).
+         not_to_contain_error "was deprecated"
+
+    - context with a table:
+      - it works with an empty table:
+          expect (f (op.sum, 10000, {})).to_be (10000)
+      - it folds a binary function through a table:
+          expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
+      - it folds from left to right:
+          expect (f (op.pow, 2, {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+    - context with a List:
+      - it works with an empty List:
+          expect (f (op.sum, 10000, List {})).to_be (10000)
+      - it folds a binary function through a List:
+          expect (f (op.sum, 10000, List {1, 10, 100})).
+            to_be (10111)
+      - it folds from left to right:
+          expect (f (op.pow, 2, List {3, 4})).to_be ((2 ^ 3) ^ 4)
+
+  - context as an object method:
+    - before:
+        f = l.foldl
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, op.sum, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, op.sum, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it works with an empty List:
         l = List {}
-        expect (l:foldl (op["+"], 10000)).to_be (10000)
-    - it folds a binary function through a list:
-        expect (l:foldl (op["+"], 10000)).to_be (10111)
+        expect (f (l, op.sum, 2)).to_be (2)
+    - it folds a binary function through a List:
+        expect (f (l, op.sum, 2)).to_be (9)
+    - it folds from left to right:
+        expect (f (l, op.pow, 2)).to_be ((2 ^ 3) ^ 4)
 
 
 - describe foldr:
   - before:
-      op = (require "std.functional").op
-      l = List {1, 10, 100}
+      op = require "std.operator"
+      l = List {10000, 100}
 
-  - context when called as a list object method:
-    - it works with an empty list:
+  - context as a module function:
+    - before:
+        f = M.foldr
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {op.sum, 1, {10}})).
+         to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {op.sum, 1, {10}})).
+         not_to_contain_error "was deprecated"
+
+    - context with a table:
+      - it works with an empty table:
+          expect (f (op.sum, 10000, {})).to_be (10000)
+      - it folds a binary function through a table:
+          expect (f (op.sum, 10000, {1, 10, 100})).to_be (10111)
+      - it folds from right to left:
+          expect (f (op.quot, 10, {10000, 100})).to_be (10000 / (100 / 10))
+
+    - context with a List:
+      - it works with an empty List:
+          expect (f (op.sum, 10000, List {})).to_be (10000)
+      - it folds a binary function through a List:
+          expect (f (op.sum, 10000, List {1, 10, 100})).
+            to_be (10111)
+      - it folds from right to left:
+          expect (f (op.quot, 10, List {10000, 100})).
+            to_be (10000 / (100 / 10))
+
+  - context as an object method:
+    - before:
+        f = l.foldr
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, op.sum, 1})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, op.sum, 1})).
+          not_to_contain_error "was deprecated"
+
+    - it works with an empty List:
         l = List {}
-        expect (l:foldl (op["/"], 1)).to_be (1)
-    - it folds a binary function through a list:
-        expect (l:foldl (op["/"], 10000)).to_be (10)
+        expect (f (l, op.sum, 10)).to_be (10)
+    - it folds a binary function through a List:
+        expect (f (l, op.sum, 10)).to_be (10110)
+    - it folds from right to left:
+        expect (f (l, op.quot, 10)).to_be (10000 / (100 / 10))
 
 
 - describe index_key:
+  - context as a module function:
+    - before:
+        f = M.index_key
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {1, List {{1}}})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {1, List {{1}}})).
+          not_to_contain_error "was deprecated"
+
+    - it makes a map of matched table field values to table List offsets:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = f ("a", l)
+        expect (t).to_equal {b = 1, x = 3}
+        for k, v in pairs (t) do
+          expect (k).to_equal (l[v]["a"])
+        end
+    - it captures only the last matching List offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = f ("a", l)
+        expect (t.b).not_to_be (1)
+        expect (t.x).to_be (2)
+        expect (t.b).to_be (3)
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (f (1, l)).to_equal {1, 3}
+        expect (f (2, l)).to_equal {3, 1}
+        expect (f (3, l)).to_equal {nil, nil, 3}
+
+  - context as an object method:
+    - before:
+        f = l.index_key
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
+
+    - it makes a map of matched table field values to table List offsets:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = l:index_key "a"
+        expect (t).to_equal {b = 1, x = 3}
+        for k, v in pairs (t) do
+          expect (k).to_equal (l[v]["a"])
+        end
+    - it captures only the last matching List offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = l:index_key "a"
+        expect (t.b).not_to_be (1)
+        expect (t.x).to_be (2)
+        expect (t.b).to_be (3)
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (l:index_key (1)).to_equal {1, 3}
+        expect (l:index_key (2)).to_equal {3, 1}
+        expect (l:index_key (3)).to_equal {nil, nil, 3}
 
 
 - describe index_value:
+  - context as a module function:
+    - before:
+        f = M.index_value
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {1, List {{1}}})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {1, List {{1}}})).
+          not_to_contain_error "was deprecated"
+
+    - it makes a table of matched table field values to table List references:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = f ("a", l)
+        expect (t).to_equal {b = l[1], x = l[3]}
+        for k, v in pairs (t) do
+          expect (k).to_equal (v["a"])
+        end
+    - it captures only the last matching List offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = f ("a", l)
+        expect (t.b).not_to_be (l[1])
+        expect (t.x).to_be (l[2])
+        expect (t.b).to_be (l[3])
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (f (1, l)).to_equal {l[1], l[3]}
+        expect (f (2, l)).to_equal {l[3], l[1]}
+        expect (f (3, l)).to_equal {nil, nil, l[3]}
+
+  - context as an object method:
+    - before:
+        l = List {{1}}
+
+        f = l.index_value
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, 1})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, 1})).not_to_contain_error "was deprecated"
+
+    - it makes a table of matched table field values to table List references:
+        l = List {{a = "b", c = "d"}, {e = "x", f = "g"}, {a = "x"}}
+        t = l:index_value "a"
+        expect (t).to_equal {b = l[1], x = l[3]}
+        for k, v in pairs (t) do
+          expect (k).to_equal (v["a"])
+        end
+    - it captures only the last matching List offset:
+        l = List {{a = "b"}, {a = "x"}, {a = "b"}}
+        t = l:index_value "a"
+        expect (t.b).not_to_be (l[1])
+        expect (t.x).to_be (l[2])
+        expect (t.b).to_be (l[3])
+    - it produces incomplete indices when faced with repeated matching table values:
+        l = List {{1, 2, 3}, {2}, {2, 1, 3, 2, 1}}
+        expect (l:index_value (1)).to_equal {l[1], l[3]}
+        expect (l:index_value (2)).to_equal {l[3], l[1]}
+        expect (l:index_value (3)).to_equal {nil, nil, l[3]}
 
 
 - describe map:
   - before:
       l = List {1, 2, 3, 4, 5}
-      f = function (n) return n * n end
+      sq = function (n) return n * n end
 
-  - context when called as a list object method:
-    - it returns a list object:
-        m = l:map (f)
-        expect (Object.type (m)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:map (f)).to_equal (List {})
-    - it creates a new list:
+  - context as a module function:
+    - before:
+        f, badarg = init (M, this_module, "map")
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {sq, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {sq, l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (sq, l))).to_be "List"
+    - it works for an empty List:
+        expect (f (sq, List {})).to_equal (List {})
+    - it creates a new List:
         o = l
-        m = l:map (f)
+        m = f (sq, l)
         expect (l).to_equal (o)
         expect (m).not_to_equal (o)
         expect (l).to_equal (List {1, 2, 3, 4, 5})
-    - it maps a function over a list:
-        expect (l:map (f)).to_equal (List {1, 4, 9, 16, 25})
+    - it maps a function over a List:
+        expect (f (sq, l)).to_equal (List {1, 4, 9, 16, 25})
+
+  - context as an object method:
+    - before:
+        f = l.map
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, sq})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, sq})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        m = f (l, sq)
+        expect (prototype (m)).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, sq)).to_equal (List {})
+    - it creates a new List:
+        o = l
+        m = f (l, sq)
+        expect (l).to_equal (o)
+        expect (m).not_to_equal (o)
+        expect (l).to_equal (List {1, 2, 3, 4, 5})
+    - it maps a function over a List:
+        expect (f (l, sq)).to_equal (List {1, 4, 9, 16, 25})
 
 
 - describe map_with:
   - before:
       l = List {List {1, 2, 3}, List {4, 5}}
-      f = function (...) return select ("#", ...) end
+      fn = function (...) return select ("#", ...) end
 
-  - it diagnoses an argument that is not a list of lists:
-  - context when called as a list object method:
-    - it returns a list object:
-        m = l:map_with (f)
-        expect (Object.type (m)).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:map_with (f)).to_equal (List {})
-    - it creates a new list:
+  - context as a module function:
+    - before:
+        f = M.map_with
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {fn, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {fn, l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        m = f (fn, l)
+        expect (prototype (m)).to_be "List"
+    - it creates a new List:
         o = l
-        m = l:map_with (f)
+        m = f (fn, l)
         expect (l).to_equal (o)
         expect (m).not_to_equal (o)
         expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
-    - it maps a function over a list:
-        expect (l:map_with (f)).to_equal (List {3, 2})
+    - it maps a function over a List:
+        expect (f (fn, l)).to_equal (List {3, 2})
+    - it works for an empty List:
+        l = List {}
+        expect (f (fn, l)).to_equal (List {})
+
+  - context as an object method:
+    - before:
+        f = l.map_with
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        m = f (l, fn)
+        expect (prototype (m)).to_be "List"
+    - it creates a new List:
+        o = l
+        m = f (l, fn)
+        expect (l).to_equal (o)
+        expect (m).not_to_equal (o)
+        expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
+    - it maps a function over a List:
+        expect (f (l, fn)).to_equal (List {3, 2})
+    - it works for an empty List:
+        l = List {}
+        expect (f (l, fn)).to_equal (List {})
 
 
 - describe project:
@@ -332,114 +834,406 @@ specify std.list:
         {first = "1st", second = "2nd", third = "3rd"},
       }
 
-  - it diagnoses an argument that is not a list of tables:
-  - context when called as a list object method:
-    - it returns a list object:
-        p = l:project ("third")
-        expect (Object.type (p)).to_be "List"
-    - it works with an empty list:
-        l = List {}
-        expect (l:project ("third")).to_equal (List {})
-    - it projects a list of fields from a list of tables:
-        expect (l:project ("third")).
-          to_equal (List {true, 3, "3rd"})
+  - context as a module function:
+    - before:
+        f = M.project
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {"third", l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {"third", l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f ("third", l))).to_be "List"
+    - it works with an empty List:
+        expect (f ("third", List {})).to_equal (List {})
+    - it projects a List of fields from a List of tables:
+        expect (f ("third", l)).to_equal (List {true, 3, "3rd"})
     - it projects fields with a falsey value correctly:
-        expect (l:project ("first")).
-          to_equal (List {false, 1, "1st"})
+        expect (f ("first", l)).to_equal (List {false, 1, "1st"})
+
+  - context as an object method:
+    - before:
+        f = l.project
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, "third"})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, "third"})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l, "third"))).to_be "List"
+    - it works with an empty List:
+        expect (f (List {}, "third")).to_equal (List {})
+    - it projects a List of fields from a List of tables:
+        expect (f (l, "third")).to_equal (List {true, 3, "3rd"})
+    - it projects fields with a falsey value correctly:
+        expect (f (l, "first")).to_equal (List {false, 1, "1st"})
 
 
 - describe relems:
-  - it is a reverse iterator over list members:
-      t = {}
-      for e in List.relems (l) do table.insert (t, e) end
-      expect (t).to_equal {"baz", "bar", "foo"}
-  - it works for an empty list:
-      t = {}
-      for e in List.relems (List {}) do table.insert (t, e) end
-      expect (t).to_equal {}
-  - it can be called from the list module:
-      t = {}
-      for e in List.relems (l) do table.insert (t, e) end
-      expect (t).to_equal {"baz", "bar", "foo"}
-  - it can be called as a list object method:
-      t = {}
-      for e in l:relems () do table.insert (t, e) end
-      expect (t).to_equal {"baz", "bar", "foo"}
+  - context as a module function:
+    - before:
+        f = M.relems
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it is a reverse iterator over List members:
+        t = {}
+        for e in f (l) do table.insert (t, e) end
+        expect (t).to_equal {"baz", "bar", "foo"}
+    - it works for an empty List:
+        t = {}
+        for e in f (List {}) do table.insert (t, e) end
+        expect (t).to_equal {}
+
+  - context as an object method:
+    - before:
+        f = l.relems
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it is a reverse iterator over List members:
+        t = {}
+        for e in l:relems () do table.insert (t, e) end
+        expect (t).to_equal {"baz", "bar", "foo"}
+    - it works for an empty List:
+        t, l = {}, List {}
+        for e in l:relems () do table.insert (t, e) end
+        expect (t).to_equal {}
 
 
 - describe rep:
-  - before: l = List {"foo", "bar"}
+  - before:
+      l = List {"foo", "bar"}
 
-  - context when called as a list object method:
-    - it returns a list object:
-        expect (Object.type (l:rep (3))).to_be "List"
-    - it works for an empty list:
-        l = List {}
-        expect (l:rep (99)).to_equal (List {})
-    - it repeats the contents of a list:
-        expect (l:rep (3)).
+      f = M.rep
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.rep (List, int)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l, 3))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, 99)).to_equal (List {})
+    - it repeats the contents of a List:
+        expect (f (l, 3)).
+          to_equal (List {"foo", "bar", "foo", "bar", "foo", "bar"})
+
+  - context as an object method:
+    - before:
+        f = l.rep
+
+    - it returns a List object:
+        expect (prototype (f (l, 3))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, 99)).to_equal (List {})
+    - it repeats the contents of a List:
+        expect (f (l, 3)).
           to_equal (List {"foo", "bar", "foo", "bar", "foo", "bar"})
 
 
 - describe reverse:
-  - before: l = List {"foo", "bar", "baz", "quux"}
+  - before:
+      l = List {"foo", "bar", "baz", "quux"}
 
-  - context when called as a list object method:
-    - it returns a list object:
-        expect (Object.type (l:reverse ())).to_be "List"
-    - it works for an empty list:
+  - context as a module function:
+    - before:
+        f = M.reverse
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {{}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
         l = List {}
-        expect (l:reverse ()).to_equal (List {})
-    - it makes a new reversed list:
+        expect (f (l)).to_equal (List {})
+    - it makes a new reversed List:
         m = l
-        expect (l:reverse ()).
+        expect (f (l)).
+          to_equal (List {"quux", "baz", "bar", "foo"})
+        expect (l).to_equal (List {"foo", "bar", "baz", "quux"})
+        expect (l).to_be (m)
+
+  - context as an object method:
+    - before:
+        f = l.reverse
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {})).to_equal (List {})
+    - it makes a new reversed List:
+        m = l
+        expect (f (l)).
           to_equal (List {"quux", "baz", "bar", "foo"})
         expect (l).to_equal (List {"foo", "bar", "baz", "quux"})
         expect (l).to_be (m)
 
 
 - describe shape:
+  - before:
+      l = List {1, 2, 3, 4, 5, 6}
+
+  - context as a module function:
+    - before:
+        f = M.shape
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {{0}, l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {{0}, l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f ({2, 3}, l))).to_be "List"
+    - it works for an empty List:
+        expect (f ({0}, List {})).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f ({2, 3}, l)).not_to_be (l)
+    - it does not perturb the argument List:
+        f ({2, 3}, l)
+        expect (l).to_equal (List {1, 2, 3, 4, 5, 6})
+    - it reshapes a List according to given dimensions:
+        expect (f ({2, 3}, l)).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (f ({3, 2}, l)).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it treats 0-valued dimensions as an indefinite number:
+        expect (f ({2, 0}, l)).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (f ({0, 2}, l)).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+
+  - context as an object method:
+    - before:
+        f = l.shape
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, {0}})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, {0}})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l, {2, 3}))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, {0})).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f (l, {2, 3})):not_to_be (l)
+    - it does not perturb the argument List:
+        f (l, {2, 3})
+        expect (l).to_equal (List {1, 2, 3, 4, 5, 6})
+    - it reshapes a List according to given dimensions:
+        expect (f (l, {2, 3})).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (f (l, {3, 2})).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it treats 0-valued dimensions as an indefinite number:
+        expect (f (l, {2, 0})).
+          to_equal (List {List {1, 2, 3}, List {4, 5, 6}})
+        expect (f (l, {0, 2})).
+          to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
 
 
 - describe sub:
-  - before: l = List {1, 2, 3, 4, 5, 6, 7}
+  - before:
+      l = List {1, 2, 3, 4, 5, 6, 7}
 
-  - context when called as a list object method:
-    - it returns a list object: |
-        expect (Object.type (l:sub (1, 1))).to_be "List"
-    - it makes a list from a subrange of another list: |
-        expect (l:sub (2, 5)).to_equal (List {2, 3, 4, 5})
-    - it truncates the result if 'to' argument is too large: |
-        expect (l:sub (5, 10)).to_equal (List {5, 6, 7})
-    - it defaults 'to' to the end of the list: |
-        expect (l:sub (5)).to_equal (List {5, 6, 7})
-    - it defaults 'from' to the beginning of the list: |
-        expect (l:sub ()).to_equal (l)
-    - it returns an empty list when 'from' is greater than 'to': |
-        expect (l:sub (2, 1)).to_equal (List {})
-    - it counts from the end of the list for a negative 'from' argument: |
-        expect (l:sub (-3)).to_equal (List {5, 6, 7})
-    - it counts from the end of the list for a negative 'to' argument: |
-        expect (l:sub (-5, -2)).to_equal (List {3, 4, 5, 6})
+      f = M.sub
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.sub (List, ?int, ?int)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l, 1, 1))).to_be "List"
+    - it makes a List from a subrange of another List:
+        expect (f (l, 2, 5)).to_equal (List {2, 3, 4, 5})
+    - it truncates the result if 'to' argument is too large:
+        expect (f (l, 5, 10)).to_equal (List {5, 6, 7})
+    - it defaults 'to' to the end of the List:
+        expect (f (l, 5)).to_equal (List {5, 6, 7})
+    - it defaults 'from' to the beginning of the List:
+        expect (f (l)).to_equal (l)
+    - it returns an empty List when 'from' is greater than 'to':
+        expect (f (l, 2, 1)).to_equal (List {})
+    - it counts from the end of the List for a negative 'from' argument:
+        expect (f (l, -3)).to_equal (List {5, 6, 7})
+    - it counts from the end of the List for a negative 'to' argument:
+        expect (f (l, -5, -2)).to_equal (List {3, 4, 5, 6})
+
+  - context as an object method:
+    - before:
+        f = l.sub
+
+    - it returns a List object:
+        expect (prototype (f (l, 1, 1))).to_be "List"
+    - it makes a List from a subrange of another List:
+        expect (f (l, 2, 5)).to_equal (List {2, 3, 4, 5})
+    - it truncates the result if 'to' argument is too large:
+        expect (f (l, 5, 10)).to_equal (List {5, 6, 7})
+    - it defaults 'to' to the end of the List:
+        expect (f (l, 5)).to_equal (List {5, 6, 7})
+    - it defaults 'from' to the beginning of the List:
+        expect (f (l)).to_equal (l)
+    - it returns an empty List when 'from' is greater than 'to':
+        expect (f (l, 2, 1)).to_equal (List {})
+    - it counts from the end of the List for a negative 'from' argument:
+        expect (f (l, -3)).to_equal (List {5, 6, 7})
+    - it counts from the end of the List for a negative 'to' argument:
+        expect (f (l, -5, -2)).to_equal (List {3, 4, 5, 6})
 
 
 - describe tail:
-  - before: l = List {1, 2, 3, 4, 5, 6, 7}
+  - before:
+      l = List {1, 2, 3, 4, 5, 6, 7}
 
-  - context when called as a list object method:
-    - it returns a list object: |
-        expect (Object.type (l:tail ())).to_be "List"
-    - it makes a new list with the first element removed: |
-        expect (l:tail ()).to_equal (List {2, 3, 4, 5, 6, 7})
-    - it works for an empty list: |
-        l = List {}
-        expect (l:tail ()).to_equal (List {})
-    - it returns an empty list when passed a list with one element: |
-        l = List {1}
-        expect (l:tail ()).to_equal (List {})
+      f = M.tail
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.list.tail (List)")
+
+  - context as a module function:
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it makes a new List with the first element removed:
+        expect (f (l)).to_equal (List {2, 3, 4, 5, 6, 7})
+    - it works for an empty List:
+        expect (f (List {})).to_equal (List {})
+    - it returns an empty List when passed a List with one element:
+        expect (f (List {1})).to_equal (List {})
+
+  - context as an object method:
+    - before:
+        f = l.tail
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it makes a new List with the first element removed:
+        expect (f (l)).to_equal (List {2, 3, 4, 5, 6, 7})
+    - it works for an empty List:
+        expect (f (List {})).to_equal (List {})
+    - it returns an empty List when passed a List with one element:
+        expect (f (List {1})).to_equal (List {})
 
 
 - describe transpose:
+  - before:
+      l = List {List {1, 2}, List {3, 4}, List {5, 6}}
+
+  - context as a module function:
+    - before:
+        f = M.transpose
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {})).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f (l)).not_to_be (l)
+    - it does not perturb the argument List:
+        m = f (l)
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it transposes rows and columns:
+        expect (f (l)).to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
+
+  - context as an object method:
+    - before:
+        f = l.transpose
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {})).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f (l)).not_to_be (l)
+    - it does not perturb the argument List:
+        m = f (l)
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
+    - it transposes rows and columns:
+        expect (f (l)).
+          to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
 
 
 - describe zip_with:
+  - before:
+      l = List {List {1, 2}, List {3, 4}, List {5}}
+      fn = function (...) return tonumber (table.concat {...}) end
+
+  - context as a module function:
+    - before:
+        f = M.zip_with
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l, fn))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, fn)).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f (l, fn)):not_to_be (l)
+    - it does not perturb the argument List:
+        m = f (l, fn)
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
+    - it combines column entries with a function:
+        expect (f (l, fn)).to_equal (List {135, 24})
+
+  - context as an object method:
+    - before:
+        f = l.zip_with
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
+
+    - it returns a List object:
+        expect (prototype (f (l, fn))).to_be "List"
+    - it works for an empty List:
+        expect (f (List {}, fn)).to_equal (List {})
+    - it returns the result in a new List object:
+        expect (f (l, fn)):not_to_be (l)
+    - it does not perturb the argument List:
+        m = f (l, fn)
+        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
+    - it combines column entries with a function:
+        expect (f (l, fn)).to_equal (List {135, 24})

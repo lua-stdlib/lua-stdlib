@@ -6,9 +6,13 @@ be on it, please tell the mailing list (see README for the address).
 Thanks also to all those who have contributed bug fixes, suggestions
 and support.
 
+Gary V. Vaughan now maintains stdlib, having rewritten and reorganised
+the libraries for hygiene, consistent argument type checking in debug
+mode, and object orientation, in addition to adding a lot of new
+functionality.
 
-Reuben Thomas started and maintains the standard libraries project,
-wrote many of the libraries, and integrated code from other authors.
+Reuben Thomas started the standard libraries project, wrote many of the
+libraries, and integrated code from other authors.
 
 John Belmonte helped set the project up on lua-users, and contributed
 to the early organisation of the libraries.
@@ -21,8 +25,3 @@ private standard library.
 
 Johann Hibschman supplied the code on which math.floor and math.round
 were based.
-
-Diego Nehab wrote the original version of the mbox parser module.
-
-Gary V. Vaughan contributed table key support to the tree module, and
-the memoize implementation.

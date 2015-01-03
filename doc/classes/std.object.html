@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -32,9 +32,9 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Tables">Tables</a></li>
+<li><a href="#Objects">Objects</a></li>
+<li><a href="#Functions">Functions</a></li>
 <li><a href="#Metamethods">Metamethods</a></li>
-<li><a href="#Methods">Methods</a></li>
 </ul>
 
 
@@ -55,6 +55,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -67,6 +68,9 @@
 
 <h1>Class <code>std.object</code></h1>
 <p>Prototype-based objects.</p>
+<p>
+
+
 <p> This module creates the root prototype object from which every other
  object is descended.  There are no classes as such, rather new objects
  are created by cloning an existing object, and then changing or adding
@@ -76,101 +80,69 @@
 <p> Objects are cloned by simply calling an existing object, which then
  serves as a prototype from which the new object is copied.</p>
 
-<p> All valid objects contain a field <code>_init</code>, which determines the syntax
- required to execute the cloning process:</p>
-
-<ol>
-    <li><p><code>_init</code> can be a list of keys; then the unnamed <code>init_1</code> through
-  <code>init_m</code> values from the argument table are assigned to the
-  corresponding keys in <code>new_object</code>;</p>
-
-<pre><code> new_object = proto_object {
-   init_1, ..., init_m;
-   field_1 = value_1,
-   ...
-   field_n = value_n,
- }
-</code></pre></li>
-    <li><p>Or it can be a function, in which the arguments passed to the
-  prototype during cloning are simply handed to the <code>_init</code> function:</p>
-
-<pre><code>new_object = proto_object (arg, ...)
-</code></pre></li>
-</ol>
-
-<p> Objects, then, are essentially tables of <code>field_n = value_n</code> pairs:</p>
-
-<pre><code>  &gt; o = Object {
-  &gt;&gt;  field_1 = "value_1",
-  &gt;&gt;  method_1 = function (self) return self.field_1 end,
-  &gt;&gt; }
-  &gt; = o.field_1
-  value_1
-  &gt; o.field_2 = 2
-  &gt; function o:method_2 (n) return self.field_2 + n end
-  &gt; = o:method_2 (2)
-  4
-</code></pre>
-
-<p> Normally <code>new_object</code> automatically shares a metatable with
- <code>proto_object</code>. However, field names beginning with "_" are <em>private</em>,
- and moved into the object metatable during cloning. So, adding new
- private fields to an object during cloning will result in a new
- metatable for <code>new_object</code> that also contains a copy of all the entries
- in the <code>proto_object</code> metatable.</p>
-
 <p> Note that Object methods are stored in the <code>__index</code> field of their
  metatable, and so cannot also use <code>__index</code> to lookup references with
  square brackets.  See <a href="../classes/std.container.html#">std.container</a> objects if you want to do that.</p>
 
+<h2> Prototype Chain</h2>
 
-<h2><a href="#Tables">Tables</a></h2>
+
+<pre>
+<span class="global">table</span>
+ `-&gt; Object
+</pre>
+
+</p>
+
+
+<h2><a href="#Objects">Objects</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#std.object">std.object</a></td>
+	<td class="name" nowrap><a href="#std.object.Object">std.object.Object</a></td>
 	<td class="summary">Root object.</td>
+	</tr>
+</table>
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#std.object.clone">std.object.clone (obj, ...)</a></td>
+	<td class="summary">Clone an Object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.object.mapfields">std.object.mapfields (obj, src[, map={}])</a></td>
+	<td class="summary">Return <em>obj</em> with references to the fields of <em>src</em> merged in.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.object.prototype">std.object.prototype (x)</a></td>
+	<td class="summary">Type of an object, or primitive.</td>
 	</tr>
 </table>
 <h2><a href="#Metamethods">Metamethods</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#std.object:__call">std.object:__call (...)</a></td>
-	<td class="summary">Return a <a href="../classes/std.object.html#std.object:clone">clone</a> of this object, and its metatable.</td>
+	<td class="summary">Return a <a href="../classes/std.object.html#std.object.clone">clone</a> of this object, and its metatable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#std.object:__pairs">std.object:__pairs ()</a></td>
+	<td class="summary">Return an in-order iterator over public object fields.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object:__tostring">std.object:__tostring ()</a></td>
 	<td class="summary">Return a string representation of this object.</td>
 	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.object:__totable">std.object:__totable ()</a></td>
-	<td class="summary">Return a shallow copy of non-private object fields.</td>
-	</tr>
-</table>
-<h2><a href="#Methods">Methods</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#std.object:clone">std.object:clone (obj, ...)</a></td>
-	<td class="summary">Clone this Object.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.object:mapfields">std.object:mapfields (obj, src[, map={}])</a></td>
-	<td class="summary">Return <code>obj</code> with references to the fields of <code>src</code> merged in.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.object:prototype">std.object:prototype (x)</a></td>
-	<td class="summary">Type of an object, or primitive.</td>
-	</tr>
 </table>
 
 <br/>
 <br/>
 
 
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2><a name="Objects"></a>Objects</h2>
+
     <dl class="function">
     <dt>
-    <a name = "std.object"></a>
-    <strong>std.object</strong>
+    <a name = "std.object.Object"></a>
+    <strong>std.object.Object</strong>
     </dt>
     <dd>
     Root object. </p>
@@ -182,36 +154,255 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_init</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a> or <span class="type">function</span></span>
-         a table of field names, or
-   initialisation function, used by <a href="../classes/std.object.html#std.object:clone">clone</a>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+         object initialisation
+         (<em>default</em> {})
         </li>
         <li><span class="parameter">_functions</span>
-            <span class="types"><span class="type">nil</span> or <a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         a table of module functions not copied
-   by <a href="../classes/std.object.html#std.object:__call">std.object.__call</a>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         module functions omitted when cloned
         </li>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         type of Object, returned by <a href="../classes/std.object.html#std.object:prototype">prototype</a>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         object name
          (<em>default</em> "Object")
         </li>
     </ul>
 
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:__call">__call</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">
+ <span class="comment">-- `_init` can be a list of keys; then the unnamed `init_1` through
+</span> <span class="comment">-- `init_m` values from the argument table are assigned to the
+</span> <span class="comment">-- corresponding keys in `new_object`.
+</span> <span class="keyword">local</span> Process = Object {
+   _type = <span class="string">"Process"</span>,
+   _init = { <span class="string">"status"</span>, <span class="string">"out"</span>, <span class="string">"err"</span> },
+ }
+ <span class="keyword">local</span> process = Process {
+   procs[pid].status, procs[pid].out, procs[pid].err, <span class="comment">-- auto assigned
+</span>   command = pipeline[pid],                           <span class="comment">-- manual assignment
+</span> }</pre></li>
+        <li><pre class="example">
+ <span class="comment">-- Or it can be a function, in which the arguments passed to the
+</span> <span class="comment">-- prototype during cloning are simply handed to the `_init` function.
+</span> <span class="keyword">local</span> Bag = Object {
+   _type = <span class="string">"Bag"</span>,
+   _init = <span class="keyword">function</span> (obj, ...)
+     <span class="keyword">for</span> e <span class="keyword">in</span> std.elems {...} <span class="keyword">do</span>
+       obj[#obj + <span class="number">1</span>] = e
+     <span class="keyword">end</span>
+     <span class="keyword">return</span> obj
+   <span class="keyword">end</span>,
+ }
+ <span class="keyword">local</span> bag = Bag (<span class="string">"function"</span>, <span class="string">"arguments"</span>, <span class="string">"sent"</span>, <span class="string">"to"</span>, <span class="string">"_init"</span>)</pre></li>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Functions"></a>Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "std.object.clone"></a>
+    <strong>std.object.clone (obj, ...)</strong>
+    </dt>
+    <dd>
+    Clone an Object. </p>
+
+<p> Objects are essentially tables of <code>field_n = value_n</code> pairs.</p>
+
+<p> Normally <code>new_object</code> automatically shares a metatable with
+ <code>proto_object</code>. However, field names beginning with "_" are <em>private</em>,
+ and moved into the object metatable during cloning. So, adding new
+ private fields to an object during cloning will result in a new
+ metatable for <code>new_object</code> that also happens to contain a copy of all
+ the entries from the <code>proto_object</code> metatable.</p>
+
+<p> While clones of <a href="../classes/std.object.html#std.object.Object">Object</a> inherit all properties of their prototype,
+ it's idiomatic to always keep separate tables for the module table and
+ the root object itself: That way you can't mistakenly engage the slower
+ clone-from-module-table process unnecessarily.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+            <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
+         an object
+        </li>
+        <li><span class="parameter">...</span>
+         a list of arguments if <em>obj._init</em> is a function, or a
+   single table if <em>obj._init</em> is a table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
+        a clone of <em>obj</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.object.html#std.object:__call">__call</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> object = <span class="global">require</span> <span class="string">"std.object"</span>  <span class="comment">-- module table
+</span> <span class="keyword">local</span> Object = object {}             <span class="comment">-- root object
+</span> <span class="keyword">local</span> o = Object {
+   field_1 = <span class="string">"value_1"</span>,
+   method_1 = <span class="keyword">function</span> (self) <span class="keyword">return</span> self.field_1 <span class="keyword">end</span>,
+ }
+ <span class="global">print</span> (o.field_1)                    <span class="comment">--&gt; value_1
+</span> o.field_2 = <span class="number">2</span>
+ <span class="keyword">function</span> o:method_2 (n) <span class="keyword">return</span> self.field_2 + n <span class="keyword">end</span>
+ <span class="global">print</span> (o:method_2 (<span class="number">2</span>))               <span class="comment">--&gt; 4
+</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "std.object.mapfields"></a>
+    <strong>std.object.mapfields (obj, src[, map={}])</strong>
+    </dt>
+    <dd>
+    Return <em>obj</em> with references to the fields of <em>src</em> merged in. </p>
+
+<p> More importantly, split the fields in <em>src</em> between <em>obj</em> and its
+ metatable. If any field names begin with "_", attach a metatable
+ to <em>obj</em> by cloning the metatable from <em>src</em>, and then copy the
+ "private" <code>_</code> prefixed fields there.</p>
+
+<p> You might want to use this function to instantiate your derived
+ object clones when the <em>src._init</em> is a function -- when
+ <em>src._init</em> is a table, the default (inherited unless you overwrite
+ it) clone method calls <a href="../classes/std.object.html#std.object.mapfields">mapfields</a> automatically.  When you're
+ using a function <code>_init</code> setting, <a href="../classes/std.object.html#std.object.clone">clone</a> doesn't know what to
+ copy into a new object from the <code>_init</code> function's arguments...
+ so you're on your own.  Except that calling <a href="../classes/std.object.html#std.object.mapfields">mapfields</a> inside
+ <code>_init</code> is safer than manually splitting <code>src</code> into <code>obj</code> and
+ its metatable, because you'll pick up any fixes and changes when
+ you upgrade stdlib.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         destination object
+        </li>
+        <li><span class="parameter">src</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         fields to copy int clone
+        </li>
+        <li><span class="parameter">map</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         key renames as <code>{old_key=new_key, ...}</code>
+         (<em>default</em> {})
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         <em>obj</em> with non-private fields from <em>src</em> merged,
+   and a metatable with private fields (if any) merged, both sets
+   of keys renamed according to <em>map</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ myobject.mapfields = <span class="keyword">function</span> (obj, src, map)
+   object.mapfields (obj, src, map)
+   ...
+ <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "std.object.prototype"></a>
+    <strong>std.object.prototype (x)</strong>
+    </dt>
+    <dd>
+    Type of an object, or primitive. </p>
+
+<p> It's conventional to organise similar objects according to a
+ string valued <em>_type</em> field, which can then be queried using this
+ function.</p>
+
+<p> Additionally, this function returns the results of ??? for
+ file objects, or <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> otherwise.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         anything
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        type of <em>x</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> Stack = Object {
+   _type = <span class="string">"Stack"</span>,
+
+   __tostring = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+
+   __index = {
+     push = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+     pop  = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+   },
+ }
+ <span class="keyword">local</span> stack = Stack {}
+ <span class="global">assert</span> (stack:prototype () == <span class="global">getmetatable</span> (stack)._type)
+
+ <span class="keyword">local</span> prototype = Object.prototype
+ <span class="global">assert</span> (prototype (stack) == <span class="global">getmetatable</span> (stack)._type)
+
+ <span class="keyword">local</span> h = <span class="global">io</span>.open (<span class="global">os</span>.tmpname (), <span class="string">"w"</span>)
+ <span class="global">assert</span> (prototype (h) == <span class="global">io</span>.<span class="global">type</span> (h))
+
+ <span class="global">assert</span> (prototype {} == <span class="global">type</span> {})</pre>
+    </ul>
 
 </dd>
 </dl>
     <h2><a name="Metamethods"></a>Metamethods</h2>
+
     <dl class="function">
     <dt>
     <a name = "std.object:__call"></a>
     <strong>std.object:__call (...)</strong>
     </dt>
     <dd>
-    Return a <a href="../classes/std.object.html#std.object:clone">clone</a> of this object, and its metatable. </p>
+    Return a <a href="../classes/std.object.html#std.object.clone">clone</a> of this object, and its metatable. </p>
 
 <p> Private fields are stored in the metatable.
 
@@ -219,23 +410,56 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
-         arguments for <code>_init</code>
+         arguments for prototype's <em>_init</em>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
         a clone of the this object.
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.object.html#std.object:clone">clone</a>
+         <a href="../classes/std.object.html#std.object.clone">clone</a>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> Object = <span class="global">require</span> <span class="string">"std.object"</span> {} <span class="comment">-- not a typo!
+</span> new = Object {<span class="string">"initialisation"</span>, <span class="string">"elements"</span>}</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "std.object:__pairs"></a>
+    <strong>std.object:__pairs ()</strong>
+    </dt>
+    <dd>
+    Return an in-order iterator over public object fields.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function</li>
+        <li>
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
+        <em>self</em></li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> k, v <span class="keyword">in</span> std.<span class="global">pairs</span> (anobject) <span class="keyword">do</span> process (k, v) <span class="keyword">end</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -250,191 +474,27 @@
  by the remaining key-value pairs.</p>
 
 <p> This function doesn't recurse explicity, but relies upon suitable
- <a href="../classes/std.object.html#std.object:__tostring">__tostring</a>  metamethods in field values.
+ <code>__tostring</code> metamethods in field values.
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        stringified container representation
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        stringified object representation
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.lua.org/manual/5.2/manual.html#pdf-tostring">tostring</a>
+         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
     </ul>
 
-
-</dd>
-    <dt>
-    <a name = "std.object:__totable"></a>
-    <strong>std.object:__totable ()</strong>
-    </dt>
-    <dd>
-    Return a shallow copy of non-private object fields. </p>
-
-<p> Used by <a href="../classes/std.object.html#std.object:clone">clone</a> to get the base contents of the new object. Can
- be overridden in other objects for greater control of which fields
- are considered non-private.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        a shallow copy of non-private object fields
-    </ol>
-
-
-    <h3>See also:</h3>
+    <h3>Usage:</h3>
     <ul>
-         <a href="../modules/std.table.html#totable">std.table.totable</a>
+        <pre class="example"><span class="global">print</span> (anobject)</pre>
     </ul>
-
-
-</dd>
-</dl>
-    <h2><a name="Methods"></a>Methods</h2>
-    <dl class="function">
-    <dt>
-    <a name = "std.object:clone"></a>
-    <strong>std.object:clone (obj, ...)</strong>
-    </dt>
-    <dd>
-    Clone this Object.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">obj</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-         an object
-        </li>
-        <li><span class="parameter">...</span>
-         a list of arguments if <code>o._init</code> is a function, or a
-   single table if <code>o._init</code> is a table.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-        a clone of <code>o</code>
-    </ol>
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="../classes/std.object.html#std.object:__call">__call</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "std.object:mapfields"></a>
-    <strong>std.object:mapfields (obj, src[, map={}])</strong>
-    </dt>
-    <dd>
-    Return <code>obj</code> with references to the fields of <code>src</code> merged in. </p>
-
-<p> More importantly, split the fields in <code>src</code> between <code>obj</code> and its
- metatable. If any field names begin with <code>_</code>, attach a metatable
- to <code>obj</code> if it doesn't have one yet, and copy the "private" <code>_</code>
- prefixed fields there.</p>
-
-<p> You might want to use this function to instantiate your derived
- objct clones when the prototype's <code>_init</code> is a function -- when
- <code>_init</code> is a table, the default (inherited unless you overwrite
- it) clone method calls <a href="../classes/std.object.html#std.object:mapfields">mapfields</a>  automatically.  When you're
- using a function <code>_init</code> setting, <a href="../classes/std.object.html#std.object:clone">clone</a>  doesn't know what to
- copy into a new object from the <code>_init</code> function's arguments...
- so you're on your own.  Except that calling <a href="../classes/std.object.html#std.object:mapfields">mapfields</a>  inside
- <code>_init</code> is safer than manually splitting <code>src</code> into <code>obj</code> and
- its metatable, because you'll pick up fixes and changes when you
- upgrade stdlib.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">obj</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         destination object
-        </li>
-        <li><span class="parameter">src</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         fields to copy int clone
-        </li>
-        <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         <code>{old<em>key=new</em>key, ...}</code>
-         (<em>default</em> {})
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         <code>obj</code> with non-private fields from <code>src</code> merged,
-   and a metatable with private fields (if any) merged, both sets
-   of keys renamed according to <code>map</code>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "std.object:prototype"></a>
-    <strong>std.object:prototype (x)</strong>
-    </dt>
-    <dd>
-
-<p>Type of an object, or primitive. </p>
-
-<p> It's conventional to organise similar objects according to a
- string valued <code>_type</code> field, which can then be queried using this
- function.</p>
-
-<pre><code> Stack = Object {
-   _type = "Stack",
-
-   __tostring = function (self) ... end,
-
-   __index = {
-     push = function (self) ... end,
-     pop  = function (self) ... end,
-   },
- }
- stack = Stack {}
-
- stack:prototype () --&gt; "Stack"
-</code></pre>
-
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">x</span>
-         anything
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        type of <code>x</code>
-    </ol>
-
-
-
 
 </dd>
 </dl>
@@ -443,7 +503,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

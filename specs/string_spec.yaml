@@ -1,18 +1,17 @@
-before: |
+before:
   base_module         = "string"
   this_module         = "std.string"
   global_table        = "_G"
 
-  extend_base         = { "__append", "__concat", "__index",
-                          "assert", "caps", "chomp", "escape_pattern",
-                          "escape_shell", "finds", "format", "ltrim",
-                          "monkey_patch", "numbertosi", "ordinal_suffix",
-                          "pad", "pickle", "prettytostring", "render",
-                          "require_version", "rtrim", "split", "tfind",
-                          "tostring", "trim", "wrap" }
+  extend_base         = { "__concat", "__index",
+                          "caps", "chomp", "escape_pattern", "escape_shell",
+                          "finds", "format", "ltrim", "monkey_patch",
+                          "numbertosi", "ordinal_suffix", "pad", "pickle",
+                          "prettytostring", "render", "rtrim", "split",
+                          "tfind", "trim", "wrap" }
+  deprecations        = { "assert", "require_version", "tostring" }
 
   M = require (this_module)
-  getmetatable ("").__append = M.__append
   getmetatable ("").__concat = M.__concat
   getmetatable ("").__index = M.__index
 
@@ -29,8 +28,12 @@ specify std.string:
         expect (show_apis {added_to=base_module, by=this_module}).
           to_equal {}
     - it contains apis from the core string table:
+        apis = require "std.base".copy (extend_base)
+        for _, v in ipairs (deprecations) do
+          apis[#apis + 1] = v
+        end
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+          to_contain.a_permutation_of (apis)
 
   - context via the std module:
     - it does not touch the global table:
@@ -47,11 +50,11 @@ specify std.string:
   - it stringifies non-string arguments:
       argument = { "a table" }
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, M.tostring (argument)))
+        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, M.tostring (argument)))
+        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. " concatenate something"
@@ -59,11 +62,45 @@ specify std.string:
 
 
 - describe assert:
+  - before:
+      f = M.assert
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+
+  - context when it does not trigger:
+    - it has a truthy initial argument:
+        expect (f (1)).not_to_raise "any error"
+        expect (f (true)).not_to_raise "any error"
+        expect (f "yes").not_to_raise "any error"
+        expect (f (false == false)).not_to_raise "any error"
+    - it returns the initial argument:
+        expect (f (1)).to_be (1)
+        expect (f (true)).to_be (true)
+        expect (f "yes").to_be "yes"
+        expect (f (false == false)).to_be (true)
+  - context when it triggers:
+    - it has a falsey initial argument:
+        expect (f ()).to_raise ()
+        expect (f (false)).to_raise ()
+        expect (f (1 == 0)).to_raise ()
+    - it throws an optional error string:
+        expect (f (false, "ah boo")).to_raise "ah boo"
+    - it plugs specifiers with string.format: |
+        expect (f (nil, "%s %d: %q", "here", 42, "a string")).
+          to_raise (string.format ("%s %d: %q", "here", 42, "a string"))
 
 
 - describe caps:
   - before:
       f = M.caps
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.caps (string)")
+
   - it capitalises words of a string:
       target = "A String \n\n"
       expect (f (subject)).to_be (target)
@@ -75,15 +112,16 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe chomp:
   - before:
-      f = M.chomp
       target = "a string \n"
+      f = M.chomp
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.chomp (string)")
+
   - it removes a single trailing newline from a string:
       expect (f (subject)).to_be (target)
   - it does not change a string with no trailing newline:
@@ -95,20 +133,19 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_pattern:
-  - before: |
-      f = M.escape_pattern
-
+  - before:
       magic = {}
       meta = "^$()%.[]*+-?"
       for i = 1, string.len (meta) do
         magic[meta:sub (i, i)] = true
       end
+      f = M.escape_pattern
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.escape_pattern (string)")
 
   - context with each printable ASCII char:
     - before:
@@ -127,14 +164,15 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe escape_shell:
   - before:
       f = M.escape_shell
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.escape_shell (string)")
+
   - context with each printable ASCII char:
     - before:
         subject, target = "", ""
@@ -153,14 +191,18 @@ specify std.string:
       newstring = f (subject)
       expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
+      expect (f ()).to_raise ("string expected")
+      expect (f {"a table"}).to_raise ("string expected")
 
 
 - describe finds:
   - before:
       subject = "abcd"
       f = M.finds
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.finds (string, string, ?int, ?boolean|:plain)")
+
   - context given a complex nested list:
     - before:
         target = { { 1, 2; capt = { "a", "b" } }, { 3, 4; capt = { "c", "d" } } }
@@ -181,16 +223,17 @@ specify std.string:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
-# FIXME: This looks like a misfeature to me, let's remove it!
 - describe format:
-  - before: |
-      subject = "string: %s, number: %d"
+  - before:
+      subject = "string=%s, number=%d"
+
       f = M.format
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.format (string, ?any*)")
+
   - it returns a single argument without attempting formatting:
       expect (f (subject)).to_be (subject)
   - it is available as a string metamethod:
@@ -199,15 +242,17 @@ specify std.string:
       original = subject
       newstring = f (subject)
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f (nil, "arg")).to_error ("string expected")
-      expect (f ({"a table"}, "arg")).to_error ("string expected")
 
 
 - describe ltrim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
+
       f = M.ltrim
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.ltrim (string, ?string)")
+
   - it removes whitespace from the start of a string:
       target = "a  short  string  \t\r\n   "
       expect (f (subject)).to_equal (target)
@@ -221,39 +266,38 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
-      t  = {}
-      f (t)
-  - it installs append metamethod:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
-      expect (mt.__append).to_be (M.__append)
-  - it installs concat metamethod:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.monkey_patch (?table)")
+
+  - it returns the monkey_patched namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.string)
+  - it injects std.string apis into given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.string[api]).to_be (M[api])
+      end
+  - it installs string metamethods:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""
       expect (mt.__concat).to_be (M.__concat)
-  - it installs index metamethod:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
       expect (mt.__index).to_be (M.__index)
-  - it installs the assert function:
-      expect (t.assert).to_be (M.assert)
-  - it installs the tostring function:
-      expect (t.tostring).to_be (M.tostring)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 
 - describe numbertosi:
   - before:
       f = M.numbertosi
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.numbertosi (number|string)")
+
   - it returns a number using SI suffixes:
       target = {"1e-9", "1y", "1z", "1a", "1f", "1p", "1n", "1mu", "1m", "1",
                 "1k", "1M", "1G", "1T", "1P", "1E", "1Z", "1Y", "1e9"}
@@ -265,14 +309,15 @@ specify std.string:
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
       expect (f "1000").to_be "1k"
-  - "it diagnoses non-numeric arguments":
-      expect (f ()).to_error ("attempt to perform arithmetic")
-      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe ordinal_suffix:
   - before:
       f = M.ordinal_suffix
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.ordinal_suffix (int|string)")
+
   - it returns the English suffix for a number:
       subject, target = {}, {}
       for n = -120, 120 do
@@ -288,15 +333,16 @@ specify std.string:
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
       expect (f "-91").to_be "st"
-  - "it diagnoses non-numeric arguments":
-      expect (f ()).to_error ("number expected")
-      expect (f {"a table"}).to_error ("number expected")
 
 
 - describe pad:
   - before:
       width = 20
+
       f = M.pad
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.pad (string, int, ?string)")
 
   - context when string is shorter than given width:
     - before:
@@ -330,20 +376,42 @@ specify std.string:
       original = subject
       newstring = f (subject, width)
       expect (subject).to_be (original)
-  - "it coerces non-string arguments to a string":
-      argument = { "a table " }
-      expect (f (argument, width)).to_contain (M.tostring (argument))
-  - "it diagnoses non-numeric width arguments":
-      expect (f (subject, nil)).to_error ("number expected")
-      expect (f (subject, {"a table"})).to_error ("number expected")
 
 
 - describe pickle:
+  - before:
+      loadstring = loadstring or load
+      function unpickle (s) return loadstring ("return " .. s) () end
+      t = {1, {{2, 3}, 4, {5}}}
+      f = M.pickle
+  - it converts a primitive to a representative string:
+      expect (f (nil)).to_be "nil"
+      expect (f (false)).to_be "false"
+      expect (f (42)).to_be "42"
+      expect (f "string").to_be '"string"'
+  - it returns a loadable string that results in the original value:
+      expect (unpickle (f (nil))).to_be (nil)
+      expect (unpickle (f (false))).to_be (false)
+      expect (unpickle (f (42))).to_be (42)
+      expect (unpickle (f "string")).to_be "string"
+  - it converts a table to a representative string:
+      expect (f {"table", 42}).to_be '{[1]="table",[2]=42}'
+  - it returns a loadable string that results in the original table:
+      expect (unpickle (f {"table", 42})).to_equal {"table", 42}
+  - it converts a nested table to a representative string:
+      expect (f (t)).
+        to_be "{[1]=1,[2]={[1]={[1]=2,[2]=3},[2]=4,[3]={[1]=5}}}"
+  - it returns a loadable string that results in the original nested table:
+      expect (unpickle (f (t))).to_equal (t)
 
 
 - describe prettytostring:
   - before:
       f = M.prettytostring
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.prettytostring (?any, ?string, ?string)")
+
   - it renders nil exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))
   - it renders booleans exactly like system tostring:
@@ -378,15 +446,101 @@ specify std.string:
 
 
 - describe render:
+  - before:
+      term = function (s) return function () return s end end
+      pair = function (_, _, _, i, v) return i .. "=" .. v end
+      sep  = function (_, i, _, j) return (i and j) and "," or "" end
+      r = function (x)
+            return M.render (x, term "{", term "}", tostring, pair, sep)
+          end
+      t = {1, {{2, 3}, 4, {5}}}
+
+      f = M.render
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.render (?any, func, func, func, func, func, ?table)")
+
+  - it converts a primitive to a representative string:
+      expect (r (nil)).to_be "nil"
+      expect (r (false)).to_be "false"
+      expect (r (42)).to_be "42"
+      expect (r ("string")).to_be "string"
+  - it converts a table to a representative string:
+      expect (r ({"table", 42})).to_be '{1=table,2=42}'
+  - it converts a nested table to a representative string:
+      expect (r (t)).
+        to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
+  - it converts a recursive table to a representative string:
+      t[1] = t
+      expect (r (t)).
+        to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
 
 
 - describe require_version:
+  - before:
+      f = M.require_version
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+
+  - it diagnoses non-existent module:
+      expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
+  - it diagnoses module too old:
+      expect (f ("std", "9999", "9999")).to_raise ()
+  - it diagnoses module too new:
+      expect (f ("std", "0", "0")).to_raise ()
+  - context when the module version is compatible:
+    - it returns the module table:
+        expect (f ("std", "0", "9999")).to_be (require "std")
+    - it places no upper bound by default:
+        expect (f ("std", "41")).to_be (require "std")
+    - it places no lower bound by default:
+        expect (f "std").to_be (require "std")
+    - it uses _VERSION when version field is nil:
+        std = require "std"
+        std._VERSION, std.version = std.version, std._VERSION
+        expect (f ("std", "41", "9999")).to_be (require "std")
+        std._VERSION, std.version = std.version, std._VERSION
+  - context with semantic versioning:
+    - before:
+        std = require "std"
+        ver = std.version
+        std.version = "1.2.3"
+    - after:
+        std.version = ver
+    - it diagnoses module too old:
+        expect (f ("std", "1.2.4")).to_raise ()
+        expect (f ("std", "1.3")).to_raise ()
+        expect (f ("std", "2.1.2")).to_raise ()
+        expect (f ("std", "2")).to_raise ()
+        expect (f ("std", "1.2.10")).to_raise ()
+    - it diagnoses module too new:
+        expect (f ("std", nil, "1.2.2")).to_raise ()
+        expect (f ("std", nil, "1.1")).to_raise ()
+        expect (f ("std", nil, "1.1.2")).to_raise ()
+        expect (f ("std", nil, "1")).to_raise ()
+    - it returns modules with version in range:
+        expect (f ("std")).to_be (std)
+        expect (f ("std", "1")).to_be (std)
+        expect (f ("std", "1.2.3")).to_be (std)
+        expect (f ("std", nil, "2")).to_be (std)
+        expect (f ("std", nil, "1.3")).to_be (std)
+        expect (f ("std", nil, "1.2.10")).to_be (std)
+        expect (f ("std", "1.2.3", "1.2.4")).to_be (std)
 
 
 - describe rtrim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
+
       f = M.rtrim
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.rtrim (string, ?string)")
+
   - it removes whitespace from the end of a string:
       target = " \t\r\n  a  short  string"
       expect (f (subject)).to_equal (target)
@@ -400,16 +554,21 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe split:
   - before:
       target = { "first", "the second one", "final entry" }
       subject = table.concat (target, ", ")
+
       f = M.split
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.split (string, ?string)")
+
+  - it falls back to "%s+" when no pattern is given:
+      expect (f (subject)).
+        to_equal {"first,", "the", "second", "one,", "final", "entry"}
   - it returns a one-element list for an empty string:
       expect (f ("", ", ")).to_equal {""}
   - it makes a table of substrings delimited by a separator:
@@ -439,15 +598,17 @@ specify std.string:
   - it takes a Lua pattern as a separator:
       expect (f (subject, "%s+")).
         to_equal {"first,", "the", "second", "one,", "final", "entry"}
-  - it diagnoses non-string arguments:
-      expect (f (nil, ",")).to_error ("string expected")
-      expect (f ({"a table"}, ",")).to_error ("string expected")
 
 
 - describe tfind:
   - before:
       subject = "abc"
+
       f = M.tfind
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.tfind (string, string, ?int, ?boolean|:plain)")
+
   - it creates a list of pattern captures:
       target = { 1, 3, { "a", "b", "c" } }
       expect ({f (subject, "(.)(.)(.)")}).to_equal (target)
@@ -467,18 +628,49 @@ specify std.string:
       original = subject
       newstring = f (subject, "...")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe tostring:
+  - before:
+      f = M.tostring
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+
+  - it renders primitives exactly like system tostring:
+      expect (f (nil)).to_be (tostring (nil))
+      expect (f (false)).to_be (tostring (false))
+      expect (f (42)).to_be (tostring (42))
+      expect (f (f)).to_be (tostring (f))
+      expect (f "a string").to_be "a string"
+  - it renders empty tables as a pair of braces:
+      expect (f {}).to_be ("{}")
+  - it renders table array part compactly:
+      expect (f {"one", "two", "five"}).
+        to_be '{1=one,2=two,3=five}'
+  - it renders a table dictionary part compactly:
+      expect (f { one = true, two = 2, three = {3}}).
+        to_be '{one=true,three={1=3},two=2}'
+  - it renders table keys in table.sort order:
+      expect (f { one = 3, two = 5, three = 4, four = 2, five = 1 }).
+        to_be '{five=1,four=2,one=3,three=4,two=5}'
+  - it renders keys with invalid symbol names compactly:
+      expect (f { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }).
+        to_be '{?=1,[]=1,_=0,a-key=1,word=0}'
 
 
 - describe trim:
   - before:
       subject = " \t\r\n  a  short  string  \t\r\n   "
+
       f = M.trim
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.trim (string, ?string)")
+
   - it removes whitespace from each end of a string:
       target = "a  short  string"
       expect (f (subject)).to_equal (target)
@@ -492,37 +684,39 @@ specify std.string:
       original = subject
       newstring = f (subject, "%W")
       expect (subject).to_be (original)
-  - "it diagnoses non-string arguments":
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
 
 
 - describe wrap:
   - before:
       subject = "This is a collection of Lua libraries for Lua 5.1 " ..
         "and 5.2. The libraries are copyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for details), and released und" ..
+        "-2015 (see the AUTHORS file for details), and released und" ..
         "er the MIT license (the same license as Lua itself). There" ..
         " is no warranty."
+
       f = M.wrap
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.wrap (string, ?int, ?int, ?int)")
+
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries are\ncopyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for details), and\nreleased un" ..
+        "-2015 (see the AUTHORS file for details), and\nreleased un" ..
         "der the MIT license (the same license as Lua itself). Ther" ..
         "e is no\nwarranty."
       expect (f (subject)).to_be (target)
   - it honours a column width parameter:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
         "nd 5.2. The libraries\nare copyright by their authors 2000" ..
-        "-2013 (see the AUTHORS file for\ndetails), and released un" ..
+        "-2015 (see the AUTHORS file for\ndetails), and released un" ..
         "der the MIT license (the same license as Lua\nitself). The" ..
         "re is no warranty."
       expect (f (subject, 72)).to_be (target)
   - it supports indenting by a fixed number of columns:
       target = "        This is a collection of Lua libraries for L" ..
         "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
-        "eir authors 2000-2013 (see the\n        AUTHORS file for d" ..
+        "eir authors 2000-2015 (see the\n        AUTHORS file for d" ..
         "etails), and released under the MIT license\n        (the " ..
         "same license as Lua itself). There is no warranty."
       expect (f (subject, 72, 8)).to_be (target)
@@ -530,7 +724,7 @@ specify std.string:
     - before:
         target = "    This is a collection of Lua libraries for Lua 5" ..
           ".1 and 5.2.\n  The libraries are copyright by their author" ..
-          "s 2000-2013 (see\n  the AUTHORS file for details), and rel" ..
+          "s 2000-2015 (see\n  the AUTHORS file for details), and rel" ..
           "eased under the MIT\n  license (the same license as Lua it" ..
           "self). There is no\n  warranty."
     - it can indent the first line differently:
@@ -542,8 +736,8 @@ specify std.string:
       newstring = f (subject, 55, 5)
       expect (subject).to_be (original)
   - it diagnoses indent greater than line width:
-      expect (f (subject, 10, 12)).to_error ("less than the line width")
-      expect (f (subject, 99, 99)).to_error ("less than the line width")
+      expect (f (subject, 10, 12)).to_raise ("less than the line width")
+      expect (f (subject, 99, 99)).to_raise ("less than the line width")
   - it diagnoses non-string arguments:
-      expect (f ()).to_error ("string expected")
-      expect (f {"a table"}).to_error ("string expected")
+      expect (f ()).to_raise ("string expected")
+      expect (f {"a table"}).to_raise ("string expected")

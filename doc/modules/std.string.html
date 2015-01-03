@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,6 +33,8 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Types">Types </a></li>
 </ul>
 
 
@@ -43,6 +45,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><strong>std.string</strong></li>
@@ -64,49 +67,24 @@
 <div id="content">
 
 <h1>Module <code>std.string</code></h1>
-<p>Additions to the string module.</p>
+<p>Additions to the core string module.</p>
 <p>
 
 
-<p> If you <code>require "std"</code>, the contents of this module are all available
- in the <a href="../modules/std.string.html#">std.string</a>  table.</p>
+<p> The module table returned by <code>std.string</code> also contains all of the entries
+ from the core string table.  An hygienic way to import this module, then, is
+ simply to override the core <code>string</code> locally:</p>
 
-<p> However, this module also contains references to the Lua core string
- table entries, so it's safe to load it like this:</p>
 
-<pre><code> local string = require "std.string"
-</code></pre>
-
-<p> Of course, if you do that you'll lose references to any core string
- functions overwritten by <a href="../modules/std.string.html#">std.string</a> , so you might want to save any
- that you want access to before you overwrite them.</p>
-
-<p> If your code does not <code>require "std"</code> anywhere, then you'll also need
- to manually overwrite string functions in the global namespace if you
- want to use them from there:</p>
-
-<pre><code> local assert, tostring = string.assert, string.tostring
-</code></pre>
-
-<p> And finally, to use the string metatable improvements with all core
- strings, you'll need to merge this module's metatable into the core
- string metatable (again, <code>require "std"</code> does this automatically):</p>
-
-<pre><code> local string_metatable = getmetatable ""
- string_metatable.__append = string.__append
- string_metatable.__concat = string.__concat
- string_metatable.__index = string.__index
-</code></pre>
+<pre>
+<span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>
+</pre>
 
 </p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#assert">assert (v, f, ...)</a></td>
-	<td class="summary">Extend to allow formatted arguments.</td>
-	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#caps">caps (s)</a></td>
 	<td class="summary">Capitalise each word in a string.</td>
@@ -124,20 +102,20 @@
 	<td class="summary">Escape a string to be used as a shell token.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#finds">finds (s, p, init, plain)</a></td>
-	<td class="summary">Do multiple <code>find</code>s on a string.</td>
+	<td class="name" nowrap><a href="#finds">finds (s, pattern[, init=1[, plain]])</a></td>
+	<td class="summary">Repeatedly <code>string.find</code> until target string is exhausted.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#format">format (f, arg1, ...)</a></td>
+	<td class="name" nowrap><a href="#format">format (f[, ...])</a></td>
 	<td class="summary">Extend to work better with one argument.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ltrim">ltrim (s, r)</a></td>
+	<td class="name" nowrap><a href="#ltrim">ltrim (s[, r="%s+"])</a></td>
 	<td class="summary">Remove leading matter from a string.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
+	<td class="summary">Overwrite core <code>string</code> methods with <code>std</code> enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#numbertosi">numbertosi (n)</a></td>
@@ -148,76 +126,74 @@
 	<td class="summary">Return the English suffix for an ordinal.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#pad">pad (s, w, p)</a></td>
+	<td class="name" nowrap><a href="#pad">pad (s, w[, p=" "])</a></td>
 	<td class="summary">Justify a string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#pickle">pickle (x)</a></td>
-	<td class="summary">Convert a value to a string.</td>
+	<td class="name" nowrap><a href="#prettytostring">prettytostring (x[, indent="\t"[, spacing=""]])</a></td>
+	<td class="summary">Pretty-print a table, or other object.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#prettytostring">prettytostring (t, indent, spacing)</a></td>
-	<td class="summary">Pretty-print a table.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render">render (x, open, close, elem, pair, sep, roots)</a></td>
+	<td class="name" nowrap><a href="#render">render (x, open, close, elem, pair, sep[, roots])</a></td>
 	<td class="summary">Turn tables into strings with recursion detection.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#render_CloseRenderer">render_CloseRenderer (t)</a></td>
-	<td class="summary">
-
-</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render_ElementRenderer">render_ElementRenderer (e)</a></td>
-	<td class="summary">
-
-</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render_OpenRenderer">render_OpenRenderer (t)</a></td>
-	<td class="summary">
-
-</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render_PairRenderer">render_PairRenderer (t, i, v, is, vs)</a></td>
-	<td class="summary">NB.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#render_SeparatorRenderer">render_SeparatorRenderer (t, i, v, j, w)</a></td>
-	<td class="summary">
-
-</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#require_version">require_version (module, min, too_big, pattern)</a></td>
-	<td class="summary">Require a module with a particular version.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#rtrim">rtrim (s, r)</a></td>
+	<td class="name" nowrap><a href="#rtrim">rtrim (s[, r="%s+"])</a></td>
 	<td class="summary">Remove trailing matter from a string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#split">split (s[, sep="%s*"])</a></td>
+	<td class="name" nowrap><a href="#split">split (s[, sep="%s+"])</a></td>
 	<td class="summary">Split a string at a given separator.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tfind">tfind (s, p, init, plain)</a></td>
-	<td class="summary">Do find, returning captures as a list.</td>
+	<td class="name" nowrap><a href="#tfind">tfind (s, pattern[, init=1[, plain]])</a></td>
+	<td class="summary">Do <code>string.find</code>, returning a table of captures.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tostring">tostring (x)</a></td>
-	<td class="summary">Extend <a href="../modules/std.string.html#tostring">tostring</a>  to work better on tables.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#trim">trim (s, r)</a></td>
+	<td class="name" nowrap><a href="#trim">trim (s[, r="%s+"])</a></td>
 	<td class="summary">Remove leading and trailing matter from a string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#wrap">wrap (s, w, ind, ind1)</a></td>
+	<td class="name" nowrap><a href="#wrap">wrap (s[, w=78[, ind=0[, ind1=ind]]])</a></td>
 	<td class="summary">Wrap a string into a paragraph.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#__concat">__concat</a></td>
+	<td class="summary">String concatenation operation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#__index">__index</a></td>
+	<td class="summary">String subscript operation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pickle">pickle</a></td>
+	<td class="summary">Convert a value to a string.</td>
+	</tr>
+</table>
+<h2><a href="#Types">Types </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#closetablecb">closetablecb (t)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.string.html#render">render</a> close table callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#elementcb">elementcb (x)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.string.html#render">render</a> element callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#opentablecb">opentablecb (t)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.string.html#render">render</a> open table callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#paircb">paircb (t, key, value, keystr, valuestr)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.string.html#render">render</a> pair callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#separatorcb">separatorcb (t, pk, pv, fk, fv)</a></td>
+	<td class="summary">Signature of <a href="../modules/std.string.html#render">render</a> separator callback.</td>
 	</tr>
 </table>
 
@@ -226,38 +202,8 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
-    <dt>
-    <a name = "assert"></a>
-    <strong>assert (v, f, ...)</strong>
-    </dt>
-    <dd>
-    Extend to allow formatted arguments.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">v</span>
-         value to assert
-        </li>
-        <li><span class="parameter">f</span>
-         format
-        </li>
-        <li><span class="parameter">...</span>
-         arguments to format
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        value
-    </ol>
-
-
-
-
-</dd>
     <dt>
     <a name = "caps"></a>
     <strong>caps (s)</strong>
@@ -269,18 +215,24 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        capitalised string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with each word capitalized
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">userfullname = caps (input_string)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -294,18 +246,24 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string to process
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        processed string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with any single trailing newline removed
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">line = chomp (line)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -319,18 +277,24 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string to process
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        processed string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with active pattern characters escaped
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">substr = inputstr:match (escape_pattern (literal))</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -346,41 +310,53 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string to process
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        processed string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with active shell characters escaped
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">os</span>.execute (<span class="string">"echo "</span> .. escape_shell (outputstr))</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "finds"></a>
-    <strong>finds (s, p, init, plain)</strong>
+    <strong>finds (s, pattern[, init=1[, plain]])</strong>
     </dt>
     <dd>
-    Do multiple <code>find</code>s on a string.
+    Repeatedly <code>string.find</code> until target string is exhausted.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          target string
         </li>
-        <li><span class="parameter">p</span>
-         pattern
+        <li><span class="parameter">pattern</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
-         start position (default: 1)
+            <span class="types"><span class="type">int</span></span>
+         start position
+         (<em>default</em> 1)
         </li>
         <li><span class="parameter">plain</span>
-         inhibit magic characters (default: nil)
+            <span class="types"><span class="type">bool</span></span>
+         inhibit magic characters
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -391,12 +367,23 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.string.html#tfind">std.string.tfind</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">for</span> t <span class="keyword">in</span> std.elems (finds (<span class="string">"the target string"</span>, <span class="string">"%S+"</span>)) <span class="keyword">do</span>
+   <span class="global">print</span> (<span class="global">tostring</span> (t.capt))
+ <span class="keyword">end</span></pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "format"></a>
-    <strong>format (f, arg1, ...)</strong>
+    <strong>format (f[, ...])</strong>
     </dt>
     <dd>
     Extend to work better with one argument.
@@ -406,13 +393,12 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
-         format
-        </li>
-        <li><span class="parameter">arg1</span>
-         first argument to format
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         format string
         </li>
         <li><span class="parameter">...</span>
          arguments to format
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -424,11 +410,15 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (format <span class="string">"100% stdlib!"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "ltrim"></a>
-    <strong>ltrim (s, r)</strong>
+    <strong>ltrim (s[, r="%s+"])</strong>
     </dt>
     <dd>
     Remove leading matter from a string.
@@ -437,21 +427,29 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
         <li><span class="parameter">r</span>
-         leading pattern (default: <code>"%s+"</code>)
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         leading pattern
+         (<em>default</em> "%s+")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        string without leading r
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with leading <em>r</em> stripped
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (<span class="string">"got: "</span> .. ltrim (userinput))</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -459,19 +457,16 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core methods and metamethods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
+    Overwrite core <code>string</code> methods with <code>std</code> enhanced versions. </p>
 
-<p> Adds auto-stringification to <code>..</code> operator on core strings, and
- integer indexing of strings with <code>[]</code> dereferencing.</p>
-
-<p> Also replaces core <a href="../modules/std.string.html#assert">assert</a>  and <a href="../modules/std.string.html#tostring">tostring</a>  functions with
- <a href="../modules/std.string.html#">std.string</a>  versions.
+<p> Also adds auto-stringification to <code>..</code> operator on core strings, and
+ integer indexing of strings with <code>[]</code> dereferencing.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -480,12 +475,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the module table
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>.monkey_patch ()</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -500,18 +499,24 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-         number
+            <span class="types"><span class="type">number</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any numeric value
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>n</em> simplifed using largest available SI suffix.
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (numbertosi (bitspersecond) .. <span class="string">"bps"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -525,23 +530,31 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-         number of the day
+            <span class="types"><span class="type">int</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any integer value
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        suffix
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        English suffix for <em>n</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> now = <span class="global">os</span>.date <span class="string">"*t"</span>
+ <span class="global">print</span> (<span class="string">"%d%s day of the week"</span>, now.day, ordinal_suffix (now.day))</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "pad"></a>
-    <strong>pad (s, w, p)</strong>
+    <strong>pad (s, w[, p=" "])</strong>
     </dt>
     <dd>
     Justify a string.
@@ -552,87 +565,79 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string to justify
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a string to justify
         </li>
         <li><span class="parameter">w</span>
+            <span class="types"><span class="type">int</span></span>
          width to justify to (-ve means right-justify; +ve means
- left-justify)
+   left-justify)
         </li>
         <li><span class="parameter">p</span>
-         string to pad with (default: <code>" "</code>)
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         string to pad with
+         (<em>default</em> " ")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        justified string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> justified to <em>w</em> characters wide
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (pad (trim (outputstr, <span class="number">78</span>)) .. <span class="string">"\n"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
-    <a name = "pickle"></a>
-    <strong>pickle (x)</strong>
+    <a name = "prettytostring"></a>
+    <strong>prettytostring (x[, indent="\t"[, spacing=""]])</strong>
     </dt>
     <dd>
-    Convert a value to a string.
- The string can be passed to dostring to retrieve the value.
+    Pretty-print a table, or other object.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
-         object to pickle
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        string such that eval (s) is the same value as x
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "prettytostring"></a>
-    <strong>prettytostring (t, indent, spacing)</strong>
-    </dt>
-    <dd>
-    Pretty-print a table.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-         table to print
+         object to convert to string
         </li>
         <li><span class="parameter">indent</span>
-         indent between levels ["\t"]
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         indent between levels
+         (<em>default</em> "\t")
         </li>
         <li><span class="parameter">spacing</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          space before every line
+         (<em>default</em> "")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        pretty-printed string
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        pretty string rendering of <em>x</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (prettytostring (std, <span class="string">"  "</span>))</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "render"></a>
-    <strong>render (x, open, close, elem, pair, sep, roots)</strong>
+    <strong>render (x, open, close, elem, pair, sep[, roots])</strong>
     </dt>
     <dd>
     Turn tables into strings with recursion detection.
@@ -646,233 +651,54 @@
          object to convert to string
         </li>
         <li><span class="parameter">open</span>
-         open table renderer
+            <span class="types"><a class="type" href="../modules/std.string.html#opentablecb">opentablecb</a></span>
+         open table rendering function
         </li>
         <li><span class="parameter">close</span>
-         close table renderer
+            <span class="types"><a class="type" href="../modules/std.string.html#closetablecb">closetablecb</a></span>
+         close table rendering function
         </li>
         <li><span class="parameter">elem</span>
-         element renderer
+            <span class="types"><a class="type" href="../modules/std.string.html#elementcb">elementcb</a></span>
+         element rendering function
         </li>
         <li><span class="parameter">pair</span>
-         pair renderer
+            <span class="types"><a class="type" href="../modules/std.string.html#paircb">paircb</a></span>
+         pair rendering function
         </li>
         <li><span class="parameter">sep</span>
-         separator renderer
+            <span class="types"><a class="type" href="../modules/std.string.html#separatorcb">separatorcb</a></span>
+         separator rendering function
         </li>
         <li><span class="parameter">roots</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          accumulates table references to detect recursion
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        string representation</li>
-        <li>
-        open table string</li>
-    </ol>
-
-
-    <h3>See also:</h3>
-    <ul>
-         <li><a href="../modules/std.string.html#render_OpenRenderer">render_OpenRenderer</a></li>
-         <li><a href="../modules/std.string.html#render_CloseRenderer">render_CloseRenderer</a></li>
-         <li><a href="../modules/std.string.html#render_ElementRenderer">render_ElementRenderer</a></li>
-         <li><a href="../modules/std.string.html#render_PairRenderer">render_PairRenderer</a></li>
-         <li><a href="../modules/std.string.html#render_SeparatorRenderer">render_SeparatorRenderer</a></li>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "render_CloseRenderer"></a>
-    <strong>render_CloseRenderer (t)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-         table
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        close table string</li>
-        <li>
-        element string</li>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "render_ElementRenderer"></a>
-    <strong>render_ElementRenderer (e)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">e</span>
-         element
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        element string
+        string representation of <em>x</em>
     </ol>
 
 
 
-
-</dd>
-    <dt>
-    <a name = "render_OpenRenderer"></a>
-    <strong>render_OpenRenderer (t)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
+    <h3>Usage:</h3>
     <ul>
-        <li><span class="parameter">t</span>
-         table
-        </li>
+        <pre class="example">
+ <span class="keyword">function</span> <span class="global">tostring</span> (x)
+   <span class="keyword">return</span> render (x, lambda <span class="string">'="{"'</span>, lambda <span class="string">'="}"'</span>, <span class="global">tostring</span>,
+                  lambda <span class="string">'=_4.."=".._5'</span>, lambda <span class="string">'= _4 and "," or ""'</span>,
+                  lambda <span class="string">'=","'</span>)
+ <span class="keyword">end</span></pre>
     </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        open table string</li>
-        <li>
-        close table string</li>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "render_PairRenderer"></a>
-    <strong>render_PairRenderer (t, i, v, is, vs)</strong>
-    </dt>
-    <dd>
-    NB.  the function should not try to render i and v, or treat them recursively.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-         table
-        </li>
-        <li><span class="parameter">i</span>
-         index
-        </li>
-        <li><span class="parameter">v</span>
-         value
-        </li>
-        <li><span class="parameter">is</span>
-         index string
-        </li>
-        <li><span class="parameter">vs</span>
-         value string
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        element string</li>
-        <li>
-        separator string</li>
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "render_SeparatorRenderer"></a>
-    <strong>render_SeparatorRenderer (t, i, v, j, w)</strong>
-    </dt>
-    <dd>
-
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-         table
-        </li>
-        <li><span class="parameter">i</span>
-         preceding index (nil on first call)
-        </li>
-        <li><span class="parameter">v</span>
-         preceding value (nil on first call)
-        </li>
-        <li><span class="parameter">j</span>
-         following index (nil on last call)
-        </li>
-        <li><span class="parameter">w</span>
-         following value (nil on last call)
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        separator string
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "require_version"></a>
-    <strong>require_version (module, min, too_big, pattern)</strong>
-    </dt>
-    <dd>
-    Require a module with a particular version.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">module</span>
-         module to require
-        </li>
-        <li><span class="parameter">min</span>
-         lowest acceptable version (default: any)
-        </li>
-        <li><span class="parameter">too_big</span>
-         lowest version that is too big (default: none)
-        </li>
-        <li><span class="parameter">pattern</span>
-         to match version in <code>module.version</code> or
- <code>module.VERSION</code> (default: <code>".*[%.%d]+"</code>)
-        </li>
-    </ul>
-
-
-
-
 
 </dd>
     <dt>
     <a name = "rtrim"></a>
-    <strong>rtrim (s, r)</strong>
+    <strong>rtrim (s[, r="%s+"])</strong>
     </dt>
     <dd>
     Remove trailing matter from a string.
@@ -881,120 +707,126 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
         <li><span class="parameter">r</span>
-         trailing pattern (default: <code>"%s+"</code>)
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         trailing pattern
+         (<em>default</em> "%s+")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        string without trailing r
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with trailing <em>r</em> stripped
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (<span class="string">"got: "</span> .. rtrim (userinput))</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "split"></a>
-    <strong>split (s[, sep="%s*"])</strong>
+    <strong>split (s[, sep="%s+"])</strong>
     </dt>
     <dd>
     Split a string at a given separator.
  Separator is a Lua pattern, so you have to escape active characters,
- <code>^$()%.[]*+-?</code> with a <code>%</code> prefix to match a literal character in <code>s</code>.
+ <code>^$()%.[]*+-?</code> with a <code>%</code> prefix to match a literal character in <em>s</em>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          to split
         </li>
         <li><span class="parameter">sep</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          separator pattern
-         (<em>default</em> "%s*")
+         (<em>default</em> "%s+")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>
-        list of strings</li>
-        <li>
-        list of strings</li>
+
+        list of strings
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">words = split <span class="string">"a very short sentence"</span></pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "tfind"></a>
-    <strong>tfind (s, p, init, plain)</strong>
+    <strong>tfind (s, pattern[, init=1[, plain]])</strong>
     </dt>
     <dd>
-    Do find, returning captures as a list.
+    Do <code>string.find</code>, returning a table of captures.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          target string
         </li>
-        <li><span class="parameter">p</span>
-         pattern
+        <li><span class="parameter">pattern</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
-         start position (default: 1)
+            <span class="types"><span class="type">int</span></span>
+         start position
+         (<em>default</em> 1)
         </li>
         <li><span class="parameter">plain</span>
-         inhibit magic characters (default: nil)
+            <span class="types"><span class="type">bool</span></span>
+         inhibit magic characters
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-
-        start of match, end of match, table of captures
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        start of match</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        end of match</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of captured strings</li>
     </ol>
 
 
-
-
-</dd>
-    <dt>
-    <a name = "tostring"></a>
-    <strong>tostring (x)</strong>
-    </dt>
-    <dd>
-    Extend <a href="../modules/std.string.html#tostring">tostring</a>  to work better on tables.
-
-
-    <h3>Parameters:</h3>
+    <h3>See also:</h3>
     <ul>
-        <li><span class="parameter">x</span>
-         object to convert to string
-        </li>
+         <a href="../modules/std.string.html#finds">std.string.finds</a>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-
-        string representation
-    </ol>
-
-
-
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">b, e, captures = tfind (<span class="string">"the target string"</span>, <span class="string">"%s"</span>, <span class="number">10</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "trim"></a>
-    <strong>trim (s, r)</strong>
+    <strong>trim (s[, r="%s+"])</strong>
     </dt>
     <dd>
     Remove leading and trailing matter from a string.
@@ -1003,26 +835,34 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         any string
         </li>
         <li><span class="parameter">r</span>
-         leading/trailing pattern (default: <code>"%s+"</code>)
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         trailing pattern
+         (<em>default</em> "%s+")
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        string without leading/trailing r
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> with leading and trailing <em>r</em> stripped
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (<span class="string">"got: "</span> .. trim (userinput))</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "wrap"></a>
-    <strong>wrap (s, w, ind, ind1)</strong>
+    <strong>wrap (s[, w=78[, ind=0[, ind1=ind]]])</strong>
     </dt>
     <dd>
     Wrap a string into a paragraph.
@@ -1031,27 +871,333 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-         string to wrap
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a paragraph of text
         </li>
         <li><span class="parameter">w</span>
-         width to wrap to (default: 78)
+            <span class="types"><span class="type">int</span></span>
+         width to wrap to
+         (<em>default</em> 78)
         </li>
         <li><span class="parameter">ind</span>
-         indent (default: 0)
+            <span class="types"><span class="type">int</span></span>
+         indent
+         (<em>default</em> 0)
         </li>
         <li><span class="parameter">ind1</span>
-         indent of first line (default: ind)
+            <span class="types"><span class="type">int</span></span>
+         indent of first line
+         (<em>default</em> ind)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        wrapped paragraph
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        <em>s</em> wrapped to <em>w</em> columns
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">print</span> (wrap (copyright, <span class="number">72</span>, <span class="number">4</span>))</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "__concat"></a>
+    <strong>__concat</strong>
+    </dt>
+    <dd>
+    String concatenation operation.
+
+
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         initial string
+        </li>
+        <li><span class="parameter">o</span>
+         object to stringify and concatenate
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>.monkey_patch ()
+ concatenated = <span class="string">"foo"</span> .. {<span class="string">"bar"</span>}</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "__index"></a>
+    <strong>__index</strong>
+    </dt>
+    <dd>
+    String subscript operation.
+
+
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         string
+        </li>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         index or method name
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="global">getmetatable</span> (<span class="string">""</span>).__index = <span class="global">require</span> <span class="string">"std.string"</span>.__index
+ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pickle"></a>
+    <strong>pickle</strong>
+    </dt>
+    <dd>
+    Convert a value to a string.
+ The string can be passed to <code>functional.eval</code> to retrieve the value.
+
+
+    <ul>
+        <li><span class="parameter">x</span>
+         object to pickle
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.html#eval">std.eval</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> slow_identity (x) <span class="keyword">return</span> functional.eval (pickle (x)) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Types"></a>Types </h2>
+
+
+    <dl class="function">
+    <dt>
+    <a name = "closetablecb"></a>
+    <strong>closetablecb (t)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.string.html#render">render</a> close table callback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table just rendered
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        close table rendering
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.string.html#render">render</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> close (t) <span class="keyword">return</span> <span class="string">"}"</span> <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "elementcb"></a>
+    <strong>elementcb (x)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.string.html#render">render</a> element callback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         element to render
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        element rendering
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.string.html#render">render</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> element (e) <span class="keyword">return</span> <span class="global">require</span> <span class="string">"std"</span>.<span class="global">tostring</span> (e) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "opentablecb"></a>
+    <strong>opentablecb (t)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.string.html#render">render</a> open table callback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table about to be rendered
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        open table rendering
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.string.html#render">render</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> open (t) <span class="keyword">return</span> <span class="string">"{"</span> <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "paircb"></a>
+    <strong>paircb (t, key, value, keystr, valuestr)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.string.html#render">render</a> pair callback.
+ Trying to re-render <em>key</em> or <em>value</em> here will break recursion
+ detection, use <em>strkey</em> and <em>strvalue</em> pre-rendered values instead.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table containing pair being rendered
+        </li>
+        <li><span class="parameter">key</span>
+         key part of key being rendered
+        </li>
+        <li><span class="parameter">value</span>
+         value part of key being rendered
+        </li>
+        <li><span class="parameter">keystr</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         prerendered <em>key</em>
+        </li>
+        <li><span class="parameter">valuestr</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         prerendered <em>value</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        pair rendering
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.string.html#render">render</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> pair (_, _, _, key, value) <span class="keyword">return</span> key .. <span class="string">"="</span> .. value <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "separatorcb"></a>
+    <strong>separatorcb (t, pk, pv, fk, fv)</strong>
+    </dt>
+    <dd>
+    Signature of <a href="../modules/std.string.html#render">render</a> separator callback.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table currently being rendered
+        </li>
+        <li><span class="parameter">pk</span>
+         <em>t</em> key preceding separator, or <code>nil</code> for first key
+        </li>
+        <li><span class="parameter">pv</span>
+         <em>t</em> value preceding separator, or <code>nil</code> for first value
+        </li>
+        <li><span class="parameter">fk</span>
+         <em>t</em> key following separator, or <code>nil</code> for last key
+        </li>
+        <li><span class="parameter">fv</span>
+         <em>t</em> value following separator, or <code>nil</code> for last value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        separator rendering
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">function</span> separator (_, _, _, fk) <span class="keyword">return</span> fk <span class="keyword">and</span> <span class="string">","</span> <span class="keyword">or</span> <span class="string">""</span> <span class="keyword">end</span></pre>
+    </ul>
 
 </dd>
 </dl>
@@ -1060,7 +1206,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

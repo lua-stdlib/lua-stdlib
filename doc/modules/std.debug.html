@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -44,6 +44,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -65,21 +66,74 @@
 <div id="content">
 
 <h1>Module <code>std.debug</code></h1>
-<p>Additions to the debug module</p>
-<p>
+<p>Additions to the core debug module.</p>
+<p> The module table returned by <code>std.debug</code> also contains all of the entries
+ from the core debug table.  An hygienic way to import this module, then, is
+ simply to override the core <code>debug</code> locally:</p>
 
-</p>
+
+<pre>
+<span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">"std.debug"</span>
+</pre>
+
+<p> The behaviour of the functions in this module are controlled by the value
+ of the global <code>_DEBUG</code>.  Not setting <code>_DEBUG</code> prior to requiring <strong>any</strong> of
+ stdlib's modules is equivalent to having <code>_DEBUG = true</code>.</p>
+
+<p> The first line of Lua code in production quality projects that use stdlib
+ should be either:</p>
+
+
+<pre>
+_DEBUG = <span class="keyword">false</span>
+</pre>
+
+<p> or alternatively, if you need to be careful not to damage the global
+ environment:</p>
+
+
+<pre>
+<span class="keyword">local</span> init = <span class="global">require</span> <span class="string">"std.debug_init"</span>
+init._DEBUG = <span class="keyword">false</span>
+</pre>
+
+<p> This mitigates almost all of the overhead of argument typechecking in
+ stdlib API functions.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#debug">debug ()</a></td>
-	<td class="summary">The global function <a href="../modules/std.debug.html">debug</a>  is an abbreviation for <code>debug.say (1, ...)</code></td>
+	<td class="name" nowrap><a href="#DEPRECATED">DEPRECATED (version, name[, extramsg], fn)</a></td>
+	<td class="summary">Provide a deprecated function definition according to _DEBUG.deprecate.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#say">say (n, ...)</a></td>
-	<td class="summary">Print a debugging message.</td>
+	<td class="name" nowrap><a href="#DEPRECATIONMSG">DEPRECATIONMSG (version, name[, extramsg], level)</a></td>
+	<td class="summary">Format a deprecation warning message.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#argcheck">argcheck (name, i, expected, actual[, level=2])</a></td>
+	<td class="summary">Check the type of an argument against expected types.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#argerror">argerror (name, i[, extramsg[, level=1]])</a></td>
+	<td class="summary">Raise a bad argument error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#argscheck">argscheck (decl, inner)</a></td>
+	<td class="summary">Wrap a function definition with argument type and arity checking.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#debug">debug ()</a></td>
+	<td class="summary">Equivalent to calling <code>debug.say (1, ...)</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#say">say ([n=1], ...)</a></td>
+	<td class="summary">Print a debugging message to <code>io.stderr</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#toomanyargmsg">toomanyargmsg (name, expect, actual)</a></td>
+	<td class="summary">Format a standard "too many arguments" error message.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#trace">trace (event)</a></td>
@@ -90,8 +144,7 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#_DEBUG">_DEBUG</a></td>
-	<td class="summary">To activate debugging set _DEBUG either to any true value
- (equivalent to {level = 1}), or as documented below.</td>
+	<td class="summary">Control std.debug function behaviour.</td>
 	</tr>
 </table>
 
@@ -100,13 +153,265 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
+    <dt>
+    <a name = "DEPRECATED"></a>
+    <strong>DEPRECATED (version, name[, extramsg], fn)</strong>
+    </dt>
+    <dd>
+    Provide a deprecated function definition according to _DEBUG.deprecate.
+ You can check whether your covered code uses deprecated functions by
+ setting <code>_DEBUG.deprecate</code> to  <code>true</code> before loading any stdlib modules,
+ or silence deprecation warnings by setting <code>_DEBUG.deprecate = false</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">version</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         first deprecation release version
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function name for automatic warning message
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         additional warning text
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">func</span></span>
+         deprecated function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function to show the warning on first call, and hand off to <em>fn</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">M.op = DEPRECATED (<span class="string">"41"</span>, <span class="string">"'std.functional.op'"</span>, std.operator)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "DEPRECATIONMSG"></a>
+    <strong>DEPRECATIONMSG (version, name[, extramsg], level)</strong>
+    </dt>
+    <dd>
+    Format a deprecation warning message.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">version</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         first deprecation release version
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function name for automatic warning message
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         additional warning text
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         call stack level to blame for the error
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        deprecation warning message, or empty string
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">io</span>.stderr:write (DEPRECATIONMSG (<span class="string">"42"</span>, <span class="string">"multi-argument 'module.fname'"</span>, <span class="number">2</span>))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "argcheck"></a>
+    <strong>argcheck (name, i, expected, actual[, level=2])</strong>
+    </dt>
+    <dd>
+    Check the type of an argument against expected types.
+ Equivalent to luaL_argcheck in the Lua C API.</p>
+
+<p> Call <code>argerror</code> if there is a type mismatch.</p>
+
+<p> Argument <code>actual</code> must match one of the types from in <code>expected</code>, each
+ of which can be the name of a primitive Lua type, a stdlib object type,
+ or one of the special options below:</p>
+
+<pre><code>#table    accept any non-empty table
+any       accept any non-nil argument type
+file      accept an open file object
+function  accept a function, or object with a __call metamethod
+int       accept an integer valued number
+list      accept a table where all keys are a contiguous 1-based integer range
+#list     accept any non-empty list
+object    accept any std.Object derived type
+:foo      accept only the exact string ":foo", works for any :-prefixed string
+</code></pre>
+
+<p> The <code>:foo</code> format allows for type-checking of self-documenting
+ boolean-like constant string parameters predicated on <code>nil</code> versus
+ <code>:option</code> instead of <code>false</code> versus <code>true</code>.  Or you could support
+ both:</p>
+
+<pre><code>argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
+</code></pre>
+
+<p> A very common pattern is to have a list of possible types including
+ "nil" when the argument is optional.  Rather than writing long-hand
+ as above, append a question mark to at least one of the list types
+ and omit the explicit "nil" entry:</p>
+
+<pre><code>argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+</code></pre>
+
+<p> Normally, you should not need to use the <code>level</code> parameter, as the
+ default is to blame the caller of the function using <code>argcheck</code> in
+ error messages; which is almost certainly what you want.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function to blame in error message
+        </li>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         argument number to blame in error message
+        </li>
+        <li><span class="parameter">expected</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         specification for acceptable argument types
+        </li>
+        <li><span class="parameter">actual</span>
+         argument passed
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         call stack level to blame for the error
+         (<em>default</em> 2)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> <span class="keyword">function</span> case (with, branches)
+   argcheck (<span class="string">"std.functional.case"</span>, <span class="number">2</span>, <span class="string">"#table"</span>, branches)
+   ...</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "argerror"></a>
+    <strong>argerror (name, i[, extramsg[, level=1]])</strong>
+    </dt>
+    <dd>
+    Raise a bad argument error.
+ Equivalent to luaL_argerror in the Lua C API. This function does not
+ return.  The <code>level</code> argument behaves just like the core <code>error</code>
+ function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function to callout in error message
+        </li>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         argument number
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         additional text to append to message inside parentheses
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         call stack level to blame for the error
+         (<em>default</em> 1)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> <span class="keyword">function</span> slurp (file)
+   <span class="keyword">local</span> h, err = input_handle (file)
+   <span class="keyword">if</span> h == <span class="keyword">nil</span> <span class="keyword">then</span> argerror (<span class="string">"std.io.slurp"</span>, <span class="number">1</span>, err, <span class="number">2</span>) <span class="keyword">end</span>
+   ...</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "argscheck"></a>
+    <strong>argscheck (decl, inner)</strong>
+    </dt>
+    <dd>
+    Wrap a function definition with argument type and arity checking.
+ In addition to checking that each argument type matches the corresponding
+ element in the <em>types</em> table with <code>argcheck</code>, if the final element of
+ <em>types</em> ends with an asterisk, remaining unchecked arguments are checked
+ against that type.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">decl</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function type declaration string
+        </li>
+        <li><span class="parameter">inner</span>
+            <span class="types"><span class="type">func</span></span>
+         function to wrap with argument checking
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">M.square = argscheck (<span class="string">"util.square (number)"</span>, <span class="keyword">function</span> (n) <span class="keyword">return</span> n * n <span class="keyword">end</span>)</pre>
+    </ul>
+
+</dd>
     <dt>
     <a name = "debug"></a>
     <strong>debug ()</strong>
     </dt>
     <dd>
-    The global function <a href="../modules/std.debug.html">debug</a>  is an abbreviation for <code>debug.say (1, ...)</code>
+    Equivalent to calling <code>debug.say (1, ...)</code>
 
 
 
@@ -117,20 +422,32 @@
          <a href="../modules/std.debug.html#say">say</a>
     </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">"std.debug"</span>
+ <span class="global">debug</span> <span class="string">"oh noes!"</span></pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "say"></a>
-    <strong>say (n, ...)</strong>
+    <strong>say ([n=1], ...)</strong>
     </dt>
     <dd>
-    Print a debugging message.
+    Print a debugging message to <code>io.stderr</code>.
+ Display arguments passed through <code>std.tostring</code> and separated by tab
+ characters when <code>_DEBUG</code> is <code>true</code> and <em>n</em> is 1 or less; or <code>_DEBUG.level</code>
+ is a number greater than or equal to <em>n</em>.  If <code>_DEBUG</code> is false or
+ nil, nothing is written.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-         debugging level, defaults to 1
+            <span class="types"><span class="type">int</span></span>
+         debugging level, smaller is higher priority
+         (<em>default</em> 1)
         </li>
         <li><span class="parameter">...</span>
          objects to print (as for print)
@@ -140,6 +457,55 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> _DEBUG = <span class="global">require</span> <span class="string">"std.debug_init"</span>._DEBUG
+ _DEBUG.level = <span class="number">3</span>
+ say (<span class="number">2</span>, <span class="string">"_DEBUG table contents:"</span>, _DEBUG)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "toomanyargmsg"></a>
+    <strong>toomanyargmsg (name, expect, actual)</strong>
+    </dt>
+    <dd>
+    Format a standard "too many arguments" error message.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function name
+        </li>
+        <li><span class="parameter">expect</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum number of arguments accepted
+        </li>
+        <li><span class="parameter">actual</span>
+            <span class="types"><span class="type">number</span></span>
+         number of arguments received
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        standard "too many arguments" error message
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">if</span> <span class="global">table</span>.maxn {...} &gt; <span class="number">1</span> <span class="keyword">then</span>
+   <span class="global">io</span>.stderr:write (<span class="string">"module.fname"</span>, <span class="number">7</span>, <span class="global">table</span>.maxn {...})
+ ...</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -149,13 +515,14 @@
     <dd>
     Trace function calls.
  Use as debug.sethook (trace, "cr"), which is done automatically
- when _DEBUG.call is set.
+ when <code>_DEBUG.call</code> is set.
  Based on test/trace-calls.lua from the Lua distribution.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">event</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          event causing the call
         </li>
     </ul>
@@ -163,36 +530,62 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ _DEBUG = { call = <span class="keyword">true</span> }
+ <span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">"std.debug"</span></pre>
+    </ul>
 
 </dd>
 </dl>
     <h2><a name="Tables"></a>Tables</h2>
+
     <dl class="function">
     <dt>
     <a name = "_DEBUG"></a>
     <strong>_DEBUG</strong>
     </dt>
     <dd>
-    To activate debugging set _DEBUG either to any true value
- (equivalent to {level = 1}), or as documented below.
+    Control std.debug function behaviour.
+ To declare debugging state, set _DEBUG either to <code>false</code> to disable all
+ runtime debugging; to any "truthy" value (equivalent to enabling everything
+ except <em>call</em>, or as documented below.
 
 
     <h3>Fields:</h3>
     <ul>
-        <li><span class="parameter">level</span>
-         debugging level
+        <li><span class="parameter">argcheck</span>
+            <span class="types"><span class="type">boolean</span></span>
+         honor argcheck and argscheck calls
+         (<em>default</em> true)
         </li>
         <li><span class="parameter">call</span>
+            <span class="types"><span class="type">boolean</span></span>
          do call trace debugging
+         (<em>default</em> false)
         </li>
-        <li><span class="parameter">std</span>
-         do standard library debugging (run examples &amp; test code)
+        <li><span class="parameter">deprecate</span>
+         if <code>false</code>, deprecated APIs are defined,
+   and do not issue deprecation warnings when used; if <code>nil</code> issue a
+   deprecation warning each time a deprecated api is used; any other
+   value causes deprecated APIs not to be defined at all
+         (<em>default</em> nil)
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         debugging level
+         (<em>default</em> 1)
         </li>
     </ul>
 
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">_DEBUG = { argcheck = <span class="keyword">false</span>, level = <span class="number">9</span> }</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -201,7 +594,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

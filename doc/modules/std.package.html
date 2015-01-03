@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
+<li><a href="#Types">Types </a></li>
 </ul>
 
 
@@ -44,6 +45,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><strong>std.package</strong></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -65,8 +67,18 @@
 <div id="content">
 
 <h1>Module <code>std.package</code></h1>
-<p>Additions to the package module.</p>
+<p>Additions to the core package module.</p>
 <p>
+
+
+<p> The module table returned by <code>std.package</code> also contains all of the entries
+ from the core <code>package</code> table.  An hygienic way to import this module, then, is
+ simply to override core <code>package</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">package</span> = <span class="global">require</span> <span class="string">"std.package"</span>
+</pre>
 
 </p>
 
@@ -75,7 +87,7 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#find">find (pathstrings, patt[, init=1[, plain=false]])</a></td>
-	<td class="summary">Look for a path segment match of <code>patt</code> in <code>pathstrings</code>.</td>
+	<td class="summary">Look for a path segment match of <em>patt</em> in <em>pathstrings</em>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#insert">insert (pathstrings[, pos=n+1], value)</a></td>
@@ -84,10 +96,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#mappath">mappath (pathstrings, callback, ...)</a></td>
 	<td class="summary">Call a function with each element of a path string.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#mappath_callback">mappath_callback (element, ...)</a></td>
-	<td class="summary">Function signature of a callback for <a href="../modules/std.package.html#mappath">mappath</a>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#normalize">normalize (...)</a></td>
@@ -106,30 +114,38 @@
  (undocumented in 5.1; see luaconf.h for C equivalents).</td>
 	</tr>
 </table>
+<h2><a href="#Types">Types </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#mappathcb">mappathcb (element, ...)</a></td>
+	<td class="summary">Function signature of a callback for <a href="../modules/std.package.html#mappath">mappath</a>.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
     <dt>
     <a name = "find"></a>
     <strong>find (pathstrings, patt[, init=1[, plain=false]])</strong>
     </dt>
     <dd>
-    Look for a path segment match of <code>patt</code> in <code>pathstrings</code>.
+    Look for a path segment match of <em>patt</em> in <em>pathstrings</em>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">pathstrings</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          <code>pathsep</code> delimited path elements
         </li>
         <li><span class="parameter">patt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         a Lua pattern to search for in <code>pathstrings</code>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a Lua pattern to search for in <em>pathstrings</em>
         </li>
         <li><span class="parameter">init</span>
             <span class="types"><span class="type">int</span></span>
@@ -139,8 +155,8 @@
         </li>
         <li><span class="parameter">plain</span>
             <span class="types"><span class="type">bool</span></span>
-         unless false, treat <code>patt</code> as a plain
-   string, not a pattern. Note that if <code>plain</code> is given, then <code>init</code>
+         unless false, treat <em>patt</em> as a plain
+   string, not a pattern. Note that if <em>plain</em> is given, then <em>init</em>
    must be given as well.
          (<em>default</em> false)
         </li>
@@ -155,6 +171,10 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">i, s = find (<span class="global">package</span>.path, <span class="string">"^[^"</span> .. <span class="global">package</span>.dirsep .. <span class="string">"/]"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -168,17 +188,17 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">pathstrings</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          a <code>package.path</code> like string
         </li>
         <li><span class="parameter">pos</span>
             <span class="types"><span class="type">int</span></span>
-         element index at which to insert <code>value</code>, where <code>n</code> is
+         element index at which to insert <em>value</em>, where <code>n</code> is
    the number of elements prior to insertion
          (<em>default</em> n+1)
         </li>
         <li><span class="parameter">value</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          new path element to insert
         </li>
     </ul>
@@ -186,12 +206,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         a new string with the new element inserted
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">package</span>.path = insert (<span class="global">package</span>.path, <span class="number">1</span>, install_dir .. <span class="string">"/?.lua"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -205,56 +229,30 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">pathstrings</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          a <code>package.path</code> like string
         </li>
         <li><span class="parameter">callback</span>
-            <span class="types"><a class="type" href="../modules/std.package.html#mappath">mappath_callback</a></span>
+            <span class="types"><a class="type" href="../modules/std.package.html#mappathcb">mappathcb</a></span>
          function to call for each element
         </li>
         <li><span class="parameter">...</span>
-         additional arguments passed to <code>callback</code>
+         additional arguments passed to <em>callback</em>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        nil, or first non-nil returned by <code>callback</code>
+        nil, or first non-nil returned by <em>callback</em>
     </ol>
 
 
 
-
-</dd>
-    <dt>
-    <a name = "mappath_callback"></a>
-    <strong>mappath_callback (element, ...)</strong>
-    </dt>
-    <dd>
-    Function signature of a callback for <a href="../modules/std.package.html#mappath">mappath</a>.
-
-
-    <h3>Parameters:</h3>
+    <h3>Usage:</h3>
     <ul>
-        <li><span class="parameter">element</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         an element from a <code>pathsep</code> delimited string of
-   paths
-        </li>
-        <li><span class="parameter">...</span>
-         additional arguments propagated from <a href="../modules/std.package.html#mappath">mappath</a>
-        </li>
+        <pre class="example">mappath (<span class="global">package</span>.path, searcherfn, transformfn)</pre>
     </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        non-nil to break, otherwise continue with the next element
-    </ol>
-
-
-
 
 </dd>
     <dt>
@@ -280,12 +278,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         a single normalized <code>pathsep</code> delimited paths string
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">package</span>.path = normalize (user_paths, sys_paths, <span class="global">package</span>.path)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -299,7 +301,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">pathstrings</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          a <code>package.path</code> like string
         </li>
         <li><span class="parameter">pos</span>
@@ -313,16 +315,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         a new string with given element removed
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">package</span>.path = remove (<span class="global">package</span>.path)</pre>
+    </ul>
 
 </dd>
 </dl>
     <h2><a name="Tables"></a>Tables</h2>
+
     <dl class="function">
     <dt>
     <a name = "package"></a>
@@ -336,22 +343,62 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">dirsep</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          directory separator
         </li>
         <li><span class="parameter">pathsep</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          path separator
         </li>
         <li><span class="parameter">path_mark</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string that marks substitution points in a path template
         </li>
         <li><span class="parameter">execdir</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Windows only) replaced by the executable's directory in a path
         </li>
         <li><span class="parameter">igmark</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          Mark to ignore all before it when building <code>luaopen_</code> function name.
         </li>
     </ul>
 
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Types"></a>Types </h2>
+
+
+    <dl class="function">
+    <dt>
+    <a name = "mappathcb"></a>
+    <strong>mappathcb (element, ...)</strong>
+    </dt>
+    <dd>
+    Function signature of a callback for <a href="../modules/std.package.html#mappath">mappath</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">element</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         an element from a <code>pathsep</code> delimited string of
+   paths
+        </li>
+        <li><span class="parameter">...</span>
+         additional arguments propagated from <a href="../modules/std.package.html#mappath">mappath</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        non-nil to break, otherwise continue with the next element
+    </ol>
 
 
 
@@ -363,7 +410,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

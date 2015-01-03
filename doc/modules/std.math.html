@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -43,6 +43,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><strong>std.math</strong></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -64,8 +65,18 @@
 <div id="content">
 
 <h1>Module <code>std.math</code></h1>
-<p>Additions to the math module.</p>
+<p>Additions to the core math module.</p>
 <p>
+
+
+<p> The module table returned by <code>std.math</code> also contains all of the entries from
+ the core math table.  An hygienic way to import this module, then, is simply
+ to override the core <code>math</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">math</span> = <span class="global">require</span> <span class="string">"std.math"</span>
+</pre>
 
 </p>
 
@@ -73,11 +84,15 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#floor">floor (n, p)</a></td>
-	<td class="summary">Extend <a href="../modules/std.math.html#floor">math.floor</a>  to take the number of decimal places.</td>
+	<td class="name" nowrap><a href="#floor">floor (n[, p=0])</a></td>
+	<td class="summary">Extend <code>math.floor</code> to take the number of decimal places.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#round">round (n, p)</a></td>
+	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
+	<td class="summary">Overwrite core <code>math</code> methods with <code>std</code> enhanced versions.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#round">round (n[, p=0])</a></td>
 	<td class="summary">Round a number to a given number of decimal places</td>
 	</tr>
 </table>
@@ -87,38 +102,79 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
     <dt>
     <a name = "floor"></a>
-    <strong>floor (n, p)</strong>
+    <strong>floor (n[, p=0])</strong>
     </dt>
     <dd>
-    Extend <a href="../modules/std.math.html#floor">math.floor</a>  to take the number of decimal places.
+    Extend <code>math.floor</code> to take the number of decimal places.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
          number
         </li>
         <li><span class="parameter">p</span>
-         number of decimal places to truncate to (default: 0)
+            <span class="types"><span class="type">int</span></span>
+         number of decimal places to truncate to
+         (<em>default</em> 0)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         <code>n</code> truncated to <code>p</code> decimal places
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tenths = floor (magnitude, <span class="number">1</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "monkey_patch"></a>
+    <strong>monkey_patch ([namespace=_G])</strong>
+    </dt>
+    <dd>
+    Overwrite core <code>math</code> methods with <code>std</code> enhanced versions.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">namespace</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         where to install global functions
+         (<em>default</em> _G)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        the module table
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">require</span> <span class="string">"std.math"</span>.monkey_patch ()</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "round"></a>
-    <strong>round (n, p)</strong>
+    <strong>round (n[, p=0])</strong>
     </dt>
     <dd>
     Round a number to a given number of decimal places
@@ -127,21 +183,29 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
+            <span class="types"><span class="type">number</span></span>
          number
         </li>
         <li><span class="parameter">p</span>
-         number of decimal places to round to (default: 0)
+            <span class="types"><span class="type">int</span></span>
+         number of decimal places to round to
+         (<em>default</em> 0)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">number</span></span>
         <code>n</code> rounded to <code>p</code> decimal places
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">roughly = round (exactly, <span class="number">2</span>)</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -150,7 +214,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

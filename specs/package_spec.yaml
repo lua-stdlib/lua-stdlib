@@ -38,58 +38,68 @@ specify std.package:
 
 
 - describe find:
-  - before: path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
-  - it diagnoses missing arguments: |
-      expect (M.find ()).to_error "bad argument #1 to find"
-      expect (M.find (path)).to_error "bad argument #2 to find"
+  - before: |
+      path = table.concat ({"begin", "m%ddl.", "end"}, M.pathsep)
+
+      f = M.find
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.package.find (string, string, ?int, ?boolean|:plain)")
+
   - it returns nil for unmatched element:
-      expect (M.find (path, "unmatchable")).to_be (nil)
+      expect (f (path, "unmatchable")).to_be (nil)
   - it returns the element index for a matched element:
-      expect (M.find (path, "end")).to_be (3)
+      expect (f (path, "end")).to_be (3)
   - it returns the element text for a matched element:
-      i, element = M.find (path, "e.*n")
+      i, element = f (path, "e.*n")
       expect ({i, element}).to_equal {1, "begin"}
   - it accepts a search start element argument:
-      i, element = M.find (path, "e.*n", 2)
+      i, element = f (path, "e.*n", 2)
       expect ({i, element}).to_equal {3, "end"}
   - it works with plain text search strings:
-      expect (M.find (path, "m%ddl.")).to_be (nil)
-      i, element = M.find (path, "%ddl.", 1, ":plain")
+      expect (f (path, "m%ddl.")).to_be (nil)
+      i, element = f (path, "%ddl.", 1, ":plain")
       expect ({i, element}).to_equal {2, "m%ddl."}
 
 
 - describe insert:
-  - it diagnoses missing arguments: |
-      expect (M.insert ()).to_error "bad argument #1 to insert"
-      expect (M.insert (path)).to_error "wrong number of arguments"
+  - before:
+      f = M.insert
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.package.insert (string, [int], string)")
+
   - it appends by default:
-      expect (M.insert (path, "new")).
+      expect (f (path, "new")).
         to_be (M.normalize ("begin", "middle", "end", "new"))
   - it prepends with pos set to 1:
-      expect (M.insert (path, 1, "new")).
+      expect (f (path, 1, "new")).
         to_be (M.normalize ("new", "begin", "middle", "end"))
   - it can insert in the middle too:
-      expect (M.insert (path, 2, "new")).
+      expect (f (path, 2, "new")).
         to_be (M.normalize ("begin", "new", "middle", "end"))
-      expect (M.insert (path, 3, "new")).
+      expect (f (path, 3, "new")).
         to_be (M.normalize ("begin", "middle", "new", "end"))
   - it normalizes the returned path:
       path = table.concat ({"begin", "middle", "end"}, M.pathsep)
-      expect (M.insert (path, "new")).
+      expect (f (path, "new")).
         to_be (M.normalize ("begin", "middle", "end", "new"))
-      expect (M.insert (path, 1, "./x/../end")).
+      expect (f (path, 1, "./x/../end")).
         to_be (M.normalize ("end", "begin", "middle"))
 
 
 - describe mappath:
-  - before:
+  - before: |
       expected = require "std.string".split (path, M.pathsep)
-  - it diagnoses bad arguments: |
-      expect (M.mappath ()).to_error "bad argument #1 to mappath"
-      expect (M.mappath ("")).to_error "bad argument #2 to mappath"
+
+      f = M.mappath
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.package.mappath (string, function, ?any*)")
+
   - it calls a function with each path element:
       t = {}
-      M.mappath (path, function (e) t[#t + 1] = e end)
+      f (path, function (e) t[#t + 1] = e end)
       expect (t).to_equal (expected)
   - it passes additional arguments through: |
       reversed = {}
@@ -97,70 +107,75 @@ specify std.package:
         table.insert (reversed, expected[i])
       end
       t = {}
-      M.mappath (path, function (e, pos) table.insert (t, pos, e) end, 1)
+      f (path, function (e, pos) table.insert (t, pos, e) end, 1)
       expect (t).to_equal (reversed)
 
 
 - describe normalize:
-  - it diagnoses bad arguments:
-      expect (M.normalize ()).to_error "wrong number of arguments"
+  - before:
+      f = M.normalize
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.package.normalize (string*)")
 
   - context with a single element:
     - it strips redundant . directories:
-        expect (M.normalize "./x/./y/.").to_be (catfile (".", "x", "y"))
+        expect (f "./x/./y/.").to_be (catfile (".", "x", "y"))
     - it strips redundant .. directories:
-        expect (M.normalize "../x/../y/z/..").to_be (catfile ("..", "y"))
+        expect (f "../x/../y/z/..").to_be (catfile ("..", "y"))
     - it normalizes / to platform dirsep:
-        expect (M.normalize "/foo/bar").to_be (catfile ("", "foo", "bar"))
+        expect (f "/foo/bar").to_be (catfile ("", "foo", "bar"))
     - it normalizes ? to platform path_mark:
-        expect (M.normalize "?.lua").
+        expect (f "?.lua").
           to_be (catfile (".", M.path_mark .. ".lua"))
     - it strips redundant trailing /:
-        expect (M.normalize "/foo/bar/").to_be (catfile ("", "foo", "bar"))
+        expect (f "/foo/bar/").to_be (catfile ("", "foo", "bar"))
     - it inserts missing ./ for relative paths:
         for _, path in ipairs {"x", "./x"} do
-          expect (M.normalize (path)).to_be (catfile (".", "x"))
+          expect (f (path)).to_be (catfile (".", "x"))
         end
-
   - context with multiple elements:
     - it strips redundant . directories:
-        expect (M.normalize ("./x/./y/.", "x")).
+        expect (f ("./x/./y/.", "x")).
           to_be (catpath (catfile (".", "x", "y"), catfile (".", "x")))
     - it strips redundant .. directories:
-        expect (M.normalize ("../x/../y/z/..", "x")).
+        expect (f ("../x/../y/z/..", "x")).
           to_be (catpath (catfile ("..", "y"), catfile (".", "x")))
     - it normalizes / to platform dirsep:
-        expect (M.normalize ("/foo/bar", "x")).
+        expect (f ("/foo/bar", "x")).
           to_be (catpath (catfile ("", "foo", "bar"), catfile (".", "x")))
     - it normalizes ? to platform path_mark:
-        expect (M.normalize ("?.lua", "x")).
+        expect (f ("?.lua", "x")).
           to_be (catpath (catfile (".", M.path_mark .. ".lua"), catfile (".", "x")))
     - it strips redundant trailing /:
-        expect (M.normalize ("/foo/bar/", "x")).
+        expect (f ("/foo/bar/", "x")).
           to_be (catpath (catfile ("", "foo", "bar"), catfile (".", "x")))
     - it inserts missing ./ for relative paths:
         for _, path in ipairs {"x", "./x"} do
-          expect (M.normalize (path, "a")).
+          expect (f (path, "a")).
             to_be (catpath (catfile (".", "x"), catfile (".", "a")))
         end
-
   - it eliminates all but the first equivalent elements:
-      expect (M.normalize (catpath ("1", "x", "2", "./x", "./2", "./x/../x"))).
+      expect (f (catpath ("1", "x", "2", "./x", "./2", "./x/../x"))).
         to_be (catpath ("./1", "./x", "./2"))
 
 
 - describe remove:
-  - it diagnoses bad arguments: |
-      expect (M.remove ()).to_error "bad argument #1 to remove"
+  - before:
+      f = M.remove
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.package.remove (string, ?int)")
+
   - it removes the last item by default:
-      expect (M.remove (path)).to_be (M.normalize ("begin", "middle"))
+      expect (f (path)).to_be (M.normalize ("begin", "middle"))
   - it pops the first item with pos set to 1:
-      expect (M.remove (path, 1)).to_be (M.normalize ("middle", "end"))
+      expect (f (path, 1)).to_be (M.normalize ("middle", "end"))
   - it can remove from the middle too:
-      expect (M.remove (path, 2)).to_be (M.normalize ("begin", "end"))
+      expect (f (path, 2)).to_be (M.normalize ("begin", "end"))
   - it does not normalize the returned path:
       path = table.concat ({"begin", "middle", "end"}, M.pathsep)
-      expect (M.remove (path)).
+      expect (f (path)).
         to_be (table.concat ({"begin", "middle"}, M.pathsep))
 
 

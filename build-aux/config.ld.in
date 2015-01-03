@@ -1,6 +1,6 @@
 -- -*- lua -*-
-title = "@PACKAGE@ @VERSION@ Reference"
-project = "stdlib"
+title = "@PACKAGE_STRING@ Reference"
+project = "@PACKAGE_STRING@"
 description = "Standard Lua Libraries"
 dir = "."
 
@@ -11,6 +11,7 @@ file = {
   "../lib/std/functional.lua",
   "../lib/std/io.lua",
   "../lib/std/math.lua",
+  "../lib/std/operator.lua",
   "../lib/std/package.lua",
   "../lib/std/strict.lua",
   "../lib/std/string.lua",
@@ -26,5 +27,8 @@ file = {
   "../lib/std/strbuf.lua",
 }
 
+new_type ("object", "Objects", false, "Fields")
+
 format = "markdown"
+backtick_references = false
 sort = true

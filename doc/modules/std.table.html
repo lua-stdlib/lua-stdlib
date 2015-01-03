@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 40 Reference</title>
+    <title>stdlib 41.0.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib</h1>
+<h1>stdlib 41.0.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,6 +33,7 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Types">Types </a></li>
 </ul>
 
 
@@ -43,6 +44,7 @@
   <li><a href="../modules/std.functional.html">std.functional</a></li>
   <li><a href="../modules/std.io.html">std.io</a></li>
   <li><a href="../modules/std.math.html">std.math</a></li>
+  <li><a href="../modules/std.operator.html">std.operator</a></li>
   <li><a href="../modules/std.package.html">std.package</a></li>
   <li><a href="../modules/std.strict.html">std.strict</a></li>
   <li><a href="../modules/std.string.html">std.string</a></li>
@@ -64,8 +66,18 @@
 <div id="content">
 
 <h1>Module <code>std.table</code></h1>
-<p>Extensions to the table module.</p>
+<p>Extensions to the core table module.</p>
 <p>
+
+
+<p> The module table returned by <code>std.table</code> also contains all of the entries from
+ the core table module.  An hygienic way to import this module, then, is simply
+ to override the core <code>table</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">table</span> = <span class="global">require</span> <span class="string">"std.table"</span>
+</pre>
 
 </p>
 
@@ -73,16 +85,32 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#clone">clone (t[, map={}], nometa)</a></td>
+	<td class="name" nowrap><a href="#clone">clone (t[, map={}[, nometa]])</a></td>
 	<td class="summary">Make a shallow copy of a table, including any metatable.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#clone_select">clone_select (t[, keys={}])</a></td>
+	<td class="name" nowrap><a href="#clone_select">clone_select (t[, keys={}[, nometa]])</a></td>
 	<td class="summary">Make a partial clone of a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#depair">depair (ls)</a></td>
+	<td class="summary">Turn a list of pairs into a table.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#empty">empty (t)</a></td>
 	<td class="summary">Return whether table is empty.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#enpair">enpair (t)</a></td>
+	<td class="summary">Turn a table into a list of pairs.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#flatten">flatten (t)</a></td>
+	<td class="summary">Flatten a nested table into a list.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#insert">insert (t[, pos=len (t)], v)</a></td>
+	<td class="summary">Enhance core <em>table.insert</em> to return its result.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#invert">invert (t)</a></td>
@@ -93,48 +121,67 @@
 	<td class="summary">Make the list of keys in table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#merge">merge (t, u[, map={}], nometa)</a></td>
+	<td class="name" nowrap><a href="#len">len (t)</a></td>
+	<td class="summary">Equivalent to <code>#</code> operation, but respecting <code>__len</code> even on Lua 5.1.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#maxn">maxn (t)</a></td>
+	<td class="summary">Largest integer key in a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#merge">merge (t, u[, map={}[, nometa]])</a></td>
 	<td class="summary">Destructively merge another table's fields into another.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#merge_select">merge_select (t, u[, keys={}], nometa)</a></td>
+	<td class="name" nowrap><a href="#merge_select">merge_select (t, u[, keys={}[, nometa]])</a></td>
 	<td class="summary">Destructively merge another table's named fields into <em>table</em>.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#metamethod">metamethod (x, n)</a></td>
-	<td class="summary">Return given metamethod, if any, or nil.</td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core methods with <a href="../modules/std.html#">std</a>  enhanced versions.</td>
+	<td class="summary">Overwrite core <code>table</code> methods with <code>std</code> enhanced versions.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#new">new (x, t)</a></td>
+	<td class="name" nowrap><a href="#new">new ([x=nil[, t={}]])</a></td>
 	<td class="summary">Make a table with a default value for unset keys.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#okeys">okeys (t)</a></td>
+	<td class="summary">Make an ordered list of keys in table.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pack">pack (...)</a></td>
 	<td class="summary">Turn a tuple into a list.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#ripairs">ripairs (t)</a></td>
-	<td class="summary">An iterator like ipairs, but in reverse.</td>
+	<td class="name" nowrap><a href="#project">project (fkey, tt)</a></td>
+	<td class="summary">Project a list of fields from a list of tables.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#remove">remove (t[, pos=len (t)])</a></td>
+	<td class="summary">Enhance core <em>table.remove</em> to respect <code>__len</code> when <em>pos</em> is omitted.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#shape">shape (dims, t)</a></td>
+	<td class="summary">Shape a table according to a list of dimensions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#size">size (t)</a></td>
 	<td class="summary">Find the number of elements in a table.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sort">sort (t, c)</a></td>
-	<td class="summary">Make table.sort return its result.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#totable">totable (x)</a></td>
-	<td class="summary">Turn an object into a table according to __totable metamethod.</td>
+	<td class="name" nowrap><a href="#sort">sort (t[, c=std.operator.lt])</a></td>
+	<td class="summary">Enhance core <em>table.sort</em> to return its result.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#values">values (t)</a></td>
 	<td class="summary">Make the list of values of a table.</td>
+	</tr>
+</table>
+<h2><a href="#Types">Types </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#comparator">comparator (a, b)</a></td>
+	<td class="summary">Signature of a <a href="../modules/std.table.html#sort">sort</a> comparator function.</td>
 	</tr>
 </table>
 
@@ -143,31 +190,33 @@
 
 
     <h2><a name="Functions"></a>Functions</h2>
+    Methods
     <dl class="function">
     <dt>
     <a name = "clone"></a>
-    <strong>clone (t[, map={}], nometa)</strong>
+    <strong>clone (t[, map={}[, nometa]])</strong>
     </dt>
     <dd>
     Make a shallow copy of a table, including any metatable. </p>
 
-<p> To make deep copies, use <a href="../classes/std.tree.html#std.tree.clone">std.tree.clone</a>.
+<p> To make deep copies, use <a href="../classes/std.tree.html#std.tree.clone">tree.clone</a>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          source table
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         table of <code>{old<em>key=new</em>key, ...}</code>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">boolean</span></span>
+            <span class="types"><span class="type">bool</span></span>
          if non-nil don't copy metatable
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -179,41 +228,102 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.table.html#merge">merge</a></li>
+         <li><a href="../modules/std.table.html#clone_select">clone_select</a></li>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">shallowcopy = clone (original, {rename_this = <span class="string">"to_this"</span>}, <span class="string">":nometa"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "clone_select"></a>
-    <strong>clone_select (t[, keys={}])</strong>
+    <strong>clone_select (t[, keys={}[, nometa]])</strong>
     </dt>
     <dd>
     Make a partial clone of a table. </p>
 
-<p> Like <a href="../modules/std.table.html#clone">clone</a> , but does not copy any fields by default.
+<p> Like <code>clone</code>, but does not copy any fields by default.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          source table
         </li>
         <li><span class="parameter">keys</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of keys to copy
          (<em>default</em> {})
+        </li>
+        <li><span class="parameter">nometa</span>
+            <span class="types"><span class="type">bool</span></span>
+         if non-nil don't copy metatable
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
    metatable unless <em>nometa</em>
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.table.html#clone">clone</a></li>
+         <li><a href="../modules/std.table.html#merge_select">merge_select</a></li>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">partialcopy = clone_select (original, {<span class="string">"this"</span>, <span class="string">"and_this"</span>}, <span class="keyword">true</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "depair"></a>
+    <strong>depair (ls)</strong>
+    </dt>
+    <dd>
+    Turn a list of pairs into a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ls</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         list of lists
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        a flat table with keys and values from <em>ls</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.table.html#enpair">enpair</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {a=1, b=2, c=3}
+</span> depair {{<span class="string">"a"</span>, <span class="number">1</span>}, {<span class="string">"b"</span>, <span class="number">2</span>}, {<span class="string">"c"</span>, <span class="number">3</span>}}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -227,7 +337,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          any table
         </li>
     </ul>
@@ -235,11 +345,130 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <code>t</code> is empty, otherwise <code>false</code>
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>t</em> is empty, otherwise <code>false</code>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">if</span> empty (t) <span class="keyword">then</span> error <span class="string">"ohnoes"</span> <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "enpair"></a>
+    <strong>enpair (t)</strong>
+    </dt>
+    <dd>
+    Turn a table into a list of pairs.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+          a table <code>{i1=v1, ..., in=vn}</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        a new list of pairs containing <code>{{i1, v1}, ..., {in, vn}}</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.table.html#depair">depair</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {{1, "a"}, {2, "b"}, {3, "c"}}
+</span> enpair {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "flatten"></a>
+    <strong>flatten (t)</strong>
+    </dt>
+    <dd>
+    Flatten a nested table into a list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        a list of all non-table elements of <em>t</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {1, 2, 3, 4, 5}
+</span> flatten {{<span class="number">1</span>, {{<span class="number">2</span>}, <span class="number">3</span>}, <span class="number">4</span>}, <span class="number">5</span>}</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "insert"></a>
+    <strong>insert (t[, pos=len (t)], v)</strong>
+    </dt>
+    <dd>
+    Enhance core <em>table.insert</em> to return its result.
+ If <em>pos</em> is not given, respect <code>__len</code> metamethod when calculating
+ default append.  Also, diagnose out of bounds <em>pos</em> arguments
+ consistently on any supported version of Lua.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">int</span></span>
+         index at which to insert new element
+         (<em>default</em> len (t))
+        </li>
+        <li><span class="parameter">v</span>
+         value to insert into <em>t</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        <em>t</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {1, "x", 2, 3, "y"}
+</span> insert (insert ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="number">2</span>, <span class="string">"x"</span>), <span class="string">"y"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -253,7 +482,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table with <code>{k=v, ...}</code>
         </li>
     </ul>
@@ -261,12 +490,18 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         inverted table <code>{v=k, ...}</code>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {a=1, b=2, c=3}
+</span> invert {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -280,25 +515,98 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         any table
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        list of keys
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of keys from <em>t</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.table.html#okeys">okeys</a></li>
+         <li><a href="../modules/std.table.html#values">values</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">globals = keys (_G)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "len"></a>
+    <strong>len (t)</strong>
+    </dt>
+    <dd>
+    Equivalent to <code>#</code> operation, but respecting <code>__len</code> even on Lua 5.1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        length of list part of <em>t</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> i = <span class="number">1</span>, len (t) <span class="keyword">do</span> process (t[i]) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "maxn"></a>
+    <strong>maxn (t)</strong>
+    </dt>
+    <dd>
+    Largest integer key in a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        largest integer key in <em>t</em>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 42
+</span> maxn {<span class="string">"a"</span>, b=<span class="string">"c"</span>, <span class="number">99</span>, [<span class="number">42</span>]=<span class="string">"x"</span>, <span class="string">"x"</span>, [<span class="number">5</span>]=<span class="number">67</span>}</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "merge"></a>
-    <strong>merge (t, u[, map={}], nometa)</strong>
+    <strong>merge (t, u[, map={}[, nometa]])</strong>
     </dt>
     <dd>
     Destructively merge another table's fields into another.
@@ -307,103 +615,96 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          destination table
         </li>
         <li><span class="parameter">u</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table with fields to merge
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         table of <code>{old<em>key=new</em>key, ...}</code>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">boolean</span></span>
-         if non-nil don't copy metatable
+            <span class="types"><span class="type">bool</span></span>
+         if <code>true</code> or ":nometa" don't copy metatable
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        table   <code>t</code> with fields from <code>u</code> merged in
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        <em>t</em> with fields from <em>u</em> merged in
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.table.html#clone">clone</a></li>
+         <li><a href="../modules/std.table.html#merge_select">merge_select</a></li>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">merge (_G, <span class="global">require</span> <span class="string">"std.debug"</span>, {say = <span class="string">"log"</span>}, <span class="string">":nometa"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "merge_select"></a>
-    <strong>merge_select (t, u[, keys={}], nometa)</strong>
+    <strong>merge_select (t, u[, keys={}[, nometa]])</strong>
     </dt>
     <dd>
     Destructively merge another table's named fields into <em>table</em>. </p>
 
-<p> Like <a href="../modules/std.table.html#merge">merge</a> , but does not merge any fields by default.
+<p> Like <code>merge</code>, but does not merge any fields by default.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          destination table
         </li>
         <li><span class="parameter">u</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          table with fields to merge
         </li>
         <li><span class="parameter">keys</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          list of keys to copy
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">boolean</span></span>
-         if non-nil don't copy metatable
+            <span class="types"><span class="type">bool</span></span>
+         if <code>true</code> or ":nometa" don't copy metatable
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
    metatable unless <em>nometa</em>
     </ol>
 
 
-
-
-</dd>
-    <dt>
-    <a name = "metamethod"></a>
-    <strong>metamethod (x, n)</strong>
-    </dt>
-    <dd>
-    Return given metamethod, if any, or nil.
-
-
-    <h3>Parameters:</h3>
+    <h3>See also:</h3>
     <ul>
-        <li><span class="parameter">x</span>
-         object to get metamethod of
-        </li>
-        <li><span class="parameter">n</span>
-         name of metamethod to get
-        </li>
+         <li><a href="../modules/std.table.html#merge">merge</a></li>
+         <li><a href="../modules/std.table.html#clone_select">clone_select</a></li>
     </ul>
 
-    <h3>Returns:</h3>
-    <ol>
-
-        metamethod function or nil if no metamethod or not a
- function
-    </ol>
-
-
-
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">merge_select (_G, <span class="global">require</span> <span class="string">"std.debug"</span>, {<span class="string">"say"</span>}, <span class="keyword">false</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -411,15 +712,13 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core methods with <a href="../modules/std.html#">std</a>  enhanced versions. </p>
-
-<p> Replaces core <a href="../modules/std.table.html#sort">table.sort</a>  with <a href="../modules/std.table.html#">std.table</a>  version.
+    Overwrite core <code>table</code> methods with <code>std</code> enhanced versions.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -428,17 +727,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the module table
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">table</span> = <span class="global">require</span> <span class="string">"std.table"</span>.monkey_patch ()</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "new"></a>
-    <strong>new (x, t)</strong>
+    <strong>new ([x=nil[, t={}]])</strong>
     </dt>
     <dd>
     Make a table with a default value for unset keys.
@@ -447,23 +750,64 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
-         default entry value (default: <code>nil</code>)
+         default entry value
+         (<em>default</em> nil)
         </li>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         initial table (default: <code>{}</code>)
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         initial table
+         (<em>default</em> {})
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        table whose unset elements are x
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        table whose unset elements are <em>x</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">t = new (<span class="number">0</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "okeys"></a>
+    <strong>okeys (t)</strong>
+    </dt>
+    <dd>
+    Make an ordered list of keys in table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        ordered list of keys from <em>t</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.table.html#keys">keys</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">globals = keys (_G)</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -489,39 +833,136 @@
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {1, 2, "ax"}
+</span> pack ((<span class="string">"ax1"</span>):find <span class="string">"(%D+)"</span>)</pre>
+    </ul>
 
 </dd>
     <dt>
-    <a name = "ripairs"></a>
-    <strong>ripairs (t)</strong>
+    <a name = "project"></a>
+    <strong>project (fkey, tt)</strong>
     </dt>
     <dd>
-    An iterator like ipairs, but in reverse.
+    Project a list of fields from a list of tables.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         any table
+        <li><span class="parameter">fkey</span>
+         field to project
+        </li>
+        <li><span class="parameter">tt</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a list of tables
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>
-           <span class="types"><span class="type">function</span></span>
-        iterator function</li>
-        <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        the table, <code>t</code></li>
-        <li>
-           <span class="types"><span class="type">number</span></span>
-        <code>#t + 1</code></li>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of <em>fkey</em> fields from <em>tt</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {1, 3, "yy"}
+</span> project (<span class="string">"xx"</span>, {{<span class="string">"a"</span>, xx=<span class="number">1</span>, yy=<span class="string">"z"</span>}, {<span class="string">"b"</span>, yy=<span class="number">2</span>}, {<span class="string">"c"</span>, xx=<span class="number">3</span>}, {xx=<span class="string">"yy"</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "remove"></a>
+    <strong>remove (t[, pos=len (t)])</strong>
+    </dt>
+    <dd>
+    Enhance core <em>table.remove</em> to respect <code>__len</code> when <em>pos</em> is omitted.
+ Also, diagnose out of bounds <em>pos</em> arguments consistently on any supported
+ version of Lua.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+        <li><span class="parameter">pos</span>
+            <span class="types"><span class="type">int</span></span>
+         index from which to remove an element
+         (<em>default</em> len (t))
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        removed value, or else <code>nil</code>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {1, 2, 5}
+</span> t = {<span class="number">1</span>, <span class="number">2</span>, <span class="string">"x"</span>, <span class="number">5</span>}
+ remove (t, <span class="number">3</span>) == <span class="string">"x"</span> <span class="keyword">and</span> t</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "shape"></a>
+    <strong>shape (dims, t)</strong>
+    </dt>
+    <dd>
+    Shape a table according to a list of dimensions. </p>
+
+<p> Dimensions are given outermost first and items from the original
+ list are distributed breadth first; there may be one 0 indicating
+ an indefinite number. Hence, <code>{0}</code> is a flat list,
+ <code>{1}</code> is a singleton, <code>{2, 0}</code> is a list of
+ two lists, and <code>{0, 2}</code> is a list of pairs.</p>
+
+<p> Algorithm: turn shape into all positive numbers, calculating
+ the zero if necessary and making sure there is at most one;
+ recursively walk the shape, adding empty tables until the bottom
+ level is reached at which point add table items instead, using a
+ counter to walk the flattened original list.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dims</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         table of dimensions <code>{d1, ..., dn}</code>
+        </li>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table of elements
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        reshaped list
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {{"a", "b"}, {"c", "d"}, {"e", "f"}}
+</span> shape ({<span class="number">3</span>, <span class="number">2</span>}, {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"d"</span>, <span class="string">"e"</span>, <span class="string">"f"</span>})</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -535,7 +976,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          any table
         </li>
     </ul>
@@ -543,68 +984,53 @@
     <h3>Returns:</h3>
     <ol>
 
-        number of non-nil values in <code>t</code>
+           <span class="types"><span class="type">int</span></span>
+        number of non-nil values in <em>t</em>
     </ol>
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; 3
+</span> size {foo = <span class="keyword">true</span>, bar = <span class="keyword">true</span>, baz = <span class="keyword">false</span>}</pre>
+    </ul>
 
 </dd>
     <dt>
     <a name = "sort"></a>
-    <strong>sort (t, c)</strong>
+    <strong>sort (t[, c=std.operator.lt])</strong>
     </dt>
     <dd>
-    Make table.sort return its result.
+    Enhance core <em>table.sort</em> to return its result.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          unsorted table
         </li>
         <li><span class="parameter">c</span>
-            <span class="types"><span class="type">function</span></span>
-         comparator function
+            <span class="types"><a class="type" href="../modules/std.table.html#comparator">comparator</a></span>
+         ordering function callback
+         (<em>default</em> std.operator.lt)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        <code>t</code> with keys sorted accordind to <code>c</code>
+        <em>t</em> with keys sorted accordind to <em>c</em>
     </ol>
 
 
 
-
-</dd>
-    <dt>
-    <a name = "totable"></a>
-    <strong>totable (x)</strong>
-    </dt>
-    <dd>
-    Turn an object into a table according to __totable metamethod.
-
-
-    <h3>Parameters:</h3>
+    <h3>Usage:</h3>
     <ul>
-        <li><span class="parameter">x</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#">std.object</a></span>
-         object to turn into a table
-        </li>
+        <pre class="example"><span class="global">table</span>.concat (sort (object))</pre>
     </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        resulting table or <code>nil</code>
-    </ol>
-
-
-
 
 </dd>
     <dt>
@@ -618,7 +1044,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          any table
         </li>
     </ul>
@@ -626,12 +1052,66 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-        list of values
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        list of values in <em>t</em>
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.table.html#keys">keys</a>
+    </ul>
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="comment">--&gt; {"a", "c", 42}
+</span> values {<span class="string">"a"</span>, b=<span class="string">"c"</span>, [-<span class="number">1</span>]=<span class="number">42</span>}</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2><a name="Types"></a>Types </h2>
+
+
+    <dl class="function">
+    <dt>
+    <a name = "comparator"></a>
+    <strong>comparator (a, b)</strong>
+    </dt>
+    <dd>
+    Signature of a <a href="../modules/std.table.html#sort">sort</a> comparator function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+         any object
+        </li>
+        <li><span class="parameter">b</span>
+         any object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>a</em> sorts before <em>b</em>, otherwise <code>false</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/std.table.html#sort">sort</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> reversor = <span class="keyword">function</span> (a, b) <span class="keyword">return</span> a &gt; b <span class="keyword">end</span>
+ sort (t, reversor)</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -640,7 +1120,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

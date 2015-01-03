@@ -3,9 +3,11 @@ before: |
   this_module  = "std.debug"
   global_table = "_G"
 
-  extend_base  = { "say", "trace" }
+  extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
+                   "argscheck", "say", "toomanyargmsg", "trace",
+                   "_setdebug" }
 
-  M = require "std.debug"
+  M = require (this_module)
 
 specify std.debug:
 - context when required:
@@ -29,13 +31,785 @@ specify std.debug:
           to_equal {}
 
 
-- describe _DEBUG:
+- describe DEPRECATED:
+  - before: |
+      function runscript (body, name, args)
+        return luaproc (
+          "require '" .. this_module .. "'.DEPRECATED ('0', '" ..
+            (name or "runscript") .. "', function (...)" ..
+          " " .. body ..
+          " end) " ..
+          "('" .. table.concat (args or {}, "', '") .. "')"
+        )
+      end
+
+      f, badarg = init (M, this_module, "DEPRECATED")
+
+  - it returns a function:
+      expect (type (f ("0", "deprecated", nop))).to_be "function"
+      expect (f ("0", "deprecated", nop)).not_to_be (nop)
+  - context with deprecated function:
+    - it executes the deprecated function:
+        expect (runscript 'error "oh noes!"').to_contain_error "oh noes!"
+    - it passes arguments to the deprecated function:
+        expect (runscript ("print (table.concat ({...}, ', '))", nil,
+                           {"foo", "bar", "baz"})).to_output "foo, bar, baz\n"
+    - it returns deprecated function results: |
+        script = [[
+          DEPRECATED = require "std.debug".DEPRECATED
+          fn = DEPRECATED ("0", "fn", function () return "foo", "bar", "baz" end)
+          print (fn ())
+        ]]
+        expect (luaproc (script)).to_output "foo\tbar\tbaz\n"
+    - it writes a warning to stderr:
+        expect (runscript 'error "oh noes!"').
+          to_match_error "deprecated.*, and will be removed"
+    - it writes the version string to stderr:
+        expect (runscript 'error "oh noes!"').
+          to_contain_error "in release 0"
+    - it writes the call location to stderr: |
+        expect (runscript 'error "oh noes!"').
+          to_match_error "^%S+:1: "
+    - context with _DEBUG:
+      - before: |
+          script = [[
+            DEPRECATED = require "]] .. this_module .. [[".DEPRECATED
+            fn = DEPRECATED ("0", "fn", function () io.stderr:write "oh noes!\n" end)
+            fn ()  -- line 3
+            fn ()  -- line 4
+          ]]
+      - it warns every call by default:
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
+      - it does not warn at all with _DEBUG set to false:
+          script = "_DEBUG = false " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it does not define the function with _DEBUG set to true: |
+          script = "_DEBUG = true " .. script
+          expect (luaproc (script)).to_contain_error.any_of {
+            ":3: attempt to call global 'fn'",
+            ":3: attempt to call a nil value (global 'fn')",
+          }
+      - it warns on every call with _DEBUG.deprecate unset:
+          script = "_DEBUG = {} " .. script
+          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
+          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
+      - it does not warn at all with _DEBUG.deprecate set to false:
+          script = "_DEBUG = { deprecate = false } " .. script
+          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
+      - it warns on every call with _DEBUG.deprecate set to true: |
+          script = "_DEBUG = { deprecate = true } " .. script
+          expect (luaproc (script)).to_contain_error.any_of {
+            ":3: attempt to call global 'fn'",
+            ":3: attempt to call a nil value (global 'fn')",
+          }
+
+
+- describe DEPRECATIONMSG:
+  - before: |
+      function mkscript (lvl)
+        return [[
+          DEPRECATIONMSG = require "]] .. this_module .. [[".DEPRECATIONMSG
+          function fn ()
+            io.stderr:write (DEPRECATIONMSG ("42", "spec file", ]] .. lvl .. [[))
+          end
+          fn () -- line 5
+          fn () -- line 6
+        ]]
+       end
+
+       f = M.DEPRECATIONMSG
+
+  - it contains deprecating the release version:
+      expect (f ("41", "foo", 2)).to_contain "41"
+  - it contains the deprecation function name:
+      expect (f ("41", "some.module.fname", 2)).to_contain "some.module.fname"
+  - it appends an optional extra message:
+      expect (f ("41", "wuh", "ah boo", 2)).to_contain ", ah boo."
+  - it blames the given stack level:
+      expect (luaproc (mkscript (1))).to_match_error "^%S+:3:.*deprecated"
+      expect (luaproc (mkscript (2))).to_match_error "^%S+:5:.*deprecated"
+
+
+- describe argerror:
+  - before: |
+      function mkstack (level)
+        return string.format ([[
+          _DEBUG = true                           -- line 1
+          local debug = require "std.debug"       -- line 2
+          function ohnoes ()                      -- line 3
+            debug.argerror ("ohnoes", 1, nil, %s) -- line 4
+          end                                     -- line 5
+          function caller ()                      -- line 6
+            local r = ohnoes ()                   -- line 7
+            return "not a tail call"              -- line 8
+          end                                     -- line 9
+          caller ()                               -- line 10
+        ]], tostring (level))
+      end
+
+      f, badarg = init (M, this_module,  "argerror")
+
+  - it diagnoses missing arguments:
+      pending "Lua 5.1 support is dropped"
+      expect (f ()).to_raise (badarg (1, "string"))
+      expect (f "foo").to_raise (badarg (2, "int"))
+  - it diagnoses wrong argument types:
+      pending "Lua 5.1 support is dropped"
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_raise (badarg (2, "int", "boolean"))
+      expect (f ("foo", 1, false)).
+        to_raise (badarg (3, "string or nil", "boolean"))
+      expect (f ("foo", 1, "bar", false)).
+        to_raise (badarg (4, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      pending "Lua 5.1 support is dropped"
+      expect (f ("foo", 1, "bar", 2, false)).to_raise (badarg (5))
+
+  - it blames the call site by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":4: bad argument"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+  - it reports the calling function name:
+      expect (f ('expect', 1)).to_raise "'expect'"
+  - it reports the argument number: |
+      expect (f ('expect', 12345)).to_raise "#12345"
+  - it reports extra message in parentheses:
+      expect (f ('expect', 1, "extramsg")).to_raise " (extramsg)"
+
+
+- describe argcheck:
+  - before: |
+      Object = require 'std.object'
+      List = Object { _type = "List" }
+      Foo = Object { _type = "Foo" }
+
+      function fn (...) return M.argcheck ('expect', 1, ...) end
+
+      function mkstack (level, debugp)
+        return string.format ([[
+          _DEBUG = %s                                    -- line 1
+          local debug = require "std.debug"              -- line 2
+          function ohnoes (t)                            -- line 3
+            debug.argcheck ("ohnoes", 1, "table", t, %s) -- line 4
+          end                                            -- line 5
+          function caller ()                             -- line 6
+            local r = ohnoes "not a table"               -- line 7
+            return "not a tail call"                     -- line 8
+          end                                            -- line 9
+          caller ()                                      -- line 10
+        ]], tostring (debugp), tostring (level))
+      end
+
+      f, badarg = init (M, this_module,  "argcheck")
+
+  - it diagnoses missing arguments:
+      pending "Lua 5.1 support is dropped"
+      expect (f ()).to_raise (badarg (1, "string"))
+      expect (f "foo").to_raise (badarg (2, "int"))
+      expect (f ("foo", 1)).to_raise (badarg (3, "string"))
+  - it diagnoses wrong argument types:
+      pending "Lua 5.1 support is dropped"
+      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (f ("foo", false)).to_raise (badarg (2, "int", "boolean"))
+      expect (f ("foo", 1, false)).to_raise (badarg (3, "string", "boolean"))
+      expect (f ("foo", 1, "bar", 2, false)).
+        to_raise (badarg (5, "int or nil", "boolean"))
+  - it diagnoses too many arguments:
+      pending "Lua 5.1 support is dropped"
+      expect (f ("foo", 1, "bar", 2, 3, false)).to_raise (badarg (6))
+
+  - it blames the calling function by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+      expect (luaproc (mkstack (3))).to_contain_error ":10: bad argument"
+  - it can be disabled by setting _DEBUG to false:
+      expect (luaproc (mkstack (nil, false))).
+        not_to_contain_error "bad argument"
+  - it can be disabled by setting _DEBUG.argcheck to false:
+      expect (luaproc (mkstack (nil, "{ argcheck = false }"))).
+        not_to_contain_error "bad argument"
+  - it is not disabled by setting _DEBUG.argcheck to true:
+      expect (luaproc (mkstack (nil, "{ argcheck = true }"))).
+        to_contain_error "bad argument"
+  - it is not disabled by leaving _DEBUG.argcheck unset:
+      expect (luaproc (mkstack (nil, "{}"))).
+        to_contain_error "bad argument"
+
+  - context with primitives:
+    - it diagnoses missing types:
+        expect (fn ("boolean", nil)).to_raise "boolean expected, got no value"
+        expect (fn ("file", nil)).to_raise "FILE* expected, got no value"
+        expect (fn ("number", nil)).to_raise "number expected, got no value"
+        expect (fn ("string", nil)).to_raise "string expected, got no value"
+        expect (fn ("table", nil)).to_raise "table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("boolean", {0})).to_raise "boolean expected, got table"
+        expect (fn ("file", {0})).to_raise "FILE* expected, got table"
+        expect (fn ("number", {0})).to_raise "number expected, got table"
+        expect (fn ("string", {0})).to_raise "string expected, got table"
+        expect (fn ("table", false)).to_raise "table expected, got boolean"
+    - it matches types:
+        expect (fn ("boolean", true)).not_to_raise "any error"
+        expect (fn ("file", io.stderr)).not_to_raise "any error"
+        expect (fn ("number", 1)).not_to_raise "any error"
+        expect (fn ("string", "s")).not_to_raise "any error"
+        expect (fn ("table", {})).not_to_raise "any error"
+        expect (fn ("table", require "std.object")).not_to_raise "any error"
+
+  - context with int:
+    - it diagnoses missing types:
+        expect (fn ("int", nil)).to_raise "int expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("int", false)).to_raise "int expected, got boolean"
+        expect (fn ("int", 1.234)).to_raise "int expected, got number"
+        expect (fn ("int", 1234e-3)).to_raise "int expected, got number"
+    - it matches types:
+        expect (fn ("int", 1)).not_to_raise "any error"
+        expect (fn ("int", 1.0)).not_to_raise "any error"
+        expect (fn ("int", 0x1234)).not_to_raise "any error"
+        expect (fn ("int", 1.234e3)).not_to_raise "any error"
+  - context with constant string:
+    - it diagnoses missing types:
+        expect (fn (":foo", nil)).to_raise ":foo expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn (":foo", false)).to_raise ":foo expected, got boolean"
+        expect (fn (":foo", ":bar")).to_raise ":foo expected, got :bar"
+        expect (fn (":foo", "foo")).to_raise ":foo expected, got string"
+    - it matches types:
+        expect (fn (":foo", ":foo")).not_to_raise "any error"
+  - context with callable types:
+    - it diagnoses missing types:
+        expect (fn ("function", nil)).to_raise "function expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("function", {0})).to_raise "function expected, got table"
+    - it matches types:
+        expect (fn ("function", function () end)).not_to_raise "any error"
+        expect (fn ("function", setmetatable ({}, {__call = function () end}))).
+          not_to_raise "any error"
+  - context with table of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("table of boolean", nil)).
+          to_raise "table expected, got no value"
+        expect (fn ("table of booleans", nil)).
+          to_raise "table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("table of file", io.stderr)).
+          to_raise "table expected, got file"
+        expect (fn ("table of files", io.stderr)).
+          to_raise "table expected, got file"
+    - it diagnoses mismatched element types:
+        expect (fn ("table of number", {false})).
+          to_raise "table of numbers expected, got boolean at index 1"
+        expect (fn ("table of numbers", {1, 2, "3"})).
+          to_raise "table of numbers expected, got string at index 3"
+        expect (fn ("table of numbers", {a=1, b=2, c="3"})).
+          to_raise "table of numbers expected, got string at index c"
+    - it matches types:
+        expect (fn ("table of string", {})).not_to_raise "any error"
+        expect (fn ("table of string", {"foo"})).not_to_raise "any error"
+        expect (fn ("table of string", {"f", "o", "o"})).not_to_raise "any error"
+        expect (fn ("table of string", {b="b", a="a", r="r"})).not_to_raise "any error"
+  - context with non-empty table types:
+    - it diagnoses missing types:
+        expect (fn ("#table", nil)).
+          to_raise "non-empty table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#table", false)).
+          to_raise "non-empty table expected, got boolean"
+        expect (fn ("#table", {})).
+          to_raise "non-empty table expected, got empty table"
+    - it matches types:
+        expect (fn ("#table", {0})).not_to_raise "any error"
+  - context with non-empty table of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("#table of boolean", nil)).
+          to_raise "non-empty table expected, got no value"
+        expect (fn ("#table of booleans", nil)).
+          to_raise "non-empty table expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#table of file", {})).
+          to_raise "non-empty table expected, got empty table"
+        expect (fn ("#table of file", io.stderr)).
+          to_raise "non-empty table expected, got file"
+    - it diagnoses mismatched element types:
+        expect (fn ("#table of number", {false})).
+          to_raise "non-empty table of numbers expected, got boolean at index 1"
+        expect (fn ("#table of numbers", {1, 2, "3"})).
+          to_raise "non-empty table of numbers expected, got string at index 3"
+        expect (fn ("#table of numbers", {a=1, b=2, c="3"})).
+          to_raise "non-empty table of numbers expected, got string at index c"
+    - it matches types:
+        expect (fn ("#table of string", {"foo"})).not_to_raise "any error"
+        expect (fn ("#table of string", {"f", "o", "o"})).not_to_raise "any error"
+        expect (fn ("#table of string", {b="b", a="a", r="r"})).not_to_raise "any error"
+  - context with list:
+    - it diagnonses missing types:
+        expect (fn ("list", nil)).
+          to_raise "list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("list", false)).
+          to_raise "list expected, got boolean"
+        expect (fn ("list", {foo=1})).
+          to_raise "list expected, got table"
+        expect (fn ("list", Object)).
+          to_raise "list expected, got Object"
+    - it matches types:
+        expect (fn ("list", {})).not_to_raise "any error"
+        expect (fn ("list", {1})).not_to_raise "any error"
+  - context with list of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("list of boolean", nil)).
+          to_raise "list expected, got no value"
+        expect (fn ("list of booleans", nil)).
+          to_raise "list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("list of file", io.stderr)).
+          to_raise "list expected, got file"
+        expect (fn ("list of files", io.stderr)).
+          to_raise "list expected, got file"
+        expect (fn ("list of files", {file=io.stderr})).
+          to_raise "list expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("list of number", {false})).
+          to_raise "list of numbers expected, got boolean at index 1"
+        expect (fn ("list of numbers", {1, 2, "3"})).
+          to_raise "list of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("list of string", {})).not_to_raise "any error"
+        expect (fn ("list of string", {"foo"})).not_to_raise "any error"
+        expect (fn ("list of string", {"f", "o", "o"})).not_to_raise "any error"
+  - context with non-empty list:
+    - it diagnonses missing types:
+        expect (fn ("#list", nil)).
+          to_raise "non-empty list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#list", false)).
+          to_raise "non-empty list expected, got boolean"
+        expect (fn ("#list", {})).
+          to_raise "non-empty list expected, got empty list"
+        expect (fn ("#list", {foo=1})).
+          to_raise "non-empty list expected, got table"
+        expect (fn ("#list", Object)).
+          to_raise "non-empty list expected, got empty Object"
+        expect (fn ("#list", List {})).
+          to_raise "non-empty list expected, got empty List"
+    - it matches types:
+        expect (fn ("#list", {1})).not_to_raise "any error"
+  - context with non-empty list of homogenous elements:
+    - it diagnoses missing types:
+        expect (fn ("#list of boolean", nil)).
+          to_raise "non-empty list expected, got no value"
+        expect (fn ("#list of booleans", nil)).
+          to_raise "non-empty list expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("#list of file", {})).
+          to_raise "non-empty list expected, got empty table"
+        expect (fn ("#list of file", io.stderr)).
+          to_raise "non-empty list expected, got file"
+        expect (fn ("#list of files", {file=io.stderr})).
+          to_raise "non-empty list expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("#list of number", {false})).
+          to_raise "non-empty list of numbers expected, got boolean at index 1"
+        expect (fn ("#list of numbers", {1, 2, "3"})).
+          to_raise "non-empty list of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("#list of string", {"foo"})).not_to_raise "any error"
+        expect (fn ("#list of string", {"f", "o", "o"})).not_to_raise "any error"
+  - context with container:
+    - it diagnoses missing types:
+        expect (fn ("List of boolean", nil)).
+          to_raise "List expected, got no value"
+        expect (fn ("List of booleans", nil)).
+          to_raise "List expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("List of file", io.stderr)).
+          to_raise "List expected, got file"
+        expect (fn ("List of files", io.stderr)).
+          to_raise "List expected, got file"
+        expect (fn ("List of files", {file=io.stderr})).
+          to_raise "List expected, got table"
+    - it diagnoses mismatched element types:
+        expect (fn ("List of number", List {false})).
+          to_raise "List of numbers expected, got boolean at index 1"
+        expect (fn ("List of numbers", List {1, 2, "3"})).
+          to_raise "List of numbers expected, got string at index 3"
+    - it matches types:
+        expect (fn ("list of string", List {})).not_to_raise "any error"
+        expect (fn ("list of string", List {"foo"})).not_to_raise "any error"
+        expect (fn ("list of string", List {"f", "o", "o"})).not_to_raise "any error"
+  - context with object:
+    - it diagnoses missing types:
+        expect (fn ("object", nil)).to_raise "object expected, got no value"
+        expect (fn ("Object", nil)).to_raise "Object expected, got no value"
+        expect (fn ("Foo", nil)).to_raise "Foo expected, got no value"
+        expect (fn ("any", nil)).to_raise "any value expected, got no value"
+    - it diagnoses mismatched types:
+        expect (fn ("object", {0})).to_raise "object expected, got table"
+        expect (fn ("Object", {0})).to_raise "Object expected, got table"
+        expect (fn ("object", {_type="Object"})).to_raise "object expected, got table"
+        expect (fn ("Object", {_type="Object"})).to_raise "Object expected, got table"
+        expect (fn ("Object", Foo)).to_raise "Object expected, got Foo"
+        expect (fn ("Foo", {0})).to_raise "Foo expected, got table"
+        expect (fn ("Foo", Object)).to_raise "Foo expected, got Object"
+    - it matches types:
+        expect (fn ("object", Object)).not_to_raise "any error"
+        expect (fn ("object", Object {})).not_to_raise "any error"
+        expect (fn ("object", Foo)).not_to_raise "any error"
+        expect (fn ("object", Foo {})).not_to_raise "any error"
+  - it matches anything:
+      expect (fn ("any", true)).not_to_raise "any error"
+      expect (fn ("any", {})).not_to_raise "any error"
+      expect (fn ("any", Object)).not_to_raise "any error"
+      expect (fn ("any", Foo {})).not_to_raise "any error"
+  - context with a list of valid types:
+    - it diagnoses missing elements:
+        expect (fn ("string|table", nil)).
+          to_raise "string or table expected, got no value"
+        expect (fn ("string|list|#table", nil)).
+          to_raise "string, list or non-empty table expected, got no value"
+        expect (fn ("string|number|list|object", nil)).
+          to_raise "string, number, list or object expected, got no value"
+    - it diagnoses mismatched elements:
+        expect (fn ("string|table", false)).
+          to_raise "string or table expected, got boolean"
+        expect (fn ("string|#table", {})).
+          to_raise "string or non-empty table expected, got empty table"
+        expect (fn ("string|number|#list|object", {})).
+          to_raise "string, number, non-empty list or object expected, got empty table"
+    - it matches any type from a list:
+        expect (fn ("string|table", "foo")).not_to_raise "any error"
+        expect (fn ("string|table", {})).not_to_raise "any error"
+        expect (fn ("string|table", {0})).not_to_raise "any error"
+        expect (fn ("table|table", {})).not_to_raise "any error"
+        expect (fn ("#table|table", {})).not_to_raise "any error"
+  - context with an optional type element:
+    - it diagnoses mismatched elements:
+        expect (fn ("boolean?", "string")).
+          to_raise "boolean or nil expected, got string"
+        expect (fn ("boolean?|:symbol", {})).
+          to_raise "boolean, :symbol or nil expected, got empty table"
+    - it matches nil against a single type:
+        expect (fn ("any?", nil)).not_to_raise "any error"
+        expect (fn ("boolean?", nil)).not_to_raise "any error"
+        expect (fn ("string?", nil)).not_to_raise "any error"
+    - it matches nil against a list of types:
+        expect (fn ("boolean?|table", nil)).not_to_raise "any error"
+        expect (fn ("string?|table", nil)).not_to_raise "any error"
+        expect (fn ("table?|#table", nil)).not_to_raise "any error"
+        expect (fn ("#table?|table", nil)).not_to_raise "any error"
+    - it matches nil against a list of optional types:
+        expect (fn ("boolean?|table?", nil)).not_to_raise "any error"
+        expect (fn ("string?|table?", nil)).not_to_raise "any error"
+        expect (fn ("table?|#table?", nil)).not_to_raise "any error"
+        expect (fn ("#table?|table?", nil)).not_to_raise "any error"
+    - it matches any named type:
+        expect (fn ("any?", false)).not_to_raise "any error"
+        expect (fn ("boolean?", false)).not_to_raise "any error"
+        expect (fn ("string?", "string")).not_to_raise "any error"
+    - it matches any type from a list:
+        expect (fn ("boolean?|table", {})).not_to_raise "any error"
+        expect (fn ("string?|table", {0})).not_to_raise "any error"
+        expect (fn ("table?|#table", {})).not_to_raise "any error"
+        expect (fn ("#table?|table", {})).not_to_raise "any error"
+    - it matches any type from a list with several optional specifiers:
+        expect (fn ("boolean?|table?", {})).not_to_raise "any error"
+        expect (fn ("string?|table?", {0})).not_to_raise "any error"
+        expect (fn ("table?|table?", {})).not_to_raise "any error"
+        expect (fn ("#table?|table?", {})).not_to_raise "any error"
 
 
 - describe debug:
+  - before: |
+      function mkwrap (k, v)
+        local fmt = "%s"
+        if type (v) == "string" then fmt = "%q" end
+        return k, string.format (fmt, require "std".tostring (v))
+      end
+
+      function mkdebug (debugp, ...)
+        return string.format ([[
+          _DEBUG = %s
+          require "std.debug" (%s)
+        ]],
+        require "std".tostring (debugp),
+        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
+      end
+
+  - it does nothing when _DEBUG is disabled:
+      expect (luaproc (mkdebug (false, "nothing to see here"))).
+        not_to_contain_error "nothing to see here"
+  - it writes to stderr when _DEBUG is not set:
+      expect (luaproc (mkdebug (nil, "debugging"))).
+        to_contain_error "debugging"
+  - it writes to stderr when _DEBUG is enabled:
+      expect (luaproc (mkdebug (true, "debugging"))).
+        to_contain_error "debugging"
+  - it writes to stderr when _DEBUG.level is not set:
+      expect (luaproc (mkdebug ({}, "debugging"))).
+        to_contain_error "debugging"
+  - it writes to stderr when _DEBUG.level is specified:
+      expect (luaproc (mkdebug ({level = 0}, "debugging"))).
+        to_contain_error "debugging"
+      expect (luaproc (mkdebug ({level = 1}, "debugging"))).
+        to_contain_error "debugging"
+      expect (luaproc (mkdebug ({level = 2}, "debugging"))).
+        to_contain_error "debugging"
+
+
+- describe argscheck:
+  - before: |
+      function mkstack (name, spec)
+        return string.format ([[
+          local argscheck = require "std.debug".argscheck -- line 1
+          local function caller ()                        -- line 2
+            argscheck ("%s", function () end)             -- line 3
+          end                                             -- line 4
+          caller ()                                       -- line 5
+        ]], tostring (name), tostring (spec))
+      end
+
+      f, badarg = init (M, this_module, "argscheck")
+
+      mkmagic = function () return "MAGIC" end
+      wrapped = f ("inner ()", mkmagic)
+
+  - it returns the wrapped function:
+      expect (wrapped).not_to_be (inner)
+      expect (wrapped ()).to_be "MAGIC"
+  - it does not wrap the function when _ARGCHECK is disabled: |
+      script = [[
+        _DEBUG = false
+        local debug = require "std.debug_init"
+        local argscheck = require "std.debug".argscheck
+        local function inner () return "MAGIC" end
+        local wrapped = argscheck ("inner (any?)", inner)
+        os.exit (wrapped == inner and 0 or 1)
+      ]]
+      expect (luaproc (script)).to_succeed ()
+
+  - context when checking zero argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+    - it diagnoses too many arguments:
+        expect (wrapped (false)).to_raise (badarg (1))
+    - it accepts correct argument types:
+        expect (wrapped ()).to_be "MAGIC"
+
+  - context when checking single argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+        wrapped = f ("inner (#table)", mkmagic)
+    - it diagnoses missing arguments:
+        expect (wrapped ()).to_raise (badarg (1, "non-empty table"))
+    - it diagnoses wrong argument types:
+        expect (wrapped {}).to_raise (badarg (1, "non-empty table", "empty table"))
+    - it diagnoses too many arguments:
+        expect (wrapped ({1}, 2, nop, "", false)).to_raise (badarg (1, 5))
+    - it accepts correct argument types:
+        expect (wrapped ({1})).to_be "MAGIC"
+
+  - context when checking multi-argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+        wrapped = f ("inner (table, function)", mkmagic)
+    - it diagnoses missing arguments:
+        expect (wrapped ()).to_raise (badarg (1, "table"))
+        expect (wrapped ({})).to_raise (badarg (2, "function"))
+    - it diagnoses wrong argument types:
+        expect (wrapped (false)).to_raise (badarg (1, "table", "boolean"))
+        expect (wrapped ({}, false)).to_raise (badarg (2, "function", "boolean"))
+    - it diagnoses too many arguments:
+        expect (wrapped ({}, nop, false)).to_raise (badarg (3))
+    - it accepts correct argument types:
+        expect (wrapped ({}, nop)).to_be "MAGIC"
+
+  - context when checking optional argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+        wrapped = f ("inner ([int])", mkmagic)
+    - it diagnoses wrong argument types:
+        expect (wrapped (false)).to_raise (badarg (1, "int or nil", "boolean"))
+    - it diagnoses too many arguments:
+        expect (wrapped (1, nop)).to_raise (badarg (2))
+    - it accepts correct argument types:
+        expect (wrapped ()).to_be "MAGIC"
+        expect (wrapped (1)).to_be "MAGIC"
+
+  - context when checking optional multi-argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+        wrapped = f ("inner ([int], string)", mkmagic)
+    - it diagnoses missing arguments:
+        expect (wrapped ()).to_raise (badarg (1, "int or string"))
+        expect (wrapped (1)).to_raise (badarg (2, "string"))
+    - it diagnoses wrong argument types:
+        expect (wrapped (false)).to_raise (badarg (1, "int or string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (wrapped (1, "two", nop)).to_raise (badarg (3))
+    - it accepts correct argument types:
+        expect (wrapped ("two")).to_be "MAGIC"
+        expect (wrapped (1, "two")).to_be "MAGIC"
 
 
 - describe say:
+  - before: |
+      function mkwrap (k, v)
+        local fmt = "%s"
+        if type (v) == "string" then fmt = "%q" end
+        return k, string.format (fmt, require "std".tostring (v))
+      end
+
+      function mksay (debugp, ...)
+        return string.format ([[
+          _DEBUG = %s
+          require "std.debug".say (%s)
+        ]],
+        require "std".tostring (debugp),
+        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
+      end
+
+      f = M.say
+
+  - it uses stdlib tostring:
+      expect (luaproc [[require "std.debug".say {"debugging"}]]).
+        to_contain_error (require "std".tostring {"debugging"})
+  - context when _DEBUG is disabled:
+    - it does nothing when message level is not set:
+        expect (luaproc (mksay (false, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+    - it does nothing when message is set:
+        expect (luaproc (mksay (false, -999, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (false, 0, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (false, 1, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (false, 2, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (false, 999, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+  - context when _DEBUG is not set:
+    - it writes to stderr when message level is not set:
+        expect (luaproc (mksay (nil, "debugging"))).
+          to_contain_error "debugging"
+    - it writes to stderr when message level is 1 or lower:
+        expect (luaproc (mksay (nil, -999, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay (nil, 0, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay (nil, 1, "debugging"))).
+          to_contain_error "debugging"
+    - it does nothing when message level is 2 or higher:
+        expect (luaproc (mksay (nil, 2, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (nil, 999, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+  - context when _DEBUG is enabled:
+    - it writes to stderr when message level is not set:
+        expect (luaproc (mksay (true, "debugging"))).
+          to_contain_error "debugging"
+    - it writes to stderr when message level is 1 or lower:
+        expect (luaproc (mksay (true, -999, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay (true, 0, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay (true, 1, "debugging"))).
+          to_contain_error "debugging"
+    - it does nothing when message level is 2 or higher:
+        expect (luaproc (mksay (true, 2, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay (true, 999, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+  - context when _DEBUG.level is not set:
+    - it writes to stderr when message level is not set:
+        expect (luaproc (mksay ({}, "debugging"))).
+          to_contain_error "debugging"
+    - it writes to stderr when message level is 1 or lower:
+        expect (luaproc (mksay ({}, -999, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay ({}, 0, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay ({}, 1, "debugging"))).
+          to_contain_error "debugging"
+    - it does nothing when message level is 2 or higher:
+        expect (luaproc (mksay ({}, 2, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+        expect (luaproc (mksay ({}, 999, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+  - context when _DEBUG.level is specified:
+    - it writes to stderr when message level is 1 or lower:
+        expect (luaproc (mksay ({level = 0}, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay ({level = 1}, "debugging"))).
+          to_contain_error "debugging"
+        expect (luaproc (mksay ({level = 2}, "debugging"))).
+          to_contain_error "debugging"
+    - it does nothing when message level is higher than debug level:
+        expect (luaproc (mksay ({level = 2}, 3, "nothing to see here"))).
+          not_to_contain_error "nothing to see here"
+    - it writes to stderr when message level equals debug level:
+        expect (luaproc (mksay ({level = 2}, 2, "debugging"))).
+          to_contain_error "debugging"
+    - it writes to stderr when message level is lower than debug level:
+        expect (luaproc (mksay ({level = 2}, 1, "debugging"))).
+          to_contain_error "debugging"
 
 
 - describe trace:
+  - before:
+      f = init (M, this_module,  "trace")
+
+  - it does nothing when _DEBUG is disabled:
+      expect (luaproc [[
+        _DEBUG = false
+        require "std.debug"
+        os.exit (0)
+      ]]).to_succeed_with ""
+  - it does nothing when _DEBUG is not set:
+      expect (luaproc [[
+        require "std.debug"
+        os.exit (0)
+      ]]).to_succeed_with ""
+  - it does nothing when _DEBUG is enabled:
+      expect (luaproc [[
+        _DEBUG = true
+        require "std.debug"
+        os.exit (0)
+      ]]).to_succeed_with ""
+  - it enables automatically when _DEBUG.call is set: |
+      expect (luaproc [[
+        _DEBUG = {call = true}
+        local debug = require "std.debug"
+        os.exit (1)
+      ]]).to_fail_while_containing ":3 call exit"
+  - it is enabled manually with debug.sethook: |
+      expect (luaproc [[
+        local debug = require "std.debug"
+        debug.sethook (debug.trace, "cr")
+        os.exit (1)
+      ]]).to_fail_while_containing ":3 call exit"
+  - it writes call trace log to standard error: |
+      expect (luaproc [[
+        local debug = require "std.debug"
+        debug.sethook (debug.trace, "cr")
+        os.exit (0)
+      ]]).to_contain_error ":3 call exit"
+  - it traces lua calls: |
+      expect (luaproc [[
+        local debug = require "std.debug"         -- line 1
+        local function incr (i) return i + 1 end  -- line 2
+        debug.sethook (debug.trace, "cr")         -- line 3
+        os.exit (incr (41))                       -- line 4
+      ]]).to_fail_while_matching ".*:4 call incr <2:.*:4 return incr <2:.*"
+  - it traces C api calls: |
+      expect (luaproc [[
+        local debug = require "std.debug"
+        local function incr (i) return i + 1 end
+        debug.sethook (debug.trace, "cr")
+        os.exit (incr (41))
+      ]]).to_fail_while_matching ".*:4 call exit %[C%]%s$"

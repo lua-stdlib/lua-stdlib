@@ -6,10 +6,11 @@ by the [stdlib project][github]
 [github]: http://github.com/lua-stdlib/lua-stdlib/ "Github repository"
 
 [![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
+[![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
 
 
-This is a collection of Lua libraries for Lua 5.1 and 5.2. The
-libraries are copyright by their authors 2000-2013 (see the AUTHORS
+This is a collection of Lua libraries for Lua 5.1, 5.2 and 5.3. The
+libraries are copyright by their authors 2000-2015 (see the AUTHORS
 file for details), and released under the MIT license (the same
 license as Lua itself). There is no warranty.
 
@@ -59,7 +60,7 @@ Documentation
 -------------
 
 The libraries are [documented in LDoc][github.io]. Pre-built HTML
-files are included.
+files are included in the release.
 
 [github.io]: http://lua-stdlib.github.io/lua-stdlib
 

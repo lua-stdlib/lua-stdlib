@@ -1,7 +1,6 @@
 before:
   Set       = require "std.set"
-  prototype = (require "std.object").prototype
-  totable   = (require "std.table").totable
+  prototype = require "std.object".prototype
   s         = Set {"foo", "bar", "bar"}
 
 specify std.set:
@@ -62,8 +61,6 @@ specify std.set:
         expect (s).to_equal (Set {"bar", "baz", "quux"})
     - it returns a set containing members of the first that are not in the second:
         expect (Set.difference (r, s)).to_equal (Set {"foo"})
-    - it coerces a table argument to a set:
-        expect (Set.difference (r, {"bar"})).to_equal (Set {"baz", "foo"})
   - context when called as a set metamethod:
     - it returns a set object:
         expect (prototype (r - s)).to_be "Set"
@@ -73,8 +70,6 @@ specify std.set:
         expect (s).to_equal (Set {"bar", "baz", "quux"})
     - it returns a set containing members of the first that are not in the second:
         expect (r - s).to_equal (Set {"foo"})
-    - it coerces a table argument to a set:
-        expect (r - {"bar"}).to_equal (Set {"baz", "foo"})
 
 
 - describe elems:
@@ -149,9 +144,6 @@ specify std.set:
     - it returns a set containing members common to both arguments:
         expect (Set.intersection (r, s)).
           to_equal (Set {"bar", "baz"})
-    - it coerces a table argument to a set:
-        expect (Set.intersection (r, {"bar", "quux"})).
-          to_equal (Set {"bar"})
   - context when called as a set metamethod:
     - it returns a set object:
         q = r * s
@@ -162,8 +154,6 @@ specify std.set:
         expect (s).to_equal (Set {"bar", "baz", "quux"})
     - it returns a set containing members common to both arguments:
         expect (r * s).to_equal (Set {"bar", "baz"})
-    - it coerces a table argument to a set:
-        expect (r * {"bar", "quux"}).to_equal (Set {"bar"})
 
 
 - describe member:
@@ -201,9 +191,6 @@ specify std.set:
     - it fails when set does not contain all elements of another:
         s = s + Set {"quux"}
         expect (Set.proper_subset (r, s)).to_be (false)
-    - it coerces a table argument to a set:
-        expect (Set.proper_subset (s, {"foo", "bar", "baz"})).to_be (true)
-        expect (Set.proper_subset (s, {"foo"})).to_be (false)
   - context when called as a set metamethod:
     - it succeeds when set contains all elements of another:
         expect (s < r).to_be (true)
@@ -229,9 +216,6 @@ specify std.set:
     - it fails when set does not contain all elements of another:
         s = s + Set {"quux"}
         expect (Set.subset (r, s)).to_be (false)
-    - it coerces a table argument to a set:
-        expect (Set.subset (s, {"foo", "bar", "baz"})).to_be (true)
-        expect (Set.subset (s, {"foo"})).to_be (false)
   - context when called as a set metamethod:
     - it succeeds when set contains all elements of another:
         expect (s <= r).to_be (true)
@@ -259,9 +243,6 @@ specify std.set:
     - it returns a set containing members in only one argument set:
         expect (Set.symmetric_difference (r, s)).
           to_equal (Set {"foo", "quux"})
-    - it coerces a table argument to a set:
-        expect (Set.symmetric_difference (r, {"bar"})).
-          to_equal (Set {"baz", "foo"})
   - context when called as a set metamethod:
     - it returns a set object:
         expect (prototype (r / s)).to_be "Set"
@@ -271,8 +252,6 @@ specify std.set:
         expect (s).to_equal (Set {"bar", "baz", "quux"})
     - it returns a set containing members in only one argument set:
         expect (r / s).to_equal (Set {"foo", "quux"})
-    - it coerces a table argument to a set:
-        expect (r / {"bar"}).to_equal (Set {"baz", "foo"})
 
 
 - describe union:
@@ -290,9 +269,6 @@ specify std.set:
     - it returns a set containing members in only one argument set:
         expect (Set.union (r, s)).
           to_equal (Set {"foo", "bar", "baz", "quux"})
-    - it coerces a table argument to a set:
-        expect (Set.union (r, {"quux"})).
-          to_equal (Set {"foo", "bar", "baz", "quux"})
   - context when called as a set metamethod:
     - it returns a set object:
         expect (prototype (r + s)).to_be "Set"
@@ -302,23 +278,6 @@ specify std.set:
         expect (s).to_equal (Set {"bar", "baz", "quux"})
     - it returns a set containing members in only one argument set:
         expect (r + s).to_equal (Set {"foo", "bar", "baz", "quux"})
-    - it coerces a table argument to a set:
-        expect (r + {"quux"}).
-          to_equal (Set {"foo", "bar", "baz", "quux"})
-
-
-- describe __totable:
-  - before:
-      s = Set {"foo", "bar", "baz"}
-
-  - it returns a table:
-      expect (prototype (totable (s))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (s)).to_contain.all_of {"foo", "bar", "baz"}
-  - it contains fields of set in order:
-      expect (totable (s)).to_equal {"bar", "baz", "foo"}
-  - it does not contain any hidden fields of object:
-      expect (totable (s)).to_equal {"bar", "baz", "foo"}
 
 
 - describe __tostring:

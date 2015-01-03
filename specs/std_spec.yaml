@@ -1,89 +1,325 @@
-before:
-  std = require "std"
+before: |
+  this_module   = "std"
+  global_table  = "_G"
+
+  exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
+                    "ielems", "ipairs", "ireverse", "monkey_patch", "pairs",
+                    "require", "ripairs", "tostring", "version" }
+
+  -- Tables with iterator metamethods used by various examples.
+  __pairs = setmetatable ({ content = "a string" }, {
+              __pairs = function (t)
+                          return function (x, n)
+                            if n < #x.content then
+                              return n+1, string.sub (x.content, n+1, n+1)
+                            end
+                          end, t, 0
+                        end,
+            })
+  __index = setmetatable ({ content = "a string" }, {
+              __index = function (t, n)
+                          if n <= #t.content then
+                            return t.content:sub (n, n)
+                          end
+                        end,
+              __len   = function (t) return #t.content end,
+            })
+
+  M = require (this_module)
+
 
 specify std:
-- describe lazy loading:
+- context when required:
+  - it does not touch the global table:
+      expect (show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+  - it exports the documented apis:
+      t = {}
+      for k in pairs (M) do t[#t + 1] = k end
+      expect (t).to_contain.a_permutation_of (exported_apis)
+
+- context when lazy loading:
   - it has no submodules on initial load:
-      expect (std).to_equal {
-        barrel       = std.barrel,
-        monkey_patch = std.monkey_patch,
-        version      = std.version,
-      }
+      for _, v in pairs (M) do
+        expect (type (v)).not_to_be "table"
+      end
   - it loads submodules on demand:
-      lazy = std.set
+      lazy = M.set
       expect (lazy).to_be (require "std.set")
   - it loads submodule functions on demand:
-      expect (std.object.prototype (std.set {"Lazy"})).
+      expect (M.object.prototype (M.set {"Lazy"})).
         to_be "Set"
+
+- describe assert:
+  - before:
+      f = M.assert
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.assert (?any, ?string, ?any*)")
+
+  - context when it does not trigger:
+    - it has a truthy initial argument:
+        expect (f (1)).not_to_raise "any error"
+        expect (f (true)).not_to_raise "any error"
+        expect (f "yes").not_to_raise "any error"
+        expect (f (false == false)).not_to_raise "any error"
+    - it returns the initial argument:
+        expect (f (1)).to_be (1)
+        expect (f (true)).to_be (true)
+        expect (f "yes").to_be "yes"
+        expect (f (false == false)).to_be (true)
+  - context when it triggers:
+    - it has a falsey initial argument:
+        expect (f ()).to_raise ()
+        expect (f (false)).to_raise ()
+        expect (f (1 == 0)).to_raise ()
+    - it throws an optional error string:
+        expect (f (false, "ah boo")).to_raise "ah boo"
+    - it plugs specifiers with string.format: |
+        expect (f (nil, "%s %d: %q", "here", 42, "a string")).
+          to_raise (string.format ("%s %d: %q", "here", 42, "a string"))
+
 
 - describe barrel:
   - before:
-      f = std.barrel
-      io_mt = {}
-      t = {
+      mt = { "file metatable" }
+      namespace = {
         io = {
-          stdin  = setmetatable ({}, io_mt),
-          stdout = setmetatable ({}, io_mt),
-          stderr = setmetatable ({}, io_mt),
+          stdin  = setmetatable ({}, mt),
+          stdout = setmetatable ({}, mt),
+          stderr = setmetatable ({}, mt),
         },
-        math = {},
-        table = {},
       }
-      f (t)
+
+      f = M.barrel
+
+      f (namespace)
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.barrel (?table)")
+
+  - it installs std monkey patches:
+      for _, api in ipairs (exported_apis) do
+        if type (M[api]) == "function" and
+          api ~= "barrel" and api ~= "monkey_patch"
+        then
+          expect (namespace[api]).to_be (M[api])
+        end
+      end
   - it installs std.io monkey patches:
-      expect (io_mt.readlines).to_be (std.io.readlines)
-      expect (io_mt.writelines).to_be (std.io.writelines)
+      for _, api in ipairs { "catdir", "catfile", "die", "monkey_patch",
+        "process_files", "readlines", "shell", "slurp", "splitdir", "warn",
+        "writelines" }
+      do
+        expect (namespace.io[api]).to_be (M.io[api])
+      end
+      expect (mt.readlines).to_be (M.io.readlines)
+      expect (mt.writelines).to_be (M.io.writelines)
   - it installs std.math monkey patches:
-      expect (t.math.floor).to_be (std.math.floor)
+      for _, api in ipairs { "floor", "monkey_patch", "round" } do
+        expect (namespace.math[api]).to_be (M.math[api])
+      end
   - it installs std.string monkey patches:
       # FIXME: string metatable monkey-patches leak out!
       mt = getmetatable ""
-      expect (mt.__append).to_be (std.string.__append)
-      expect (mt.__concat).to_be (std.string.__concat)
-      expect (mt.__index).to_be (std.string.__index)
-      expect (t.assert).to_be (std.string.assert)
-      expect (t.tostring).to_be (std.string.tostring)
+      expect (mt.__concat).to_be (M.string.__concat)
+      expect (mt.__index).to_be (M.string.__index)
+
+      for _, api in ipairs { "__concat", "__index", "caps", "chomp",
+        "escape_pattern", "escape_shell", "finds", "format", "ltrim",
+        "monkey_patch", "numbertosi", "ordinal_suffix", "pad", "pickle",
+        "prettytostring", "render", "rtrim", "split", "tfind", "trim",
+        "wrap" }
+      do
+        expect (namespace.string[api]).to_be (M.string[api])
+      end
   - it installs std.table monkey patches:
-      expect (t.table.sort).to_be (std.table.sort)
-  - it scribbles into the supplied namespace:
-      expect (t).should_equal {
-        assert          = std.string.assert,
-        bind            = std.functional.bind,
-        collect         = std.functional.collect,
-        compose         = std.functional.compose,
-        curry           = std.functional.curry,
-        die             = std.io.die,
-        eval            = std.functional.eval,
-        filter          = std.functional.filter,
-        fold            = std.functional.fold,
-        id              = std.functional.id,
-        ileaves         = std.tree.ileaves,
-        inodes          = std.tree.inodes,
-        io              = t.io,
-        leaves          = std.tree.leaves,
-        map             = std.functional.map,
-        math            = t.math,
-        memoize         = std.functional.memoize,
-        metamethod      = std.table.metamethod,
-        nodes           = std.tree.nodes,
-        op              = std.functional.op,
-        pack            = std.table.pack,
-        pickle          = std.string.pickle,
-        prettytostring  = std.string.prettytostring,
-        render          = std.string.render,
-        require_version = std.string.require_version,
-        ripairs         = std.table.ripairs,
-        table           = t.table,
-        tostring        = std.string.tostring,
-        totable         = std.table.totable,
-        warn            = std.io.warn,
-      }
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
+      for _, api in ipairs { "clone", "clone_select", "depair", "empty",
+        "enpair", "flatten", "insert", "invert", "keys", "len", "maxn",
+        "merge", "merge_select", "monkey_patch", "new", "pack", "project",
+        "shape", "size", "sort", "values" }
+      do
+        expect (namespace.table[api]).to_be (M.table[api])
+      end
+  - it scribbles backwards compatibility apis:
+      for api, fn in pairs {
+        bind            = M.functional.bind,
+        collect         = M.functional.collect,
+        compose         = M.functional.compose,
+        curry           = M.functional.curry,
+        die             = M.io.die,
+        filter          = M.functional.filter,
+        fold            = M.functional.fold,
+        id              = M.functional.id,
+        ileaves         = M.tree.ileaves,
+        inodes          = M.tree.inodes,
+        leaves          = M.tree.leaves,
+        map             = M.functional.map,
+        metamethod      = M.getmetamethod,
+        nodes           = M.tree.nodes,
+        op              = M.operator,
+        pack            = M.table.pack,
+        pickle          = M.string.pickle,
+        prettytostring  = M.string.prettytostring,
+        render          = M.string.render,
+        require_version = M.require,
+        warn            = M.io.warn,
+      } do
+        expect (namespace[api]).to_be (fn)
+      end
+
+- describe elems:
+  - before:
+      f = M.elems
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.elems (table)")
+
+  - it is an iterator over table values:
+      t = {}
+      for e in f {"foo", bar = "baz", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_contain.a_permutation_of {"foo", "baz", 42}
+  - it respects __pairs metamethod: |
+      t = {}
+      for v in f (__pairs) do t[#t + 1] = v end
+      expect (t).
+        to_contain.a_permutation_of {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
+
+
+- describe eval:
+  - before:
+      f = M.eval
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.eval (string)")
+
+  - it diagnoses invalid lua:
+      # Some internal error when eval tries to call uncompilable "=" code.
+      expect (f "=").to_raise ()
+  - it evaluates a string of lua code:
+      expect (f "math.min (2, 10)").to_be (math.min (2, 10))
+
+
+- describe getmetamethod:
+  - before:
+      f = M.getmetamethod
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.getmetamethod (object|table, string)")
+
+  - context with a table:
+    - before:
+        method = function () end
+        t = setmetatable ({}, { _type = "table", _method = method })
+    - it returns nil for missing metamethods:
+        expect (f (t, "not a metamethod on t")).to_be (nil)
+    - it returns nil for non-function metatable entries:
+        expect (f (t, "_type")).to_be (nil)
+    - it returns a method from the metatable:
+        expect (f (t, "_method")).to_be (method)
+
+  - context with an object:
+    - before:
+        Object = require "std.object"
+        objmethod = function () end
+        obj = Object {
+          _type = "DerivedObject",
+          _method = objmethod,
+        }
+    - it returns nil for missing metamethods:
+        expect (f (obj, "not a metamethod on obj")).to_be (nil)
+    - it returns nil for non-function metatable entries:
+        expect (f (obj, "_type")).to_be (nil)
+    - it returns a method from the metatable:
+        expect (f (obj, "_method")).to_be (objmethod)
+
+
+- describe ielems:
+  - before:
+      f = M.ielems
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ielems (table)")
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for e in f {"foo", 42} do
+        t[#t + 1] = e
+      end
+      expect (t).to_equal {"foo", 42}
+  - it ignores the dictionary part of a table:
+      t = {}
+      for e in f {"foo", 42; bar = "baz", qux = "quux"} do
+        t[#t + 1] = e
+      end
+      expect (t).to_equal {"foo", 42}
+  - it respects __len metamethod:
+      t = {}
+      for v in f (__index) do t[#t + 1] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for e in f {} do t[#t + 1] = e end
+      expect (t).to_equal {}
+
+
+- describe ipairs:
+  - before:
+      f = M.ipairs
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ipairs (table)")
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for i, v in f {"foo", 42} do
+        t[i] = v
+      end
+      expect (t).to_equal {"foo", 42}
+  - it ignores the dictionary part of a table:
+      t = {}
+      for i, v in f {"foo", 42; bar = "baz", qux = "quux"} do
+        t[i] = v
+      end
+      expect (t).to_equal {"foo", 42}
+  - it respects __len metamethod:
+      t = {}
+      for k, v in f (__index) do t[k] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for i, v in f {} do t[i] = v end
+      expect (t).to_equal {}
+
+
+- describe ireverse:
+  - before:
+      f = M.ireverse
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ireverse (table)")
+
+  - it returns a new list:
+      t = {1, 2, 5}
+      expect (f (t)).not_to_be (t)
+  - it reverses the elements relative to the original list:
+      expect (f {1, 2, "five"}).to_equal {"five", 2, 1}
+  - it ignores the dictionary part of a table:
+      expect (f {1, 2, "five"; a = "b", c = "d"}).to_equal {"five", 2, 1}
+  - it respects __len metamethod:
+      expect (f (__index)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it works for an empty list:
+      expect (f {}).to_equal {}
+
 
 - describe monkey_patch:
   - before:
-      f = std.monkey_patch
       io_mt = {}
       t = {
         io = {
@@ -94,21 +330,182 @@ specify std:
         math = {},
         table = {},
       }
+
+      f = M.monkey_patch
+
       f (t)
-  - it installs std.io monkey patches:
-      expect (io_mt.readlines).to_be (std.io.readlines)
-      expect (io_mt.writelines).to_be (std.io.writelines)
-  - it installs std.math monkey patches:
-      expect (t.math.floor).to_be (std.math.floor)
-  - it installs std.string monkey patches:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
-      expect (mt.__append).to_be (std.string.__append)
-      expect (mt.__concat).to_be (std.string.__concat)
-      expect (mt.__index).to_be (std.string.__index)
-      expect (t.assert).to_be (std.string.assert)
-      expect (t.tostring).to_be (std.string.tostring)
-  - it installs std.table monkey patches:
-      expect (t.table.sort).to_be (std.table.sort)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.monkey_patch (?table)")
+
+  - it installs std module functions:
+      for _, v in ipairs (exported_apis) do
+        if type (M[v]) == "function" and v ~= "barrel" and v ~= "monkey_patch" then
+          expect (t[v]).to_be (M[v])
+        end
+      end
+
+
+- describe pairs:
+  - before:
+      f = M.pairs
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.pairs (table)")
+
+  - it is an iterator over all table values:
+      t = {}
+      for k, v in f {"foo", bar = "baz", 42} do
+        t[k] = v
+      end
+      expect (t).to_equal {"foo", bar = "baz", 42}
+  - it respects __pairs metamethod: |
+      t = {}
+      for k, v in f (__pairs) do t[k] = v end
+      expect (t).
+        to_contain.a_permutation_of {"a", " ", "s", "t", "r", "i", "n", "g"}
+  - it works for an empty list:
+      t = {}
+      for k, v in f {} do t[k] = v end
+      expect (t).to_equal {}
+
+
+- describe require:
+  - before:
+      f = M.require
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.require (string, ?string, ?string, ?string)")
+
+  - it diagnoses non-existent module:
+      expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
+  - it diagnoses module too old:
+      expect (f ("std", "9999", "9999")).
+        to_raise "require 'std' with at least version 9999,"
+  - it diagnoses module too new:
+      expect (f ("std", "0", "0")).
+        to_raise "require 'std' with version less than 0,"
+  - context when the module version is compatible:
+    - it returns the module table:
+        expect (f ("std", "0", "9999")).to_be (require "std")
+    - it places no upper bound by default:
+        expect (f ("std", "41")).to_be (require "std")
+    - it places no lower bound by default:
+        expect (f "std").to_be (require "std")
+    - it uses _VERSION when version field is nil:
+        std = require "std"
+        M._VERSION, M.version = M.version, M._VERSION
+        expect (f ("std", "41", "9999")).to_be (require "std")
+        M._VERSION, M.version = M.version, M._VERSION
+  - context with semantic versioning:
+    - before:
+        std = require "std"
+        ver = std.version
+        std.version = "1.2.3"
+    - after:
+        std.version = ver
+    - it diagnoses module too old:
+        expect (f ("std", "1.2.4")).
+          to_raise "require 'std' with at least version 1.2.4,"
+        expect (f ("std", "1.3")).
+          to_raise "require 'std' with at least version 1.3,"
+        expect (f ("std", "2.1.2")).
+          to_raise "require 'std' with at least version 2.1.2,"
+        expect (f ("std", "2")).
+          to_raise "require 'std' with at least version 2,"
+        expect (f ("std", "1.2.10")).
+          to_raise "require 'std' with at least version 1.2.10,"
+    - it diagnoses module too new:
+        expect (f ("std", nil, "1.2.2")).
+          to_raise "require 'std' with version less than 1.2.2,"
+        expect (f ("std", nil, "1.1")).
+          to_raise "require 'std' with version less than 1.1,"
+        expect (f ("std", nil, "1.1.2")).
+          to_raise "require 'std' with version less than 1.1.2,"
+        expect (f ("std", nil, "1")).
+          to_raise "require 'std' with version less than 1,"
+    - it returns modules with version in range:
+        expect (f ("std")).to_be (std)
+        expect (f ("std", "1")).to_be (std)
+        expect (f ("std", "1.2.3")).to_be (std)
+        expect (f ("std", nil, "2")).to_be (std)
+        expect (f ("std", nil, "1.3")).to_be (std)
+        expect (f ("std", nil, "1.2.10")).to_be (std)
+        expect (f ("std", "1.2.3", "1.2.4")).to_be (std)
+  - context with several numbers in version string:
+    - before:
+        std = require "std"
+        ver = std.version
+        std.version = "standard library for Lua 5.3 / 41.0.0"
+    - after:
+        std.version = ver
+    - it diagnoses module too old:
+        expect (f ("std", "42")).to_raise ()
+    - it diagnoses module too new:
+        expect (f ("std", nil, "40")).to_raise ()
+    - it returns modules with version in range:
+        expect (f ("std")).to_be (std)
+        expect (f ("std", "1")).to_be (std)
+        expect (f ("std", "41")).to_be (std)
+        expect (f ("std", nil, "42")).to_be (std)
+        expect (f ("std", "41", "42")).to_be (std)
+
+
+- describe ripairs:
+  - before:
+      f = M.ripairs
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.ripairs (table)")
+
+  - it returns a function, the table and a number:
+      fn, t, i = f {1, 2, 3}
+      expect ({type (fn), t, type (i)}).to_equal {"function", {1, 2, 3}, "number"}
+  - it iterates over the array part of a table:
+      t, u = {1, 2, 3; a=4, b=5, c=6}, {}
+      for i, v in f (t) do u[i] = v end
+      expect (u).to_equal {1, 2, 3}
+  - it returns elements in reverse order:
+      t, u = {"one", "two", "five"}, {}
+      for _, v in f (t) do u[#u + 1] = v end
+      expect (u).to_equal {"five", "two", "one"}
+  - it respects __len metamethod:
+      t = {}
+      for i, v in f (__index) do t[i] = v end
+      expect (t).to_equal {"a", " ", "s", "t", "r", "i", "n", "g"}
+      t = {}
+      for _, v in f (__index) do t[#t + 1] = v end
+      expect (t).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it works with the empty list:
+      t = {}
+      for k, v in f {} do t[k] = v end
+      expect (t).to_equal {}
+
+
+- describe tostring:
+  - before:
+      f = M.tostring
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.tostring (?any)")
+
+  - it renders primitives exactly like system tostring:
+      expect (f (nil)).to_be (tostring (nil))
+      expect (f (false)).to_be (tostring (false))
+      expect (f (42)).to_be (tostring (42))
+      expect (f (f)).to_be (tostring (f))
+      expect (f "a string").to_be "a string"
+  - it renders empty tables as a pair of braces:
+      expect (f {}).to_be ("{}")
+  - it renders table array part compactly:
+      expect (f {"one", "two", "five"}).
+        to_be '{1=one,2=two,3=five}'
+  - it renders a table dictionary part compactly:
+      expect (f { one = true, two = 2, three = {3}}).
+        to_be '{one=true,three={1=3},two=2}'
+  - it renders table keys in table.sort order:
+      expect (f { one = 3, two = 5, three = 4, four = 2, five = 1 }).
+        to_be '{five=1,four=2,one=3,three=4,two=5}'
+  - it renders keys with invalid symbol names compactly:
+      expect (f { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }).
+        to_be '{?=1,[]=1,_=0,a-key=1,word=0}'

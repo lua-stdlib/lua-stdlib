@@ -7,7 +7,6 @@ before: |
 specify std.tree:
 - before:
     prototype = (require "std.object").prototype
-    totable   = (require "std.table").totable
     t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
     tr = Tree (t)
 
@@ -28,7 +27,7 @@ specify std.tree:
       expect (tr).not_to_be (Tree)
       expect (prototype (tr)).to_be "Tree"
   - it turns a table argument into a tree:
-      expect (prototype (Tree (tr))).to_be "Tree"
+      expect (prototype (Tree (t))).to_be "Tree"
   - it does not turn table argument values into sub-Trees:
       expect (prototype (tr["fnord"])).to_be "table"
   - it understands branched nodes:
@@ -58,8 +57,8 @@ specify std.tree:
       expect (subject).to_equal (target)
       expect (subject).to_be (subject)
   - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "foo").to_error ("table expected")
+      expect (f ()).to_raise ("table expected")
+      expect (f "foo").to_raise ("table expected")
 
 
 - describe ileaves:
@@ -93,8 +92,8 @@ specify std.tree:
       end
       expect (l).to_equal {"one", "three", "five"}
   - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "string").to_error ("table expected")
+      expect (f ()).to_raise ("table expected")
+      expect (f "string").to_raise ("table expected")
 
 
 - describe inodes:
@@ -179,8 +178,8 @@ specify std.tree:
                   {"leaf",   {2},       subject[2]},          --  five,
                   {"join",   {},        subject}}             -- }
   - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "string").to_error ("table expected")
+      expect (f ()).to_raise ("table expected")
+      expect (f "string").to_raise ("table expected")
 
 
 - describe leaves:
@@ -216,8 +215,8 @@ specify std.tree:
       expect (l).to_contain.
         a_permutation_of {"one", 2, "three", 4, "bar", "five"}
   - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "string").to_error ("table expected")
+      expect (f ()).to_raise ("table expected")
+      expect (f "string").to_raise ("table expected")
 
 
 - describe merge:
@@ -246,8 +245,8 @@ specify std.tree:
       expect (m.k3).to_be (t2.k3)
       expect (m.k3).not_to_be (original.k3)
   - it diagnoses non-table arguments:
-      expect (f (nil, {})).to_error ("table expected")
-      expect (f ({}, nil)).to_error ("table expected")
+      expect (f (nil, {})).to_raise ("table expected")
+      expect (f ({}, nil)).to_raise ("table expected")
 
 
 - describe nodes:
@@ -355,8 +354,8 @@ specify std.tree:
                   {"leaf",   {3},   subject[{3}]},   --  3rd,
                   {"join",   {},    subject[{}]}}    -- }
   - it diagnoses non-table arguments:
-      expect (f ()).to_error ("table expected")
-      expect (f "string").to_error ("table expected")
+      expect (f ()).to_raise ("table expected")
+      expect (f "string").to_raise ("table expected")
 
 
 - describe __index:
@@ -396,13 +395,6 @@ specify std.tree:
       tr[{"foo", "branch", "bar"}] = "leaf1"
       tr[{"foo", "branch", "baz"}] = "leaf2"
       expect (tr).to_equal (Tree {foo=Tree {branch=Tree {bar="leaf1", baz="leaf2"}}})
-
-- describe __totable:
-  - it returns a table:
-      expect (prototype (totable (tr))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (tr)).to_contain.
-        all_of {"foo", branch={bar="bar", baz="baz"}, "quux"}
 
 - describe __tostring:
   - it returns a string:

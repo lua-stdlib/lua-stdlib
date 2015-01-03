@@ -1,100 +1,42 @@
 --[[--
  Tables as lists.
 
- Every list is also an object, and thus inherits all of the `std.object`
- methods, particularly use of object cloning for making new list objects.
+ Prototype Chain
+ ---------------
 
- In addition to calling methods on list objects in OO style...
-
-     local List = require "std.list"
-     local l = List {1, 2, 3}
-     for e in l:relems () do print (e) end
-       => 3
-       => 2
-       => 1
-
- ... some can also be called as module functions with an explicit list
- argument in the first or last parameter, check the documentation for
- details:
-
-     local List = require "std.list"
-     local l = List {1, 2, 3}
-     for e in List.relems (l) do print (e) end
-       => 3
-       => 2
-       => 1
+      table
+       `-> Object
+            `-> List
 
  @classmod std.list
 ]]
 
+
 local base    = require "std.base"
-local func    = require "std.functional"
-local Object  = require "std.object"
+local debug   = require "std.debug"
+
+local Object  = require "std.object" {}
+
+local ipairs, pairs = base.ipairs, base.pairs
+local len       = base.len
+local compare   = base.compare
+local prototype = base.prototype
+local unpack    = table.unpack or unpack
+
+local M, List
 
 
-local List -- forward declaration
-
-------
--- An Object derived List.
--- @table List
-
---- Append an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{l[1], ..., l[#l], x}`
 local function append (l, x)
-  local r = List {unpack (l)}
+  local r = l {}
   r[#r + 1] = x
   return r
 end
 
 
---- Compare two lists element-by-element, from left-to-right.
---
---     if a_list:compare (another_list) == 0 then print "same" end
--- @static
--- @function compare
--- @tparam List l a list
--- @tparam table m another list
--- @return -1 if `l` is less than `m`, 0 if they are the same, and 1
---   if `l` is greater than `m`
-local function compare (l, m)
-  for i = 1, math.min (#l, #m) do
-    if l[i] < m[i] then
-      return -1
-    elseif l[i] > m[i] then
-      return 1
-    end
-  end
-  if #l < #m then
-    return -1
-  elseif #l > #m then
-    return 1
-  end
-  return 0
-end
-
-
---- An iterator over the elements of a list.
--- @static
--- @function elems
--- @tparam List l a list
--- @treturn function  iterator function which returns successive elements
---   of `l`
--- @treturn List `l`
--- @return `true`
-local elems = base.elems
-
-
---- Concatenate arguments into a list.
--- @tparam List l a list
--- @param ... tuple of lists
--- @treturn List new list containing
---   `{l[1], ..., l[#l], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
 local function concat (l, ...)
   local r = List {}
-  for e in elems ({l, ...}) do
-    for v in elems (e) do
+  for _, e in ipairs {l, ...} do
+    for _, v in ipairs (e) do
       r[#r + 1] = v
     end
   end
@@ -102,34 +44,148 @@ local function concat (l, ...)
 end
 
 
---- Prepend an item to a list.
--- @tparam List l a list
--- @param x item
--- @treturn List new list containing `{x, unpack (l)}`
-local function cons (l, x)
-  return List {x, unpack (l)}
+local function rep (l, n)
+  local r = List {}
+  for i = 1, n do
+    r = concat (r, l)
+  end
+  return r
 end
 
 
---- Turn a list of pairs into a table.
--- @todo Find a better name.
--- @tparam  table ls list of lists `{{i1, v1}, ..., {in, vn}}`
--- @treturn table a new list containing table `{i1=v1, ..., in=vn}`
--- @see enpair
+local function sub (l, from, to)
+  local r = List {}
+  local lenl = len (l)
+  from = from or 1
+  to = to or lenl
+  if from < 0 then
+    from = from + lenl + 1
+  end
+  if to < 0 then
+    to = to + lenl + 1
+  end
+  for i = from, to do
+    r[#r + 1] = l[i]
+  end
+  return r
+end
+
+
+
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
+
+local function X (decl, fn)
+  return debug.argscheck ("std.list." .. decl, fn)
+end
+
+
+M = {
+  --- Append an item to a list.
+  -- @static
+  -- @function append
+  -- @tparam List l a list
+  -- @param x item
+  -- @treturn List new list with *x* appended
+  -- @usage
+  -- longer = append (short, "last")
+  append = X ("append (List, any)", append),
+
+  --- Compare two lists element-by-element, from left-to-right.
+  -- @static
+  -- @function compare
+  -- @tparam List l a list
+  -- @tparam List|table m another list, or table
+  -- @return -1 if *l* is less than *m*, 0 if they are the same, and 1
+  --   if *l* is greater than *m*
+  -- @usage
+  -- if a_list:compare (another_list) == 0 then print "same" end
+  compare = X ("compare (List, List|table)", compare),
+
+  --- Concatenate the elements from any number of lists.
+  -- @static
+  -- @function concat
+  -- @tparam List l a list
+  -- @param ... tuple of lists
+  -- @treturn List new list with elements from arguments
+  -- @usage
+  -- --> {1, 2, 3, {4, 5}, 6, 7}
+  -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
+  concat = X ("concat (List, List|table*)", concat),
+
+  --- Prepend an item to a list.
+  -- @static
+  -- @function cons
+  -- @tparam List l a list
+  -- @param x item
+  -- @treturn List new list with *x* followed by elements of *l*
+  -- @usage
+  -- --> {"x", 1, 2, 3}
+  -- list.cons ({1, 2, 3}, "x")
+  cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
+
+  --- Repeat a list.
+  -- @static
+  -- @function rep
+  -- @tparam List l a list
+  -- @int n number of times to repeat
+  -- @treturn List *n* copies of *l* appended together
+  -- @usage
+  -- --> {1, 2, 3, 1, 2, 3, 1, 2, 3}
+  -- list.rep ({1, 2, 3}, 3)
+  rep = X ("rep (List, int)", rep),
+
+  --- Return a sub-range of a list.
+  -- (The equivalent of @{string.sub} on strings; negative list indices
+  -- count from the end of the list.)
+  -- @static
+  -- @function sub
+  -- @tparam List l a list
+  -- @int[opt=1] from start of range
+  -- @int[opt=#l] to end of range
+  -- @treturn List new list containing elements between *from* and *to*
+  --   inclusive
+  -- @usage
+  -- --> {3, 4, 5}
+  -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
+  sub = X ("sub (List, int?, int?)", sub),
+
+  --- Return a list with its first element removed.
+  -- @static
+  -- @function tail
+  -- @tparam List l a list
+  -- @treturn List new list with all but the first element of *l*
+  -- @usage
+  -- --> {3, {4, 5}, 6, 7}
+  -- list.tail {{1, 2}, 3, {4, 5}, 6, 7}
+  tail = X ("tail (List)", function (l) return sub (l, 2) end),
+}
+
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+-- This entire section can be deleted in due course, with just one
+-- additional small correction noted in FIXME comments in the List
+-- object constructor at the end of this file.
+
+
+local DEPRECATED = debug.DEPRECATED
+
+
 local function depair (ls)
   local t = {}
-  for v in elems (ls) do
+  for _, v in ipairs (ls) do
     t[v[1]] = v[2]
   end
   return t
 end
 
 
---- Turn a table into a list of pairs.
--- @todo Find a better name.
--- @tparam  table t  a table `{i1=v1, ..., in=vn}`
--- @treturn List a new list containing `{{i1, v1}, ..., {in, vn}}`
--- @see depair
 local function enpair (t)
   local ls = List {}
   for i, v in pairs (t) do
@@ -139,20 +195,17 @@ local function enpair (t)
 end
 
 
---- Filter a list according to a predicate.
--- @func p predicate function, of one argument returning a boolean
--- @tparam List l a list
--- @treturn List new list containing elements `e` of `l` for which
---   `p (e)` is true
--- @see std.list:filter
-local function filter (p, l)
-  return List (func.filter (p, elems, l))
+local function filter (pfn, l)
+  local r = List {}
+  for _, e in ipairs (l) do
+    if pfn (e) then
+      r[#r + 1] = e
+    end
+  end
+  return r
 end
 
 
---- Flatten a list.
--- @tparam List l a list
--- @treturn List flattened list
 local function flatten (l)
   local r = List {}
   for v in base.leaves (ipairs, l) do
@@ -162,53 +215,29 @@ local function flatten (l)
 end
 
 
---- Fold a binary function through a list left associatively.
--- @func fn binary function
--- @param e element to place in left-most position
--- @tparam List l a list
--- @return result
--- @see std.list:foldl
-local function foldl (fn, e, l)
-  return func.fold (fn, e, elems, l)
+local function foldl (fn, d, t)
+  if t == nil then
+    local tail = {}
+    for i = 2, len (d) do tail[#tail + 1] = d[i] end
+    d, t = d[1], tail
+  end
+  return base.reduce (fn, d, base.ielems, t)
 end
 
 
---- An iterator over the elements of a list, in reverse.
--- @tparam List l a list
--- @treturn function iterator function which returns precessive elements
---   of the `l`
--- @treturn List `l`
--- @return `true`
-local function relems (l)
-  local n = #l + 1
-  return function (l)
-           n = n - 1
-           if n > 0 then
-             return l[n]
-           end
-         end,
-  l, true
+local function foldr (fn, d, t)
+  if t == nil then
+    local u, last = {}, len (d)
+    for i = 1, last - 1 do u[#u + 1] = d[i] end
+    d, t = d[last], u
+  end
+  return base.reduce (
+    function (x, y) return fn (y, x) end, d, base.ielems, base.ireverse (t))
 end
 
 
---- Fold a binary function through a list right associatively.
--- @func fn binary function
--- @param e element to place in right-most position
--- @tparam List l a list
--- @return result
--- @see std.list:foldr
-local function foldr (fn, e, l)
-  return List (func.fold (function (x, y) return fn (y, x) end,
-                          e, relems, l))
-end
-
-
---- Make an index of a list of tables on a given field
--- @param f field
--- @tparam List l list of tables `{t1, ..., tn}`
--- @treturn List index `{t1[f]=1, ..., tn[f]=n}`
 local function index_key (f, l)
-  local r = List {}
+  local r = {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -219,12 +248,8 @@ local function index_key (f, l)
 end
 
 
---- Copy a list of tables, indexed on a given field
--- @param f field whose value should be used as index
--- @tparam List l list of tables `{i1=t1, ..., in=tn}`
--- @treturn List index `{t1[f]=t1, ..., tn[f]=tn}`
 local function index_value (f, l)
-  local r = List {}
+  local r = {}
   for i, v in ipairs (l) do
     local k = v[f]
     if k then
@@ -235,80 +260,34 @@ local function index_value (f, l)
 end
 
 
---- Map a function over a list.
--- @func fn map function
--- @tparam List l a list
--- @treturn List new list containing `{fn (l[1]), ..., fn (l[#l])}`
--- @see std.list:map
 local function map (fn, l)
-  return List (func.map (fn, elems, l))
+  local r = List {}
+  for _, e in ipairs (l) do
+    local v = fn (e)
+    if v ~= nil then
+      r[#r + 1] = v
+    end
+  end
+  return r
 end
 
 
---- Map a function over a list of lists.
--- @func fn map function
--- @tparam List ls a list of lists
--- @treturn List new list `{fn (unpack (ls[1]))), ..., fn (unpack (ls[#ls]))}`
 local function map_with (fn, ls)
-  return List (func.map (func.compose (unpack, fn), elems, ls))
+  return map (function (...) return fn (unpack (...)) end, ls)
 end
 
 
---- Project a list of fields from a list of tables.
--- @param f field to project
--- @tparam List l a list
--- @treturn List list of `f` fields
--- @see std.list:project
-local function project (f, l)
-  return map (function (t) return t[f] end, l)
+local function project (x, l)
+  return map (function (t) return t[x] end, l)
 end
 
 
---- Repeat a list.
--- @tparam List l a list
--- @int n number of times to repeat
--- @treturn List `n` copies of `l` appended together
-local function rep (l, n)
-  local r = List {}
-  for i = 1, n do
-    r = concat (r, l)
-  end
-  return r
-end
+local function relems (l) return base.ielems (base.ireverse (l)) end
 
 
---- Reverse a list.
--- @tparam List l a list
--- @treturn List new list containing `{l[#l], ..., l[1]}`
-local function reverse (l)
-  local r = List {}
-  for i = #l, 1, -1 do
-    r[#r + 1] = l[i]
-  end
-  return r
-end
+local function reverse (l) return List (base.ireverse (l)) end
 
 
---- Shape a list according to a list of dimensions.
---
--- Dimensions are given outermost first and items from the original
--- list are distributed breadth first; there may be one 0 indicating
--- an indefinite number. Hence, `{0}` is a flat list,
--- `{1}` is a singleton, `{2, 0}` is a list of
--- two lists, and `{0, 2}` is a list of pairs.
---
--- Algorithm: turn shape into all positive numbers, calculating
--- the zero if necessary and making sure there is at most one;
--- recursively walk the shape, adding empty tables until the bottom
--- level is reached at which point add table items instead, using a
--- counter to walk the flattened original list.
---
--- @todo Use ileaves instead of flatten (needs a while instead of a
--- for in fill function)
--- @tparam table s `{d1, ..., dn}`
--- @tparam List l a list
--- @return reshaped list
--- @see std.list:shape
 local function shape (s, l)
   l = flatten (l)
   -- Check the shape and calculate the size of the zero, if any
@@ -326,10 +305,10 @@ local function shape (s, l)
     end
   end
   if zero then
-    s[zero] = math.ceil (#l / size)
+    s[zero] = math.ceil (len (l) / size)
   end
   local function fill (i, d)
-    if d > #s then
+    if d > len (s) then
       return l[i], i + 1
     else
       local r = List {}
@@ -345,289 +324,192 @@ local function shape (s, l)
 end
 
 
---- Return a sub-range of a list.
--- (The equivalent of `string.sub` on strings; negative list indices
--- count from the end of the list.)
--- @tparam List l a list
--- @int from start of range (default: 1)
--- @int to end of range (default: `#l`)
--- @treturn List new list containing `{l[from], ..., l[to]}`
-local function sub (l, from, to)
-  local r = List {}
-  local len = #l
-  from = from or 1
-  to = to or len
-  if from < 0 then
-    from = from + len + 1
-  end
-  if to < 0 then
-    to = to + len + 1
-  end
-  for i = from, to do
-    r[#r + 1] = l[i]
-  end
-  return r
-end
-
-
---- Return a list with its first element removed.
--- @tparam List l a list
--- @treturn List new list containing `{l[2], ..., l[#l]}`
-local function tail (l)
-  return sub (l, 2)
-end
-
-
---- Transpose a list of lists.
--- This function in Lua is equivalent to zip and unzip in more strongly
--- typed languages.
--- @tparam table ls
--- `{{ls<1,1>, ..., ls<1,c>}, ..., {ls&lt;r,1>, ..., ls&lt;r,c>}}`
--- @treturn List new list containing
--- `{{ls<1,1>, ..., ls&lt;r,1>}, ..., {ls<1,c>, ..., ls&lt;r,c>}}`
 local function transpose (ls)
-  local rs, len = List {}, #ls
-  for i = 1, math.max (unpack (map (ls, function (l) return #l end))) do
-    rs[i] = List {}
-    for j = 1, len do
-      rs[i][j] = ls[j][i]
+  local rs, lenls, dims = List {}, len (ls), map (len, ls)
+  if len (dims) > 0 then
+    for i = 1, math.max (unpack (dims)) do
+      rs[i] = List {}
+      for j = 1, lenls do
+        rs[i][j] = ls[j][i]
+      end
     end
   end
   return rs
 end
 
 
---- Zip a list of lists together with a function.
--- @tparam  table    ls list of lists
--- @tparam  function f  function
--- @treturn List    a new list containing
---   `{f (ls[1][1], ..., ls[#ls][1]), ..., f (ls[1][N], ..., ls[#ls][N])`
--- where `N = max {map (function (l) return #l end, ls)}`
-local function zip_with (ls, f)
-  return map_with (transpose (ls), f)
+local function zip_with (ls, fn)
+  return map_with (fn, transpose (ls))
 end
 
 
+local m = {
+  append  = M.append,
+  compare = M.compare,
+  concat  = M.concat,
+  cons    = M.cons,
+  rep     = M.rep,
+  sub     = M.sub,
+  tail    = M.tail,
+}
+
+
+m.depair      = DEPRECATED ("38", "'std.list:depair'",    depair)
+m.map_with    = DEPRECATED ("38", "'std.list:map_with'",
+                  function (self, fn) return map_with (fn, self) end)
+m.transpose   = DEPRECATED ("38", "'std.list:transpose'", transpose)
+m.zip_with    = DEPRECATED ("38", "'std.list:zip_with'",  zip_with)
+
+
+M.depair      = DEPRECATED ("41", "'std.list.depair'", depair)
+
+M.enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair)
+m.enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair)
+
+M.elems       = DEPRECATED ("41", "'std.list.elems'",
+                  "use 'std.ielems' instead", base.ielems)
+m.elems       = DEPRECATED ("41", "'std.list:elems'",
+                  "use 'std.ielems' instead", base.ielems)
+
+M.filter      = DEPRECATED ("41", "'std.list.filter'",
+                  "use 'std.functional.filter' instead", filter)
+m.filter      = DEPRECATED ("41", "'std.list:filter'",
+                  "use 'std.functional.filter' instead",
+                  function (self, p) return filter (p, self) end)
+
+
+M.flatten     = DEPRECATED ("41", "'std.list.flatten'",
+                  "use 'std.functional.flatten' instead", flatten)
+m.flatten     = DEPRECATED ("41", "'std.list:flatten'",
+                  "use 'std.functional.flatten' instead", flatten)
+
+
+M.foldl       = DEPRECATED ("41", "'std.list.foldl'",
+                  "use 'std.functional.foldl' instead", foldl)
+m.foldl       = DEPRECATED ("41", "'std.list:foldl'",
+                  "use 'std.functional.foldl' instead",
+		  function (self, fn, e)
+	            if e ~= nil then return foldl (fn, e, self) end
+	            return foldl (fn, self)
+	          end)
+
+M.foldr       = DEPRECATED ("41", "'std.list.foldr'",
+                  "use 'std.functional.foldr' instead", foldr)
+m.foldr       = DEPRECATED ("41", "'std.list:foldr'",
+                  "use 'std.functional.foldr' instead",
+		  function (self, fn, e)
+	            if e ~= nil then return foldr (fn, e, self) end
+	            return foldr (fn, self)
+	          end)
+
+M.index_key   = DEPRECATED ("41", "'std.list.index_key'",
+                "compose 'std.functional.filter' and 'std.table.invert' instead",
+		index_key)
+m.index_key   = DEPRECATED ("41", "'std.list:index_key'",
+                function (self, fn) return index_key (fn, self) end)
+
+
+M.index_value = DEPRECATED ("41", "'std.list.index_value'",
+                  "compose 'std.functional.filter' and 'std.table.invert' instead",
+		  index_value)
+m.index_value = DEPRECATED ("41", "'std.list:index_value'",
+                  function (self, fn) return index_value (fn, self) end)
+
+
+M.map         = DEPRECATED ("41", "'std.list.map'",
+                  "use 'std.functional.map' instead", map)
+m.map         = DEPRECATED ("41", "'std.list:map'",
+                  "use 'std.functional.map' instead",
+                  function (self, fn) return map (fn, self) end)
+
+
+
+M.map_with    = DEPRECATED ("41", "'std.list.map_with'",
+                  "use 'std.functional.map_with' instead", map_with)
+
+M.project     = DEPRECATED ("41", "'std.list.project'",
+                  "use 'std.table.project' instead", project)
+m.project     = DEPRECATED ("41", "'std.list:project'",
+                  "use 'std.table.project' instead",
+                  function (self, x) return project (x, self) end)
+
+M.relems      = DEPRECATED ("41", "'std.list.relems'",
+                  "compose 'std.ielems' and 'std.ireverse' instead", relems)
+m.relems      = DEPRECATED ("41", "'std.list:relems'",  relems)
+
+M.reverse     = DEPRECATED ("41", "'std.list.reverse'",
+                  "use 'std.ireverse' instead", reverse)
+m.reverse     = DEPRECATED ("41", "'std.list:reverse'",
+                  "use 'std.ireverse' instead", reverse)
+
+M.shape       = DEPRECATED ("41", "'std.list.shape'",
+                  "use 'std.table.shape' instead", shape)
+m.shape       = DEPRECATED ("41", "'std.list:shape'",
+                  "use 'std.table.shape' instead",
+		  function (t, l) return shape (l, t) end)
+
+M.transpose   = DEPRECATED ("41", "'std.list.transpose'",
+                  "use 'std.functional.zip' instead", transpose)
+
+M.zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
+                  "use 'std.functional.zip_with' instead", zip_with)
+
+
+
+--[[ ================== ]]--
+--[[ Type Declarations. ]]--
+--[[ ================== ]]--
+
+
+--- An Object derived List.
+-- @object List
+
 List = Object {
   -- Derived object type.
-  _type = "List",
-
+  _type      = "List",
+  _functions = M,	-- FIXME: remove this when DEPRECATIONS have gone
+  __index    = m,	-- FIXME: `__index = M` when DEPRECATIONS have gone
 
   ------
   -- Concatenate lists.
-  --     new = list .. table
   -- @function __concat
-  -- @tparam List list a list
-  -- @tparam table    table another list, hash part is ignored
+  -- @tparam List l a list
+  -- @tparam List|table m another list, or table (hash part is ignored)
   -- @see concat
+  -- @usage
+  -- new = alist .. {"append", "these", "elements"}
   __concat = concat,
 
   ------
   -- Append element to list.
-  --     list = list + element
   -- @function __add
-  -- @tparam List list a list
-  -- @param           element element to append
+  -- @tparam List l a list
+  -- @param e element to append
   -- @see append
-  __add    = append,
+  -- @usage
+  -- list = list + "element"
+  __add = append,
 
   ------
   -- List order operator.
-  --     max = list1 > list2 and list1 or list2
-  -- @tparam List list1 a list
-  -- @tparam List list2 another list
-  -- @see std.list:compare
+  -- @function __lt
+  -- @tparam List l a list
+  -- @tparam List m another list
+  -- @see compare
+  -- @usage
+  -- max = list1 > list2 and list1 or list2
   __lt = function (list1, list2) return compare (list1, list2) < 0 end,
 
   ------
   -- List equality or order operator.
-  --     min = list1 <= list2 and list1 or list2
-  -- @tparam List list1 a list
-  -- @tparam List list2 another list
-  -- @see std.list:compare
+  -- @function __le
+  -- @tparam List l a list
+  -- @tparam List m another list
+  -- @see compare
+  -- @usage
+  -- min = list1 <= list2 and list1 or list2
   __le = function (list1, list2) return compare (list1, list2) <= 0 end,
-
-  __index = {
-    ------
-    -- Append an item to a list.
-    -- @function append
-    -- @param x item
-    -- @treturn List new list containing `{self[1], ..., self[#self], x}`
-    append = append,
-
-    ------
-    -- Compare two lists element-by-element, from left-to-right.
-    --
-    --     if a_list:compare (another_list) == 0 then print "same" end
-    -- @function compare
-    -- @tparam table l a list
-    -- @return -1 if `self` is less than `l`, 0 if they are the same, and 1
-    --   if `self` is greater than `l`
-    compare = compare,
-
-    ------
-    -- Concatenate arguments into a list.
-    -- @function concat
-    -- @param ... tuple of lists
-    -- @treturn List new list containing
-    --   `{self[1], ..., self[#self], l\_1[1], ..., l\_1[#l\_1], ..., l\_n[1], ..., l\_n[#l\_n]}`
-    concat = concat,
-
-    ------
-    -- Prepend an item to a list.
-    -- @function cons
-    -- @param x item
-    -- @treturn List new list containing `{x, unpack (self)}`
-    cons = cons,
-
-    ------
-    -- An iterator over the elements of a list.
-    -- @function elems
-    -- @treturn function  iterator function which returns successive
-    --   elements of `self`
-    -- @treturn List `self`
-    -- @return `true`
-    elems = elems,
-
-    ------
-    -- Filter a list according to a predicate.
-    -- @function filter
-    -- @func p predicate function, of one argument returning a boolean
-    -- @treturn List new list containing elements `e` of `self` for which
-    --   `p (e)` is true
-    -- @see std.list.filter
-    filter = function (self, p) return filter (p, self) end,
-
-    ------
-    -- Flatten a list.
-    -- @function flatten
-    -- @treturn List flattened list
-    flatten = flatten,
-
-    ------
-    -- Fold a binary function through a list left associatively.
-    -- @function foldl
-    -- @func fn binary function
-    -- @param e element to place in left-most position
-    -- @return result
-    -- @see std.list.foldl
-    foldl = function (self, fn, e) return foldl (fn, e, self) end,
-
-    ------
-    -- Fold a binary function through a list right associatively.
-    -- @function foldr
-    -- @func f binary function
-    -- @param e  element to place in right-most position
-    -- @return result
-    -- @see std.list.foldr
-    foldr = function (self, fn, e) return foldr (fn, e, self) end,
-
-    ------
-    -- Map a function over a list.
-    -- @function map
-    -- @func fn map function
-    -- @treturn List new list containing
-    --   `{fn (self[1]), ..., fn (self[#self])}`
-    -- @see std.list.map
-    map = function (self, fn) return map (fn, self) end,
-
-    ------
-    -- Project a list of fields from a list of tables.
-    -- @function project
-    -- @param f field to project
-    -- @treturn List list of `f` fields
-    -- @see std.list.project
-    project = function (self, f) return project (f, self) end,
-
-    ------
-    -- An iterator over the elements of a list, in reverse.
-    -- @function relems
-    -- @treturn function iterator function which returns precessive elements
-    --   of the `self`
-    -- @treturn List `self`
-    -- @return `true`
-    relems = relems,
-
-    ------
-    -- Repeat a list.
-    -- @function rep
-    -- @int n number of times to repeat
-    -- @treturn List `n` copies of `self` appended together
-    rep = rep,
-
-    ------
-    -- Reverse a list.
-    -- @function reverse
-    -- @treturn List new list containing `{self[#self], ..., self[1]}`
-    reverse = reverse,
-
-    -----
-    -- Shape a list according to a list of dimensions.
-    -- @function shape
-    -- @tparam table s `{d1, ..., dn}`
-    -- @return reshaped list
-    -- @see std.list.shape
-    shape = function (self, s) return shape (s, self) end,
-
-    ------
-    -- Return a sub-range of a list.
-    -- (The equivalent of `string.sub` on strings; negative list indices
-    -- count from the end of the list.)
-    -- @function sub
-    -- @int from start of range (default: 1)
-    -- @int to end of range (default: `#self`)
-    -- @treturn List new list containing `{self[from], ..., self[to]}`
-    sub = sub,
-
-    ------
-    -- Return a list with its first element removed.
-    -- @function tail
-    -- @treturn List new list containing `{self[2], ..., self[#self]}`
-    tail = tail,
-
-    -- For backwards compatibility with pre-Object era lists, but
-    -- undocumented so that new code doesn't get tangled up in it.
-    depair      = depair,
-    index_key   = function (self, f) return index_key (f, self)   end,
-    index_value = function (self, f) return index_value (f, self) end,
-    map_with    = function (self, f) return map_with (f, self)    end,
-    transpose   = transpose,
-    zip_with    = function (self, f) return zip_with (f, self)    end,
-  },
-
-
-  --- @export
-  _functions = {
-    append      = append,
-    compare     = compare,
-    concat      = concat,
-    cons        = cons,
-    depair      = depair,
-    elems       = elems,
-    enpair      = enpair,
-    filter      = filter,
-    flatten     = flatten,
-    foldl       = foldl,
-    foldr       = foldr,
-    index_key   = index_key,
-    index_value = index_value,
-    map         = map,
-    map_with    = map_with,
-    project     = project,
-    relems      = relems,
-    rep         = rep,
-    reverse     = reverse,
-    shape       = shape,
-    sub         = sub,
-    tail        = tail,
-    transpose   = transpose,
-    zip_with    = zip_with,
-  },
 }
-
-
--- Function forms of operators
-func.op[".."] = concat
 
 
 return List

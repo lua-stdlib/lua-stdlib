@@ -3,6 +3,12 @@ before:
   obj       = Object {"foo", "bar", baz="quux"}
   prototype = Object.prototype
 
+  function copy (t)
+    local r = {}
+    for k, v in pairs (t) do r[k] = v end
+    return r
+  end
+
 specify std.object:
 - context when required:
   - context by name:
@@ -53,6 +59,18 @@ specify std.object:
         p = Portal {}
         expect (prototype (p)).to_be "Demon"
         expect (prototype (p {})).to_be "Demon"
+    - it recognizes a file object:
+        h = io.open (os.tmpname ())
+        expect (prototype (h)).to_be "file"
+        h:close ()
+        expect (prototype (h)).to_be "closed file"
+    - it recognizes a primitive object:
+        expect (prototype (nil)).to_be "nil"
+        expect (prototype (false)).to_be "boolean"
+        expect (prototype (0.0)).to_be "number"
+        expect (prototype "0.0").to_be "string"
+        expect (prototype (function () end)).to_be "function"
+        expect (prototype {}).to_be "table"
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:prototype ()).to_be "Object"
@@ -74,9 +92,6 @@ specify std.object:
 
 
 - describe instantiation from a prototype:
-  - before:
-      totable = (require "std.table").totable
-
   - context when _init is nil:
     - before:
         Array = Object {
@@ -84,20 +99,21 @@ specify std.object:
           "foo", "bar", "baz",
         }
         Array._init = nil
+
     - it contains user-defined fields:
-        expect (totable (Array)).
+        expect (copy (Array)).
           to_equal {"foo", "bar", "baz"}
     - it sets array part of instance object from positional parameters:
         array = Array {"first", "second", "third"}
-        expect (totable (array)).
+        expect (copy (array)).
           to_equal {"first", "second", "third"}
     - it uses prototype values for missing positional parameters:
         array = Array {"first", "second"}
-        expect (totable (array)).
+        expect (copy (array)).
           to_equal {"first", "second", "baz"}
     - it merges surplas positional parameters:
         array = Array {"first", "second", "third", "fourth"}
-        expect (totable (array)).
+        expect (copy (array)).
           to_equal {"first", "second", "third", "fourth"}
 
   - context when _init is an empty table:
@@ -108,7 +124,7 @@ specify std.object:
           "first", "second", "third",
         }
     - it contains user-defined fields:
-        expect (totable (Prototype)).
+        expect (copy (Prototype)).
           to_equal {"first", "second", "third"}
     - it ignores positional parameters: |
         instance = Prototype {"foo", "bar"}
@@ -124,19 +140,19 @@ specify std.object:
           errout = "no errors",
         }
     - it contains user-defined fields:
-        expect (totable (Process)).
+        expect (copy (Process)).
           to_equal {status = -1, output = "empty", errout = "no errors"}
     - it sets user-defined fields from positional parameters:
         proc = Process {0, "output", "diagnostics"}
-        expect (totable (proc)).
+        expect (copy (proc)).
           to_equal {status = 0, output = "output", errout = "diagnostics"}
     - it uses prototype values for missing positional parameters:
         proc = Process {0, "output"}
-        expect (totable (proc)).
+        expect (copy (proc)).
           to_equal {status = 0, output = "output", errout = "no errors"}
     - it discards surplus positional parameters:
         proc = Process {0, "output", "diagnostics", "garbage"}
-        expect (totable (proc)).
+        expect (copy (proc)).
           to_equal { status = 0, output = "output", errout = "diagnostics" }
 
   - context when _init is a function:
@@ -248,34 +264,20 @@ specify std.object:
         expect (getmetatable (instance)).to_be (getmetatable (Derived))
   - context with custom metamethods:
     - before:
-        compare = require "std.list".compare
         bag = Object {
           _type = "bag",
-          __lt = function (a, b) return compare (a, b) < 0 end,
+          __lt = function (a, b) return a[1] < b[1] end,
         }
     - it has it's own metatable:
         expect (getmetatable (bag)).not_to_be (root_mt)
     - it propagates prototype metatable to derived instances:
         instance = bag {}
         expect (getmetatable (instance)).to_be (getmetatable (bag))
-    - it supports __lt calls:
+    - it supports __lt calls: |
         a, b = bag {"a"}, bag {"b"}
         expect (a < b).to_be (true)
         expect (a < a).to_be (false)
         expect (a > b).to_be (false)
-
-
-- describe __totable:
-  - before:
-      totable = (require "std.table").totable
-      Derived = Object {_type = "Derived", "one", "two", three = true}
-
-  - it returns a table:
-      expect (prototype (totable (Derived))).to_be "table"
-  - it contains all non-hidden fields of object:
-      expect (totable (Derived)).to_contain.all_of {"one", "two", "three"}
-  - it does not contain any hidden fields of object:
-      expect (totable (Derived)).to_equal {"one", "two", three = true}
 
 
 - describe __tostring:

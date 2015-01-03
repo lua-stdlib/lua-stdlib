@@ -1,14 +1,65 @@
-local hell      = require "specl.shell"
 local inprocess = require "specl.inprocess"
+local hell      = require "specl.shell"
 local std       = require "specl.std"
 
-package.path = std.package.normalize ("lib/?.lua", package.path)
+badargs = require "specl.badargs"
+unpack  = table.unpack or unpack
 
--- Substitute configured LUA so that hell.spawn doesn't pick up
--- a different Lua binary to the one used by Specl itself.  If
--- we could rely on luaposix availability `posix.getenv` would
--- be a nicer way to find this...
-local LUA = "@LUA@"
+local top_srcdir = os.getenv "top_srcdir" or "."
+local top_builddir = os.getenv "top_builddir" or "."
+
+package.path = std.package.normalize (
+                 top_builddir .. "/lib/?.lua",
+                 top_builddir .. "/lib/?/init.lua",
+                 top_srcdir .. "/lib/?.lua",
+                 top_srcdir .. "/lib/?/init.lua",
+                 package.path
+               )
+
+-- Allow user override of LUA binary used by hell.spawn, falling
+-- back to environment PATH search for "lua" if nothing else works.
+local LUA = os.getenv "LUA" or "lua"
+
+
+-- Tweak _DEBUG without tripping over Specl nested environments.
+setdebug = require "std.debug"._setdebug
+
+
+-- Wrap up badargs function in a succinct single call.
+function init (M, mname, fname)
+  local name = (mname .. "." .. fname):gsub ("^%.", "")
+  return M[fname], function (...) return badargs.format (name, ...) end
+end
+
+
+-- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
+-- prevent everything else from working.
+function prototype (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
+
+
+function nop () end
+
+
+-- Error message specifications use this to shorten argument lists.
+-- Copied from functional.lua to avoid breaking all tests if functional
+-- cannot be loaded correctly.
+function bind (f, fix)
+  return function (...)
+           local arg = {}
+           for i, v in pairs (fix) do
+             arg[i] = v
+           end
+           local i = 1
+           for _, v in pairs {...} do
+             while arg[i] ~= nil do i = i + 1 end
+             arg[i] = v
+           end
+           return f (unpack (arg))
+         end
+end
+
 
 local function mkscript (code)
   local f = os.tmpname ()
@@ -18,15 +69,40 @@ local function mkscript (code)
   return f
 end
 
-function luaproc (code)
+
+--- Run some Lua code with the given arguments and input.
+-- @string code valid Lua code
+-- @tparam[opt={}] string|table arg single argument, or table of
+--   arguments for the script invocation.
+-- @string[opt] stdin standard input contents for the script process
+-- @treturn specl.shell.Process|nil status of resulting process if
+--   execution was successful, otherwise nil
+function luaproc (code, arg, stdin)
   local f = mkscript (code)
-  local proc = hell.spawn {
-    LUA, f;
-    env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" },
-  }
+  if type (arg) ~= "table" then arg = {arg} end
+  local cmd = {LUA, f, unpack (arg)}
+  -- inject env and stdin keys separately to avoid truncating `...` in
+  -- cmd constructor
+  cmd.env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" }
+  cmd.stdin = stdin
+  local proc = hell.spawn (cmd)
   os.remove (f)
   return proc
 end
+
+
+--- Concatenate the contents of listed existing files.
+-- @string ... names of existing files
+-- @treturn string concatenated contents of those files
+function concat_file_content (...)
+  local t = {}
+  for _, name in ipairs {...} do
+    h = io.open (name)
+    t[#t + 1] = h:read "*a"
+  end
+  return table.concat (t)
+end
+
 
 local function tabulate_output (code)
   local proc = luaproc (code)
@@ -90,7 +166,9 @@ function show_apis (argt)
       local M = require "]] .. not_in .. [["
 
       for k in pairs (M) do
-        if from[k] ~= M[k] then print (k) end
+	-- M[1] is typically the module namespace name, don't match
+	-- that!
+        if k ~= 1 and from[k] ~= M[k] then print (k) end
       end
     ]])
 
@@ -123,10 +201,6 @@ function show_apis (argt)
 end
 
 
--- Not local, so that it is available in spec examples.
-totable = (require "std.table").totable
-
-
 -- Stub inprocess.capture if necessary; new in Specl 12.
 capture = inprocess.capture or
           function (f, arg) return nil, nil, f (unpack (arg or {})) end
@@ -135,7 +209,6 @@ capture = inprocess.capture or
 do
   -- Custom matcher for set size and set membership.
 
-  local set      = require "std.set"
   local util     = require "specl.util"
   local matchers = require "specl.matchers"
 
@@ -163,7 +236,7 @@ do
 
   matchers.have_member = Matcher {
     function (self, actual, expect)
-      return set.member (actual, expect)
+      return actual[expect] ~= nil
     end,
 
     actual = "set",
@@ -177,4 +250,7 @@ do
              util.concat (alternatives, util.QUOTED) .. ", "
     end,
   }
+
+  -- Alias that doesn't tickle sc_error_message_uppercase.
+  matchers.raise = matchers.error
 end

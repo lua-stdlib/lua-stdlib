@@ -1,0 +1,227 @@
+before: |
+  this_module  = "std.operator"
+  global_table = "_G"
+
+  M = require (this_module)
+
+specify std.operator:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by=this_module}).
+          to_equal {}
+
+  - context via the std module:
+    - it does not touch the global table:
+        expect (show_apis {added_to=global_table, by="std"}).
+          to_equal {}
+
+
+- describe concat:
+  - before:
+      f = M.concat
+
+  - it stringifies its arguments:
+      expect (f (1, "")).to_be "1"
+      expect (f ("", 2)).to_be "2"
+  - it concatenates its arguments:
+      expect (f (1, 2)).to_be "12"
+
+- describe get:
+  - before:
+      f = M.get
+
+  - it dereferences a table:
+      expect (f ({}, 1)).to_be (nil)
+      expect (f ({"foo", "bar"}, 1)).to_be "foo"
+      expect (f ({foo = "bar"}, "foo")).to_be "bar"
+
+- describe set:
+  - before:
+      f = M.set
+
+  - it sets a table entry:
+      expect (f ({}, 1, 42)).to_equal {42}
+      expect (f ({}, "foo", 42)).to_equal {foo=42}
+  - it overwrites an existing entry:
+      expect (f ({1, 2}, 1, 42)).to_equal {42, 2}
+      expect (f ({foo="bar", baz="quux"}, "foo", 42)).
+        to_equal {foo=42, baz="quux"}
+
+- describe sum:
+  - before:
+      f = M.sum
+
+  - it returns the sum of its arguments:
+      expect (f (99, 2)).to_be (99 + 2)
+
+- describe diff:
+  - before:
+      f = M.diff
+
+  - it returns the difference of its arguments:
+      expect (f (99, 2)).to_be (99 - 2)
+
+- describe prod:
+  - before:
+      f = M.prod
+
+  - it returns the product of its arguments:
+      expect (f (99, 2)).to_be (99 * 2)
+
+- describe quot:
+  - before:
+      f = M.quot
+
+  - it returns the quotient of its arguments:
+      expect (f (99, 2)).to_be (99 / 2)
+
+- describe mod:
+  - before:
+      f = M.mod
+
+  - it returns the modulus of its arguments:
+      expect (f (99, 2)).to_be (99 % 2)
+
+- describe pow:
+  - before:
+      f = M.pow
+
+  - it returns the power of its arguments:
+      expect (f (99, 2)).to_be (99 ^ 2)
+
+- describe conj:
+  - before:
+      f = M.conj
+
+  - it returns the logical and of its arguments:
+      expect (f (false, false)).to_be (false)
+      expect (f (false, true)).to_be (false)
+      expect (f (true, false)).to_be (false)
+      expect (f (true, true)).to_be (true)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (nil)
+      expect (f (0)).to_be (nil)
+      expect (f (nil, 0)).to_be (nil)
+      expect (f (0, "false")).to_be ("false")
+
+- describe disj:
+  - before:
+      f = M.disj
+
+  - it returns the logical or of its arguments:
+      expect (f (false, false)).to_be (false)
+      expect (f (false, true)).to_be (true)
+      expect (f (true, false)).to_be (true)
+      expect (f (true, true)).to_be (true)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (nil)
+      expect (f (0)).to_be (0)
+      expect (f (nil, 0)).to_be (0)
+      expect (f (0, "false")).to_be (0)
+
+- describe neg:
+  - before:
+      f = M.neg
+
+  - it returns the logical not of its argument:
+      expect (f (false)).to_be (true)
+      expect (f (true)).to_be (false)
+  - it supports truthy and falsey arguments:
+      expect (f ()).to_be (true)
+      expect (f (0)).to_be (false)
+
+- describe eq:
+  - before:
+      f = M.eq
+
+  - it returns true if the arguments are equal:
+      expect (f ()).to_be (true)
+      expect (f ("foo", "foo")).to_be (true)
+  - it returns false if the arguments are unequal:
+      expect (f (1)).to_be (false)
+      expect (f ("foo", "bar")).to_be (false)
+
+- describe neq:
+  - before:
+      f = M.neq
+
+  - it returns false if the arguments are equal:
+      expect (f (1, 1)).to_be (false)
+      expect (f ("foo", "foo")).to_be (false)
+  - it returns true if the arguments are unequal:
+      expect (f (1)).to_be (true)
+      expect (f ("foo", "bar")).to_be (true)
+      expect (f ({}, {})).to_be (true)
+
+- describe lt:
+  - before:
+      f = M.lt
+
+  - it returns true if the arguments are in ascending order:
+      expect (f (1, 2)).to_be (true)
+      expect (f ("a", "b")).to_be (true)
+  - it returns false if the arguments are not in ascending order:
+      expect (f (2, 2)).to_be (false)
+      expect (f (3, 2)).to_be (false)
+      expect (f ("b", "b")).to_be (false)
+      expect (f ("c", "b")).to_be (false)
+  - it supports __lt metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3}, List {1, 2, 3, 4})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
+      expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
+
+- describe lte:
+  - before:
+      f = M.lte
+
+  - it returns true if the arguments are not in descending order:
+      expect (f (1, 2)).to_be (true)
+      expect (f (2, 2)).to_be (true)
+      expect (f ("a", "b")).to_be (true)
+      expect (f ("b", "b")).to_be (true)
+  - it returns false if the arguments are in descending order:
+      expect (f (3, 2)).to_be (false)
+      expect (f ("c", "b")).to_be (false)
+  - it supports __lte metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3}, List {1, 2, 3, 4})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 4}, List {1, 2, 3})).to_be (false)
+
+- describe gt:
+  - before:
+      f = M.gt
+
+  - it returns true if the arguments are in descending order:
+      expect (f (2, 1)).to_be (true)
+      expect (f ("b", "a")).to_be (true)
+  - it returns false if the arguments are not in descending order:
+      expect (f (2, 2)).to_be (false)
+      expect (f (2, 3)).to_be (false)
+      expect (f ("b", "b")).to_be (false)
+      expect (f ("b", "c")).to_be (false)
+  - it supports __lt metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3, 4}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (false)
+      expect (f (List {1, 2, 3}, List {1, 2, 4})).to_be (false)
+
+- describe gte:
+  - before:
+      f = M.gte
+
+  - it returns true if the arguments are not in ascending order:
+      expect (f (2, 1)).to_be (true)
+      expect (f (2, 2)).to_be (true)
+      expect (f ("b", "a")).to_be (true)
+      expect (f ("b", "b")).to_be (true)
+  - it returns false if the arguments are in ascending order:
+      expect (f (2, 3)).to_be (false)
+      expect (f ("b", "c")).to_be (false)
+  - it supports __lte metamethods:
+      List = require "std.list" {}
+      expect (f (List {1, 2, 3, 4}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 3})).to_be (true)
+      expect (f (List {1, 2, 3}, List {1, 2, 4})).to_be (false)

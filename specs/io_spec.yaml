@@ -3,11 +3,14 @@ before: |
   this_module        = "std.io"
   global_table       = "_G"
 
-  extend_base        = { "catdir", "catfile", "die", "monkey_patch",
+  extend_base        = { "catdir", "catfile", "die", "dirname", "monkey_patch",
                          "process_files", "readlines", "shell", "slurp",
                          "splitdir", "warn", "writelines" }
 
+  dirsep = string.match (package.config, "^([^\n]+)\n")
+
   M = require (this_module)
+
 
 specify std.io:
 - context when required:
@@ -32,104 +35,320 @@ specify std.io:
 
 
 - describe catdir:
+  - before: |
+      f = M.catdir
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.catdir (string*)")
+
+  - it treats initial empty string as root directory:
+      expect (f ("")).to_be (dirsep)
+      expect (f ("", "")).to_be (dirsep)
+      expect (f ("", "root")).to_be (dirsep .. "root")
+  - it returns a single argument unchanged:
+      expect (f ("hello")).to_be "hello"
+  - it joins multiple arguments with platform directory separator:
+      expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (f ("1", "2", "3", "4", "5")).
+        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe catfile:
+  - before:
+      f = M.catfile
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.catfile (string*)")
+
+  - it treats initial empty string as root directory:
+      expect (f ("", "")).to_be (dirsep)
+      expect (f ("", "root")).to_be (dirsep .. "root")
+  - it returns a single argument unchanged:
+      expect (f ("")).to_be ""
+      expect (f ("hello")).to_be "hello"
+  - it joins multiple arguments with platform directory separator:
+      expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
+      expect (f ("1", "2", "3", "4", "5")).
+        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe die:
-  - before:
+  - before: |
       script = [[require "std.io".die "By 'eck!"]]
-  - it outputs a message to stderr:
-      expect (luaproc (script)).to_fail_with "By 'eck!\n"
-  - it ignores `prog.line` without `prog.file` or `prog.name`:
+
+      f = M.die
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.die (string, ?any*)")
+
+  - it outputs a message to stderr: |
+      expect (luaproc (script)).to_fail_while_matching ": By 'eck!\n"
+  - it ignores `prog.line` without `prog.file` or `prog.name`: |
       script = [[prog = { line = 125 };]] .. script
-      expect (luaproc (script)).to_fail_with "By 'eck!\n"
-  - it ignores `opts.line` without `opts.program`:
+      expect (luaproc (script)).to_fail_while_matching ": By 'eck!\n"
+  - it ignores `opts.line` without `opts.program`: |
       script = [[opts = { line = 99 };]] .. script
-      expect (luaproc (script)).to_fail_with "By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": By 'eck!\n"
   - it prefixes `prog.name` if any: |
       script = [[prog = { name = "name" };]] .. script
-      expect (luaproc (script)).to_fail_with "name: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": name: By 'eck!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { line = 125, name = "name" };]] .. script
-      expect (luaproc (script)).to_fail_with "name:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": name:125: By 'eck!\n"
   - it prefixes `prog.file` if any: |
       script = [[prog = { file = "file" };]] .. script
-      expect (luaproc (script)).to_fail_with "file: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": file: By 'eck!\n"
   - it appends `prog.line` if any, to `prog.name`: |
       script = [[prog = { file = "file", line = 125 };]] .. script
-      expect (luaproc (script)).to_fail_with "file:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": file:125: By 'eck!\n"
   - it prefers `prog.name` to `prog.file` or `opts.program`: |
       script = [[
         prog = { file = "file", name = "name" }
         opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).to_fail_with "name: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": name: By 'eck!\n"
   - it appends `prog.line` if any to `prog.name` over anything else: |
       script = [[
         prog = { file = "file", line = 125, name = "name" }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).to_fail_with "name:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": name:125: By 'eck!\n"
   - it prefers `prog.file` to `opts.program`: |
       script = [[
         prog = { file = "file" }; opts = { program = "program" }
       ]] .. script
-      expect (luaproc (script)).to_fail_with "file: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": file: By 'eck!\n"
   - it appends `prog.line` if any to `prog.file` over using `opts`: |
       script = [[
         prog = { file = "file", line = 125 }
         opts = { line = 99, program = "program" }
       ]] .. script
-      expect (luaproc (script)).to_fail_with "file:125: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": file:125: By 'eck!\n"
   - it prefixes `opts.program` if any: |
       script = [[opts = { program = "program" };]] .. script
-      expect (luaproc (script)).to_fail_with "program: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": program: By 'eck!\n"
   - it appends `opts.line` if any, to `opts.program`: |
       script = [[opts = { line = 99, program = "program" };]] .. script
-      expect (luaproc (script)).to_fail_with "program:99: By 'eck!\n"
+      expect (luaproc (script)).to_fail_while_matching ": program:99: By 'eck!\n"
+
+
+- describe dirname:
+  - before:
+      f = M.dirname
+      path = table.concat ({"", "one", "two", "three"}, dirsep)
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.dirname (string)")
+
+  - it removes final separator and following:
+      expect (f (path)).to_be (table.concat ({"", "one", "two"}, dirsep))
 
 
 - describe monkey_patch:
   - before:
-      f  = M.monkey_patch
-      mt = {}
-      t  = {
+      namespace = {}
+
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.monkey_patch (?table)")
+
+  - it returns the monkey_patched io entry from namespace:
+      namespace = {}
+      expect (f (namespace)).to_be (namespace.io)
+  - it injects std.io apis into the given namespace:
+      namespace = {}
+      f (namespace)
+      for _, api in ipairs (extend_base) do
+        expect (namespace.io[api]).to_be (M[api])
+      end
+  - it installs file methods:
+      mt = { "file metatable" }
+      io = f {
         io = {
-          stdin  = setmetatable ({}, mt),
-          stdout = setmetatable ({}, mt),
-          stderr = setmetatable ({}, mt),
-        },
+          stdin  = setmetatable ({ "stdin"  }, mt),
+          stdout = setmetatable ({ "stdout" }, mt),
+          stderr = setmetatable ({ "stderr" }, mt)
+        }
       }
-  - it installs readlines metamethod:
-      f (t)
       expect (mt.readlines).to_be (M.readlines)
-  - it installs writelines metamethod:
-      f (t)
       expect (mt.writelines).to_be (M.writelines)
-  - it diagnoses non-table argument:
-      expect (f "bad").to_error "table expected"
 
 
 - describe process_files:
+  - before:
+      name = "Makefile"
+      names = {"Makefile", "config.log", "config.status", "build-aux/config.ld"}
+      ascript = [[
+        require "std.io".process_files (function (a) print (a) end)
+      ]]
+      lscript = [[
+        require "std.io".process_files ("=print (_1)")
+      ]]
+      iscript = [[
+        require "std.io".process_files (function (_, i) print (i) end)
+      ]]
+      catscript = [[
+        require "std.io".process_files (function () io.write (io.input ():read "*a") end)
+      ]]
+
+      f = M.process_files
+
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.process_files (func)")
+
+      examples {
+        ["it diagnoses non-file 'arg' elements"] = function ()
+          expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
+            "cannot open file 'not-an-existing-file'",            -- Lua 5.2
+            "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
+          }
+        end
+      }
+
+  - it defaults to `-` if no arguments were passed:
+      expect (luaproc (ascript)).to_output "-\n"
+  - it iterates over arguments with supplied function:
+      expect (luaproc (ascript, name)).to_output (name .. "\n")
+      expect (luaproc (ascript, names)).
+        to_output (table.concat (names, "\n") .. "\n")
+  - it passes argument numbers to supplied function:
+      expect (luaproc (iscript, names)).to_output "1\n2\n3\n4\n"
+  - it sets each file argument as the default input:
+      expect (luaproc (catscript, name)).to_output (concat_file_content (name))
+      expect (luaproc (catscript, names)).
+        to_output (concat_file_content (unpack (names)))
+  - it processes io.stdin if no arguments were passed:
+      ## FIXME: where does that closing newline come from??
+      expect (luaproc (catscript, nil, "some\nlines\nof input")).to_output "some\nlines\nof input\n"
+  - it processes io.stdin for `-` argument:
+      ## FIXME: where does that closing newline come from??
+      expect (luaproc (catscript, "-", "some\nlines\nof input")).to_output "some\nlines\nof input\n"
 
 
 - describe readlines:
+  - before: |
+      name = "Makefile"
+      h = io.open (name)
+      lines = {} for l in h:lines () do lines[#lines + 1] = l end
+      h:close ()
+
+      defaultin = io.input ()
+
+      f, badarg = init (M, this_module,  "readlines")
+  - after:
+      if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
+
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.readlines (?file|string)")
+
+      examples {
+        ["it diagnoses non-existent file"] = function ()
+          expect (f "not-an-existing-file").
+            to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
+        end
+      }
+      closed = io.open (name, "r") closed:close ()
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+        end
+      }
+
+  - it closes file handle upon completion:
+      h = io.open (name)
+      expect (io.type (h)).not_to_be "closed file"
+      f (h)
+      expect (io.type (h)).to_be "closed file"
+  - it reads lines from an existing named file:
+      expect (f (name)).to_equal (lines)
+  - it reads lines from an open file handle:
+      expect (f (io.open (name))).to_equal (lines)
+  - it reads from default input stream with no arguments:
+      io.input (name)
+      expect (f ()).to_equal (lines)
 
 
 - describe shell:
+  - before:
+      f = M.shell
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.shell (string)")
+
+  - it returns the output from a shell command string:
+      expect (f [[printf '%s\n' 'foo' 'bar']]).to_be "foo\nbar\n"
 
 
 - describe slurp:
+  - before: |
+      name = "Makefile"
+      h = io.open (name)
+      content = h:read "*a"
+      h:close ()
+
+      defaultin = io.input ()
+      f, badarg = init (M, this_module,  "slurp")
+  - after:
+      if io.type (defaultin) ~= "closed file" then io.input (defaultin) end
+
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.slurp (?file|string)")
+
+      examples {
+        ["it diagnoses non-existent file"] = function ()
+          expect (f "not-an-existing-file").
+            to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+        end
+      }
+      closed = io.open (name, "r") closed:close ()
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+        end
+      }
+
+  - it reads content from an existing named file:
+      expect (f (name)).to_be (content)
+  - it reads content from an open file handle:
+      expect (f (io.open (name))).to_be (content)
+  - it closes file handle upon completion:
+      h = io.open (name)
+      expect (io.type (h)).not_to_be "closed file"
+      f (h)
+      expect (io.type (h)).to_be "closed file"
+  - it reads from default input stream with no arguments:
+      io.input (name)
+      expect (f ()).to_be (content)
 
 
 - describe splitdir:
+  - before:
+      f = M.splitdir
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.splitdir (string)")
+
+  - it returns a filename as a one element list:
+      expect (f ("hello")).to_equal {"hello"}
+  - it splits root directory in two empty elements:
+      expect (f (dirsep)).to_equal {"", ""}
+  - it returns initial empty string for absolute path:
+      expect (f (dirsep .. "root")).to_equal {"", "root"}
+  - it returns multiple components split at platform directory separator:
+      expect (f ("one" .. dirsep .. "two")).to_equal {"one", "two"}
+      expect (f (table.concat ({"1", "2", "3", "4", "5"}, dirsep))).
+        to_equal {"1", "2", "3", "4", "5"}
 
 
 - describe warn:
   - before:
       script = [[require "std.io".warn "Ayup!"]]
+      f = M.warn
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.io.warn (string, ?any*)")
+
   - it outputs a message to stderr:
       expect (luaproc (script)).to_output_error "Ayup!\n"
   - it ignores `prog.line` without `prog.file`, `prog.name` or `opts.program`:
@@ -179,3 +398,42 @@ specify std.io:
 
 
 - describe writelines:
+  - before: |
+      name = os.tmpname ()
+      h = io.open (name, "w")
+      lines = M.readlines (io.open "Makefile")
+
+      defaultout = io.output ()
+      f, badarg = init (M, this_module,  "writelines")
+  - after:
+      if io.type (defaultout) ~= "closed file" then io.output (defaultout) end
+      h:close ()
+      os.remove (name)
+
+  - context with bad arguments: |
+      badargs.diagnose (f, "std.io.writelines (?file|string|number, ?string|number*)")
+
+      closed = io.open (name, "r") closed:close ()
+      examples {
+        ["it diagnoses closed file argument"] = function ()
+          expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
+        end
+      }
+
+  - it does not close the file handle upon completion:
+      expect (io.type (h)).not_to_be "closed file"
+      f (h, "foo")
+      expect (io.type (h)).not_to_be "closed file"
+  - it writes lines to an open file handle:
+      f (h, unpack (lines))
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal (lines)
+  - it accepts number valued arguments:
+      f (h, 1, 2, 3)
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal {"1", "2", "3"}
+  - it writes to default output stream with non-file first argument:
+      io.output (h)
+      f (unpack (lines))
+      h:flush ()
+      expect (M.readlines (io.open (name))).to_equal (lines)
