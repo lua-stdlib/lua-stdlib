@@ -319,12 +319,17 @@ end
 
 
 local function ripairs (t)
+  local oob = 1
+  while t[oob] ~= nil do
+    oob = oob + 1
+  end
+
   return function (t, n)
     n = n - 1
     if n > 0 then
       return n, t[n]
     end
-  end, t, len (t) + 1
+  end, t, oob
 end
 
 

@@ -121,7 +121,8 @@
     meet version numbers passed.
 
   - New `std.ripairs` function for returning index & value pairs in
-    reverse order, while respecting `__len`.
+    reverse order, starting at the highest non-nil-valued contiguous integer
+    key.
 
   - New `table.len` function for returning the length of a table, much like
     the core `#` operation, but respecing `__len` even on Lua 5.1.
