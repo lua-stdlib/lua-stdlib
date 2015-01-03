@@ -106,8 +106,8 @@
     analagously to `std.ipairs` and `std.pairs`, but returning only the
     value part of each key-value pair visited.
 
-  - New `std.ireverse` function for reversing the array part of any
-    table, while respecting `__len`.
+  - New `std.ireverse` function for reversing the proper sequence part of
+    any table.
 
   - New `std.pairs` function that respects `__pairs` metamethod, even on
     Lua 5.1.

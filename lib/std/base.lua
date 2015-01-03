@@ -200,10 +200,15 @@ local function invert (t)
 end
 
 
--- Be careful not to compact holes from `t` when reversing.
+-- Be careful to reverse only the valid sequence part of a table.
 local function ireverse (t)
-  local r, tlen = {}, len (t)
-  for i = 1, tlen do r[tlen - i + 1] = t[i] end
+  local oob = 1
+  while t[oob] ~= nil do
+    oob = oob + 1
+  end
+
+  local r = {}
+  for i = 1, oob - 1 do r[oob - i] = t[i] end
   return r
 end
 
