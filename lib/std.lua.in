@@ -138,11 +138,12 @@ M = {
   -- for v in std.ielems {"a", "b", "c"} do process (v) end
   ielems = X ("ielems (table)", base.ielems),
 
-  --- An iterator over elements `1..#t`, respecting `__len` metamethod.
+  --- An iterator over elements of a sequence, until the first `nil` value.
   --
-  -- Unlike Lua 5.1, which ignores `__len`, and Lua 5.2, which looks for
-  -- and uses `__ipairs`, this iterator always iterates over elements with
-  -- integer keys starting at 1, up to and including `#t`.
+  -- Like Lua 5.1 and 5.3, but unlike Lua 5.2 (which looks for and uses the
+  -- `__ipairs` metamethod), this iterator returns successive key-value
+  -- pairs with integer keys starting at 1, up to the first `nil` valued
+  -- pair.
   -- @function ipairs
   -- @tparam table t a table
   -- @treturn function iterator function
@@ -151,10 +152,13 @@ M = {
   -- @see ielems
   -- @see pairs
   -- @usage
-  -- -- don't stop at first nil
+  -- -- length of sequence
   -- args = {"first", "second", nil, "last"}
-  -- setmetatable (args, { __len = std.functional.lambda "=4" })
-  -- for i, v in std.ipairs (args) do process (i, v) end
+  -- --> 1=first
+  -- --> 2=second
+  -- for i, v in std.ipairs (args) do
+  --   print (string.format ("%d=%s", i, v))
+  -- end
   ipairs = X ("ipairs (table)", base.ipairs),
 
   --- Return a new table with element order reversed.

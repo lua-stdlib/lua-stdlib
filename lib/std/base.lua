@@ -74,12 +74,12 @@ local function len (t)
 end
 
 
+-- Iterate over keys 1..n, where n is the key before the first nil
+-- valued ordinal key (like Lua 5.3).
 local function ipairs (l)
-  local lenl = len (l)
-
   return function (l, n)
     n = n + 1
-    if n <= lenl then
+    if l[n] ~= nil then
       return n, l[n]
     end
   end, l, 0
@@ -171,19 +171,6 @@ end
 
 local function eval (s)
   return loadstring ("return " .. s)()
-end
-
-
--- Iterate over keys 1..#l, like Lua 5.3.
-local function ipairs (l)
-  local tlen = len (l)
-
-  return function (l, n)
-    n = n + 1
-    if n <= tlen then
-      return n, l[n]
-    end
-  end, l, 0
 end
 
 

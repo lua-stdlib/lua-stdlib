@@ -93,29 +93,18 @@
     in specific type modules: including `std.assert`, `std.eval`, and
     `std.tostring`. See LDocs for details.
 
-  - New `std.ipairs` function that respects `__len` metamethod, while always
-    iterating from index 1 through #t.  This makes it easy to add metamethods
-    to a table that don't stop at the first `nil` value, among other things:
-
-    ```lua
-    function maxn (t)
-      return math.max (
-        unpack (filter (lambda '|e|type(e)=="number"', pairs, t))
-      )
-    end
-
-    function processallargs (x, ...)
-      for i, v in ipairs (setmetatable ({x, ...}, { __len = maxn })) do
-        process (i, v)
-      end
-    end
-    ```
+  - New `std.ipairs` function that ignores `__ipairs` metamethod (like Lua
+    5.1 and Lua 5.3), while always iterating from index 1 through n, where n
+    is the last non-`nil` valued integer key. Writing your loops to use
+    `std.ipairs` ensures your code will behave consistently across supported
+    versions of Lua.
 
     All of stdlib's implementation now uses `std.ipairs` rather than `ipairs`
     internally.
 
-  - New `std.ielems` and `std.elems` functions for iterating sequences cleanly,
-    while respecting `__len` and `__pairs` metamethods respectively.
+  - New `std.ielems` and `std.elems` functions for iterating sequences
+    analagously to `std.ipairs` and `std.pairs`, but returning only the
+    value part of each key-value pair visited.
 
   - New `std.ireverse` function for reversing the array part of any
     table, while respecting `__len`.
