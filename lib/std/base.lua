@@ -399,7 +399,6 @@ return {
 
   -- std.lua --
   assert   = assert,
-  case     = case,
   eval     = eval,
   elems    = elems,
   ielems   = ielems,
