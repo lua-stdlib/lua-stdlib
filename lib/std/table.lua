@@ -162,7 +162,7 @@ end
 local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.table = base.copy (namespace.table or {}, monkeys)
-  return namespace.table
+  return M
 end
 
 

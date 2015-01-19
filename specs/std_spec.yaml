@@ -98,6 +98,11 @@ specify std:
   - context with bad arguments:
       badargs.diagnose (f, "std.barrel (?table)")
 
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std module table:
+      expect (f (namespace)).to_equal (M)
   - it installs std monkey patches:
       for _, api in ipairs (exported_apis) do
         if type (M[api]) == "function" and
@@ -167,6 +172,18 @@ specify std:
       } do
         expect (namespace[api]).to_be (fn)
       end
+  - context when lazy loading:
+    - it has no submodules on initial load:
+        for _, v in pairs (M) do
+          expect (type (v)).not_to_be "table"
+        end
+    - it loads submodules on demand:
+        lazy = M.strbuf
+        expect (lazy).to_be (require "std.strbuf")
+    - it loads submodule functions on demand:
+        expect (M.object.prototype (M.strbuf {"Lazy"})).
+          to_be "StrBuf"
+
 
 - describe elems:
   - before:
@@ -338,6 +355,11 @@ specify std:
   - context with bad arguments:
       badargs.diagnose (f, "std.monkey_patch (?table)")
 
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std module table:
+      expect (f (t)).to_equal (M)
   - it installs std module functions:
       for _, v in ipairs (exported_apis) do
         if type (M[v]) == "function" and v ~= "barrel" and v ~= "monkey_patch" then

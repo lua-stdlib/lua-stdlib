@@ -82,7 +82,7 @@ local function monkey_patch (namespace)
     setmetatable (namespace.io.stdin, mt)
   end
 
-  return namespace.io
+  return M
 end
 
 

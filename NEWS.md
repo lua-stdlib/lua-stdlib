@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bug fixes
+
+  - `std.barrel` and the various `monkey_patch` functions now return
+    their parent module table as documented.
+
 
 ## Noteworthy changes in release 41.0.0 (2015-01-03) [beta]
 

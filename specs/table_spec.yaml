@@ -482,9 +482,11 @@ specify std.table:
   - context with bad arguments:
       badargs.diagnose (f, "std.table.monkey_patch (?table)")
 
-  - it returns the monkey_patched table entry from namespace:
-      namespace = {}
-      expect (f (namespace)).to_be (namespace.table)
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.table module table:
+      expect (f {}).to_equal (M)
   - it injects std.table apis into given namespace:
       namespace = {}
       f (namespace)

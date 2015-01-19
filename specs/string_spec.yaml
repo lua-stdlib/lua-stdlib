@@ -275,9 +275,11 @@ specify std.string:
   - context with bad arguments:
       badargs.diagnose (f, "std.string.monkey_patch (?table)")
 
-  - it returns the monkey_patched namespace:
-      namespace = {}
-      expect (f (namespace)).to_be (namespace.string)
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.string module table:
+      expect (f {}).to_equal (M)
   - it injects std.string apis into given namespace:
       namespace = {}
       f (namespace)

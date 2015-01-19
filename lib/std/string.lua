@@ -81,7 +81,7 @@ local function monkey_patch (namespace)
   string_metatable.__concat = M.__concat
   string_metatable.__index = M.__index
 
-  return namespace.string
+  return M
 end
 
 

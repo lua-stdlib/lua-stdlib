@@ -29,7 +29,8 @@ local M, monkeys
 
 
 local function monkey_patch (namespace)
-  return base.copy (namespace or _G, monkeys)
+  base.copy (namespace or _G, monkeys)
+  return M
 end
 
 

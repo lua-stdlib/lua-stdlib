@@ -31,7 +31,7 @@ end
 local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.math = base.copy (namespace.math or {}, M)
-  return namespace.math
+  return M
 end
 
 
