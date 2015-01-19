@@ -2,11 +2,11 @@
 local M = {}
 
 -- User specified fields.
-if type (_G._DEBUG) == "table" then
+if type (rawget(_G, "_DEBUG")) == "table" then
   M._DEBUG = _G._DEBUG
 
 -- Turn everything off.
-elseif _G._DEBUG == false then
+elseif rawget(_G, "_DEBUG") == false then
   M._DEBUG  = {
     argcheck  = false,
     call      = false,
@@ -15,7 +15,7 @@ elseif _G._DEBUG == false then
   }
 
 -- Turn everything on (except _DEBUG.call must be set explicitly).
-elseif _G._DEBUG == true then
+elseif rawget(_G, "_DEBUG") == true then
   M._DEBUG  = {
     argcheck  = true,
     call      = false,
