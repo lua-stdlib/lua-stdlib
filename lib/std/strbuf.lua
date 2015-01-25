@@ -16,23 +16,21 @@ local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
-local insert, prototype = base.insert, base.prototype
+local ielems, insert, prototype = base.ielems, base.insert, base.prototype
 
 local M, StrBuf
 
 
-local function concat (self, x)
-  if type (x) == "string" then
-    insert (self, x)
-  else
-    assert (prototype (x) == "StrBuf")
-    for _, v in ipairs (x) do
-      insert (self, v)
-    end
-  end
-  return self
+local function __concat (self, x)
+  return insert (self, x)
 end
 
+
+local function __tostring (self)
+  local strs = {}
+  for e in ielems (self) do strs[#strs + 1] = tostring (e) end
+  return table.concat (strs)
+end
 
 
 --[[ ================= ]]--
@@ -46,14 +44,16 @@ end
 
 
 M = {
-  --- Add a string to a buffer.
+  --- Add a object to a buffer.
+  -- Elements are stringified lazily, so if add a table and then change
+  -- its contents, the contents of the buffer will be affected too.
   -- @static
   -- @function concat
-  -- @tparam string|StrBuf x string or StrBuf to add
+  -- @param x object to add to buffer
   -- @treturn StrBuf modified buffer
   -- @usage
-  -- buf = concat (buf, "append this")
-  concat = X ("concat (StrBuf, string|StrBuf)", concat),
+  -- buf = buf:concat "append this" {" and", " this"}
+  concat = X ("concat (StrBuf, any)", __concat),
 }
 
 
@@ -67,7 +67,7 @@ local DEPRECATED = debug.DEPRECATED
 
 M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
                          "use 'tostring (strbuf)' instead",
-	                 X ("tostring (StrBuf)", table.concat))
+	                 X ("tostring (StrBuf)", __tostring))
 
 
 --[[ ================== ]]--
@@ -85,9 +85,11 @@ M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
 -- @usage
 -- local std = require "std"
 -- local StrBuf = std.strbuf {}
--- local buf = StrBuf {"initial buffer contents"}
--- buf = buf .. "append to buffer"
--- print (buf) -- implicit `tostring` concatenates everything
+-- local a = {1, 2, 3}
+-- local b = {a, "five", "six"}
+-- a = a .. 4
+-- b = b:concat "seven"
+-- print (a, b) --> 1234   1234fivesixseven
 -- os.exit (0)
 StrBuf = Object {
   _type = "StrBuf",
@@ -97,12 +99,12 @@ StrBuf = Object {
   --- Support concatenation to StrBuf objects.
   -- @function __concat
   -- @tparam StrBuf buffer object
-  -- @string s a string
+  -- @param x a string, or object that can be coerced to a string
   -- @treturn StrBuf modified *buf*
   -- @see concat
   -- @usage
-  -- buf = buf .. str
-  __concat = concat,
+  -- buf = buf .. x
+  __concat = __concat,
 
   --- Support fast conversion to Lua string.
   -- @function __tostring
@@ -111,7 +113,7 @@ StrBuf = Object {
   -- @see tostring
   -- @usage
   -- str = tostring (buf)
-  __tostring = table.concat,
+  __tostring = __tostring,
 }
 
 

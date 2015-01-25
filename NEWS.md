@@ -4,10 +4,15 @@
 
 ### New features
 
-  - `std.strbuf` can append both strings and other StrBuf instances:
+  - Anything that responds to `tostring` can be appended to a `std.strbuf`:
 
       local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
       a = a .. b --> "foobarbazquux"
+
+  - `std.strbuf` stringifies lazily, so adding tables to a StrBuf
+    object, and then changing the content of them before calling
+    `tostring` also changes the contents of the buffer.  See LDocs for
+    an example.
 
 ### Deprecations
 
