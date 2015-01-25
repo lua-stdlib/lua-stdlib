@@ -48,12 +48,21 @@ specify std.strbuf:
 
 
 - describe tostring:
-  - it can be called from strbuf module:
-      expect (StrBuf.tostring (b)).to_be "foobar"
-  - it can be called as a strbuf object method:
-      expect (b:tostring ()).to_be "foobar"
-  - it can be called as a strbuf metabethod:
-      expect (tostring (b)).to_be "foobar"
+  - context as a module function:
+    - before:
+        f = StrBuf.tostring
+
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (f, {b})).to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (f, {b})).not_to_contain_error "was deprecated"
+    - it returns buffered string:
+        expect (b:tostring ()).to_be "foobar"
+
+  - context as a metamethod:
+    - it returns buffered string:
+        expect (tostring (b)).to_be "foobar"
 
 
 - describe concat:

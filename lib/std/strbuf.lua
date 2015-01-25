@@ -12,6 +12,7 @@
 ]]
 
 local base   = require "std.base"
+local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
@@ -24,7 +25,7 @@ local M, StrBuf
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.strbuf." .. decl, fn)
+  return debug.argscheck ("std.strbuf." .. decl, fn)
 end
 
 
@@ -37,16 +38,20 @@ M = {
   -- @usage
   -- buf = concat (buf, "append this")
   concat = X ("concat (StrBuf, string)", base.insert),
-
-  --- Convert a buffer to a string.
-  -- @static
-  -- @function tostring
-  -- @treturn string stringified `buf`
-  -- @usage
-  -- string = buf:tostring ()
-  tostring = X ("tostring (StrBuf)", table.concat),
 }
 
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = debug.DEPRECATED
+
+M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
+                         "use 'tostring (strbuf)' instead",
+	                 X ("tostring (StrBuf)", table.concat))
 
 
 --[[ ================== ]]--

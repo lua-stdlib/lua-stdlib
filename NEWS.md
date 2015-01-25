@@ -2,6 +2,12 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Deprecations
+
+  - `std.strbuf.tostring` has been deprecated in favour of `tostring`.
+    Why write `std.strbuf.tostring (sb)` or `sb:tostring ()` when it is
+    more idiomatic to write `tostring (sb)`?
+
 ### Bug fixes
 
   - `std.barrel` and the various `monkey_patch` functions now return
