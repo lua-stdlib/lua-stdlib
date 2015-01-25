@@ -49,14 +49,13 @@ specify std.strbuf:
 
 - describe tostring:
   - context as a module function:
-    - before:
-        f = StrBuf.tostring
-
     - it writes a deprecation warning:
         setdebug { deprecate = "nil" }
-        expect (capture (f, {b})).to_contain_error "was deprecated"
+        expect (capture (StrBuf.tostring, {b})).
+          to_contain_error "was deprecated"
         setdebug { deprecate = false }
-        expect (capture (f, {b})).not_to_contain_error "was deprecated"
+        expect (capture (StrBuf.tostring, {b})).
+          not_to_contain_error "was deprecated"
     - it returns buffered string:
         expect (b:tostring ()).to_be "foobar"
 
@@ -68,15 +67,32 @@ specify std.strbuf:
 - describe concat:
   - before:
       b = StrBuf {"foo", "bar"}
-  - it can be called from strbuf module:
-      b = StrBuf.concat (b, "baz")
-      expect (object.type (b)).to_be "StrBuf"
-      expect (StrBuf.tostring (b)).to_be "foobarbaz"
-  - it can be called as a strbuf object method:
-      b:concat "baz"
-      expect (object.type (b)).to_be "StrBuf"
-      expect (b:tostring()).to_be "foobarbaz"
-  - it can be called as a strbuf metamethod:
-      b = b .. "baz"
-      expect (object.type (b)).to_be "StrBuf"
-      expect (tostring (b)).to_be "foobarbaz"
+      bb = StrBuf {"baz", "quux"}
+
+  - context as a module function:
+    - it appends a string:
+        b = StrBuf.concat (b, "baz")
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring (b)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        b = StrBuf.concat (b, bb)
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring (b)).to_be "foobarbazquux"
+  - context as an object method:
+    - it appends a string:
+        b:concat "baz"
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring(b)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        b:concat (bb)
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring (b)).to_be "foobarbazquux"
+  - context as a metamethod:
+    - it appends a string:
+        b = b .. "baz"
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring (b)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        b = b .. bb
+        expect (object.type (b)).to_be "StrBuf"
+        expect (tostring (b)).to_be "foobarbazquux"

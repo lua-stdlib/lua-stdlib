@@ -2,6 +2,13 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New features
+
+  - `std.strbuf` can append both strings and other StrBuf instances:
+
+      local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
+      a = a .. b --> "foobarbazquux"
+
 ### Deprecations
 
   - `std.strbuf.tostring` has been deprecated in favour of `tostring`.

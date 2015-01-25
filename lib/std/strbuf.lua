@@ -16,7 +16,23 @@ local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
+local insert, prototype = base.insert, base.prototype
+
 local M, StrBuf
+
+
+local function concat (self, x)
+  if type (x) == "string" then
+    insert (self, x)
+  else
+    assert (prototype (x) == "StrBuf")
+    for _, v in ipairs (x) do
+      insert (self, v)
+    end
+  end
+  return self
+end
+
 
 
 --[[ ================= ]]--
@@ -33,11 +49,11 @@ M = {
   --- Add a string to a buffer.
   -- @static
   -- @function concat
-  -- @string s string to add
+  -- @tparam string|StrBuf x string or StrBuf to add
   -- @treturn StrBuf modified buffer
   -- @usage
   -- buf = concat (buf, "append this")
-  concat = X ("concat (StrBuf, string)", base.insert),
+  concat = X ("concat (StrBuf, string|StrBuf)", concat),
 }
 
 
@@ -86,7 +102,7 @@ StrBuf = Object {
   -- @see concat
   -- @usage
   -- buf = buf .. str
-  __concat = base.insert,
+  __concat = concat,
 
   --- Support fast conversion to Lua string.
   -- @function __tostring
