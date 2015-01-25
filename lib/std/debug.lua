@@ -154,13 +154,13 @@ if _DEBUG.argcheck then
 
 
   --- Normalize a list of type names.
-  -- @tparam table t list of type names, trailing "?" as required
+  -- @tparam table t list of type names, leading "?" as required
   -- @treturn table a new list with "?" stripped, "nil" appended if so,
   --   and with duplicates stripped.
   local function normalize (t)
     local i, r, add_nil = 1, {}, false
     for _, v in ipairs (t) do
-      local m = v:match "^(.+)%?$"
+      local m = v:match "^%?(.+)$"
       if m then
         add_nil = true
         r[m] = r[m] or i
@@ -623,10 +623,10 @@ M = {
   --
   -- A very common pattern is to have a list of possible types including
   -- "nil" when the argument is optional.  Rather than writing long-hand
-  -- as above, append a question mark to at least one of the list types
-  -- and omit the explicit "nil" entry:
+  -- as above, prepend a question mark to the list of types and omit the
+  -- explicit "nil" entry:
   --
-  --    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+  --    argcheck ("table.copy", 2, "?boolean|:nometa", predicate)
   --
   -- Normally, you should not need to use the `level` parameter, as the
   -- default is to blame the caller of the function using `argcheck` in

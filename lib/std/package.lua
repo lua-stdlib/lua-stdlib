@@ -127,7 +127,7 @@ M = {
   -- @return the matching element number (not byte index!) and full text
   --   of the matching element, if any; otherwise nil
   -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
-  find = X ("find (string, string, int?, boolean|:plain?)", find),
+  find = X ("find (string, string, ?int, ?boolean|:plain)", find),
 
   --- Insert a new element into a `package.path` like string of paths.
   -- @function insert
@@ -147,7 +147,7 @@ M = {
   -- @param ... additional arguments passed to *callback*
   -- @return nil, or first non-nil returned by *callback*
   -- @usage mappath (package.path, searcherfn, transformfn)
-  mappath = X ("mappath (string, function, any?*)", mappath),
+  mappath = X ("mappath (string, function, ?any*)", mappath),
 
   --- Normalize a path list.
   -- Removing redundant `.` and `..` directories, and keep only the first
@@ -168,7 +168,7 @@ M = {
   --   is the number of elements prior to removal
   -- @treturn string a new string with given element removed
   -- @usage package.path = remove (package.path)
-  remove = X ("remove (string, int?)", remove),
+  remove = X ("remove (string, ?int)", remove),
 }
 
 

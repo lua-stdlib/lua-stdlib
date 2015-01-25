@@ -154,7 +154,7 @@ Tree = Container {
   -- @param[opt] v value
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
-  __newindex = X ("__newindex (Tree, any, any?)",
+  __newindex = X ("__newindex (Tree, any, ?any)",
                   function (tr, i, v)
                     if prototype (i) == "table" then
                       for n = 1, len (i) - 1 do
@@ -182,7 +182,7 @@ Tree = Container {
     -- copy = clone (tr)
     -- copy[2].two=5
     -- assert (tr[2].two == 2)
-    clone = X ("clone (table, boolean|:nometa?)", clone),
+    clone = X ("clone (table, ?boolean|:nometa)", clone),
 
     --- Tree iterator which returns just numbered leaves, in order.
     -- @static

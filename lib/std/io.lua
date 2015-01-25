@@ -169,7 +169,7 @@ M = {
   -- @param ... additional arguments to plug format string specifiers
   -- @see warn
   -- @usage die ("oh noes! (%s)", tostring (obj))
-  die = X ("die (string, any?*)", function (...)
+  die = X ("die (string, ?any*)", function (...)
 	     error (warnfmt (...), 0)
            end),
 
@@ -190,7 +190,7 @@ M = {
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the `std.io` module table
   -- @usage local io = require "std.io".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Process files specified on the command-line.
   -- Each filename is made the default input source with `io.input`, and
@@ -262,7 +262,7 @@ M = {
   --   if not _G.opts.keep_going then
   --     require "std.io".warn "oh noes!"
   --   end
-  warn = X ("warn (string, any?*)", warn),
+  warn = X ("warn (string, ?any*)", warn),
 
   --- Write values adding a newline after each.
   -- @function writelines
@@ -270,7 +270,7 @@ M = {
   --   the file is **not** closed after writing
   -- @tparam string|number ... values to write (as for write)
   -- @usage writelines (io.stdout, "first line", "next line")
-  writelines = X ("writelines (file|string|number?, string|number?*)", writelines),
+  writelines = X ("writelines (?file|string|number, ?string|number*)", writelines),
 }
 
 

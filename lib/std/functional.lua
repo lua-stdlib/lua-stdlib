@@ -268,7 +268,7 @@ local M = {
   -- @return function with *argt* arguments already bound
   -- @usage
   -- cube = bind (std.operator.pow, {[2] = 3})
-  bind = X ("bind (func, any?*)", bind),
+  bind = X ("bind (func, ?any*)", bind),
 
   --- Identify callable types.
   -- @function callable
@@ -296,7 +296,7 @@ local M = {
   --   string = function ()  return "string" end,
   --            function (s) error ("unhandled type: " .. s) end,
   -- })
-  case = X ("case (any?, #table)", case),
+  case = X ("case (?any, #table)", case),
 
   --- Collect the results of an iterator.
   -- @function collect
@@ -467,7 +467,7 @@ local M = {
   -- @treturn functable memoized function
   -- @usage
   -- local fast = memoize (function (...) --[[ slow code ]] end)
-  memoize = X ("memoize (func, func?)", memoize),
+  memoize = X ("memoize (func, ?func)", memoize),
 
   --- No operation.
   -- This function ignores all arguments, and returns no values.

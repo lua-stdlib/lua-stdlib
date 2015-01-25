@@ -197,7 +197,7 @@ local function X (decl, fn)
 end
 
 local M = {
-  mapfields = X ("mapfields (table, table|object, table?)", mapfields),
+  mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
 }
 
 

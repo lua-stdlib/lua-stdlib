@@ -489,38 +489,38 @@ specify std.debug:
         expect (fn ("#table|table", {})).not_to_raise "any error"
   - context with an optional type element:
     - it diagnoses mismatched elements:
-        expect (fn ("boolean?", "string")).
+        expect (fn ("?boolean", "string")).
           to_raise "boolean or nil expected, got string"
-        expect (fn ("boolean?|:symbol", {})).
+        expect (fn ("?boolean|:symbol", {})).
           to_raise "boolean, :symbol or nil expected, got empty table"
     - it matches nil against a single type:
-        expect (fn ("any?", nil)).not_to_raise "any error"
-        expect (fn ("boolean?", nil)).not_to_raise "any error"
-        expect (fn ("string?", nil)).not_to_raise "any error"
+        expect (fn ("?any", nil)).not_to_raise "any error"
+        expect (fn ("?boolean", nil)).not_to_raise "any error"
+        expect (fn ("?string", nil)).not_to_raise "any error"
     - it matches nil against a list of types:
-        expect (fn ("boolean?|table", nil)).not_to_raise "any error"
-        expect (fn ("string?|table", nil)).not_to_raise "any error"
-        expect (fn ("table?|#table", nil)).not_to_raise "any error"
-        expect (fn ("#table?|table", nil)).not_to_raise "any error"
+        expect (fn ("?boolean|table", nil)).not_to_raise "any error"
+        expect (fn ("?string|table", nil)).not_to_raise "any error"
+        expect (fn ("?table|#table", nil)).not_to_raise "any error"
+        expect (fn ("?#table|table", nil)).not_to_raise "any error"
     - it matches nil against a list of optional types:
-        expect (fn ("boolean?|table?", nil)).not_to_raise "any error"
-        expect (fn ("string?|table?", nil)).not_to_raise "any error"
-        expect (fn ("table?|#table?", nil)).not_to_raise "any error"
-        expect (fn ("#table?|table?", nil)).not_to_raise "any error"
+        expect (fn ("?boolean|?table", nil)).not_to_raise "any error"
+        expect (fn ("?string|?table", nil)).not_to_raise "any error"
+        expect (fn ("?table|?#table", nil)).not_to_raise "any error"
+        expect (fn ("?#table|?table", nil)).not_to_raise "any error"
     - it matches any named type:
-        expect (fn ("any?", false)).not_to_raise "any error"
-        expect (fn ("boolean?", false)).not_to_raise "any error"
-        expect (fn ("string?", "string")).not_to_raise "any error"
+        expect (fn ("?any", false)).not_to_raise "any error"
+        expect (fn ("?boolean", false)).not_to_raise "any error"
+        expect (fn ("?string", "string")).not_to_raise "any error"
     - it matches any type from a list:
-        expect (fn ("boolean?|table", {})).not_to_raise "any error"
-        expect (fn ("string?|table", {0})).not_to_raise "any error"
-        expect (fn ("table?|#table", {})).not_to_raise "any error"
-        expect (fn ("#table?|table", {})).not_to_raise "any error"
+        expect (fn ("?boolean|table", {})).not_to_raise "any error"
+        expect (fn ("?string|table", {0})).not_to_raise "any error"
+        expect (fn ("?table|#table", {})).not_to_raise "any error"
+        expect (fn ("?#table|table", {})).not_to_raise "any error"
     - it matches any type from a list with several optional specifiers:
-        expect (fn ("boolean?|table?", {})).not_to_raise "any error"
-        expect (fn ("string?|table?", {0})).not_to_raise "any error"
-        expect (fn ("table?|table?", {})).not_to_raise "any error"
-        expect (fn ("#table?|table?", {})).not_to_raise "any error"
+        expect (fn ("?boolean|?table", {})).not_to_raise "any error"
+        expect (fn ("?string|?table", {0})).not_to_raise "any error"
+        expect (fn ("?table|?table", {})).not_to_raise "any error"
+        expect (fn ("?#table|?table", {})).not_to_raise "any error"
 
 
 - describe debug:
@@ -587,7 +587,7 @@ specify std.debug:
         local debug = require "std.debug_init"
         local argscheck = require "std.debug".argscheck
         local function inner () return "MAGIC" end
-        local wrapped = argscheck ("inner (any?)", inner)
+        local wrapped = argscheck ("inner (?any)", inner)
         os.exit (wrapped == inner and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed ()

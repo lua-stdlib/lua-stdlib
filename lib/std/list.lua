@@ -150,7 +150,7 @@ M = {
   -- @usage
   -- --> {3, 4, 5}
   -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
-  sub = X ("sub (List, int?, int?)", sub),
+  sub = X ("sub (List, ?int, ?int)", sub),
 
   --- Return a list with its first element removed.
   -- @static
