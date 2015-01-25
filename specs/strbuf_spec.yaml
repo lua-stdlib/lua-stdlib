@@ -115,3 +115,7 @@ specify std.strbuf:
       b = StrBuf {tostring (a), "five"}
       a = a:concat (3)
       expect (tostring (b)).to_be "12five"
+  - it can be non-destructive:
+      a = StrBuf {1}
+      b = a {} .. 2
+      expect (tostring (a)).to_be "1"

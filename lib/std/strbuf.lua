@@ -1,6 +1,16 @@
 --[[--
  String buffers.
 
+ Buffers are mutable by default, but being based on objects, they can
+ also be used in a functional style:
+
+    local StrBuf = require "std.strbuf" {}
+    local a = StrBuf {"a"}
+    local b = a:concat "b"    -- mutate *a*
+    print (a, b)              --> ab   ab
+    local c = a {} .. "c"     -- copy and append
+    print (a, c)              --> ab   abc
+
  Prototype Chain
  ---------------
 
