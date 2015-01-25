@@ -7,6 +7,9 @@
   - `std.barrel` and the various `monkey_patch` functions now return
     their parent module table as documented.
 
+  - stdlib modules are all `std.strict` compliant; require "std.strict"
+    before requiring other modules no longer raises an error.
+
 
 ## Noteworthy changes in release 41.0.0 (2015-01-03) [beta]
 

@@ -108,7 +108,7 @@ end
 --- Extend `debug.getfenv` to unwrap functables correctly.
 -- @tparam int|function|functable fn target function, or stack level
 -- @treturn table environment of *fn*
-local getfenv = getfenv or function (fn)
+local getfenv = rawget (_G, "getfenv") or function (fn)
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call

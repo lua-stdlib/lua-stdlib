@@ -24,7 +24,7 @@
 
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
-local loadstring = loadstring or load
+local loadstring = rawget (_G, "loadstring") or load
 local unpack     = table.unpack or unpack
 
 
