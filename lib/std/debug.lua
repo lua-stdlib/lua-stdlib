@@ -426,35 +426,35 @@ if _DEBUG.argcheck then
 
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
-    local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
-    if types == "" then
-      types = {}
-    elseif types then
-      types = split (types, ",%s*")
+    local fname, argtypes = decl:match "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+    if argtypes == "" then
+      argtypes = {}
+    elseif argtypes then
+      argtypes = split (argtypes, ",%s*")
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
     end
 
-    -- If the final element of types ends with "*", then set max to a
-    -- sentinel value to denote type-checking of *all* remaining
-    -- unchecked arguments against that type-spec is required.
-    local max, fin = len (types), (last (types) or ""):match "^(.+)%*$"
+    -- If the final element of argtypes ends with "*", then set max to a
+    -- sentinel value to denote type-checking of *all* remaining unchecked
+    -- arguments against that type-spec is required.
+    local max, fin = len (argtypes), (last (argtypes) or ""):match "^(.+)%*$"
     if fin then
       max = math.huge
-      types[len (types)] = fin
+      argtypes[len (argtypes)] = fin
     end
 
     -- For optional arguments wrapped in square brackets, make sure
     -- type-specs allow for passing or omitting an argument of that
     -- type.
-    local typec, type_specs = len (types), permutations (types)
+    local typec, type_specs = len (argtypes), permutations (argtypes)
 
     return function (...)
       local args = {...}
       local argc, bestmismatch, at = maxn (args), 0, 0
 
-      for i, types in ipairs (type_specs) do
-        local mismatch = match (types, args, max == math.huge)
+      for i, argtypes in ipairs (type_specs) do
+        local mismatch = match (argtypes, args, max == math.huge)
         if mismatch == nil then
 	  bestmismatch = nil
           break -- every argument matched its type-spec
@@ -464,15 +464,15 @@ if _DEBUG.argcheck then
       end
 
       if bestmismatch ~= nil then
-        -- Report an error for all possible types at bestmismatch index.
+        -- Report an error for all possible argtypes at bestmismatch index.
 	local expected
 	if max == math.huge and bestmismatch >= typec then
-          expected = normalize (split (types[typec], "|"))
+          expected = normalize (split (argtypes[typec], "|"))
 	else
 	  local tables = {}
-	  for i, types in ipairs (type_specs) do
-            if types[bestmismatch] then
-              insert (tables, types[bestmismatch])
+	  for i, argtypes in ipairs (type_specs) do
+            if argtypes[bestmismatch] then
+              insert (tables, argtypes[bestmismatch])
 	    end
 	  end
 	  expected = merge (unpack (tables))
@@ -480,8 +480,8 @@ if _DEBUG.argcheck then
 	local i = bestmismatch
 
 	-- For "table of things", check all elements are a thing too.
-	if types[i] then
-	  local check, contents = types[i]:match "^(%S+) of (%S-)s?$"
+	if argtypes[i] then
+	  local check, contents = argtypes[i]:match "^(%S+) of (%S-)s?$"
 	  if contents and type (args[i]) == "table" then
 	    for k, v in pairs (args[i]) do
 	      if not checktype (contents, v) then
