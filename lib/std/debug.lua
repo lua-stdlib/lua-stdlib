@@ -424,13 +424,25 @@ if _DEBUG.argcheck then
   end
 
 
+  -- Pattern to extract: fname ([types]?[, types]*)
+  local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+
+  -- Pattern to normalize: [types], [types...], or [types]...
+  local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
+
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
-    local fname, argtypes = decl:match "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+    local fname, argtypes = decl:match (args_pat)
     if argtypes == "" then
       argtypes = {}
     elseif argtypes then
       argtypes = split (argtypes, ",%s*")
+
+      -- normalize final `[types]` to `?types`
+      local types, ellipsis = (last (argtypes) or ""):match (last_pat)
+      if types then
+	argtypes[#argtypes] = "?" .. types .. ellipsis
+      end
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
     end

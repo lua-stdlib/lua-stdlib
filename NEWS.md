@@ -14,6 +14,9 @@
     `tostring` also changes the contents of the buffer.  See LDocs for
     an example.
 
+  - `debug.argscheck` accepts square brackets around final optional
+    parameters in preference to requiring prepending `?` or `nil|`.
+
 ### Deprecations
 
   - `std.strbuf.tostring` has been deprecated in favour of `tostring`.

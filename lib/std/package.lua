@@ -147,7 +147,7 @@ M = {
   -- @param ... additional arguments passed to *callback*
   -- @return nil, or first non-nil returned by *callback*
   -- @usage mappath (package.path, searcherfn, transformfn)
-  mappath = X ("mappath (string, function, ?any...)", mappath),
+  mappath = X ("mappath (string, function, [any...])", mappath),
 
   --- Normalize a path list.
   -- Removing redundant `.` and `..` directories, and keep only the first

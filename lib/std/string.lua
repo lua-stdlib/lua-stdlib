@@ -330,7 +330,7 @@ M = {
   -- @param[opt] ... arguments to format
   -- @return formatted string
   -- @usage print (format "100% stdlib!")
-  format = X ("format (string, ?any...)", format),
+  format = X ("format (string, [any...])", format),
 
   --- Remove leading matter from a string.
   -- @function ltrim

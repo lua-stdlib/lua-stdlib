@@ -93,7 +93,7 @@ M = {
   -- @usage
   -- std.assert (expected ~= nil, "100% unexpected!")
   -- std.assert (expected ~= nil, "%s unexpected!", expected)
-  assert = X ("assert (?any, ?string, ?any...)", base.assert),
+  assert = X ("assert (?any, ?string, [any...])", base.assert),
 
   --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
   --
