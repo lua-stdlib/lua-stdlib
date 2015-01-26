@@ -211,7 +211,7 @@ if _DEBUG.argcheck then
   --- Calculate permutations of type lists with and without [optionals].
   -- @tparam table types a list of expected types by argument position
   -- @treturn table set of possible type lists
-  local function permutations (types)
+  local function permute (types)
     local p = {{}}
     for i, v in ipairs (types) do
       local opt = v:match "%[(.+)%]"
@@ -431,21 +431,21 @@ if _DEBUG.argcheck then
     -- For optional arguments wrapped in square brackets, make sure
     -- type-specs allow for passing or omitting an argument of that
     -- type.
-    local typec, type_specs = len (argtypes), permutations (argtypes)
+    local typec, permutations = len (argtypes), permute (argtypes)
 
     return function (...)
       local args = {...}
-      local argc, bestmismatch, at = maxn (args), 0, 0
+      local argc, bestmismatch, atperm = maxn (args), 0, 0
 
-      for i, argtypes in ipairs (type_specs) do
-	local allargs = max == math.huge or (#argtypes == 0 and #type_specs > 1)
-        local mismatch = match (argtypes, args, allargs)
+      for i, permutation in ipairs (permutations) do
+	local allargs = max == math.huge or (#permutation == 0 and #permutations > 1)
+        local mismatch = match (permutation, args, allargs)
         if mismatch == nil then
-	  bestmismatch = nil
+	  bestmismatch, atperm = nil, i
           break -- every argument matched its type-spec
 	end
 
-	if mismatch > bestmismatch then bestmismatch, at = mismatch, i end
+	if mismatch > bestmismatch then bestmismatch, atperm = mismatch, i end
       end
 
       if bestmismatch ~= nil then
@@ -457,7 +457,7 @@ if _DEBUG.argcheck then
           expected = normalize (split (last or argtypes[typec], "|"))
 	else
 	  local tables = {}
-	  for i, argtypes in ipairs (type_specs) do
+	  for i, argtypes in ipairs (permutations) do
             if argtypes[bestmismatch] then
               insert (tables, argtypes[bestmismatch])
 	    end
@@ -482,8 +482,9 @@ if _DEBUG.argcheck then
 	argerror (fname, i, formaterror (expected, args[i]), 2)
       end
 
-      if argc > max then
-        error (toomanyargmsg (fname, max, argc), 2)
+      local argmax = max == math.huge and max or math.min (max, #permutations[atperm])
+      if argc > argmax then
+        error (toomanyargmsg (fname, argmax, argc), 2)
       end
 
       -- Propagate outer environment to inner function.

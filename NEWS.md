@@ -15,8 +15,8 @@
     an example.
 
   - `debug.argscheck` accepts square brackets around final optional
-    parameters, which is distinct to the old way of prepending `?` or
-    `nil|` because no spurious "or nil" is reported for type mismatches
+    parameters, which is distinct to the old way of appending `?` or
+    `|nil` because no spurious "or nil" is reported for type mismatches
     against a final bracketed argument.
 
 ### Deprecations
@@ -33,7 +33,17 @@
   - stdlib modules are all `std.strict` compliant; require "std.strict"
     before requiring other modules no longer raises an error.
 
+  - `debug.argscheck` can now diagnose when there are too many arguments,
+    even in the case where the earlier arguments match parameters by
+    skipping bracketed optionals, and the total number of arguments is
+    still less than the absolute maximum allowed if optionals are counted
+    too.
+
 ### Incompatible changes
+
+  - `debug.argscheck` requires nil parameter type `?` notation to be
+    prepended to match Specl and TypedLua syntax.  `?` suffixes are a
+    syntax error.
 
   - `debug.argscheck` uses `...` instead of `*` appended to the final element
     if all unmatched argument types should match.  The trailing `*` syntax
