@@ -28,6 +28,13 @@
   - stdlib modules are all `std.strict` compliant; require "std.strict"
     before requiring other modules no longer raises an error.
 
+### Incompatible changes
+
+  - `debug.argscheck` uses `...` instead of `*` appended to the final element
+    if all unmatched argument types should match.  The trailing `*` syntax
+    was confusing, because it was easy to misread it as "followed by zero-or-
+    more of this type".
+
 
 ## Noteworthy changes in release 41.0.0 (2015-01-03) [beta]
 

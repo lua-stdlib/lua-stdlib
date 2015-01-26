@@ -147,7 +147,7 @@ M = {
   -- @param ... additional arguments passed to *callback*
   -- @return nil, or first non-nil returned by *callback*
   -- @usage mappath (package.path, searcherfn, transformfn)
-  mappath = X ("mappath (string, function, ?any*)", mappath),
+  mappath = X ("mappath (string, function, ?any...)", mappath),
 
   --- Normalize a path list.
   -- Removing redundant `.` and `..` directories, and keep only the first
@@ -159,7 +159,7 @@ M = {
   -- @param ... path elements
   -- @treturn string a single normalized `pathsep` delimited paths string
   -- @usage package.path = normalize (user_paths, sys_paths, package.path)
-  normalize = X ("normalize (string*)", normalize),
+  normalize = X ("normalize (string...)", normalize),
 
   --- Remove any element from a `package.path` like string of paths.
   -- @function remove

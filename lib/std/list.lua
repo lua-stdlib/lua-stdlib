@@ -113,7 +113,7 @@ M = {
   -- @usage
   -- --> {1, 2, 3, {4, 5}, 6, 7}
   -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
-  concat = X ("concat (List, List|table*)", concat),
+  concat = X ("concat (List, List|table...)", concat),
 
   --- Prepend an item to a list.
   -- @static

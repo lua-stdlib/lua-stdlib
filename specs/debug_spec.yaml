@@ -655,6 +655,24 @@ specify std.debug:
         expect (wrapped ("two")).to_be "MAGIC"
         expect (wrapped (1, "two")).to_be "MAGIC"
 
+  - context when checking variable argument function:
+    - before:
+        _, badarg = init (M, "", "inner")
+        wrapped = f ("inner (string, int...)", mkmagic)
+    - it diagnoses missing arguments:
+        expect (wrapped ()).to_raise (badarg (1, "string"))
+        expect (wrapped ("foo")).to_raise (badarg (2, "int"))
+    - it diagnoses wrong argument types:
+        expect (wrapped (false)).to_raise (badarg (1, "string", "boolean"))
+        expect (wrapped ("foo", false)).to_raise (badarg (2, "int", "boolean"))
+        expect (wrapped ("foo", 1, false)).to_raise (badarg (3, "int", "boolean"))
+        expect (wrapped ("foo", 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, false)).
+          to_raise (badarg (12, "int", "boolean"))
+    - it accepts correct argument types:
+        expect (wrapped ("foo", 1)).to_be "MAGIC"
+        expect (wrapped ("foo", 1, 2)).to_be "MAGIC"
+        expect (wrapped ("foo", 1, 2, 5)).to_be "MAGIC"
+
 
 - describe say:
   - before: |

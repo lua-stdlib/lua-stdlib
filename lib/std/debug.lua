@@ -435,10 +435,10 @@ if _DEBUG.argcheck then
       fname = decl:match "([%w_][%.%d%w_]*)"
     end
 
-    -- If the final element of argtypes ends with "*", then set max to a
+    -- If the final element of argtypes ends with "...", then set max to a
     -- sentinel value to denote type-checking of *all* remaining unchecked
     -- arguments against that type-spec is required.
-    local max, fin = len (argtypes), (last (argtypes) or ""):match "^(.+)%*$"
+    local max, fin = len (argtypes), (last (argtypes) or ""):match "^(.+)%.%.%.$"
     if fin then
       max = math.huge
       argtypes[len (argtypes)] = fin
@@ -662,7 +662,7 @@ M = {
   --- Wrap a function definition with argument type and arity checking.
   -- In addition to checking that each argument type matches the corresponding
   -- element in the *types* table with `argcheck`, if the final element of
-  -- *types* ends with an asterisk, remaining unchecked arguments are checked
+  -- *types* ends with an elipsis, remaining unchecked arguments are checked
   -- against that type.
   -- @function argscheck
   -- @string decl function type declaration string

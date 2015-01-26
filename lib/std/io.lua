@@ -148,7 +148,7 @@ M = {
   -- @return path without trailing separator
   -- @see catfile
   -- @usage dirpath = catdir ("", "absolute", "directory")
-  catdir = X ("catdir (string*)", function (...)
+  catdir = X ("catdir (string...)", function (...)
 	        return table.concat ({...}, dirsep):gsub("^$", dirsep)
 	      end),
 
@@ -159,7 +159,7 @@ M = {
   -- @see catdir
   -- @see splitdir
   -- @usage filepath = catfile ("relative", "path", "filename")
-  catfile = X ("catfile (string*)", base.catfile),
+  catfile = X ("catfile (string...)", base.catfile),
 
   --- Die with error.
   -- This function uses the same rules to build a message prefix
@@ -169,7 +169,7 @@ M = {
   -- @param ... additional arguments to plug format string specifiers
   -- @see warn
   -- @usage die ("oh noes! (%s)", tostring (obj))
-  die = X ("die (string, ?any*)", function (...)
+  die = X ("die (string, ?any...)", function (...)
 	     error (warnfmt (...), 0)
            end),
 
@@ -262,7 +262,7 @@ M = {
   --   if not _G.opts.keep_going then
   --     require "std.io".warn "oh noes!"
   --   end
-  warn = X ("warn (string, ?any*)", warn),
+  warn = X ("warn (string, ?any...)", warn),
 
   --- Write values adding a newline after each.
   -- @function writelines
@@ -270,7 +270,7 @@ M = {
   --   the file is **not** closed after writing
   -- @tparam string|number ... values to write (as for write)
   -- @usage writelines (io.stdout, "first line", "next line")
-  writelines = X ("writelines (?file|string|number, ?string|number*)", writelines),
+  writelines = X ("writelines (?file|string|number, ?string|number...)", writelines),
 }
 
 
