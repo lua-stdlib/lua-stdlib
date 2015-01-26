@@ -158,26 +158,21 @@ if _DEBUG.argcheck then
   -- @treturn table a new list with "?" stripped, "nil" appended if so,
   --   and with duplicates stripped.
   local function normalize (t)
-    local i, r, add_nil = 1, {}, false
+    local r, seen, add_nil = {}, {}, false
     for _, v in ipairs (t) do
       local m = v:match "^%?(.+)$"
       if m then
-        add_nil = true
-        r[m] = r[m] or i
-        i = i + 1
-      elseif v then
-        r[v] = r[v] or i
-        i = i + 1
+        add_nil, v = true, m
+      end
+      if not seen[v] then
+	r[#r + 1] = v
+	seen[v] = true
       end
     end
     if add_nil then
-      r["nil"] = r["nil"] or i
+      r[#r + 1] = "nil"
     end
-
-    -- Invert the return table.
-    local t = {}
-    for v, i in pairs (r) do t[i] = v end
-    return t
+    return r
   end
 
 
@@ -217,13 +212,8 @@ if _DEBUG.argcheck then
   -- @tparam table types a list of expected types by argument position
   -- @treturn table set of possible type lists
   local function permutations (types)
-    local p, sentinel = {{}}, {"optional arg"}
+    local p = {{}}
     for i, v in ipairs (types) do
-      -- Remove sentinels before appending `v` to each list.
-      for _, v in ipairs (p) do
-        if last (v) == sentinel then table.remove (v) end
-      end
-
       local opt = v:match "%[(.+)%]"
       if opt == nil then
         -- Append non-optional type-spec to each permutation.
@@ -236,26 +226,8 @@ if _DEBUG.argcheck then
           p[b + o] = copy (p[b])
 	  insert (p[b], opt)
         end
-
-        -- Leave a marker for optional argument in final position.
-        for _, v in ipairs (p) do
-	  insert (v, sentinel)
-        end
       end
     end
-
-    -- Replace sentinels with "nil".
-    for i, v in ipairs (p) do
-      if v[#v] == sentinel then
-        table.remove (v)
-        if #v > 0 then
-          v[#v] = v[#v] .. "|nil"
-        else
-	  v[1] = "nil"
-        end
-      end
-    end
-
     return p
   end
 
@@ -438,10 +410,10 @@ if _DEBUG.argcheck then
     elseif argtypes then
       argtypes = split (argtypes, ",%s*")
 
-      -- normalize final `[types]` to `?types`
+      -- normalize final `[types...]` to `[types]...`
       local types, ellipsis = (last (argtypes) or ""):match (last_pat)
       if types then
-	argtypes[#argtypes] = "?" .. types .. ellipsis
+	argtypes[#argtypes] = "[" .. types .. "]" .. ellipsis
       end
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
@@ -466,7 +438,8 @@ if _DEBUG.argcheck then
       local argc, bestmismatch, at = maxn (args), 0, 0
 
       for i, argtypes in ipairs (type_specs) do
-        local mismatch = match (argtypes, args, max == math.huge)
+	local allargs = max == math.huge or (#argtypes == 0 and #type_specs > 1)
+        local mismatch = match (argtypes, args, allargs)
         if mismatch == nil then
 	  bestmismatch = nil
           break -- every argument matched its type-spec
@@ -479,7 +452,9 @@ if _DEBUG.argcheck then
         -- Report an error for all possible argtypes at bestmismatch index.
 	local expected
 	if max == math.huge and bestmismatch >= typec then
-          expected = normalize (split (argtypes[typec], "|"))
+	  -- remove [] and ... before normalization
+	  local last = (argtypes[typec] or ""):match (last_pat)
+          expected = normalize (split (last or argtypes[typec], "|"))
 	else
 	  local tables = {}
 	  for i, argtypes in ipairs (type_specs) do

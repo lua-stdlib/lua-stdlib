@@ -268,7 +268,7 @@ local M = {
   -- @return function with *argt* arguments already bound
   -- @usage
   -- cube = bind (std.operator.pow, {[2] = 3})
-  bind = X ("bind (func, [any...])", bind),
+  bind = X ("bind (func, ?any...)", bind),
 
   --- Identify callable types.
   -- @function callable

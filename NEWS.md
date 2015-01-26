@@ -15,7 +15,9 @@
     an example.
 
   - `debug.argscheck` accepts square brackets around final optional
-    parameters in preference to requiring prepending `?` or `nil|`.
+    parameters, which is distinct to the old way of prepending `?` or
+    `nil|` because no spurious "or nil" is reported for type mismatches
+    against a final bracketed argument.
 
 ### Deprecations
 
