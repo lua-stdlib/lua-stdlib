@@ -366,6 +366,73 @@ if _DEBUG.argcheck then
   end
 
 
+  local function empty (t) return not next (t) end
+
+
+  -- Pattern to normalize: [types...] to [types]...
+  local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
+
+  --- Diagnose mismatches between *valuelist* and type *permutations*.
+  -- @string fname name of function
+  -- @tparam table valuelist normalized list of actual values to be checked
+  -- @int maxvalues maximum number of values permitted, or `math.huge`
+  --   for unlimited values
+  -- @tparam table typelist normalized list of type specs to verify
+  -- @tparam table permutations list of lists of valid typelist permutations
+  local function diagnose (fname, valuelist, maxvalues, typelist, permutations)
+    local maxtypes, bestmismatch, listlen = #typelist, 0, 0
+    for i, list in ipairs (permutations) do
+      local allargs = maxvalues == math.huge or (empty (list) and #permutations > 1)
+      local mismatch = match (list, valuelist, allargs)
+      if mismatch == nil then
+        bestmismatch, listlen = nil, #list
+        break -- every *valuelist* matched types from this *list*
+      elseif mismatch > bestmismatch then
+        bestmismatch, listlen = mismatch, #list
+      end
+    end
+
+    if bestmismatch ~= nil then
+      -- Report an error for all possible types at bestmismatch index.
+      local i, expected = bestmismatch
+      if maxvalues == math.huge and i >= maxtypes then
+        -- remove [] and ... before normalization
+        local last = (typelist[maxtypes] or ""):match (last_pat)
+        expected = normalize (split (last or typelist[maxtypes], "|"))
+      else
+        local tables = {}
+        for _, list in ipairs (permutations) do
+          if list[i] then
+            insert (tables, list[i])
+          end
+        end
+        expected = merge (unpack (tables))
+      end
+
+      -- For "table of things", check all elements are a thing too.
+      if typelist[i] then
+        local check, contents = typelist[i]:match "^(%S+) of (%S-)s?$"
+        if contents and type (valuelist[i]) == "table" then
+          for k, v in pairs (valuelist[i]) do
+            if not checktype (contents, v) then
+              argerror (fname, i, formaterror (expected, v, k), 3)
+            end
+          end
+        end
+      end
+
+      -- Otherwise the argument type itself was mismatched.
+      argerror (fname, i, formaterror (expected, valuelist[i]), 3)
+    end
+
+    local n = maxn (valuelist)
+    local max = maxvalues == math.huge and maxvalues or math.min (maxvalues, listlen)
+    if n > max then
+      error (toomanyargmsg (fname, max, n), 3)
+    end
+  end
+
+
   function argcheck (name, i, expected, actual, level)
     level = level or 2
     expected = normalize (split (expected, "|"))
@@ -399,9 +466,6 @@ if _DEBUG.argcheck then
   -- Pattern to extract: fname ([types]?[, types]*)
   local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
 
-  -- Pattern to normalize: [types], [types...], or [types]...
-  local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
-
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
     local fname, argtypes = decl:match (args_pat)
@@ -411,9 +475,9 @@ if _DEBUG.argcheck then
       argtypes = split (argtypes, ",%s*")
 
       -- normalize final `[types...]` to `[types]...`
-      local types, ellipsis = (last (argtypes) or ""):match (last_pat)
+      local types, dots = last (argtypes):match (last_pat)
       if types then
-	argtypes[#argtypes] = "[" .. types .. "]" .. ellipsis
+	argtypes[#argtypes] = "[" .. types .. "]" .. dots
       end
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
@@ -422,72 +486,20 @@ if _DEBUG.argcheck then
     -- If the final element of argtypes ends with "...", then set max to a
     -- sentinel value to denote type-checking of *all* remaining unchecked
     -- arguments against that type-spec is required.
-    local max, fin = len (argtypes), (last (argtypes) or ""):match "^(.+)%.%.%.$"
+    local maxargs, fin = #argtypes, (last (argtypes) or ""):match "^(.+)%.%.%.$"
     if fin then
-      max = math.huge
-      argtypes[len (argtypes)] = fin
+      maxargs = math.huge
+      argtypes[#argtypes] = fin
     end
 
-    -- For optional arguments wrapped in square brackets, make sure
-    -- type-specs allow for passing or omitting an argument of that
-    -- type.
-    local typec, permutations = len (argtypes), permute (argtypes)
+    -- Calculate type permutations once as an upvalue.
+    local permutations = permute (argtypes)
 
     return function (...)
-      local args = {...}
-      local argc, bestmismatch, atperm = maxn (args), 0, 0
-
-      for i, permutation in ipairs (permutations) do
-	local allargs = max == math.huge or (#permutation == 0 and #permutations > 1)
-        local mismatch = match (permutation, args, allargs)
-        if mismatch == nil then
-	  bestmismatch, atperm = nil, i
-          break -- every argument matched its type-spec
-	end
-
-	if mismatch > bestmismatch then bestmismatch, atperm = mismatch, i end
-      end
-
-      if bestmismatch ~= nil then
-        -- Report an error for all possible argtypes at bestmismatch index.
-	local expected
-	if max == math.huge and bestmismatch >= typec then
-	  -- remove [] and ... before normalization
-	  local last = (argtypes[typec] or ""):match (last_pat)
-          expected = normalize (split (last or argtypes[typec], "|"))
-	else
-	  local tables = {}
-	  for i, argtypes in ipairs (permutations) do
-            if argtypes[bestmismatch] then
-              insert (tables, argtypes[bestmismatch])
-	    end
-	  end
-	  expected = merge (unpack (tables))
-	end
-	local i = bestmismatch
-
-	-- For "table of things", check all elements are a thing too.
-	if argtypes[i] then
-	  local check, contents = argtypes[i]:match "^(%S+) of (%S-)s?$"
-	  if contents and type (args[i]) == "table" then
-	    for k, v in pairs (args[i]) do
-	      if not checktype (contents, v) then
-	        argerror (fname, i, formaterror (expected, v, k), 2)
-	      end
-	    end
-	  end
-        end
-
-	-- Otherwise the argument type itself was mismatched.
-	argerror (fname, i, formaterror (expected, args[i]), 2)
-      end
-
-      local argmax = max == math.huge and max or math.min (max, #permutations[atperm])
-      if argc > argmax then
-        error (toomanyargmsg (fname, argmax, argc), 2)
-      end
+      diagnose (fname, {...}, maxargs, argtypes, permutations)
 
       -- Propagate outer environment to inner function.
+      local x = math.max -- ??? getfenv(1) fails if we remove this ???
       setfenv (inner, getfenv (1))
 
       return inner (...)
