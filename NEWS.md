@@ -6,8 +6,10 @@
 
   - Anything that responds to `tostring` can be appended to a `std.strbuf`:
 
-      local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
-      a = a .. b --> "foobarbazquux"
+    ```lua
+    local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
+    a = a .. b --> "foobarbazquux"
+    ```
 
   - `std.strbuf` stringifies lazily, so adding tables to a StrBuf
     object, and then changing the content of them before calling
@@ -16,8 +18,19 @@
 
   - `debug.argscheck` accepts square brackets around final optional
     parameters, which is distinct to the old way of appending `?` or
-    `|nil` because no spurious "or nil" is reported for type mismatches
+    `|nil` in that no spurious "or nil" is reported for type mismatches
     against a final bracketed argument.
+
+  - `debug.argscheck` can also check types of function return values, when
+    specified as:
+
+    ```lua
+    checkedfn = argscheck ("fname (?any...) => nil, string", fname)
+    ```
+
+    Optional results can be marked with brackets, and an ellipsis following
+    the final type denotes any additional results must match that final
+    type specification.
 
 ### Deprecations
 

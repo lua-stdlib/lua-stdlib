@@ -126,9 +126,9 @@ local getfenv = rawget (_G, "getfenv") or function (fn)
 end
 
 
-local function toomanyargmsg (name, expect, actual)
-  local fmt = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
-  return string.format (fmt, expect + 1, name, expect, expect == 1 and "" or "s", actual)
+local function toomanymsg (bad, to, name, expect, actual)
+  local s = "bad %s #%d %s '%s' (no more than %d %s%s expected, got %d)"
+  return s:format (bad, expect + 1, to, name, expect, bad, expect == 1 and "" or "s", actual)
 end
 
 
@@ -137,6 +137,15 @@ local argcheck, argscheck  -- forward declarations
 if _DEBUG.argcheck then
 
   local copy, prototype = base.copy, base.prototype
+
+  local function resulterror (name, i, extramsg, level)
+    level = level or 1
+    local s = string.format ("bad result #%d from '%s'", i, name)
+    if extramsg ~= nil then
+      s = s .. " (" .. extramsg .. ")"
+    end
+    error (s, level + 1)
+  end
 
   --- Concatenate a table of strings using ", " and " or " delimiters.
   -- @tparam table alternatives a table of strings
@@ -368,21 +377,22 @@ if _DEBUG.argcheck then
 
   local function empty (t) return not next (t) end
 
+  -- Constant marker for whether to process ellipsis value.
+  local has_dots = math.huge
 
   -- Pattern to normalize: [types...] to [types]...
   local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
 
   --- Diagnose mismatches between *valuelist* and type *permutations*.
-  -- @string fname name of function
   -- @tparam table valuelist normalized list of actual values to be checked
-  -- @int maxvalues maximum number of values permitted, or `math.huge`
-  --   for unlimited values
-  -- @tparam table typelist normalized list of type specs to verify
-  -- @tparam table permutations list of lists of valid typelist permutations
-  local function diagnose (fname, valuelist, maxvalues, typelist, permutations)
+  -- @tparam table argt table of precalculated values and handler functiens
+  local function diagnose (valuelist, argt)
+    local maxvalues, typelist, permutations =
+      argt.maxvalues, argt.typelist, argt.permutations
+
     local maxtypes, bestmismatch, listlen = #typelist, 0, 0
     for i, list in ipairs (permutations) do
-      local allargs = maxvalues == math.huge or (empty (list) and #permutations > 1)
+      local allargs = maxvalues == has_dots or (empty (list) and #permutations > 1)
       local mismatch = match (list, valuelist, allargs)
       if mismatch == nil then
         bestmismatch, listlen = nil, #list
@@ -395,7 +405,7 @@ if _DEBUG.argcheck then
     if bestmismatch ~= nil then
       -- Report an error for all possible types at bestmismatch index.
       local i, expected = bestmismatch
-      if maxvalues == math.huge and i >= maxtypes then
+      if maxvalues == has_dots and i >= maxtypes then
         -- remove [] and ... before normalization
         local last = (typelist[maxtypes] or ""):match (last_pat)
         expected = normalize (split (last or typelist[maxtypes], "|"))
@@ -415,20 +425,20 @@ if _DEBUG.argcheck then
         if contents and type (valuelist[i]) == "table" then
           for k, v in pairs (valuelist[i]) do
             if not checktype (contents, v) then
-              argerror (fname, i, formaterror (expected, v, k), 3)
+              argt.badtype (i, formaterror (expected, v, k), 3)
             end
           end
         end
       end
 
       -- Otherwise the argument type itself was mismatched.
-      argerror (fname, i, formaterror (expected, valuelist[i]), 3)
+      argt.badtype (i, formaterror (expected, valuelist[i]), 3)
     end
 
     local n = maxn (valuelist)
-    local max = maxvalues == math.huge and maxvalues or math.min (maxvalues, listlen)
+    local max = maxvalues == has_dots and maxvalues or math.min (maxvalues, listlen)
     if n > max then
-      error (toomanyargmsg (fname, max, n), 3)
+      error (argt.badcount (max, n), 3)
     end
   end
 
@@ -463,6 +473,11 @@ if _DEBUG.argcheck then
   end
 
 
+  local function stripellipsis (t)
+    return (t[#t] or ""):match "^(.+)%.%.%.$"
+  end
+
+
   -- Pattern to extract: fname ([types]?[, types]*)
   local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
 
@@ -483,26 +498,68 @@ if _DEBUG.argcheck then
       fname = decl:match "([%w_][%.%d%w_]*)"
     end
 
-    -- If the final element of argtypes ends with "...", then set max to a
-    -- sentinel value to denote type-checking of *all* remaining unchecked
-    -- arguments against that type-spec is required.
-    local maxargs, fin = #argtypes, (last (argtypes) or ""):match "^(.+)%.%.%.$"
-    if fin then
-      maxargs = math.huge
-      argtypes[#argtypes] = fin
+    -- Support final element of argtypes ends with "..."
+    local maxargs, final = #argtypes, stripellipsis (argtypes)
+    if final then
+      maxargs, argtypes[#argtypes] = has_dots, final
     end
 
-    -- Calculate type permutations once as an upvalue.
-    local permutations = permute (argtypes)
+    -- Precalculate vtables once to make multiple calls faster.
+    local input, output = {
+      typelist     = argtypes,
+      badcount     = function (...)
+	               return toomanymsg ("argument", "to", fname, ...)
+	             end,
+      badtype      = function (...) argerror (fname, ...) end,
+      maxvalues    = maxargs,
+      permutations = permute (argtypes),
+    }
+
+    -- Parse "... => returntype, returntype, returntype...".
+    local returntypes = decl:match "=>%s*(.+)%s*$"
+    if returntypes then
+      returntypes = split (returntypes, ",%s*")
+
+      -- normalize final `[types...]` to `[types]...`
+      local types, dots = last (returntypes):match (last_pat)
+      if types then
+	returntypes[#returntypes] = "[" .. types .. "]" .. dots
+      end
+
+      -- Support final element of returntypes ends with "..."
+      local maxreturns, final = #returntypes, stripellipsis (returntypes)
+      if final then
+        maxreturns, returntypes[#returntypes] = has_dots, final
+      end
+
+      output = {
+        typelist     = returntypes,
+        badcount     = function (...)
+	                 return toomanymsg ("result", "from", fname, ...)
+	               end,
+        badtype      = function (...) resulterror (fname, ...) end,
+        maxvalues    = maxreturns,
+        permutations = permute (returntypes),
+      }
+    end
 
     return function (...)
-      diagnose (fname, {...}, maxargs, argtypes, permutations)
+      -- Diagnose bad inputs.
+      diagnose ({...}, input)
 
       -- Propagate outer environment to inner function.
       local x = math.max -- ??? getfenv(1) fails if we remove this ???
       setfenv (inner, getfenv (1))
 
-      return inner (...)
+      -- Execute.
+      local results = {inner (...)}
+
+      -- Diagnose bad outputs.
+      if returntypes then
+	diagnose (results, output)
+      end
+
+      return unpack (results)
     end
   end
 
@@ -662,13 +719,29 @@ M = {
   --- Wrap a function definition with argument type and arity checking.
   -- In addition to checking that each argument type matches the corresponding
   -- element in the *types* table with `argcheck`, if the final element of
-  -- *types* ends with an elipsis, remaining unchecked arguments are checked
-  -- against that type.
+  -- *types* ends with an ellipsis, remaining unchecked arguments are checked
+  -- against that type:
+  --
+  --     format = argscheck ("string.format (string, ?any...)", string.format)
+  --
+  -- If an argument can be omitted entirely, then put its type specification
+  -- in square brackets:
+  --
+  --     insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
+  --
+  -- Similarly returt types can be checked with the same list syntax as
+  -- arguments:
+  --
+  --     len = argscheck ("string.len (string) => int", string.len)
+  --
   -- @function argscheck
   -- @string decl function type declaration string
   -- @func inner function to wrap with argument checking
   -- @usage
-  -- M.square = argscheck ("util.square (number)", function (n) return n * n end)
+  -- local case = argscheck ("std.functional.case (?any, #table) => [any...]",
+  --   function (with, branches)
+  --     ...
+  -- end)
   argscheck = argscheck,
 
   --- Print a debugging message to `io.stderr`.
@@ -696,7 +769,7 @@ M = {
   -- if table.maxn {...} > 1 then
   --   io.stderr:write ("module.fname", 7, table.maxn {...})
   -- ...
-  toomanyargmsg = toomanyargmsg,
+  toomanyargmsg = function (...) return toomanymsg ("argument", "to", ...) end,
 
   --- Trace function calls.
   -- Use as debug.sethook (trace, "cr"), which is done automatically

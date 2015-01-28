@@ -16,6 +16,7 @@ package.path = std.package.normalize (
                  package.path
                )
 
+
 -- Allow user override of LUA binary used by hell.spawn, falling
 -- back to environment PATH search for "lua" if nothing else works.
 local LUA = os.getenv "LUA" or "lua"
@@ -25,10 +26,40 @@ local LUA = os.getenv "LUA" or "lua"
 setdebug = require "std.debug"._setdebug
 
 
+-- In case we're not using a bleeding edge release of Specl...
+badargs.result = badargs.result or function (fname, i, want, got)
+  if want == nil then i, want =  i - 1, i end -- numbers only for narg error
+
+  if got == nil and type (want) == "number" then
+    local s = "bad result #%d from '%s' (no more than %d result%s expected, got %d)"
+    return s:format (i + 1, fname, i, i == 1 and "" or "s", want)
+  end
+
+  local function showarg (s)
+    return ("|" .. s .. "|"):
+             gsub ("|%?", "|nil|"):
+	     gsub ("|nil|", "|no value|"):
+             gsub ("|any|", "|any value|"):
+             gsub ("|#", "|non-empty "):
+	     gsub ("|func|", "|function|"):
+	     gsub ("|file|", "|FILE*|"):
+	     gsub ("^|", ""):
+	     gsub ("|$", ""):
+	     gsub ("|([^|]+)$", "or %1"):
+	     gsub ("|", ", ")
+  end
+
+  return string.format ("bad result #%d from '%s' (%s expected, got %s)",
+                        i, fname, showarg (want), got or "no value")
+end
+
+
 -- Wrap up badargs function in a succinct single call.
 function init (M, mname, fname)
   local name = (mname .. "." .. fname):gsub ("^%.", "")
-  return M[fname], function (...) return badargs.format (name, ...) end
+  return M[fname],
+         function (...) return badargs.format (name, ...) end,
+         function (...) return badargs.result (name, ...) end
 end
 
 

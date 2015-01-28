@@ -573,10 +573,13 @@ specify std.debug:
         ]], tostring (name), tostring (spec))
       end
 
-      f, badarg = init (M, this_module, "argscheck")
+      f = M.argscheck
 
       mkmagic = function () return "MAGIC" end
       wrapped = f ("inner ()", mkmagic)
+
+      _, badarg, badresult = init (M, "", "inner")
+      id = function (...) return (table.unpack or unpack) {...} end
 
   - it returns the wrapped function:
       expect (wrapped).not_to_be (inner)
@@ -593,8 +596,6 @@ specify std.debug:
       expect (luaproc (script)).to_succeed ()
 
   - context when checking zero argument function:
-    - before:
-        _, badarg = init (M, "", "inner")
     - it diagnoses too many arguments:
         expect (wrapped (false)).to_raise (badarg (1))
     - it accepts correct argument types:
@@ -602,7 +603,6 @@ specify std.debug:
 
   - context when checking single argument function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner (#table)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "non-empty table"))
@@ -615,7 +615,6 @@ specify std.debug:
 
   - context when checking multi-argument function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner (table, function)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "table"))
@@ -630,7 +629,6 @@ specify std.debug:
 
   - context when checking nil argument function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner (?int, string)", mkmagic)
     - it diagnoses wrong argument types:
         expect (wrapped (false)).to_raise (badarg (1, "int or nil", "boolean"))
@@ -643,21 +641,8 @@ specify std.debug:
         expect (wrapped (1, "foo")).to_be "MAGIC"
         expect (wrapped (nil, "foo")).to_be "MAGIC"
 
-  - context when checking optional argument function:
-    - before:
-        _, badarg = init (M, "", "inner")
-        wrapped = f ("inner ([int])", mkmagic)
-    - it diagnoses wrong argument types:
-        expect (wrapped (false)).to_raise (badarg (1, "int", "boolean"))
-    - it diagnoses too many arguments:
-        expect (wrapped (1, nop)).to_raise (badarg (2))
-    - it accepts correct argument types:
-        expect (wrapped ()).to_be "MAGIC"
-        expect (wrapped (1)).to_be "MAGIC"
-
   - context when checking optional multi-argument function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner ([int], string)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "int or string"))
@@ -672,7 +657,6 @@ specify std.debug:
 
   - context when checking final optional multi-argument function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner (?any, ?string, [any])", mkmagic)
     - it diagnoses wrong argument types:
         expect (wrapped (1, false)).to_raise (badarg (2, "string or nil", "boolean"))
@@ -694,7 +678,6 @@ specify std.debug:
 
   - context when checking final ellipsis function:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner (string, int...)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "string"))
@@ -710,10 +693,19 @@ specify std.debug:
         expect (wrapped ("foo", 1, 2)).to_be "MAGIC"
         expect (wrapped ("foo", 1, 2, 5)).to_be "MAGIC"
 
-  - context when checking final parameter:
+  - context when checking optional final parameter:
+    - context with single argument:
+      - before:
+          wrapped = f ("inner ([int])", mkmagic)
+      - it diagnoses wrong argument types:
+          expect (wrapped (false)).to_raise (badarg (1, "int", "boolean"))
+      - it diagnoses too many arguments:
+          expect (wrapped (1, nop)).to_raise (badarg (2))
+      - it accepts correct argument types:
+          expect (wrapped ()).to_be "MAGIC"
+          expect (wrapped (1)).to_be "MAGIC"
     - context with trailing ellipsis:
       - before:
-          _, badarg = init (M, "", "inner")
           wrapped = f ("inner (string, [int]...)", mkmagic)
       - it diagnoses missing arguments:
           expect (wrapped ()).to_raise (badarg (1, "string"))
@@ -730,7 +722,6 @@ specify std.debug:
           expect (wrapped ("foo", 1, 2, 5)).to_be "MAGIC"
     - context with inner ellipsis:
       - before:
-          _, badarg = init (M, "", "inner")
           wrapped = f ("inner (string, [int...])", mkmagic)
       - it diagnoses missing arguments:
           expect (wrapped ()).to_raise (badarg (1, "string"))
@@ -748,7 +739,6 @@ specify std.debug:
 
   - context with too many args:
     - before:
-        _, badarg = init (M, "", "inner")
         wrapped = f ("inner ([string], int)", mkmagic)
     - it diagnoses missing arguments:
         expect (wrapped ()).to_raise (badarg (1, "string or int"))
@@ -762,6 +752,144 @@ specify std.debug:
     - it accepts correct argument types:
         expect (wrapped (1)).to_be "MAGIC"
         expect (wrapped ("one", 2)).to_be "MAGIC"
+
+  - context when checking single return value function:
+    - before: |
+        wrapped = f ("inner (?any...) => #table", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (1, "non-empty table"))
+    - it diagnoses wrong result types:
+        expect (wrapped {}).
+          to_raise (badresult (1, "non-empty table", "empty table"))
+    - it diagnoses too many results:
+        expect (wrapped ({1}, 2, nop, "", false)).to_raise (badresult (1, 5))
+    - it accepts correct results:
+        expect ({wrapped {1}}).to_equal {{1}}
+
+  - context when checking multi-return value function:
+    - before:
+        wrapped = f ("inner (?any...) => int, string", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (1, "int"))
+        expect (wrapped (1)).to_raise (badresult (2, "string"))
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int", "boolean"))
+        expect (wrapped (1, false)).to_raise (badresult (2, "string", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "two", false)).to_raise (badresult (3))
+    - it accepts correct argument types:
+        expect ({wrapped (1, "two")}).to_equal {1, "two"}
+
+  - context when checking nil return specifier:
+    - before:
+        wrapped = f ("inner (?any...) => ?int, string", id)
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int or nil", "boolean"))
+        expect (wrapped (1, false)).to_raise (badresult (2, "string", "boolean"))
+        expect (wrapped (nil, false)).to_raise (badresult (2, "string", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "foo", nop)).to_raise (badresult (3))
+        expect (wrapped (nil, "foo", nop)).to_raise (badresult (3))
+    - it accepts correct result types:
+        expect ({wrapped (1, "foo")}).to_equal {1, "foo"}
+        expect ({wrapped (nil, "foo")}).to_equal {[2] = "foo"}
+
+  - context when checking optional multi-return value function:
+    - before:
+        wrapped = f ("inner (?any...) => [int], string", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (1, "int or string"))
+        expect (wrapped (1)).to_raise (badresult (2, "string"))
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int or string", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "two", nop)).to_raise (badresult (3))
+    - it accepts correct result types:
+        expect ({wrapped ("two")}).to_equal {"two"}
+        expect ({wrapped (1, "two")}).to_equal {1, "two"}
+
+  - context when checking final optional multi-return value function:
+    - before:
+        wrapped = f ("inner (?any...) => ?any, ?string, [any]", id)
+    - it diagnoses wrong result types:
+        expect (wrapped (1, false)).to_raise (badresult (2, "string or nil", "boolean"))
+        expect (wrapped (nil, false)).to_raise (badresult (2, "string or nil", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "two", 3, false)).to_raise (badresult (4))
+        expect (wrapped (nil, "two", 3, false)).to_raise (badresult (4))
+        expect (wrapped (1, nil, 3, false)).to_raise (badresult (4))
+        expect (wrapped (nil, nil, 3, false)).to_raise (badresult (4))
+    - it accepts correct result types:
+        expect ({wrapped ()}).to_equal {}
+        expect ({wrapped (1)}).to_equal {1}
+        expect ({wrapped (nil, "two")}).to_equal {[2]="two"}
+        expect ({wrapped (1, "two")}).to_equal {1, "two"}
+        expect ({wrapped (nil, nil, 3)}).to_equal {[3]=3}
+        expect ({wrapped (1, nil, 3)}).to_equal {1, [3]=3}
+        expect ({wrapped (nil, "two", 3)}).to_equal {[2]="two", [3]=3}
+        expect ({wrapped ("one", "two", 3)}).to_equal {"one", "two", 3}
+
+  - context when checking optional final result:
+    - context with single result:
+      - before:
+          wrapped = f ("inner (?any...) => [int]", id)
+      - it diagnoses wrong result types:
+          expect (wrapped (false)).to_raise (badresult (1, "int", "boolean"))
+      - it diagnoses too many results:
+          expect (wrapped (1, nop)).to_raise (badresult (2))
+      - it accepts correct result types:
+          expect ({wrapped ()}).to_equal {}
+          expect ({wrapped (1)}).to_equal {1}
+    - context with trailing ellipsis:
+      - before:
+          wrapped = f ("inner (?any...) => string, [int]...", id)
+      - it diagnoses missing results:
+          expect (wrapped ()).to_raise (badresult (1, "string"))
+      - it diagnoses wrong result types:
+          expect (wrapped (false)).to_raise (badresult (1, "string", "boolean"))
+          expect (wrapped ("foo", false)).to_raise (badresult (2, "int", "boolean"))
+          expect (wrapped ("foo", 1, false)).to_raise (badresult (3, "int", "boolean"))
+          expect (wrapped ("foo", 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, false)).
+            to_raise (badresult (12, "int", "boolean"))
+      - it accepts correct result types:
+          expect ({wrapped ("foo")}).to_equal {"foo"}
+          expect ({wrapped ("foo", 1)}).to_equal {"foo", 1}
+          expect ({wrapped ("foo", 1, 2)}).to_equal {"foo", 1, 2}
+          expect ({wrapped ("foo", 1, 2, 5)}).to_equal {"foo", 1, 2, 5}
+    - context with inner ellipsis:
+      - before:
+          wrapped = f ("inner (?any...) => string, [int...]", id)
+      - it diagnoses missing results:
+          expect (wrapped ()).to_raise (badresult (1, "string"))
+      - it diagnoses wrong result types:
+          expect (wrapped (false)).to_raise (badresult (1, "string", "boolean"))
+          expect (wrapped ("foo", false)).to_raise (badresult (2, "int", "boolean"))
+          expect (wrapped ("foo", 1, false)).to_raise (badresult (3, "int", "boolean"))
+          expect (wrapped ("foo", 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, false)).
+            to_raise (badresult (12, "int", "boolean"))
+      - it accepts correct result types:
+          expect ({wrapped ("foo")}).to_equal {"foo"}
+          expect ({wrapped ("foo", 1)}).to_equal {"foo", 1}
+          expect ({wrapped ("foo", 1, 2)}).to_equal {"foo", 1, 2}
+          expect ({wrapped ("foo", 1, 2, 5)}).to_equal {"foo", 1, 2, 5}
+
+  - context with too many results:
+    - before:
+        wrapped = f ("inner (?any...) => [string], int", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (1, "string or int"))
+        expect (wrapped "one").to_raise (badresult (2, "int"))
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).
+          to_raise (badresult (1, "string or int", "boolean"))
+        expect (wrapped ("one", false)).
+          to_raise (badresult (2, "int", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped ("one", 2, false)).to_raise (badresult (3))
+        expect (wrapped (1, false)).to_raise (badresult (2))
+    - it accepts correct argument types:
+        expect ({wrapped (1)}).to_equal {1}
+        expect ({wrapped ("one", 2)}).to_equal {"one", 2}
 
 
 - describe say:
