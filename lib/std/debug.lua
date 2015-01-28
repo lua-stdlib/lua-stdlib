@@ -217,12 +217,33 @@ if _DEBUG.argcheck then
   end
 
 
+  -- Constant marker for whether to process ellipsis value.
+  local HAS_DOTS = math.huge
+
+
+  --- Strip trailing ellipsis from final argument if any, storing maximum
+  -- number of values that can be matched directly in `t.maxvalues`.
+  -- @tparam table t table to act on
+  -- @treturn table *t* with ellipsis stripped and maxvalues field set
+  local function markdots (t)
+    local last = t[#t]
+    t.maxvalues = #t
+    if last then
+      t[#t] = last:gsub ("%.%.%.(%]?)$", function (bracket)
+	t.maxvalues = HAS_DOTS
+	return bracket
+      end)
+    end
+    return t
+  end
+
+
   --- Calculate permutations of type lists with and without [optionals].
-  -- @tparam table types a list of expected types by argument position
+  -- @tparam table typelist a list of expected types by argument position
   -- @treturn table set of possible type lists
-  local function permute (types)
+  local function permute (typelist)
     local p = {{}}
-    for i, v in ipairs (types) do
+    for i, v in ipairs (typelist) do
       local opt = v:match "%[(.+)%]"
       if opt == nil then
         -- Append non-optional type-spec to each permutation.
@@ -377,9 +398,6 @@ if _DEBUG.argcheck then
 
   local function empty (t) return not next (t) end
 
-  -- Constant marker for whether to process ellipsis value.
-  local has_dots = math.huge
-
   -- Pattern to normalize: [types...] to [types]...
   local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
 
@@ -387,12 +405,12 @@ if _DEBUG.argcheck then
   -- @tparam table valuelist normalized list of actual values to be checked
   -- @tparam table argt table of precalculated values and handler functiens
   local function diagnose (valuelist, argt)
-    local maxvalues, typelist, permutations =
-      argt.maxvalues, argt.typelist, argt.permutations
+    local typelist, permutations = argt.typelist, argt.permutations
+    local maxvalues = typelist.maxvalues
 
     local maxtypes, bestmismatch, listlen = #typelist, 0, 0
     for i, list in ipairs (permutations) do
-      local allargs = maxvalues == has_dots or (empty (list) and #permutations > 1)
+      local allargs = maxvalues == HAS_DOTS or (empty (list) and #permutations > 1)
       local mismatch = match (list, valuelist, allargs)
       if mismatch == nil then
         bestmismatch, listlen = nil, #list
@@ -405,7 +423,7 @@ if _DEBUG.argcheck then
     if bestmismatch ~= nil then
       -- Report an error for all possible types at bestmismatch index.
       local i, expected = bestmismatch
-      if maxvalues == has_dots and i >= maxtypes then
+      if maxvalues == HAS_DOTS and i >= maxtypes then
         -- remove [] and ... before normalization
         local last = (typelist[maxtypes] or ""):match (last_pat)
         expected = normalize (split (last or typelist[maxtypes], "|"))
@@ -436,7 +454,7 @@ if _DEBUG.argcheck then
     end
 
     local n = maxn (valuelist)
-    local max = maxvalues == has_dots and maxvalues or math.min (maxvalues, listlen)
+    local max = maxvalues == HAS_DOTS and maxvalues or math.min (maxvalues, listlen)
     if n > max then
       error (argt.badcount (max, n), 3)
     end
@@ -473,11 +491,6 @@ if _DEBUG.argcheck then
   end
 
 
-  local function stripellipsis (t)
-    return (t[#t] or ""):match "^(.+)%.%.%.$"
-  end
-
-
   -- Pattern to extract: fname ([types]?[, types]*)
   local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
 
@@ -485,23 +498,11 @@ if _DEBUG.argcheck then
     -- Parse "fname (argtype, argtype, argtype...)".
     local fname, argtypes = decl:match (args_pat)
     if argtypes == "" then
-      argtypes = {}
+      argtypes = markdots {}
     elseif argtypes then
-      argtypes = split (argtypes, ",%s*")
-
-      -- normalize final `[types...]` to `[types]...`
-      local types, dots = last (argtypes):match (last_pat)
-      if types then
-	argtypes[#argtypes] = "[" .. types .. "]" .. dots
-      end
+      argtypes = markdots (split (argtypes, ",%s*"))
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
-    end
-
-    -- Support final element of argtypes ends with "..."
-    local maxargs, final = #argtypes, stripellipsis (argtypes)
-    if final then
-      maxargs, argtypes[#argtypes] = has_dots, final
     end
 
     -- Precalculate vtables once to make multiple calls faster.
@@ -511,26 +512,13 @@ if _DEBUG.argcheck then
 	               return toomanymsg ("argument", "to", fname, ...)
 	             end,
       badtype      = function (...) argerror (fname, ...) end,
-      maxvalues    = maxargs,
       permutations = permute (argtypes),
     }
 
     -- Parse "... => returntype, returntype, returntype...".
     local returntypes = decl:match "=>%s*(.+)%s*$"
     if returntypes then
-      returntypes = split (returntypes, ",%s*")
-
-      -- normalize final `[types...]` to `[types]...`
-      local types, dots = last (returntypes):match (last_pat)
-      if types then
-	returntypes[#returntypes] = "[" .. types .. "]" .. dots
-      end
-
-      -- Support final element of returntypes ends with "..."
-      local maxreturns, final = #returntypes, stripellipsis (returntypes)
-      if final then
-        maxreturns, returntypes[#returntypes] = has_dots, final
-      end
+      returntypes = markdots (split (returntypes, ",%s*"))
 
       output = {
         typelist     = returntypes,
@@ -538,7 +526,6 @@ if _DEBUG.argcheck then
 	                 return toomanymsg ("result", "from", fname, ...)
 	               end,
         badtype      = function (...) resulterror (fname, ...) end,
-        maxvalues    = maxreturns,
         permutations = permute (returntypes),
       }
     end
