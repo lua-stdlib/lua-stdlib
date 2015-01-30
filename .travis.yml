@@ -107,7 +107,7 @@ install:
     fi'
 
   # Build from rockspec.
-  - export ROCKSPEC=stdlib-41.0.0-1.rockspec
+  - export ROCKSPEC=stdlib-41.1.0-1.rockspec
   - 'test -f "$ROCKSPEC" || ROCKSPEC=stdlib-git-1.rockspec'
   - sudo luarocks make $ROCKSPEC LUA="$LUA"
 
