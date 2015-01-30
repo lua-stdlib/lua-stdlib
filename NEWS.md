@@ -32,6 +32,10 @@
     the final type denotes any additional results must match that final
     type specification. Alternative result type groups are separated by "or".
 
+  - New `table.unpack (t, [i, [j]])` function that defaults j to
+    `table.maxn (t)`, even on luajit which stops before the first nil
+    valued numeric index otherwise.
+
 ### Deprecations
 
   - `std.strbuf.tostring` has been deprecated in favour of `tostring`.

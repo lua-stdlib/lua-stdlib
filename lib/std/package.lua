@@ -16,7 +16,8 @@ local debug          = require "std.debug"
 
 local catfile, escape_pattern, invert =
   base.catfile, base.escape_pattern, base.invert
-local ipairs, pairs, split = base.ipairs, base.pairs, base.split
+local ipairs, pairs, split, unpack =
+  base.ipairs, base.pairs, base.split, base.unpack
 
 local M
 
@@ -79,8 +80,6 @@ local function normalize (...)
   return table.concat (invert (paths), pathsep)
 end
 
-
-local unpack = table.unpack or unpack
 
 local function insert (pathstrings, ...)
   local paths = split (pathstrings, pathsep)

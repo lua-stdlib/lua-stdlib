@@ -441,6 +441,15 @@ M = {
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, ?function)", sort),
 
+  --- Enhance core *table.unpack* to always unpack up to `maxn (t)`.
+  -- @function unpack
+  -- @tparam table t table to act on
+  -- @int[opt=1] i first index to unpack
+  -- @int[opt=table.maxn(t)] j last index to unpack
+  -- @return ... values of numeric indices of *t*
+  -- @usage return unpack (results_table)
+  unpack = X ("unpack (table, ?int, ?int)", base.unpack),
+
   --- Make the list of values of a table.
   -- @function values
   -- @tparam table t any table

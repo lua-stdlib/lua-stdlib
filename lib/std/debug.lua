@@ -34,10 +34,10 @@ local base       = require "std.base"
 
 local _DEBUG      = debug_init._DEBUG
 local argerror    = base.argerror
+local unpack      = base.unpack
 local split, tostring = base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
-local unpack = table.unpack or unpack
 
 local M
 

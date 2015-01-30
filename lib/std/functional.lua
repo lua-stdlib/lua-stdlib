@@ -11,11 +11,10 @@
 local base     = require "std.base"
 local debug    = require "std.debug"
 
-local ielems, ipairs, ireverse, len, pairs =
-  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
+local ielems, ipairs, ireverse, len, pairs, unpack =
+  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs, base.unpack
 local callable, reduce = base.callable, base.reduce
 local loadstring = loadstring or load
-local unpack     = table.unpack or unpack
 
 
 local function bind (fn, ...)

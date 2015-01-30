@@ -3,7 +3,6 @@ local hell      = require "specl.shell"
 local std       = require "specl.std"
 
 badargs = require "specl.badargs"
-unpack  = table.unpack or unpack
 
 local top_srcdir = os.getenv "top_srcdir" or "."
 local top_builddir = os.getenv "top_builddir" or "."
@@ -24,6 +23,27 @@ local LUA = os.getenv "LUA" or "lua"
 
 -- Tweak _DEBUG without tripping over Specl nested environments.
 setdebug = require "std.debug"._setdebug
+
+
+-- Make sure we have a maxn even when _VERSION ~= 5.1
+-- @fixme remove this when we get unpack from specl.std
+maxn = table.maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
+end
+
+
+-- Take care to always unpack upto the highest numeric index, for
+-- consistency across Lua versions.
+local _unpack = table.unpack or unpack
+
+-- @fixme pick this up from specl.std with the next release
+function unpack (t, i, j)
+  return _unpack (t, i or 1, j or maxn (t))
+end
 
 
 -- In case we're not using a bleeding edge release of Specl...

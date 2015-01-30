@@ -25,7 +25,6 @@
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
-local unpack     = table.unpack or unpack
 
 
 local function argerror (name, i, extramsg, level)
@@ -83,6 +82,22 @@ local function ipairs (l)
       return n, l[n]
     end
   end, l, 0
+end
+
+
+local maxn = table.maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
+end
+
+
+local _unpack = table.unpack or unpack
+
+local function unpack (t, i, j)
+  return _unpack (t, i or 1, j or maxn (t))
 end
 
 
@@ -245,15 +260,6 @@ local function leaves (it, tr)
     end
   end
   return coroutine.wrap (visit), tr
-end
-
-
-local maxn = table.maxn or function (t)
-  local n = 0
-  for k in pairs (t) do
-    if type (k) == "number" and k > n then n = k end
-  end
-  return n
 end
 
 
@@ -442,6 +448,7 @@ return {
   last          = last,
   len           = len,
   maxn          = maxn,
+  unpack        = unpack,
 
   -- tree.lua --
   leaves = leaves,
