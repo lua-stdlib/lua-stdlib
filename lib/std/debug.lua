@@ -510,14 +510,24 @@ if _DEBUG.argcheck then
     -- Parse "... => returntype, returntype, returntype...".
     local returntypes = decl:match "=>%s*(.+)%s*$"
     if returntypes then
-      returntypes = split (returntypes, ",%s*")
+      local i, permutations = 0, {}
+      for _, group in ipairs (split (returntypes, "%s+or%s+")) do
+	returntypes = split (group, ",%s*")
+	for _, t in ipairs (permute (returntypes)) do
+	  i = i + 1
+          permutations[i] = t
+	end
+      end
+
+      -- Ensure the longest permutation is first in the list.
+      table.sort (permutations, function (a, b) return #a > #b end)
 
       output = {
         badcount     = function (...)
 	                 return toomanymsg ("result", "from", fname, ...)
 	               end,
         badtype      = function (...) resulterror (fname, ...) end,
-        permutations = permute (returntypes),
+        permutations = permutations,
       }
     end
 
@@ -711,6 +721,11 @@ M = {
   -- arguments:
   --
   --     len = argscheck ("string.len (string) => int", string.len)
+  --
+  -- Additionally, variant return type lists can be listed like this:
+  --
+  --     open = argscheck ("io.open (string, ?string) => file or nil, string",
+  --                       io.open)
   --
   -- @function argscheck
   -- @string decl function type declaration string

@@ -25,12 +25,12 @@
     specified as:
 
     ```lua
-    checkedfn = argscheck ("fname (?any...) => nil, string", fname)
+    fn = argscheck ("fname (?any...) => int, table or nil, string", fname)
     ```
 
     Optional results can be marked with brackets, and an ellipsis following
     the final type denotes any additional results must match that final
-    type specification.
+    type specification. Alternative result type groups are separated by "or".
 
 ### Deprecations
 

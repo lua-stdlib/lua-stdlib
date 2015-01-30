@@ -766,6 +766,17 @@ specify std.debug:
     - it accepts correct results:
         expect ({wrapped {1}}).to_equal {{1}}
 
+  - context with variant single return value function:
+    - before:
+        wrapped = f ("inner (?any...) => int or nil", id)
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int or nil", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, nop)).to_raise (badresult (2))
+    - it accepts correct result types:
+        expect ({wrapped ()}).to_equal {}
+        expect ({wrapped (1)}).to_equal {1}
+
   - context when checking multi-return value function:
     - before:
         wrapped = f ("inner (?any...) => int, string", id)
@@ -793,6 +804,36 @@ specify std.debug:
     - it accepts correct result types:
         expect ({wrapped (1, "foo")}).to_equal {1, "foo"}
         expect ({wrapped (nil, "foo")}).to_equal {[2] = "foo"}
+
+  - context when checking variant multi-return value function:
+    - before:
+        wrapped = f ("inner (?any...) => int, string or string", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (1, "int or string"))
+        expect (wrapped (1)).to_raise (badresult (2, "string"))
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int or string", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "two", nop)).to_raise (badresult (3))
+    - it accepts correct result types:
+        expect ({wrapped ("two")}).to_equal {"two"}
+        expect ({wrapped (1, "two")}).to_equal {1, "two"}
+
+  - context when checking variant nil,errmsg pattern function:
+    - before:
+        wrapped = f ("inner (?any...) => int, string or nil, string", id)
+    - it diagnoses missing results:
+        expect (wrapped ()).to_raise (badresult (2, "string"))
+        expect (wrapped (1)).to_raise (badresult (2, "string"))
+    - it diagnoses wrong result types:
+        expect (wrapped (false)).to_raise (badresult (1, "int or nil", "boolean"))
+        expect (wrapped (1, false)).to_raise (badresult (2, "string", "boolean"))
+    - it diagnoses too many results:
+        expect (wrapped (1, "two", nop)).to_raise (badresult (3))
+        expect (wrapped (nil, "errmsg", nop)).to_raise (badresult (3))
+    - it accepts correct result types:
+        expect ({wrapped (1, "two")}).to_equal {1, "two"}
+        expect ({wrapped (nil, "errmsg")}).to_equal {[2] = "errmsg"}
 
   - context when checking optional multi-return value function:
     - before:
