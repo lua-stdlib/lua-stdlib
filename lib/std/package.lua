@@ -66,10 +66,31 @@ local function normalize (...)
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
       gsub (catfile ("", "%.", ""), dirsep):
       gsub (catfile ("", "%.$"), ""):
-      gsub (catfile ("", "[^", "]+", "%.%.", ""), dirsep):
-      gsub (catfile ("", "[^", "]+", "%.%.$"), ""):
-      gsub (catfile ("%.", "%..", ""), catfile ("..", "")):
+      gsub (catfile ("^%.", "%..", ""), catfile ("..", "")):
       gsub (catfile ("", "$"), "")
+
+    -- Carefully remove redundant /foo/../ matches.
+    repeat
+      local again = false
+      path = path:gsub (catfile ("", "([^", "]+)", "%.%.", ""),
+	       function (dir1)
+	        if dir1 == ".." then  -- don't remove /../../
+		  return catfile ("", "..", "..", "")
+	        else
+		  again = true
+		  return dirsep
+	        end
+	      end):
+            gsub (catfile ("", "([^", "]+)", "%.%.$"),
+	      function (dir1)
+	        if dir1 == ".." then -- don't remove /../..
+		  return catfile ("", "..", "..")
+		else
+		  again = true
+		  return ""
+		end
+	      end)
+    until again == false
 
     -- Build an inverted table of elements to eliminate duplicates after
     -- normalization.

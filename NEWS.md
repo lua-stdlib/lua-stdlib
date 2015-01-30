@@ -56,6 +56,8 @@
     still less than the absolute maximum allowed if optionals are counted
     too.
 
+  - `package.normalize` now leaves valid ./../../ path prefixes unmolested.
+
 ### Incompatible changes
 
   - `debug.argscheck` requires nil parameter type `?` notation to be
