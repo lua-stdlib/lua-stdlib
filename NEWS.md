@@ -1,5 +1,8 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release ?.? (????-??-??) [?]
+
+
 ## Noteworthy changes in release 41.1.0 (2015-01-30) [stable]
 
 ### New features
