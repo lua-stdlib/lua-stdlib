@@ -7,7 +7,8 @@ before: |
                           "enpair", "flatten", "insert", "invert", "keys",
                           "len", "maxn", "merge", "merge_select",
                           "monkey_patch", "new", "okeys", "pack", "project",
-                          "remove", "shape", "size", "sort", "values" }
+                          "remove", "shape", "size", "sort", "unpack",
+                          "values" }
   deprecations        = { "clone_rename", "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
@@ -482,9 +483,11 @@ specify std.table:
   - context with bad arguments:
       badargs.diagnose (f, "std.table.monkey_patch (?table)")
 
-  - it returns the monkey_patched table entry from namespace:
-      namespace = {}
-      expect (f (namespace)).to_be (namespace.table)
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.table module table:
+      expect (f {}).to_equal (M)
   - it injects std.table apis into given namespace:
       namespace = {}
       f (namespace)
@@ -730,6 +733,22 @@ specify std.table:
       t = {content = t}
       object = setmetatable (t, { _type = "Thing" })
       expect (f (object)).to_be (t)
+
+
+- describe unpack:
+  - before:
+      t = {"one", "two", "five"}
+      f = M.unpack
+  - it returns nil for an empty table:
+      expect (f {}).to_be (nil)
+  - it returns numeric indexed table elements:
+      expect ({f (t)}).to_equal (t)
+  - it returns holes in numeric indices as nil:
+      expect ({f {nil, 2}}).to_equal {[2] = 2}
+      expect ({f {nil, nil, 3}}).to_equal {[3] = 3}
+      expect ({f {1, nil, nil, 4}}).to_equal {1, [4] = 4}
+  - it is the inverse operation to pack:
+      expect ({f (M.pack ("one", "two", "five"))}).to_equal (t)
 
 
 - describe values:

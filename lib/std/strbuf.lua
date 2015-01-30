@@ -1,6 +1,16 @@
 --[[--
  String buffers.
 
+ Buffers are mutable by default, but being based on objects, they can
+ also be used in a functional style:
+
+    local StrBuf = require "std.strbuf" {}
+    local a = StrBuf {"a"}
+    local b = a:concat "b"    -- mutate *a*
+    print (a, b)              --> ab   ab
+    local c = a {} .. "c"     -- copy and append
+    print (a, c)              --> ab   abc
+
  Prototype Chain
  ---------------
 
@@ -12,13 +22,67 @@
 ]]
 
 local base   = require "std.base"
+local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
+local ielems, insert, prototype = base.ielems, base.insert, base.prototype
+
+local M, StrBuf
+
+
+local function __concat (self, x)
+  return insert (self, x)
+end
+
+
+local function __tostring (self)
+  local strs = {}
+  for e in ielems (self) do strs[#strs + 1] = tostring (e) end
+  return table.concat (strs)
+end
+
+
+--[[ ================= ]]--
+--[[ Public Interface. ]]--
+--[[ ================= ]]--
+
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.strbuf." .. decl, fn)
+  return debug.argscheck ("std.strbuf." .. decl, fn)
 end
+
+
+M = {
+  --- Add a object to a buffer.
+  -- Elements are stringified lazily, so if add a table and then change
+  -- its contents, the contents of the buffer will be affected too.
+  -- @static
+  -- @function concat
+  -- @param x object to add to buffer
+  -- @treturn StrBuf modified buffer
+  -- @usage
+  -- buf = buf:concat "append this" {" and", " this"}
+  concat = X ("concat (StrBuf, any)", __concat),
+}
+
+
+
+--[[ ============= ]]--
+--[[ Deprecations. ]]--
+--[[ ============= ]]--
+
+
+local DEPRECATED = debug.DEPRECATED
+
+M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
+                         "use 'tostring (strbuf)' instead",
+	                 X ("tostring (StrBuf)", __tostring))
+
+
+--[[ ================== ]]--
+--[[ Type Declarations. ]]--
+--[[ ================== ]]--
 
 
 --- StrBuf prototype object.
@@ -31,22 +95,26 @@ end
 -- @usage
 -- local std = require "std"
 -- local StrBuf = std.strbuf {}
--- local buf = StrBuf {"initial buffer contents"}
--- buf = buf .. "append to buffer"
--- print (buf) -- implicit `tostring` concatenates everything
+-- local a = {1, 2, 3}
+-- local b = {a, "five", "six"}
+-- a = a .. 4
+-- b = b:concat "seven"
+-- print (a, b) --> 1234   1234fivesixseven
 -- os.exit (0)
-return Object {
+StrBuf = Object {
   _type = "StrBuf",
+
+  __index = M,
 
   --- Support concatenation to StrBuf objects.
   -- @function __concat
   -- @tparam StrBuf buffer object
-  -- @string s a string
+  -- @param x a string, or object that can be coerced to a string
   -- @treturn StrBuf modified *buf*
   -- @see concat
   -- @usage
-  -- buf = buf .. str
-  __concat = X ("__concat (StrBuf, string)", base.insert),
+  -- buf = buf .. x
+  __concat = __concat,
 
   --- Support fast conversion to Lua string.
   -- @function __tostring
@@ -55,25 +123,8 @@ return Object {
   -- @see tostring
   -- @usage
   -- str = tostring (buf)
-  __tostring = X ("__tostring (StrBuf)", table.concat),
-
-
-  __index = {
-    --- Add a string to a buffer.
-    -- @static
-    -- @function concat
-    -- @string s string to add
-    -- @treturn StrBuf modified buffer
-    -- @usage
-    -- buf = concat (buf, "append this")
-    concat = X ("concat (StrBuf, string)", base.insert),
-
-    --- Convert a buffer to a string.
-    -- @static
-    -- @function tostring
-    -- @treturn string stringified `buf`
-    -- @usage
-    -- string = buf:tostring ()
-    tostring = X ("tostring (StrBuf)", table.concat),
-  },
+  __tostring = __tostring,
 }
+
+
+return StrBuf

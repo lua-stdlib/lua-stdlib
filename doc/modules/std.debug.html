@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.0.0 Reference</title>
+    <title>stdlib 41.1.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.0.0</h1>
+<h1>stdlib 41.1.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -169,15 +169,15 @@ init._DEBUG = <span class="keyword">false</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">version</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          first deprecation release version
         </li>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function name for automatic warning message
         </li>
         <li><span class="parameter">extramsg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          additional warning text
          (<em>optional</em>)
         </li>
@@ -212,15 +212,15 @@ init._DEBUG = <span class="keyword">false</span>
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">version</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          first deprecation release version
         </li>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function name for automatic warning message
         </li>
         <li><span class="parameter">extramsg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          additional warning text
          (<em>optional</em>)
         </li>
@@ -233,7 +233,7 @@ init._DEBUG = <span class="keyword">false</span>
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         deprecation warning message, or empty string
     </ol>
 
@@ -280,10 +280,10 @@ object    accept any std.Object derived type
 
 <p> A very common pattern is to have a list of possible types including
  "nil" when the argument is optional.  Rather than writing long-hand
- as above, append a question mark to at least one of the list types
- and omit the explicit "nil" entry:</p>
+ as above, prepend a question mark to the list of types and omit the
+ explicit "nil" entry:</p>
 
-<pre><code>argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+<pre><code>argcheck ("table.copy", 2, "?boolean|:nometa", predicate)
 </code></pre>
 
 <p> Normally, you should not need to use the <code>level</code> parameter, as the
@@ -294,7 +294,7 @@ object    accept any std.Object derived type
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function to blame in error message
         </li>
         <li><span class="parameter">i</span>
@@ -302,7 +302,7 @@ object    accept any std.Object derived type
          argument number to blame in error message
         </li>
         <li><span class="parameter">expected</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          specification for acceptable argument types
         </li>
         <li><span class="parameter">actual</span>
@@ -341,7 +341,7 @@ object    accept any std.Object derived type
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function to callout in error message
         </li>
         <li><span class="parameter">i</span>
@@ -349,7 +349,7 @@ object    accept any std.Object derived type
          argument number
         </li>
         <li><span class="parameter">extramsg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          additional text to append to message inside parentheses
          (<em>optional</em>)
         </li>
@@ -378,17 +378,41 @@ object    accept any std.Object derived type
     <strong>argscheck (decl, inner)</strong>
     </dt>
     <dd>
-    Wrap a function definition with argument type and arity checking.
+
+<p>Wrap a function definition with argument type and arity checking.
  In addition to checking that each argument type matches the corresponding
  element in the <em>types</em> table with <code>argcheck</code>, if the final element of
- <em>types</em> ends with an asterisk, remaining unchecked arguments are checked
- against that type.
+ <em>types</em> ends with an ellipsis, remaining unchecked arguments are checked
+ against that type:</p>
+
+<pre><code> format = argscheck ("string.format (string, ?any...)", string.format)
+</code></pre>
+
+<p> If an argument can be omitted entirely, then put its type specification
+ in square brackets:</p>
+
+<pre><code> insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
+</code></pre>
+
+<p> Similarly returt types can be checked with the same list syntax as
+ arguments:</p>
+
+<pre><code> len = argscheck ("string.len (string) =&gt; int", string.len)
+</code></pre>
+
+<p> Additionally, variant return type lists can be listed like this:</p>
+
+<pre><code> open = argscheck ("io.open (string, ?string) =&gt; file or nil, string",
+                   io.open)
+</code></pre>
+
+
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">decl</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function type declaration string
         </li>
         <li><span class="parameter">inner</span>
@@ -402,7 +426,11 @@ object    accept any std.Object derived type
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">M.square = argscheck (<span class="string">"util.square (number)"</span>, <span class="keyword">function</span> (n) <span class="keyword">return</span> n * n <span class="keyword">end</span>)</pre>
+        <pre class="example">
+ <span class="keyword">local</span> case = argscheck (<span class="string">"std.functional.case (?any, #table) =&gt; [any...]"</span>,
+   <span class="keyword">function</span> (with, branches)
+     ...
+ <span class="keyword">end</span>)</pre>
     </ul>
 
 </dd>
@@ -477,7 +505,7 @@ object    accept any std.Object derived type
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          function name
         </li>
         <li><span class="parameter">expect</span>
@@ -493,7 +521,7 @@ object    accept any std.Object derived type
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         standard "too many arguments" error message
     </ol>
 
@@ -522,7 +550,7 @@ object    accept any std.Object derived type
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">event</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          event causing the call
         </li>
     </ul>
@@ -595,7 +623,7 @@ object    accept any std.Object derived type
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
+<i style="float:right;">Last updated 2015-01-30 17:57:09 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

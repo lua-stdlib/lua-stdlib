@@ -80,10 +80,10 @@ install-exec-hook: $(install_exec_hooks)
 # actually moves such files aside anyway, so we just remove them from
 # the installation directory.
 remove-luaexec-lafiles:
-	@for la in $(luaexec_LTLIBRARIES); do	\
-	  f=`echo "$$la" |sed 's|^.*/||'`;	\
-	  echo rm -f $(luaexecdir)/$$f;		\
-	  rm -f $(luaexecdir)/$$f;		\
+	@for la in $(luaexec_LTLIBRARIES); do		\
+	  f=`echo "$$la" |sed 's|^.*/||'`;		\
+	  echo rm -f $(DESTDIR)$(luaexecdir)/$$f;	\
+	  rm -f $(DESTDIR)$(luaexecdir)/$$f;		\
 	done
 
 

@@ -48,26 +48,74 @@ specify std.strbuf:
 
 
 - describe tostring:
-  - it can be called from strbuf module:
-      expect (StrBuf.tostring (b)).to_be "foobar"
-  - it can be called as a strbuf object method:
-      expect (b:tostring ()).to_be "foobar"
-  - it can be called as a strbuf metabethod:
-      expect (tostring (b)).to_be "foobar"
+  - context as a module function:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (StrBuf.tostring, {b})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (StrBuf.tostring, {b})).
+          not_to_contain_error "was deprecated"
+    - it returns buffered string:
+        expect (StrBuf.tostring (b)).to_be "foobar"
+
+  - context as an object method:
+    - it writes a deprecation warning:
+        setdebug { deprecate = "nil" }
+        expect (capture (b.tostring, {b})).
+          to_contain_error "was deprecated"
+        setdebug { deprecate = false }
+        expect (capture (b.tostring, {b})).
+          not_to_contain_error "was deprecated"
+    - it returns buffered string:
+        expect (b:tostring ()).to_be "foobar"
+
+  - context as a metamethod:
+    - it returns buffered string:
+        expect (tostring (b)).to_be "foobar"
 
 
 - describe concat:
   - before:
-      b = StrBuf {"foo", "bar"}
-  - it can be called from strbuf module:
-      b = StrBuf.concat (b, "baz")
-      expect (object.type (b)).to_be "StrBuf"
-      expect (StrBuf.tostring (b)).to_be "foobarbaz"
-  - it can be called as a strbuf object method:
-      b:concat "baz"
-      expect (object.type (b)).to_be "StrBuf"
-      expect (b:tostring()).to_be "foobarbaz"
-  - it can be called as a strbuf metamethod:
-      b = b .. "baz"
-      expect (object.type (b)).to_be "StrBuf"
-      expect (tostring (b)).to_be "foobarbaz"
+      a = StrBuf {"foo", "bar"}
+      b = StrBuf {"baz", "quux"}
+
+  - context as a module function:
+    - it appends a string:
+        a = StrBuf.concat (a, "baz")
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring (a)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        a = StrBuf.concat (a, b)
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring (a)).to_be "foobarbazquux"
+  - context as an object method:
+    - it appends a string:
+        a = a:concat "baz"
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring(a)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        a = a:concat (b)
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring (a)).to_be "foobarbazquux"
+  - context as a metamethod:
+    - it appends a string:
+        a = a .. "baz"
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring (a)).to_be "foobarbaz"
+    - it appends a StrBuf:
+        a = a .. b
+        expect (object.type (a)).to_be "StrBuf"
+        expect (tostring (a)).to_be "foobarbazquux"
+  - it stringifies lazily:
+      a = StrBuf {1}
+      b = StrBuf {a, "five"}
+      a = a:concat (2)
+      expect (tostring (b)).to_be "12five"
+      b = StrBuf {tostring (a), "five"}
+      a = a:concat (3)
+      expect (tostring (b)).to_be "12five"
+  - it can be non-destructive:
+      a = StrBuf {1}
+      b = a {} .. 2
+      expect (tostring (a)).to_be "1"

@@ -29,7 +29,8 @@ local M, monkeys
 
 
 local function monkey_patch (namespace)
-  return base.copy (namespace or _G, monkeys)
+  base.copy (namespace or _G, monkeys)
+  return M
 end
 
 
@@ -92,7 +93,7 @@ M = {
   -- @usage
   -- std.assert (expected ~= nil, "100% unexpected!")
   -- std.assert (expected ~= nil, "%s unexpected!", expected)
-  assert = X ("assert (any?, string?, any?*)", base.assert),
+  assert = X ("assert (?any, ?string, [any...])", base.assert),
 
   --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
   --
@@ -103,7 +104,7 @@ M = {
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table module table
   -- @usage local std = require "std".barrel ()
-  barrel = X ("barrel (table?)", barrel),
+  barrel = X ("barrel (?table)", barrel),
 
   --- An iterator over all elements of a sequence.
   -- If *t* has a `__pairs` metamethod, use that to iterate.
@@ -191,7 +192,7 @@ M = {
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
   -- @usage local std = require "std".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
   -- @function pairs
@@ -217,7 +218,7 @@ M = {
   -- @usage
   -- -- posix.version == "posix library for Lua 5.2 / 32"
   -- posix = require ("posix", "29")
-  require = X ("require (string, string?, string?, string?)", base.require),
+  require = X ("require (string, ?string, ?string, ?string)", base.require),
 
   --- An iterator like ipairs, but in reverse.
   -- Apart from the order of the elments returned, this function follows
@@ -237,7 +238,7 @@ M = {
   -- @usage
   -- -- {1=baz,foo=bar}
   -- print (std.tostring {foo="bar","baz"})
-  tostring = X ("tostring (any?)", base.tostring),
+  tostring = X ("tostring (?any)", base.tostring),
 
   version = "General Lua libraries / @VERSION@",
 }

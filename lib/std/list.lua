@@ -21,7 +21,7 @@ local ipairs, pairs = base.ipairs, base.pairs
 local len       = base.len
 local compare   = base.compare
 local prototype = base.prototype
-local unpack    = table.unpack or unpack
+local unpack    = base.unpack
 
 local M, List
 
@@ -113,7 +113,7 @@ M = {
   -- @usage
   -- --> {1, 2, 3, {4, 5}, 6, 7}
   -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
-  concat = X ("concat (List, List|table*)", concat),
+  concat = X ("concat (List, List|table...)", concat),
 
   --- Prepend an item to a list.
   -- @static
@@ -150,7 +150,7 @@ M = {
   -- @usage
   -- --> {3, 4, 5}
   -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
-  sub = X ("sub (List, int?, int?)", sub),
+  sub = X ("sub (List, ?int, ?int)", sub),
 
   --- Return a list with its first element removed.
   -- @static

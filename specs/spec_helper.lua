@@ -3,7 +3,6 @@ local hell      = require "specl.shell"
 local std       = require "specl.std"
 
 badargs = require "specl.badargs"
-unpack  = table.unpack or unpack
 
 local top_srcdir = os.getenv "top_srcdir" or "."
 local top_builddir = os.getenv "top_builddir" or "."
@@ -16,6 +15,7 @@ package.path = std.package.normalize (
                  package.path
                )
 
+
 -- Allow user override of LUA binary used by hell.spawn, falling
 -- back to environment PATH search for "lua" if nothing else works.
 local LUA = os.getenv "LUA" or "lua"
@@ -25,10 +25,61 @@ local LUA = os.getenv "LUA" or "lua"
 setdebug = require "std.debug"._setdebug
 
 
+-- Make sure we have a maxn even when _VERSION ~= 5.1
+-- @fixme remove this when we get unpack from specl.std
+maxn = table.maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
+end
+
+
+-- Take care to always unpack upto the highest numeric index, for
+-- consistency across Lua versions.
+local _unpack = table.unpack or unpack
+
+-- @fixme pick this up from specl.std with the next release
+function unpack (t, i, j)
+  return _unpack (t, i or 1, j or maxn (t))
+end
+
+
+-- In case we're not using a bleeding edge release of Specl...
+badargs.result = badargs.result or function (fname, i, want, got)
+  if want == nil then i, want =  i - 1, i end -- numbers only for narg error
+
+  if got == nil and type (want) == "number" then
+    local s = "bad result #%d from '%s' (no more than %d result%s expected, got %d)"
+    return s:format (i + 1, fname, i, i == 1 and "" or "s", want)
+  end
+
+  local function showarg (s)
+    return ("|" .. s .. "|"):
+             gsub ("|%?", "|nil|"):
+	     gsub ("|nil|", "|no value|"):
+             gsub ("|any|", "|any value|"):
+             gsub ("|#", "|non-empty "):
+	     gsub ("|func|", "|function|"):
+	     gsub ("|file|", "|FILE*|"):
+	     gsub ("^|", ""):
+	     gsub ("|$", ""):
+	     gsub ("|([^|]+)$", "or %1"):
+	     gsub ("|", ", ")
+  end
+
+  return string.format ("bad result #%d from '%s' (%s expected, got %s)",
+                        i, fname, showarg (want), got or "no value")
+end
+
+
 -- Wrap up badargs function in a succinct single call.
 function init (M, mname, fname)
   local name = (mname .. "." .. fname):gsub ("^%.", "")
-  return M[fname], function (...) return badargs.format (name, ...) end
+  return M[fname],
+         function (...) return badargs.format (name, ...) end,
+         function (...) return badargs.result (name, ...) end
 end
 
 

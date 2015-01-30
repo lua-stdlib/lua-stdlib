@@ -16,7 +16,8 @@ local debug          = require "std.debug"
 
 local catfile, escape_pattern, invert =
   base.catfile, base.escape_pattern, base.invert
-local ipairs, pairs, split = base.ipairs, base.pairs, base.split
+local ipairs, pairs, split, unpack =
+  base.ipairs, base.pairs, base.split, base.unpack
 
 local M
 
@@ -65,10 +66,31 @@ local function normalize (...)
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
       gsub (catfile ("", "%.", ""), dirsep):
       gsub (catfile ("", "%.$"), ""):
-      gsub (catfile ("", "[^", "]+", "%.%.", ""), dirsep):
-      gsub (catfile ("", "[^", "]+", "%.%.$"), ""):
-      gsub (catfile ("%.", "%..", ""), catfile ("..", "")):
+      gsub (catfile ("^%.", "%..", ""), catfile ("..", "")):
       gsub (catfile ("", "$"), "")
+
+    -- Carefully remove redundant /foo/../ matches.
+    repeat
+      local again = false
+      path = path:gsub (catfile ("", "([^", "]+)", "%.%.", ""),
+	       function (dir1)
+	        if dir1 == ".." then  -- don't remove /../../
+		  return catfile ("", "..", "..", "")
+	        else
+		  again = true
+		  return dirsep
+	        end
+	      end):
+            gsub (catfile ("", "([^", "]+)", "%.%.$"),
+	      function (dir1)
+	        if dir1 == ".." then -- don't remove /../..
+		  return catfile ("", "..", "..")
+		else
+		  again = true
+		  return ""
+		end
+	      end)
+    until again == false
 
     -- Build an inverted table of elements to eliminate duplicates after
     -- normalization.
@@ -79,8 +101,6 @@ local function normalize (...)
   return table.concat (invert (paths), pathsep)
 end
 
-
-local unpack = table.unpack or unpack
 
 local function insert (pathstrings, ...)
   local paths = split (pathstrings, pathsep)
@@ -127,7 +147,7 @@ M = {
   -- @return the matching element number (not byte index!) and full text
   --   of the matching element, if any; otherwise nil
   -- @usage i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
-  find = X ("find (string, string, int?, boolean|:plain?)", find),
+  find = X ("find (string, string, ?int, ?boolean|:plain)", find),
 
   --- Insert a new element into a `package.path` like string of paths.
   -- @function insert
@@ -147,7 +167,7 @@ M = {
   -- @param ... additional arguments passed to *callback*
   -- @return nil, or first non-nil returned by *callback*
   -- @usage mappath (package.path, searcherfn, transformfn)
-  mappath = X ("mappath (string, function, any?*)", mappath),
+  mappath = X ("mappath (string, function, [any...])", mappath),
 
   --- Normalize a path list.
   -- Removing redundant `.` and `..` directories, and keep only the first
@@ -159,7 +179,7 @@ M = {
   -- @param ... path elements
   -- @treturn string a single normalized `pathsep` delimited paths string
   -- @usage package.path = normalize (user_paths, sys_paths, package.path)
-  normalize = X ("normalize (string*)", normalize),
+  normalize = X ("normalize (string...)", normalize),
 
   --- Remove any element from a `package.path` like string of paths.
   -- @function remove
@@ -168,7 +188,7 @@ M = {
   --   is the number of elements prior to removal
   -- @treturn string a new string with given element removed
   -- @usage package.path = remove (package.path)
-  remove = X ("remove (string, int?)", remove),
+  remove = X ("remove (string, ?int)", remove),
 }
 
 

@@ -162,7 +162,7 @@ Set = Container {
   -- @see union
   -- @usage
   -- union = set1 + set2
-  __add = X ("__add (Set, Set)", union),
+  __add = union,
 
   --- Difference operator.
   -- @static
@@ -173,7 +173,7 @@ Set = Container {
   -- @see difference
   -- @usage
   -- difference = set1 - set2
-  __sub = X ("__sub (Set, Set)", difference),
+  __sub = difference,
 
   --- Intersection operator.
   -- @static
@@ -184,7 +184,7 @@ Set = Container {
   -- @see intersection
   -- @usage
   -- intersection = set1 * set2
-  __mul = X ("__mul (Set, Set)", intersection),
+  __mul = intersection,
 
   --- Symmetric difference operator.
   -- @function __div
@@ -195,7 +195,7 @@ Set = Container {
   -- @see symmetric_difference
   -- @usage
   -- symmetric_difference = set1 / set2
-  __div = X ("__div (Set, Set)", symmetric_difference),
+  __div = symmetric_difference,
 
   --- Subset operator.
   -- @static
@@ -206,7 +206,7 @@ Set = Container {
   -- @see subset
   -- @usage
   -- issubset = set1 <= set2
-  __le  = X ("__le (Set, Set)", subset),
+  __le  = subset,
 
   --- Proper subset operator.
   -- @static
@@ -218,20 +218,19 @@ Set = Container {
   -- @see proper_subset
   -- @usage
   -- ispropersubset = set1 < set2
-  __lt  = X ("__lt (Set, Set)", proper_subset),
+  __lt  = proper_subset,
 
   -- Return a string representation of this set.
   -- @treturn string string representation of a set.
   -- @see std.tostring
-  __tostring = X ("__tostring (Set)",
-                  function (self)
-                    local keys = {}
-                    for k in pairs (self) do
-                      keys[#keys + 1] = tostring (k)
-                    end
-                    table.sort (keys)
-                    return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
-                  end),
+  __tostring = function (self)
+                 local keys = {}
+                 for k in pairs (self) do
+                   keys[#keys + 1] = tostring (k)
+                 end
+                 table.sort (keys)
+                 return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
+               end,
 
 
   _functions = {

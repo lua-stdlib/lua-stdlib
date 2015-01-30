@@ -31,7 +31,7 @@ end
 local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.math = base.copy (namespace.math or {}, M)
-  return namespace.math
+  return M
 end
 
 
@@ -59,14 +59,14 @@ M = {
   -- @int[opt=0] p number of decimal places to truncate to
   -- @treturn number `n` truncated to `p` decimal places
   -- @usage tenths = floor (magnitude, 1)
-  floor = X ("floor (number, int?)", floor),
+  floor = X ("floor (number, ?int)", floor),
 
   --- Overwrite core `math` methods with `std` enhanced versions.
   -- @function monkey_patch
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
   -- @usage require "std.math".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Round a number to a given number of decimal places
   -- @function round
@@ -74,7 +74,7 @@ M = {
   -- @int[opt=0] p number of decimal places to round to
   -- @treturn number `n` rounded to `p` decimal places
   -- @usage roughly = round (exactly, 2)
-  round = X ("round (number, int?)", round),
+  round = X ("round (number, ?int)", round),
 }
 
 

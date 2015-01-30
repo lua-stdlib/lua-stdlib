@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.0.0 Reference</title>
+    <title>stdlib 41.1.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.0.0</h1>
+<h1>stdlib 41.1.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -71,6 +71,20 @@
 <p>
 
 
+<p> Buffers are mutable by default, but being based on objects, they can
+ also be used in a functional style:</p>
+
+
+<pre>
+<span class="keyword">local</span> StrBuf = <span class="global">require</span> <span class="string">"std.strbuf"</span> {}
+<span class="keyword">local</span> a = StrBuf {<span class="string">"a"</span>}
+<span class="keyword">local</span> b = a:concat <span class="string">"b"</span>    <span class="comment">-- mutate *a*
+</span><span class="global">print</span> (a, b)              <span class="comment">--&gt; ab   ab
+</span><span class="keyword">local</span> c = a {} .. <span class="string">"c"</span>     <span class="comment">-- copy and append
+</span><span class="global">print</span> (a, c)              <span class="comment">--&gt; ab   abc
+</span>
+</pre>
+
 <h2> Prototype Chain</h2>
 
 
@@ -93,18 +107,14 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#std.strbuf.concat">std.strbuf.concat (s)</a></td>
-	<td class="summary">Add a string to a buffer.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#std.strbuf.tostring">std.strbuf.tostring ()</a></td>
-	<td class="summary">Convert a buffer to a string.</td>
+	<td class="name" nowrap><a href="#std.strbuf.concat">std.strbuf.concat (x)</a></td>
+	<td class="summary">Add a object to a buffer.</td>
 	</tr>
 </table>
 <h2><a href="#Metamethods">Metamethods</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#std.strbuf:__concat">std.strbuf:__concat (buffer, s)</a></td>
+	<td class="name" nowrap><a href="#std.strbuf:__concat">std.strbuf:__concat (buffer, x)</a></td>
 	<td class="summary">Support concatenation to StrBuf objects.</td>
 	</tr>
 	<tr>
@@ -134,7 +144,7 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          object name
          (<em>default</em> "StrBuf")
         </li>
@@ -152,9 +162,11 @@
         <pre class="example">
  <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
  <span class="keyword">local</span> StrBuf = std.strbuf {}
- <span class="keyword">local</span> buf = StrBuf {<span class="string">"initial buffer contents"</span>}
- buf = buf .. <span class="string">"append to buffer"</span>
- <span class="global">print</span> (buf) <span class="comment">-- implicit `tostring` concatenates everything
+ <span class="keyword">local</span> a = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}
+ <span class="keyword">local</span> b = {a, <span class="string">"five"</span>, <span class="string">"six"</span>}
+ a = a .. <span class="number">4</span>
+ b = b:concat <span class="string">"seven"</span>
+ <span class="global">print</span> (a, b) <span class="comment">--&gt; 1234   1234fivesixseven
 </span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
     </ul>
 
@@ -165,17 +177,18 @@
     <dl class="function">
     <dt>
     <a name = "std.strbuf.concat"></a>
-    <strong>std.strbuf.concat (s)</strong>
+    <strong>std.strbuf.concat (x)</strong>
     </dt>
     <dd>
-    Add a string to a buffer.
+    Add a object to a buffer.
+ Elements are stringified lazily, so if add a table and then change
+ its contents, the contents of the buffer will be affected too.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         string to add
+        <li><span class="parameter">x</span>
+         object to add to buffer
         </li>
     </ul>
 
@@ -190,31 +203,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buf = concat (buf, <span class="string">"append this"</span>)</pre>
-    </ul>
-
-</dd>
-    <dt>
-    <a name = "std.strbuf.tostring"></a>
-    <strong>std.strbuf.tostring ()</strong>
-    </dt>
-    <dd>
-    Convert a buffer to a string.
-
-
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        stringified <code>buf</code>
-    </ol>
-
-
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example"><span class="global">string</span> = buf:<span class="global">tostring</span> ()</pre>
+        <pre class="example">buf = buf:concat <span class="string">"append this"</span> {<span class="string">" and"</span>, <span class="string">" this"</span>}</pre>
     </ul>
 
 </dd>
@@ -224,7 +213,7 @@
     <dl class="function">
     <dt>
     <a name = "std.strbuf:__concat"></a>
-    <strong>std.strbuf:__concat (buffer, s)</strong>
+    <strong>std.strbuf:__concat (buffer, x)</strong>
     </dt>
     <dd>
     Support concatenation to StrBuf objects.
@@ -236,9 +225,8 @@
             <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">StrBuf</a></span>
          object
         </li>
-        <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         a string
+        <li><span class="parameter">x</span>
+         a string, or object that can be coerced to a string
         </li>
     </ul>
 
@@ -257,7 +245,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buf = buf .. str</pre>
+        <pre class="example">buf = buf .. x</pre>
     </ul>
 
 </dd>
@@ -280,14 +268,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         concatenation of buffer contents
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.strbuf.html#std.strbuf.tostring">tostring</a>
+         <a href="http://www.lua.org/manual/5.2/manual.html#pdf-tostring">tostring</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -303,7 +291,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-03 18:38:43 </i>
+<i style="float:right;">Last updated 2015-01-30 17:57:09 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

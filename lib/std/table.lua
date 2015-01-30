@@ -162,7 +162,7 @@ end
 local function monkey_patch (namespace)
   namespace = namespace or _G
   namespace.table = base.copy (namespace.table or {}, monkeys)
-  return namespace.table
+  return M
 end
 
 
@@ -211,7 +211,7 @@ M = {
   -- @see clone_select
   -- @usage
   -- shallowcopy = clone (original, {rename_this = "to_this"}, ":nometa")
-  clone = X ("clone (table, [table], boolean|:nometa?)",
+  clone = X ("clone (table, [table], ?boolean|:nometa)",
              function (...) return merge_allfields ({}, ...) end),
 
   --- Make a partial clone of a table.
@@ -227,7 +227,7 @@ M = {
   -- @see merge_select
   -- @usage
   -- partialcopy = clone_select (original, {"this", "and_this"}, true)
-  clone_select = X ("clone_select (table, [table], boolean|:nometa?)",
+  clone_select = X ("clone_select (table, [table], ?boolean|:nometa)",
                     function (...) return merge_namedfields ({}, ...) end),
 
   --- Turn a list of pairs into a table.
@@ -326,7 +326,7 @@ M = {
   -- @see clone
   -- @see merge_select
   -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
-  merge = X ("merge (table, table, [table], boolean|:nometa?)", merge_allfields),
+  merge = X ("merge (table, table, [table], ?boolean|:nometa)", merge_allfields),
 
   --- Destructively merge another table's named fields into *table*.
   --
@@ -341,7 +341,7 @@ M = {
   -- @see merge
   -- @see clone_select
   -- @usage merge_select (_G, require "std.debug", {"say"}, false)
-  merge_select = X ("merge_select (table, table, [table], boolean|:nometa?)",
+  merge_select = X ("merge_select (table, table, [table], ?boolean|:nometa)",
                     merge_namedfields),
 
   --- Overwrite core `table` methods with `std` enhanced versions.
@@ -349,7 +349,7 @@ M = {
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
   -- @usage local table = require "std.table".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Make a table with a default value for unset keys.
   -- @function new
@@ -357,7 +357,7 @@ M = {
   -- @tparam[opt={}] table t initial table
   -- @treturn table table whose unset elements are *x*
   -- @usage t = new (0)
-  new = X ("new (any?, table?)", new),
+  new = X ("new (?any, ?table)", new),
 
   --- Make an ordered list of keys in table.
   -- @function okeys
@@ -397,7 +397,7 @@ M = {
   -- --> {1, 2, 5}
   -- t = {1, 2, "x", 5}
   -- remove (t, 3) == "x" and t
-  remove = X ("remove (table, int?)", remove),
+  remove = X ("remove (table, ?int)", remove),
 
   --- Shape a table according to a list of dimensions.
   --
@@ -439,7 +439,16 @@ M = {
   -- @tparam[opt=std.operator.lt] comparator c ordering function callback
   -- @return *t* with keys sorted accordind to *c*
   -- @usage table.concat (sort (object))
-  sort = X ("sort (table, function?)", sort),
+  sort = X ("sort (table, ?function)", sort),
+
+  --- Enhance core *table.unpack* to always unpack up to `maxn (t)`.
+  -- @function unpack
+  -- @tparam table t table to act on
+  -- @int[opt=1] i first index to unpack
+  -- @int[opt=table.maxn(t)] j last index to unpack
+  -- @return ... values of numeric indices of *t*
+  -- @usage return unpack (results_table)
+  unpack = X ("unpack (table, ?int, ?int)", base.unpack),
 
   --- Make the list of values of a table.
   -- @function values

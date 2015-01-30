@@ -153,9 +153,11 @@ specify std.io:
   - context with bad arguments:
       badargs.diagnose (f, "std.io.monkey_patch (?table)")
 
-  - it returns the monkey_patched io entry from namespace:
-      namespace = {}
-      expect (f (namespace)).to_be (namespace.io)
+  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.io module table:
+      expect (f {}).to_equal (M)
   - it injects std.io apis into the given namespace:
       namespace = {}
       f (namespace)
@@ -410,15 +412,16 @@ specify std.io:
       h:close ()
       os.remove (name)
 
-  - context with bad arguments: |
-      badargs.diagnose (f, "std.io.writelines (?file|string|number, ?string|number*)")
-
-      closed = io.open (name, "r") closed:close ()
-      examples {
-        ["it diagnoses closed file argument"] = function ()
-          expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
-        end
-      }
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not FILE*, string, number or nil':
+        expect (f (false)).to_raise (badarg (1, "?file|string|number", "boolean"))
+    - 'it diagnoses argument #2 type not string, number or nil':
+        expect (f (1, false)).to_raise (badarg (2, "string|number", "boolean"))
+    - 'it diagnoses argument #3 type not string, number or nil':
+        expect (f (1, 2, false)).to_raise (badarg (3, "string|number", "boolean"))
+    - it diagnoses closed file argument: |
+        closed = io.open (name, "r") closed:close ()
+        expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
 
   - it does not close the file handle upon completion:
       expect (io.type (h)).not_to_be "closed file"

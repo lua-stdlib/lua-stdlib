@@ -1,5 +1,75 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release 41.1.0 (2015-01-30) [stable]
+
+### New features
+
+  - Anything that responds to `tostring` can be appended to a `std.strbuf`:
+
+    ```lua
+    local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
+    a = a .. b --> "foobarbazquux"
+    ```
+
+  - `std.strbuf` stringifies lazily, so adding tables to a StrBuf
+    object, and then changing the content of them before calling
+    `tostring` also changes the contents of the buffer.  See LDocs for
+    an example.
+
+  - `debug.argscheck` accepts square brackets around final optional
+    parameters, which is distinct to the old way of appending `?` or
+    `|nil` in that no spurious "or nil" is reported for type mismatches
+    against a final bracketed argument.
+
+  - `debug.argscheck` can also check types of function return values, when
+    specified as:
+
+    ```lua
+    fn = argscheck ("fname (?any...) => int, table or nil, string", fname)
+    ```
+
+    Optional results can be marked with brackets, and an ellipsis following
+    the final type denotes any additional results must match that final
+    type specification. Alternative result type groups are separated by "or".
+
+  - New `table.unpack (t, [i, [j]])` function that defaults j to
+    `table.maxn (t)`, even on luajit which stops before the first nil
+    valued numeric index otherwise.
+
+### Deprecations
+
+  - `std.strbuf.tostring` has been deprecated in favour of `tostring`.
+    Why write `std.strbuf.tostring (sb)` or `sb:tostring ()` when it is
+    more idiomatic to write `tostring (sb)`?
+
+### Bug fixes
+
+  - `std.barrel` and the various `monkey_patch` functions now return
+    their parent module table as documented.
+
+  - stdlib modules are all `std.strict` compliant; require "std.strict"
+    before requiring other modules no longer raises an error.
+
+  - `debug.argscheck` can now diagnose when there are too many arguments,
+    even in the case where the earlier arguments match parameters by
+    skipping bracketed optionals, and the total number of arguments is
+    still less than the absolute maximum allowed if optionals are counted
+    too.
+
+  - `package.normalize` now leaves valid ./../../ path prefixes unmolested.
+
+### Incompatible changes
+
+  - `debug.argscheck` requires nil parameter type `?` notation to be
+    prepended to match Specl and TypedLua syntax.  `?` suffixes are a
+    syntax error.
+
+  - `debug.argscheck` uses `...` instead of `*` appended to the final element
+    if all unmatched argument types should match.  The trailing `*` syntax
+    was confusing, because it was easy to misread it as "followed by zero-or-
+    more of this type".
+
+
 ## Noteworthy changes in release 41.0.0 (2015-01-03) [beta]
 
 ### New features

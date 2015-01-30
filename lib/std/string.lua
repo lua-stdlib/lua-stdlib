@@ -81,7 +81,7 @@ local function monkey_patch (namespace)
   string_metatable.__concat = M.__concat
   string_metatable.__index = M.__index
 
-  return namespace.string
+  return M
 end
 
 
@@ -321,7 +321,7 @@ M = {
   -- for t in std.elems (finds ("the target string", "%S+")) do
   --   print (tostring (t.capt))
   -- end
-  finds = X ("finds (string, string, int?, boolean|:plain?)", finds),
+  finds = X ("finds (string, string, ?int, ?boolean|:plain)", finds),
 
   --- Extend to work better with one argument.
   -- If only one argument is passed, no formatting is attempted.
@@ -330,7 +330,7 @@ M = {
   -- @param[opt] ... arguments to format
   -- @return formatted string
   -- @usage print (format "100% stdlib!")
-  format = X ("format (string, any?*)", format),
+  format = X ("format (string, [any...])", format),
 
   --- Remove leading matter from a string.
   -- @function ltrim
@@ -338,7 +338,7 @@ M = {
   -- @string[opt="%s+"] r leading pattern
   -- @treturn string *s* with leading *r* stripped
   -- @usage print ("got: " .. ltrim (userinput))
-  ltrim = X ("ltrim (string, string?)",
+  ltrim = X ("ltrim (string, ?string)",
              function (s, r) return (s:gsub ("^" .. (r or "%s+"), "")) end),
 
   --- Overwrite core `string` methods with `std` enhanced versions.
@@ -349,7 +349,7 @@ M = {
   -- @tparam[opt=_G] table namespace where to install global functions
   -- @treturn table the module table
   -- @usage local string = require "std.string".monkey_patch ()
-  monkey_patch = X ("monkey_patch (table?)", monkey_patch),
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Write a number using SI suffixes.
   -- The number is always written to 3 s.f.
@@ -378,7 +378,7 @@ M = {
   -- @string[opt=" "] p string to pad with
   -- @treturn string *s* justified to *w* characters wide
   -- @usage print (pad (trim (outputstr, 78)) .. "\n")
-  pad = X ("pad (string, int, string?)", pad),
+  pad = X ("pad (string, int, ?string)", pad),
 
   --- Convert a value to a string.
   -- The string can be passed to `functional.eval` to retrieve the value.
@@ -397,7 +397,7 @@ M = {
   -- @string[opt=""] spacing space before every line
   -- @treturn string pretty string rendering of *x*
   -- @usage print (prettytostring (std, "  "))
-  prettytostring = X ("prettytostring (any?, string?, string?)", prettytostring),
+  prettytostring = X ("prettytostring (?any, ?string, ?string)", prettytostring),
 
   --- Turn tables into strings with recursion detection.
   -- N.B. Functions calling render should not recurse, or recursion
@@ -417,7 +417,7 @@ M = {
   --                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
   --                  lambda '=","')
   -- end
-  render = X ("render (any?, func, func, func, func, func, table?)", render),
+  render = X ("render (?any, func, func, func, func, func, ?table)", render),
 
   --- Remove trailing matter from a string.
   -- @function rtrim
@@ -425,7 +425,7 @@ M = {
   -- @string[opt="%s+"] r trailing pattern
   -- @treturn string *s* with trailing *r* stripped
   -- @usage print ("got: " .. rtrim (userinput))
-  rtrim = X ("rtrim (string, string?)",
+  rtrim = X ("rtrim (string, ?string)",
              function (s, r) return (s:gsub ((r or "%s+") .. "$", "")) end),
 
   --- Split a string at a given separator.
@@ -436,7 +436,7 @@ M = {
   -- @string[opt="%s+"] sep separator pattern
   -- @return list of strings
   -- @usage words = split "a very short sentence"
-  split = X ("split (string, string?)", base.split),
+  split = X ("split (string, ?string)", base.split),
 
   --- Do `string.find`, returning a table of captures.
   -- @function tfind
@@ -449,7 +449,7 @@ M = {
   -- @treturn table list of captured strings
   -- @see std.string.finds
   -- @usage b, e, captures = tfind ("the target string", "%s", 10)
-  tfind = X ("tfind (string, string, int?, boolean|:plain?)", tfind),
+  tfind = X ("tfind (string, string, ?int, ?boolean|:plain)", tfind),
 
   --- Remove leading and trailing matter from a string.
   -- @function trim
@@ -457,7 +457,7 @@ M = {
   -- @string[opt="%s+"] r trailing pattern
   -- @treturn string *s* with leading and trailing *r* stripped
   -- @usage print ("got: " .. trim (userinput))
-  trim = X ("trim (string, string?)", trim),
+  trim = X ("trim (string, ?string)", trim),
 
   --- Wrap a string into a paragraph.
   -- @function wrap
@@ -468,7 +468,7 @@ M = {
   -- @treturn string *s* wrapped to *w* columns
   -- @usage
   -- print (wrap (copyright, 72, 4))
-  wrap = X ("wrap (string, int?, int?, int?)", wrap),
+  wrap = X ("wrap (string, ?int, ?int, ?int)", wrap),
 }
 
 

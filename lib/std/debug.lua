@@ -34,10 +34,10 @@ local base       = require "std.base"
 
 local _DEBUG      = debug_init._DEBUG
 local argerror    = base.argerror
+local unpack      = base.unpack
 local split, tostring = base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
-local unpack = table.unpack or unpack
 
 local M
 
@@ -108,7 +108,7 @@ end
 --- Extend `debug.getfenv` to unwrap functables correctly.
 -- @tparam int|function|functable fn target function, or stack level
 -- @treturn table environment of *fn*
-local getfenv = getfenv or function (fn)
+local getfenv = rawget (_G, "getfenv") or function (fn)
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call
@@ -126,9 +126,9 @@ local getfenv = getfenv or function (fn)
 end
 
 
-local function toomanyargmsg (name, expect, actual)
-  local fmt = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
-  return string.format (fmt, expect + 1, name, expect, expect == 1 and "" or "s", actual)
+local function toomanymsg (bad, to, name, expect, actual)
+  local s = "bad %s #%d %s '%s' (no more than %d %s%s expected, got %d)"
+  return s:format (bad, expect + 1, to, name, expect, bad, expect == 1 and "" or "s", actual)
 end
 
 
@@ -137,6 +137,15 @@ local argcheck, argscheck  -- forward declarations
 if _DEBUG.argcheck then
 
   local copy, prototype = base.copy, base.prototype
+
+  local function resulterror (name, i, extramsg, level)
+    level = level or 1
+    local s = string.format ("bad result #%d from '%s'", i, name)
+    if extramsg ~= nil then
+      s = s .. " (" .. extramsg .. ")"
+    end
+    error (s, level + 1)
+  end
 
   --- Concatenate a table of strings using ", " and " or " delimiters.
   -- @tparam table alternatives a table of strings
@@ -154,30 +163,25 @@ if _DEBUG.argcheck then
 
 
   --- Normalize a list of type names.
-  -- @tparam table t list of type names, trailing "?" as required
+  -- @tparam table t list of type names, leading "?" as required
   -- @treturn table a new list with "?" stripped, "nil" appended if so,
   --   and with duplicates stripped.
   local function normalize (t)
-    local i, r, add_nil = 1, {}, false
+    local r, seen, add_nil = {}, {}, false
     for _, v in ipairs (t) do
-      local m = v:match "^(.+)%?$"
+      local m = v:match "^%?(.+)$"
       if m then
-        add_nil = true
-        r[m] = r[m] or i
-        i = i + 1
-      elseif v then
-        r[v] = r[v] or i
-        i = i + 1
+        add_nil, v = true, m
+      end
+      if not seen[v] then
+	r[#r + 1] = v
+	seen[v] = true
       end
     end
     if add_nil then
-      r["nil"] = r["nil"] or i
+      r[#r + 1] = "nil"
     end
-
-    -- Invert the return table.
-    local t = {}
-    for v, i in pairs (r) do t[i] = v end
-    return t
+    return r
   end
 
 
@@ -201,81 +205,57 @@ if _DEBUG.argcheck then
   end
 
 
-  --- Merge |-delimited type-specs, omitting duplicates.
-  -- @string ... type-specs
-  -- @treturn table list of merged and normalized type-specs
-  local function merge (...)
-    local i, t = 1, {}
-    for _, v in argpairs {...} do
-      v:gsub ("([^|]+)", function (m) t[i] = m; i = i + 1 end)
-    end
-    return normalize (t)
+  --- Strip trailing ellipsis from final argument if any, storing maximum
+  -- number of values that can be matched directly in `t.maxvalues`.
+  -- @tparam table t table to act on
+  -- @treturn table *t* with ellipsis stripped and maxvalues field set
+  local function markdots (t, v)
+    return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
   end
 
 
   --- Calculate permutations of type lists with and without [optionals].
-  -- @tparam table types a list of expected types by argument position
+  -- @tparam table t a list of expected types by argument position
   -- @treturn table set of possible type lists
-  local function permutations (types)
-    local p, sentinel = {{}}, {"optional arg"}
-    for i, v in ipairs (types) do
-      -- Remove sentinels before appending `v` to each list.
-      for _, v in ipairs (p) do
-        if last (v) == sentinel then table.remove (v) end
-      end
+  local function permute (t)
+    if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
 
-      local opt = v:match "%[(.+)%]"
-      if opt == nil then
+    local p = {{}}
+    for i, v in ipairs (t) do
+      local optional = v:match "%[(.+)%]"
+
+      if optional == nil then
         -- Append non-optional type-spec to each permutation.
-        for b = 1, len (p) do insert (p[b], v) end
+        for b = 1, #p do
+	  insert (p[b], markdots (p[b], v))
+	end
       else
         -- Duplicate all existing permutations, and add optional type-spec
         -- to the unduplicated permutations.
-        local o = len (p)
+        local o = #p
         for b = 1, o do
           p[b + o] = copy (p[b])
-	  insert (p[b], opt)
-        end
-
-        -- Leave a marker for optional argument in final position.
-        for _, v in ipairs (p) do
-	  insert (v, sentinel)
+	  insert (p[b], markdots (p[b], optional))
         end
       end
     end
-
-    -- Replace sentinels with "nil".
-    for i, v in ipairs (p) do
-      if v[#v] == sentinel then
-        table.remove (v)
-        if #v > 0 then
-          v[#v] = v[#v] .. "|nil"
-        else
-	  v[1] = "nil"
-        end
-      end
-    end
-
     return p
   end
 
 
-  --- Return index of the first mismatch between types and args, or `nil`.
-  -- @tparam table types a list of expected types by argument position
-  -- @tparam table args a table of arguments to compare
-  -- @tparam boolean allargs whether to match all arguments
-  -- @treturn int|nil position of first mismatch in *types*
-  local function match (types, args, allargs)
-    local typec, argc = len (types), maxn (args)
-    for i = 1, typec do
-      local ok = pcall (argcheck, "pcall", i, types[i], args[i])
+  --- Return index of the first mismatch between types and values, or `nil`.
+  -- @tparam table typelist a list of expected types
+  -- @tparam table valuelist a table of arguments to compare
+  -- @treturn int|nil position of first mismatch in *typelist*
+  local function match (typelist, valuelist)
+    local n = #typelist
+    for i = 1, n do  -- normal parameters
+      local ok = pcall (argcheck, "pcall", i, typelist[i], valuelist[i])
       if not ok then return i end
     end
-    if allargs then
-      for i = typec + 1, argc do
-        local ok = pcall (argcheck, name, i, types[typec], args[i])
-        if not ok then return i end
-      end
+    for i = n + 1, maxn (valuelist) do -- additional values against final type
+      local ok = pcall (argcheck, "pcall", i, typelist[n], valuelist[i])
+      if not ok then return i end
     end
   end
 
@@ -394,6 +374,86 @@ if _DEBUG.argcheck then
   end
 
 
+  local function projectuniq (fkey, tt)
+    -- project
+    local t = {}
+    for _, u in ipairs (tt) do
+      t[#t + 1] = u[fkey]
+    end
+
+    -- split and remove duplicates
+    local r, s = {}, {}
+    for _, e in ipairs (t) do
+      for _, v in ipairs (normalize (split (e, "|"))) do
+	if s[v] == nil then
+	  r[#r + 1], s[v] = v, true
+	end
+      end
+    end
+    return r
+  end
+
+
+  local function empty (t) return not next (t) end
+
+  -- Pattern to normalize: [types...] to [types]...
+  local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
+
+  --- Diagnose mismatches between *valuelist* and type *permutations*.
+  -- @tparam table valuelist normalized list of actual values to be checked
+  -- @tparam table argt table of precalculated values and handler functiens
+  local function diagnose (valuelist, argt)
+    local permutations = argt.permutations
+
+    local bestmismatch, t = 0
+    for i, typelist in ipairs (permutations) do
+      local mismatch = match (typelist, valuelist)
+      if mismatch == nil then
+        bestmismatch, t = nil, nil
+        break -- every *valuelist* matched types from this *typelist*
+      elseif mismatch > bestmismatch then
+        bestmismatch, t = mismatch, permutations[i]
+      end
+    end
+
+    if bestmismatch ~= nil then
+      -- Report an error for all possible types at bestmismatch index.
+      local i, expected = bestmismatch
+      if t.dots and i > #t then
+	expected = normalize (split (t[#t], "|"))
+      else
+	expected = projectuniq (i, permutations)
+      end
+
+      -- This relies on the `permute()` algorithm leaving the longest
+      -- possible permutation (with dots if necessary) at permutations[1].
+      local typelist = permutations[1]
+
+      -- For "container of things", check all elements are a thing too.
+      if typelist[i] then
+	local check, contents = typelist[i]:match "^(%S+) of (%S-)s?$"
+	if contents and type (valuelist[i]) == "table" then
+	  for k, v in pairs (valuelist[i]) do
+	    if not checktype (contents, v) then
+	      argt.badtype (i, formaterror (expected, v, k), 3)
+	    end
+	  end
+	end
+      end
+
+      -- Otherwise the argument type itself was mismatched.
+      if t.dots or #t >= maxn (valuelist) then
+        argt.badtype (i, formaterror (expected, valuelist[i]), 3)
+      end
+    end
+
+    local n, t = maxn (valuelist), t or permutations[1]
+    if t and t.dots == nil and n > #t then
+      error (argt.badcount (#t, n), 3)
+    end
+  end
+
+
   function argcheck (name, i, expected, actual, level)
     level = level or 2
     expected = normalize (split (expected, "|"))
@@ -424,85 +484,70 @@ if _DEBUG.argcheck then
   end
 
 
+  -- Pattern to extract: fname ([types]?[, types]*)
+  local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
-    local fname, types = decl:match "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
-    if types == "" then
-      types = {}
-    elseif types then
-      types = split (types, ",%s*")
+    local fname, argtypes = decl:match (args_pat)
+    if argtypes == "" then
+      argtypes = {}
+    elseif argtypes then
+      argtypes = split (argtypes, ",%s*")
     else
       fname = decl:match "([%w_][%.%d%w_]*)"
     end
 
-    -- If the final element of types ends with "*", then set max to a
-    -- sentinel value to denote type-checking of *all* remaining
-    -- unchecked arguments against that type-spec is required.
-    local max, fin = len (types), (last (types) or ""):match "^(.+)%*$"
-    if fin then
-      max = math.huge
-      types[len (types)] = fin
+    -- Precalculate vtables once to make multiple calls faster.
+    local input, output = {
+      badcount     = function (...)
+	               return toomanymsg ("argument", "to", fname, ...)
+	             end,
+      badtype      = function (...) argerror (fname, ...) end,
+      permutations = permute (argtypes),
+    }
+
+    -- Parse "... => returntype, returntype, returntype...".
+    local returntypes = decl:match "=>%s*(.+)%s*$"
+    if returntypes then
+      local i, permutations = 0, {}
+      for _, group in ipairs (split (returntypes, "%s+or%s+")) do
+	returntypes = split (group, ",%s*")
+	for _, t in ipairs (permute (returntypes)) do
+	  i = i + 1
+          permutations[i] = t
+	end
+      end
+
+      -- Ensure the longest permutation is first in the list.
+      table.sort (permutations, function (a, b) return #a > #b end)
+
+      output = {
+        badcount     = function (...)
+	                 return toomanymsg ("result", "from", fname, ...)
+	               end,
+        badtype      = function (...) resulterror (fname, ...) end,
+        permutations = permutations,
+      }
     end
 
-    -- For optional arguments wrapped in square brackets, make sure
-    -- type-specs allow for passing or omitting an argument of that
-    -- type.
-    local typec, type_specs = len (types), permutations (types)
-
     return function (...)
-      local args = {...}
-      local argc, bestmismatch, at = maxn (args), 0, 0
-
-      for i, types in ipairs (type_specs) do
-        local mismatch = match (types, args, max == math.huge)
-        if mismatch == nil then
-	  bestmismatch = nil
-          break -- every argument matched its type-spec
-	end
-
-	if mismatch > bestmismatch then bestmismatch, at = mismatch, i end
-      end
-
-      if bestmismatch ~= nil then
-        -- Report an error for all possible types at bestmismatch index.
-	local expected
-	if max == math.huge and bestmismatch >= typec then
-          expected = normalize (split (types[typec], "|"))
-	else
-	  local tables = {}
-	  for i, types in ipairs (type_specs) do
-            if types[bestmismatch] then
-              insert (tables, types[bestmismatch])
-	    end
-	  end
-	  expected = merge (unpack (tables))
-	end
-	local i = bestmismatch
-
-	-- For "table of things", check all elements are a thing too.
-	if types[i] then
-	  local check, contents = types[i]:match "^(%S+) of (%S-)s?$"
-	  if contents and type (args[i]) == "table" then
-	    for k, v in pairs (args[i]) do
-	      if not checktype (contents, v) then
-	        argerror (fname, i, formaterror (expected, v, k), 2)
-	      end
-	    end
-	  end
-        end
-
-	-- Otherwise the argument type itself was mismatched.
-	argerror (fname, i, formaterror (expected, args[i]), 2)
-      end
-
-      if argc > max then
-        error (toomanyargmsg (fname, max, argc), 2)
-      end
+      -- Diagnose bad inputs.
+      diagnose ({...}, input)
 
       -- Propagate outer environment to inner function.
+      local x = math.max -- ??? getfenv(1) fails if we remove this ???
       setfenv (inner, getfenv (1))
 
-      return inner (...)
+      -- Execute.
+      local results = {inner (...)}
+
+      -- Diagnose bad outputs.
+      if returntypes then
+	diagnose (results, output)
+      end
+
+      return unpack (results, 1, maxn (results))
     end
   end
 
@@ -623,10 +668,10 @@ M = {
   --
   -- A very common pattern is to have a list of possible types including
   -- "nil" when the argument is optional.  Rather than writing long-hand
-  -- as above, append a question mark to at least one of the list types
-  -- and omit the explicit "nil" entry:
+  -- as above, prepend a question mark to the list of types and omit the
+  -- explicit "nil" entry:
   --
-  --    argcheck ("table.copy", 2, "boolean|:nometa?", predicate)
+  --    argcheck ("table.copy", 2, "?boolean|:nometa", predicate)
   --
   -- Normally, you should not need to use the `level` parameter, as the
   -- default is to blame the caller of the function using `argcheck` in
@@ -662,13 +707,34 @@ M = {
   --- Wrap a function definition with argument type and arity checking.
   -- In addition to checking that each argument type matches the corresponding
   -- element in the *types* table with `argcheck`, if the final element of
-  -- *types* ends with an asterisk, remaining unchecked arguments are checked
-  -- against that type.
+  -- *types* ends with an ellipsis, remaining unchecked arguments are checked
+  -- against that type:
+  --
+  --     format = argscheck ("string.format (string, ?any...)", string.format)
+  --
+  -- If an argument can be omitted entirely, then put its type specification
+  -- in square brackets:
+  --
+  --     insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
+  --
+  -- Similarly returt types can be checked with the same list syntax as
+  -- arguments:
+  --
+  --     len = argscheck ("string.len (string) => int", string.len)
+  --
+  -- Additionally, variant return type lists can be listed like this:
+  --
+  --     open = argscheck ("io.open (string, ?string) => file or nil, string",
+  --                       io.open)
+  --
   -- @function argscheck
   -- @string decl function type declaration string
   -- @func inner function to wrap with argument checking
   -- @usage
-  -- M.square = argscheck ("util.square (number)", function (n) return n * n end)
+  -- local case = argscheck ("std.functional.case (?any, #table) => [any...]",
+  --   function (with, branches)
+  --     ...
+  -- end)
   argscheck = argscheck,
 
   --- Print a debugging message to `io.stderr`.
@@ -696,7 +762,7 @@ M = {
   -- if table.maxn {...} > 1 then
   --   io.stderr:write ("module.fname", 7, table.maxn {...})
   -- ...
-  toomanyargmsg = toomanyargmsg,
+  toomanyargmsg = function (...) return toomanymsg ("argument", "to", ...) end,
 
   --- Trace function calls.
   -- Use as debug.sethook (trace, "cr"), which is done automatically

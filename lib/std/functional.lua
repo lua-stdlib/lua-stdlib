@@ -11,11 +11,10 @@
 local base     = require "std.base"
 local debug    = require "std.debug"
 
-local ielems, ipairs, ireverse, len, pairs =
-  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs
+local ielems, ipairs, ireverse, len, pairs, unpack =
+  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs, base.unpack
 local callable, reduce = base.callable, base.reduce
 local loadstring = loadstring or load
-local unpack     = table.unpack or unpack
 
 
 local function bind (fn, ...)
@@ -268,7 +267,7 @@ local M = {
   -- @return function with *argt* arguments already bound
   -- @usage
   -- cube = bind (std.operator.pow, {[2] = 3})
-  bind = X ("bind (func, any?*)", bind),
+  bind = X ("bind (func, ?any...)", bind),
 
   --- Identify callable types.
   -- @function callable
@@ -296,7 +295,7 @@ local M = {
   --   string = function ()  return "string" end,
   --            function (s) error ("unhandled type: " .. s) end,
   -- })
-  case = X ("case (any?, #table)", case),
+  case = X ("case (?any, #table)", case),
 
   --- Collect the results of an iterator.
   -- @function collect
@@ -308,7 +307,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any*)", base.collect),
+  collect = X ("collect ([func], any...)", base.collect),
 
   --- Compose functions.
   -- @function compose
@@ -323,7 +322,7 @@ local M = {
   -- @usage
   -- vpairs = compose (table.invert, ipairs)
   -- for v, i in vpairs {"a", "b", "c"} do process (v, i) end
-  compose = X ("compose (func*)", compose),
+  compose = X ("compose (func...)", compose),
 
   --- A rudimentary condition-case statement.
   -- If *expr* is "truthy" return *branch* if given, otherwise *expr*
@@ -368,7 +367,7 @@ local M = {
   -- @usage
   -- --> {2, 4}
   -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
-  filter = X ("filter (func, [func], any*)", filter),
+  filter = X ("filter (func, [func], any...)", filter),
 
   --- Fold a binary function left associatively.
   -- If parameter *d* is omitted, the first element of *t* is used,
@@ -440,7 +439,7 @@ local M = {
   -- @usage
   -- --> {1, 4, 9, 16}
   -- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
-  map = X ("map (func, [func], any*)", map),
+  map = X ("map (func, [func], any...)", map),
 
   --- Map a function over a table of argument lists.
   -- @function map_with
@@ -467,7 +466,7 @@ local M = {
   -- @treturn functable memoized function
   -- @usage
   -- local fast = memoize (function (...) --[[ slow code ]] end)
-  memoize = X ("memoize (func, func?)", memoize),
+  memoize = X ("memoize (func, ?func)", memoize),
 
   --- No operation.
   -- This function ignores all arguments, and returns no values.
@@ -489,7 +488,7 @@ local M = {
   -- @usage
   -- --> 2 ^ 3 ^ 4 ==> 4096
   -- reduce (std.operator.pow, 2, std.ielems, {3, 4})
-  reduce = X ("reduce (func, any, [func], any*)", reduce),
+  reduce = X ("reduce (func, any, [func], any...)", reduce),
 
   --- Zip a table of tables.
   -- Make a new table, with lists of elements at the same index in the

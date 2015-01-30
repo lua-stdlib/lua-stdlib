@@ -1,4 +1,265 @@
+2015-01-30  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.1.0
+	* NEWS.md: Record release date.
+
+	package: normalize leaves valid /../.. sequences unmolested.
+	* specs/package_spec.yaml (normalize): Add examples of correct
+	behaviour with multiple .. directories.
+	* lib/std/package.lua (normalize): Detect redundant .. components
+	correctly, and only remove them when it's safe to do so.
+	* NEWS.md (Bug fixes): Update.
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	configury: bump release version to 41.1.0.
+	* configure.ac (AC_INIT): Bump release version to 41.1.0.
+
+	table: new unpack method that behaves consistently across Lua versions.
+	* specs/table_spec.yaml (unpack): Specify behaviours for unpack,
+	especially when dealing with holes.
+	* lib/std/base.lua (unpack): Wrapper for the core function, but
+	defaulting the final index argument to table.maxn.
+	* lib/std/table.lua (unpack): Export from here.  Add LDocs.
+	* lib/std/debug.lua, lib/std/functional.lua, lib/std/list.lua: Use
+	safer base.unpack.
+	* specs/spec_helper.lua (maxn, unpack): Make safe versions
+	available to spec examples.
+	* specs/debug_spec.yaml: Simplify id implementation.
+	* NEWS.md (New features): Update.
+
+	debug: unpack to maxn (t) for equivalence between Lua versions.
+	luajit alone stops unpacking at the first nil valued index, so
+	we have to pass explicit limits to make it behave like Lua 5.1
+	through 5.3.
+	* lib/std/debug.lua (argscheck): unpack from 1 to maxn (results).
+	* specs/debug_spec.yaml (argscheck): Adjust id implementation to
+	calculate maximum numeric index and unpack all results up to
+	that value.
+
+	debug: support variant return type lists with argscheck.
+	Sometimes we need to say `returns an int or nil,errmsg', the
+	syntax is `=> int or nil, string`, because `=> ?int, string` will
+	wrongly accept, say, `3, "oh noes!"`.
+	* specs/debug_spec.yaml (argscheck): Specify behaviours with
+	variant return type lists.
+	* lib/std/debug.lua (argscheck): Parse all variants and add them
+	to the accepted type list permutations table.
+	Update LDocs.
+	* NEWS.md (New features): Update.
+
+2015-01-29  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: store parameter dots property against each permuted list.
+	Rather than deciding whether a typelist has continuation dots in
+	the last position once for the entire table of permuted type match
+	lists, add it to each permutation with continuation dots.
+	* lib/std/debug.lua (markdots): Simplify.
+	(permute): Call it for each new permutation row.
+	(projectuniq): New function to select and de-deduplicate all
+	values from the table of permuted type lists at a given index.
+	(diagnose): Rewrite to work with new format permutations.
+	(argscheck): Simplify accordingly.
+	(match): Remove allargs parameter, and always check all arguments.
+	(merge, HAS_DOTS): Remove. No longer used.
+
+2015-01-28  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: clean up maxvalues calculation in debug.argscheck.
+	* lib/std/debug.lua (stripellipsis): Remove.
+	(markdots): New function encapsulating stripellipsis, maxvalue
+	calculation and optional normalization.
+	(argscheck): Simplify accordingly.
+
+	debug: argscheck supports return type checking.
+	Close #89
+	* specs/spec_helper.lua (badargs.result): Fallback implementation
+	until next Specl release.
+	(init): Use it to return a `badresult` function.
+	* specs/debug_spec.yaml: Specifiy behaviours with return type
+	checking.
+	* lib/std/debug.lua (toomanyargmsg): Factor this...
+	(toomanymsg): ...into this more general function.
+	(M): Adjust accordingly.
+	(resulterror): New function modelled after argerror, but tailored
+	for result type mismatch error reporting.
+	(has_dots): Symbol to name use of math.huge for denoting an
+	ellipsis was stripped from the type list.
+	(stripellipsis): New function.
+	(diagnose): Refactored to take a vtable of arguments instead of an
+	ever longer list of parameters.
+	(argscheck): Build a vtable to call diagnose for argument type
+	checking.
+	Add another diagnose() with a separate vtable for result type
+	checking.
+	Update LDocs.
+	* NEWS.md (New features): Update.
+
+2015-01-27  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: separate argscheck inner wrapper into its own function.
+	* lib/std/debug.lua (empty): New function.
+	(diagnose): New function...
+	(argscheck): ...factored out of here.
+
+2015-01-26  Gary V. Vaughan  <gary@gnu.org>
+
+	tree: don't argcheck metamethods.
+	Lua will not call metamethods unless the metatables are compatible,
+	so don't waste time rechecking the argument types.
+	* lib/std/tree.lua (__index, __newindex): Remove superfluous
+	argscheck invocations.
+
+	set: don't argcheck metamethods.
+	Lua will not call metamethods unless the metatables are compatible,
+	so don't waste time rechecking the argument types.
+	* lib/std/set.lua (__add, __sub, __mul, __div, __le, __lt)
+	(__tostring): Remove superfluous argscheck invocations.
+
+	debug: more accurate too many arguments diagnostics.
+	Close #76
+	* specs/debug_spec.yaml (argscheck): Specify behaviour when
+	arguments match by skipping bracketed optional parameters, but
+	for one unmatched argument at the end.
+	* lib/std/debug.lua (permutations): Rename function from this
+	noun...
+	(permute): ...to this verb.
+	(argscheck): Use the matching permutation to decide whether
+	too many arguments were passed, unless the last parameter has
+	an ellipsis denoting any number of matching arguments are allowed.
+	* NEWS.md (Bug fixes): Update.
+
+	debug: process [final|parm|types] without nil substitution hack.
+	* specs/debug_spec.yaml (argscheck): Specify behaviours for
+	bracketed final parameter more thoroughly.
+	* lib/std/debug.lua (argscheck): Remove hack of replacing
+	brackets in bracketed last parameter by 'or nil'; we really
+	run permutations without a bracketed final parameter now.
+	(permutations): Simplify accordingly; we don't need all the
+	sentinel gunk to track final argument nils now.
+	(normalize): Simplify, and fix a related bug where nils could
+	get dropped from the type list by a double increment.
+	* lib/std/functional.lua (bind): This really is a '?any...',
+	requiring explicit nils, and not a [any...] optional argument.
+	* specs/debug_spec.yaml: Adjust badargs calls as necessary.
+	* specs/io_spec.yaml (writelines): Now that this implementation
+	is a step ahead of the current Specl release generator, manually
+	write out bad argument examples.
+	* NEWS.md: Update.
+
+	debug: argscheck accepts bracketed final parameter.
+	* specs/debug_spec.yaml (argscheck): Add examples for bracketed
+	final parameters.
+	* lib/std/debug.lua (argscheck): Handle bracketed final parameter
+	and satisfy new specs.  Adjust all callers accordingly.
+	* NEWS.md (New features): Update.
+
+	debug: use trailing `...` instead of `*` with argscheck.
+	* specs/debug_spec.yaml (argscheck): Add specifications for
+	continuation argument behavious with `...`.
+	* lib/std/debug.lua (argscheck): Use `...` instead of `*` as the
+	syntax for optional repeats of the final parameter type.  Adjust
+	all callers.
+	* NEWS.md (Incompatible changes): Update.
+
+	refactor: change `types` symbol name to `argtypes`.
+	* lib/std/debug.lua (argscheck): Change `types` symbol name to
+	`argtypes`.
+
+2015-01-25  Gary V. Vaughan  <gary@gnu.org>
+
+	debug: argcheck requires leading ? for argtypes, to match specl.
+	Close #90
+	* specs/debug_spec.yaml (argcheck): Change to leading `?` over
+	previous trailing `?` style.
+	* lib/std.lua.in, lib/std/container.lua, lib/std/debug.lua,
+	lib/std/functional.lua, lib/std/io.lua, lib/std/list.lua,
+	lib/std/math.lua, lib/std/package.lua, lib/std/string.lua,
+	lib/std/table.lua, lib/std/tree.lua: Adjust accordingly.
+
+	strbuf: document and test functional copying style.
+	Close #85
+	* lib/std/strbuf.lua: Improve LDocs.
+	* specs/strbuf_spec.yaml: Add example of functional copying.
+
+	strbuf: support lazy stringification and concat anything.
+	* specs/strbuf_spec.yaml: Specify correct behaviours, and add
+	lazy stringification example.
+	* lib/std/strbuf.lua (__concat): Simply insert a reference.
+	(__tostring): Make a table of stringified elements, and concat
+	those instead of the object elements proper.
+	* NEWS.md: Update.
+
+	strbuf: allow concatenation of StrBuf objects.
+	* specs/strbuf_spec.yaml: Specify new behaviours.
+	* lib/std/strbuf.lua (concat): New function, handles concatenation
+	of StrBuf objects as well as strings.
+	* NEWS.md: Update.
+
+	strbuf: deprecate strbuf.tostring.
+	* specs/strbuf_spec.yaml: Specify deprecation messages from
+	strbuf.tostring.
+	* lib/std/strbuf.lua (StrBuf.tostring): Deprecate.
+	* NEWS.md: Update.
+
+	refactor: rearrange strbuf.lua idiomatically.
+	* lib/std/strbuf.lua: Rearrange declarations idiomatically.
+
+	maint: support strict mode.
+	Close #92
+	* lib/std/base.lua (loadstring): Use rawget to fetch loadstring
+	from _G, to bypass strict mode checks on Lua > 5.2 where
+	_G.loadstring is nil.
+	* lib/std/debug.lua (getfenv): Likewise, for Lua > 5.2 where
+	there is no _G.fgetenv.
+	* lib/std/debug_init/init.lua (_DEBUG): Likewise, for cases where
+	caller did not preload _G._DEBUG.
+	* NEWS.md: Updated.
+	Reported by Gergely Risko <gergely@risko.hu>
+
+2015-01-19  Gary V. Vaughan  <gary@gnu.org>
+
+	std: barrel and monkey_patch return module table.
+	Closes #93
+	In order for things like `std = require "std".barrel ()` to work
+	as documented, these methods must return their parent module
+	table, i.e. in this case, the `std` table.
+	* specs/io_spec.yaml (monkey_patch): Specify correct behaviour.
+	* specs/math_spec.yaml (monkey_patch): Likewise.
+	* specs/string_spec.yaml (monkey_patch): Likewise.
+	* specs/table_spec.yaml (money_patch): Likewise.
+	* specs/std_spec.yaml (barrel, monkey_patch): Likewise.
+	* lib/std.lua.in (barrel, monkey_patch): Return parent module
+	able.
+	* lib/std/io.lua, lib/std/math.lua, lib/std/string.lua,
+	lib/std/table.lua (monkey_patch): Likewise.
+	* NEWS.md (Bug fixes): Update.
+	Reported by Reuben Thomas
+
+2015-01-14  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream for working Lua 5.3.0 final support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	slingshot: sync with upstream for Lua 5.3.0 final support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+2015-01-14  Gergely Risko  <gergely@risko.hu>
+
+	base: remove spurious case reference from base module.
+	* lib/std/base.lua: Remove spurious reference to case from
+	export table.  That function has long since moved to std.functional.
+
 2015-01-03  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 41.0.0
 	* NEWS.md: Record release date.

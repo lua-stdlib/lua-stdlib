@@ -137,14 +137,13 @@ Tree = Container {
   --       e.g. tr[{{1, 2}, {3, 4}}], maybe flatten first?
   -- @usage
   -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
-  __index = X ("__index (Tree, any)",
-               function (tr, i)
-                 if prototype (i) == "table" then
-                   return reduce (operator.get, tr, ielems, i)
-                 else
-                   return rawget (tr, i)
-                 end
-               end),
+  __index = function (tr, i)
+              if prototype (i) == "table" then
+                return reduce (operator.get, tr, ielems, i)
+              else
+                return rawget (tr, i)
+              end
+            end,
 
   --- Deep insertion.
   -- @static
@@ -154,20 +153,19 @@ Tree = Container {
   -- @param[opt] v value
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
-  __newindex = X ("__newindex (Tree, any, any?)",
-                  function (tr, i, v)
-                    if prototype (i) == "table" then
-                      for n = 1, len (i) - 1 do
-                        if prototype (tr[i[n]]) ~= "Tree" then
-                          rawset (tr, i[n], Tree {})
-                        end
-                        tr = tr[i[n]]
-                      end
-                      rawset (tr, last (i), v)
-                    else
-                      rawset (tr, i, v)
-                    end
-                  end),
+  __newindex = function (tr, i, v)
+                 if prototype (i) == "table" then
+                   for n = 1, len (i) - 1 do
+                     if prototype (tr[i[n]]) ~= "Tree" then
+                       rawset (tr, i[n], Tree {})
+                     end
+                     tr = tr[i[n]]
+                   end
+                   rawset (tr, last (i), v)
+                 else
+                   rawset (tr, i, v)
+                 end
+               end,
 
   _functions = {
     --- Make a deep copy of a tree, including any metatables.
@@ -182,7 +180,7 @@ Tree = Container {
     -- copy = clone (tr)
     -- copy[2].two=5
     -- assert (tr[2].two == 2)
-    clone = X ("clone (table, boolean|:nometa?)", clone),
+    clone = X ("clone (table, ?boolean|:nometa)", clone),
 
     --- Tree iterator which returns just numbered leaves, in order.
     -- @static

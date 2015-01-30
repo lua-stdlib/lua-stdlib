@@ -1,12 +1,15 @@
 -- Debugging is on by default
 local M = {}
 
+-- Use rawget to satisfy std.strict.
+local _DEBUG = rawget (_G, "_DEBUG")
+
 -- User specified fields.
-if type (_G._DEBUG) == "table" then
-  M._DEBUG = _G._DEBUG
+if type (_DEBUG) == "table" then
+  M._DEBUG = _DEBUG
 
 -- Turn everything off.
-elseif _G._DEBUG == false then
+elseif _DEBUG == false then
   M._DEBUG  = {
     argcheck  = false,
     call      = false,
@@ -15,7 +18,7 @@ elseif _G._DEBUG == false then
   }
 
 -- Turn everything on (except _DEBUG.call must be set explicitly).
-elseif _G._DEBUG == true then
+elseif _DEBUG == true then
   M._DEBUG  = {
     argcheck  = true,
     call      = false,

@@ -123,6 +123,14 @@ specify std.package:
         expect (f "./x/./y/.").to_be (catfile (".", "x", "y"))
     - it strips redundant .. directories:
         expect (f "../x/../y/z/..").to_be (catfile ("..", "y"))
+        expect (f "../x/../y/z/..").to_be (catfile ("..", "y"))
+        expect (f "../../x/../y/z/..").to_be (catfile ("..", "..", "y"))
+        expect (f "../../x/../y/./..").to_be (catfile ("..", ".."))
+        expect (f "../../w/x/../../y/z/..").to_be (catfile ("..", "..", "y"))
+        expect (f "../../w/./../.././z/..").to_be (catfile ("..", "..", ".."))
+    - it leaves leading .. directories unmolested:
+        expect (f "../../1").to_be (catfile ("..", "..", "1"))
+        expect (f "./../../1").to_be (catfile ("..", "..", "1"))
     - it normalizes / to platform dirsep:
         expect (f "/foo/bar").to_be (catfile ("", "foo", "bar"))
     - it normalizes ? to platform path_mark:
