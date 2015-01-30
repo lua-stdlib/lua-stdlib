@@ -547,7 +547,7 @@ if _DEBUG.argcheck then
 	diagnose (results, output)
       end
 
-      return unpack (results)
+      return unpack (results, 1, maxn (results))
     end
   end
 

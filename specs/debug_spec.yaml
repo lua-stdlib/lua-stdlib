@@ -579,7 +579,13 @@ specify std.debug:
       wrapped = f ("inner ()", mkmagic)
 
       _, badarg, badresult = init (M, "", "inner")
-      id = function (...) return (table.unpack or unpack) {...} end
+      id = function (...)
+        local n, argt = 0, {...}
+        for k in pairs (argt) do
+          if type (k) == "number" and k > n then n = k end
+        end
+        return (table.unpack or unpack) (argt, 1, n)
+      end
 
   - it returns the wrapped function:
       expect (wrapped).not_to_be (inner)
