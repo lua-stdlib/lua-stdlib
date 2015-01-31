@@ -176,13 +176,13 @@ M = {
   -- for e in rielems (l) do process (e) end
   ireverse = X ("ireverse (table)", base.ireverse),
 
-  --- Return named metamethod, if any, otherwis `nil`.
+  --- Return named metamethod, if any, otherwise `nil`.
   -- @function getmetamethod
-  -- @tparam table t table to get metamethod of
-  -- @string n name of metamethod to get
+  -- @param x item to act on
+  -- @string n name of metamethod to lookup
   -- @treturn function|nil metamethod function, or `nil` if no metamethod
   -- @usage lookup = std.getmetamethod (require "std.object", "__index")
-  getmetamethod = X ("getmetamethod (object|table, string)", base.getmetamethod),
+  getmetamethod = X ("getmetamethod (?any, string)", base.getmetamethod),
 
   --- Overwrite core methods and metamethods with `std` enhanced versions.
   --

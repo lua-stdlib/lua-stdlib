@@ -228,7 +228,7 @@ specify std:
       f = M.getmetamethod
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.getmetamethod (object|table, string)")
+      badargs.diagnose (f, "std.getmetamethod (?any, string)")
 
   - context with a table:
     - before:

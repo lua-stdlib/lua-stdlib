@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bug fixes
+
+  - `std.getmetamethod` no longer rejects non-table subjects when
+    `_DEBUG.argcheck` is set.
+
 
 ## Noteworthy changes in release 41.1.1 (2015-01-31) [stable]
 
