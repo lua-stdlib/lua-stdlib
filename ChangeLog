@@ -1,4 +1,31 @@
+2015-01-31  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.1.1
+	* NEWS.md: Record release date.
+
+	configury: bump release version to 41.1.1.
+	* configure.ac (AC_INIT): Bump release version to 41.1.1.
+	* .travis.yml: Regenerate.
+
+	std: fix an infinite loop in std.barrel() with Lua 5.3.
+	Close #94
+	* lib/std/base.lua (maxn): This function is called from any
+	function wrapped by debug.argscheck, which calls debug.diagnose.
+	Calling std.barrel monkey-patches the global pairs function,
+	so we can't call that from here, otherwise it will in turn use
+	the monkey-patched pairs, which calls debug.diagnose to check
+	for argument errors before the original maxn call has finished.
+	Reported by Reuben Thomas
+
 2015-01-30  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: add missing parameter LDoc for debug:markdots.
+	* lib/std/debug.lua (markdots): Add missing LDocs for v parameter.
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 41.1.0
 	* NEWS.md: Record release date.

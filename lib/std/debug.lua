@@ -208,6 +208,7 @@ if _DEBUG.argcheck then
   --- Strip trailing ellipsis from final argument if any, storing maximum
   -- number of values that can be matched directly in `t.maxvalues`.
   -- @tparam table t table to act on
+  -- @string v element added to *t*, to match against ... suffix
   -- @treturn table *t* with ellipsis stripped and maxvalues field set
   local function markdots (t, v)
     return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
