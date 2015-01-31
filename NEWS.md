@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bug fixes
+
+  - `std.barrel` no longer gets stuck in an infinite loop when called in
+    Lua 5.3.
+
 
 ## Noteworthy changes in release 41.1.0 (2015-01-30) [stable]
 
