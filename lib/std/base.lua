@@ -85,9 +85,11 @@ local function ipairs (l)
 end
 
 
+local _pairs = pairs
+
 local maxn = table.maxn or function (t)
   local n = 0
-  for k in pairs (t) do
+  for k in _pairs (t) do
     if type (k) == "number" and k > n then n = k end
   end
   return n
