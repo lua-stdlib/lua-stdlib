@@ -2,6 +2,18 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New features
+
+  - New iterators, `std.npairs` and `std.rnpairs` behave like
+    `std.ipairs` and `std.ripairs` resp., except that they will visit
+    all integer keyed elements, including nil-valued "holes".  This is
+    useful for iterating over argument lists with nils:
+
+    ```lua
+    function fn (a, b, c) for _, v in npairs {...} do print (v) end
+    fn (nil, nil, 3) --> nil nil 3
+    ```
+
 ### Bug fixes
 
   - `std.getmetamethod` no longer rejects non-table subjects when

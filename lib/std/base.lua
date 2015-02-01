@@ -271,6 +271,16 @@ local function merge (dest, src)
 end
 
 
+local function npairs (t)
+  local i, n = 0, maxn (t)
+  return function (t)
+    i = i + 1
+    if i <= n then return i, t[i] end
+   end,
+  t, i
+end
+
+
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
@@ -336,6 +346,18 @@ local function ripairs (t)
   while t[oob] ~= nil do
     oob = oob + 1
   end
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, oob
+end
+
+
+local function rnpairs (t)
+  local oob = maxn (t) + 1
 
   return function (t, n)
     n = n - 1
@@ -412,8 +434,10 @@ return {
   ielems   = ielems,
   ipairs   = ipairs,
   ireverse = ireverse,
+  npairs   = npairs,
   pairs    = pairs,
   ripairs  = ripairs,
+  rnpairs  = rnpairs,
   require  = require,
   tostring = tostring,
 
