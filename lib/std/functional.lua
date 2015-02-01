@@ -87,26 +87,44 @@ end
 
 
 local function filter (pfn, ifn, ...)
-  local argt = {...}
+  local argt, r = {...}, {}
   if not callable (ifn) then
     ifn, argt = pairs, {ifn, ...}
   end
 
   local nextfn, state, k = ifn (unpack (argt))
-  local t = {nextfn (state, k)}	-- table of iteration 1
 
-  local r = {}			-- new results table
-  while t[1] ~= nil do		-- until iterator returns nil
-    k = t[1]
-    if pfn (unpack (t)) then	-- pass all iterator results to p
-      if t[2] ~= nil then
-	r[k] = t[2]		-- k,v = t[1],t[2]
-      else
-	r[#r + 1] = k		-- k,v = #r + 1,t[1]
+  local t = {nextfn (state, k)}	-- table of iteration 1
+  local arity = #t		-- How many return values from ifn?
+
+  if arity == 1 then
+    local v = t[1]
+    while v ~= nil do		-- until iterator returns nil
+      if pfn (unpack (t)) then	-- pass all iterator results to p
+        r[#r + 1] = v
+      end
+
+      t = {nextfn (state, v)}	-- maintain loop invariant
+      v = t[1]
+
+      if #t > 1 then		-- unless we discover arity is not 1 after all
+        arity, r = #t, {} break
       end
     end
-    t = {nextfn (state, k)}	-- maintain loop invariant
   end
+
+  if arity > 1 then
+    -- No need to start over here, because either:
+    --   (i) arity was never 1, and the original value of t is correct
+    --  (ii) arity used to be 1, but we only consumed nil values, so the
+    --       current t with arity > 1 is the correct next value to use
+    while t[1] ~= nil do
+      local k = t[1]
+      if pfn (unpack (t)) then r[k] = t[2] end
+      t = {nextfn (state, k)}
+    end
+  end
+
   return r
 end
 

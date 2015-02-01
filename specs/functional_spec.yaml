@@ -234,7 +234,7 @@ specify std.functional:
 - describe filter:
   - before:
      elements = {"a", "b", "c", "d", "e"}
-     inverse  = require "std.table".invert (elements)
+     inverse  = {a=1, b=2, c=3, d=4, e=5}
 
      f = M.filter
 
@@ -246,6 +246,9 @@ specify std.functional:
   - it iterates through element keys:
       expect (f (M.id, base.ielems, elements)).to_equal {"a", "b", "c", "d", "e"}
       expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
+  - it propagates nil arguments correctly:
+      t = {"a", nil, nil, "d", "e"}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
   - it passes all iteration result values to filter predicate:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)

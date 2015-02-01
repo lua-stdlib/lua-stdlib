@@ -19,8 +19,8 @@
   - `std.getmetamethod` no longer rejects non-table subjects when
     `_DEBUG.argcheck` is set.
 
-  - `functional.bind`, `functional.collect` and `functional.compose`
-    propagate nil valued arguments correctly.
+  - `functional.bind`, `functional.collect`, `functional.compose` and
+    `functional.filter` propagate nil valued arguments correctly.
 
 ### Incompatible changes
 
