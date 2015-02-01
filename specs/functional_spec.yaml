@@ -140,8 +140,10 @@ specify std.functional:
   - it collects a table of key:value iterator results:
       t = {"first", second="two", last=3}
       expect (f (pairs, t)).to_equal (t)
-  - it defaults to ipairs iteration:
-      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2}
+  - it propagates nil arguments correctly:
+      expect (f {"a", nil, nil, "d", "e"}).to_equal {"a", [4]="d", [5]="e"}
+  - it defaults to npairs iteration:
+      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2, [5]=5}
 
 
 - describe compose:

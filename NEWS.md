@@ -19,8 +19,13 @@
   - `std.getmetamethod` no longer rejects non-table subjects when
     `_DEBUG.argcheck` is set.
 
-  - `functional.bind` and `functional.compose` propagate nil valued
-    arguments correctly.
+  - `functional.bind`, `functional.collect` and `functional.compose`
+    propagate nil valued arguments correctly.
+
+### Incompatible changes
+
+  - `functional.collect` uses `std.npairs` as a default iterator rather
+    than `std.ipairs`.
 
 
 ## Noteworthy changes in release 41.1.1 (2015-01-31) [stable]

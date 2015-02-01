@@ -292,7 +292,7 @@ local M = {
 
   --- Collect the results of an iterator.
   -- @function collect
-  -- @func[opt=std.ipairs] ifn iterator function
+  -- @func[opt=std.npairs] ifn iterator function
   -- @param ... *ifn* arguments
   -- @treturn table of results from running *ifn* on *args*
   -- @see filter

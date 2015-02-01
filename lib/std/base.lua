@@ -103,21 +103,6 @@ local function unpack (t, i, j)
 end
 
 
-local function collect (ifn, ...)
-  local argt = {...}
-  if not callable (ifn) then
-    ifn, argt = ipairs, {ifn, ...}
-  end
-
-  local r = {}
-  for k, v in ifn (unpack (argt)) do
-    if v == nil then k, v = #r + 1, k end
-    r[k] = v
-  end
-  return r
-end
-
-
 local function compare (l, m)
   local lenl, lenm = len (l), len (m)
   for i = 1, math.min (lenl, lenm) do
@@ -278,6 +263,31 @@ local function npairs (t)
     if i <= n then return i, t[i] end
    end,
   t, i
+end
+
+
+local function collect (ifn, ...)
+  local argt, r = {...}, {}
+  if not callable (ifn) then
+    ifn, argt = npairs, {ifn, ...}
+  end
+
+  -- How many return values from ifn?
+  local arity = 1
+  for e, v in ifn (unpack (argt)) do
+    if v then arity, r = 2, {} break end
+    -- Build an arity-1 result table on first pass...
+    r[#r + 1] = e
+  end
+
+  if arity == 2 then
+    -- ...oops, it was arity-2 all along, start again!
+    for k, v in ifn (unpack (argt)) do
+      r[k] = v
+    end
+  end
+
+  return r
 end
 
 
