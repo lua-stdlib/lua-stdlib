@@ -212,7 +212,7 @@ end, id)
 
 
 local function map (mapfn, ifn, ...)
-  local argt = {...}
+  local argt, r = {...}, {}
   if not callable (ifn) or not next (argt) then
     ifn, argt = pairs, {ifn, ...}
   end
@@ -220,15 +220,26 @@ local function map (mapfn, ifn, ...)
   local nextfn, state, k = ifn (unpack (argt))
   local mapargs = {nextfn (state, k)}
 
-  local r = {}
+  local arity = 1
   while mapargs[1] ~= nil do
-    k = mapargs[1]
     local d, v = mapfn (unpack (mapargs))
-    if v == nil then d, v = #r + 1, d end
     if v ~= nil then
-      r[d] = v
+      arity, r = 2, {} break
     end
-    mapargs = {nextfn (state, k)}
+    r[#r + 1] = d
+    mapargs = {nextfn (state, mapargs[1])}
+  end
+
+  if arity > 1 then
+    -- No need to start over here, because either:
+    --   (i) arity was never 1, and the original value of mapargs is correct
+    --  (ii) arity used to be 1, but we only consumed nil values, so the
+    --       current mapargs with arity > 1 is the correct next value to use
+    while mapargs[1] ~=  nil do
+      local k, v = mapfn (unpack (mapargs))
+      r[k] = v
+      mapargs = {nextfn (state, mapargs[1])}
+    end
   end
   return r
 end

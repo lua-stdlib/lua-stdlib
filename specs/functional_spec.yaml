@@ -382,7 +382,7 @@ specify std.functional:
 - describe map:
   - before:
       elements = {"a", "b", "c", "d", "e"}
-      inverse  = require "std.table".invert (elements)
+      inverse  = {a=1, b=2, c=3, d=4, e=5}
 
       f = M.map
 
@@ -394,6 +394,11 @@ specify std.functional:
   - it iterates through elements:
       expect (f (M.id, ipairs, elements)).to_equal (elements)
       expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
+  - it propagates nil arguments correctly:
+      t = {"a", nil, nil, "d", "e"}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
+      t = {nil, nil, 3, 4}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
   - it passes all iteration result values to map function:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)
