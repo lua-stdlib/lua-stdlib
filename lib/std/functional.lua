@@ -11,16 +11,17 @@
 local base     = require "std.base"
 local debug    = require "std.debug"
 
-local ielems, ipairs, ireverse, len, pairs, unpack =
-  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs, base.unpack
-local callable, reduce = base.callable, base.reduce
+local ielems, ipairs, ireverse, npairs, pairs =
+  base.ielems, base.ipairs, base.ireverse, base.npairs, base.pairs
+local callable, copy, len, reduce, unpack =
+  base.callable, base.copy, base.len, base.reduce, base.unpack
 local loadstring = loadstring or load
 
 
 local function bind (fn, ...)
-  local argt = {...}
-  if type (argt[1]) == "table" and argt[2] == nil then
-    argt = argt[1]
+  local bound = {...}
+  if type (bound[1]) == "table" and bound[2] == nil then
+    bound = bound[1]
   else
     io.stderr:write (debug.DEPRECATIONMSG ("39",
                        "multi-argument 'std.functional.bind'",
@@ -28,17 +29,13 @@ local function bind (fn, ...)
   end
 
   return function (...)
-           local arg = {}
-           for i, v in pairs (argt) do
-             arg[i] = v
-           end
-           local i = 1
-           for _, v in ipairs {...} do
-             while arg[i] ~= nil do i = i + 1 end
-             arg[i] = v
-           end
-           return fn (unpack (arg))
-         end
+    local argt, i = copy (bound), 1
+    for _, v in npairs {...} do
+      while argt[i] ~= nil do i = i + 1 end
+      argt[i], i = v, i + 1
+    end
+    return fn (unpack (argt))
+  end
 end
 
 
