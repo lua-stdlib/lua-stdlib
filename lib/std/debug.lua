@@ -473,7 +473,7 @@ if _DEBUG.argcheck then
 
 
   -- Pattern to extract: fname ([types]?[, types]*)
-  local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+  local args_pat = "^%s*([%w_][%.%d%w_]*)%s*%(%s*(.*)%s*%)"
 
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
@@ -481,9 +481,9 @@ if _DEBUG.argcheck then
     if argtypes == "" then
       argtypes = {}
     elseif argtypes then
-      argtypes = split (argtypes, ",%s*")
+      argtypes = split (argtypes, "%s*,%s*")
     else
-      fname = decl:match "([%w_][%.%d%w_]*)"
+      fname = decl:match "^%s*([%w_][%.%d%w_]*)"
     end
 
     -- Precalculate vtables once to make multiple calls faster.
