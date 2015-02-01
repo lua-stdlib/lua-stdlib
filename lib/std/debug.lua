@@ -35,7 +35,7 @@ local base       = require "std.base"
 local _DEBUG      = debug_init._DEBUG
 local argerror    = base.argerror
 local unpack      = base.unpack
-local split, tostring = base.split, base.tostring
+local copy, split, tostring = base.copy, base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
 
@@ -139,11 +139,102 @@ local function toomanymsg (bad, to, name, expect, actual)
 end
 
 
+--- Strip trailing ellipsis from final argument if any, storing maximum
+-- number of values that can be matched directly in `t.maxvalues`.
+-- @tparam table t table to act on
+-- @string v element added to *t*, to match against ... suffix
+-- @treturn table *t* with ellipsis stripped and maxvalues field set
+local function markdots (t, v)
+  return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
+end
+
+
+--- Calculate permutations of type lists with and without [optionals].
+-- @tparam table t a list of expected types by argument position
+-- @treturn table set of possible type lists
+local function permute (t)
+  if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
+
+  local p = {{}}
+  for i, v in ipairs (t) do
+    local optional = v:match "%[(.+)%]"
+
+    if optional == nil then
+      -- Append non-optional type-spec to each permutation.
+      for b = 1, #p do
+	insert (p[b], markdots (p[b], v))
+      end
+    else
+      -- Duplicate all existing permutations, and add optional type-spec
+      -- to the unduplicated permutations.
+      local o = #p
+      for b = 1, o do
+        p[b + o] = copy (p[b])
+        insert (p[b], markdots (p[b], optional))
+      end
+    end
+  end
+  return p
+end
+
+
+local function typesplit (types)
+  if type (types) == "string" then
+    types = split (types:gsub ("%s+or%s+", "|"), "%s*|%s*")
+  end
+  local r, seen, add_nil = {}, {}, false
+  for _, v in ipairs (types) do
+    local m = v:match "^%?(.+)$"
+    if m then
+      add_nil, v = true, m
+    end
+    if not seen[v] then
+      r[#r + 1] = v
+      seen[v] = true
+    end
+  end
+  if add_nil then
+    r[#r + 1] = "nil"
+  end
+  return r
+end
+
+
+local function projectuniq (fkey, tt)
+  -- project
+  local t = {}
+  for _, u in ipairs (tt) do
+    t[#t + 1] = u[fkey]
+  end
+
+  -- split and remove duplicates
+  local r, s = {}, {}
+  for _, e in ipairs (t) do
+    for _, v in ipairs (typesplit (e)) do
+      if s[v] == nil then
+	r[#r + 1], s[v] = v, true
+      end
+    end
+  end
+  return r
+end
+
+
+local function parsetypes (types)
+  local r, permutations = {}, permute (types)
+  for i = 1, #permutations[1] do
+    r[i] = projectuniq (i, permutations)
+  end
+  r.dots = permutations[1].dots
+  return r
+end
+
+
 local argcheck, argscheck  -- forward declarations
 
 if _DEBUG.argcheck then
 
-  local copy, prototype = base.copy, base.prototype
+  local prototype = base.prototype
 
   local function resulterror (name, i, extramsg, level)
     level = level or 1
@@ -166,68 +257,6 @@ if _DEBUG.argcheck then
       alternatives = t
     end
     return table.concat (alternatives, ", ")
-  end
-
-
-  --- Normalize a list of type names.
-  -- @tparam table t list of type names, leading "?" as required
-  -- @treturn table a new list with "?" stripped, "nil" appended if so,
-  --   and with duplicates stripped.
-  local function normalize (t)
-    local r, seen, add_nil = {}, {}, false
-    for _, v in ipairs (t) do
-      local m = v:match "^%?(.+)$"
-      if m then
-        add_nil, v = true, m
-      end
-      if not seen[v] then
-	r[#r + 1] = v
-	seen[v] = true
-      end
-    end
-    if add_nil then
-      r[#r + 1] = "nil"
-    end
-    return r
-  end
-
-
-  --- Strip trailing ellipsis from final argument if any, storing maximum
-  -- number of values that can be matched directly in `t.maxvalues`.
-  -- @tparam table t table to act on
-  -- @string v element added to *t*, to match against ... suffix
-  -- @treturn table *t* with ellipsis stripped and maxvalues field set
-  local function markdots (t, v)
-    return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
-  end
-
-
-  --- Calculate permutations of type lists with and without [optionals].
-  -- @tparam table t a list of expected types by argument position
-  -- @treturn table set of possible type lists
-  local function permute (t)
-    if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
-
-    local p = {{}}
-    for i, v in ipairs (t) do
-      local optional = v:match "%[(.+)%]"
-
-      if optional == nil then
-        -- Append non-optional type-spec to each permutation.
-        for b = 1, #p do
-	  insert (p[b], markdots (p[b], v))
-	end
-      else
-        -- Duplicate all existing permutations, and add optional type-spec
-        -- to the unduplicated permutations.
-        local o = #p
-        for b = 1, o do
-          p[b + o] = copy (p[b])
-	  insert (p[b], markdots (p[b], optional))
-        end
-      end
-    end
-    return p
   end
 
 
@@ -362,33 +391,13 @@ if _DEBUG.argcheck then
   end
 
 
-  local function projectuniq (fkey, tt)
-    -- project
-    local t = {}
-    for _, u in ipairs (tt) do
-      t[#t + 1] = u[fkey]
-    end
-
-    -- split and remove duplicates
-    local r, s = {}, {}
-    for _, e in ipairs (t) do
-      for _, v in ipairs (normalize (split (e, "|"))) do
-	if s[v] == nil then
-	  r[#r + 1], s[v] = v, true
-	end
-      end
-    end
-    return r
-  end
-
-
   local function empty (t) return not next (t) end
 
   -- Pattern to normalize: [types...] to [types]...
   local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
 
   --- Diagnose mismatches between *valuelist* and type *permutations*.
-  -- @tparam table valuelist normalized list of actual values to be checked
+  -- @tparam table valuelist list of actual values to be checked
   -- @tparam table argt table of precalculated values and handler functiens
   local function diagnose (valuelist, argt)
     local permutations = argt.permutations
@@ -408,7 +417,7 @@ if _DEBUG.argcheck then
       -- Report an error for all possible types at bestmismatch index.
       local i, expected = bestmismatch
       if t.dots and i > #t then
-	expected = normalize (split (t[#t], "|"))
+	expected = typesplit (t[#t])
       else
 	expected = projectuniq (i, permutations)
       end
@@ -444,7 +453,7 @@ if _DEBUG.argcheck then
 
   function argcheck (name, i, expected, actual, level)
     level = level or 2
-    expected = normalize (split (expected, "|"))
+    expected = typesplit (expected)
 
     -- Check actual has one of the types from expected
     local ok = false
@@ -705,7 +714,7 @@ M = {
   --
   --     insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
   --
-  -- Similarly returt types can be checked with the same list syntax as
+  -- Similarly return types can be checked with the same list syntax as
   -- arguments:
   --
   --     len = argscheck ("string.len (string) => int", string.len)
@@ -729,6 +738,14 @@ M = {
   -- @tparam int|function|functable fn target function, or stack level
   -- @treturn table environment of *fn*
   getfenv = getfenv,
+
+  --- Compact permutation list into a list of valid types at each argument.
+  -- Eliminate bracketed types by combining all valid types at each position
+  -- for all permutations of *typelist*.
+  -- @function parsetypes
+  -- @tparam list types a normalized list of type names
+  -- @treturn list valid types for each positional parameter
+  parsetypes = parsetypes,
 
   --- Extend `debug.setfenv` to unwrap functables correctly.
   -- @tparam function|functable fn target function
@@ -773,6 +790,12 @@ M = {
   -- _DEBUG = { call = true }
   -- local debug = require "std.debug"
   trace = trace,
+
+  --- Split a typespec string into a table of normalized type names.
+  -- @tparam string|table either `"?bool|:nometa"` or `{"boolean", ":nometa"}`
+  -- @treturn table a new list with duplicates removed and leading "?"s
+  --   replaced by a "nil" element
+  typesplit = typesplit,
 
 
   -- Private:

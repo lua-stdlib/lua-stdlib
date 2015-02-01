@@ -4,8 +4,8 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "getfenv", "setfenv", "say", "toomanyargmsg",
-                   "trace", "_setdebug" }
+                   "argscheck", "getfenv", "parsetypes", "setfenv", "say",
+                   "toomanyargmsg", "typesplit", "trace", "_setdebug" }
 
   M = require (this_module)
 
