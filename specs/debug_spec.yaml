@@ -4,8 +4,8 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "say", "toomanyargmsg", "trace",
-                   "_setdebug" }
+                   "argscheck", "getfenv", "setfenv", "say", "toomanyargmsg",
+                   "trace", "_setdebug" }
 
   M = require (this_module)
 
@@ -931,6 +931,39 @@ specify std.debug:
     - it accepts correct argument types:
         expect ({wrapped (1)}).to_equal {1}
         expect ({wrapped ("one", 2)}).to_equal {"one", 2}
+
+
+- context function environments:
+  - before:
+      env = {
+        tostring = function (x) return '"' .. tostring (x) .. '"' end,
+      }
+      fn = function (x) return tostring (x) end
+      ft = setmetatable ({}, { __call = function (_, ...) return fn (...) end })
+
+  - describe getfenv:
+    - before:
+        f = M.getfenv
+    - it returns a table:
+        expect (type (f (fn))).to_be "table"
+    - it gets a function execution environment:
+        M.setfenv (fn, env)
+        expect (f (fn)).to_be (env)
+    - it understands functables:
+        M.setfenv (ft, env)
+        expect (f (ft)).to_be (env)
+
+  - describe setfenv:
+    - before:
+        f = M.setfenv
+    - it returns the passed function:
+        expect (f (fn, env)).to_be (fn)
+    - it sets a function execution environment:
+        f (fn, env)
+        expect (fn (42)).to_be '"42"'
+    - it understands functables:
+        f (ft, env)
+        expect (fn (5)).to_be '"5"'
 
 
 - describe say:

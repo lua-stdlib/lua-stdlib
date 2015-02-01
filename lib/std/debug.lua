@@ -71,11 +71,6 @@ local function DEPRECATED (version, name, extramsg, fn)
 end
 
 
---- Extend `debug.setfenv` to unwrap functables correctly.
--- @tparam function|functable fn target function
--- @tparam table env new function environment
--- @treturn function *fn*
-
 local _setfenv = debug.setfenv
 
 local function setfenv (fn, env)
@@ -105,24 +100,31 @@ local function setfenv (fn, env)
 end
 
 
---- Extend `debug.getfenv` to unwrap functables correctly.
--- @tparam int|function|functable fn target function, or stack level
--- @treturn table environment of *fn*
-local getfenv = rawget (_G, "getfenv") or function (fn)
+local _getfenv = rawget (_G, "getfenv")
+
+local getfenv = function (fn)
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call
-  elseif type (fn) == "number" then
-    fn = debug.getinfo (fn + 1, "f").func
   end
 
-  local name, env
-  local up = 0
-  repeat
-    up = up + 1
-    name, env = debug.getupvalue (fn, up)
-  until name == '_ENV' or name == nil
-  return env
+  if _getfenv then
+    return _getfenv (fn)
+
+  else
+    fn = fn or 1
+    if type (fn) == "number" then
+      fn = debug.getinfo (fn + 1, "f").func
+    end
+
+    local name, env
+    local up = 0
+    repeat
+      up = up + 1
+      name, env = debug.getupvalue (fn, up)
+    until name == '_ENV' or name == nil
+    return env
+  end
 end
 
 
@@ -717,6 +719,17 @@ M = {
   --     ...
   -- end)
   argscheck = argscheck,
+
+  --- Extend `debug.getfenv` to unwrap functables correctly.
+  -- @tparam int|function|functable fn target function, or stack level
+  -- @treturn table environment of *fn*
+  getfenv = getfenv,
+
+  --- Extend `debug.setfenv` to unwrap functables correctly.
+  -- @tparam function|functable fn target function
+  -- @tparam table env new function environment
+  -- @treturn function *fn*
+  setfenv = setfenv,
 
   --- Print a debugging message to `io.stderr`.
   -- Display arguments passed through `std.tostring` and separated by tab

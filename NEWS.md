@@ -14,6 +14,9 @@
     fn (nil, nil, 3) --> nil nil 3
     ```
 
+  - New `debug.getfenv` and `debug.setfenv` that work with Lua 5.2 and
+    5.3.
+
 ### Bug fixes
 
   - `std.getmetamethod` no longer rejects non-table subjects when
