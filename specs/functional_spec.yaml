@@ -153,6 +153,9 @@ specify std.functional:
 
   - it composes a single function correctly:
       expect (f (M.id) (1)).to_be (1)
+  - it propagates nil arguments correctly:
+      expect ({f (M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
+      expect ({f (M.id, M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
   - it composes functions in the correct order:
       expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))

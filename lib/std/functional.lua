@@ -49,19 +49,15 @@ end
 
 
 local function compose (...)
-  local arg = {...}
-  local fns, n = arg, #arg
-  for i = 1, n do
-    local f = fns[i]
-  end
+  local fns = {...}
 
   return function (...)
-           local arg = {...}
-           for i = 1, n do
-             arg = {fns[i] (unpack (arg))}
-           end
-           return unpack (arg)
-         end
+    local argt = {...}
+    for _, fn in npairs (fns) do
+      argt = {fn (unpack (argt))}
+    end
+    return unpack (argt)
+  end
 end
 
 
