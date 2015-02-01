@@ -701,6 +701,12 @@ specify std.functional:
   - it calls a binary function over key:value iterator results:
       expect (f (op.sum, 2, base.ielems, {3})).to_be (2 + 3)
       expect (f (op.prod, 2, base.ielems, {3, 4})).to_be (2 * 3 * 4)
+  - it propagates nil arguments correctly:
+      function set (t, k, v) t[k] = tostring (v) return t end
+      expect (f (set, {}, base.npairs, {1, nil, nil, "a", false})).
+        to_equal {"1", "nil", "nil", "a", "false"}
+      expect (f (set, {}, base.npairs, {nil, nil, "3"})).
+        to_equal {"nil", "nil", "3"}
   - it reduces elements from left to right:
       expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it passes all iterator results to accumulator function:
