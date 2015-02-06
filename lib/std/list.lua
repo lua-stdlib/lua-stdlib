@@ -438,9 +438,9 @@ M.relems      = DEPRECATED ("41", "'std.list.relems'",
 m.relems      = DEPRECATED ("41", "'std.list:relems'",  relems)
 
 M.reverse     = DEPRECATED ("41", "'std.list.reverse'",
-                  "use 'std.ireverse' instead", reverse)
+                  "compose 'std.list' and 'std.ireverse' instead", reverse)
 m.reverse     = DEPRECATED ("41", "'std.list:reverse'",
-                  "use 'std.ireverse' instead", reverse)
+                  "compose 'std.list' and 'std.ireverse' instead", reverse)
 
 M.shape       = DEPRECATED ("41", "'std.list.shape'",
                   "use 'std.table.shape' instead", shape)
