@@ -32,12 +32,12 @@
 local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
-local _DEBUG      = debug_init._DEBUG
-local argerror    = base.argerror
-local unpack      = base.unpack
+local _DEBUG = debug_init._DEBUG
+local argerror, prototype, unpack = base.argerror, base.prototype, base.unpack
 local copy, split, tostring = base.copy, base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
+
 
 local M
 
@@ -230,11 +230,78 @@ local function parsetypes (types)
 end
 
 
+--- Concatenate a table of strings using ", " and " or " delimiters.
+-- @tparam table alternatives a table of strings
+-- @treturn string string of elements from alternatives delimited by ", "
+--   and " or "
+local function concat (alternatives)
+  if len (alternatives) > 1 then
+    local t = copy (alternatives)
+    local top = table.remove (t)
+    t[#t] = t[#t] .. " or " .. top
+    alternatives = t
+  end
+  return table.concat (alternatives, ", ")
+end
+
+
+local function extramsg_mismatch (expectedtypes, actual, index)
+  local actualtype = prototype (actual)
+
+  -- Tidy up actual type for display.
+  if actualtype == "nil" then
+    actualtype = "no value"
+  elseif actualtype == "string" and actual:sub (1, 1) == ":" then
+    actualtype = actual
+  elseif type (actual) == "table" and next (actual) == nil then
+    local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
+    if actualtype == "table" and matchstr == ",#list," then
+      actualtype = "empty list"
+    elseif actualtype == "table" or matchstr:match ",#" then
+      actualtype = "empty " .. actualtype
+    end
+  end
+
+  if index then
+    actualtype = actualtype .. " at index " .. tostring (index)
+  end
+
+  -- Tidy up expected types for display.
+  local expectedstr = expectedtypes
+  if type (expectedtypes) == "table" then
+    local t = {}
+    for i, v in ipairs (expectedtypes) do
+      if v == "func" then
+        t[i] = "function"
+      elseif v == "bool" then
+        t[i] = "boolean"
+      elseif v == "any" then
+        t[i] = "any value"
+      elseif v == "file" then
+        t[i] = "FILE*"
+      elseif not index then
+        t[i] = v:match "(%S+) of %S+" or v
+      else
+        t[i] = v
+      end
+    end
+    expectedstr = (concat (t) .. " expected"):
+                  gsub ("#table", "non-empty table"):
+                  gsub ("#list", "non-empty list"):
+                  gsub ("(%S+ of [^,%s]-)s? ", "%1s "):
+                  gsub ("(%S+ of [^,%s]-)s?,", "%1s,"):
+		  gsub ("(s, [^,%s]-)s? ", "%1s "):
+		  gsub ("(s, [^,%s]-)s?,", "%1s,"):
+		  gsub ("(of .-)s? or ([^,%s]-)s? ", "%1s or %2s ")
+  end
+
+  return expectedstr .. ", got " .. actualtype
+end
+
+
 local argcheck, argscheck  -- forward declarations
 
 if _DEBUG.argcheck then
-
-  local prototype = base.prototype
 
   local function resulterror (name, i, extramsg, level)
     level = level or 1
@@ -243,20 +310,6 @@ if _DEBUG.argcheck then
       s = s .. " (" .. extramsg .. ")"
     end
     error (s, level + 1)
-  end
-
-  --- Concatenate a table of strings using ", " and " or " delimiters.
-  -- @tparam table alternatives a table of strings
-  -- @treturn string string of elements from alternatives delimited by ", "
-  --   and " or "
-  local function concat (alternatives)
-    if len (alternatives) > 1 then
-      local t = copy (alternatives)
-      local top = table.remove (t)
-      t[#t] = t[#t] .. " or " .. top
-      alternatives = t
-    end
-    return table.concat (alternatives, ", ")
   end
 
 
@@ -274,62 +327,6 @@ if _DEBUG.argcheck then
       local ok = pcall (argcheck, "pcall", i, typelist[n], valuelist[i])
       if not ok then return i end
     end
-  end
-
-
-  --- Format a type mismatch error.
-  -- @tparam table expectedtypes a table of matchable types
-  -- @string actual the actual argument to match with
-  -- @number[opt] index erroring container element index
-  -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
-  local function formaterror (expectedtypes, actual, index)
-    local actualtype = prototype (actual)
-
-    -- Tidy up actual type for display.
-    if actualtype == "nil" then
-      actualtype = "no value"
-    elseif actualtype == "string" and actual:sub (1, 1) == ":" then
-      actualtype = actual
-    elseif type (actual) == "table" and next (actual) == nil then
-      local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
-      if actualtype == "table" and matchstr == ",#list," then
-        actualtype = "empty list"
-      elseif actualtype == "table" or matchstr:match ",#" then
-        actualtype = "empty " .. actualtype
-      end
-    end
-
-    if index then
-      actualtype = actualtype .. " at index " .. tostring (index)
-    end
-
-    -- Tidy up expected types for display.
-    local expectedstr = expectedtypes
-    if type (expectedtypes) == "table" then
-      local t = {}
-      for i, v in ipairs (expectedtypes) do
-        if v == "func" then
-          t[i] = "function"
-	elseif v == "bool" then
-	  t[i] = "boolean"
-        elseif v == "any" then
-          t[i] = "any value"
-	elseif v == "file" then
-          t[i] = "FILE*"
-        elseif not index then
-          t[i] = v:match "(%S+) of %S+" or v
-        else
-          t[i] = v
-        end
-      end
-      expectedstr = concat (t):
-                    gsub ("#table", "non-empty table"):
-	            gsub ("#list", "non-empty list"):
-                    gsub ("(%S+ of %S+)", "%1s"):
-		    gsub ("(%S+ of %S+)ss", "%1s")
-    end
-
-    return expectedstr .. " expected, got " .. actualtype
   end
 
 
@@ -436,7 +433,7 @@ if _DEBUG.argcheck then
 	if contents and type (valuelist[i]) == "table" then
 	  for k, v in pairs (valuelist[i]) do
 	    if not checktype (contents, v) then
-	      argt.badtype (i, formaterror (expected, v, k), 3)
+	      argt.badtype (i, extramsg_mismatch (expected, v, k), 3)
 	    end
 	  end
 	end
@@ -444,7 +441,7 @@ if _DEBUG.argcheck then
 
       -- Otherwise the argument type itself was mismatched.
       if t.dots or #t >= maxn (valuelist) then
-        argt.badtype (i, formaterror (expected, valuelist[i]), 3)
+        argt.badtype (i, extramsg_mismatch (expected, valuelist[i]), 3)
       end
     end
 
@@ -472,7 +469,7 @@ if _DEBUG.argcheck then
       if ok and contents and type (actual) == "table" then
         for k, v in pairs (actual) do
           if not checktype (contents, v) then
-            argerror (name, i, formaterror (expected, v, k), level + 1)
+            argerror (name, i, extramsg_mismatch (expected, v, k), level + 1)
           end
         end
       end
@@ -480,7 +477,7 @@ if _DEBUG.argcheck then
     end
 
     if not ok then
-      argerror (name, i, formaterror (expected, actual), level + 1)
+      argerror (name, i, extramsg_mismatch (expected, actual), level + 1)
     end
   end
 
@@ -747,6 +744,20 @@ M = {
   --     ...
   -- end)
   argscheck = argscheck,
+
+  --- Format a type mismatch error.
+  -- @function extramsg_mismatch
+  -- @string expected a pipe delimited list of matchable types
+  -- @param actual the actual argument to match with
+  -- @number[opt] index erroring container element index
+  -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
+  -- @usage
+  --   if fmt ~= nil and type (fmt) ~= "string" then
+  --     argerror ("format", 1, extramsg ("?string", fmt))
+  --   end
+  extramsg_mismatch = function (expected, actual, index)
+    return extramsg_mismatch (typesplit (expected), actual, index)
+  end,
 
   --- Extend `debug.getfenv` to unwrap functables correctly.
   -- @tparam int|function|functable fn target function, or stack level

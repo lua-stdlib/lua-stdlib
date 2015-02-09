@@ -20,6 +20,9 @@
   - `debug.argscheck` will skip typecheck for `self` parameter if the
     function name specification contains a colon.
 
+  - New `debug.extramsg_mismatch` to generate `extramsg` argument for
+    `debug.argerror` on encountering a type mismatch.
+
 ### Bug fixes
 
   - `std.getmetamethod` no longer rejects non-table subjects when

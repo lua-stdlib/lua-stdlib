@@ -4,8 +4,9 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "getfenv", "parsetypes", "setfenv", "say",
-                   "toomanyargmsg", "typesplit", "trace", "_setdebug" }
+                   "argscheck", "extramsg_mismatch", "getfenv", "parsetypes",
+                   "setfenv", "say", "toomanyargmsg", "typesplit", "trace",
+                   "_setdebug" }
 
   M = require (this_module)
 
@@ -955,6 +956,32 @@ specify std.debug:
         expect ({wrapped (1)}).to_equal {1}
         expect ({wrapped ("one", 2)}).to_equal {"one", 2}
 
+
+- describe extramsg_mismatch:
+  - before:
+      f = M.extramsg_mismatch
+
+  - it returns the expected types:
+      expect (f "nil").to_contain "nil expected, "
+      expect (f "bool").to_contain "boolean expected, "
+      expect (f "?bool").to_contain "boolean or nil expected, "
+      expect (f "string|table").to_contain "string or table expected, "
+  - it returns expected container types:
+      expect (f ("table of int", nil, 1)).to_contain "table of ints expected, "
+      expect (f ("table of int|bool", nil, 1)).
+        to_contain "table of ints or booleans expected, "
+      expect (f ("table of int|bool|string", nil, 1)).
+        to_contain "table of ints, booleans or strings expected, "
+      expect (f ("table of int|bool|string|table", nil, 1)).
+        to_contain "table of ints, booleans, strings or tables expected, "
+  - it returns the actual type:
+      expect (f ("int")).to_contain ", got no value"
+      expect (f ("int", false)).to_contain ", got boolean"
+      expect (f ("int", {})).to_contain ", got empty table"
+  - it returns table field type:
+      expect (f ("table of int", nil, 1)).to_contain ", got no value at index 1"
+      expect (f ("table of int", "two", 2)).to_contain ", got string at index 2"
+      expect (f ("table of int|bool", "five", 3)).to_contain ", got string at index 3"
 
 - context function environments:
   - before:
