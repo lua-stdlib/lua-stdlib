@@ -32,6 +32,9 @@
   - `functional.callable` no longer raises an argument error when passed
     a nil valued argument.
 
+  - `debug.argcheck` and `debug.argscheck` accept "bool" as an alias for
+    "boolean" consistently.
+
 ### Incompatible changes
 
   - `functional.collect` uses `std.npairs` as a default iterator rather

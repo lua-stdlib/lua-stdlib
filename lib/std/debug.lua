@@ -310,6 +310,8 @@ if _DEBUG.argcheck then
       for i, v in ipairs (expectedtypes) do
         if v == "func" then
           t[i] = "function"
+	elseif v == "bool" then
+	  t[i] = "boolean"
         elseif v == "any" then
           t[i] = "any value"
 	elseif v == "file" then
@@ -345,6 +347,8 @@ if _DEBUG.argcheck then
 
     local actualtype = type (actual)
     if check == actualtype then
+      return true
+    elseif check == "bool" and actualtype == "boolean" then
       return true
     elseif check == "#table" then
       if actualtype == "table" and next (actual) then

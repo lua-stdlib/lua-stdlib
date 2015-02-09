@@ -241,18 +241,21 @@ specify std.debug:
 
   - context with primitives:
     - it diagnoses missing types:
+        expect (fn ("bool", nil)).to_raise "boolean expected, got no value"
         expect (fn ("boolean", nil)).to_raise "boolean expected, got no value"
         expect (fn ("file", nil)).to_raise "FILE* expected, got no value"
         expect (fn ("number", nil)).to_raise "number expected, got no value"
         expect (fn ("string", nil)).to_raise "string expected, got no value"
         expect (fn ("table", nil)).to_raise "table expected, got no value"
     - it diagnoses mismatched types:
+        expect (fn ("bool", {0})).to_raise "boolean expected, got table"
         expect (fn ("boolean", {0})).to_raise "boolean expected, got table"
         expect (fn ("file", {0})).to_raise "FILE* expected, got table"
         expect (fn ("number", {0})).to_raise "number expected, got table"
         expect (fn ("string", {0})).to_raise "string expected, got table"
         expect (fn ("table", false)).to_raise "table expected, got boolean"
     - it matches types:
+        expect (fn ("bool", true)).not_to_raise "any error"
         expect (fn ("boolean", true)).not_to_raise "any error"
         expect (fn ("file", io.stderr)).not_to_raise "any error"
         expect (fn ("number", 1)).not_to_raise "any error"
@@ -283,10 +286,15 @@ specify std.debug:
         expect (fn (":foo", ":foo")).not_to_raise "any error"
   - context with callable types:
     - it diagnoses missing types:
+        expect (fn ("func", nil)).to_raise "function expected, got no value"
         expect (fn ("function", nil)).to_raise "function expected, got no value"
     - it diagnoses mismatched types:
+        expect (fn ("func", {0})).to_raise "function expected, got table"
         expect (fn ("function", {0})).to_raise "function expected, got table"
     - it matches types:
+        expect (fn ("func", function () end)).not_to_raise "any error"
+        expect (fn ("func", setmetatable ({}, {__call = function () end}))).
+          not_to_raise "any error"
         expect (fn ("function", function () end)).not_to_raise "any error"
         expect (fn ("function", setmetatable ({}, {__call = function () end}))).
           not_to_raise "any error"
