@@ -33,7 +33,8 @@ local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
 local _DEBUG = debug_init._DEBUG
-local argerror, prototype, unpack = base.argerror, base.prototype, base.unpack
+local argerror, raise = base.argerror, base.raise
+local prototype, unpack = base.prototype, base.unpack
 local copy, split, tostring = base.copy, base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
@@ -130,6 +131,12 @@ local getfenv = function (fn)
     until name == '_ENV' or name == nil
     return env
   end
+end
+
+
+local function resulterror (name, i, extramsg, level)
+  level = level or 1
+  raise ("result", "from", name, i, extramsg, level + 1)
 end
 
 
@@ -302,16 +309,6 @@ end
 local argcheck, argscheck  -- forward declarations
 
 if _DEBUG.argcheck then
-
-  local function resulterror (name, i, extramsg, level)
-    level = level or 1
-    local s = string.format ("bad result #%d from '%s'", i, name)
-    if extramsg ~= nil then
-      s = s .. " (" .. extramsg .. ")"
-    end
-    error (s, level + 1)
-  end
-
 
   --- Return index of the first mismatch between types and values, or `nil`.
   -- @tparam table typelist a list of expected types
@@ -501,7 +498,10 @@ if _DEBUG.argcheck then
       badcount     = function (...)
 	               return toomanymsg ("argument", "to", fname, ...)
 	             end,
-      badtype      = function (...) argerror (fname, ...) end,
+      badtype      = function (i, extramsg, level)
+		       level = level or 1
+		       argerror (fname, i, extramsg, level + 1)
+		     end,
       permutations = permute (argtypes),
     }
 
@@ -524,7 +524,10 @@ if _DEBUG.argcheck then
         badcount     = function (...)
 	                 return toomanymsg ("result", "from", fname, ...)
 	               end,
-        badtype      = function (...) resulterror (fname, ...) end,
+        badtype      = function (i, extramsg, level)
+		         level = level or 1
+		         resulterror (fname, i, extramsg, level + 1)
+		       end,
         permutations = permutations,
       }
     end
@@ -700,6 +703,8 @@ M = {
   -- @int i argument number
   -- @string[opt] extramsg additional text to append to message inside parentheses
   -- @int[opt=1] level call stack level to blame for the error
+  -- @see resulterror
+  -- @see extramsg_mismatch
   -- @usage
   -- local function slurp (file)
   --   local h, err = input_handle (file)
@@ -751,6 +756,8 @@ M = {
   -- @param actual the actual argument to match with
   -- @number[opt] index erroring container element index
   -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
+  -- @see argerror
+  -- @see resulterror
   -- @usage
   --   if fmt ~= nil and type (fmt) ~= "string" then
   --     argerror ("format", 1, extramsg ("?string", fmt))
@@ -771,6 +778,22 @@ M = {
   -- @tparam list types a normalized list of type names
   -- @treturn list valid types for each positional parameter
   parsetypes = parsetypes,
+
+  --- Raise a bad result error.
+  -- Like @{argerror} for bad results. This function does not
+  -- return.  The `level` argument behaves just like the core `error`
+  -- function.
+  -- @function argerror
+  -- @string name function to callout in error message
+  -- @int i argument number
+  -- @string[opt] extramsg additional text to append to message inside parentheses
+  -- @int[opt=1] level call stack level to blame for the error
+  -- @usage
+  -- local function slurp (file)
+  --   local h, err = input_handle (file)
+  --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+  --   ...
+  resulterror = resulterror,
 
   --- Extend `debug.setfenv` to unwrap functables correctly.
   -- @tparam function|functable fn target function

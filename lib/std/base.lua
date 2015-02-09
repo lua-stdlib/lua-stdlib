@@ -27,13 +27,19 @@ local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
 
 
-local function argerror (name, i, extramsg, level)
+local function raise (bad, to, name, i, extramsg, level)
   level = level or 1
-  local s = string.format ("bad argument #%d to '%s'", i, name)
+  local s = string.format ("bad %s #%d %s '%s'", bad, i, to, name)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
   error (s, level + 1)
+end
+
+
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  raise ("argument", "to", name, i, extramsg, level + 1)
 end
 
 
@@ -436,6 +442,7 @@ return {
   keysort = keysort,
   merge   = merge,
   okeys   = okeys,
+  raise   = raise,
 
   -- std.lua --
   assert   = assert,

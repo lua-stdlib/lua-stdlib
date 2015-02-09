@@ -20,8 +20,12 @@
   - `debug.argscheck` will skip typecheck for `self` parameter if the
     function name specification contains a colon.
 
+  - New `debug.resulterror` is much like `debug.argerror`, but uses the
+    message format "bad result #n from 'fname'".
+
   - New `debug.extramsg_mismatch` to generate `extramsg` argument for
-    `debug.argerror` on encountering a type mismatch.
+    `debug.argerror` or `debug.resulterror` on encountering a type
+    mismatch.
 
 ### Bug fixes
 

@@ -5,8 +5,8 @@ before: |
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
                    "argscheck", "extramsg_mismatch", "getfenv", "parsetypes",
-                   "setfenv", "say", "toomanyargmsg", "typesplit", "trace",
-                   "_setdebug" }
+                   "resulterror", "setfenv", "say", "toomanyargmsg",
+                   "typesplit", "trace", "_setdebug" }
 
   M = require (this_module)
 
@@ -130,6 +130,38 @@ specify std.debug:
   - it blames the given stack level:
       expect (luaproc (mkscript (1))).to_match_error "^%S+:3:.*deprecated"
       expect (luaproc (mkscript (2))).to_match_error "^%S+:5:.*deprecated"
+
+
+- describe resulterror:
+  - before: |
+      function mkstack (level)
+        return string.format ([[
+          _DEBUG = true                              -- line 1
+          local debug = require "std.debug"          -- line 2
+          function ohnoes ()                         -- line 3
+            debug.resulterror ("ohnoes", 1, nil, %s) -- line 4
+          end                                        -- line 5
+          function caller ()                         -- line 6
+            local r = ohnoes ()                      -- line 7
+            return "not a tail call"                 -- line 8
+          end                                        -- line 9
+          caller ()                                  -- line 10
+        ]], tostring (level))
+      end
+
+      f = M.resulterror
+
+  - it blames the call site by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":4: bad result"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad result"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad result"
+  - it reports the calling function name:
+      expect (f ('expect', 1)).to_raise "'expect'"
+  - it reports the argument number: |
+      expect (f ('expect', 12345)).to_raise "#12345"
+  - it reports extra message in parentheses:
+      expect (f ('expect', 1, "extramsg")).to_raise " (extramsg)"
 
 
 - describe argerror:
