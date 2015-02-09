@@ -737,6 +737,21 @@ specify std.debug:
           expect (wrapped ("foo", 1, 2)).to_be "MAGIC"
           expect (wrapped ("foo", 1, 2, 5)).to_be "MAGIC"
 
+  - context when omitting self type:
+    - before:
+        me = {
+          wrapped = f ("me:inner (string)", mkmagic)
+        }
+        _, badarg, badresult = init (M, "", "me:inner")
+    - it diagnoses missing arguments:
+        expect (me:wrapped ()).to_raise (badarg (1, "string"))
+    - it diagnoses wrong argument types:
+        expect (me:wrapped (false)).to_raise (badarg (1, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (me:wrapped ("foo", false)).to_raise (badarg (2))
+    - it accepts correct argument types:
+        expect (me:wrapped ("foo")).to_be "MAGIC"
+
   - context with too many args:
     - before:
         wrapped = f ("inner ([string], int)", mkmagic)

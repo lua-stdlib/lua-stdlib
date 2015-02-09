@@ -482,7 +482,7 @@ if _DEBUG.argcheck then
 
 
   -- Pattern to extract: fname ([types]?[, types]*)
-  local args_pat = "^%s*([%w_][%.%d%w_]*)%s*%(%s*(.*)%s*%)"
+  local args_pat = "^%s*([%w_][%.%:%d%w_]*)%s*%(%s*(.*)%s*%)"
 
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
@@ -492,7 +492,7 @@ if _DEBUG.argcheck then
     elseif argtypes then
       argtypes = split (argtypes, "%s*,%s*")
     else
-      fname = decl:match "^%s*([%w_][%.%d%w_]*)"
+      fname = decl:match "^%s*([%w_][%.%:%d%w_]*)"
     end
 
     -- Precalculate vtables once to make multiple calls faster.
@@ -529,8 +529,13 @@ if _DEBUG.argcheck then
     end
 
     return function (...)
+      local argt = {...}
+
+      -- Don't check type of self if fname has a ':' in it.
+      if fname:find (":") then table.remove (argt, 1) end
+
       -- Diagnose bad inputs.
-      diagnose ({...}, input)
+      diagnose (argt, input)
 
       -- Propagate outer environment to inner function.
       local x = math.max -- ??? getfenv(1) fails if we remove this ???
@@ -708,6 +713,11 @@ M = {
   -- against that type:
   --
   --     format = argscheck ("string.format (string, ?any...)", string.format)
+  --
+  -- A colon in the function name indicates that the argument type list does
+  -- not have a type for `self`:
+  --
+  --     format = argscheck ("string:format (?any...)", string.format)
   --
   -- If an argument can be omitted entirely, then put its type specification
   -- in square brackets:

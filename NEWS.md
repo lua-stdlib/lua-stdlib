@@ -17,6 +17,9 @@
   - New `debug.getfenv` and `debug.setfenv` that work with Lua 5.2 and
     5.3.
 
+  - `debug.argscheck` will skip typecheck for `self` parameter if the
+    function name specification contains a colon.
+
 ### Bug fixes
 
   - `std.getmetamethod` no longer rejects non-table subjects when
