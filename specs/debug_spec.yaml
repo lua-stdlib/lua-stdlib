@@ -4,9 +4,9 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "extramsg_mismatch", "getfenv", "parsetypes",
-                   "resulterror", "setfenv", "say", "toomanyargmsg",
-                   "typesplit", "trace", "_setdebug" }
+                   "argscheck", "extramsg_mismatch", "extramsg_toomany",
+                   "getfenv", "parsetypes", "resulterror", "setfenv", "say",
+                   "toomanyargmsg", "typesplit", "trace", "_setdebug" }
 
   M = require (this_module)
 
@@ -1014,6 +1014,23 @@ specify std.debug:
       expect (f ("table of int", nil, 1)).to_contain ", got no value at index 1"
       expect (f ("table of int", "two", 2)).to_contain ", got string at index 2"
       expect (f ("table of int|bool", "five", 3)).to_contain ", got string at index 3"
+
+
+- describe extramsg_toomany:
+  - before:
+      f = M.extramsg_toomany
+
+  - it returns the expected thing:
+      expect (f ("mojo", 1, 2)).to_contain "no more than 1 mojo"
+  - it uses singular thing when 1 is expected:
+      expect (f ("argument", 1, 2)).to_contain "no more than 1 argument"
+  - it uses plural thing otherwise:
+      expect (f ("thing", 0, 3)).to_contain "no more than 0 things"
+      expect (f ("result", 2, 3)).to_contain "no more than 2 results"
+  - it returns the actual count:
+      expect (f ("bad", 0, 1)).to_contain ", got 1"
+      expect (f ("bad", 99, 999)).to_contain ", got 999"
+
 
 - context function environments:
   - before:

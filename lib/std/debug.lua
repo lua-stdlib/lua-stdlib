@@ -140,9 +140,9 @@ local function resulterror (name, i, extramsg, level)
 end
 
 
-local function toomanymsg (bad, to, name, expect, actual)
-  local s = "bad %s #%d %s '%s' (no more than %d %s%s expected, got %d)"
-  return s:format (bad, expect + 1, to, name, expect, bad, expect == 1 and "" or "s", actual)
+local function extramsg_toomany (bad, expected, actual)
+  local s = "no more than %d %s%s expected, got %d"
+  return s:format (expected, bad, expected == 1 and "" or "s", actual)
 end
 
 
@@ -444,7 +444,7 @@ if _DEBUG.argcheck then
 
     local n, t = maxn (valuelist), t or permutations[1]
     if t and t.dots == nil and n > #t then
-      error (argt.badcount (#t, n), 3)
+      argt.badtype (#t + 1, extramsg_toomany (argt.bad, #t, n), 3)
     end
   end
 
@@ -495,9 +495,7 @@ if _DEBUG.argcheck then
 
     -- Precalculate vtables once to make multiple calls faster.
     local input, output = {
-      badcount     = function (...)
-	               return toomanymsg ("argument", "to", fname, ...)
-	             end,
+      bad          = "argument",
       badtype      = function (i, extramsg, level)
 		       level = level or 1
 		       argerror (fname, i, extramsg, level + 1)
@@ -521,9 +519,7 @@ if _DEBUG.argcheck then
       table.sort (permutations, function (a, b) return #a > #b end)
 
       output = {
-        badcount     = function (...)
-	                 return toomanymsg ("result", "from", fname, ...)
-	               end,
+        bad          = "result",
         badtype      = function (i, extramsg, level)
 		         level = level or 1
 		         resulterror (fname, i, extramsg, level + 1)
@@ -760,11 +756,24 @@ M = {
   -- @see resulterror
   -- @usage
   --   if fmt ~= nil and type (fmt) ~= "string" then
-  --     argerror ("format", 1, extramsg ("?string", fmt))
+  --     argerror ("format", 1, extramsg_mismatch ("?string", fmt))
   --   end
   extramsg_mismatch = function (expected, actual, index)
     return extramsg_mismatch (typesplit (expected), actual, index)
   end,
+
+  --- Format a too many things error.
+  -- @string bad the thing there are too many of
+  -- @int expected maximum number of *bad* things expected
+  -- @int actual actual number of *bad* things that triggered the error
+  -- @see argerror
+  -- @see resulterror
+  -- @see extramsg_mismatch
+  -- @usage
+  --   if maxn (argt) > 7 then
+  --     argerror ("sevenses", 8, extramsg_toomany ("argument", 7, maxn (argt)))
+  --   end
+  extramsg_toomany = extramsg_toomany,
 
   --- Extend `debug.getfenv` to unwrap functables correctly.
   -- @tparam int|function|functable fn target function, or stack level
@@ -815,19 +824,6 @@ M = {
   -- say (2, "_DEBUG table contents:", _DEBUG)
   say = say,
 
-  --- Format a standard "too many arguments" error message.
-  -- @fixme remove this wart!
-  -- @function toomanyargmsg
-  -- @string name function name
-  -- @number expect maximum number of arguments accepted
-  -- @number actual number of arguments received
-  -- @treturn string standard "too many arguments" error message
-  -- @usage
-  -- if table.maxn {...} > 1 then
-  --   io.stderr:write ("module.fname", 7, table.maxn {...})
-  -- ...
-  toomanyargmsg = function (...) return toomanymsg ("argument", "to", ...) end,
-
   --- Trace function calls.
   -- Use as debug.sethook (trace, "cr"), which is done automatically
   -- when `_DEBUG.call` is set.
@@ -871,6 +867,21 @@ local metatable = {
              M.say (1, ...)
            end,
 }
+
+
+
+--[[ =========== ]]--
+--[[ Deprecated. ]]--
+--[[ =========== ]]--
+
+
+M.toomanyargmsg = DEPRECATED ("41.2.0", "debug.toomanyargmsg",
+  "use 'debug.extramsg_toomany' instead",
+  function (name, expect, actual)
+    local s = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
+    return s:format (expect + 1, name, expect, expect == 1 and "" or "s", actual)
+  end)
+
 
 return setmetatable (M, metatable)
 

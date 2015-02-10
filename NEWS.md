@@ -27,6 +27,21 @@
     `debug.argerror` or `debug.resulterror` on encountering a type
     mismatch.
 
+  - New `debug.extramsg_toomany` to generate a too many arguments or
+    similar `extramsg` argument.
+
+### Deprecations
+
+  - `debug.toomanyargmsg` has been deprecated in favour of the more
+    orthogal `debug.extramsg_toomany` api.  You can rewrite clients of
+    deprecated api like this:
+
+    ```lua
+    if maxn (argt) > 7 then
+      argerror ("fname", 8, extramsg_toomany ("argument", 7, maxn (argt)), 2)
+    end
+    ```
+
 ### Bug fixes
 
   - `std.getmetamethod` no longer rejects non-table subjects when
