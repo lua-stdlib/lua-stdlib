@@ -57,6 +57,9 @@
   - `debug.argcheck` and `debug.argscheck` accept "bool" as an alias for
     "boolean" consistently.
 
+  - `io.catdir` and `io.dirname` no longer leak extra results from
+    implementation details.
+
 ### Incompatible changes
 
   - `functional.collect` uses `std.npairs` as a default iterator rather

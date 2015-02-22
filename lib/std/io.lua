@@ -180,7 +180,7 @@ M = {
   --   truncated
   -- @usage dir = dirname "/base/subdir/filename"
   dirname = X ("dirname (string)", function (path)
-                 return path:gsub (catfile ("", "[^", "]*$"), "")
+                 return (path:gsub (catfile ("", "[^", "]*$"), ""))
 	       end),
 
   --- Overwrite core `io` methods with `std` enhanced versions.
