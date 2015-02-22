@@ -87,6 +87,10 @@ specify std.functional:
       } do
         expect (f (v)).to_be (pcall (v, {}) and M.nop or nil)
       end
+  - it returns 'nil' for uncallable arguments:
+      expect (f ()).to_be (nil)
+      expect (f {}).to_be (nil)
+      expect (f "").to_be (nil)
 
 - describe case:
   - before:

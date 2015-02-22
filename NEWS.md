@@ -23,6 +23,9 @@
     `functional.filter` and `functional.map` propagate nil valued
     arguments correctly.
 
+  - `functional.callable` no longer raises an argument error when passed
+    a nil valued argument.
+
 ### Incompatible changes
 
   - `functional.collect` uses `std.npairs` as a default iterator rather
