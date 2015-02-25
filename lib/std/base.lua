@@ -373,7 +373,7 @@ local _require = require
 
 local function require (module, min, too_big, pattern)
   local m = _require (module)
-  local v = (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
+  local v = tostring (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
     assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)
