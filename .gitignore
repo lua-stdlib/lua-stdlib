@@ -12,13 +12,13 @@
 /README
 /aclocal.m4
 /autom4te.cache
-/build-aux/
+/build-aux/*
 !/build-aux/sanity-cfg.mk
+!/build-aux/config.ld.in
 /config.log
 /config.status
 /configure
 /doc/classes
-/doc/config.ld
 /doc/files
 /doc/index.html
 /doc/ldoc.css
