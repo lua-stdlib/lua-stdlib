@@ -149,7 +149,7 @@ M = {
   -- @see catfile
   -- @usage dirpath = catdir ("", "absolute", "directory")
   catdir = X ("catdir (string...)", function (...)
-	        return table.concat ({...}, dirsep):gsub("^$", dirsep)
+	        return (table.concat ({...}, dirsep):gsub("^$", dirsep))
 	      end),
 
   --- Concatenate one or more directories and a filename into a path.
