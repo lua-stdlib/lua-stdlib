@@ -103,16 +103,18 @@ end
 local _getfenv = rawget (_G, "getfenv")
 
 local getfenv = function (fn)
+  fn = fn or 1
+
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call
   end
 
   if _getfenv then
+    if type (fn) == "number" then fn = fn + 1 end
     return _getfenv (fn)
 
   else
-    fn = fn or 1
     if type (fn) == "number" then
       fn = debug.getinfo (fn + 1, "f").func
     end
