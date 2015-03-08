@@ -112,7 +112,10 @@ local getfenv = function (fn)
 
   if _getfenv then
     if type (fn) == "number" then fn = fn + 1 end
-    return _getfenv (fn)
+
+    -- Stack frame count is critical here, so ensure we don't optimise one
+    -- away in LuaJIT...
+    return _getfenv (fn), nil
 
   else
     if type (fn) == "number" then
