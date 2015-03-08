@@ -792,7 +792,6 @@ M = {
   -- Like @{argerror} for bad results. This function does not
   -- return.  The `level` argument behaves just like the core `error`
   -- function.
-  -- @function argerror
   -- @string name function to callout in error message
   -- @int i argument number
   -- @string[opt] extramsg additional text to append to message inside parentheses
