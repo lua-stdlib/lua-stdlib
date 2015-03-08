@@ -32,12 +32,13 @@
 local debug_init = require "std.debug_init"
 local base       = require "std.base"
 
-local _DEBUG      = debug_init._DEBUG
-local argerror    = base.argerror
-local unpack      = base.unpack
-local split, tostring = base.split, base.tostring
+local _DEBUG = debug_init._DEBUG
+local argerror, raise = base.argerror, base.raise
+local prototype, unpack = base.prototype, base.unpack
+local copy, split, tostring = base.copy, base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
+
 
 local M
 
@@ -71,11 +72,6 @@ local function DEPRECATED (version, name, extramsg, fn)
 end
 
 
---- Extend `debug.setfenv` to unwrap functables correctly.
--- @tparam function|functable fn target function
--- @tparam table env new function environment
--- @treturn function *fn*
-
 local _setfenv = debug.setfenv
 
 local function setfenv (fn, env)
@@ -105,144 +101,214 @@ local function setfenv (fn, env)
 end
 
 
---- Extend `debug.getfenv` to unwrap functables correctly.
--- @tparam int|function|functable fn target function, or stack level
--- @treturn table environment of *fn*
-local getfenv = rawget (_G, "getfenv") or function (fn)
+local _getfenv = rawget (_G, "getfenv")
+
+local getfenv = function (fn)
+  fn = fn or 1
+
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call
-  elseif type (fn) == "number" then
-    fn = debug.getinfo (fn + 1, "f").func
   end
 
-  local name, env
-  local up = 0
-  repeat
-    up = up + 1
-    name, env = debug.getupvalue (fn, up)
-  until name == '_ENV' or name == nil
-  return env
+  if _getfenv then
+    if type (fn) == "number" then fn = fn + 1 end
+
+    -- Stack frame count is critical here, so ensure we don't optimise one
+    -- away in LuaJIT...
+    return _getfenv (fn), nil
+
+  else
+    if type (fn) == "number" then
+      fn = debug.getinfo (fn + 1, "f").func
+    end
+
+    local name, env
+    local up = 0
+    repeat
+      up = up + 1
+      name, env = debug.getupvalue (fn, up)
+    until name == '_ENV' or name == nil
+    return env
+  end
 end
 
 
-local function toomanymsg (bad, to, name, expect, actual)
-  local s = "bad %s #%d %s '%s' (no more than %d %s%s expected, got %d)"
-  return s:format (bad, expect + 1, to, name, expect, bad, expect == 1 and "" or "s", actual)
+local function resulterror (name, i, extramsg, level)
+  level = level or 1
+  raise ("result", "from", name, i, extramsg, level + 1)
+end
+
+
+local function extramsg_toomany (bad, expected, actual)
+  local s = "no more than %d %s%s expected, got %d"
+  return s:format (expected, bad, expected == 1 and "" or "s", actual)
+end
+
+
+--- Strip trailing ellipsis from final argument if any, storing maximum
+-- number of values that can be matched directly in `t.maxvalues`.
+-- @tparam table t table to act on
+-- @string v element added to *t*, to match against ... suffix
+-- @treturn table *t* with ellipsis stripped and maxvalues field set
+local function markdots (t, v)
+  return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
+end
+
+
+--- Calculate permutations of type lists with and without [optionals].
+-- @tparam table t a list of expected types by argument position
+-- @treturn table set of possible type lists
+local function permute (t)
+  if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
+
+  local p = {{}}
+  for i, v in ipairs (t) do
+    local optional = v:match "%[(.+)%]"
+
+    if optional == nil then
+      -- Append non-optional type-spec to each permutation.
+      for b = 1, #p do
+	insert (p[b], markdots (p[b], v))
+      end
+    else
+      -- Duplicate all existing permutations, and add optional type-spec
+      -- to the unduplicated permutations.
+      local o = #p
+      for b = 1, o do
+        p[b + o] = copy (p[b])
+        insert (p[b], markdots (p[b], optional))
+      end
+    end
+  end
+  return p
+end
+
+
+local function typesplit (types)
+  if type (types) == "string" then
+    types = split (types:gsub ("%s+or%s+", "|"), "%s*|%s*")
+  end
+  local r, seen, add_nil = {}, {}, false
+  for _, v in ipairs (types) do
+    local m = v:match "^%?(.+)$"
+    if m then
+      add_nil, v = true, m
+    end
+    if not seen[v] then
+      r[#r + 1] = v
+      seen[v] = true
+    end
+  end
+  if add_nil then
+    r[#r + 1] = "nil"
+  end
+  return r
+end
+
+
+local function projectuniq (fkey, tt)
+  -- project
+  local t = {}
+  for _, u in ipairs (tt) do
+    t[#t + 1] = u[fkey]
+  end
+
+  -- split and remove duplicates
+  local r, s = {}, {}
+  for _, e in ipairs (t) do
+    for _, v in ipairs (typesplit (e)) do
+      if s[v] == nil then
+	r[#r + 1], s[v] = v, true
+      end
+    end
+  end
+  return r
+end
+
+
+local function parsetypes (types)
+  local r, permutations = {}, permute (types)
+  for i = 1, #permutations[1] do
+    r[i] = projectuniq (i, permutations)
+  end
+  r.dots = permutations[1].dots
+  return r
+end
+
+
+--- Concatenate a table of strings using ", " and " or " delimiters.
+-- @tparam table alternatives a table of strings
+-- @treturn string string of elements from alternatives delimited by ", "
+--   and " or "
+local function concat (alternatives)
+  if len (alternatives) > 1 then
+    local t = copy (alternatives)
+    local top = table.remove (t)
+    t[#t] = t[#t] .. " or " .. top
+    alternatives = t
+  end
+  return table.concat (alternatives, ", ")
+end
+
+
+local function extramsg_mismatch (expectedtypes, actual, index)
+  local actualtype = prototype (actual)
+
+  -- Tidy up actual type for display.
+  if actualtype == "nil" then
+    actualtype = "no value"
+  elseif actualtype == "string" and actual:sub (1, 1) == ":" then
+    actualtype = actual
+  elseif type (actual) == "table" and next (actual) == nil then
+    local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
+    if actualtype == "table" and matchstr == ",#list," then
+      actualtype = "empty list"
+    elseif actualtype == "table" or matchstr:match ",#" then
+      actualtype = "empty " .. actualtype
+    end
+  end
+
+  if index then
+    actualtype = actualtype .. " at index " .. tostring (index)
+  end
+
+  -- Tidy up expected types for display.
+  local expectedstr = expectedtypes
+  if type (expectedtypes) == "table" then
+    local t = {}
+    for i, v in ipairs (expectedtypes) do
+      if v == "func" then
+        t[i] = "function"
+      elseif v == "bool" then
+        t[i] = "boolean"
+      elseif v == "any" then
+        t[i] = "any value"
+      elseif v == "file" then
+        t[i] = "FILE*"
+      elseif not index then
+        t[i] = v:match "(%S+) of %S+" or v
+      else
+        t[i] = v
+      end
+    end
+    expectedstr = (concat (t) .. " expected"):
+                  gsub ("#table", "non-empty table"):
+                  gsub ("#list", "non-empty list"):
+                  gsub ("(%S+ of [^,%s]-)s? ", "%1s "):
+                  gsub ("(%S+ of [^,%s]-)s?,", "%1s,"):
+		  gsub ("(s, [^,%s]-)s? ", "%1s "):
+		  gsub ("(s, [^,%s]-)s?,", "%1s,"):
+		  gsub ("(of .-)s? or ([^,%s]-)s? ", "%1s or %2s ")
+  end
+
+  return expectedstr .. ", got " .. actualtype
 end
 
 
 local argcheck, argscheck  -- forward declarations
 
 if _DEBUG.argcheck then
-
-  local copy, prototype = base.copy, base.prototype
-
-  local function resulterror (name, i, extramsg, level)
-    level = level or 1
-    local s = string.format ("bad result #%d from '%s'", i, name)
-    if extramsg ~= nil then
-      s = s .. " (" .. extramsg .. ")"
-    end
-    error (s, level + 1)
-  end
-
-  --- Concatenate a table of strings using ", " and " or " delimiters.
-  -- @tparam table alternatives a table of strings
-  -- @treturn string string of elements from alternatives delimited by ", "
-  --   and " or "
-  local function concat (alternatives)
-    if len (alternatives) > 1 then
-      local t = copy (alternatives)
-      local top = table.remove (t)
-      t[#t] = t[#t] .. " or " .. top
-      alternatives = t
-    end
-    return table.concat (alternatives, ", ")
-  end
-
-
-  --- Normalize a list of type names.
-  -- @tparam table t list of type names, leading "?" as required
-  -- @treturn table a new list with "?" stripped, "nil" appended if so,
-  --   and with duplicates stripped.
-  local function normalize (t)
-    local r, seen, add_nil = {}, {}, false
-    for _, v in ipairs (t) do
-      local m = v:match "^%?(.+)$"
-      if m then
-        add_nil, v = true, m
-      end
-      if not seen[v] then
-	r[#r + 1] = v
-	seen[v] = true
-      end
-    end
-    if add_nil then
-      r[#r + 1] = "nil"
-    end
-    return r
-  end
-
-
-  --- Ordered iterator for integer keyed values.
-  -- Like ipairs, but does not stop at the first nil value.
-  -- @tparam table t a table
-  -- @treturn function iterator function
-  -- @treturn table t
-  -- @usage
-  -- for i,v in argpairs {"one", nil, "three"} do print (i, v) end
-  local function argpairs (t)
-    local i, max = 0, 0
-    for k in pairs (t) do
-      if type (k) == "number" and k > max then max = k end
-    end
-    return function (t)
-	    i = i + 1
-	    if i <= max then return i, t[i] end
-	   end,
-    t, true
-  end
-
-
-  --- Strip trailing ellipsis from final argument if any, storing maximum
-  -- number of values that can be matched directly in `t.maxvalues`.
-  -- @tparam table t table to act on
-  -- @string v element added to *t*, to match against ... suffix
-  -- @treturn table *t* with ellipsis stripped and maxvalues field set
-  local function markdots (t, v)
-    return (v:gsub ("%.%.%.$", function () t.dots = true return "" end))
-  end
-
-
-  --- Calculate permutations of type lists with and without [optionals].
-  -- @tparam table t a list of expected types by argument position
-  -- @treturn table set of possible type lists
-  local function permute (t)
-    if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
-
-    local p = {{}}
-    for i, v in ipairs (t) do
-      local optional = v:match "%[(.+)%]"
-
-      if optional == nil then
-        -- Append non-optional type-spec to each permutation.
-        for b = 1, #p do
-	  insert (p[b], markdots (p[b], v))
-	end
-      else
-        -- Duplicate all existing permutations, and add optional type-spec
-        -- to the unduplicated permutations.
-        local o = #p
-        for b = 1, o do
-          p[b + o] = copy (p[b])
-	  insert (p[b], markdots (p[b], optional))
-        end
-      end
-    end
-    return p
-  end
-
 
   --- Return index of the first mismatch between types and values, or `nil`.
   -- @tparam table typelist a list of expected types
@@ -261,60 +327,6 @@ if _DEBUG.argcheck then
   end
 
 
-  --- Format a type mismatch error.
-  -- @tparam table expectedtypes a table of matchable types
-  -- @string actual the actual argument to match with
-  -- @number[opt] index erroring container element index
-  -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
-  local function formaterror (expectedtypes, actual, index)
-    local actualtype = prototype (actual)
-
-    -- Tidy up actual type for display.
-    if actualtype == "nil" then
-      actualtype = "no value"
-    elseif actualtype == "string" and actual:sub (1, 1) == ":" then
-      actualtype = actual
-    elseif type (actual) == "table" and next (actual) == nil then
-      local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
-      if actualtype == "table" and matchstr == ",#list," then
-        actualtype = "empty list"
-      elseif actualtype == "table" or matchstr:match ",#" then
-        actualtype = "empty " .. actualtype
-      end
-    end
-
-    if index then
-      actualtype = actualtype .. " at index " .. tostring (index)
-    end
-
-    -- Tidy up expected types for display.
-    local expectedstr = expectedtypes
-    if type (expectedtypes) == "table" then
-      local t = {}
-      for i, v in ipairs (expectedtypes) do
-        if v == "func" then
-          t[i] = "function"
-        elseif v == "any" then
-          t[i] = "any value"
-	elseif v == "file" then
-          t[i] = "FILE*"
-        elseif not index then
-          t[i] = v:match "(%S+) of %S+" or v
-        else
-          t[i] = v
-        end
-      end
-      expectedstr = concat (t):
-                    gsub ("#table", "non-empty table"):
-	            gsub ("#list", "non-empty list"):
-                    gsub ("(%S+ of %S+)", "%1s"):
-		    gsub ("(%S+ of %S+)ss", "%1s")
-    end
-
-    return expectedstr .. " expected, got " .. actualtype
-  end
-
-
   --- Compare *check* against type of *actual*
   -- @string check extended type name expected
   -- @param actual object being typechecked
@@ -329,6 +341,8 @@ if _DEBUG.argcheck then
 
     local actualtype = type (actual)
     if check == actualtype then
+      return true
+    elseif check == "bool" and actualtype == "boolean" then
       return true
     elseif check == "#table" then
       if actualtype == "table" and next (actual) then
@@ -375,33 +389,13 @@ if _DEBUG.argcheck then
   end
 
 
-  local function projectuniq (fkey, tt)
-    -- project
-    local t = {}
-    for _, u in ipairs (tt) do
-      t[#t + 1] = u[fkey]
-    end
-
-    -- split and remove duplicates
-    local r, s = {}, {}
-    for _, e in ipairs (t) do
-      for _, v in ipairs (normalize (split (e, "|"))) do
-	if s[v] == nil then
-	  r[#r + 1], s[v] = v, true
-	end
-      end
-    end
-    return r
-  end
-
-
   local function empty (t) return not next (t) end
 
   -- Pattern to normalize: [types...] to [types]...
   local last_pat = "^%[([^%]%.]+)%]?(%.*)%]?"
 
   --- Diagnose mismatches between *valuelist* and type *permutations*.
-  -- @tparam table valuelist normalized list of actual values to be checked
+  -- @tparam table valuelist list of actual values to be checked
   -- @tparam table argt table of precalculated values and handler functiens
   local function diagnose (valuelist, argt)
     local permutations = argt.permutations
@@ -421,7 +415,7 @@ if _DEBUG.argcheck then
       -- Report an error for all possible types at bestmismatch index.
       local i, expected = bestmismatch
       if t.dots and i > #t then
-	expected = normalize (split (t[#t], "|"))
+	expected = typesplit (t[#t])
       else
 	expected = projectuniq (i, permutations)
       end
@@ -436,7 +430,7 @@ if _DEBUG.argcheck then
 	if contents and type (valuelist[i]) == "table" then
 	  for k, v in pairs (valuelist[i]) do
 	    if not checktype (contents, v) then
-	      argt.badtype (i, formaterror (expected, v, k), 3)
+	      argt.badtype (i, extramsg_mismatch (expected, v, k), 3)
 	    end
 	  end
 	end
@@ -444,20 +438,20 @@ if _DEBUG.argcheck then
 
       -- Otherwise the argument type itself was mismatched.
       if t.dots or #t >= maxn (valuelist) then
-        argt.badtype (i, formaterror (expected, valuelist[i]), 3)
+        argt.badtype (i, extramsg_mismatch (expected, valuelist[i]), 3)
       end
     end
 
     local n, t = maxn (valuelist), t or permutations[1]
     if t and t.dots == nil and n > #t then
-      error (argt.badcount (#t, n), 3)
+      argt.badtype (#t + 1, extramsg_toomany (argt.bad, #t, n), 3)
     end
   end
 
 
   function argcheck (name, i, expected, actual, level)
     level = level or 2
-    expected = normalize (split (expected, "|"))
+    expected = typesplit (expected)
 
     -- Check actual has one of the types from expected
     local ok = false
@@ -472,7 +466,7 @@ if _DEBUG.argcheck then
       if ok and contents and type (actual) == "table" then
         for k, v in pairs (actual) do
           if not checktype (contents, v) then
-            argerror (name, i, formaterror (expected, v, k), level + 1)
+            argerror (name, i, extramsg_mismatch (expected, v, k), level + 1)
           end
         end
       end
@@ -480,13 +474,13 @@ if _DEBUG.argcheck then
     end
 
     if not ok then
-      argerror (name, i, formaterror (expected, actual), level + 1)
+      argerror (name, i, extramsg_mismatch (expected, actual), level + 1)
     end
   end
 
 
   -- Pattern to extract: fname ([types]?[, types]*)
-  local args_pat = "([%w_][%.%d%w_]*)%s+%(%s*(.*)%s*%)"
+  local args_pat = "^%s*([%w_][%.%:%d%w_]*)%s*%(%s*(.*)%s*%)"
 
   function argscheck (decl, inner)
     -- Parse "fname (argtype, argtype, argtype...)".
@@ -494,17 +488,18 @@ if _DEBUG.argcheck then
     if argtypes == "" then
       argtypes = {}
     elseif argtypes then
-      argtypes = split (argtypes, ",%s*")
+      argtypes = split (argtypes, "%s*,%s*")
     else
-      fname = decl:match "([%w_][%.%d%w_]*)"
+      fname = decl:match "^%s*([%w_][%.%:%d%w_]*)"
     end
 
     -- Precalculate vtables once to make multiple calls faster.
     local input, output = {
-      badcount     = function (...)
-	               return toomanymsg ("argument", "to", fname, ...)
-	             end,
-      badtype      = function (...) argerror (fname, ...) end,
+      bad          = "argument",
+      badtype      = function (i, extramsg, level)
+		       level = level or 1
+		       argerror (fname, i, extramsg, level + 1)
+		     end,
       permutations = permute (argtypes),
     }
 
@@ -524,17 +519,23 @@ if _DEBUG.argcheck then
       table.sort (permutations, function (a, b) return #a > #b end)
 
       output = {
-        badcount     = function (...)
-	                 return toomanymsg ("result", "from", fname, ...)
-	               end,
-        badtype      = function (...) resulterror (fname, ...) end,
+        bad          = "result",
+        badtype      = function (i, extramsg, level)
+		         level = level or 1
+		         resulterror (fname, i, extramsg, level + 1)
+		       end,
         permutations = permutations,
       }
     end
 
     return function (...)
+      local argt = {...}
+
+      -- Don't check type of self if fname has a ':' in it.
+      if fname:find (":") then table.remove (argt, 1) end
+
       -- Diagnose bad inputs.
-      diagnose ({...}, input)
+      diagnose (argt, input)
 
       -- Propagate outer environment to inner function.
       local x = math.max -- ??? getfenv(1) fails if we remove this ???
@@ -698,6 +699,8 @@ M = {
   -- @int i argument number
   -- @string[opt] extramsg additional text to append to message inside parentheses
   -- @int[opt=1] level call stack level to blame for the error
+  -- @see resulterror
+  -- @see extramsg_mismatch
   -- @usage
   -- local function slurp (file)
   --   local h, err = input_handle (file)
@@ -713,12 +716,17 @@ M = {
   --
   --     format = argscheck ("string.format (string, ?any...)", string.format)
   --
+  -- A colon in the function name indicates that the argument type list does
+  -- not have a type for `self`:
+  --
+  --     format = argscheck ("string:format (?any...)", string.format)
+  --
   -- If an argument can be omitted entirely, then put its type specification
   -- in square brackets:
   --
   --     insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
   --
-  -- Similarly returt types can be checked with the same list syntax as
+  -- Similarly return types can be checked with the same list syntax as
   -- arguments:
   --
   --     len = argscheck ("string.len (string) => int", string.len)
@@ -738,6 +746,69 @@ M = {
   -- end)
   argscheck = argscheck,
 
+  --- Format a type mismatch error.
+  -- @function extramsg_mismatch
+  -- @string expected a pipe delimited list of matchable types
+  -- @param actual the actual argument to match with
+  -- @number[opt] index erroring container element index
+  -- @treturn string formatted *extramsg* for this mismatch for @{argerror}
+  -- @see argerror
+  -- @see resulterror
+  -- @usage
+  --   if fmt ~= nil and type (fmt) ~= "string" then
+  --     argerror ("format", 1, extramsg_mismatch ("?string", fmt))
+  --   end
+  extramsg_mismatch = function (expected, actual, index)
+    return extramsg_mismatch (typesplit (expected), actual, index)
+  end,
+
+  --- Format a too many things error.
+  -- @string bad the thing there are too many of
+  -- @int expected maximum number of *bad* things expected
+  -- @int actual actual number of *bad* things that triggered the error
+  -- @see argerror
+  -- @see resulterror
+  -- @see extramsg_mismatch
+  -- @usage
+  --   if maxn (argt) > 7 then
+  --     argerror ("sevenses", 8, extramsg_toomany ("argument", 7, maxn (argt)))
+  --   end
+  extramsg_toomany = extramsg_toomany,
+
+  --- Extend `debug.getfenv` to unwrap functables correctly.
+  -- @tparam int|function|functable fn target function, or stack level
+  -- @treturn table environment of *fn*
+  getfenv = getfenv,
+
+  --- Compact permutation list into a list of valid types at each argument.
+  -- Eliminate bracketed types by combining all valid types at each position
+  -- for all permutations of *typelist*.
+  -- @function parsetypes
+  -- @tparam list types a normalized list of type names
+  -- @treturn list valid types for each positional parameter
+  parsetypes = parsetypes,
+
+  --- Raise a bad result error.
+  -- Like @{argerror} for bad results. This function does not
+  -- return.  The `level` argument behaves just like the core `error`
+  -- function.
+  -- @string name function to callout in error message
+  -- @int i argument number
+  -- @string[opt] extramsg additional text to append to message inside parentheses
+  -- @int[opt=1] level call stack level to blame for the error
+  -- @usage
+  -- local function slurp (file)
+  --   local h, err = input_handle (file)
+  --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+  --   ...
+  resulterror = resulterror,
+
+  --- Extend `debug.setfenv` to unwrap functables correctly.
+  -- @tparam function|functable fn target function
+  -- @tparam table env new function environment
+  -- @treturn function *fn*
+  setfenv = setfenv,
+
   --- Print a debugging message to `io.stderr`.
   -- Display arguments passed through `std.tostring` and separated by tab
   -- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
@@ -752,19 +823,6 @@ M = {
   -- say (2, "_DEBUG table contents:", _DEBUG)
   say = say,
 
-  --- Format a standard "too many arguments" error message.
-  -- @fixme remove this wart!
-  -- @function toomanyargmsg
-  -- @string name function name
-  -- @number expect maximum number of arguments accepted
-  -- @number actual number of arguments received
-  -- @treturn string standard "too many arguments" error message
-  -- @usage
-  -- if table.maxn {...} > 1 then
-  --   io.stderr:write ("module.fname", 7, table.maxn {...})
-  -- ...
-  toomanyargmsg = function (...) return toomanymsg ("argument", "to", ...) end,
-
   --- Trace function calls.
   -- Use as debug.sethook (trace, "cr"), which is done automatically
   -- when `_DEBUG.call` is set.
@@ -775,6 +833,12 @@ M = {
   -- _DEBUG = { call = true }
   -- local debug = require "std.debug"
   trace = trace,
+
+  --- Split a typespec string into a table of normalized type names.
+  -- @tparam string|table either `"?bool|:nometa"` or `{"boolean", ":nometa"}`
+  -- @treturn table a new list with duplicates removed and leading "?"s
+  --   replaced by a "nil" element
+  typesplit = typesplit,
 
 
   -- Private:
@@ -802,6 +866,21 @@ local metatable = {
              M.say (1, ...)
            end,
 }
+
+
+
+--[[ =========== ]]--
+--[[ Deprecated. ]]--
+--[[ =========== ]]--
+
+
+M.toomanyargmsg = DEPRECATED ("41.2.0", "debug.toomanyargmsg",
+  "use 'debug.extramsg_toomany' instead",
+  function (name, expect, actual)
+    local s = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
+    return s:format (expect + 1, name, expect, expect == 1 and "" or "s", actual)
+  end)
+
 
 return setmetatable (M, metatable)
 

@@ -1,5 +1,71 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
+
+### New features
+
+  - New iterators, `std.npairs` and `std.rnpairs` behave like
+    `std.ipairs` and `std.ripairs` resp., except that they will visit
+    all integer keyed elements, including nil-valued "holes".  This is
+    useful for iterating over argument lists with nils:
+
+    ```lua
+    function fn (a, b, c) for _, v in npairs {...} do print (v) end
+    fn (nil, nil, 3) --> nil nil 3
+    ```
+
+  - New `debug.getfenv` and `debug.setfenv` that work with Lua 5.2 and
+    5.3.
+
+  - `debug.argscheck` will skip typecheck for `self` parameter if the
+    function name specification contains a colon.
+
+  - New `debug.resulterror` is much like `debug.argerror`, but uses the
+    message format "bad result #n from 'fname'".
+
+  - New `debug.extramsg_mismatch` to generate `extramsg` argument for
+    `debug.argerror` or `debug.resulterror` on encountering a type
+    mismatch.
+
+  - New `debug.extramsg_toomany` to generate a too many arguments or
+    similar `extramsg` argument.
+
+### Deprecations
+
+  - `debug.toomanyargmsg` has been deprecated in favour of the more
+    orthogal `debug.extramsg_toomany` api.  You can rewrite clients of
+    deprecated api like this:
+
+    ```lua
+    if maxn (argt) > 7 then
+      argerror ("fname", 8, extramsg_toomany ("argument", 7, maxn (argt)), 2)
+    end
+    ```
+
+### Bug fixes
+
+  - `std.getmetamethod` no longer rejects non-table subjects when
+    `_DEBUG.argcheck` is set.
+
+  - `functional.bind`, `functional.collect`, `functional.compose`,
+    `functional.filter` and `functional.map` propagate nil valued
+    arguments correctly.
+
+  - `functional.callable` no longer raises an argument error when passed
+    a nil valued argument.
+
+  - `debug.argcheck` and `debug.argscheck` accept "bool" as an alias for
+    "boolean" consistently.
+
+  - `io.catdir` and `io.dirname` no longer leak extra results from
+    implementation details.
+
+### Incompatible changes
+
+  - `functional.collect` uses `std.npairs` as a default iterator rather
+    than `std.ipairs`.
+
+
 ## Noteworthy changes in release 41.1.1 (2015-01-31) [stable]
 
 ### Bug fixes

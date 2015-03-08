@@ -376,7 +376,7 @@ else
   spec.source.url = "git://" .. url .. ".git"
   spec.source.branch = prog.opts.branch
   spec.build.modules = nil
-  default.build.build_command =  "./bootstrap && " .. default.build.build_command
+  default.build.build_command =  "LUA='$(LUA)' ./bootstrap && " .. default.build.build_command
 end
 
 

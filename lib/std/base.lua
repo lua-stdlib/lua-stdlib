@@ -27,13 +27,19 @@ local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
 
 
-local function argerror (name, i, extramsg, level)
+local function raise (bad, to, name, i, extramsg, level)
   level = level or 1
-  local s = string.format ("bad argument #%d to '%s'", i, name)
+  local s = string.format ("bad %s #%d %s '%s'", bad, i, to, name)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
   error (s, level + 1)
+end
+
+
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  raise ("argument", "to", name, i, extramsg, level + 1)
 end
 
 
@@ -100,21 +106,6 @@ local _unpack = table.unpack or unpack
 
 local function unpack (t, i, j)
   return _unpack (t, i or 1, j or maxn (t))
-end
-
-
-local function collect (ifn, ...)
-  local argt = {...}
-  if not callable (ifn) then
-    ifn, argt = ipairs, {ifn, ...}
-  end
-
-  local r = {}
-  for k, v in ifn (unpack (argt)) do
-    if v == nil then k, v = #r + 1, k end
-    r[k] = v
-  end
-  return r
 end
 
 
@@ -271,6 +262,41 @@ local function merge (dest, src)
 end
 
 
+local function npairs (t)
+  local i, n = 0, maxn (t)
+  return function (t)
+    i = i + 1
+    if i <= n then return i, t[i] end
+   end,
+  t, i
+end
+
+
+local function collect (ifn, ...)
+  local argt, r = {...}, {}
+  if not callable (ifn) then
+    ifn, argt = npairs, {ifn, ...}
+  end
+
+  -- How many return values from ifn?
+  local arity = 1
+  for e, v in ifn (unpack (argt)) do
+    if v then arity, r = 2, {} break end
+    -- Build an arity-1 result table on first pass...
+    r[#r + 1] = e
+  end
+
+  if arity == 2 then
+    -- ...oops, it was arity-2 all along, start again!
+    for k, v in ifn (unpack (argt)) do
+      r[k] = v
+    end
+  end
+
+  return r
+end
+
+
 local function prototype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
@@ -346,6 +372,18 @@ local function ripairs (t)
 end
 
 
+local function rnpairs (t)
+  local oob = maxn (t) + 1
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, oob
+end
+
+
 local function split (s, sep)
   local r, patt = {}
   if sep == "" then
@@ -373,7 +411,7 @@ local _require = require
 
 local function require (module, min, too_big, pattern)
   local m = _require (module)
-  local v = (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
+  local v = tostring (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
     assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)
@@ -404,6 +442,7 @@ return {
   keysort = keysort,
   merge   = merge,
   okeys   = okeys,
+  raise   = raise,
 
   -- std.lua --
   assert   = assert,
@@ -412,8 +451,10 @@ return {
   ielems   = ielems,
   ipairs   = ipairs,
   ireverse = ireverse,
+  npairs   = npairs,
   pairs    = pairs,
   ripairs  = ripairs,
+  rnpairs  = rnpairs,
   require  = require,
   tostring = tostring,
 

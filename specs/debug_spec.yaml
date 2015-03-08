@@ -4,8 +4,9 @@ before: |
   global_table = "_G"
 
   extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "say", "toomanyargmsg", "trace",
-                   "_setdebug" }
+                   "argscheck", "extramsg_mismatch", "extramsg_toomany",
+                   "getfenv", "parsetypes", "resulterror", "setfenv", "say",
+                   "toomanyargmsg", "typesplit", "trace", "_setdebug" }
 
   M = require (this_module)
 
@@ -131,6 +132,38 @@ specify std.debug:
       expect (luaproc (mkscript (2))).to_match_error "^%S+:5:.*deprecated"
 
 
+- describe resulterror:
+  - before: |
+      function mkstack (level)
+        return string.format ([[
+          _DEBUG = true                              -- line 1
+          local debug = require "std.debug"          -- line 2
+          function ohnoes ()                         -- line 3
+            debug.resulterror ("ohnoes", 1, nil, %s) -- line 4
+          end                                        -- line 5
+          function caller ()                         -- line 6
+            local r = ohnoes ()                      -- line 7
+            return "not a tail call"                 -- line 8
+          end                                        -- line 9
+          caller ()                                  -- line 10
+        ]], tostring (level))
+      end
+
+      f = M.resulterror
+
+  - it blames the call site by default: |
+      expect (luaproc (mkstack ())).to_contain_error ":4: bad result"
+  - it honors optional call stack level reporting: |
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad result"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad result"
+  - it reports the calling function name:
+      expect (f ('expect', 1)).to_raise "'expect'"
+  - it reports the argument number: |
+      expect (f ('expect', 12345)).to_raise "#12345"
+  - it reports extra message in parentheses:
+      expect (f ('expect', 1, "extramsg")).to_raise " (extramsg)"
+
+
 - describe argerror:
   - before: |
       function mkstack (level)
@@ -241,18 +274,21 @@ specify std.debug:
 
   - context with primitives:
     - it diagnoses missing types:
+        expect (fn ("bool", nil)).to_raise "boolean expected, got no value"
         expect (fn ("boolean", nil)).to_raise "boolean expected, got no value"
         expect (fn ("file", nil)).to_raise "FILE* expected, got no value"
         expect (fn ("number", nil)).to_raise "number expected, got no value"
         expect (fn ("string", nil)).to_raise "string expected, got no value"
         expect (fn ("table", nil)).to_raise "table expected, got no value"
     - it diagnoses mismatched types:
+        expect (fn ("bool", {0})).to_raise "boolean expected, got table"
         expect (fn ("boolean", {0})).to_raise "boolean expected, got table"
         expect (fn ("file", {0})).to_raise "FILE* expected, got table"
         expect (fn ("number", {0})).to_raise "number expected, got table"
         expect (fn ("string", {0})).to_raise "string expected, got table"
         expect (fn ("table", false)).to_raise "table expected, got boolean"
     - it matches types:
+        expect (fn ("bool", true)).not_to_raise "any error"
         expect (fn ("boolean", true)).not_to_raise "any error"
         expect (fn ("file", io.stderr)).not_to_raise "any error"
         expect (fn ("number", 1)).not_to_raise "any error"
@@ -283,10 +319,15 @@ specify std.debug:
         expect (fn (":foo", ":foo")).not_to_raise "any error"
   - context with callable types:
     - it diagnoses missing types:
+        expect (fn ("func", nil)).to_raise "function expected, got no value"
         expect (fn ("function", nil)).to_raise "function expected, got no value"
     - it diagnoses mismatched types:
+        expect (fn ("func", {0})).to_raise "function expected, got table"
         expect (fn ("function", {0})).to_raise "function expected, got table"
     - it matches types:
+        expect (fn ("func", function () end)).not_to_raise "any error"
+        expect (fn ("func", setmetatable ({}, {__call = function () end}))).
+          not_to_raise "any error"
         expect (fn ("function", function () end)).not_to_raise "any error"
         expect (fn ("function", setmetatable ({}, {__call = function () end}))).
           not_to_raise "any error"
@@ -737,6 +778,21 @@ specify std.debug:
           expect (wrapped ("foo", 1, 2)).to_be "MAGIC"
           expect (wrapped ("foo", 1, 2, 5)).to_be "MAGIC"
 
+  - context when omitting self type:
+    - before:
+        me = {
+          wrapped = f ("me:inner (string)", mkmagic)
+        }
+        _, badarg, badresult = init (M, "", "me:inner")
+    - it diagnoses missing arguments:
+        expect (me:wrapped ()).to_raise (badarg (1, "string"))
+    - it diagnoses wrong argument types:
+        expect (me:wrapped (false)).to_raise (badarg (1, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (me:wrapped ("foo", false)).to_raise (badarg (2))
+    - it accepts correct argument types:
+        expect (me:wrapped ("foo")).to_be "MAGIC"
+
   - context with too many args:
     - before:
         wrapped = f ("inner ([string], int)", mkmagic)
@@ -931,6 +987,82 @@ specify std.debug:
     - it accepts correct argument types:
         expect ({wrapped (1)}).to_equal {1}
         expect ({wrapped ("one", 2)}).to_equal {"one", 2}
+
+
+- describe extramsg_mismatch:
+  - before:
+      f = M.extramsg_mismatch
+
+  - it returns the expected types:
+      expect (f "nil").to_contain "nil expected, "
+      expect (f "bool").to_contain "boolean expected, "
+      expect (f "?bool").to_contain "boolean or nil expected, "
+      expect (f "string|table").to_contain "string or table expected, "
+  - it returns expected container types:
+      expect (f ("table of int", nil, 1)).to_contain "table of ints expected, "
+      expect (f ("table of int|bool", nil, 1)).
+        to_contain "table of ints or booleans expected, "
+      expect (f ("table of int|bool|string", nil, 1)).
+        to_contain "table of ints, booleans or strings expected, "
+      expect (f ("table of int|bool|string|table", nil, 1)).
+        to_contain "table of ints, booleans, strings or tables expected, "
+  - it returns the actual type:
+      expect (f ("int")).to_contain ", got no value"
+      expect (f ("int", false)).to_contain ", got boolean"
+      expect (f ("int", {})).to_contain ", got empty table"
+  - it returns table field type:
+      expect (f ("table of int", nil, 1)).to_contain ", got no value at index 1"
+      expect (f ("table of int", "two", 2)).to_contain ", got string at index 2"
+      expect (f ("table of int|bool", "five", 3)).to_contain ", got string at index 3"
+
+
+- describe extramsg_toomany:
+  - before:
+      f = M.extramsg_toomany
+
+  - it returns the expected thing:
+      expect (f ("mojo", 1, 2)).to_contain "no more than 1 mojo"
+  - it uses singular thing when 1 is expected:
+      expect (f ("argument", 1, 2)).to_contain "no more than 1 argument"
+  - it uses plural thing otherwise:
+      expect (f ("thing", 0, 3)).to_contain "no more than 0 things"
+      expect (f ("result", 2, 3)).to_contain "no more than 2 results"
+  - it returns the actual count:
+      expect (f ("bad", 0, 1)).to_contain ", got 1"
+      expect (f ("bad", 99, 999)).to_contain ", got 999"
+
+
+- context function environments:
+  - before:
+      env = {
+        tostring = function (x) return '"' .. tostring (x) .. '"' end,
+      }
+      fn = function (x) return tostring (x) end
+      ft = setmetatable ({}, { __call = function (_, ...) return fn (...) end })
+
+  - describe getfenv:
+    - before:
+        f = M.getfenv
+    - it returns a table:
+        expect (type (f (fn))).to_be "table"
+    - it gets a function execution environment:
+        M.setfenv (fn, env)
+        expect (f (fn)).to_be (env)
+    - it understands functables:
+        M.setfenv (ft, env)
+        expect (f (ft)).to_be (env)
+
+  - describe setfenv:
+    - before:
+        f = M.setfenv
+    - it returns the passed function:
+        expect (f (fn, env)).to_be (fn)
+    - it sets a function execution environment:
+        f (fn, env)
+        expect (fn (42)).to_be '"42"'
+    - it understands functables:
+        f (ft, env)
+        expect (fn (5)).to_be '"5"'
 
 
 - describe say:

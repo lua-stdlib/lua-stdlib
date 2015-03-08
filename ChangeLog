@@ -1,4 +1,210 @@
+2015-03-08  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.2.0
+	* NEWS.md: Record release date.
+
+	configury: bump release revision to 41.2.0.
+	* configure.ac (AC_INIT): Bump release revision to 41.2.0.
+	* .travis.yml: Regenerate.
+
+	io: don't leak extra results from implementation details.
+	* lib/std/io.lua (dirname): Return parenthesised results from
+	internal gsub calls to prevent unexpected additional values
+	leaking.
+	* NEWS.md (Bug fixes): Update.
+
+	doc: don't tell LDoc that resulterror is called argerror!
+
+	debug: deprecate `toomanyargmsg` for `extramsg_toomany`.
+	* specs/debug_spec.yaml (extramsg_toomany): Add examples for
+	correct behaviours of new api.
+	* lib/std/debug.lua (toomanyargmsg): Deprecate.
+	(extramsg_toomany): New function, satisfies specified behaviours.
+	* lib/std/container.lua: Use extramsg_toomany api.
+	* NEWS.md (New features, Deprecations): Update.
+
+	debug: refactor and export debug.resulterror.
+	* specs/debug_spec.yaml (resulterror): Add examples of behaviours
+	for resulterror.
+	* lib/std/base.lua (raise): New function factored out of...
+	(argerror): ...this.  Adjust accordingly.
+	* lib/std/debug.lua (resulterror): Rewrite over base.raise.
+	Move out of _DEBUG.argcheck guard.
+	Export as resulterror.
+	* NEWS.md (New features): Update.
+
+	debug: export formaterror as extramsg_mismatch.
+	* specs/debug_spec.yaml (extramsg_mismatch): Add examples for
+	correct behaviours of extramsg_mismatch.
+	* lib/std/debug.lua (formaterror): Rename from this...
+	(extramsg_mismatch): ...to this.  Move out of _DEBUG.argcheck
+	guard.
+	(prototype, concat): Move above position of first call in file.
+	* NEWS.md (New features): Update.
+
+	debug: accept "bool" as a typename alias for "boolean".
+	* specs/debug_spec.yaml: Add examples for behaviour when given
+	"bool" in lieu of "boolean".
+	* lib/std/debug.lua (formaterror, checktype): Accept "bool" as an
+	alias for "boolean" in a type specification.
+	* NEWS.md (Bug fixes): Update.
+
+	debug: skip `self` typecheck when fname contains a colon.
+	* specs/debug_spec.yaml (argscheck): Specify behaviours for colon
+	delimited function name.
+	* lib/std/debug.lua (argscheck): Drop `self` argument before
+	checking types of remaining arguments when the function name
+	contains a colon.
+	* NEWS.md (New features): Update.
+
+	debug: export a new function to parse type table.
+	Close #91
+	* lib/std/debug.lua (normalize): Rename from this...
+	(typesplit): ...to this.  Move to outer scope, so it will be
+	visible even if _DEBUG.argcheck is false.
+	((markdots, permute, projectuniq): Move to outer scope.
+	(parsetypes): New function.
+	(parsetypes, typesplit): Export as public APIs.
+	* specs/debug_spec.yaml (extendbase): Add parsetypes and
+	typesplit.
+
+	debug: improve argscheck patterns.
+	* lib/std/debug.lua (args_pat, argscheck): Improve patterns.
+
+	slingshot: sync with upstream, for git rockspec fixes.
+	* slingshot: Sync with upstream.
+	* stdlib-git-1.rockspec: Regenerate.
+
+	debug: maintain stack frame depth parity with LuaJIT.
+	* lib/std/debug.lua (getfenv): Be careful not to let the LuaJIT
+	optimizer eliminate a stack frame, and mess up the depth count.
+
+	slingshot: sync with upstream, for Lua 5.2.4 update.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	debug: adjust numeric args for getfenv wrapper for Lua 5.1.
+	* lib/std/debug.lua (getfenv): When calling core getfenv from
+	our wrapper, make sure to add one to numeric args to compensate
+	for the extra stack frame.
+
+2015-02-27  Gary V. Vaughan  <gary@gnu.org>
+
+	debug: export portable getfenv and setfenv implementations.
+	* specs/debug_spec.yaml (getfenv, setfenv): Add examples of
+	behaviour of these functions.
+	* lib/std/debug.lua (getfenv): Fix a bug that prevented
+	unwrapping of functables on Lua 5.1 and LuaJIT.
+	(getfenv, setfenv): Export as public APIs.
+	* NEWS.md (New features): Update.
+
+	functional: callable returns falsey for nil argument.
+	* specs/functional_spec.yaml (callable): Specify correct behaviour
+	for uncallable argument.
+	* lib/std/functional.lua (callable): Don't raise an argument error
+	for a nil argument, just return nil like any other uncallable.
+	* NEWS.md (Bugs fixed): Update.
+
+	functional: add examples to show reduce handling nil arguments.
+	* specs/functional_spec.yaml (reduce): Add examples to show
+	behaviours with nil arguments.
+
+2015-02-27  Reuben Thomas  <rrt@sc3d.org>
+
+	std/io.lua: adjust catdir's return to 1 value
+
+2015-02-26  Gary V. Vaughan  <gary@gnu.org>
+
+	functional: ensure map propagates nil arguments.
+	* specs/functional_spec.yaml (map): Add examples to show
+	behaviours with nil arguments.
+	* lib/std/functional.lua (map): Detect iterator arity when
+	collecting result table.
+	* NEWS.md (Bug fixes): Update.
+
+	functional: ensure filter propagates nil arguments.
+	* specs/functional_spec.yaml (filter): Add example to show
+	behaviour with nil arguments.
+	* lib/std/functional.lua (filter): Detect iterator arity when
+	collecting result table.
+	* NEWS.md (Bug fixes): Update.
+
+	functional: ensure collect propagates nil arguments.
+	* specs/functional_spec.yaml (collect): Add examples to show
+	behaviours with nil arguments.
+	* lib/std/functional.lua (collect): Use npairs as a default
+	iterator.
+	Detect iterator arity when collecting result table.
+	* NEWS.md (Bug fixes): Update.
+	(Incompatible changes): Note change of default iterator.
+
+	functional: ensure compose propagates nil arguments.
+	* specs/functional_spec.yaml (compose): Add examples to show
+	behaviours with nil arguments.
+	* lib/std/functional.lua (compose): Simplify.
+	* NEWS.md (Bug fixes): Update.
+
+	functional: ensure bind propagates nil arguments.
+	* specs/functional_spec.yaml (bind): Add example to show
+	behaviours with nil arguments.
+	* lib/std/functional.lua (bind): Simplify.
+	* NEWS.md (Bug fixes): Update.
+
+	std: new npairs and rnpairs iterators.
+	* specs/std_spec.yaml (npairs, rnpairs): Specify correct
+	behaviour for these new iterators.
+	* lib/std/debug.lua (argpairs): Move from here...
+	* lib/std/base.lua (npairs): ...to here.
+	(rnpairs): New function.
+	* lib/std.lua.in (npairs, rnpairs): Reexport from here.
+	* NEWS.md (New features): Update.
+
+	std: fix argscheck declaration for std.getmetamethod.
+	* lib/std.lua.in (getmetamethod): This function works on anything
+	the Lua can add a metatable to.  Adjust LDocs and argscheck
+	declaration to support that.
+	* specs/std_spec.yaml (getmetamethod): Adjust badargs parameters
+	accordingly.
+	* NEWS.md (Bug fixes): Update.
+
+2015-02-26  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #96 from lua-stdlib/fix-require-version
+	base: require does not work with non-string module version fields
+
+2015-02-26  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: fix .gitignore problems.
+	Close #97.
+	* .gitignore: Some versions of git disallow !re-include inside a
+	directory that has been excluded.  Add a trailing '/*' to support
+	those versions.
+	(/build-aux/config.ld.in): Re-include this source file.
+	(/doc/config.ld): Remove exclusion of no longer generated file,
+	now that config.ld is also kept in build-aux.
+	Reported by Reuben Thomas
+
+2015-02-25  Reuben Thomas  <rrt@sc3d.org>
+
+	base: require does not work with non-string module version fields
+	Simple fix: run “tostring” on the version field.
+
+	It may be desired to refuse certain types. The motivating case here is
+	that std.optparse has version set to number 0.
+
+2015-02-06  Gary V. Vaughan  <gary@gnu.org>
+
+	list: std.ireverse is not a full replacement for list.reverse.
+	* lib/std/list.lua (reverse): Describe a full replacement
+	with functional.compose in deprecation warning message.
+	Reported by Reuben Thomas
+
 2015-01-31  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 41.1.1
 	* NEWS.md: Record release date.

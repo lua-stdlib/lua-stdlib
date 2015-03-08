@@ -151,6 +151,7 @@ M = {
   -- @treturn table *t*, the table being iterated over
   -- @treturn int *index*, the previous iteration index
   -- @see ielems
+  -- @see npairs
   -- @see pairs
   -- @usage
   -- -- length of sequence
@@ -176,13 +177,13 @@ M = {
   -- for e in rielems (l) do process (e) end
   ireverse = X ("ireverse (table)", base.ireverse),
 
-  --- Return named metamethod, if any, otherwis `nil`.
+  --- Return named metamethod, if any, otherwise `nil`.
   -- @function getmetamethod
-  -- @tparam table t table to get metamethod of
-  -- @string n name of metamethod to get
+  -- @param x item to act on
+  -- @string n name of metamethod to lookup
   -- @treturn function|nil metamethod function, or `nil` if no metamethod
   -- @usage lookup = std.getmetamethod (require "std.object", "__index")
-  getmetamethod = X ("getmetamethod (object|table, string)", base.getmetamethod),
+  getmetamethod = X ("getmetamethod (?any, string)", base.getmetamethod),
 
   --- Overwrite core methods and metamethods with `std` enhanced versions.
   --
@@ -193,6 +194,18 @@ M = {
   -- @treturn table the module table
   -- @usage local std = require "std".monkey_patch ()
   monkey_patch = X ("monkey_patch (?table)", monkey_patch),
+
+  --- Ordered iterator for integer keyed values.
+  -- Like ipairs, but does not stop until the largest integer key.
+  -- @function npairs
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table t
+  -- @see ipairs
+  -- @see rnpairs
+  -- @usage
+  -- for i,v in npairs {"one", nil, "three"} do ... end
+  npairs = X ("npairs (table)", base.npairs),
 
   --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
   -- @function pairs
@@ -228,8 +241,23 @@ M = {
   -- @treturn function iterator function
   -- @treturn table *t*
   -- @treturn number `#t + 1`
+  -- @see ipairs
+  -- @see rnpairs
   -- @usage for i, v = ripairs (t) do ... end
   ripairs = X ("ripairs (table)", base.ripairs),
+
+  --- An iterator like npairs, but in reverse.
+  -- Apart from the order of the elments returned, this function follows
+  -- the same rules as @{npairs} for determining first and last elements.
+  -- @function rnpairs
+  -- @tparam table t a table
+  -- @treturn function iterator function
+  -- @treturn table t
+  -- @see npairs
+  -- @see ripairs
+  -- @usage
+  -- for i,v in rnpairs {"one", nil, "three"} do ... end
+  rnpairs = X ("rnpairs (table)", base.rnpairs),
 
   --- Enhance core `tostring` to render table contents as a string.
   -- @function tostring

@@ -3,8 +3,9 @@ before: |
   global_table  = "_G"
 
   exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "ireverse", "monkey_patch", "pairs",
-                    "require", "ripairs", "tostring", "version" }
+                    "ielems", "ipairs", "ireverse", "monkey_patch", "npairs",
+                    "pairs", "require", "ripairs", "rnpairs", "tostring",
+                    "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -228,7 +229,7 @@ specify std:
       f = M.getmetamethod
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.getmetamethod (object|table, string)")
+      badargs.diagnose (f, "std.getmetamethod (?any, string)")
 
   - context with a table:
     - before:
@@ -368,6 +369,31 @@ specify std:
       end
 
 
+- describe npairs:
+  - before:
+      f = M.npairs
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.npairs (table)")
+
+  - it is an iterator over integer-keyed table values:
+      t = {}
+      for i, v in f {"foo", 42, nil, nil, "five"} do
+        t[i] = v
+      end
+      expect (t).to_equal {"foo", 42, nil, nil, "five"}
+  - it ignores the dictionary part of a table:
+      t = {}
+      for i, v in f {"foo", 42, nil, nil, "five"; bar = "baz", qux = "quux"} do
+        t[i] = v
+      end
+      expect (t).to_equal {"foo", 42, nil, nil, "five"}
+  - it works for an empty list:
+      t = {}
+      for i, v in f {} do t[i] = v end
+      expect (t).to_equal {}
+
+
 - describe pairs:
   - before:
       f = M.pairs
@@ -498,6 +524,31 @@ specify std:
       t = {}
       for _, v in f (__index) do t[#t + 1] = v end
       expect (t).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it works with the empty list:
+      t = {}
+      for k, v in f {} do t[k] = v end
+      expect (t).to_equal {}
+
+
+- describe rnpairs:
+  - before:
+      f = M.rnpairs
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.rnpairs (table)")
+
+  - it returns a function, the table and a number:
+      fn, t, i = f {1, 2, nil, nil, 3}
+      expect ({type (fn), t, type (i)}).
+        to_equal {"function", {1, 2, nil, nil, 3}, "number"}
+  - it iterates over the array part of a table:
+      t, u = {1, 2, nil, nil, 3; a=4, b=5, c=6}, {}
+      for i, v in f (t) do u[i] = v end
+      expect (u).to_equal {1, 2, nil, nil, 3}
+  - it returns elements in reverse order:
+      t, u, i = {"one", "two", nil, nil, "five"}, {}, 1
+      for _, v in f (t) do u[i], i = v, i + 1 end
+      expect (u).to_equal {"five", nil, nil, "two", "one"}
   - it works with the empty list:
       t = {}
       for k, v in f {} do t[k] = v end

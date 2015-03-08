@@ -11,16 +11,17 @@
 local base     = require "std.base"
 local debug    = require "std.debug"
 
-local ielems, ipairs, ireverse, len, pairs, unpack =
-  base.ielems, base.ipairs, base.ireverse, base.len, base.pairs, base.unpack
-local callable, reduce = base.callable, base.reduce
+local ielems, ipairs, ireverse, npairs, pairs =
+  base.ielems, base.ipairs, base.ireverse, base.npairs, base.pairs
+local callable, copy, len, reduce, unpack =
+  base.callable, base.copy, base.len, base.reduce, base.unpack
 local loadstring = loadstring or load
 
 
 local function bind (fn, ...)
-  local argt = {...}
-  if type (argt[1]) == "table" and argt[2] == nil then
-    argt = argt[1]
+  local bound = {...}
+  if type (bound[1]) == "table" and bound[2] == nil then
+    bound = bound[1]
   else
     io.stderr:write (debug.DEPRECATIONMSG ("39",
                        "multi-argument 'std.functional.bind'",
@@ -28,17 +29,13 @@ local function bind (fn, ...)
   end
 
   return function (...)
-           local arg = {}
-           for i, v in pairs (argt) do
-             arg[i] = v
-           end
-           local i = 1
-           for _, v in ipairs {...} do
-             while arg[i] ~= nil do i = i + 1 end
-             arg[i] = v
-           end
-           return fn (unpack (arg))
-         end
+    local argt, i = copy (bound), 1
+    for _, v in npairs {...} do
+      while argt[i] ~= nil do i = i + 1 end
+      argt[i], i = v, i + 1
+    end
+    return fn (unpack (argt))
+  end
 end
 
 
@@ -52,19 +49,15 @@ end
 
 
 local function compose (...)
-  local arg = {...}
-  local fns, n = arg, #arg
-  for i = 1, n do
-    local f = fns[i]
-  end
+  local fns = {...}
 
   return function (...)
-           local arg = {...}
-           for i = 1, n do
-             arg = {fns[i] (unpack (arg))}
-           end
-           return unpack (arg)
-         end
+    local argt = {...}
+    for _, fn in npairs (fns) do
+      argt = {fn (unpack (argt))}
+    end
+    return unpack (argt)
+  end
 end
 
 
@@ -94,26 +87,44 @@ end
 
 
 local function filter (pfn, ifn, ...)
-  local argt = {...}
+  local argt, r = {...}, {}
   if not callable (ifn) then
     ifn, argt = pairs, {ifn, ...}
   end
 
   local nextfn, state, k = ifn (unpack (argt))
-  local t = {nextfn (state, k)}	-- table of iteration 1
 
-  local r = {}			-- new results table
-  while t[1] ~= nil do		-- until iterator returns nil
-    k = t[1]
-    if pfn (unpack (t)) then	-- pass all iterator results to p
-      if t[2] ~= nil then
-	r[k] = t[2]		-- k,v = t[1],t[2]
-      else
-	r[#r + 1] = k		-- k,v = #r + 1,t[1]
+  local t = {nextfn (state, k)}	-- table of iteration 1
+  local arity = #t		-- How many return values from ifn?
+
+  if arity == 1 then
+    local v = t[1]
+    while v ~= nil do		-- until iterator returns nil
+      if pfn (unpack (t)) then	-- pass all iterator results to p
+        r[#r + 1] = v
+      end
+
+      t = {nextfn (state, v)}	-- maintain loop invariant
+      v = t[1]
+
+      if #t > 1 then		-- unless we discover arity is not 1 after all
+        arity, r = #t, {} break
       end
     end
-    t = {nextfn (state, k)}	-- maintain loop invariant
   end
+
+  if arity > 1 then
+    -- No need to start over here, because either:
+    --   (i) arity was never 1, and the original value of t is correct
+    --  (ii) arity used to be 1, but we only consumed nil values, so the
+    --       current t with arity > 1 is the correct next value to use
+    while t[1] ~= nil do
+      local k = t[1]
+      if pfn (unpack (t)) then r[k] = t[2] end
+      t = {nextfn (state, k)}
+    end
+  end
+
   return r
 end
 
@@ -201,7 +212,7 @@ end, id)
 
 
 local function map (mapfn, ifn, ...)
-  local argt = {...}
+  local argt, r = {...}, {}
   if not callable (ifn) or not next (argt) then
     ifn, argt = pairs, {ifn, ...}
   end
@@ -209,15 +220,26 @@ local function map (mapfn, ifn, ...)
   local nextfn, state, k = ifn (unpack (argt))
   local mapargs = {nextfn (state, k)}
 
-  local r = {}
+  local arity = 1
   while mapargs[1] ~= nil do
-    k = mapargs[1]
     local d, v = mapfn (unpack (mapargs))
-    if v == nil then d, v = #r + 1, d end
     if v ~= nil then
-      r[d] = v
+      arity, r = 2, {} break
     end
-    mapargs = {nextfn (state, k)}
+    r[#r + 1] = d
+    mapargs = {nextfn (state, mapargs[1])}
+  end
+
+  if arity > 1 then
+    -- No need to start over here, because either:
+    --   (i) arity was never 1, and the original value of mapargs is correct
+    --  (ii) arity used to be 1, but we only consumed nil values, so the
+    --       current mapargs with arity > 1 is the correct next value to use
+    while mapargs[1] ~=  nil do
+      local k, v = mapfn (unpack (mapargs))
+      r[k] = v
+      mapargs = {nextfn (state, mapargs[1])}
+    end
   end
   return r
 end
@@ -275,7 +297,7 @@ local M = {
   -- @return `true` if *x* can be called, otherwise `false`
   -- @usage
   -- if callable (functable) then functable (args) end
-  callable = X ("callable (any)", callable),
+  callable = X ("callable (?any)", callable),
 
   --- A rudimentary case statement.
   -- Match *with* against keys in *branches* table.
@@ -299,7 +321,7 @@ local M = {
 
   --- Collect the results of an iterator.
   -- @function collect
-  -- @func[opt=std.ipairs] ifn iterator function
+  -- @func[opt=std.npairs] ifn iterator function
   -- @param ... *ifn* arguments
   -- @treturn table of results from running *ifn* on *args*
   -- @see filter

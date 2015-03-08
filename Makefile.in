@@ -376,10 +376,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SPECL_ENV = LUA='$(LUA)' abs_top_builddir='$(abs_top_builddir)' \
+SPECL_ENV = 
+CHECK_ENV = LUA='$(LUA)' PACKAGE_STRING='$(PACKAGE_STRING)' \
+	abs_top_builddir='$(abs_top_builddir)' \
 	abs_top_srcdir='$(abs_top_srcdir)' \
 	top_builddir='$(top_builddir)' top_srcdir='$(top_srcdir)' \
 	$(NOTHING_ELSE)
+INSTALLCHECK_ENV = LUA='$(LUA)' PACKAGE_STRING='$(PACKAGE_STRING)' \
+	installcheck='true' $(NOTHING_ELSE)
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(LUA_INCLUDE)
 EXTRA_DIST = $(srcdir)/specs/spec_helper.lua $(NOTHING_ELSE) \
@@ -396,6 +400,7 @@ check_local = specl-check-local
 dist_bin_SCRIPTS = 
 dist_lua_DATA = lib/std.lua $(NOTHING_ELSE)
 doc_DATA = 
+installcheck_local = specl-installcheck-local
 install_exec_hooks = remove-luaexec-lafiles
 uninstall_hooks = uninstall-luaexec-modules
 lib_LTLIBRARIES = 
@@ -1095,7 +1100,7 @@ install-ps: install-ps-am
 
 install-ps-am:
 
-installcheck-am:
+installcheck-am: installcheck-local
 
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1141,10 +1146,10 @@ uninstall-am: uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
 	install-info install-info-am install-libLTLIBRARIES \
 	install-luaexecLTLIBRARIES install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
-	pdf-am ps ps-am tags-am uninstall uninstall-am \
-	uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
+	installcheck installcheck-am installcheck-local installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic pdf pdf-am ps ps-am tags-am uninstall \
+	uninstall-am uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
 	uninstall-dist_classesDATA uninstall-dist_docDATA \
 	uninstall-dist_luaDATA uninstall-dist_luastdDATA \
 	uninstall-dist_luastddebugDATA uninstall-dist_modulesDATA \
@@ -1157,7 +1162,9 @@ uninstall-am: uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
 LUA_PATH  ?= ;
 LUA_CPATH ?= ;
 specl-check-local: $(specl_SPECS)
-	$(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+	$(CHECK_ENV) $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+specl-installcheck-local: $(specl_SPECS)
+	$(INSTALLCHECK_ENV) $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
 
 # In order to avoid regenerating std.lua at configure time, which
 # causes the documentation to be rebuilt and hence requires users to
@@ -1206,6 +1213,8 @@ rockspecs:
 
 check-local: $(check_local)
 
+installcheck-local: $(installcheck_local)
+
 install-exec-hook: $(install_exec_hooks)
 
 # Neither Lua itself, nor LuaRocks can use .la files, and LuaRocks
@@ -1223,11 +1232,11 @@ uninstall-hook: $(uninstall_hooks)
 # We removed the .la files from luaexecdir, so the standard uninstall,
 # with libtool --mode=uninstall, can't find everything anymore.
 uninstall-luaexec-modules:
-	@for la in $(luaexec_LTLIBRARIES); do	\
-	  base=`echo "$$la"			\
-		|sed 's|^.*/\(.*\)\.la|\1|'`;	\
-	  echo rm -f $(luaexecdir)/$$base.so;	\
-	  rm -f $(luaexecdir)/$$base.so;	\
+	@for la in $(luaexec_LTLIBRARIES); do		\
+	  base=`echo "$$la"				\
+		|sed 's|^.*/\(.*\)\.la|\1|'`;		\
+	  echo rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
+	  rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
 	done
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

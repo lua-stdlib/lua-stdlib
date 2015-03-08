@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.1.1 Reference</title>
+    <title>stdlib 41.2.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.1.1</h1>
+<h1>stdlib 41.2.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -102,8 +102,8 @@
 	<td class="summary">Evaluate a string as Lua code.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#getmetamethod">getmetamethod (t, n)</a></td>
-	<td class="summary">Return named metamethod, if any, otherwis <code>nil</code>.</td>
+	<td class="name" nowrap><a href="#getmetamethod">getmetamethod (x, n)</a></td>
+	<td class="summary">Return named metamethod, if any, otherwise <code>nil</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ielems">ielems (t)</a></td>
@@ -122,6 +122,10 @@
 	<td class="summary">Overwrite core methods and metamethods with <code>std</code> enhanced versions.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#npairs">npairs (t)</a></td>
+	<td class="summary">Ordered iterator for integer keyed values.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#pairs">pairs (t)</a></td>
 	<td class="summary">Enhance core <code>pairs</code> to respect <code>__pairs</code> even in Lua 5.1.</td>
 	</tr>
@@ -132,6 +136,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#ripairs">ripairs (t)</a></td>
 	<td class="summary">An iterator like ipairs, but in reverse.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rnpairs">rnpairs (t)</a></td>
+	<td class="summary">An iterator like npairs, but in reverse.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tostring">tostring (x)</a></td>
@@ -310,21 +318,20 @@
 </dd>
     <dt>
     <a name = "getmetamethod"></a>
-    <strong>getmetamethod (t, n)</strong>
+    <strong>getmetamethod (x, n)</strong>
     </dt>
     <dd>
-    Return named metamethod, if any, otherwis <code>nil</code>.
+    Return named metamethod, if any, otherwise <code>nil</code>.
 
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         table to get metamethod of
+        <li><span class="parameter">x</span>
+         item to act on
         </li>
         <li><span class="parameter">n</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         name of metamethod to get
+         name of metamethod to lookup
         </li>
     </ul>
 
@@ -424,6 +431,7 @@
     <h3>See also:</h3>
     <ul>
          <li><a href="../modules/std.html#ielems">ielems</a></li>
+         <li><a href="../modules/std.html#npairs">npairs</a></li>
          <li><a href="../modules/std.html#pairs">pairs</a></li>
     </ul>
 
@@ -513,6 +521,46 @@
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>.monkey_patch ()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "npairs"></a>
+    <strong>npairs (t)</strong>
+    </dt>
+    <dd>
+    Ordered iterator for integer keyed values.
+ Like ipairs, but does not stop until the largest integer key.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        t</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.html#ipairs">ipairs</a></li>
+         <li><a href="../modules/std.html#rnpairs">rnpairs</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> npairs {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -634,10 +682,56 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.html#ipairs">ipairs</a></li>
+         <li><a href="../modules/std.html#rnpairs">rnpairs</a></li>
+    </ul>
 
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="keyword">for</span> i, v = ripairs (t) <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "rnpairs"></a>
+    <strong>rnpairs (t)</strong>
+    </dt>
+    <dd>
+    An iterator like npairs, but in reverse.
+ Apart from the order of the elments returned, this function follows
+ the same rules as <a href="../modules/std.html#npairs">npairs</a> for determining first and last elements.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         a table
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">function</span></span>
+        iterator function</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        t</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.html#npairs">npairs</a></li>
+         <li><a href="../modules/std.html#ripairs">ripairs</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> rnpairs {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -749,7 +843,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-31 12:47:39 </i>
+<i style="float:right;">Last updated 2015-03-08 20:42:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -25,6 +25,8 @@ LUA_PATH  ?= ;
 LUA_CPATH ?= ;
 
 SPECL_ENV =
+CHECK_ENV =
+INSTALLCHECK_ENV =
 
 
 ## ---------- ##
@@ -52,6 +54,7 @@ check_local		=
 dist_bin_SCRIPTS	=
 dist_lua_DATA		=
 doc_DATA		=
+installcheck_local	=
 install_exec_hooks	= remove-luaexec-lafiles
 uninstall_hooks		= uninstall-luaexec-modules
 lib_LTLIBRARIES		=
@@ -73,6 +76,8 @@ check-local: $(check_local)
 ## ------------- ##
 ## Installation. ##
 ## ------------- ##
+
+installcheck-local: $(installcheck_local)
 
 install-exec-hook: $(install_exec_hooks)
 
@@ -96,9 +101,9 @@ uninstall-hook: $(uninstall_hooks)
 # We removed the .la files from luaexecdir, so the standard uninstall,
 # with libtool --mode=uninstall, can't find everything anymore.
 uninstall-luaexec-modules:
-	@for la in $(luaexec_LTLIBRARIES); do	\
-	  base=`echo "$$la"			\
-		|sed 's|^.*/\(.*\)\.la|\1|'`;	\
-	  echo rm -f $(luaexecdir)/$$base.so;	\
-	  rm -f $(luaexecdir)/$$base.so;	\
+	@for la in $(luaexec_LTLIBRARIES); do		\
+	  base=`echo "$$la"				\
+		|sed 's|^.*/\(.*\)\.la|\1|'`;		\
+	  echo rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
+	  rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
 	done

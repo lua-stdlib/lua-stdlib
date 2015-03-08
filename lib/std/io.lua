@@ -149,7 +149,7 @@ M = {
   -- @see catfile
   -- @usage dirpath = catdir ("", "absolute", "directory")
   catdir = X ("catdir (string...)", function (...)
-	        return table.concat ({...}, dirsep):gsub("^$", dirsep)
+	        return (table.concat ({...}, dirsep):gsub("^$", dirsep))
 	      end),
 
   --- Concatenate one or more directories and a filename into a path.
@@ -180,7 +180,7 @@ M = {
   --   truncated
   -- @usage dir = dirname "/base/subdir/filename"
   dirname = X ("dirname (string)", function (path)
-                 return path:gsub (catfile ("", "[^", "]*$"), "")
+                 return (path:gsub (catfile ("", "[^", "]*$"), ""))
 	       end),
 
   --- Overwrite core `io` methods with `std` enhanced versions.

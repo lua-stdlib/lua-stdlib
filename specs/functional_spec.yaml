@@ -57,6 +57,9 @@ specify std.functional:
       expect (f (div, {100}) (25)).to_be (4)
   - it supports out of order extra arguments:
       expect (f (op.pow, {[2] = 3}) (2)).to_be (8)
+  - it propagates nil arguments correctly:
+      expect ({f (M.id, {[2]="b", [4]="d"}) (nil, 3, 5, 6, nil)}).
+        to_equal {nil, "b", 3, "d", 5, 6, nil}
   - it supports the legacy api:
       expect (f (math.min) (2, 3, 4)).to_be (2)
       expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
@@ -84,6 +87,10 @@ specify std.functional:
       } do
         expect (f (v)).to_be (pcall (v, {}) and M.nop or nil)
       end
+  - it returns 'nil' for uncallable arguments:
+      expect (f ()).to_be (nil)
+      expect (f {}).to_be (nil)
+      expect (f "").to_be (nil)
 
 - describe case:
   - before:
@@ -137,8 +144,10 @@ specify std.functional:
   - it collects a table of key:value iterator results:
       t = {"first", second="two", last=3}
       expect (f (pairs, t)).to_equal (t)
-  - it defaults to ipairs iteration:
-      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2}
+  - it propagates nil arguments correctly:
+      expect (f {"a", nil, nil, "d", "e"}).to_equal {"a", [4]="d", [5]="e"}
+  - it defaults to npairs iteration:
+      expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2, [5]=5}
 
 
 - describe compose:
@@ -150,6 +159,9 @@ specify std.functional:
 
   - it composes a single function correctly:
       expect (f (M.id) (1)).to_be (1)
+  - it propagates nil arguments correctly:
+      expect ({f (M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
+      expect ({f (M.id, M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
   - it composes functions in the correct order:
       expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))
@@ -226,7 +238,7 @@ specify std.functional:
 - describe filter:
   - before:
      elements = {"a", "b", "c", "d", "e"}
-     inverse  = require "std.table".invert (elements)
+     inverse  = {a=1, b=2, c=3, d=4, e=5}
 
      f = M.filter
 
@@ -238,6 +250,9 @@ specify std.functional:
   - it iterates through element keys:
       expect (f (M.id, base.ielems, elements)).to_equal {"a", "b", "c", "d", "e"}
       expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
+  - it propagates nil arguments correctly:
+      t = {"a", nil, nil, "d", "e"}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
   - it passes all iteration result values to filter predicate:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)
@@ -371,7 +386,7 @@ specify std.functional:
 - describe map:
   - before:
       elements = {"a", "b", "c", "d", "e"}
-      inverse  = require "std.table".invert (elements)
+      inverse  = {a=1, b=2, c=3, d=4, e=5}
 
       f = M.map
 
@@ -383,6 +398,11 @@ specify std.functional:
   - it iterates through elements:
       expect (f (M.id, ipairs, elements)).to_equal (elements)
       expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
+  - it propagates nil arguments correctly:
+      t = {"a", nil, nil, "d", "e"}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
+      t = {nil, nil, 3, 4}
+      expect (f (M.id, base.npairs, t)).to_equal (t)
   - it passes all iteration result values to map function:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)
@@ -685,6 +705,12 @@ specify std.functional:
   - it calls a binary function over key:value iterator results:
       expect (f (op.sum, 2, base.ielems, {3})).to_be (2 + 3)
       expect (f (op.prod, 2, base.ielems, {3, 4})).to_be (2 * 3 * 4)
+  - it propagates nil arguments correctly:
+      function set (t, k, v) t[k] = tostring (v) return t end
+      expect (f (set, {}, base.npairs, {1, nil, nil, "a", false})).
+        to_equal {"1", "nil", "nil", "a", "false"}
+      expect (f (set, {}, base.npairs, {nil, nil, "3"})).
+        to_equal {"nil", "nil", "3"}
   - it reduces elements from left to right:
       expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it passes all iterator results to accumulator function:
