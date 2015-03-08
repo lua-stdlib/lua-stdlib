@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.1.1 Reference</title>
+    <title>stdlib 41.2.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.1.1</h1>
+<h1>stdlib 41.2.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
 </ul>
 
 
@@ -128,12 +129,16 @@ init._DEBUG = <span class="keyword">false</span>
 	<td class="summary">Equivalent to calling <code>debug.say (1, ...)</code></td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#say">say ([n=1], ...)</a></td>
-	<td class="summary">Print a debugging message to <code>io.stderr</code>.</td>
+	<td class="name" nowrap><a href="#extramsg_mismatch">extramsg_mismatch (expected, actual[, index])</a></td>
+	<td class="summary">Format a type mismatch error.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#toomanyargmsg">toomanyargmsg (name, expect, actual)</a></td>
-	<td class="summary">Format a standard "too many arguments" error message.</td>
+	<td class="name" nowrap><a href="#parsetypes">parsetypes (types)</a></td>
+	<td class="summary">Compact permutation list into a list of valid types at each argument.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#say">say ([n=1], ...)</a></td>
+	<td class="summary">Print a debugging message to <code>io.stderr</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#trace">trace (event)</a></td>
@@ -145,6 +150,29 @@ init._DEBUG = <span class="keyword">false</span>
 	<tr>
 	<td class="name" nowrap><a href="#_DEBUG">_DEBUG</a></td>
 	<td class="summary">Control std.debug function behaviour.</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#extramsg_toomany">extramsg_toomany</a></td>
+	<td class="summary">Format a too many things error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getfenv">getfenv</a></td>
+	<td class="summary">Extend <code>debug.getfenv</code> to unwrap functables correctly.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#resulterror">resulterror</a></td>
+	<td class="summary">Raise a bad result error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setfenv">setfenv</a></td>
+	<td class="summary">Extend <code>debug.setfenv</code> to unwrap functables correctly.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#typesplit">typesplit</a></td>
+	<td class="summary">Split a typespec string into a table of normalized type names.</td>
 	</tr>
 </table>
 
@@ -362,6 +390,11 @@ object    accept any std.Object derived type
 
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.debug.html#resulterror">resulterror</a></li>
+         <li><a href="../modules/std.debug.html#extramsg_mismatch">extramsg_mismatch</a></li>
+    </ul>
 
     <h3>Usage:</h3>
     <ul>
@@ -388,13 +421,19 @@ object    accept any std.Object derived type
 <pre><code> format = argscheck ("string.format (string, ?any...)", string.format)
 </code></pre>
 
+<p> A colon in the function name indicates that the argument type list does
+ not have a type for <code>self</code>:</p>
+
+<pre><code> format = argscheck ("string:format (?any...)", string.format)
+</code></pre>
+
 <p> If an argument can be omitted entirely, then put its type specification
  in square brackets:</p>
 
 <pre><code> insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
 </code></pre>
 
-<p> Similarly returt types can be checked with the same list syntax as
+<p> Similarly return types can be checked with the same list syntax as
  arguments:</p>
 
 <pre><code> len = argscheck ("string.len (string) =&gt; int", string.len)
@@ -459,6 +498,82 @@ object    accept any std.Object derived type
 
 </dd>
     <dt>
+    <a name = "extramsg_mismatch"></a>
+    <strong>extramsg_mismatch (expected, actual[, index])</strong>
+    </dt>
+    <dd>
+    Format a type mismatch error.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">expected</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         a pipe delimited list of matchable types
+        </li>
+        <li><span class="parameter">actual</span>
+         the actual argument to match with
+        </li>
+        <li><span class="parameter">index</span>
+            <span class="types"><span class="type">number</span></span>
+         erroring container element index
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        formatted <em>extramsg</em> for this mismatch for <a href="../modules/std.debug.html#argerror">argerror</a>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.debug.html#argerror">argerror</a></li>
+         <li><a href="../modules/std.debug.html#resulterror">resulterror</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+   <span class="keyword">if</span> fmt ~= <span class="keyword">nil</span> <span class="keyword">and</span> <span class="global">type</span> (fmt) ~= <span class="string">"string"</span> <span class="keyword">then</span>
+     argerror (<span class="string">"format"</span>, <span class="number">1</span>, extramsg_mismatch (<span class="string">"?string"</span>, fmt))
+   <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "parsetypes"></a>
+    <strong>parsetypes (types)</strong>
+    </dt>
+    <dd>
+    Compact permutation list into a list of valid types at each argument.
+ Eliminate bracketed types by combining all valid types at each position
+ for all permutations of <em>typelist</em>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">types</span>
+            <span class="types"><a class="type" href="../classes/std.list.html">list</a></span>
+         a normalized list of type names
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../classes/std.list.html">list</a></span>
+        valid types for each positional parameter
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "say"></a>
     <strong>say ([n=1], ...)</strong>
     </dt>
@@ -491,48 +606,6 @@ object    accept any std.Object derived type
  <span class="keyword">local</span> _DEBUG = <span class="global">require</span> <span class="string">"std.debug_init"</span>._DEBUG
  _DEBUG.level = <span class="number">3</span>
  say (<span class="number">2</span>, <span class="string">"_DEBUG table contents:"</span>, _DEBUG)</pre>
-    </ul>
-
-</dd>
-    <dt>
-    <a name = "toomanyargmsg"></a>
-    <strong>toomanyargmsg (name, expect, actual)</strong>
-    </dt>
-    <dd>
-    Format a standard "too many arguments" error message.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         function name
-        </li>
-        <li><span class="parameter">expect</span>
-            <span class="types"><span class="type">number</span></span>
-         maximum number of arguments accepted
-        </li>
-        <li><span class="parameter">actual</span>
-            <span class="types"><span class="type">number</span></span>
-         number of arguments received
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        standard "too many arguments" error message
-    </ol>
-
-
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">
- <span class="keyword">if</span> <span class="global">table</span>.maxn {...} &gt; <span class="number">1</span> <span class="keyword">then</span>
-   <span class="global">io</span>.stderr:write (<span class="string">"module.fname"</span>, <span class="number">7</span>, <span class="global">table</span>.maxn {...})
- ...</pre>
     </ul>
 
 </dd>
@@ -617,13 +690,167 @@ object    accept any std.Object derived type
 
 </dd>
 </dl>
+    <h2><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "extramsg_toomany"></a>
+    <strong>extramsg_toomany</strong>
+    </dt>
+    <dd>
+    Format a too many things error.
+
+
+    <ul>
+        <li><span class="parameter">bad</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         the thing there are too many of
+        </li>
+        <li><span class="parameter">expected</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of <em>bad</em> things expected
+        </li>
+        <li><span class="parameter">actual</span>
+            <span class="types"><span class="type">int</span></span>
+         actual number of <em>bad</em> things that triggered the error
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/std.debug.html#argerror">argerror</a></li>
+         <li><a href="../modules/std.debug.html#resulterror">resulterror</a></li>
+         <li><a href="../modules/std.debug.html#extramsg_mismatch">extramsg_mismatch</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+   <span class="keyword">if</span> maxn (argt) &gt; <span class="number">7</span> <span class="keyword">then</span>
+     argerror (<span class="string">"sevenses"</span>, <span class="number">8</span>, extramsg_toomany (<span class="string">"argument"</span>, <span class="number">7</span>, maxn (argt)))
+   <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getfenv"></a>
+    <strong>getfenv</strong>
+    </dt>
+    <dd>
+    Extend <code>debug.getfenv</code> to unwrap functables correctly.
+
+
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">int</span>, <span class="type">function</span> or <span class="type">functable</span></span>
+         target function, or stack level
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "resulterror"></a>
+    <strong>resulterror</strong>
+    </dt>
+    <dd>
+    Raise a bad result error.
+ Like <a href="../modules/std.debug.html#argerror">argerror</a> for bad results. This function does not
+ return.  The <code>level</code> argument behaves just like the core <code>error</code>
+ function.
+
+
+    <ul>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         function to callout in error message
+        </li>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         argument number
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         additional text to append to message inside parentheses
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         call stack level to blame for the error
+         (<em>default</em> 1)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+ <span class="keyword">local</span> <span class="keyword">function</span> slurp (file)
+   <span class="keyword">local</span> h, err = input_handle (file)
+   <span class="keyword">if</span> h == <span class="keyword">nil</span> <span class="keyword">then</span> argerror (<span class="string">"std.io.slurp"</span>, <span class="number">1</span>, err, <span class="number">2</span>) <span class="keyword">end</span>
+   ...</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv</strong>
+    </dt>
+    <dd>
+    Extend <code>debug.setfenv</code> to unwrap functables correctly.
+
+
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span> or <span class="type">functable</span></span>
+         target function
+        </li>
+        <li><span class="parameter">env</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         new function environment
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "typesplit"></a>
+    <strong>typesplit</strong>
+    </dt>
+    <dd>
+    Split a typespec string into a table of normalized type names.
+
+
+    <ul>
+        <li><span class="parameter">either</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         <code>"?bool|:nometa"</code> or <code>{"boolean", ":nometa"}</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-31 12:47:39 </i>
+<i style="float:right;">Last updated 2015-03-08 20:42:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
