@@ -2,6 +2,12 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New features
+
+  - New `functional.product` returns a list of combinations made by
+    taking one element from each of the argument lists.  See LDocs for
+    an example.
+
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
 

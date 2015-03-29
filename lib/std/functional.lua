@@ -254,6 +254,30 @@ local function map_with (mapfn, tt)
 end
 
 
+local function _product (x, l)
+  local r = {}
+  for v1 in ielems (x) do
+    for v2 in ielems (l) do
+      r[#r + 1] = {v1, unpack (v2)}
+    end
+  end
+  return r
+end
+
+local function product (...)
+  local argt = {...}
+  if not next (argt) then
+    return argt
+  else
+    -- Accumulate a list of products, starting by popping the last
+    -- argument and making each member a one element list.
+    local d = map (lambda '={_1}', ielems, table.remove (argt))
+    -- Right associatively fold in remaining argt members.
+    return foldr (_product, d, argt)
+  end
+end
+
+
 local function zip (tt)
   local r = {}
   for outerk, inner in pairs (tt) do
@@ -497,6 +521,18 @@ local M = {
   -- @usage
   -- if unsupported then vtable["memrmem"] = nop end
   nop = base.nop, -- ignores all arguments
+
+  --- Functional list product.
+  --
+  -- Return a list of each combination possible by taking a single
+  -- element from each of the argument lists.
+  -- @function product
+  -- @param ... operands
+  -- @return result
+  -- @usage
+  -- --> {"000", "001", "010", "011", "100", "101", "110", "111"}
+  -- map (table.concat, ielems, product ({0,1}, {0, 1}, {0, 1}))
+  product = X ("product (list...)", product),
 
   --- Fold a binary function into an iterator.
   -- @function reduce
