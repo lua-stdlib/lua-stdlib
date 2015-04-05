@@ -349,6 +349,11 @@ specify std.functional:
   - before:
       f = M.lambda
 
+      callable = function (x)
+        if M.callable (x) then return true end
+        return false
+      end
+
   - context with bad arguments:
       badargs.diagnose (f, "std.functional.lambda (string)")
 
@@ -360,18 +365,25 @@ specify std.functional:
         expect (select (2, f "=")).to_be "invalid lambda string '='"
       end}
 
+  - it returns previously compiled lambdas:
+      fn = f "|a,b|a==b"
+      expect (fn).to_be (f "|a,b|a==b")
+
   - context with argument format:
-    - it returns a function:
-        expect (prototype (f "|x| 1+x")).to_be "function"
+    - it returns a callable:
+        expect (callable (f "|x| 1+x")).to_be (true)
     - it compiles to a working Lua function:
         fn = f "||42"
         expect (fn ()).to_be (42)
     - it propagates argument values:
         fn = f "|...| {...}"
         expect (fn (1,2,3)).to_equal {1,2,3}
+    - it can be stringified:
+        exp = "|a,b|a==b"
+        expect (tostring (f (exp))).to_be (exp)
   - context with expression format:
     - it returns a function:
-        expect (prototype (f "_")).to_be "function"
+        expect (callable (f "_")).to_be (true)
     - it compiles to a working Lua function:
         fn = f "=42"
         expect (fn ()).to_be (42)
@@ -381,6 +393,9 @@ specify std.functional:
     - it sets numeric auto-argument values:
         fn = f "_1+_2+_3"
         expect (fn (1, 2, 5)).to_be (8)
+    - it can be stringified:
+        exp = "_%2==0"
+        expect (tostring (f (exp))).to_be (exp)
 
 
 - describe map:

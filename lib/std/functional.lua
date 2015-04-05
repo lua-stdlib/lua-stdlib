@@ -207,7 +207,10 @@ local lambda = memoize (function (s)
     return nil, "invalid lambda string '" .. s .. "'"
   end
 
-  return fn
+  return setmetatable ({}, {
+    __call = function (self, ...) return fn (...) end,
+    __tostring = function (self) return s end,
+  })
 end, id)
 
 

@@ -8,6 +8,14 @@
     taking one element from each of the argument lists.  See LDocs for
     an example.
 
+  - Passing the result of `functional.lambda` to `tostring` returns the
+    original lambda string.
+
+### Incompatible changes
+
+  - `functional.lambda` no longer returns a bare function, but a functable
+    that can be called and stringified.
+
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
 
