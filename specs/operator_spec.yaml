@@ -131,6 +131,47 @@ specify std.operator:
       expect (f ()).to_be (true)
       expect (f (0)).to_be (false)
 
+- describe eqv:
+  - before: |
+      f = M.eqv
+
+      __eq = function (a, b) return #a == #b end
+      X = function (x) return setmetatable (x, {__eq = __eq}) end
+
+  - it returns false if primitive types differ:
+      expect (f (nil, 1)).to_be (false)
+      expect (f ("1", 1)).to_be (false)
+  - it returns true if primitives are equal:
+      expect (f (nil, nil)).to_be (true)
+      expect (f (false, false)).to_be (true)
+      expect (f (10, 10)).to_be (true)
+      expect (f ("one", "one")).to_be (true)
+  - it returns true if tables are equivalent:
+      expect (f ({}, {})).to_be (true)
+      expect (f ({"one"}, {"one"})).to_be (true)
+      expect (f ({1,2,3,4,5}, {1,2,3,4,5})).to_be (true)
+      expect (f ({a=1,b=2,c=3}, {c=3,b=2,a=1})).to_be (true)
+  - it compares values recursively:
+      expect (f ({1, {{2, 3}, 4}}, {1, {{2, 3}, 4}})).to_be (true)
+      expect (f ({a=1, b={c={2, d=3}, 4}}, {a=1, b={c={2, d=3}, 4}})).
+        to_be (true)
+  - it does not compare keys recursively:
+      expect (f ({[{a=1}]=2}, {[{a=1}]=2})).to_be (false)
+      expect (f ({[{a=1}]={[{2}]="b"}}, {[{a=1}]={[{2}]="b"}})).
+        to_be (false)
+  - it returns false if table lengths differ:
+      expect (f ({1,2,3,4}, {1,2,3,4,5})).to_be (false)
+      expect (f ({1,2,3,4}, {[0]=0,1,2,3,4})).to_be (false)
+      expect (f ({[{a=1}]={[{2}]="b"}}, {[{a=1}]={[{2}]="b", 3}})).
+        to_be (false)
+      expect (f ({[{a=1}]={[{2}]="b"}}, {[{a=1}]={[{2}]="b"}, 3})).
+        to_be (false)
+  - it returns true if __eq metamethod matches:
+      expect (f (X {}, X {})).to_be (true)
+      expect (f (X {1}, X {2})).to_be (true)
+  - it returns false if _eq metamethod mismatches:
+      expect (f (X {}, X {1})).to_be (false)
+
 - describe eq:
   - before:
       f = M.eq

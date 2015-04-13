@@ -8,6 +8,9 @@
     taking one element from each of the argument lists.  See LDocs for
     an example.
 
+  - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
+    when recursive eable contents are equivalent.
+
   - Passing the result of `functional.lambda` to `tostring` returns the
     original lambda string.
 

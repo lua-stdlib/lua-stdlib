@@ -6,7 +6,50 @@
 
 local base = require "std.base"
 
-local tostring = base.tostring
+local pairs, prototype, tostring =
+  base.pairs, base.prototype, base.tostring
+
+
+local function eqv (a, b)
+  -- If they are the same primitive value, or they share a metatable
+  -- with an __eq metamethod that says they are equivalent, we're done!
+  if a == b then return true end
+
+  -- Unless we have two tables, what we have cannot be equivalent here.
+  if type (a) ~= "table" or type (b) ~= "table" then return false end
+
+  local type_a, type_b = prototype (a), prototype (b)
+  if type_a ~= type_b then return false end
+
+  local keyeqv = {} -- keys requiring recursive equivalence test
+  for k, v in pairs (a) do
+    if b[k] == nil then return false end
+    if v ~= b[k] then
+      if type (v) ~= "table" then return false end
+      -- Only require recursive comparisons for mismatched tables at k.
+      keyeqv[#keyeqv + 1] = k
+    end
+  end
+
+  -- Any uncompared keys remaining in b denote a mismatch.
+  for k in pairs (b) do
+    if a[k] == nil then return false end
+  end
+
+  if #keyeqv == 0 then return true end
+  if #keyeqv > 1 then
+    for _, k in ipairs (keyeqv) do
+      assert (a[k] ~= nil and b[k] ~= nil)
+      if not eqv (a[k], b[k]) then return false end
+    end
+    return true
+  end
+
+  -- Use a tail call for arbitrary depth single table valued key
+  -- equivalence.
+  local _, k = next (keyeqv)
+  return eqv (a[k], b[k])
+end
 
 
 local M = {
@@ -118,6 +161,12 @@ local M = {
   -- --> {true, false, false, false}
   -- functional.bind (functional.map, {std.ielems, neg}) {false, true, 1, 0}
   neg = function (a) return not a end,
+
+  --- Recursive table equivalence.
+  -- @param a an argument
+  -- @param b another argument
+  -- @treturn boolean whether *a* and *b* are recursively equivalent
+  eqv = eqv,
 
   --- Return the equality of the arguments.
   -- @param a an argument
