@@ -18,16 +18,7 @@ local callable, copy, len, reduce, unpack =
 local loadstring = loadstring or load
 
 
-local function bind (fn, ...)
-  local bound = {...}
-  if type (bound[1]) == "table" and bound[2] == nil then
-    bound = bound[1]
-  else
-    io.stderr:write (debug.DEPRECATIONMSG ("39",
-                       "multi-argument 'std.functional.bind'",
-                       "use a table of arguments as the second parameter instead", 2))
-  end
-
+local function bind (fn, bound)
   return function (...)
     local argt, i = copy (bound), 1
     for _, v in npairs {...} do
@@ -80,7 +71,7 @@ local function curry (fn, n)
     return fn
   else
     return function (x)
-             return curry (bind (fn, x), n - 1)
+             return curry (bind (fn, {x}), n - 1)
            end
   end
 end
@@ -316,7 +307,7 @@ local M = {
   -- @return function with *argt* arguments already bound
   -- @usage
   -- cube = bind (std.operator.pow, {[2] = 3})
-  bind = X ("bind (func, ?any...)", bind),
+  bind = X ("bind (func, table)", bind),
 
   --- Identify callable types.
   -- @function callable

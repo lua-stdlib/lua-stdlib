@@ -318,23 +318,6 @@ specify std.list:
     - it is the inverse of enpair:
         expect (f (l)).to_equal (t)
 
-  - context as an object method:
-    - before:
-        f = l.depair
-
-    - it writes a deprecation warning:
-        setdebug { deprecate = "nil" }
-        expect (capture (f, {l})).to_contain_error "was deprecated"
-        setdebug { deprecate = false }
-        expect (capture (f, {l})).not_to_contain_error "was deprecated"
-
-    - it returns a primitive table:
-        expect (prototype (f (l))).to_be "table"
-    - it works with an empty List:
-        expect (f (List {})).to_equal {}
-    - it is the inverse of enpair:
-        expect (f (l)).to_equal (t)
-
 
 - describe elems:
   - context as a module function:
@@ -800,31 +783,6 @@ specify std.list:
         l = List {}
         expect (f (fn, l)).to_equal (List {})
 
-  - context as an object method:
-    - before:
-        f = l.map_with
-
-    - it writes a deprecation warning:
-        setdebug { deprecate = "nil" }
-        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
-        setdebug { deprecate = false }
-        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
-
-    - it returns a List object:
-        m = f (l, fn)
-        expect (prototype (m)).to_be "List"
-    - it creates a new List:
-        o = l
-        m = f (l, fn)
-        expect (l).to_equal (o)
-        expect (m).not_to_equal (o)
-        expect (l).to_equal (List {List {1, 2, 3}, List {4, 5}})
-    - it maps a function over a List:
-        expect (f (l, fn)).to_equal (List {3, 2})
-    - it works for an empty List:
-        l = List {}
-        expect (f (l, fn)).to_equal (List {})
-
 
 - describe project:
   - before:
@@ -1165,29 +1123,6 @@ specify std.list:
     - it transposes rows and columns:
         expect (f (l)).to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
 
-  - context as an object method:
-    - before:
-        f = l.transpose
-
-    - it writes a deprecation warning:
-        setdebug { deprecate = "nil" }
-        expect (capture (f, {l})).to_contain_error "was deprecated"
-        setdebug { deprecate = false }
-        expect (capture (f, {l})).not_to_contain_error "was deprecated"
-
-    - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
-    - it works for an empty List:
-        expect (f (List {})).to_equal (List {})
-    - it returns the result in a new List object:
-        expect (f (l)).not_to_be (l)
-    - it does not perturb the argument List:
-        m = f (l)
-        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5, 6}})
-    - it transposes rows and columns:
-        expect (f (l)).
-          to_equal (List {List {1, 3, 5}, List {2, 4, 6}})
-
 
 - describe zip_with:
   - before:
@@ -1197,28 +1132,6 @@ specify std.list:
   - context as a module function:
     - before:
         f = M.zip_with
-
-    - it writes a deprecation warning:
-        setdebug { deprecate = "nil" }
-        expect (capture (f, {l, fn})).to_contain_error "was deprecated"
-        setdebug { deprecate = false }
-        expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
-
-    - it returns a List object:
-        expect (prototype (f (l, fn))).to_be "List"
-    - it works for an empty List:
-        expect (f (List {}, fn)).to_equal (List {})
-    - it returns the result in a new List object:
-        expect (f (l, fn)):not_to_be (l)
-    - it does not perturb the argument List:
-        m = f (l, fn)
-        expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
-    - it combines column entries with a function:
-        expect (f (l, fn)).to_equal (List {135, 24})
-
-  - context as an object method:
-    - before:
-        f = l.zip_with
 
     - it writes a deprecation warning:
         setdebug { deprecate = "nil" }

@@ -9,7 +9,7 @@ before: |
                           "monkey_patch", "new", "okeys", "pack", "project",
                           "remove", "shape", "size", "sort", "unpack",
                           "values" }
-  deprecations        = { "clone_rename", "metamethod", "ripairs", "totable" }
+  deprecations        = { "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
 
@@ -76,37 +76,6 @@ specify std.table:
         expect (f (subject, {k1 = "newkey"})).to_equal (target)
     - it does not perturb the value in the renamed key field:
         expect (f (subject, {k1 = "newkey"}).newkey).to_be (subject.k1)
-
-
-- describe clone_rename:
-  - before:
-      subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-
-      fname = "clone_rename"
-      f = M[fname]
-
-  - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
-
-  - it copies the subject:
-      expect (f ({}, subject)).to_copy (subject)
-  - it only makes a shallow copy:
-      expect (f ({}, subject).k2).to_be (subject.k2)
-
-  - context when renaming some keys:
-    - before:
-        target = { newkey = subject.k1, k2 = subject.k2, k3 = subject.k3 }
-    - it renames during cloning:
-        expect (f ({k1 = "newkey"}, subject)).to_equal (target)
-    - it does not perturb the value in the renamed key field:
-        expect (f ({k1 = "newkey"}, subject).newkey).to_be (subject.k1)
-
-  - it diagnoses non-table arguments:
-      expect (f {}).to_raise ("table expected")
-      expect (f ({}, "foo")).to_raise ("table expected")
 
 
 - describe clone_select:

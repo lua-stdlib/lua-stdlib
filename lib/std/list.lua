@@ -354,13 +354,6 @@ local m = {
 }
 
 
-m.depair      = DEPRECATED ("38", "'std.list:depair'",    depair)
-m.map_with    = DEPRECATED ("38", "'std.list:map_with'",
-                  function (self, fn) return map_with (fn, self) end)
-m.transpose   = DEPRECATED ("38", "'std.list:transpose'", transpose)
-m.zip_with    = DEPRECATED ("38", "'std.list:zip_with'",  zip_with)
-
-
 M.depair      = DEPRECATED ("41", "'std.list.depair'", depair)
 
 M.enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair)

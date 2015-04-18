@@ -16,6 +16,13 @@
 
 ### Incompatible changes
 
+  - Deprecated multi-argument `functional.bind` has been removed.
+
+  - Deprecated methods `list:depair`, `list:map_with`, `list:transpose` and
+    `list:zip_with` have been removed.
+
+  - Deprecated function `table.clone_rename` has been removed.
+
   - `functional.lambda` no longer returns a bare function, but a functable
     that can be called and stringified.
 

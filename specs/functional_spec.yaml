@@ -35,16 +35,8 @@ specify std.functional:
 
       f = M.bind
 
-  - it writes an argument passing deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {nop, M, "bind"})).
-          to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {nop, M, "bind"})).
-          not_to_contain_error "was deprecated"
-
   - context with bad arguments:
-      badargs.diagnose (f, "std.functional.bind (function, ?any*)")
+      badargs.diagnose (f, "std.functional.bind (function, table)")
 
   - it does not affect normal operation if no arguments are bound:
       expect (f (math.min, {}) (2, 3, 4)).to_be (2)
@@ -60,10 +52,6 @@ specify std.functional:
   - it propagates nil arguments correctly:
       expect ({f (M.id, {[2]="b", [4]="d"}) (nil, 3, 5, 6, nil)}).
         to_equal {nil, "b", 3, "d", 5, 6, nil}
-  - it supports the legacy api:
-      expect (f (math.min) (2, 3, 4)).to_be (2)
-      expect (f (math.min, 1, 0) (2, 3, 4)).to_be (0)
-      expect (f (op.pow, nil, 3) (2)).to_be (8)
 
 
 - describe callable:

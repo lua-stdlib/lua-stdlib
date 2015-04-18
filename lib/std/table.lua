@@ -472,18 +472,6 @@ monkeys = base.copy ({}, M)  -- before deprecations and core merge
 
 local DEPRECATED = debug.DEPRECATED
 
-M.clone_rename = DEPRECATED ("39", "'std.table.clone_rename'",
-  "use the new `map` argument to 'std.table.clone' instead",
-  function (map, t)
-    local r = merge_allfields ({}, t)
-    for i, v in pairs (map) do
-      r[v] = t[i]
-      r[i] = nil
-    end
-    return r
-  end)
-
-
 M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
   "use 'std.getmetamethod' instead", base.getmetamethod)
 
