@@ -162,6 +162,7 @@ specify std.object:
           f1 = "proto1", f2 = "proto2",
           _init = function (self, ...)
                     self.args = unpack {...}
+                    self.count = select ("#", ...)
                     return self
                   end,
         }
@@ -169,6 +170,16 @@ specify std.object:
         instance = Prototype {"param1", "param2"}
         expect ({instance.f1, instance.f2, instance.args}).
           to_equal {"proto1", "proto2", {"param1", "param2"}}
+    - it propagates arguments correctly:
+        expect (Prototype ().count).to_be (0)
+        expect (Prototype ("one").count).to_be (1)
+        expect (Prototype ("one", "two").count).to_be (2)
+    - it propagates nil arguments correctly:
+        expect (Prototype (nil).count).to_be (1)
+        expect (Prototype (false, nil).count).to_be (2)
+        expect (Prototype (nil, false).count).to_be (2)
+        expect (Prototype (nil, nil).count).to_be (2)
+
 
 - describe field access:
   - before:

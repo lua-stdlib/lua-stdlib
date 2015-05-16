@@ -153,7 +153,7 @@ local function mapfields (obj, src, map)
 end
 
 
-local function __call (self, x, ...)
+local function __call (self, ...)
   local mt     = getmetatable (self)
   local obj_mt = mt
   local obj    = {}
@@ -171,9 +171,9 @@ local function __call (self, x, ...)
   end
 
   if type (mt._init) == "function" then
-    obj = mt._init (obj, x, ...)
+    obj = mt._init (obj, ...)
   else
-    obj = (self.mapfields or mapfields) (obj, x, mt._init)
+    obj = (self.mapfields or mapfields) (obj, (...), mt._init)
   end
 
   -- If a metatable was set, then merge our fields and use it.
@@ -205,22 +205,22 @@ if _DEBUG.argcheck then
 
   local argerror, extramsg_toomany = debug.argerror, debug.extramsg_toomany
 
-  M.__call = function (self, x, ...)
+  M.__call = function (self, ...)
     local mt = getmetatable (self)
 
     -- A function initialised object can be passed arguments of any
     -- type, so only argcheck non-function initialised objects.
     if type (mt._init) ~= "function" then
-      local name, argt = mt._type, {...}
+      local name, n = mt._type, select ("#", ...)
       -- Don't count `self` as an argument for error messages, because
       -- it just refers back to the object being called: `Container {"x"}.
-      argcheck (name, 1, "table", x)
-      if next (argt) then
-        argerror (name, 2, extramsg_toomany ("argument", 1, 1 + maxn (argt)), 2)
+      argcheck (name, 1, "table", (...))
+      if n > 1 then
+        argerror (name, 2, extramsg_toomany ("argument", 1, n), 2)
       end
     end
 
-    return __call (self, x, ...)
+    return __call (self, ...)
   end
 
 else
