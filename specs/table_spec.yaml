@@ -5,11 +5,10 @@ before: |
 
   extend_base         = { "clone", "clone_select", "depair", "empty",
                           "enpair", "flatten", "insert", "invert", "keys",
-                          "len", "maxn", "merge", "merge_select",
-                          "monkey_patch", "new", "okeys", "pack", "project",
-                          "remove", "shape", "size", "sort", "unpack",
-                          "values" }
-  deprecations        = { "metamethod", "ripairs", "totable" }
+                          "maxn", "merge", "merge_select", "monkey_patch",
+                          "new", "okeys", "pack", "project", "remove",
+                          "shape", "size", "sort", "unpack", "values" }
+  deprecations        = { "len", "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
 
@@ -268,6 +267,12 @@ specify std.table:
 - describe len:
   - before:
       f = M.len
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
   - context with bad arguments:
       badargs.diagnose (f, "std.table.len (table)")

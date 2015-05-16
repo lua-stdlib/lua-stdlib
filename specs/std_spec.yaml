@@ -3,9 +3,9 @@ before: |
   global_table  = "_G"
 
   exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "ireverse", "monkey_patch", "npairs",
-                    "pairs", "require", "ripairs", "rnpairs", "tostring",
-                    "version" }
+                    "ielems", "ipairs", "ireverse", "len", "monkey_patch",
+                    "npairs", "pairs", "require", "ripairs", "rnpairs",
+                    "tostring", "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -141,7 +141,7 @@ specify std:
       end
   - it installs std.table monkey patches:
       for _, api in ipairs { "clone", "clone_select", "depair", "empty",
-        "enpair", "flatten", "insert", "invert", "keys", "len", "maxn",
+        "enpair", "flatten", "insert", "invert", "keys", "maxn",
         "merge", "merge_select", "monkey_patch", "new", "pack", "project",
         "shape", "size", "sort", "values" }
       do
@@ -334,6 +334,44 @@ specify std:
       expect (f (__index)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
   - it works for an empty list:
       expect (f {}).to_equal {}
+
+
+- describe len:
+  - before:
+      f = M.len
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.len (object|string|table)")
+
+  - context with string argument:
+    - it returns the length of a string:
+        expect (f "").to_be (0)
+        expect (f "abc").to_be (3)
+
+  - context with table argument:
+    - it returns the length of a table:
+        expect (f {"a", "b", "c"}).to_be (3)
+        expect (f {1, 2, 5, a=10, 3}).to_be (4)
+    - it works with an empty table:
+        expect (f {}).to_be (0)
+    - it ignores elements after a hole:
+        expect (f {1, 2, [5]=3}).to_be (2)
+    - it respects __len metamethod:
+        t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
+        expect (f (t)).to_be (42)
+
+  - context with object argument:
+    - before:
+        Object = require "std.object" {}
+        subject = Object {"a", "b", "c"}
+
+    - it returns the length of an object:
+        expect (f (subject)).to_be (3)
+    - it works with an empty object:
+        expect (f (Object)).to_be (0)
+    - it respects __len metamethod:
+        expect (f (Object {__len = function () return 42 end})).to_be (42)
+        expect (f (subject {__len = function () return 42 end})).to_be (42)
 
 
 - describe monkey_patch:

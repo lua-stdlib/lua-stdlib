@@ -300,13 +300,6 @@ M = {
   -- @usage globals = keys (_G)
   keys = X ("keys (table)", keys),
 
-  --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
-  -- @function len
-  -- @tparam table t a table
-  -- @treturn int length of list part of *t*
-  -- @usage for i = 1, len (t) do process (t[i]) end
-  len = X ("len (table)", base.len),
-
   --- Largest integer key in a table.
   -- @function maxn
   -- @tparam table t a table
@@ -471,6 +464,11 @@ monkeys = base.copy ({}, M)  -- before deprecations and core merge
 
 
 local DEPRECATED = debug.DEPRECATED
+
+
+M.len = DEPRECATED ("41.3", "'std.table.len'",
+  "use 'std.len' instead", X ("len (table)", base.len))
+
 
 M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
   "use 'std.getmetamethod' instead", base.getmetamethod)

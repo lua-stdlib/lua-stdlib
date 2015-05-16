@@ -11,8 +11,16 @@
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
     when recursive eable contents are equivalent.
 
+  - New `std.len` replaces deprecated `std.table.len`.
+
   - Passing the result of `functional.lambda` to `tostring` returns the
     original lambda string.
+
+### Deprecations
+
+  - `std.table.len` has been deprecated in favour of `std.len`, because it
+    is a portable stand-in for the core `#` operator, and because it also
+    works on strings, Objects and other traversable types.
 
 ### Incompatible changes
 
