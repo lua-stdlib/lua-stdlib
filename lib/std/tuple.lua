@@ -32,7 +32,7 @@ local function argstr (tuple)
   local s = {}
   for i = 1, tuple.n do
     local v = tuple[i]
-    s[i] = (type (v) ~= "string" and "%s" or "%q"):format (v)
+    s[i] = (type (v) ~= "string" and "%s" or "%q"):format (tostring (v))
   end
   return table.concat (s, ", ")
 end
