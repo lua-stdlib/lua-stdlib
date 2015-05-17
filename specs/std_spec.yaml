@@ -426,6 +426,12 @@ specify std:
         t[i] = v
       end
       expect (t).to_equal {"foo", 42, nil, nil, "five"}
+  - it respects __len metamethod:
+      t = {}
+      for i, v in f (setmetatable ({[2]=false}, {__len = function (self) return 4 end})) do
+        t[i] = tostring (v)
+      end
+      expect (table.concat (t, ",")).to_be "nil,false,nil,nil"
   - it works for an empty list:
       t = {}
       for i, v in f {} do t[i] = v end

@@ -263,7 +263,8 @@ end
 
 
 local function npairs (t)
-  local i, n = 0, maxn (t)
+  local m = getmetamethod (t, "__len")
+  local i, n = 0, m and m(t) or maxn (t)
   return function (t)
     i = i + 1
     if i <= n then return i, t[i] end

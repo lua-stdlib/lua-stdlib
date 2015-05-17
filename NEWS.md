@@ -13,6 +13,8 @@
 
   - New `std.len` replaces deprecated `std.table.len`.
 
+  - `std.npairs` now respects `__len` metamethod, if any.
+
   - Passing the result of `functional.lambda` to `tostring` returns the
     original lambda string.
 
@@ -33,6 +35,12 @@
 
   - `functional.lambda` no longer returns a bare function, but a functable
     that can be called and stringified.
+
+  - Passing a table with a `__len` metamethod, that returns a value other
+    the index of the largest non-nil valued integer key, to `std.npairs`
+    now iterates upto whatever `__len` returns rather than `std.table.maxn`.
+    If `__len` is not present, or gives the same result as `maxn` then
+    `npairs` continues to behave as in the previous release.
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
