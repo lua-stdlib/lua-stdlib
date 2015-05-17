@@ -1,0 +1,115 @@
+before:
+  objtype = require "std.object".type
+  Tuple   = require "std.tuple"
+
+  t0, t1, t2 = Tuple (), Tuple "one", Tuple (false, true)
+
+
+specify std.tuple:
+- describe require:
+  - it does not perturb the global namespace:
+      expect (show_apis {added_to="_G", by="std.tuple"}).
+        to_equal {}
+
+
+- describe construction:
+  - it constructs a new tuple:
+      expect (t0).not_to_be (Tuple)
+      expect (objtype (t0)).to_be "Tuple"
+  - it initialises tuple with constructor parameters:
+      expect (objtype (t2)).to_be "Tuple"
+      expect (t2[1]).to_be (false)
+      expect (t2[2]).to_be (true)
+  - it understands nil valued elements:
+      t5 = Tuple (nil, nil, 1, nil, nil)
+      expect (t5[3]).to_be (1)
+      expect (t5[5]).to_be (nil)
+
+
+- describe length:
+  - context with n field:
+    - it returns the number of elements:
+        expect (t0.n).to_be (0)
+        expect (t1.n).to_be (1)
+        expect (t2.n).to_be (2)
+    - it counts nil valued elements:
+        expect (Tuple (nil).n).to_be (1)
+        expect (Tuple (nil, false, nil, nil).n).to_be (4)
+
+  - context with std.len:
+    - before:
+        len = require "std".len
+    - it returns the number of elements:
+        expect (len (t0)).to_be (0)
+        expect (len (t1)).to_be (1)
+        expect (len (t2)).to_be (2)
+    - it counts nil valued elements:
+        expect (len (Tuple (nil))).to_be (1)
+        expect (len (Tuple (nil, false, nil, nil))).to_be (4)
+
+
+- describe indexing:
+  - it dereferences elements:
+      expect (t2[1]).to_be (false)
+      expect (t2[2]).to_be (true)
+      expect (t2.n).to_be (2)
+  - it returns nil-valued elements:
+      t3 = Tuple (nil, false, nil)
+      expect (t3[1]).to_be (nil)
+      expect (t3[2]).to_be (false)
+      expect (t3[3]).to_be (nil)
+      expect (t3.n).to_be (3)
+  - it returns nil for out-of-bound indices:
+      expect (t1[0]).to_be (nil)
+      expect (t1[1]).not_to_be (nil)
+      expect (t1[2]).to_be (nil)
+      expect (t1[-1]).to_be (nil)
+      expect (t1.foo).to_be (nil)
+
+
+- describe interning:
+  - it interns all tuples:
+      expect (Tuple ()).to_be (Tuple ())
+      expect (Tuple ("a", 2)).to_be (Tuple ("a", 2))
+  - it interns nil valued elements:
+      expect (Tuple (nil)).to_be (Tuple (nil))
+      expect (Tuple (nil, false, nil)).to_be (Tuple (nil, false, nil))
+      expect (Tuple (nil)).not_to_be (Tuple (false))
+  - it distinguishes nil from no elements:
+      expect (Tuple (nil)).not_to_be (Tuple ())
+
+
+- describe immutability:
+  - it diagnoses mutation attempts:
+      function fn () t2[1] = 1 end
+      expect (fn ()).to_raise "cannot change immutable tuple object"
+
+
+- describe traversing:
+  - before:
+      npairs = require "std".npairs
+      pretty = function (t)
+        local r = {}
+        for i, v in npairs (t) do r[i] = tostring (v) end
+        return table.concat (r, ",")
+      end
+
+  - it iterates over the elements:
+      expect (pretty (Tuple ("a", "b", "c"))).to_be "a,b,c"
+  - it works with 0-tuple:
+      expect (pretty (Tuple ())).to_be ""
+  - it understands nil elements:
+      expect (pretty (Tuple (nil))).to_be "nil"
+      expect (pretty (Tuple (false, nil))).to_be "false,nil"
+      expect (pretty (Tuple (nil, false))).to_be "nil,false"
+      expect (pretty (Tuple (nil, nil))).to_be "nil,nil"
+
+
+- describe stringification:
+  - it starts with the object type:
+      expect (tostring (Tuple ())).to_match "^Tuple "
+  - it contains all the elements:
+      elems = {"a", "b", "c"}
+      for _, e in ipairs (elems) do
+        expect (tostring (Tuple (unpack (elems)))).to_match (e)
+      end

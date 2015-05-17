@@ -4,6 +4,19 @@
 
 ### New features
 
+  - New `std.tuple` object, for managing interned immutable nil-preserving
+    tuples:
+
+    ```lua
+    local std = require "std"
+    local t3 = std.tuple (nil, false, nil)
+    local t3_ = std.tuple (nil, false, nil)
+    if t3 == t3_ then
+      for i, v in std.npairs (t3) do print (i, v) end
+    end
+    --> 1 nil   2 false   3 nil
+    ```
+
   - New `functional.product` returns a list of combinations made by
     taking one element from each of the argument lists.  See LDocs for
     an example.
