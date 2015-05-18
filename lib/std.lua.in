@@ -203,7 +203,7 @@ M = {
   monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Ordered iterator for integer keyed values.
-  -- Like ipairs, but does not stop until the largest integer key.
+  -- Like ipairs, but does not stop until the __len or maxn of *t*.
   -- @function npairs
   -- @tparam table t a table
   -- @treturn function iterator function

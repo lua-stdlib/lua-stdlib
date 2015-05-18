@@ -428,8 +428,8 @@ specify std:
       expect (t).to_equal {"foo", 42, nil, nil, "five"}
   - it respects __len metamethod:
       t = {}
-      for i, v in f (setmetatable ({[2]=false}, {__len = function (self) return 4 end})) do
-        t[i] = tostring (v)
+      for _, v in f (setmetatable ({[2]=false}, {__len = function (self) return 4 end})) do
+        t[#t + 1] = tostring (v)
       end
       expect (table.concat (t, ",")).to_be "nil,false,nil,nil"
   - it works for an empty list:
@@ -593,6 +593,12 @@ specify std:
       t, u, i = {"one", "two", nil, nil, "five"}, {}, 1
       for _, v in f (t) do u[i], i = v, i + 1 end
       expect (u).to_equal {"five", nil, nil, "two", "one"}
+  - it respects __len metamethod:
+      t = {}
+      for _, v in f (setmetatable ({[2]=false}, {__len = function (self) return 4 end})) do
+        t[#t + 1] = tostring (v)
+      end
+      expect (table.concat (t, ",")).to_be "nil,nil,false,nil"
   - it works with the empty list:
       t = {}
       for k, v in f {} do t[k] = v end

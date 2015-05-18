@@ -374,7 +374,8 @@ end
 
 
 local function rnpairs (t)
-  local oob = maxn (t) + 1
+  local m = getmetamethod (t, "__len")
+  local oob = (m and m (t) or maxn (t)) + 1
 
   return function (t, n)
     n = n - 1

@@ -26,7 +26,7 @@
 
   - New `std.len` replaces deprecated `std.table.len`.
 
-  - `std.npairs` now respects `__len` metamethod, if any.
+  - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
   - Passing the result of `functional.lambda` to `tostring` returns the
     original lambda string.
