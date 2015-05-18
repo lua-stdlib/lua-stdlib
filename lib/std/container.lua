@@ -37,7 +37,7 @@ local base  = require "std.base"
 local debug = require "std.debug"
 
 local ipairs, pairs, okeys = base.ipairs, base.pairs, base.okeys
-local insert, len, maxn = base.insert, base.len, base.maxn
+local insert, len = base.insert, base.len
 local okeys, prototype, tostring = base.okeys, base.prototype, base.tostring
 local argcheck = debug.argcheck
 
