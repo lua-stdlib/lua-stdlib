@@ -105,7 +105,13 @@ end
 local _unpack = table.unpack or unpack
 
 local function unpack (t, i, j)
-  return _unpack (t, i or 1, j or maxn (t))
+  if j == nil then
+    -- respect __len, and then maxn if nil j was passed
+    local m = getmetamethod (t, "__len")
+    j = m and m (t) or maxn (t)
+  end
+  -- use the __contents metatable instead of t when present
+  return _unpack ( (getmetatable (t) or {}).__contents or t, i or 1, j)
 end
 
 

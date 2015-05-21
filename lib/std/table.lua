@@ -434,7 +434,7 @@ M = {
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, ?function)", sort),
 
-  --- Enhance core *table.unpack* to always unpack up to `maxn (t)`.
+  --- Enhance core *table.unpack* to always unpack up to __len or maxn.
   -- @function unpack
   -- @tparam table t table to act on
   -- @int[opt=1] i first index to unpack

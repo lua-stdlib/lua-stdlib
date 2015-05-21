@@ -51,7 +51,7 @@ local intern = setmetatable ({}, {
     local k = argstr (t)
     if self[k] == nil then
       -- Use a proxy table so that __newindex always fires
-      self[k] = setmetatable ({}, { __index = t })
+      self[k] = setmetatable ({}, { __contents = t, __index = t })
     end
     return self[k]
   end,
@@ -88,6 +88,15 @@ return  Container {
     return intern (...)
   end,
 
+  -- The actual contents of *tup*.
+  -- This ensures __newindex will trigger for existing elements too.
+  -- It also informs `table.unpack` that that the elements to unpack are
+  -- not in the usual place.
+  __contents = getmetatable (intern ()).__contents,
+
+
+  -- Another reference to the proxy table, so that [] operations work as
+  -- expected.
   __index = getmetatable (intern ()).__index,
 
   --- Return the length of this tuple.
@@ -104,7 +113,7 @@ return  Container {
     return self.n
   end,
 
-  --- Prevent mutation of *tup*
+  --- Prevent mutation of *tup*.
   -- This metamethod never returns, because Tuples are immutable.
   -- @static
   -- @function __newindex

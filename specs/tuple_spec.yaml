@@ -88,6 +88,7 @@ specify std.tuple:
 - describe traversing:
   - before:
       npairs = require "std".npairs
+
       pretty = function (t)
         local r = {}
         for i, v in npairs (t) do r[i] = tostring (v) end
@@ -103,6 +104,27 @@ specify std.tuple:
       expect (pretty (Tuple (false, nil))).to_be "false,nil"
       expect (pretty (Tuple (nil, false))).to_be "nil,false"
       expect (pretty (Tuple (nil, nil))).to_be "nil,nil"
+
+
+- describe unpacking:
+  - before:
+      unpack = require "std.table".unpack
+
+      collect = function (t)
+        local r = {unpack (t)}
+        for i = 1, t.n do r[i] = tostring (r[i]) end
+        return table.concat (r, ",")
+      end
+
+  - it returns all elements:
+      expect (collect (Tuple ("a", "b", "c"))).to_be "a,b,c"
+  - it works with 0-tuple:
+      expect (collect (Tuple ())).to_be ""
+  - it understands nil elements:
+      expect (collect (Tuple (nil))).to_be "nil"
+      expect (collect (Tuple (false, nil))).to_be "false,nil"
+      expect (collect (Tuple (nil, false))).to_be "nil,false"
+      expect (collect (Tuple (nil, nil))).to_be "nil,nil"
 
 
 - describe stringification:
