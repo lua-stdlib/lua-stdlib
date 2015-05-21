@@ -2,11 +2,12 @@ before:
   this_module  = "std.list"
   global_table = "_G"
 
-  exported_apis = { "append", "compare", "concat", "cons", "depair",
-                    "elems", "enpair", "filter", "flatten", "foldl",
-                    "foldr", "index_key", "index_value", "map",
-                    "map_with", "project", "relems", "rep", "reverse",
-                    "shape", "sub", "tail", "transpose", "zip_with" }
+  exported_apis = { "append", "compare", "concat", "cons", "rep", "sub",
+                    "tail" }
+  deprecations  = { "depair", "enpair", "elems", "filter", "flatten", "foldl",
+                    "foldr", "index_key", "index_value", "map", "map_with",
+                    "project", "relems", "reverse", "shape", "transpose",
+                    "zip_with" }
 
   M = require (this_module)
 
@@ -22,9 +23,12 @@ specify std.list:
         expect (show_apis {added_to="_G", by="std.list"}).
           to_equal {}
     - it exports the documented apis:
-        t = {}
+        t, apis = {}, require "std.base".copy (exported_apis)
         for k in pairs (M) do t[#t + 1] = k end
-        expect (t).to_contain.a_permutation_of (exported_apis)
+        for _, v in ipairs (deprecations) do
+          apis[#apis + 1] = v
+        end
+        expect (t).to_contain.a_permutation_of (apis)
 
   - context via the std module:
     - it does not touch the global table:
