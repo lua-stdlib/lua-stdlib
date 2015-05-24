@@ -4,6 +4,19 @@
 
 ### New features
 
+  - We used to have an object module method, `std.object.type`, which
+    often got imported using:
+
+    ```lua
+    local prototype = require "std.object".type
+    ```
+
+    So we renamed it to `std.object.prototype`, and deprecated the `type`
+    method; but that was a mistake, because core Lua provides `type`,
+    and `io.type` (and in recent releases, `math.type`.  For orthogonality,
+    we're going back to using `std.object.type`, which just makes more
+    sense.  Sorry!
+
   - New `std.tuple` object, for managing interned immutable nil-preserving
     tuples:
 
@@ -32,6 +45,9 @@
     original lambda string.
 
 ### Deprecations
+
+  - `std.object.prototype` has been deprecated in favor of
+    `std.object.type` for orthogonality with `io.type` and `math.type`.
 
   - `std.table.len` has been deprecated in favour of `std.len`, because it
     is a portable stand-in for the core `#` operator, and because it also

@@ -26,7 +26,7 @@ local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
-local ielems, insert, prototype = base.ielems, base.insert, base.prototype
+local ielems, insert = base.ielems, base.insert
 
 local M, StrBuf
 

@@ -48,7 +48,7 @@ specify std:
       lazy = M.set
       expect (lazy).to_be (require "std.set")
   - it loads submodule functions on demand:
-      expect (M.object.prototype (M.set {"Lazy"})).
+      expect (M.object.type (M.set {"Lazy"})).
         to_be "Set"
 
 - describe assert:
@@ -182,7 +182,7 @@ specify std:
         lazy = M.strbuf
         expect (lazy).to_be (require "std.strbuf")
     - it loads submodule functions on demand:
-        expect (M.object.prototype (M.strbuf {"Lazy"})).
+        expect (M.object.type (M.strbuf {"Lazy"})).
           to_be "StrBuf"
 
 

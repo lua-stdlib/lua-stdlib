@@ -22,7 +22,7 @@
 ]]
 
 local Container = require "std.container" {}
-local objtype = require "std.base".prototype
+local objtype = require "std.base".objtype
 
 
 -- Stringify tuple values, as a memoization key.

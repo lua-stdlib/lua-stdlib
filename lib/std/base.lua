@@ -304,7 +304,7 @@ local function collect (ifn, ...)
 end
 
 
-local function prototype (o)
+local function objtype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 
@@ -482,7 +482,7 @@ return {
   compare = compare,
 
   -- object.lua --
-  prototype = prototype,
+  objtype = objtype,
 
   -- package.lua --
   dirsep = dirsep,

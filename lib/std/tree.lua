@@ -22,8 +22,8 @@ local operator  = require "std.operator"
 
 local Container = require "std.container" {}
 
-local ielems, ipairs, leaves, pairs, prototype =
-  base.ielems, base.ipairs, base.leaves, base.pairs, base.prototype
+local ielems, ipairs, leaves, pairs, objtype =
+  base.ielems, base.ipairs, base.leaves, base.pairs, base.objtype
 local last, len = base.last, base.len
 local reduce = base.reduce
 
@@ -138,7 +138,7 @@ Tree = Container {
   -- @usage
   -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
   __index = function (tr, i)
-              if prototype (i) == "table" then
+              if objtype (i) == "table" then
                 return reduce (operator.get, tr, ielems, i)
               else
                 return rawget (tr, i)
@@ -154,9 +154,9 @@ Tree = Container {
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
   __newindex = function (tr, i, v)
-                 if prototype (i) == "table" then
+                 if objtype (i) == "table" then
                    for n = 1, len (i) - 1 do
-                     if prototype (tr[i[n]]) ~= "Tree" then
+                     if objtype (tr[i[n]]) ~= "Tree" then
                        rawset (tr, i[n], Tree {})
                      end
                      tr = tr[i[n]]

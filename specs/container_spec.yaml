@@ -1,6 +1,5 @@
 before:
   Container = require "std.container" {}
-  prototype = require "std.object".prototype
 
 specify std.container:
 - context when required:
@@ -31,7 +30,7 @@ specify std.container:
     - it constructs a new container:
         expect (things).not_to_be (Container)
         expect (type (things)).to_be "table"
-        expect (prototype (things)).to_be "Container"
+        expect (objtype (things)).to_be "Container"
     - it reuses the container metatable:
         o, p = things {"o"}, things {"p"}
         expect (getmetatable (o)).to_be (getmetatable (p))
@@ -40,7 +39,7 @@ specify std.container:
         expect (o).to_equal (things)
     - it serves as a prototype for new instances:
         o = things {}
-        expect (prototype (o)).to_be "Container"
+        expect (objtype (o)).to_be "Container"
         expect (o).to_copy (things)
         expect (getmetatable (o)).to_be (getmetatable (things))
     - it separates '_' prefixed fields:
@@ -104,7 +103,7 @@ specify std.container:
       expect (type (tostring (things))).to_be "string"
   - it contains the type:
       expect (tostring (Container {})).to_contain "Container"
-      expect (tostring (things)).to_contain (prototype (things))
+      expect (tostring (things)).to_contain (objtype (things))
   - it contains the ordered array part elements:
       expect (tostring (things)).to_contain "one, two, three"
   - it contains the ordered dictionary part elements:

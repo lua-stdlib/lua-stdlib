@@ -6,7 +6,6 @@ before: |
 
 specify std.tree:
 - before:
-    prototype = (require "std.object").prototype
     t = {foo="foo", fnord={branch={bar="bar", baz="baz"}}, quux="quux"}
     tr = Tree (t)
 
@@ -25,18 +24,18 @@ specify std.tree:
   - it constructs a new tree:
       tr = Tree {}
       expect (tr).not_to_be (Tree)
-      expect (prototype (tr)).to_be "Tree"
+      expect (objtype (tr)).to_be "Tree"
   - it turns a table argument into a tree:
-      expect (prototype (Tree (t))).to_be "Tree"
+      expect (objtype (Tree (t))).to_be "Tree"
   - it does not turn table argument values into sub-Trees:
-      expect (prototype (tr["fnord"])).to_be "table"
+      expect (objtype (tr["fnord"])).to_be "table"
   - it understands branched nodes:
       expect (tr).to_equal (Tree (t))
       expect (tr[{"fnord"}]).to_equal (t.fnord)
       expect (tr[{"fnord", "branch", "bar"}]).to_equal (t.fnord.branch.bar)
   - it serves as a prototype for new instances:
       obj = tr {}
-      expect (prototype (obj)).to_be "Tree"
+      expect (objtype (obj)).to_be "Tree"
       expect (obj).to_equal (tr)
       expect (getmetatable (obj)).to_be (getmetatable (tr))
 
@@ -398,7 +397,7 @@ specify std.tree:
 
 - describe __tostring:
   - it returns a string:
-      expect (prototype (tostring (tr))).to_be "string"
+      expect (objtype (tostring (tr))).to_be "string"
   - it shows the type name:
       expect (tostring (tr)).to_contain "Tree"
   - it shows the contents in order: |

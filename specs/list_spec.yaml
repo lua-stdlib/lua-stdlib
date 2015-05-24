@@ -40,7 +40,7 @@ specify std.list:
     - it constructs a new list:
         l = List:clone {}
         expect (l).not_to_be (List)
-        expect (prototype (l)).to_be "List"
+        expect (objtype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List:clone {"l"}, List:clone {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
@@ -49,7 +49,7 @@ specify std.list:
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
         m = l:clone {}
-        expect (prototype (m)).to_be "List"
+        expect (objtype (m)).to_be "List"
         expect (m).to_equal (l)
         expect (getmetatable (m)).to_be (getmetatable (l))
 
@@ -58,7 +58,7 @@ specify std.list:
     - it constructs a new List:
         l = List {}
         expect (l).not_to_be (List)
-        expect (prototype (l)).to_be "List"
+        expect (objtype (l)).to_be "List"
     - it reuses the List metatable:
         l, m = List {"l"}, List {"m"}
         expect (getmetatable (l)).to_be (getmetatable (m))
@@ -67,7 +67,7 @@ specify std.list:
         expect (m).to_equal (l)
     - it serves as a prototype for new instances:
         m = l {}
-        expect (prototype (m)).to_be "List"
+        expect (objtype (m)).to_be "List"
         expect (m).to_equal (l)
         expect (getmetatable (m)).to_be (getmetatable (l))
 
@@ -87,7 +87,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l, "quux"))).to_be "List"
+        expect (objtype (f (l, "quux"))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, "quux")).to_equal (List {"quux"})
     - it appends an item to a List:
@@ -99,7 +99,7 @@ specify std.list:
         f = l.append
 
     - it returns a List object:
-        expect (prototype (f (l, "quux"))).to_be "List"
+        expect (objtype (f (l, "quux"))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, "quux")).to_equal (List {"quux"})
     - it appends an item to a List:
@@ -108,7 +108,7 @@ specify std.list:
 
   - context as a List metamethod:
     - it returns a List object:
-        expect (prototype (l + "quux")).to_be "List"
+        expect (objtype (l + "quux")).to_be "List"
     - it works for an empty list:
         expect (List {} + "quux").to_equal (List {"quux"})
     - it appends an item to a list:
@@ -221,7 +221,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l, l))).to_be "List"
+        expect (objtype (f (l, l))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, {"baz"})).to_equal (List {"baz"})
         expect (f (List {}, List {"baz"})).to_equal (List {"baz"})
@@ -240,7 +240,7 @@ specify std.list:
         f = l.concat
 
     - it returns a List object:
-        expect (prototype (f (l, l))).to_be "List"
+        expect (objtype (f (l, l))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, {"baz"})).to_equal (List {"baz"})
         expect (f (List {}, List {"baz"})).to_equal (List {"baz"})
@@ -257,7 +257,7 @@ specify std.list:
   # Beware that .. operations are right associative
   - context as a List metamethod:
     - it returns a List object:
-        expect (prototype (l .. List {"baz"})).to_be "List"
+        expect (objtype (l .. List {"baz"})).to_be "List"
     - it works for an empty List:
         expect (List {} .. {"baz"}).to_equal (List {"baz"})
         expect (List {} .. List {"baz"}).to_equal (List {"baz"})
@@ -281,7 +281,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l, "x"))).to_be "List"
+        expect (objtype (f (l, "x"))).to_be "List"
     - it prepends an item to a List:
         expect (f (l, "x")).to_equal (List {"x", "foo", "bar", "baz"})
     - it works for empty Lists:
@@ -292,7 +292,7 @@ specify std.list:
         f = l.cons
 
     - it returns a List object:
-        expect (prototype (f (l, "x"))).to_be "List"
+        expect (objtype (f (l, "x"))).to_be "List"
     - it prepends an item to a List:
         expect (f (l, "x")).to_equal (List {"x", "foo", "bar", "baz"})
     - it works for empty Lists:
@@ -315,7 +315,7 @@ specify std.list:
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a primitive table:
-        expect (prototype (f (l))).to_be "table"
+        expect (objtype (f (l))).to_be "table"
     - it works with an empty List:
         l = List {}
         expect (f (l)).to_equal {}
@@ -376,7 +376,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (t))).to_be "List"
+        expect (objtype (f (t))).to_be "List"
     - it works for an empty table:
         expect (f {}).to_equal (List {})
     - it turns a table into a List of pairs:
@@ -400,7 +400,7 @@ specify std.list:
         expect (capture (f, {p, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (p, l))).to_be "List"
+        expect (objtype (f (p, l))).to_be "List"
     - it works for an empty List:
         expect (f (p, List {})).to_equal (List {})
     - it filters a List according to a predicate:
@@ -417,7 +417,7 @@ specify std.list:
         expect (capture (f, {l, p})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l, p))).to_be "List"
+        expect (objtype (f (l, p))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, p)).to_equal (List {})
     - it filters a List according to a predicate:
@@ -439,7 +439,7 @@ specify std.list:
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it works for an empty List:
         l = List {}
         expect (f (l)).to_equal (List {})
@@ -458,7 +458,7 @@ specify std.list:
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it works for an empty List:
         l = List {}
         expect (f (l)).to_equal (List {})
@@ -720,7 +720,7 @@ specify std.list:
         expect (capture (f, {sq, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (sq, l))).to_be "List"
+        expect (objtype (f (sq, l))).to_be "List"
     - it works for an empty List:
         expect (f (sq, List {})).to_equal (List {})
     - it creates a new List:
@@ -744,7 +744,7 @@ specify std.list:
 
     - it returns a List object:
         m = f (l, sq)
-        expect (prototype (m)).to_be "List"
+        expect (objtype (m)).to_be "List"
     - it works for an empty List:
         expect (f (List {}, sq)).to_equal (List {})
     - it creates a new List:
@@ -774,7 +774,7 @@ specify std.list:
 
     - it returns a List object:
         m = f (fn, l)
-        expect (prototype (m)).to_be "List"
+        expect (objtype (m)).to_be "List"
     - it creates a new List:
         o = l
         m = f (fn, l)
@@ -807,7 +807,7 @@ specify std.list:
         expect (capture (f, {"third", l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f ("third", l))).to_be "List"
+        expect (objtype (f ("third", l))).to_be "List"
     - it works with an empty List:
         expect (f ("third", List {})).to_equal (List {})
     - it projects a List of fields from a List of tables:
@@ -826,7 +826,7 @@ specify std.list:
         expect (capture (f, {l, "third"})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l, "third"))).to_be "List"
+        expect (objtype (f (l, "third"))).to_be "List"
     - it works with an empty List:
         expect (f (List {}, "third")).to_equal (List {})
     - it projects a List of fields from a List of tables:
@@ -886,7 +886,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l, 3))).to_be "List"
+        expect (objtype (f (l, 3))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, 99)).to_equal (List {})
     - it repeats the contents of a List:
@@ -898,7 +898,7 @@ specify std.list:
         f = l.rep
 
     - it returns a List object:
-        expect (prototype (f (l, 3))).to_be "List"
+        expect (objtype (f (l, 3))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, 99)).to_equal (List {})
     - it repeats the contents of a List:
@@ -921,7 +921,7 @@ specify std.list:
         expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it works for an empty List:
         l = List {}
         expect (f (l)).to_equal (List {})
@@ -943,7 +943,7 @@ specify std.list:
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it works for an empty List:
         expect (f (List {})).to_equal (List {})
     - it makes a new reversed List:
@@ -969,7 +969,7 @@ specify std.list:
         expect (capture (f, {{0}, l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f ({2, 3}, l))).to_be "List"
+        expect (objtype (f ({2, 3}, l))).to_be "List"
     - it works for an empty List:
         expect (f ({0}, List {})).to_equal (List {})
     - it returns the result in a new List object:
@@ -999,7 +999,7 @@ specify std.list:
         expect (capture (f, {l, {0}})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l, {2, 3}))).to_be "List"
+        expect (objtype (f (l, {2, 3}))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, {0})).to_equal (List {})
     - it returns the result in a new List object:
@@ -1030,7 +1030,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l, 1, 1))).to_be "List"
+        expect (objtype (f (l, 1, 1))).to_be "List"
     - it makes a List from a subrange of another List:
         expect (f (l, 2, 5)).to_equal (List {2, 3, 4, 5})
     - it truncates the result if 'to' argument is too large:
@@ -1051,7 +1051,7 @@ specify std.list:
         f = l.sub
 
     - it returns a List object:
-        expect (prototype (f (l, 1, 1))).to_be "List"
+        expect (objtype (f (l, 1, 1))).to_be "List"
     - it makes a List from a subrange of another List:
         expect (f (l, 2, 5)).to_equal (List {2, 3, 4, 5})
     - it truncates the result if 'to' argument is too large:
@@ -1079,7 +1079,7 @@ specify std.list:
 
   - context as a module function:
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it makes a new List with the first element removed:
         expect (f (l)).to_equal (List {2, 3, 4, 5, 6, 7})
     - it works for an empty List:
@@ -1092,7 +1092,7 @@ specify std.list:
         f = l.tail
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it makes a new List with the first element removed:
         expect (f (l)).to_equal (List {2, 3, 4, 5, 6, 7})
     - it works for an empty List:
@@ -1116,7 +1116,7 @@ specify std.list:
         expect (capture (f, {l})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l))).to_be "List"
+        expect (objtype (f (l))).to_be "List"
     - it works for an empty List:
         expect (f (List {})).to_equal (List {})
     - it returns the result in a new List object:
@@ -1144,7 +1144,7 @@ specify std.list:
         expect (capture (f, {l, fn})).not_to_contain_error "was deprecated"
 
     - it returns a List object:
-        expect (prototype (f (l, fn))).to_be "List"
+        expect (objtype (f (l, fn))).to_be "List"
     - it works for an empty List:
         expect (f (List {}, fn)).to_equal (List {})
     - it returns the result in a new List object:

@@ -300,7 +300,7 @@ return setmetatable (M, {
   --   `name`, otherwise `nil` if nothing was found
   -- @usage
   -- local std = require "std"
-  -- local prototype = std.object.prototype
+  -- local objtype = std.object.objtype
   __index = function (self, name)
               local ok, t = pcall (require, "std." .. name)
               if ok then

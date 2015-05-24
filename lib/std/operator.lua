@@ -6,8 +6,8 @@
 
 local base = require "std.base"
 
-local pairs, prototype, tostring =
-  base.pairs, base.prototype, base.tostring
+local pairs, objtype, tostring =
+  base.pairs, base.objtype, base.tostring
 
 
 local function eqv (a, b)
@@ -18,7 +18,7 @@ local function eqv (a, b)
   -- Unless we have two tables, what we have cannot be equivalent here.
   if type (a) ~= "table" or type (b) ~= "table" then return false end
 
-  local type_a, type_b = prototype (a), prototype (b)
+  local type_a, type_b = objtype (a), objtype (b)
   if type_a ~= type_b then return false end
 
   local keyeqv = {} -- keys requiring recursive equivalence test

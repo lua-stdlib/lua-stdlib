@@ -1,7 +1,6 @@
 before:
   Object    = require "std.object"
   obj       = Object {"foo", "bar", baz="quux"}
-  prototype = Object.prototype
 
   function copy (t)
     local r = {}
@@ -22,7 +21,7 @@ specify std.object:
         obj = Object:clone {}
         expect (obj).not_to_be (Object)
         expect (type (obj)).to_be "table"
-        expect (prototype (obj)).to_be "Object"
+        expect (objtype (obj)).to_be "Object"
     - it reuses the Object metatable:
         o = obj:clone {"o"}
         p = o:clone {"p"}
@@ -32,7 +31,7 @@ specify std.object:
         expect (obj:clone {}).to_copy (obj)
     - it serves as a prototype for new instances:
         o = obj:clone {}
-        expect (prototype (o)).to_be "Object"
+        expect (objtype (o)).to_be "Object"
         expect (o).to_copy (obj)
         expect (getmetatable (o)).to_be (getmetatable (obj))
     - it separates '_' prefixed fields:
@@ -44,7 +43,15 @@ specify std.object:
         expect (getmetatable (obj)._baz).to_be "quux"
 
 - describe prototype:
-  - before: o = Object {}
+  - before:
+      o = Object {}
+      prototype = Object.prototype
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (prototype, {o})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (prototype, {o})).not_to_contain_error "was deprecated"
 
   - context when called from the object module:
     - it reports the prototype stored in the object's metatable:
@@ -84,11 +91,51 @@ specify std.object:
         p = Portal {}
         expect (p:prototype ()).to_be "Demon"
         expect ((p {}):prototype ()).to_be "Demon"
-  - context backwards compatibility:
-    - it reports the prototype stored in the object's metatable:
-        expect (Object.type (o)).to_be "Object"
+
+
+- describe type:
+  - before:
+      o = Object {}
+      objtype = Object.type
+
+  - context when called from the object module:
+    - it reports the type stored in the object's metatable:
+        expect (objtype (o)).to_be "Object"
+    - it reports the type of a cloned object:
+        expect (objtype (o {})).to_be "Object"
+    - it reports the type of a derived object:
+        Example = Object {_type = "Example"}
+        expect (objtype (Example)).to_be "Example"
+    - it reports the type of a cloned derived object:
+        Portal = Object {_type = "Demon"}
+        p = Portal {}
+        expect (objtype (p)).to_be "Demon"
+        expect (objtype (p {})).to_be "Demon"
+    - it recognizes a file object:
+        h = io.open (os.tmpname ())
+        expect (objtype (h)).to_be "file"
+        h:close ()
+        expect (objtype (h)).to_be "closed file"
+    - it recognizes a primitive object:
+        expect (objtype (nil)).to_be "nil"
+        expect (objtype (false)).to_be "boolean"
+        expect (objtype (0.0)).to_be "number"
+        expect (objtype "0.0").to_be "string"
+        expect (objtype (function () end)).to_be "function"
+        expect (objtype {}).to_be "table"
+  - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:type ()).to_be "Object"
+    - it reports the type of a cloned object:
+        expect ((o {}):type ()).to_be "Object"
+    - it reports the type of a subclassed object:
+        Example = Object {_type = "Example"}
+        expect (Example:type ()).to_be "Example"
+    - it reports the type of a cloned subclassed object:
+        Portal = Object {_type = "Demon"}
+        p = Portal {}
+        expect (p:type ()).to_be "Demon"
+        expect ((p {}):type ()).to_be "Demon"
 
 
 - describe instantiation from a prototype:
@@ -188,12 +235,12 @@ specify std.object:
         _init  = { "field", "method"},
         field  = "in prototype",
         method = function (self, ...)
-                   return prototype (self) .. " class, " ..
+                   return objtype (self) .. " class, " ..
                           table.concat ({...}, ", ")
                  end,
       }
       instance  = Prototype {"in object", function (self, ...)
-                                            return prototype (self) .. " instance, " ..
+                                            return objtype (self) .. " instance, " ..
                                                    table.concat ({...}, ", ")
                                           end,
                             }
@@ -213,12 +260,12 @@ specify std.object:
       expect (instance.newfield).to_be "new"
   - it allows new instance methods to be added:
       instance.newmethod = function (self)
-                             return prototype (self) .. ", new instance method"
+                             return objtype (self) .. ", new instance method"
                            end
       expect (instance:newmethod ()).to_be "Prototype, new instance method"
   - it allows new class methods to be added:
       Prototype.newmethod = function (self)
-                              return prototype (self) .. ", new class method"
+                              return objtype (self) .. ", new class method"
                             end
       expect (Prototype.newmethod (instance)).
         to_be "Prototype, new class method"
@@ -226,14 +273,14 @@ specify std.object:
 
 - describe object method propagation:
   - context with no custom instance methods:
-    # :prototype is a method defined by the root object
+    # :type is a method defined by the root object
     - it inherits prototype object methods:
         instance = Object {}
-        expect (instance:prototype ()).to_be "Object"
+        expect (instance:type ()).to_be "Object"
     - it propagates prototype methods to derived instances:
         Derived = Object {_type = "Derived"}
         instance = Derived {}
-        expect (instance:prototype ()).to_be "Derived"
+        expect (instance:type ()).to_be "Derived"
   - context with custom object methods:
     - before:
         bag = Object {
@@ -247,10 +294,10 @@ specify std.object:
         }
     # :prototype is a method defined by the root object
     - it inherits prototype object methods:
-        expect (bag:prototype ()).to_be "bag"
+        expect (bag:type ()).to_be "bag"
     - it propagates prototype methods to derived instances:
         instance = bag {}
-        expect (instance:prototype ()).to_be "bag"
+        expect (instance:type ()).to_be "bag"
     - it supports method calls:
         expect (bag:add "foo").to_be (bag)
         expect (bag.foo).to_be (1)
@@ -298,7 +345,7 @@ specify std.object:
       expect (type (tostring (obj))).to_be "string"
   - it contains the type:
       expect (tostring (Object {})).to_contain "Object"
-      expect (tostring (obj)).to_contain (prototype (obj))
+      expect (tostring (obj)).to_contain (objtype (obj))
   - it contains the ordered array part elements:
       expect (tostring (obj)).to_contain "one, two, three"
   - it contains the ordered dictionary part elements:

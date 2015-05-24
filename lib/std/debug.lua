@@ -34,7 +34,7 @@ local base       = require "std.base"
 
 local _DEBUG = debug_init._DEBUG
 local argerror, raise = base.argerror, base.raise
-local prototype, unpack = base.prototype, base.unpack
+local objtype, unpack = base.objtype, base.unpack
 local copy, split, tostring = base.copy, base.split, base.tostring
 local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
@@ -253,7 +253,7 @@ end
 
 
 local function extramsg_mismatch (expectedtypes, actual, index)
-  local actualtype = prototype (actual)
+  local actualtype = objtype (actual)
 
   -- Tidy up actual type for display.
   if actualtype == "nil" then
@@ -364,7 +364,7 @@ if _DEBUG.argcheck then
       end
     end
 
-    actualtype = prototype (actual)
+    actualtype = objtype (actual)
     if check == actualtype then
       return true
     elseif check == "list" or check == "#list" then

@@ -83,9 +83,9 @@ function init (M, mname, fname)
 end
 
 
--- A copy of base.lua:prototype, so that an unloadable base.lua doesn't
+-- A copy of base.lua:objtype, so that an unloadable base.lua doesn't
 -- prevent everything else from working.
-function prototype (o)
+function objtype (o)
   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 

@@ -123,7 +123,7 @@ specify std.table:
       badargs.diagnose (f, "std.table.depair (list of lists)")
 
   - it returns a primitive table:
-      expect (prototype (f (l))).to_be "table"
+      expect (objtype (f (l))).to_be "table"
   - it works with an empty table:
       expect (f {}).to_equal {}
   - it is the inverse of enpair:
@@ -157,7 +157,7 @@ specify std.table:
       badargs.diagnose (f, "std.table.enpair (table)")
 
   - it returns a table:
-      expect (prototype (f (t))).to_be "table"
+      expect (objtype (f (t))).to_be "table"
   - it works for an empty table:
       expect (f {}).to_equal {}
   - it turns a table into a table of pairs:
@@ -551,7 +551,7 @@ specify std.table:
       badargs.diagnose (f, "std.table.project (any, list of tables)")
 
   - it returns a table:
-      expect (prototype (f ("third", l))).to_be "table"
+      expect (objtype (f ("third", l))).to_be "table"
   - it works with an empty table:
       expect (f ("third", {})).to_equal {}
   - it projects a table of fields from a table of tables:
@@ -632,7 +632,7 @@ specify std.table:
       badargs.diagnose (f, "std.table.shape (table, table)")
 
   - it returns a table:
-      expect (prototype (f ({2, 3}, l))).to_be "table"
+      expect (objtype (f ({2, 3}, l))).to_be "table"
   - it works for an empty table:
       expect (f ({0}, {})).to_equal ({})
   - it returns the result in a new table:

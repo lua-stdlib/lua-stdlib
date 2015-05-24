@@ -1,6 +1,5 @@
 before:
   Set       = require "std.set"
-  prototype = require "std.object".prototype
   s         = Set {"foo", "bar", "bar"}
 
 specify std.set:
@@ -14,13 +13,13 @@ specify std.set:
   - it constructs a new set:
       s = Set {}
       expect (s).not_to_be (Set)
-      expect (prototype (s)).to_be "Set"
+      expect (objtype (s)).to_be "Set"
   - it initialises set with constructor parameters:
       t = Set {"foo", "bar", "bar"}
       expect (t).to_equal (s)
   - it serves as a prototype for new instances:
       obj = s {}
-      expect (prototype (obj)).to_be "Set"
+      expect (objtype (obj)).to_be "Set"
       expect (obj).to_equal (s)
       expect (getmetatable (obj)).to_be (getmetatable (s))
 
@@ -30,7 +29,7 @@ specify std.set:
     - before:
         s = Set {"foo", "bar", "baz"}
     - it returns a set object:
-        expect (prototype (Set.delete (s, "foo"))).to_be "Set"
+        expect (objtype (Set.delete (s, "foo"))).to_be "Set"
     - it is destructive:
         Set.delete (s, "bar")
         expect (s).not_to_have_member "bar"
@@ -54,7 +53,7 @@ specify std.set:
 
   - context when called as a Set module function:
     - it returns a set object:
-        expect (prototype (Set.difference (r, s))).to_be "Set"
+        expect (objtype (Set.difference (r, s))).to_be "Set"
     - it is non-destructive:
         Set.difference (r, s)
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -63,7 +62,7 @@ specify std.set:
         expect (Set.difference (r, s)).to_equal (Set {"foo"})
   - context when called as a set metamethod:
     - it returns a set object:
-        expect (prototype (r - s)).to_be "Set"
+        expect (objtype (r - s)).to_be "Set"
     - it is non-destructive:
         q = r - s
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -93,7 +92,7 @@ specify std.set:
     - before:
         s = Set {"foo"}
     - it returns a set object:
-        expect (prototype (Set.insert (s, "bar"))).to_be "Set"
+        expect (objtype (Set.insert (s, "bar"))).to_be "Set"
     - it is destructive:
         Set.insert (s, "bar")
         expect (s).to_have_member "bar"
@@ -112,7 +111,7 @@ specify std.set:
         s = Set {"foo"}
     - it returns a set object:
         s["bar"] = true
-        expect (prototype (s)).to_be "Set"
+        expect (objtype (s)).to_be "Set"
     - it is destructive:
         s["bar"] = true
         expect (s).to_have_member "bar"
@@ -136,7 +135,7 @@ specify std.set:
 
   - context when called as a Set module function:
     - it returns a set object:
-        expect (prototype (Set.intersection (r, s))).to_be "Set"
+        expect (objtype (Set.intersection (r, s))).to_be "Set"
     - it is non-destructive:
         Set.intersection (r, s)
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -147,7 +146,7 @@ specify std.set:
   - context when called as a set metamethod:
     - it returns a set object:
         q = r * s
-        expect (prototype (q)).to_be "Set"
+        expect (objtype (q)).to_be "Set"
     - it is non-destructive:
         q = r * s
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -234,7 +233,7 @@ specify std.set:
 
   - context when called as a Set module function:
     - it returns a set object:
-        expect (prototype (Set.symmetric_difference (r, s))).
+        expect (objtype (Set.symmetric_difference (r, s))).
           to_be "Set"
     - it is non-destructive:
         Set.symmetric_difference (r, s)
@@ -245,7 +244,7 @@ specify std.set:
           to_equal (Set {"foo", "quux"})
   - context when called as a set metamethod:
     - it returns a set object:
-        expect (prototype (r / s)).to_be "Set"
+        expect (objtype (r / s)).to_be "Set"
     - it is non-destructive:
         q = r / s
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -261,7 +260,7 @@ specify std.set:
 
   - context when called as a Set module function:
     - it returns a set object:
-        expect (prototype (Set.union (r, s))).to_be "Set"
+        expect (objtype (Set.union (r, s))).to_be "Set"
     - it is non-destructive:
         Set.union (r, s)
         expect (r).to_equal (Set {"foo", "bar", "baz"})
@@ -271,7 +270,7 @@ specify std.set:
           to_equal (Set {"foo", "bar", "baz", "quux"})
   - context when called as a set metamethod:
     - it returns a set object:
-        expect (prototype (r + s)).to_be "Set"
+        expect (objtype (r + s)).to_be "Set"
     - it is non-destructive:
         q = r + s
         expect (r).to_equal (Set {"foo", "bar", "baz"})

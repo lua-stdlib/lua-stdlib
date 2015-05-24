@@ -18,10 +18,9 @@ local debug   = require "std.debug"
 local Object  = require "std.object" {}
 
 local ipairs, pairs = base.ipairs, base.pairs
-local len       = base.len
-local compare   = base.compare
-local prototype = base.prototype
-local unpack    = base.unpack
+local len     = base.len
+local compare = base.compare
+local unpack  = base.unpack
 
 local M, List
 

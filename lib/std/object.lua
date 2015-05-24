@@ -32,10 +32,12 @@
 
 local base      = require "std.base"
 local container = require "std.container"
+local debug     = require "std.debug"
 
 local Container = container {}
-local getmetamethod, prototype = base.getmetamethod, base.prototype
+local getmetamethod, objtype = base.getmetamethod, base.objtype
 
+local DEPRECATED = debug.DEPRECATED
 
 
 --- Root object.
@@ -77,8 +79,7 @@ return Container {
   _type  = "Object",
 
   -- No need for explicit module functions here, because calls to, e.g.
-  -- `Object.prototype` will automatically fall back metamethods in
-  -- `__index`.
+  -- `Object.type` will automatically fall back metamethods in `__index`.
 
   __index = {
     --- Clone an Object.
@@ -127,7 +128,7 @@ return Container {
     -- file objects, or @{type} otherwise.
     --
     -- @static
-    -- @function prototype
+    -- @function type
     -- @param x anything
     -- @treturn string type of *x*
     -- @usage
@@ -142,16 +143,16 @@ return Container {
     --   },
     -- }
     -- local stack = Stack {}
-    -- assert (stack:prototype () == getmetatable (stack)._type)
+    -- assert (stack:type () == getmetatable (stack)._type)
     --
-    -- local prototype = Object.prototype
-    -- assert (prototype (stack) == getmetatable (stack)._type)
+    -- local objtype = Object.type
+    -- assert (objtype (stack) == getmetatable (stack)._type)
     --
     -- local h = io.open (os.tmpname (), "w")
-    -- assert (prototype (h) == io.type (h))
+    -- assert (objtype (h) == io.type (h))
     --
-    -- assert (prototype {} == type {})
-    prototype = prototype,
+    -- assert (type {} == type {})
+    type = objtype,
 
 
     --- Return *obj* with references to the fields of *src* merged in.
@@ -188,7 +189,7 @@ return Container {
 
 
     -- Backwards compatibility:
-    type = prototype,
+    prototype = DEPRECATED ("41.3", "'std.object.prototype'", objtype),
   },
 
 

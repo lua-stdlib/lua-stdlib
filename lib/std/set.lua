@@ -21,7 +21,7 @@ local base      = require "std.base"
 
 local Container = require "std.container" {}
 
-local ielems, pairs, prototype = base.ielems, base.pairs, base.prototype
+local ielems, pairs, type = base.ielems, base.pairs, base.objtype
 
 
 local Set -- forward declaration
@@ -141,7 +141,7 @@ end
 -- @see std.object.__call
 -- @usage
 -- local std = require "std"
--- std.prototype (std.set) --> "Set"
+-- std.type (std.set) --> "Set"
 -- os.exit (0)
 Set = Container {
   _type      = "Set",
@@ -229,7 +229,7 @@ Set = Container {
                    keys[#keys + 1] = tostring (k)
                  end
                  table.sort (keys)
-                 return prototype (self) .. " {" .. table.concat (keys, ", ") .. "}"
+                 return type (self) .. " {" .. table.concat (keys, ", ") .. "}"
                end,
 
 
