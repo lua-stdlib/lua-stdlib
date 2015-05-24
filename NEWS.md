@@ -17,6 +17,9 @@
     we're going back to using `std.object.type`, which just makes more
     sense.  Sorry!
 
+  - Similarly, for orthogonality with core Lua `type`, we also export the
+    `std.object.type` function as `std.type`.
+
   - New `std.tuple` object, for managing interned immutable nil-preserving
     tuples:
 

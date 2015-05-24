@@ -5,7 +5,7 @@ before: |
   exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
                     "ielems", "ipairs", "ireverse", "len", "monkey_patch",
                     "npairs", "pairs", "require", "ripairs", "rnpairs",
-                    "tostring", "version" }
+                    "tostring", "type", "version" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -632,3 +632,22 @@ specify std:
   - it renders keys with invalid symbol names compactly:
       expect (f { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }).
         to_be '{?=1,[]=1,_=0,a-key=1,word=0}'
+
+
+- describe type:
+  - before: f = M.type
+
+  - it recognizes a primitive object:
+      expect (f (nil)).to_be (type (nil))
+      expect (f (false)).to_be (type (false))
+      expect (f (0.0)).to_be (type (0.0))
+      expect (f "0.0").to_be (type "0.0")
+      expect (f (function () end)).to_be (type (function () end))
+      expect (f {}).to_be (type {})
+  - it recognizes a file object:
+      h = io.open (os.tmpname ())
+      expect (f (h)).to_be (io.type (h))
+      h:close ()
+      expect (f (h)).to_be (io.type (h))
+  - it recognizes _type metatable field:
+      expect (f (setmetatable ({}, {_type = "objet"}))).to_be "objet"

@@ -275,6 +275,13 @@ M = {
   -- print (std.tostring {foo="bar","baz"})
   tostring = X ("tostring (?any)", base.tostring),
 
+  --- Type of an object, or primitive.
+  -- @function type
+  -- @param x anything
+  -- @treturn string type of *x*
+  -- @see std.object.type
+  type = X ("type (?any)", base.objtype),
+
   version = "General Lua libraries / @VERSION@",
 }
 
