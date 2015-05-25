@@ -38,7 +38,7 @@
     an example.
 
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
-    when recursive eable contents are equivalent.
+    when recursive table contents are equivalent.
 
   - New `std.len` replaces deprecated `std.table.len`.
 
