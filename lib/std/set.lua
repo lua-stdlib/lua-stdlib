@@ -21,7 +21,7 @@ local std = require "std.base"
 
 local Container = require "std.container" {}
 
-local ielems, pairs, type = std.ielems, std.pairs, std.objtype
+local ielems, pairs, type = std.ielems, std.pairs, std.type
 
 
 local Set -- forward declaration

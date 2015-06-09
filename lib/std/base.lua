@@ -304,11 +304,6 @@ local function collect (ifn, ...)
 end
 
 
-local function objtype (o)
-  return (getmetatable (o) or {})._type or io.type (o) or type (o)
-end
-
-
 local function reduce (fn, d, ifn, ...)
   local argt = {...}
   if not callable (ifn) then
@@ -466,6 +461,11 @@ return {
   require  = require,
   tostring = tostring,
 
+  type = function (x)
+    return (getmetatable (x) or {})._type or io.type (x) or type (x)
+  end,
+
+
   -- debug.lua --
   argerror = argerror,
 
@@ -482,7 +482,6 @@ return {
   compare = compare,
 
   -- object.lua --
-  objtype = objtype,
 
   -- package.lua --
   dirsep = dirsep,

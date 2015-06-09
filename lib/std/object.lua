@@ -30,12 +30,12 @@
 -- Container is derived from it.  Confused? ;-)
 
 
-local std       = require "std.base"
 local container = require "std.container"
 local debug     = require "std.debug"
+local std       = require "std.base"
 
 local Container = container {}
-local getmetamethod, objtype = std.getmetamethod, std.objtype
+local getmetamethod = std.getmetamethod
 
 local DEPRECATED = debug.DEPRECATED
 
@@ -122,7 +122,7 @@ return Container {
     --
     -- It's conventional to organise similar objects according to a
     -- string valued *\_type* field, which can then be queried using this
-    -- function.
+    -- method.
     --
     -- Additionally, this function returns the results of @{io.type} for
     -- file objects, or @{type} otherwise.
@@ -152,7 +152,7 @@ return Container {
     -- assert (objtype (h) == io.type (h))
     --
     -- assert (type {} == type {})
-    type = objtype,
+    type = std.type,
 
 
     --- Return *obj* with references to the fields of *src* merged in.
@@ -189,7 +189,7 @@ return Container {
 
 
     -- Backwards compatibility:
-    prototype = DEPRECATED ("41.3", "'std.object.prototype'", objtype),
+    prototype = DEPRECATED ("41.3", "'std.object.prototype'", std.type),
   },
 
 

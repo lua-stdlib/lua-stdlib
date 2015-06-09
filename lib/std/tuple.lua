@@ -22,7 +22,7 @@
 ]]
 
 local Container = require "std.container" {}
-local objtype = require "std.base".objtype
+local stdtype = require "std.base".type
 
 
 -- Stringify tuple values, as a memoization key.
@@ -133,6 +133,6 @@ return  Container {
   -- -- 'Tuple ("nil", nil, false)'
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
-    return ("%s (%s)"):format (objtype (self), argstr (self))
+    return ("%s (%s)"):format (stdtype (self), argstr (self))
   end,
 }

@@ -38,7 +38,7 @@ local debug = require "std.debug"
 
 local ipairs, pairs, okeys = std.ipairs, std.pairs, std.okeys
 local insert, len = std.insert, std.len
-local okeys, objtype, tostring = std.okeys, std.objtype, std.tostring
+local okeys, stdtype, tostring = std.okeys, std.type, std.tostring
 local argcheck = debug.argcheck
 
 
@@ -232,7 +232,7 @@ end
 
 function M.__tostring (self)
   local n, k_ = 1, nil
-  local buf = { objtype (self), " {" }		-- pre-buffer object open
+  local buf = { stdtype (self), " {" }		-- pre-buffer object open
   for _, k in ipairs (okeys (self)) do		-- for ordered public members
     local v = self[k]
 
@@ -296,8 +296,8 @@ return setmetatable ({
   -- it has to be done manually.
 
   mapfields = modulefunction (M.mapfields),
-  prototype = modulefunction (objtype),
-  type      = modulefunction (objtype),
+  prototype = modulefunction (stdtype),
+  type      = modulefunction (stdtype),
 }, {
   _type = "Container",
 

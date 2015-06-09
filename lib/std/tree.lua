@@ -22,8 +22,8 @@ local operator  = require "std.operator"
 
 local Container = require "std.container" {}
 
-local ielems, ipairs, leaves, pairs, objtype =
-  std.ielems, std.ipairs, std.leaves, std.pairs, std.objtype
+local ielems, ipairs, leaves, pairs, stdtype =
+  std.ielems, std.ipairs, std.leaves, std.pairs, std.type
 local last, len = std.last, std.len
 local reduce = std.reduce
 
@@ -138,12 +138,12 @@ Tree = Container {
   -- @usage
   -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
   __index = function (tr, i)
-              if objtype (i) == "table" then
-                return reduce (operator.get, tr, ielems, i)
-              else
-                return rawget (tr, i)
-              end
-            end,
+    if stdtype (i) == "table" then
+      return reduce (operator.get, tr, ielems, i)
+    else
+      return rawget (tr, i)
+    end
+  end,
 
   --- Deep insertion.
   -- @static
@@ -154,18 +154,18 @@ Tree = Container {
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
   __newindex = function (tr, i, v)
-                 if objtype (i) == "table" then
-                   for n = 1, len (i) - 1 do
-                     if objtype (tr[i[n]]) ~= "Tree" then
-                       rawset (tr, i[n], Tree {})
-                     end
-                     tr = tr[i[n]]
-                   end
-                   rawset (tr, last (i), v)
-                 else
-                   rawset (tr, i, v)
-                 end
-               end,
+    if stdtype (i) == "table" then
+      for n = 1, len (i) - 1 do
+        if stdtype (tr[i[n]]) ~= "Tree" then
+          rawset (tr, i[n], Tree {})
+        end
+        tr = tr[i[n]]
+      end
+      rawset (tr, last (i), v)
+    else
+      rawset (tr, i, v)
+    end
+  end,
 
   _functions = {
     --- Make a deep copy of a tree, including any metatables.

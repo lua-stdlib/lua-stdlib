@@ -1,5 +1,6 @@
 before:
-  Object    = require "std.object"
+  object    = require "std.object"
+  Object    = object {}
   obj       = Object {"foo", "bar", baz="quux"}
 
   function copy (t)
@@ -18,10 +19,10 @@ specify std.object:
 - describe construction:
   - context from Object clone method:
     - it constructs a new object:
-        obj = Object:clone {}
-        expect (obj).not_to_be (Object)
-        expect (type (obj)).to_be "table"
-        expect (objtype (obj)).to_be "Object"
+        o = Object:clone {}
+        expect (o).not_to_be (Object)
+        expect (type (o)).to_be "table"
+        expect (objtype (o)).to_be "Object"
     - it reuses the Object metatable:
         o = obj:clone {"o"}
         p = o:clone {"p"}
@@ -38,46 +39,46 @@ specify std.object:
         expect (Object:clone {foo="bar", _baz="quux"}).
           to_equal (Object:clone {foo="bar"})
     - it puts '_' prefixed fields in a new metatable:
-        obj = Object:clone {foo="bar", _baz="quux"}
-        expect (getmetatable (obj)).not_to_be (getmetatable (Object))
-        expect (getmetatable (obj)._baz).to_be "quux"
+        o = Object:clone {foo="bar", _baz="quux"}
+        expect (getmetatable (o)).not_to_be (getmetatable (Object))
+        expect (getmetatable (o)._baz).to_be "quux"
 
 - describe prototype:
   - before:
       o = Object {}
-      prototype = Object.prototype
+      fn = object.prototype
 
   - it writes a deprecation warning:
       setdebug { deprecate = "nil" }
-      expect (capture (prototype, {o})).to_contain_error "was deprecated"
+      expect (capture (fn, {o})).to_contain_error "was deprecated"
       setdebug { deprecate = false }
-      expect (capture (prototype, {o})).not_to_contain_error "was deprecated"
+      expect (capture (fn, {o})).not_to_contain_error "was deprecated"
 
   - context when called from the object module:
     - it reports the prototype stored in the object's metatable:
-        expect (prototype (o)).to_be "Object"
+        expect (fn (o)).to_be "Object"
     - it reports the type of a cloned object:
-        expect (prototype (o {})).to_be "Object"
+        expect (fn (o {})).to_be "Object"
     - it reports the type of a derived object:
         Example = Object {_type = "Example"}
-        expect (prototype (Example)).to_be "Example"
+        expect (fn (Example)).to_be "Example"
     - it reports the type of a cloned derived object:
         Portal = Object {_type = "Demon"}
         p = Portal {}
-        expect (prototype (p)).to_be "Demon"
-        expect (prototype (p {})).to_be "Demon"
+        expect (fn (p)).to_be "Demon"
+        expect (fn (p {})).to_be "Demon"
     - it recognizes a file object:
         h = io.open (os.tmpname ())
-        expect (prototype (h)).to_be "file"
+        expect (fn (h)).to_be "file"
         h:close ()
-        expect (prototype (h)).to_be "closed file"
+        expect (fn (h)).to_be "closed file"
     - it recognizes a primitive object:
-        expect (prototype (nil)).to_be "nil"
-        expect (prototype (false)).to_be "boolean"
-        expect (prototype (0.0)).to_be "number"
-        expect (prototype "0.0").to_be "string"
-        expect (prototype (function () end)).to_be "function"
-        expect (prototype {}).to_be "table"
+        expect (fn (nil)).to_be "nil"
+        expect (fn (false)).to_be "boolean"
+        expect (fn (0.0)).to_be "number"
+        expect (fn "0.0").to_be "string"
+        expect (fn (function () end)).to_be "function"
+        expect (fn {}).to_be "table"
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:prototype ()).to_be "Object"
@@ -96,33 +97,33 @@ specify std.object:
 - describe type:
   - before:
       o = Object {}
-      objtype = Object.type
+      fn = object.type
 
   - context when called from the object module:
     - it reports the type stored in the object's metatable:
-        expect (objtype (o)).to_be "Object"
+        expect (fn (o)).to_be "Object"
     - it reports the type of a cloned object:
-        expect (objtype (o {})).to_be "Object"
+        expect (fn (o {})).to_be "Object"
     - it reports the type of a derived object:
         Example = Object {_type = "Example"}
-        expect (objtype (Example)).to_be "Example"
+        expect (fn (Example)).to_be "Example"
     - it reports the type of a cloned derived object:
         Portal = Object {_type = "Demon"}
         p = Portal {}
-        expect (objtype (p)).to_be "Demon"
-        expect (objtype (p {})).to_be "Demon"
+        expect (fn (p)).to_be "Demon"
+        expect (fn (p {})).to_be "Demon"
     - it recognizes a file object:
         h = io.open (os.tmpname ())
-        expect (objtype (h)).to_be "file"
+        expect (fn (h)).to_be "file"
         h:close ()
-        expect (objtype (h)).to_be "closed file"
+        expect (fn (h)).to_be "closed file"
     - it recognizes a primitive object:
-        expect (objtype (nil)).to_be "nil"
-        expect (objtype (false)).to_be "boolean"
-        expect (objtype (0.0)).to_be "number"
-        expect (objtype "0.0").to_be "string"
-        expect (objtype (function () end)).to_be "function"
-        expect (objtype {}).to_be "table"
+        expect (fn (nil)).to_be "nil"
+        expect (fn (false)).to_be "boolean"
+        expect (fn (0.0)).to_be "number"
+        expect (fn "0.0").to_be "string"
+        expect (fn (function () end)).to_be "function"
+        expect (fn {}).to_be "table"
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:type ()).to_be "Object"
@@ -292,7 +293,6 @@ specify std.object:
                     end,
           },
         }
-    # :prototype is a method defined by the root object
     - it inherits prototype object methods:
         expect (bag:type ()).to_be "bag"
     - it propagates prototype methods to derived instances:
@@ -340,22 +340,22 @@ specify std.object:
 
 - describe __tostring:
   - before:
-      obj = Object {_type = "Derived", "one", "two", "three"}
+      o = Object {_type = "Derived", "one", "two", "three"}
   - it returns a string:
-      expect (type (tostring (obj))).to_be "string"
+      expect (type (tostring (o))).to_be "string"
   - it contains the type:
       expect (tostring (Object {})).to_contain "Object"
-      expect (tostring (obj)).to_contain (objtype (obj))
+      expect (tostring (o)).to_contain (objtype (o))
   - it contains the ordered array part elements:
-      expect (tostring (obj)).to_contain "one, two, three"
+      expect (tostring (o)).to_contain "one, two, three"
   - it contains the ordered dictionary part elements:
       expect (tostring (Object {one = true, two = true, three = true})).
         to_contain "one=true, three=true, two=true"
-      expect (tostring (obj {one = true, two = true, three = true})).
+      expect (tostring (o {one = true, two = true, three = true})).
         to_contain "one=true, three=true, two=true"
   - it contains a ';' separator only when object has array and dictionary parts:
-      expect (tostring (obj)).not_to_contain ";"
+      expect (tostring (o)).not_to_contain ";"
       expect (tostring (Object {one = true, two = true, three = true})).
         not_to_contain ";"
-      expect (tostring (obj {one = true, two = true, three = true})).
+      expect (tostring (o {one = true, two = true, three = true})).
         to_contain ";"

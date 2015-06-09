@@ -280,7 +280,7 @@ M = {
   -- @param x anything
   -- @treturn string type of *x*
   -- @see std.object.type
-  type = X ("type (?any)", std.objtype),
+  type = X ("type (?any)", std.type),
 
   version = "General Lua libraries / @VERSION@",
 }
