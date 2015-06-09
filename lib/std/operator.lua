@@ -4,10 +4,10 @@
  @module std.operator
 ]]
 
-local base = require "std.base"
+local std = require "std.base"
 
 local pairs, objtype, tostring =
-  base.pairs, base.objtype, base.tostring
+  std.pairs, std.objtype, std.tostring
 
 
 local function eqv (a, b)

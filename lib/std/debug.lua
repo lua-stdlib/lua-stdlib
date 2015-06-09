@@ -30,14 +30,14 @@
 
 
 local debug_init = require "std.debug_init"
-local base       = require "std.base"
+local std        = require "std.base"
 
 local _DEBUG = debug_init._DEBUG
-local argerror, raise = base.argerror, base.raise
-local objtype, unpack = base.objtype, base.unpack
-local copy, split, tostring = base.copy, base.split, base.tostring
-local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
-local ipairs, pairs = base.ipairs, base.pairs
+local argerror, raise = std.argerror, std.raise
+local objtype, unpack = std.objtype, std.unpack
+local copy, split, tostring = std.copy, std.split, std.tostring
+local insert, last, len, maxn = std.insert, std.last, std.len, std.maxn
+local ipairs, pairs = std.ipairs, std.pairs
 
 
 local M
@@ -558,7 +558,7 @@ else
   -- Turn off argument checking if _DEBUG is false, or a table containing
   -- a false valued `argcheck` field.
 
-  argcheck  = base.nop
+  argcheck  = std.nop
   argscheck = function (decl, inner) return inner end
 
 end

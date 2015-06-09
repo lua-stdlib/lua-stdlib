@@ -23,13 +23,13 @@
 ]]
 
 
-local base = require "std.base"
+local std = require "std.base"
 
 local M, monkeys
 
 
 local function monkey_patch (namespace)
-  base.copy (namespace or _G, monkeys)
+  std.copy (namespace or _G, monkeys)
   return M
 end
 
@@ -93,7 +93,7 @@ M = {
   -- @usage
   -- std.assert (expected ~= nil, "100% unexpected!")
   -- std.assert (expected ~= nil, "%s unexpected!", expected)
-  assert = X ("assert (?any, ?string, [any...])", base.assert),
+  assert = X ("assert (?any, ?string, [any...])", std.assert),
 
   --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
   --
@@ -117,14 +117,14 @@ M = {
   -- @see pairs
   -- @usage
   -- for value in std.elems {a = 1, b = 2, c = 5} do process (value) end
-  elems = X ("elems (table)", base.elems),
+  elems = X ("elems (table)", std.elems),
 
   --- Evaluate a string as Lua code.
   -- @function eval
   -- @string s string of Lua code
   -- @return result of evaluating `s`
   -- @usage std.eval "math.min (2, 10)"
-  eval = X ("eval (string)", base.eval),
+  eval = X ("eval (string)", std.eval),
 
   --- An iterator over the integer keyed elements of a sequence.
   -- If *t* has a `__len` metamethod, iterate up to the index it returns.
@@ -137,7 +137,7 @@ M = {
   -- @see ipairs
   -- @usage
   -- for v in std.ielems {"a", "b", "c"} do process (v) end
-  ielems = X ("ielems (table)", base.ielems),
+  ielems = X ("ielems (table)", std.ielems),
 
   --- An iterator over elements of a sequence, until the first `nil` value.
   --
@@ -161,7 +161,7 @@ M = {
   -- for i, v in std.ipairs (args) do
   --   print (string.format ("%d=%s", i, v))
   -- end
-  ipairs = X ("ipairs (table)", base.ipairs),
+  ipairs = X ("ipairs (table)", std.ipairs),
 
   --- Return a new table with element order reversed.
   -- Apart from the order of the elments returned, this function follows
@@ -175,7 +175,7 @@ M = {
   -- @usage
   -- local rielems = std.functional.compose (std.ireverse, std.ielems)
   -- for e in rielems (l) do process (e) end
-  ireverse = X ("ireverse (table)", base.ireverse),
+  ireverse = X ("ireverse (table)", std.ireverse),
 
   --- Return named metamethod, if any, otherwise `nil`.
   -- @function getmetamethod
@@ -183,14 +183,14 @@ M = {
   -- @string n name of metamethod to lookup
   -- @treturn function|nil metamethod function, or `nil` if no metamethod
   -- @usage lookup = std.getmetamethod (require "std.object", "__index")
-  getmetamethod = X ("getmetamethod (?any, string)", base.getmetamethod),
+  getmetamethod = X ("getmetamethod (?any, string)", std.getmetamethod),
 
   --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
   -- @function len
   -- @tparam object|string|table x operand
   -- @treturn int length of list part of *t*
   -- @usage for i = 1, len (t) do process (t[i]) end
-  len = X ("len (object|string|table)", base.len),
+  len = X ("len (object|string|table)", std.len),
 
   --- Overwrite core methods and metamethods with `std` enhanced versions.
   --
@@ -212,7 +212,7 @@ M = {
   -- @see rnpairs
   -- @usage
   -- for i,v in npairs {"one", nil, "three"} do ... end
-  npairs = X ("npairs (table)", base.npairs),
+  npairs = X ("npairs (table)", std.npairs),
 
   --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
   -- @function pairs
@@ -224,7 +224,7 @@ M = {
   -- @see ipairs
   -- @usage
   -- for k, v in pairs {"a", b = "c", foo = 42} do process (k, v) end
-  pairs = X ("pairs (table)", base.pairs),
+  pairs = X ("pairs (table)", std.pairs),
 
   --- Enhance core `require` to assert version number compatibility.
   -- By default match against the last substring of (dot-delimited)
@@ -238,7 +238,7 @@ M = {
   -- @usage
   -- -- posix.version == "posix library for Lua 5.2 / 32"
   -- posix = require ("posix", "29")
-  require = X ("require (string, ?string, ?string, ?string)", base.require),
+  require = X ("require (string, ?string, ?string, ?string)", std.require),
 
   --- An iterator like ipairs, but in reverse.
   -- Apart from the order of the elments returned, this function follows
@@ -251,7 +251,7 @@ M = {
   -- @see ipairs
   -- @see rnpairs
   -- @usage for i, v = ripairs (t) do ... end
-  ripairs = X ("ripairs (table)", base.ripairs),
+  ripairs = X ("ripairs (table)", std.ripairs),
 
   --- An iterator like npairs, but in reverse.
   -- Apart from the order of the elments returned, this function follows
@@ -264,7 +264,7 @@ M = {
   -- @see ripairs
   -- @usage
   -- for i,v in rnpairs {"one", nil, "three"} do ... end
-  rnpairs = X ("rnpairs (table)", base.rnpairs),
+  rnpairs = X ("rnpairs (table)", std.rnpairs),
 
   --- Enhance core `tostring` to render table contents as a string.
   -- @function tostring
@@ -273,20 +273,20 @@ M = {
   -- @usage
   -- -- {1=baz,foo=bar}
   -- print (std.tostring {foo="bar","baz"})
-  tostring = X ("tostring (?any)", base.tostring),
+  tostring = X ("tostring (?any)", std.tostring),
 
   --- Type of an object, or primitive.
   -- @function type
   -- @param x anything
   -- @treturn string type of *x*
   -- @see std.object.type
-  type = X ("type (?any)", base.objtype),
+  type = X ("type (?any)", std.objtype),
 
   version = "General Lua libraries / @VERSION@",
 }
 
 
-monkeys = base.copy ({}, M)
+monkeys = std.copy ({}, M)
 
 -- Don't monkey_patch these apis into _G!
 for _, api in ipairs {"barrel", "monkey_patch", "version"} do

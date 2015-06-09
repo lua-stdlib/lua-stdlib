@@ -12,15 +12,15 @@
 ]]
 
 
-local base    = require "std.base"
+local std     = require "std.base"
 local debug   = require "std.debug"
 
 local Object  = require "std.object" {}
 
-local ipairs, pairs = base.ipairs, base.pairs
-local len     = base.len
-local compare = base.compare
-local unpack  = base.unpack
+local ipairs, pairs = std.ipairs, std.pairs
+local len     = std.len
+local compare = std.compare
+local unpack  = std.unpack
 
 local M, List
 
@@ -207,7 +207,7 @@ end
 
 local function flatten (l)
   local r = List {}
-  for v in base.leaves (ipairs, l) do
+  for v in std.leaves (ipairs, l) do
     r[#r + 1] = v
   end
   return r
@@ -220,7 +220,7 @@ local function foldl (fn, d, t)
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
-  return base.reduce (fn, d, base.ielems, t)
+  return std.reduce (fn, d, std.ielems, t)
 end
 
 
@@ -230,8 +230,8 @@ local function foldr (fn, d, t)
     for i = 1, last - 1 do u[#u + 1] = d[i] end
     d, t = d[last], u
   end
-  return base.reduce (
-    function (x, y) return fn (y, x) end, d, base.ielems, base.ireverse (t))
+  return std.reduce (
+    function (x, y) return fn (y, x) end, d, std.ielems, std.ireverse (t))
 end
 
 
@@ -281,10 +281,10 @@ local function project (x, l)
 end
 
 
-local function relems (l) return base.ielems (base.ireverse (l)) end
+local function relems (l) return std.ielems (std.ireverse (l)) end
 
 
-local function reverse (l) return List (base.ireverse (l)) end
+local function reverse (l) return List (std.ireverse (l)) end
 
 
 local function shape (s, l)
@@ -359,9 +359,9 @@ M.enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair)
 m.enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair)
 
 M.elems       = DEPRECATED ("41", "'std.list.elems'",
-                  "use 'std.ielems' instead", base.ielems)
+                  "use 'std.ielems' instead", std.ielems)
 m.elems       = DEPRECATED ("41", "'std.list:elems'",
-                  "use 'std.ielems' instead", base.ielems)
+                  "use 'std.ielems' instead", std.ielems)
 
 M.filter      = DEPRECATED ("41", "'std.list.filter'",
                   "use 'std.functional.filter' instead", filter)

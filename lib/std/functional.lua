@@ -8,13 +8,13 @@
 ]]
 
 
-local base     = require "std.base"
+local std      = require "std.base"
 local debug    = require "std.debug"
 
 local ielems, ipairs, ireverse, npairs, pairs =
-  base.ielems, base.ipairs, base.ireverse, base.npairs, base.pairs
+  std.ielems, std.ipairs, std.ireverse, std.npairs, std.pairs
 local callable, copy, len, reduce, unpack =
-  base.callable, base.copy, base.len, base.reduce, base.unpack
+  std.callable, std.copy, std.len, std.reduce, std.unpack
 local loadstring = loadstring or load
 
 
@@ -147,7 +147,7 @@ end
 
 local function memoize (fn, normalize)
   if normalize == nil then
-    normalize = function (...) return base.tostring {...} end
+    normalize = function (...) return std.tostring {...} end
   end
 
   return setmetatable ({}, {
@@ -347,7 +347,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any...)", base.collect),
+  collect = X ("collect ([func], any...)", std.collect),
 
   --- Compose functions.
   -- @function compose
@@ -514,7 +514,7 @@ local M = {
   -- @see id
   -- @usage
   -- if unsupported then vtable["memrmem"] = nop end
-  nop = base.nop, -- ignores all arguments
+  nop = std.nop, -- ignores all arguments
 
   --- Functional list product.
   --
@@ -584,7 +584,7 @@ local DEPRECATED = debug.DEPRECATED
 
 
 M.eval = DEPRECATED ("41", "'std.functional.eval'",
-  "use 'std.eval' instead", base.eval)
+  "use 'std.eval' instead", std.eval)
 
 
 local function fold (fn, d, ifn, ...)

@@ -17,11 +17,11 @@
  @see std.container
  ]]
 
-local base      = require "std.base"
+local std = require "std.base"
 
 local Container = require "std.container" {}
 
-local ielems, pairs, type = base.ielems, base.pairs, base.objtype
+local ielems, pairs, type = std.ielems, std.pairs, std.objtype
 
 
 local Set -- forward declaration
@@ -38,7 +38,7 @@ local Set -- forward declaration
 -- whose values are true.
 
 
-local elems = base.pairs
+local elems = std.pairs
 
 
 local function insert (set, e)

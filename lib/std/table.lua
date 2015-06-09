@@ -13,14 +13,14 @@
 
 local core = _G.table
 
-local base  = require "std.base"
+local std   = require "std.base"
 local debug = require "std.debug"
 
 local argerror      = debug.argerror
-local collect       = base.collect
-local leaves        = base.leaves
-local ipairs, pairs = base.ipairs, base.pairs
-local len           = base.len
+local collect       = std.collect
+local leaves        = std.leaves
+local ipairs, pairs = std.ipairs, std.pairs
+local len           = std.len
 
 
 local M, monkeys
@@ -161,7 +161,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.table = base.copy (namespace.table or {}, monkeys)
+  namespace.table = std.copy (namespace.table or {}, monkeys)
   return M
 end
 
@@ -280,7 +280,7 @@ M = {
   -- @usage
   -- --> {1, "x", 2, 3, "y"}
   -- insert (insert ({1, 2, 3}, 2, "x"), "y")
-  insert = X ("insert (table, [int], any)", base.insert),
+  insert = X ("insert (table, [int], any)", std.insert),
 
   --- Invert a table.
   -- @function invert
@@ -289,7 +289,7 @@ M = {
   -- @usage
   -- --> {a=1, b=2, c=3}
   -- invert {"a", "b", "c"}
-  invert = X ("invert (table)", base.invert),
+  invert = X ("invert (table)", std.invert),
 
   --- Make the list of keys in table.
   -- @function keys
@@ -307,7 +307,7 @@ M = {
   -- @usage
   -- --> 42
   -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
-  maxn = X ("maxn (table)", base.maxn),
+  maxn = X ("maxn (table)", std.maxn),
 
   --- Destructively merge another table's fields into another.
   -- @function merge
@@ -358,7 +358,7 @@ M = {
   -- @treturn table ordered list of keys from *t*
   -- @see keys
   -- @usage globals = keys (_G)
-  okeys = X ("okeys (table)", base.okeys),
+  okeys = X ("okeys (table)", std.okeys),
 
   --- Turn a tuple into a list.
   -- @function pack
@@ -441,7 +441,7 @@ M = {
   -- @int[opt=table.maxn(t)] j last index to unpack
   -- @return ... values of numeric indices of *t*
   -- @usage return unpack (results_table)
-  unpack = X ("unpack (table, ?int, ?int)", base.unpack),
+  unpack = X ("unpack (table, ?int, ?int)", std.unpack),
 
   --- Make the list of values of a table.
   -- @function values
@@ -455,7 +455,7 @@ M = {
 }
 
 
-monkeys = base.copy ({}, M)  -- before deprecations and core merge
+monkeys = std.copy ({}, M)  -- before deprecations and core merge
 
 
 --[[ ============= ]]--
@@ -467,21 +467,21 @@ local DEPRECATED = debug.DEPRECATED
 
 
 M.len = DEPRECATED ("41.3", "'std.table.len'",
-  "use 'std.len' instead", X ("len (table)", base.len))
+  "use 'std.len' instead", X ("len (table)", std.len))
 
 
 M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
-  "use 'std.getmetamethod' instead", base.getmetamethod)
+  "use 'std.getmetamethod' instead", std.getmetamethod)
 
 
 M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",
-  "use 'std.ripairs' instead", base.ripairs)
+  "use 'std.ripairs' instead", std.ripairs)
 
 
 M.totable = DEPRECATED ("41", "'std.table.totable'",
   "use 'std.pairs' instead",
   function (x)
-    local m = base.getmetamethod (x, "__totable")
+    local m = std.getmetamethod (x, "__totable")
     if m then
       return m (x)
     elseif type (x) == "table" then
@@ -497,7 +497,7 @@ M.totable = DEPRECATED ("41", "'std.table.totable'",
 
 
 
-return base.merge (M, table)
+return std.merge (M, table)
 
 
 

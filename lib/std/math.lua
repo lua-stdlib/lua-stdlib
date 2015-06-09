@@ -11,7 +11,7 @@
 ]]
 
 
-local base  = require "std.base"
+local std = require "std.base"
 
 local M
 
@@ -30,7 +30,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.math = base.copy (namespace.math or {}, M)
+  namespace.math = std.copy (namespace.math or {}, M)
   return M
 end
 
@@ -78,4 +78,4 @@ M = {
 }
 
 
-return base.merge (M, math)
+return std.merge (M, math)

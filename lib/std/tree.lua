@@ -17,15 +17,15 @@
  @see std.container
 ]]
 
-local base      = require "std.base"
+local std       = require "std.base"
 local operator  = require "std.operator"
 
 local Container = require "std.container" {}
 
 local ielems, ipairs, leaves, pairs, objtype =
-  base.ielems, base.ipairs, base.leaves, base.pairs, base.objtype
-local last, len = base.last, base.len
-local reduce = base.reduce
+  std.ielems, std.ipairs, std.leaves, std.pairs, std.objtype
+local last, len = std.last, std.len
+local reduce = std.reduce
 
 local Tree -- forward declaration
 

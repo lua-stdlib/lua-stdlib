@@ -12,12 +12,12 @@
 ]=]
 
 
-local base = require "std.base"
+local std = require "std.base"
 
 local Object = require "std.object" {}
 
-local ipairs, pairs = base.ipairs, base.pairs
-local insert, last, len = base.insert, base.last, base.len
+local ipairs, pairs = std.ipairs, std.pairs
+local insert, last, len = std.insert, std.last, std.len
 
 
 

@@ -33,12 +33,12 @@
 
 local _DEBUG = require "std.debug_init"._DEBUG
 
-local base  = require "std.base"
+local std   = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, pairs, okeys = base.ipairs, base.pairs, base.okeys
-local insert, len = base.insert, base.len
-local okeys, objtype, tostring = base.okeys, base.objtype, base.tostring
+local ipairs, pairs, okeys = std.ipairs, std.pairs, std.okeys
+local insert, len = std.insert, std.len
+local okeys, objtype, tostring = std.okeys, std.objtype, std.tostring
 local argcheck = debug.argcheck
 
 

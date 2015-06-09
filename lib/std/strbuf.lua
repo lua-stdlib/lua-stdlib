@@ -21,12 +21,12 @@
  @classmod std.strbuf
 ]]
 
-local base   = require "std.base"
+local std    = require "std.base"
 local debug  = require "std.debug"
 
 local Object = require "std.object" {}
 
-local ielems, insert = base.ielems, base.insert
+local ielems, insert = std.ielems, std.insert
 
 local M, StrBuf
 

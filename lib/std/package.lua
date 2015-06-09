@@ -11,13 +11,13 @@
 ]]
 
 
-local base           = require "std.base"
+local std            = require "std.base"
 local debug          = require "std.debug"
 
 local catfile, escape_pattern, invert =
-  base.catfile, base.escape_pattern, base.invert
+  std.catfile, std.escape_pattern, std.invert
 local ipairs, pairs, split, unpack =
-  base.ipairs, base.pairs, base.split, base.unpack
+  std.ipairs, std.pairs, std.split, std.unpack
 
 local M
 

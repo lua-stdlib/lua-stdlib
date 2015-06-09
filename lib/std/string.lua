@@ -10,22 +10,22 @@
  @module std.string
 ]]
 
-local base   = require "std.base"
+local std    = require "std.base"
 local debug  = require "std.debug"
 
 local StrBuf = require "std.strbuf" {}
 
-local copy          = base.copy
-local getmetamethod = base.getmetamethod
-local insert, len   = base.insert, base.len
-local pairs         = base.pairs
-local render        = base.render
+local copy          = std.copy
+local getmetamethod = std.getmetamethod
+local insert, len   = std.insert, std.len
+local pairs         = std.pairs
+local render        = std.render
 
 local M
 
 
 
-local _tostring = base.tostring
+local _tostring = std.tostring
 
 local function __concat (s, o)
   return _tostring (s) .. _tostring (o)
@@ -75,7 +75,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.string = base.copy (namespace.string or {}, M)
+  namespace.string = std.copy (namespace.string or {}, M)
 
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat
@@ -298,7 +298,7 @@ M = {
   -- @string s any string
   -- @treturn string *s* with active pattern characters escaped
   -- @usage substr = inputstr:match (escape_pattern (literal))
-  escape_pattern = X ("escape_pattern (string)", base.escape_pattern),
+  escape_pattern = X ("escape_pattern (string)", std.escape_pattern),
 
   --- Escape a string to be used as a shell token.
   -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
@@ -436,7 +436,7 @@ M = {
   -- @string[opt="%s+"] sep separator pattern
   -- @return list of strings
   -- @usage words = split "a very short sentence"
-  split = X ("split (string, ?string)", base.split),
+  split = X ("split (string, ?string)", std.split),
 
   --- Do `string.find`, returning a table of captures.
   -- @function tfind
@@ -482,19 +482,19 @@ local DEPRECATED = debug.DEPRECATED
 
 
 M.assert = DEPRECATED ("41", "'std.string.assert'",
-  "use 'std.assert' instead", base.assert)
+  "use 'std.assert' instead", std.assert)
 
 
 M.require_version = DEPRECATED ("41", "'std.string.require_version'",
-  "use 'std.require' instead", base.require)
+  "use 'std.require' instead", std.require)
 
 
 M.tostring = DEPRECATED ("41", "'std.string.tostring'",
-  "use 'std.tostring' instead", base.tostring)
+  "use 'std.tostring' instead", std.tostring)
 
 
 
-return base.merge (M, string)
+return std.merge (M, string)
 
 
 

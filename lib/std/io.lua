@@ -11,13 +11,13 @@
 ]]
 
 
-local base  = require "std.base"
+local std   = require "std.base"
 local debug = require "std.debug"
 
 local argerror = debug.argerror
 local catfile, dirsep, insert, len, leaves, split =
-  base.catfile, base.dirsep, base.insert, base.len, base.leaves, base.split
-local ipairs, pairs = base.ipairs, base.pairs
+  std.catfile, std.dirsep, std.insert, std.len, std.leaves, std.split
+local ipairs, pairs = std.ipairs, std.pairs
 local setmetatable  = debug.setmetatable
 
 
@@ -73,7 +73,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.io = base.copy (namespace.io or {}, monkeys)
+  namespace.io = std.copy (namespace.io or {}, monkeys)
 
   if namespace.io.stdin then
     local mt = getmetatable (namespace.io.stdin) or {}
@@ -159,7 +159,7 @@ M = {
   -- @see catdir
   -- @see splitdir
   -- @usage filepath = catfile ("relative", "path", "filename")
-  catfile = X ("catfile (string...)", base.catfile),
+  catfile = X ("catfile (string...)", std.catfile),
 
   --- Die with error.
   -- This function uses the same rules to build a message prefix
@@ -274,10 +274,10 @@ M = {
 }
 
 
-monkeys = base.copy ({}, M)  -- before deprecations and core merge
+monkeys = std.copy ({}, M)  -- before deprecations and core merge
 
 
-return base.merge (M, io)
+return std.merge (M, io)
 
 
 

@@ -30,12 +30,12 @@
 -- Container is derived from it.  Confused? ;-)
 
 
-local base      = require "std.base"
+local std       = require "std.base"
 local container = require "std.container"
 local debug     = require "std.debug"
 
 local Container = container {}
-local getmetamethod, objtype = base.getmetamethod, base.objtype
+local getmetamethod, objtype = std.getmetamethod, std.objtype
 
 local DEPRECATED = debug.DEPRECATED
 
