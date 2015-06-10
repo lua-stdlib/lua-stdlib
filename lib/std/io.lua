@@ -159,7 +159,7 @@ M = {
   -- @see catdir
   -- @see splitdir
   -- @usage filepath = catfile ("relative", "path", "filename")
-  catfile = X ("catfile (string...)", std.catfile),
+  catfile = X ("catfile (string...)", catfile),
 
   --- Die with error.
   -- This function uses the same rules to build a message prefix

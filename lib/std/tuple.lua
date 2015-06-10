@@ -21,8 +21,10 @@
  @see std.container
 ]]
 
-local Container = require "std.container" {}
-local stdtype = require "std.base".type
+local Container = require "std.container".prototype
+local std       = require "std.base"
+
+local stdtype = std.type
 
 
 -- Stringify tuple values, as a memoization key.
@@ -81,7 +83,7 @@ local intern = setmetatable ({}, {
 -- count (nil) --> 1
 -- count (false) --> 1
 -- count (false, nil, true, nil) --> 4
-return  Container {
+local Tuple = Container {
   _type = "Tuple",
 
   _init = function (obj, ...)
@@ -135,4 +137,9 @@ return  Container {
   __tostring = function (self)
     return ("%s (%s)"):format (stdtype (self), argstr (self))
   end,
+}
+
+
+return std.Module {
+  prototype = Tuple,
 }

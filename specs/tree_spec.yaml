@@ -2,7 +2,8 @@ before: |
   global_table = "_G"
   this_module  = "std.tree"
 
-  Tree = require "std.tree"
+  tree = require "std.tree"
+  Tree = tree.prototype
 
 specify std.tree:
 - before:
@@ -43,7 +44,7 @@ specify std.tree:
 - describe clone:
   - before:
       subject = { k1 = {"v1"}, k2 = {"v2"}, k3 = {"v3"} }
-      f       = Tree.clone
+      f       = tree.clone
   - it does not just return the subject:
       expect (f (subject)).not_to_be (subject)
   - it does copy the subject:
@@ -62,7 +63,7 @@ specify std.tree:
 
 - describe ileaves:
   - before:
-      f = Tree.ileaves
+      f = tree.ileaves
       l = {}
   - it iterates over array part of a table argument:
       for v in f {"first", "second", "3rd"} do l[1+#l]=v end
@@ -97,13 +98,13 @@ specify std.tree:
 
 - describe inodes:
   - before: |
-      f = Tree.inodes
+      f = tree.inodes
       local tostring = (require "std.string").tostring
 
       function traverse (subject)
         l = {}
         for ty, p, n in f (subject) do
-           l[1+#l]={ty, Tree.clone (p), n}
+           l[1+#l]={ty, tree.clone (p), n}
         end
         return l
       end
@@ -183,7 +184,7 @@ specify std.tree:
 
 - describe leaves:
   - before:
-      f = Tree.leaves
+      f = tree.leaves
       l = {}
   - it iterates over elements of a table argument:
       for v in f {"first", "second", "3rd"} do l[1+#l]=v end
@@ -220,14 +221,14 @@ specify std.tree:
 
 - describe merge:
   - before: |
-      f  = Tree.merge
+      f  = tree.merge
 
       -- Additional merge keys which are moderately unusual
       t1 = Tree { k1 = "v1", k2 = "if", k3 = Tree {"?"} }
       t2 = Tree { ["if"] = true, [{"?"}] = false, _ = "underscore", k3 = "v2" }
 
-      target = Tree.clone (t1)
-      for ty, p, n in Tree.nodes (t2) do
+      target = tree.clone (t1)
+      for ty, p, n in tree.nodes (t2) do
         if ty == "leaf" then target[p] = n end
       end
   - it does not create a whole new table:
@@ -239,7 +240,7 @@ specify std.tree:
   - it merges keys from t2 into t1: |
       expect (f (t1, t2)).to_equal (target)
   - it gives precedence to values from t2:
-      original = Tree.clone (t1)
+      original = tree.clone (t1)
       m = f (t1, t2)      -- Merge is destructive, do it once only.
       expect (m.k3).to_be (t2.k3)
       expect (m.k3).not_to_be (original.k3)
@@ -250,11 +251,11 @@ specify std.tree:
 
 - describe nodes:
   - before:
-      f = Tree.nodes
+      f = tree.nodes
 
       function traverse (subject)
         l = {}
-        for ty, p, n in f (subject) do l[1+#l]={ty, Tree.clone (p), n} end
+        for ty, p, n in f (subject) do l[1+#l]={ty, tree.clone (p), n} end
         return l
       end
   - it iterates over the elements of a table argument: |

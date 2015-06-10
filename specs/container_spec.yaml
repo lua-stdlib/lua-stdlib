@@ -1,5 +1,5 @@
 before:
-  Container = require "std.container" {}
+  Container = require "std.container".prototype
 
 specify std.container:
 - context when required:
@@ -51,17 +51,15 @@ specify std.container:
         expect (getmetatable (things)._baz).to_be "quux"
   - context with module functions:
     - before:
-        reduce = require "std.functional".reduce
-        elems  = require "std".elems
-        functions = {
+        Bag = require "std.base".Module {
+          prototype = Container { _type = "Bag" },
           count = function (bag)
-            return reduce (function (r, k) return r + k end, 0, elems, bag)
+            local n = 0
+            for _, m in pairs (bag) do n = n + m end
+            return n
           end,
         }
-        Bag = Container {
-          _type = "Bag", _functions = functions, count = functions.count,
-        }
-    - it does not propagate _functions:
+    - it does not propagate module functions:
         things = Bag {}
         expect (things.count).to_be (nil)
     - it does not provide object methods: |

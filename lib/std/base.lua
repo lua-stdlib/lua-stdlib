@@ -262,9 +262,50 @@ local function leaves (it, tr)
 end
 
 
+local function mapfields (obj, src, map)
+  local mt = getmetatable (obj) or {}
+
+  -- Map key pairs.
+  -- Copy all pairs when `map == nil`, but discard unmapped src keys
+  -- when map is provided (i.e. if `map == {}`, copy nothing).
+  if map == nil or next (map) then
+    map = map or {}
+    local k, v = next (src)
+    while k do
+      local key, dst = map[k] or k, obj
+      local kind = type (key)
+      if kind == "string" and key:sub (1, 1) == "_" then
+        mt[key] = v
+      elseif next (map) and kind == "number" and len (dst) + 1 < key then
+        -- When map is given, but has fewer entries than src, stop copying
+        -- fields when map is exhausted.
+        break
+      else
+        dst[key] = v
+      end
+      k, v = next (src, k)
+    end
+  end
+
+  -- Only set non-empty metatable.
+  if next (mt) then
+    setmetatable (obj, mt)
+  end
+  return obj
+end
+
+
 local function merge (dest, src)
   for k, v in pairs (src) do dest[k] = dest[k] or v end
   return dest
+end
+
+
+local function Module (t)
+  return setmetatable (t, {
+    _type  = "Module",
+    __call = function (self, ...) return self.prototype (...) end,
+  })
 end
 
 
@@ -482,6 +523,8 @@ return {
   compare = compare,
 
   -- object.lua --
+  Module    = Module,
+  mapfields = mapfields,
 
   -- package.lua --
   dirsep = dirsep,
@@ -502,5 +545,4 @@ return {
 
   -- tree.lua --
   leaves = leaves,
-
 }

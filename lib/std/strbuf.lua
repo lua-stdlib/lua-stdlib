@@ -24,11 +24,9 @@
 local std    = require "std.base"
 local debug  = require "std.debug"
 
-local Object = require "std.object" {}
+local Object = require "std.object".prototype
 
 local ielems, insert = std.ielems, std.insert
-
-local M, StrBuf
 
 
 local function __concat (self, x)
@@ -53,7 +51,7 @@ local function X (decl, fn)
 end
 
 
-M = {
+local M = {
   --- Add a object to a buffer.
   -- Elements are stringified lazily, so if add a table and then change
   -- its contents, the contents of the buffer will be affected too.
@@ -101,7 +99,7 @@ M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
 -- b = b:concat "seven"
 -- print (a, b) --> 1234   1234fivesixseven
 -- os.exit (0)
-StrBuf = Object {
+local StrBuf = Object {
   _type = "StrBuf",
 
   __index = M,
@@ -127,4 +125,6 @@ StrBuf = Object {
 }
 
 
-return StrBuf
+return std.Module {
+  prototype = StrBuf,
+}

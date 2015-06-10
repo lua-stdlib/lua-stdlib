@@ -11,14 +11,40 @@
     local prototype = require "std.object".type
     ```
 
-    So we renamed it to `std.object.prototype`, and deprecated the `type`
-    method; but that was a mistake, because core Lua provides `type`,
-    and `io.type` (and in recent releases, `math.type`.  For orthogonality,
-    we're going back to using `std.object.type`, which just makes more
-    sense.  Sorry!
+    So we renamed it to `std.object.prototype` to avoid a name clash with
+    the `type` symbol, and subsequently deprecated the earlier equivalent
+    `type` method; but that was a mistake, because core Lua provides `type`,
+    and and `io.type` (and in recent releases, `math.type`).  Now, for
+    orthogonality with core Lua, we're going back to using `std.object.type`,
+    because that just makes more sense.  Sorry!
 
   - Similarly, for orthogonality with core Lua `type`, we also export the
     `std.object.type` function as `std.type`.
+
+  - Objects and Modules are no longer conflated - what you get back from
+    a `require "std.something"` is now ALWAYS a module:
+
+    ```lua
+    local object = require "std.object"
+    assert (object.type (object) == "Module")
+    ```
+
+    And the modules that provide objects have a new `prototype` field
+    that contains the prototye for that kind of object:
+
+    ```lua
+    local Object = object.prototype
+    assert (object.type (Object) == "Object")
+    ```
+
+    For backwards compatibility, if you call the module with a
+    constructor table, the previous recommended way to disambiguate
+    between a module and the object it prototyped, that table is passed
+    through to that module's object prototype.
+
+  - Now that we have proper separation of concerns between module tables
+    and object prototype tables, the central `std.object.mapfields`
+    instantiation function is much cleaner and faster.
 
   - New `std.tuple` object, for managing interned immutable nil-preserving
     tuples:
@@ -64,6 +90,22 @@
     `list:zip_with` have been removed.
 
   - Deprecated function `table.clone_rename` has been removed.
+
+  - Now that the `prototype` field is used to reference a module's
+    object prototype, `std.object.prototype` no longer return the object
+    type of an argument. Use either `std.type` or the type function from
+    an instantiated object:
+
+    ```lua
+    local stdtype = require "std.type"
+    local Object = require "std.object".prototype
+    local objtype = Object.type
+    ```
+
+  - Objects no longer honor mangling and stripping `_functions` tables
+    from objects during instantiation, instead move you actual object
+    into the module `prototype` field, and add the module functions to    
+    the parent table returned whn the module is required.
 
   - `functional.lambda` no longer returns a bare function, but a functable
     that can be called and stringified.

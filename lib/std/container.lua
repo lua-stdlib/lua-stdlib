@@ -36,10 +36,7 @@ local _DEBUG = require "std.debug_init"._DEBUG
 local std   = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, pairs, okeys = std.ipairs, std.pairs, std.okeys
-local insert, len = std.insert, std.len
-local okeys, stdtype, tostring = std.okeys, std.type, std.tostring
-local argcheck = debug.argcheck
+local ipairs, okeys, tostring = std.ipairs, std.okeys, std.tostring
 
 
 
@@ -77,80 +74,9 @@ local function instantiate (proto, t)
 end
 
 
-local ModuleFunction = {
-  __tostring = function (self) return tostring (self.call) end,
-  __call     = function (self, ...) return self.call (...) end,
-}
-
-
---- Mark a function not to be copied into clones.
---
--- It responds to `type` with `table`, but otherwise behaves like a
--- regular function.  Marking uncopied module functions in-situ like this
--- (as opposed to doing book keeping in the metatable) means that we
--- don't have to create a new metatable with the book keeping removed for
--- cloned objects, we can just share our existing metatable directly.
--- @func fn a function
--- @treturn functable a callable functable for `fn`
-local function modulefunction (fn)
-  if getmetatable (fn) == ModuleFunction then
-    -- Don't double wrap!
-    return fn
-  else
-    return setmetatable ({_type = "modulefunction", call = fn}, ModuleFunction)
-  end
-end
-
-
-
 --[[ ================= ]]--
 --[[ Container Object. ]]--
 --[[ ================= ]]--
-
-
-local function mapfields (obj, src, map)
-  local mt = getmetatable (obj) or {}
-
-  -- Map key pairs.
-  -- Copy all pairs when `map == nil`, but discard unmapped src keys
-  -- when map is provided (i.e. if `map == {}`, copy nothing).
-  if map == nil or next (map) then
-    map = map or {}
-    local k, v = next (src)
-    while k do
-      local key, dst = map[k] or k, obj
-      local kind = type (key)
-      if kind == "string" and key:sub (1, 1) == "_" then
-        mt[key] = v
-      elseif next (map) and kind == "number" and len (dst) + 1 < key then
-        -- When map is given, but has fewer entries than src, stop copying
-        -- fields when map is exhausted.
-        break
-      else
-        dst[key] = v
-      end
-      k, v = next (src, k)
-    end
-  end
-
-  -- Quicker to remove this after copying fields than test for it
-  -- it on every iteration above.
-  mt._functions = nil
-
-  -- Inject module functions.
-  local t = src._functions or {}
-  local k, v = next (t)
-  while (k) do
-    obj[k] = modulefunction (v)
-    k, v = next (t, k)
-  end
-
-  -- Only set non-empty metatable.
-  if next (mt) then
-    setmetatable (obj, mt)
-  end
-  return obj
-end
 
 
 local function __call (self, ...)
@@ -159,21 +85,17 @@ local function __call (self, ...)
   local obj    = {}
 
   -- This is the slowest part of cloning for any objects that have
-  -- a lot of fields to test and copy.  If you need to clone a lot of
-  -- objects from a prototype with several module functions, it's much
-  -- faster to clone objects from each other than the prototype!
+  -- a lot of fields to test and copy.
   local k, v = next (self)
   while (k) do
-    if type (v) ~= "table" or v._type ~= "modulefunction" then
-      obj[k] = v
-    end
+    obj[k] = v
     k, v = next (self, k)
   end
 
   if type (mt._init) == "function" then
     obj = mt._init (obj, ...)
   else
-    obj = (self.mapfields or mapfields) (obj, (...), mt._init)
+    obj = (self.mapfields or std.mapfields) (obj, (...), mt._init)
   end
 
   -- If a metatable was set, then merge our fields and use it.
@@ -192,47 +114,9 @@ local function __call (self, ...)
 end
 
 
-local function X (decl, fn)
-  return debug.argscheck ("std.container." .. decl, fn)
-end
-
-local M = {
-  mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
-}
-
-
-if _DEBUG.argcheck then
-
-  local argerror, extramsg_toomany = debug.argerror, debug.extramsg_toomany
-
-  M.__call = function (self, ...)
-    local mt = getmetatable (self)
-
-    -- A function initialised object can be passed arguments of any
-    -- type, so only argcheck non-function initialised objects.
-    if type (mt._init) ~= "function" then
-      local name, n = mt._type, select ("#", ...)
-      -- Don't count `self` as an argument for error messages, because
-      -- it just refers back to the object being called: `Container {"x"}.
-      argcheck (name, 1, "table", (...))
-      if n > 1 then
-        argerror (name, 2, extramsg_toomany ("argument", 1, n), 2)
-      end
-    end
-
-    return __call (self, ...)
-  end
-
-else
-
-  M.__call = __call
-
-end
-
-
-function M.__tostring (self)
+local function __tostring (self)
   local n, k_ = 1, nil
-  local buf = { stdtype (self), " {" }		-- pre-buffer object open
+  local buf = { getmetatable (self)._type, " {" }
   for _, k in ipairs (okeys (self)) do		-- for ordered public members
     local v = self[k]
 
@@ -289,19 +173,41 @@ end
 -- --> 2
 -- print (Graph.nodes (g))
 
-return setmetatable ({
-
-  -- Normally, these are set and wrapped automatically during cloning.
-  -- But, we have to bootstrap the first object, so in this one instance
-  -- it has to be done manually.
-
-  mapfields = modulefunction (M.mapfields),
-  prototype = modulefunction (stdtype),
-  type      = modulefunction (stdtype),
-}, {
+local Container = {
   _type = "Container",
 
-  __call     = M.__call,
-  __tostring = M.__tostring,
-  __pairs    = M.__pairs,
-})
+  __call     = __call,
+  __tostring = __tostring,
+}
+
+
+if _DEBUG.argcheck then
+  local argcheck, argerror, extramsg_toomany =
+      debug.argcheck, debug.argerror, debug.extramsg_toomany
+
+  Container.__call = function (self, ...)
+    local mt = getmetatable (self)
+
+    -- A function initialised object can be passed arguments of any
+    -- type, so only argcheck non-function initialised objects.
+    if type (mt._init) ~= "function" then
+      local name, n = mt._type, select ("#", ...)
+      -- Don't count `self` as an argument for error messages, because
+      -- it just refers back to the object being called: `Container {"x"}.
+      argcheck (name, 1, "table", (...))
+      if n > 1 then
+        argerror (name, 2, extramsg_toomany ("argument", 1, n), 2)
+      end
+    end
+
+    return __call (self, ...)
+  end
+end
+
+
+return std.Module {
+  prototype = setmetatable ({}, Container),
+
+  mapfields = debug.argscheck (
+      "std.container.mapfields (table, table|object, ?table)", std.mapfields),
+}

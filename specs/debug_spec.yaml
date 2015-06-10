@@ -214,7 +214,7 @@ specify std.debug:
 
 - describe argcheck:
   - before: |
-      Object = require 'std.object'
+      Object = require "std.object".prototype
       List = Object { _type = "List" }
       Foo = Object { _type = "Foo" }
 

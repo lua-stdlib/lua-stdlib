@@ -11,8 +11,7 @@
 ]]
 
 
-local std            = require "std.base"
-local debug          = require "std.debug"
+local std   = require "std.base"
 
 local catfile, escape_pattern, invert =
   std.catfile, std.escape_pattern, std.invert
@@ -131,8 +130,9 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.package." .. decl, fn)
+  return require "std.debug".argscheck ("std.package." .. decl, fn)
 end
+
 
 M = {
   --- Look for a path segment match of *patt* in *pathstrings*.

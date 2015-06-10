@@ -13,7 +13,7 @@
 local std    = require "std.base"
 local debug  = require "std.debug"
 
-local StrBuf = require "std.strbuf" {}
+local StrBuf = require "std.strbuf".prototype
 
 local copy          = std.copy
 local getmetamethod = std.getmetamethod
@@ -75,7 +75,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.string = std.copy (namespace.string or {}, M)
+  namespace.string = copy (namespace.string or {}, M)
 
   local string_metatable = getmetatable ""
   string_metatable.__concat = M.__concat

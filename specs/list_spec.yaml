@@ -1,39 +1,19 @@
 before:
-  this_module  = "std.list"
-  global_table = "_G"
-
-  exported_apis = { "append", "compare", "concat", "cons", "rep", "sub",
-                    "tail" }
-  deprecations  = { "depair", "enpair", "elems", "filter", "flatten", "foldl",
-                    "foldr", "index_key", "index_value", "map", "map_with",
-                    "project", "relems", "reverse", "shape", "transpose",
-                    "zip_with" }
-
-  M = require (this_module)
-
-  List    = M {}
-  l       = List {"foo", "bar", "baz"}
-
+  this_module = "std.list"
+  M           = require (this_module)
+  List        = M.prototype
+  l           = List {"foo", "bar", "baz"}
 
 
 specify std.list:
 - context when required:
   - context by name:
-    - it does not touch the global table:
-        expect (show_apis {added_to="_G", by="std.list"}).
-          to_equal {}
-    - it exports the documented apis:
-        t, apis = {}, require "std.base".copy (exported_apis)
-        for k in pairs (M) do t[#t + 1] = k end
-        for _, v in ipairs (deprecations) do
-          apis[#apis + 1] = v
-        end
-        expect (t).to_contain.a_permutation_of (apis)
-
+    - it does not perturb the global namespace:
+        expect (show_apis {added_to="_G", by="std.list"}).to_equal {}
   - context via the std module:
-    - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
+    - it does not perturb the global namespace:
+        expect (show_apis {added_to="_G", by="std"}).to_equal {}
+
 
 - describe construction:
   - context from List clone method:

@@ -8,8 +8,7 @@
 ]]
 
 
-local std      = require "std.base"
-local debug    = require "std.debug"
+local std = require "std.base"
 
 local ielems, ipairs, ireverse, npairs, pairs =
   std.ielems, std.ipairs, std.ireverse, std.npairs, std.pairs
@@ -296,7 +295,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.functional." .. decl, fn)
+  return require "std.debug".argscheck ("std.functional." .. decl, fn)
 end
 
 local M = {
@@ -580,7 +579,7 @@ local M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = debug.DEPRECATED
+local DEPRECATED = require "std.debug".DEPRECATED
 
 
 M.eval = DEPRECATED ("41", "'std.functional.eval'",

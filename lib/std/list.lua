@@ -13,9 +13,8 @@
 
 
 local std     = require "std.base"
-local debug   = require "std.debug"
 
-local Object  = require "std.object" {}
+local Object  = require "std.object".prototype
 
 local ipairs, pairs = std.ipairs, std.pairs
 local len     = std.len
@@ -71,109 +70,16 @@ end
 
 
 
---[[ ================= ]]--
---[[ Public Interface. ]]--
---[[ ================= ]]--
-
-
-local function X (decl, fn)
-  return debug.argscheck ("std.list." .. decl, fn)
-end
-
-
-M = {
-  --- Append an item to a list.
-  -- @static
-  -- @function append
-  -- @tparam List l a list
-  -- @param x item
-  -- @treturn List new list with *x* appended
-  -- @usage
-  -- longer = append (short, "last")
-  append = X ("append (List, any)", append),
-
-  --- Compare two lists element-by-element, from left-to-right.
-  -- @static
-  -- @function compare
-  -- @tparam List l a list
-  -- @tparam List|table m another list, or table
-  -- @return -1 if *l* is less than *m*, 0 if they are the same, and 1
-  --   if *l* is greater than *m*
-  -- @usage
-  -- if a_list:compare (another_list) == 0 then print "same" end
-  compare = X ("compare (List, List|table)", compare),
-
-  --- Concatenate the elements from any number of lists.
-  -- @static
-  -- @function concat
-  -- @tparam List l a list
-  -- @param ... tuple of lists
-  -- @treturn List new list with elements from arguments
-  -- @usage
-  -- --> {1, 2, 3, {4, 5}, 6, 7}
-  -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
-  concat = X ("concat (List, List|table...)", concat),
-
-  --- Prepend an item to a list.
-  -- @static
-  -- @function cons
-  -- @tparam List l a list
-  -- @param x item
-  -- @treturn List new list with *x* followed by elements of *l*
-  -- @usage
-  -- --> {"x", 1, 2, 3}
-  -- list.cons ({1, 2, 3}, "x")
-  cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
-
-  --- Repeat a list.
-  -- @static
-  -- @function rep
-  -- @tparam List l a list
-  -- @int n number of times to repeat
-  -- @treturn List *n* copies of *l* appended together
-  -- @usage
-  -- --> {1, 2, 3, 1, 2, 3, 1, 2, 3}
-  -- list.rep ({1, 2, 3}, 3)
-  rep = X ("rep (List, int)", rep),
-
-  --- Return a sub-range of a list.
-  -- (The equivalent of @{string.sub} on strings; negative list indices
-  -- count from the end of the list.)
-  -- @static
-  -- @function sub
-  -- @tparam List l a list
-  -- @int[opt=1] from start of range
-  -- @int[opt=#l] to end of range
-  -- @treturn List new list containing elements between *from* and *to*
-  --   inclusive
-  -- @usage
-  -- --> {3, 4, 5}
-  -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
-  sub = X ("sub (List, ?int, ?int)", sub),
-
-  --- Return a list with its first element removed.
-  -- @static
-  -- @function tail
-  -- @tparam List l a list
-  -- @treturn List new list with all but the first element of *l*
-  -- @usage
-  -- --> {3, {4, 5}, 6, 7}
-  -- list.tail {{1, 2}, 3, {4, 5}, 6, 7}
-  tail = X ("tail (List)", function (l) return sub (l, 2) end),
-}
-
-
-
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
 --[[ ============= ]]--
 
--- This entire section can be deleted in due course, with just one
--- additional small correction noted in FIXME comments in the List
--- object constructor at the end of this file.
+
+-- This entire section can be deleted any time after 2016.01.03, along
+-- with all references to these functions further down.
 
 
-local DEPRECATED = debug.DEPRECATED
+local DEPRECATED = require "std.debug".DEPRECATED
 
 
 local function depair (ls)
@@ -342,115 +248,15 @@ local function zip_with (ls, fn)
 end
 
 
-local m = {
-  append  = M.append,
-  compare = M.compare,
-  concat  = M.concat,
-  cons    = M.cons,
-  rep     = M.rep,
-  sub     = M.sub,
-  tail    = M.tail,
-}
-
-
-M.depair      = DEPRECATED ("41", "'std.list.depair'", depair)
-
-M.enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair)
-m.enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair)
-
-M.elems       = DEPRECATED ("41", "'std.list.elems'",
-                  "use 'std.ielems' instead", std.ielems)
-m.elems       = DEPRECATED ("41", "'std.list:elems'",
-                  "use 'std.ielems' instead", std.ielems)
-
-M.filter      = DEPRECATED ("41", "'std.list.filter'",
-                  "use 'std.functional.filter' instead", filter)
-m.filter      = DEPRECATED ("41", "'std.list:filter'",
-                  "use 'std.functional.filter' instead",
-                  function (self, p) return filter (p, self) end)
-
-
-M.flatten     = DEPRECATED ("41", "'std.list.flatten'",
-                  "use 'std.functional.flatten' instead", flatten)
-m.flatten     = DEPRECATED ("41", "'std.list:flatten'",
-                  "use 'std.functional.flatten' instead", flatten)
-
-
-M.foldl       = DEPRECATED ("41", "'std.list.foldl'",
-                  "use 'std.functional.foldl' instead", foldl)
-m.foldl       = DEPRECATED ("41", "'std.list:foldl'",
-                  "use 'std.functional.foldl' instead",
-		  function (self, fn, e)
-	            if e ~= nil then return foldl (fn, e, self) end
-	            return foldl (fn, self)
-	          end)
-
-M.foldr       = DEPRECATED ("41", "'std.list.foldr'",
-                  "use 'std.functional.foldr' instead", foldr)
-m.foldr       = DEPRECATED ("41", "'std.list:foldr'",
-                  "use 'std.functional.foldr' instead",
-		  function (self, fn, e)
-	            if e ~= nil then return foldr (fn, e, self) end
-	            return foldr (fn, self)
-	          end)
-
-M.index_key   = DEPRECATED ("41", "'std.list.index_key'",
-                "compose 'std.functional.filter' and 'std.table.invert' instead",
-		index_key)
-m.index_key   = DEPRECATED ("41", "'std.list:index_key'",
-                function (self, fn) return index_key (fn, self) end)
-
-
-M.index_value = DEPRECATED ("41", "'std.list.index_value'",
-                  "compose 'std.functional.filter' and 'std.table.invert' instead",
-		  index_value)
-m.index_value = DEPRECATED ("41", "'std.list:index_value'",
-                  function (self, fn) return index_value (fn, self) end)
-
-
-M.map         = DEPRECATED ("41", "'std.list.map'",
-                  "use 'std.functional.map' instead", map)
-m.map         = DEPRECATED ("41", "'std.list:map'",
-                  "use 'std.functional.map' instead",
-                  function (self, fn) return map (fn, self) end)
-
-
-
-M.map_with    = DEPRECATED ("41", "'std.list.map_with'",
-                  "use 'std.functional.map_with' instead", map_with)
-
-M.project     = DEPRECATED ("41", "'std.list.project'",
-                  "use 'std.table.project' instead", project)
-m.project     = DEPRECATED ("41", "'std.list:project'",
-                  "use 'std.table.project' instead",
-                  function (self, x) return project (x, self) end)
-
-M.relems      = DEPRECATED ("41", "'std.list.relems'",
-                  "compose 'std.ielems' and 'std.ireverse' instead", relems)
-m.relems      = DEPRECATED ("41", "'std.list:relems'",  relems)
-
-M.reverse     = DEPRECATED ("41", "'std.list.reverse'",
-                  "compose 'std.list' and 'std.ireverse' instead", reverse)
-m.reverse     = DEPRECATED ("41", "'std.list:reverse'",
-                  "compose 'std.list' and 'std.ireverse' instead", reverse)
-
-M.shape       = DEPRECATED ("41", "'std.list.shape'",
-                  "use 'std.table.shape' instead", shape)
-m.shape       = DEPRECATED ("41", "'std.list:shape'",
-                  "use 'std.table.shape' instead",
-		  function (t, l) return shape (l, t) end)
-
-M.transpose   = DEPRECATED ("41", "'std.list.transpose'",
-                  "use 'std.functional.zip' instead", transpose)
-
-M.zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
-                  "use 'std.functional.zip_with' instead", zip_with)
-
-
 
 --[[ ================== ]]--
 --[[ Type Declarations. ]]--
 --[[ ================== ]]--
+
+
+local function X (decl, fn)
+  return require "std.debug".argscheck ("std.list." .. decl, fn)
+end
 
 
 --- An Object derived List.
@@ -459,8 +265,124 @@ M.zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
 List = Object {
   -- Derived object type.
   _type      = "List",
-  _functions = M,	-- FIXME: remove this when DEPRECATIONS have gone
-  __index    = m,	-- FIXME: `__index = M` when DEPRECATIONS have gone
+
+  __index    = {
+    --- Append an item to a list.
+    -- @static
+    -- @function append
+    -- @tparam List l a list
+    -- @param x item
+    -- @treturn List new list with *x* appended
+    -- @usage
+    -- longer = append (short, "last")
+    append = X ("append (List, any)", append),
+
+    --- Compare two lists element-by-element, from left-to-right.
+    -- @static
+    -- @function compare
+    -- @tparam List l a list
+    -- @tparam List|table m another list, or table
+    -- @return -1 if *l* is less than *m*, 0 if they are the same, and 1
+    --   if *l* is greater than *m*
+    -- @usage
+    -- if a_list:compare (another_list) == 0 then print "same" end
+    compare = X ("compare (List, List|table)", compare),
+
+    --- Concatenate the elements from any number of lists.
+    -- @static
+    -- @function concat
+    -- @tparam List l a list
+    -- @param ... tuple of lists
+    -- @treturn List new list with elements from arguments
+    -- @usage
+    -- --> {1, 2, 3, {4, 5}, 6, 7}
+    -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
+    concat = X ("concat (List, List|table...)", concat),
+
+    --- Prepend an item to a list.
+    -- @static
+    -- @function cons
+    -- @tparam List l a list
+    -- @param x item
+    -- @treturn List new list with *x* followed by elements of *l*
+    -- @usage
+    -- --> {"x", 1, 2, 3}
+    -- list.cons ({1, 2, 3}, "x")
+    cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
+
+    --- Repeat a list.
+    -- @static
+    -- @function rep
+    -- @tparam List l a list
+    -- @int n number of times to repeat
+    -- @treturn List *n* copies of *l* appended together
+    -- @usage
+    -- --> {1, 2, 3, 1, 2, 3, 1, 2, 3}
+    -- list.rep ({1, 2, 3}, 3)
+    rep = X ("rep (List, int)", rep),
+
+    --- Return a sub-range of a list.
+    -- (The equivalent of @{string.sub} on strings; negative list indices
+    -- count from the end of the list.)
+    -- @static
+    -- @function sub
+    -- @tparam List l a list
+    -- @int[opt=1] from start of range
+    -- @int[opt=#l] to end of range
+    -- @treturn List new list containing elements between *from* and *to*
+    --   inclusive
+    -- @usage
+    -- --> {3, 4, 5}
+    -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
+    sub = X ("sub (List, ?int, ?int)", sub),
+
+    --- Return a list with its first element removed.
+    -- @static
+    -- @function tail
+    -- @tparam List l a list
+    -- @treturn List new list with all but the first element of *l*
+    -- @usage
+    -- --> {3, {4, 5}, 6, 7}
+    -- list.tail {{1, 2}, 3, {4, 5}, 6, 7}
+    tail = X ("tail (List)", function (l) return sub (l, 2) end),
+
+    enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair),
+    elems       = DEPRECATED ("41", "'std.list:elems'",
+                    "use 'std.ielems' instead", std.ielems),
+    filter      = DEPRECATED ("41", "'std.list:filter'",
+                    "use 'std.functional.filter' instead",
+                    function (self, p) return filter (p, self) end),
+    flatten     = DEPRECATED ("41", "'std.list:flatten'",
+                    "use 'std.functional.flatten' instead", flatten),
+    foldl       = DEPRECATED ("41", "'std.list:foldl'",
+                    "use 'std.functional.foldl' instead",
+		    function (self, fn, e)
+	              if e ~= nil then return foldl (fn, e, self) end
+	              return foldl (fn, self)
+	            end),
+    foldr       = DEPRECATED ("41", "'std.list:foldr'",
+                    "use 'std.functional.foldr' instead",
+		    function (self, fn, e)
+	              if e ~= nil then return foldr (fn, e, self) end
+	              return foldr (fn, self)
+	            end),
+    index_key   = DEPRECATED ("41", "'std.list:index_key'",
+                    function (self, fn) return index_key (fn, self) end),
+    index_value = DEPRECATED ("41", "'std.list:index_value'",
+                    function (self, fn) return index_value (fn, self) end),
+    map         = DEPRECATED ("41", "'std.list:map'",
+                    "use 'std.functional.map' instead",
+                    function (self, fn) return map (fn, self) end),
+    project     = DEPRECATED ("41", "'std.list:project'",
+                    "use 'std.table.project' instead",
+                    function (self, x) return project (x, self) end),
+    relems      = DEPRECATED ("41", "'std.list:relems'",  relems),
+    reverse     = DEPRECATED ("41", "'std.list:reverse'",
+                    "compose 'std.list' and 'std.ireverse' instead", reverse),
+    shape       = DEPRECATED ("41", "'std.list:shape'",
+                    "use 'std.table.shape' instead",
+		    function (t, l) return shape (l, t) end),
+  },
 
   ------
   -- Concatenate lists.
@@ -504,4 +426,49 @@ List = Object {
 }
 
 
-return List
+return std.Module {
+  prototype = List,
+
+  append  = List.append,
+  compare = List.compare,
+  concat  = List.concat,
+  cons    = List.cons,
+  rep     = List.rep,
+  sub     = List.sub,
+  tail    = List.tail,
+
+  depair      = DEPRECATED ("41", "'std.list.depair'", depair),
+  enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair),
+  elems       = DEPRECATED ("41", "'std.list.elems'",
+                  "use 'std.ielems' instead", std.ielems),
+  filter      = DEPRECATED ("41", "'std.list.filter'",
+                  "use 'std.functional.filter' instead", filter),
+  flatten     = DEPRECATED ("41", "'std.list.flatten'",
+                  "use 'std.functional.flatten' instead", flatten),
+  foldl       = DEPRECATED ("41", "'std.list.foldl'",
+                  "use 'std.functional.foldl' instead", foldl),
+  foldr       = DEPRECATED ("41", "'std.list.foldr'",
+                  "use 'std.functional.foldr' instead", foldr),
+  index_key   = DEPRECATED ("41", "'std.list.index_key'",
+                  "compose 'std.functional.filter' and 'std.table.invert' instead",
+                  index_key),
+  index_value = DEPRECATED ("41", "'std.list.index_value'",
+                  "compose 'std.functional.filter' and 'std.table.invert' instead",
+                  index_value),
+  map         = DEPRECATED ("41", "'std.list.map'",
+                  "use 'std.functional.map' instead", map),
+  map_with    = DEPRECATED ("41", "'std.list.map_with'",
+                  "use 'std.functional.map_with' instead", map_with),
+  project     = DEPRECATED ("41", "'std.list.project'",
+                  "use 'std.table.project' instead", project),
+  relems      = DEPRECATED ("41", "'std.list.relems'",
+                  "compose 'std.ielems' and 'std.ireverse' instead", relems),
+  reverse     = DEPRECATED ("41", "'std.list.reverse'",
+                  "compose 'std.list' and 'std.ireverse' instead", reverse),
+  shape       = DEPRECATED ("41", "'std.list.shape'",
+                  "use 'std.table.shape' instead", shape),
+  transpose   = DEPRECATED ("41", "'std.list.transpose'",
+                  "use 'std.functional.zip' instead", transpose),
+  zip_with    = DEPRECATED ("41", "'std.list.zip_with'",
+                  "use 'std.functional.zip_with' instead", zip_with),
+}

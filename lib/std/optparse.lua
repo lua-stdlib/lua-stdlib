@@ -14,7 +14,7 @@
 
 local std = require "std.base"
 
-local Object = require "std.object" {}
+local Object = require "std.object".prototype
 
 local ipairs, pairs = std.ipairs, std.pairs
 local insert, last, len = std.insert, std.last, std.len

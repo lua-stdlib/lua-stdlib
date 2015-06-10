@@ -1,7 +1,7 @@
 before:
-  object    = require "std.object"
-  Object    = object {}
-  obj       = Object {"foo", "bar", baz="quux"}
+  object = require "std.object"
+  Object = object.prototype
+  obj    = Object {"foo", "bar", baz="quux"}
 
   function copy (t)
     local r = {}
@@ -43,10 +43,12 @@ specify std.object:
         expect (getmetatable (o)).not_to_be (getmetatable (Object))
         expect (getmetatable (o)._baz).to_be "quux"
 
+# std.object.prototype is now something entirely different to
+# Object.prototype as specified here.
 - describe prototype:
   - before:
       o = Object {}
-      fn = object.prototype
+      fn = Object.prototype
 
   - it writes a deprecation warning:
       setdebug { deprecate = "nil" }

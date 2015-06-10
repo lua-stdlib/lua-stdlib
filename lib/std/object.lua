@@ -34,10 +34,12 @@ local container = require "std.container"
 local debug     = require "std.debug"
 local std       = require "std.base"
 
-local Container = container {}
-local getmetamethod = std.getmetamethod
+local Container = container.prototype
 
-local DEPRECATED = debug.DEPRECATED
+
+local function X (decl, fn)
+  return debug.argscheck ("std.object." .. decl, fn)
+end
 
 
 --- Root object.
@@ -75,11 +77,8 @@ local DEPRECATED = debug.DEPRECATED
 -- }
 -- local bag = Bag ("function", "arguments", "sent", "to", "_init")
 
-return Container {
+local Object = Container {
   _type  = "Object",
-
-  -- No need for explicit module functions here, because calls to, e.g.
-  -- `Object.type` will automatically fall back metamethods in `__index`.
 
   __index = {
     --- Clone an Object.
@@ -116,7 +115,39 @@ return Container {
     -- function o:method_2 (n) return self.field_2 + n end
     -- print (o:method_2 (2))               --> 4
     -- os.exit (0)
-    clone = getmetamethod (container, "__call"),
+    clone = std.getmetamethod (Container, "__call"),
+
+    --- Return *obj* with references to the fields of *src* merged in.
+    --
+    -- More importantly, split the fields in *src* between *obj* and its
+    -- metatable. If any field names begin with "_", attach a metatable
+    -- to *obj* by cloning the metatable from *src*, and then copy the
+    -- "private" `_` prefixed fields there.
+    --
+    -- You might want to use this function to instantiate your derived
+    -- object clones when the *src.\_init* is a function -- when
+    -- *src.\_init* is a table, the default (inherited unless you overwrite
+    -- it) clone method calls @{mapfields} automatically.  When you're
+    -- using a function `_init` setting, @{clone} doesn't know what to
+    -- copy into a new object from the `_init` function's arguments...
+    -- so you're on your own.  Except that calling @{mapfields} inside
+    -- `_init` is safer than manually splitting `src` into `obj` and
+    -- its metatable, because you'll pick up any fixes and changes when
+    -- you upgrade stdlib.
+    -- @static
+    -- @function mapfields
+    -- @tparam table obj destination object
+    -- @tparam table src fields to copy int clone
+    -- @tparam[opt={}] table map key renames as `{old_key=new_key, ...}`
+    -- @treturn table *obj* with non-private fields from *src* merged,
+    --   and a metatable with private fields (if any) merged, both sets
+    --   of keys renamed according to *map*
+    -- @usage
+    -- myobject.mapfields = function (obj, src, map)
+    --   object.mapfields (obj, src, map)
+    --   ...
+    -- end
+    mapfields = X ( "mapfields (table, table|object, ?table)", std.mapfields),
 
     --- Type of an object, or primitive.
     --
@@ -152,44 +183,11 @@ return Container {
     -- assert (objtype (h) == io.type (h))
     --
     -- assert (type {} == type {})
-    type = std.type,
-
-
-    --- Return *obj* with references to the fields of *src* merged in.
-    --
-    -- More importantly, split the fields in *src* between *obj* and its
-    -- metatable. If any field names begin with "_", attach a metatable
-    -- to *obj* by cloning the metatable from *src*, and then copy the
-    -- "private" `_` prefixed fields there.
-    --
-    -- You might want to use this function to instantiate your derived
-    -- object clones when the *src.\_init* is a function -- when
-    -- *src.\_init* is a table, the default (inherited unless you overwrite
-    -- it) clone method calls @{mapfields} automatically.  When you're
-    -- using a function `_init` setting, @{clone} doesn't know what to
-    -- copy into a new object from the `_init` function's arguments...
-    -- so you're on your own.  Except that calling @{mapfields} inside
-    -- `_init` is safer than manually splitting `src` into `obj` and
-    -- its metatable, because you'll pick up any fixes and changes when
-    -- you upgrade stdlib.
-    -- @static
-    -- @function mapfields
-    -- @tparam table obj destination object
-    -- @tparam table src fields to copy int clone
-    -- @tparam[opt={}] table map key renames as `{old_key=new_key, ...}`
-    -- @treturn table *obj* with non-private fields from *src* merged,
-    --   and a metatable with private fields (if any) merged, both sets
-    --   of keys renamed according to *map*
-    -- @usage
-    -- myobject.mapfields = function (obj, src, map)
-    --   object.mapfields (obj, src, map)
-    --   ...
-    -- end
-    mapfields = container.mapfields.call,
+    type = X ("type (?any)", std.type),
 
 
     -- Backwards compatibility:
-    prototype = DEPRECATED ("41.3", "'std.object.prototype'", std.type),
+    prototype = debug.DEPRECATED ("41.3", "'std.object.prototype'", std.type),
   },
 
 
@@ -225,4 +223,11 @@ return Container {
   -- @treturn string stringified object representation
   -- @see tostring
   -- @usage print (anobject)
+}
+
+
+return std.Module {
+  prototype = Object,
+
+  type = Object.type,
 }

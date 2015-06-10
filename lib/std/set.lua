@@ -17,9 +17,8 @@
  @see std.container
  ]]
 
-local std = require "std.base"
-
-local Container = require "std.container" {}
+local std       = require "std.base"
+local Container = require "std.container".prototype
 
 local ielems, pairs, type = std.ielems, std.pairs, std.type
 
@@ -144,14 +143,14 @@ end
 -- std.type (std.set) --> "Set"
 -- os.exit (0)
 Set = Container {
-  _type      = "Set",
+  _type = "Set",
 
-  _init      = function (self, t)
-                 for e in ielems (t) do
-                   insert (self, e)
-                 end
-                 return self
-               end,
+  _init = function (self, t)
+            for e in ielems (t) do
+              insert (self, e)
+            end
+            return self
+          end,
 
   --- Union operator.
   -- @static
@@ -231,133 +230,133 @@ Set = Container {
                  table.sort (keys)
                  return type (self) .. " {" .. table.concat (keys, ", ") .. "}"
                end,
-
-
-  _functions = {
-    --- Delete an element from a set.
-    -- @static
-    -- @function delete
-    -- @tparam Set set a set
-    -- @param e element
-    -- @treturn Set the modified *set*
-    -- @usage
-    -- set.delete (available, found)
-    delete = X ("delete (Set, any)",
-                function (set, e) return rawset (set, e, nil) end),
-
-    --- Find the difference of two sets.
-    -- @static
-    -- @function difference
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn Set a copy of *set1* with elements of *set2* removed
-    -- @usage
-    -- all = set.difference (all, {32, 49, 56})
-    difference = X ("difference (Set, Set)", difference),
-
-    --- Iterator for sets.
-    -- @static
-    -- @function elems
-    -- @tparam Set set a set
-    -- @treturn *set* iterator
-    -- @todo Make the iterator return only the key
-    -- @usage
-    -- for code in set.elems (isprintable) do print (code) end
-    elems = X ("elems (Set)", elems),
-
-    --- Find whether two sets are equal.
-    -- @static
-    -- @function equal
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn boolean `true` if *set1* and *set2* each contain identical
-    --   elements, `false` otherwise
-    -- @usage
-    -- if set.equal (keys, {META, CTRL, "x"}) then process (keys) end
-    equal = X ( "equal (Set, Set)", equal),
-
-    --- Insert an element into a set.
-    -- @static
-    -- @function insert
-    -- @tparam Set set a set
-    -- @param e element
-    -- @treturn Set the modified *set*
-    -- @usage
-    -- for byte = 32,126 do
-    --   set.insert (isprintable, string.char (byte))
-    -- end
-    insert = X ("insert (Set, any)", insert),
-
-    --- Find the intersection of two sets.
-    -- @static
-    -- @function intersection
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn Set a new set with elements in both *set1* and *set2*
-    -- @usage
-    -- common = set.intersection (a, b)
-    intersection = X ("intersection (Set, Set)", intersection),
-
-    --- Say whether an element is in a set.
-    -- @static
-    -- @function difference
-    -- @tparam Set set a set
-    -- @param e element
-    -- @return `true` if *e* is in *set*, otherwise `false`
-    -- otherwise
-    -- @usage
-    -- if not set.member (keyset, pressed) then return nil end
-    member = X ("member (Set, any)", member),
-
-    --- Find whether one set is a proper subset of another.
-    -- @static
-    -- @function proper_subset
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn boolean `true` if *set2* contains all elements in *set1*
-    --   but not only those elements, `false` otherwise
-    -- @usage
-    -- if set.proper_subset (a, b) then
-    --   for e in set.elems (set.difference (b, a)) do
-    --     set.delete (b, e)
-    --   end
-    -- end
-    -- assert (set.equal (a, b))
-    proper_subset = X ("proper_subset (Set, Set)", proper_subset),
-
-    --- Find whether one set is a subset of another.
-    -- @static
-    -- @function subset
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn boolean `true` if all elements in *set1* are also in *set2*,
-    --   `false` otherwise
-    -- @usage
-    -- if set.subset (a, b) then a = b end
-    subset = X ("subset (Set, Set)", subset),
-
-    --- Find the symmetric difference of two sets.
-    -- @static
-    -- @function symmetric_difference
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn Set a new set with elements that are in *set1* or *set2*
-    --   but not both
-    -- @usage
-    -- unique = set.symmetric_difference (a, b)
-    symmetric_difference = X ("symmetric_difference (Set, Set)",
-                              symmetric_difference),
-
-    --- Find the union of two sets.
-    -- @static
-    -- @function union
-    -- @tparam Set set1 a set
-    -- @tparam Set set2 another set
-    -- @treturn Set a copy of *set1* with elements in *set2* merged in
-    -- @usage
-    -- all = set.union (a, b)
-    union = X ("union (Set, Set)", union),
-  },
 }
 
-return Set
+
+return std.Module {
+  prototype = Set,
+
+  --- Delete an element from a set.
+  -- @static
+  -- @function delete
+  -- @tparam Set set a set
+  -- @param e element
+  -- @treturn Set the modified *set*
+  -- @usage
+  -- set.delete (available, found)
+  delete = X ("delete (Set, any)",
+              function (set, e) return rawset (set, e, nil) end),
+
+  --- Find the difference of two sets.
+  -- @static
+  -- @function difference
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set a copy of *set1* with elements of *set2* removed
+  -- @usage
+  -- all = set.difference (all, {32, 49, 56})
+  difference = X ("difference (Set, Set)", difference),
+
+  --- Iterator for sets.
+  -- @static
+  -- @function elems
+  -- @tparam Set set a set
+  -- @treturn *set* iterator
+  -- @todo Make the iterator return only the key
+  -- @usage
+  -- for code in set.elems (isprintable) do print (code) end
+  elems = X ("elems (Set)", elems),
+
+  --- Find whether two sets are equal.
+  -- @static
+  -- @function equal
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn boolean `true` if *set1* and *set2* each contain identical
+  --   elements, `false` otherwise
+  -- @usage
+  -- if set.equal (keys, {META, CTRL, "x"}) then process (keys) end
+  equal = X ( "equal (Set, Set)", equal),
+
+  --- Insert an element into a set.
+  -- @static
+  -- @function insert
+  -- @tparam Set set a set
+  -- @param e element
+  -- @treturn Set the modified *set*
+  -- @usage
+  -- for byte = 32,126 do
+  --   set.insert (isprintable, string.char (byte))
+  -- end
+  insert = X ("insert (Set, any)", insert),
+
+  --- Find the intersection of two sets.
+  -- @static
+  -- @function intersection
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set a new set with elements in both *set1* and *set2*
+  -- @usage
+  -- common = set.intersection (a, b)
+  intersection = X ("intersection (Set, Set)", intersection),
+
+  --- Say whether an element is in a set.
+  -- @static
+  -- @function difference
+  -- @tparam Set set a set
+  -- @param e element
+  -- @return `true` if *e* is in *set*, otherwise `false`
+  -- otherwise
+  -- @usage
+  -- if not set.member (keyset, pressed) then return nil end
+  member = X ("member (Set, any)", member),
+
+  --- Find whether one set is a proper subset of another.
+  -- @static
+  -- @function proper_subset
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn boolean `true` if *set2* contains all elements in *set1*
+  --   but not only those elements, `false` otherwise
+  -- @usage
+  -- if set.proper_subset (a, b) then
+  --   for e in set.elems (set.difference (b, a)) do
+  --     set.delete (b, e)
+  --   end
+  -- end
+  -- assert (set.equal (a, b))
+  proper_subset = X ("proper_subset (Set, Set)", proper_subset),
+
+  --- Find whether one set is a subset of another.
+  -- @static
+  -- @function subset
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn boolean `true` if all elements in *set1* are also in *set2*,
+  --   `false` otherwise
+  -- @usage
+  -- if set.subset (a, b) then a = b end
+  subset = X ("subset (Set, Set)", subset),
+
+  --- Find the symmetric difference of two sets.
+  -- @static
+  -- @function symmetric_difference
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set a new set with elements that are in *set1* or *set2*
+  --   but not both
+  -- @usage
+  -- unique = set.symmetric_difference (a, b)
+  symmetric_difference = X ("symmetric_difference (Set, Set)",
+                            symmetric_difference),
+
+  --- Find the union of two sets.
+  -- @static
+  -- @function union
+  -- @tparam Set set1 a set
+  -- @tparam Set set2 another set
+  -- @treturn Set a copy of *set1* with elements in *set2* merged in
+  -- @usage
+  -- all = set.union (a, b)
+  union = X ("union (Set, Set)", union),
+}
