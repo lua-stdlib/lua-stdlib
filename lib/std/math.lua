@@ -30,7 +30,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.math = std.copy (namespace.math or {}, M)
+  namespace.math = std.base.copy (namespace.math or {}, M)
   return M
 end
 
@@ -78,4 +78,4 @@ M = {
 }
 
 
-return std.merge (M, math)
+return std.base.merge (M, math)

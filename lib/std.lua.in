@@ -29,7 +29,7 @@ local M, monkeys
 
 
 local function monkey_patch (namespace)
-  std.copy (namespace or _G, monkeys)
+  std.base.copy (namespace or _G, monkeys)
   return M
 end
 
@@ -286,7 +286,7 @@ M = {
 }
 
 
-monkeys = std.copy ({}, M)
+monkeys = std.base.copy ({}, M)
 
 -- Don't monkey_patch these apis into _G!
 for _, api in ipairs {"barrel", "monkey_patch", "version"} do

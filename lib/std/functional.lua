@@ -10,10 +10,11 @@
 
 local std = require "std.base"
 
-local ielems, ipairs, ireverse, npairs, pairs =
-  std.ielems, std.ipairs, std.ireverse, std.npairs, std.pairs
-local callable, copy, len, reduce, unpack =
-  std.callable, std.copy, std.len, std.reduce, std.unpack
+local ielems, ipairs, ireverse, len, npairs, pairs =
+  std.ielems, std.ipairs, std.ireverse, std.len, std.npairs, std.pairs
+local copy = std.base.copy
+local callable, reduce = std.functional.callable, std.functional.reduce
+local unpack = std.table.unpack
 local loadstring = loadstring or load
 
 
@@ -346,7 +347,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any...)", std.collect),
+  collect = X ("collect ([func], any...)", std.functional.collect),
 
   --- Compose functions.
   -- @function compose
@@ -513,7 +514,7 @@ local M = {
   -- @see id
   -- @usage
   -- if unsupported then vtable["memrmem"] = nop end
-  nop = std.nop, -- ignores all arguments
+  nop = std.functional.nop, -- ignores all arguments
 
   --- Functional list product.
   --

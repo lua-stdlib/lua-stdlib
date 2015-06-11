@@ -26,7 +26,7 @@ local debug  = require "std.debug"
 
 local Object = require "std.object".prototype
 
-local ielems, insert = std.ielems, std.insert
+local ielems, insert = std.ielems, std.table.insert
 
 
 local function __concat (self, x)
@@ -125,6 +125,6 @@ local StrBuf = Object {
 }
 
 
-return std.Module {
+return std.object.Module {
   prototype = StrBuf,
 }

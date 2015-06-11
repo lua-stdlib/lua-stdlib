@@ -13,10 +13,10 @@
 
 local std   = require "std.base"
 
-local catfile, escape_pattern, invert =
-  std.catfile, std.escape_pattern, std.invert
-local ipairs, pairs, split, unpack =
-  std.ipairs, std.pairs, std.split, std.unpack
+local ipairs, pairs = std.ipairs, std.pairs
+local catfile = std.io.catfile
+local escape_pattern, split = std.string.escape_pattern, std.string.split
+local invert, unpack = std.table.invert, std.table.unpack
 
 local M
 

@@ -17,9 +17,9 @@ local std   = require "std.base"
 local debug = require "std.debug"
 
 local argerror      = debug.argerror
-local collect       = std.collect
-local leaves        = std.leaves
 local ipairs, pairs = std.ipairs, std.pairs
+local collect       = std.functional.collect
+local leaves        = std.tree.leaves
 local len           = std.len
 
 
@@ -161,7 +161,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.table = std.copy (namespace.table or {}, monkeys)
+  namespace.table = std.base.copy (namespace.table or {}, monkeys)
   return M
 end
 
@@ -280,7 +280,7 @@ M = {
   -- @usage
   -- --> {1, "x", 2, 3, "y"}
   -- insert (insert ({1, 2, 3}, 2, "x"), "y")
-  insert = X ("insert (table, [int], any)", std.insert),
+  insert = X ("insert (table, [int], any)", std.table.insert),
 
   --- Invert a table.
   -- @function invert
@@ -289,7 +289,7 @@ M = {
   -- @usage
   -- --> {a=1, b=2, c=3}
   -- invert {"a", "b", "c"}
-  invert = X ("invert (table)", std.invert),
+  invert = X ("invert (table)", std.table.invert),
 
   --- Make the list of keys in table.
   -- @function keys
@@ -307,7 +307,7 @@ M = {
   -- @usage
   -- --> 42
   -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
-  maxn = X ("maxn (table)", std.maxn),
+  maxn = X ("maxn (table)", std.table.maxn),
 
   --- Destructively merge another table's fields into another.
   -- @function merge
@@ -358,7 +358,7 @@ M = {
   -- @treturn table ordered list of keys from *t*
   -- @see keys
   -- @usage globals = keys (_G)
-  okeys = X ("okeys (table)", std.okeys),
+  okeys = X ("okeys (table)", std.table.okeys),
 
   --- Turn a tuple into a list.
   -- @function pack
@@ -441,7 +441,7 @@ M = {
   -- @int[opt=table.maxn(t)] j last index to unpack
   -- @return ... values of numeric indices of *t*
   -- @usage return unpack (results_table)
-  unpack = X ("unpack (table, ?int, ?int)", std.unpack),
+  unpack = X ("unpack (table, ?int, ?int)", std.table.unpack),
 
   --- Make the list of values of a table.
   -- @function values
@@ -455,7 +455,7 @@ M = {
 }
 
 
-monkeys = std.copy ({}, M)  -- before deprecations and core merge
+monkeys = std.base.copy ({}, M)  -- before deprecations and core merge
 
 
 --[[ ============= ]]--
@@ -497,7 +497,7 @@ M.totable = DEPRECATED ("41", "'std.table.totable'",
 
 
 
-return std.merge (M, table)
+return std.base.merge (M, table)
 
 
 

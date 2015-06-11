@@ -14,11 +14,13 @@
 local std   = require "std.base"
 local debug = require "std.debug"
 
-local argerror = debug.argerror
-local catfile, dirsep, insert, len, leaves, split =
-  std.catfile, std.dirsep, std.insert, std.len, std.leaves, std.split
-local ipairs, pairs = std.ipairs, std.pairs
-local setmetatable  = debug.setmetatable
+local argerror, setmetatable = debug.argerror, debug.setmetatable
+local ipairs, len, pairs = std.ipairs, std.len, std.pairs
+local catfile = std.io.catfile
+local dirsep  = std.package.dirsep
+local split   = std.string.split
+local insert  = std.table.insert
+local leaves  = std.tree.leaves
 
 
 
@@ -73,7 +75,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.io = std.copy (namespace.io or {}, monkeys)
+  namespace.io = std.base.copy (namespace.io or {}, monkeys)
 
   if namespace.io.stdin then
     local mt = getmetatable (namespace.io.stdin) or {}
@@ -274,10 +276,10 @@ M = {
 }
 
 
-monkeys = std.copy ({}, M)  -- before deprecations and core merge
+monkeys = std.base.copy ({}, M)  -- before deprecations and core merge
 
 
-return std.merge (M, io)
+return std.base.merge (M, io)
 
 
 

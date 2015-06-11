@@ -36,7 +36,9 @@ local _DEBUG = require "std.debug_init"._DEBUG
 local std   = require "std.base"
 local debug = require "std.debug"
 
-local ipairs, okeys, tostring = std.ipairs, std.okeys, std.tostring
+local ipairs, tostring = std.ipairs, std.tostring
+local mapfields = std.object.mapfields
+local okeys = std.table.okeys
 
 
 
@@ -95,7 +97,7 @@ local function __call (self, ...)
   if type (mt._init) == "function" then
     obj = mt._init (obj, ...)
   else
-    obj = (self.mapfields or std.mapfields) (obj, (...), mt._init)
+    obj = (self.mapfields or mapfields) (obj, (...), mt._init)
   end
 
   -- If a metatable was set, then merge our fields and use it.
@@ -205,9 +207,9 @@ if _DEBUG.argcheck then
 end
 
 
-return std.Module {
+return std.object.Module {
   prototype = setmetatable ({}, Container),
 
   mapfields = debug.argscheck (
-      "std.container.mapfields (table, table|object, ?table)", std.mapfields),
+      "std.container.mapfields (table, table|object, ?table)", mapfields),
 }

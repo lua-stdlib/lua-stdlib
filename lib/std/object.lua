@@ -147,7 +147,7 @@ local Object = Container {
     --   object.mapfields (obj, src, map)
     --   ...
     -- end
-    mapfields = X ( "mapfields (table, table|object, ?table)", std.mapfields),
+    mapfields = X ("mapfields (table, table|object, ?table)", std.object.mapfields),
 
     --- Type of an object, or primitive.
     --
@@ -226,7 +226,7 @@ local Object = Container {
 }
 
 
-return std.Module {
+return std.object.Module {
   prototype = Object,
 
   type = Object.type,

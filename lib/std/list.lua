@@ -16,10 +16,9 @@ local std     = require "std.base"
 
 local Object  = require "std.object".prototype
 
-local ipairs, pairs = std.ipairs, std.pairs
-local len     = std.len
-local compare = std.compare
-local unpack  = std.unpack
+local ipairs, len, pairs = std.ipairs, std.len, std.pairs
+local compare = std.list.compare
+local unpack  = std.table.unpack
 
 local M, List
 
@@ -113,7 +112,7 @@ end
 
 local function flatten (l)
   local r = List {}
-  for v in std.leaves (ipairs, l) do
+  for v in std.tree.leaves (ipairs, l) do
     r[#r + 1] = v
   end
   return r
@@ -126,7 +125,7 @@ local function foldl (fn, d, t)
     for i = 2, len (d) do tail[#tail + 1] = d[i] end
     d, t = d[1], tail
   end
-  return std.reduce (fn, d, std.ielems, t)
+  return std.functional.reduce (fn, d, std.ielems, t)
 end
 
 
@@ -136,7 +135,7 @@ local function foldr (fn, d, t)
     for i = 1, last - 1 do u[#u + 1] = d[i] end
     d, t = d[last], u
   end
-  return std.reduce (
+  return std.functional.reduce (
     function (x, y) return fn (y, x) end, d, std.ielems, std.ireverse (t))
 end
 
@@ -426,7 +425,7 @@ List = Object {
 }
 
 
-return std.Module {
+return std.object.Module {
   prototype = List,
 
   append  = List.append,

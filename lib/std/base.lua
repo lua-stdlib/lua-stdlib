@@ -480,69 +480,84 @@ local function tostring (x)
 end
 
 
-
+-- For efficient use within stdlib, these functions have no type-checking.
+-- In debug mode, type-checking wrappers are re-exported from the public-
+-- facing modules as necessary.
+--
+-- Also, to provide some sanity, we mirror the subtable layout of stdlib
+-- public API here too, which means everything looks relatively normal
+-- when importing the functions into stdlib implementation modules.
 return {
-  copy    = copy,
-  keysort = keysort,
-  merge   = merge,
-  okeys   = okeys,
-  raise   = raise,
-
-  -- std.lua --
-  assert   = assert,
-  eval     = eval,
-  elems    = elems,
-  ielems   = ielems,
-  ipairs   = ipairs,
-  ireverse = ireverse,
-  npairs   = npairs,
-  pairs    = pairs,
-  ripairs  = ripairs,
-  rnpairs  = rnpairs,
-  require  = require,
-  tostring = tostring,
+  assert        = assert,
+  eval          = eval,
+  elems         = elems,
+  getmetamethod = getmetamethod,
+  ielems        = ielems,
+  ipairs        = ipairs,
+  ireverse      = ireverse,
+  len           = len,
+  npairs        = npairs,
+  pairs         = pairs,
+  ripairs       = ripairs,
+  rnpairs       = rnpairs,
+  require       = require,
+  tostring      = tostring,
 
   type = function (x)
     return (getmetatable (x) or {})._type or io.type (x) or type (x)
   end,
 
+  base = {
+    copy    = copy,
+    keysort = keysort,
+    last    = last,
+    merge   = merge,
+    raise   = raise,
+  },
 
-  -- debug.lua --
-  argerror = argerror,
+  debug = {
+    argerror = argerror,
+  },
 
-  -- functional.lua --
-  callable = callable,
-  collect  = collect,
-  nop      = function () end,
-  reduce   = reduce,
+  functional = {
+    callable = callable,
+    collect  = collect,
+    nop      = function () end,
+    reduce   = reduce,
+  },
 
-  -- io.lua --
-  catfile = catfile,
+  io = {
+    catfile = catfile,
+  },
 
-  -- list.lua --
-  compare = compare,
+  list = {
+    compare = compare,
+  },
 
-  -- object.lua --
-  Module    = Module,
-  mapfields = mapfields,
+  object = {
+    Module    = Module,
+    mapfields = mapfields,
+  },
 
-  -- package.lua --
-  dirsep = dirsep,
+  package = {
+    dirsep = dirsep,
+  },
 
-  -- string.lua --
-  escape_pattern = escape_pattern,
-  render         = render,
-  split          = split,
+  string = {
+    escape_pattern = escape_pattern,
+    render         = render,
+    split          = split,
+  },
 
-  -- table.lua --
-  getmetamethod = getmetamethod,
-  insert        = insert,
-  invert        = invert,
-  last          = last,
-  len           = len,
-  maxn          = maxn,
-  unpack        = unpack,
+  table = {
+    insert = insert,
+    invert = invert,
+    maxn   = maxn,
+    okeys  = okeys,
+    unpack = unpack,
+  },
 
-  -- tree.lua --
-  leaves = leaves,
+  tree = {
+    leaves = leaves,
+  },
 }

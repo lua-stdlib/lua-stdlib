@@ -15,11 +15,11 @@ local debug  = require "std.debug"
 
 local StrBuf = require "std.strbuf".prototype
 
-local copy          = std.copy
-local getmetamethod = std.getmetamethod
-local insert, len   = std.insert, std.len
-local pairs         = std.pairs
-local render        = std.render
+local getmetamethod, len, pairs =
+  std.getmetamethod, std.len, std.pairs
+local copy   = std.base.copy
+local render = std.string.render
+local insert = std.table.insert
 
 local M
 
@@ -298,7 +298,7 @@ M = {
   -- @string s any string
   -- @treturn string *s* with active pattern characters escaped
   -- @usage substr = inputstr:match (escape_pattern (literal))
-  escape_pattern = X ("escape_pattern (string)", std.escape_pattern),
+  escape_pattern = X ("escape_pattern (string)", std.string.escape_pattern),
 
   --- Escape a string to be used as a shell token.
   -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
@@ -436,7 +436,7 @@ M = {
   -- @string[opt="%s+"] sep separator pattern
   -- @return list of strings
   -- @usage words = split "a very short sentence"
-  split = X ("split (string, ?string)", std.split),
+  split = X ("split (string, ?string)", std.string.split),
 
   --- Do `string.find`, returning a table of captures.
   -- @function tfind
@@ -494,7 +494,7 @@ M.tostring = DEPRECATED ("41", "'std.string.tostring'",
 
 
 
-return std.merge (M, string)
+return std.base.merge (M, string)
 
 
 

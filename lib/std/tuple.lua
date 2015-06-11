@@ -140,6 +140,6 @@ local Tuple = Container {
 }
 
 
-return std.Module {
+return std.object.Module {
   prototype = Tuple,
 }

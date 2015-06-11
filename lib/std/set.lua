@@ -233,7 +233,7 @@ Set = Container {
 }
 
 
-return std.Module {
+return std.object.Module {
   prototype = Set,
 
   --- Delete an element from a set.

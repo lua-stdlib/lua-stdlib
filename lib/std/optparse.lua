@@ -16,8 +16,9 @@ local std = require "std.base"
 
 local Object = require "std.object".prototype
 
-local ipairs, pairs = std.ipairs, std.pairs
-local insert, last, len = std.insert, std.last, std.len
+local ipairs, len, pairs = std.ipairs, std.len, std.pairs
+local last   = std.base.last
+local insert = std.table.insert
 
 
 

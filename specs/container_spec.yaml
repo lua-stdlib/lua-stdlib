@@ -51,7 +51,7 @@ specify std.container:
         expect (getmetatable (things)._baz).to_be "quux"
   - context with module functions:
     - before:
-        Bag = require "std.base".Module {
+        Bag = require "std.base".object.Module {
           prototype = Container { _type = "Bag" },
           count = function (bag)
             local n = 0

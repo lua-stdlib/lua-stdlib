@@ -28,7 +28,7 @@ specify std.string:
         expect (show_apis {added_to=base_module, by=this_module}).
           to_equal {}
     - it contains apis from the core string table:
-        apis = require "std.base".copy (extend_base)
+        apis = require "std.base".base.copy (extend_base)
         for _, v in ipairs (deprecations) do
           apis[#apis + 1] = v
         end
