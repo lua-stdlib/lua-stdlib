@@ -489,8 +489,8 @@ end
 -- when importing the functions into stdlib implementation modules.
 return {
   assert        = assert,
-  eval          = eval,
   elems         = elems,
+  eval          = eval,
   getmetamethod = getmetamethod,
   ielems        = ielems,
   ipairs        = ipairs,
@@ -498,9 +498,9 @@ return {
   len           = len,
   npairs        = npairs,
   pairs         = pairs,
+  require       = require,
   ripairs       = ripairs,
   rnpairs       = rnpairs,
-  require       = require,
   tostring      = tostring,
 
   type = function (x)
