@@ -143,7 +143,7 @@ local function wrap (s, w, ind, ind1)
       lstart = ind
     end
   end
-  return r:tostring ()
+  return tostring (r)
 end
 
 

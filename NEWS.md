@@ -82,6 +82,10 @@
     is a portable stand-in for the core `#` operator, and because it also
     works on strings, Objects and other traversable types.
 
+### Bug fixes
+
+  - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
+
 ### Incompatible changes
 
   - Deprecated multi-argument `functional.bind` has been removed.
