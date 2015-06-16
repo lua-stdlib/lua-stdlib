@@ -66,7 +66,7 @@
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
     when recursive table contents are equivalent.
 
-  - New `std.len` replaces deprecated `std.table.len`.
+  - New `std.operator.len` replaces deprecated `std.table.len`.
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
@@ -78,9 +78,8 @@
   - `std.object.prototype` has been deprecated in favor of
     `std.object.type` for orthogonality with `io.type` and `math.type`.
 
-  - `std.table.len` has been deprecated in favour of `std.len`, because it
-    is a portable stand-in for the core `#` operator, and because it also
-    works on strings, Objects and other traversable types.
+  - `std.table.len` has been deprecated in favour of `std.operator.len`,
+    because it is not just for tables!
 
 ### Bug fixes
 

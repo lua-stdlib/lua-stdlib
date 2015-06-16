@@ -16,8 +16,9 @@ local std     = require "std.base"
 
 local Object  = require "std.object".prototype
 
-local ipairs, len, pairs = std.ipairs, std.len, std.pairs
+local ipairs, pairs = std.ipairs, std.pairs
 local compare = std.list.compare
+local len     = std.operator.len
 local unpack  = std.table.unpack
 
 local M, List

@@ -185,13 +185,6 @@ M = {
   -- for e in rielems (l) do process (e) end
   ireverse = X ("ireverse (table)", std.ireverse),
 
-  --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
-  -- @function len
-  -- @tparam object|string|table x operand
-  -- @treturn int length of list part of *t*
-  -- @usage for i = 1, len (t) do process (t[i]) end
-  len = X ("len (object|string|table)", std.len),
-
   --- Overwrite core methods and metamethods with `std` enhanced versions.
   --
   -- Write all functions from this module, except `std.barrel` and

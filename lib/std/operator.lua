@@ -62,6 +62,13 @@ local M = {
   -- functional.foldl (concat, "=> ", {10000, 100, 10})
   concat = function (a, b) return tostring (a) .. tostring (b) end,
 
+  --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
+  -- @function len
+  -- @tparam object|string|table x operand
+  -- @treturn int length of list part of *t*
+  -- @usage for i = 1, len (t) do process (t[i]) end
+  len = std.operator.len,
+
   --- Dereference a table.
   -- @tparam table t a table
   -- @param k a key to lookup in *t*

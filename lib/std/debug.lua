@@ -34,10 +34,11 @@ local std        = require "std.base"
 
 local _DEBUG = debug_init._DEBUG
 
-local ipairs, len, pairs, stdtype, tostring =
-  std.ipairs, std.len, std.pairs, std.type, std.tostring
+local ipairs, pairs, stdtype, tostring =
+  std.ipairs, std.pairs, std.type, std.tostring
 local copy, last, raise = std.base.copy, std.base.last, std.base.raise
 local argerror = std.debug.argerror
+local len = std.operator.len
 local split = std.string.split
 local insert, maxn, unpack =
   std.table.insert, std.table.maxn, std.table.unpack

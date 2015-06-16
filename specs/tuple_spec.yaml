@@ -36,9 +36,9 @@ specify std.tuple:
         expect (Tuple (nil).n).to_be (1)
         expect (Tuple (nil, false, nil, nil).n).to_be (4)
 
-  - context with std.len:
+  - context with std.operator.len:
     - before:
-        len = require "std".len
+        len = require "std.operator".len
     - it returns the number of elements:
         expect (len (t0)).to_be (0)
         expect (len (t1)).to_be (1)

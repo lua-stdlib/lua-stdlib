@@ -495,7 +495,6 @@ return {
   ielems        = ielems,
   ipairs        = ipairs,
   ireverse      = ireverse,
-  len           = len,
   npairs        = npairs,
   pairs         = pairs,
   require       = require,
@@ -537,6 +536,10 @@ return {
   object = {
     Module    = Module,
     mapfields = mapfields,
+  },
+
+  operator = {
+    len = len,
   },
 
   package = {

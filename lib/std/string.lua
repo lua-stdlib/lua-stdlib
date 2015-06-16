@@ -15,9 +15,9 @@ local debug  = require "std.debug"
 
 local StrBuf = require "std.strbuf".prototype
 
-local getmetamethod, len, pairs =
-  std.getmetamethod, std.len, std.pairs
+local getmetamethod, pairs = std.getmetamethod, std.pairs
 local copy   = std.base.copy
+local len    = std.operator.len
 local render = std.string.render
 local insert = std.table.insert
 

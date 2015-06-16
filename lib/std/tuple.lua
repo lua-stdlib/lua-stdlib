@@ -109,7 +109,7 @@ local Tuple = Container {
   -- @usage
   -- -- Only works on Lua 5.2 or newer:
   -- #Tuple (nil, 2, nil) --> 3
-  -- -- For compatibility with Lua 5.1, use @{std.len}
+  -- -- For compatibility with Lua 5.1, use @{std.operator.len}
   -- len (Tuple (nil, 2, nil)
   __len = function (self)
     return self.n

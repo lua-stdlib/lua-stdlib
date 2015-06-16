@@ -22,10 +22,11 @@ local operator  = require "std.operator"
 
 local Container = require "std.container".prototype
 
-local ielems, ipairs, len, pairs, stdtype =
-  std.ielems, std.ipairs, std.len, std.pairs, std.type
+local ielems, ipairs, pairs, stdtype =
+  std.ielems, std.ipairs, std.pairs, std.type
 local last   = std.base.last
 local reduce = std.functional.reduce
+local len    = std.operator.len
 local leaves = std.tree.leaves
 
 local Tree -- forward declaration

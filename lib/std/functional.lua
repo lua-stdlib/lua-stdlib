@@ -10,10 +10,11 @@
 
 local std = require "std.base"
 
-local ielems, ipairs, ireverse, len, npairs, pairs =
-  std.ielems, std.ipairs, std.ireverse, std.len, std.npairs, std.pairs
+local ielems, ipairs, ireverse, npairs, pairs =
+  std.ielems, std.ipairs, std.ireverse, std.npairs, std.pairs
 local copy = std.base.copy
 local callable, reduce = std.functional.callable, std.functional.reduce
+local len = std.operator.len
 local unpack = std.table.unpack
 local loadstring = loadstring or load
 

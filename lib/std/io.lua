@@ -15,8 +15,9 @@ local std   = require "std.base"
 local debug = require "std.debug"
 
 local argerror, setmetatable = debug.argerror, debug.setmetatable
-local ipairs, len, pairs = std.ipairs, std.len, std.pairs
+local ipairs, pairs = std.ipairs, std.pairs
 local catfile = std.io.catfile
+local len     = std.operator.len
 local dirsep  = std.package.dirsep
 local split   = std.string.split
 local insert  = std.table.insert

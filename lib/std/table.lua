@@ -19,8 +19,8 @@ local debug = require "std.debug"
 local argerror      = debug.argerror
 local ipairs, pairs = std.ipairs, std.pairs
 local collect       = std.functional.collect
+local len           = std.operator.len
 local leaves        = std.tree.leaves
-local len           = std.len
 
 
 local M, monkeys
@@ -467,7 +467,7 @@ local DEPRECATED = debug.DEPRECATED
 
 
 M.len = DEPRECATED ("41.3", "'std.table.len'",
-  "use 'std.len' instead", X ("len (table)", std.len))
+  "use 'std.operator.len' instead", X ("len (table)", std.operator.len))
 
 
 M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
