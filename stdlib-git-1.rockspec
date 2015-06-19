@@ -14,8 +14,8 @@ dependencies = {
 }
 external_dependencies = nil
 build = {
-  build_command = "LUA='$(LUA)' ./bootstrap && ./configure LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' --prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' --datarootdir='$(PREFIX)' && make clean all",
+  build_command = "./bootstrap && ./configure LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' --prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' && make clean all",
   copy_directories = {},
-  install_command = "make install luadir='$(LUADIR)' luaexecdir='$(LIBDIR)'",
+  install_command = "make install luadir='$(LUADIR)'",
   type = "command",
 }
