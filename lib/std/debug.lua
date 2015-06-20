@@ -42,6 +42,7 @@ local len = std.operator.len
 local split = std.string.split
 local insert, maxn, unpack =
   std.table.insert, std.table.maxn, std.table.unpack
+local type = type
 
 
 local M

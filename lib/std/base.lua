@@ -25,6 +25,7 @@
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
+local type       = type
 
 
 local function raise (bad, to, name, i, extramsg, level)
@@ -455,7 +456,7 @@ local _require = require
 
 local function require (module, min, too_big, pattern)
   local m = _require (module)
-  local v = tostring (m.version or m._VERSION or ""):match (pattern or "([%.%d]+)%D*$")
+  local v = tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
     assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)

@@ -20,6 +20,7 @@ local copy   = std.base.copy
 local len    = std.operator.len
 local render = std.string.render
 local insert = std.table.insert
+local type   = type -- avoid mutual recursion between debug argument checker and string.__index
 
 local M
 
