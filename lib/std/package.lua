@@ -7,7 +7,32 @@
 
     local package = require "std.package"
 
- @module std.package
+ Manage `package.path` with normalization, duplicate removal,
+ insertion & removal of elements and automatic folding of '/' and '?'
+ onto `package.dirsep` and `package.path_mark`, for easy addition of
+ new paths. For example, instead of all this:
+
+    lib = std.io.catfile (".", "lib", package.path_mark .. ".lua")
+    paths = std.string.split (package.path, package.pathsep)
+    for i, path in ipairs (paths) do
+      -- ... lots of normalization code...
+    end
+    i = 1
+    while i <= #paths do
+      if paths[i] == lib then
+        table.remove (paths, i)
+      else
+        i = i + 1
+      end
+    end
+    table.insert (paths, 1, lib)
+    package.path = table.concat (paths, package.pathsep)
+
+ You can now write just:
+
+    package.path = package.normalize ("./lib/?.lua", package.path)
+
+ @corelibrary std.package
 ]]
 
 

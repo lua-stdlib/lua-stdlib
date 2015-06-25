@@ -1,14 +1,19 @@
 --[[--
- Tables as lists.
+ List prototype.
+
+ In addition to the functionality described here, List objects also
+ have all the methods and metamethods of the @{std.object.prototype}
+ (except where overridden here),
 
  Prototype Chain
  ---------------
 
       table
-       `-> Object
-            `-> List
+       `-> Container
+            `-> Object
+                 `-> List
 
- @classmod std.list
+ @prototype std.list
 ]]
 
 
@@ -21,7 +26,7 @@ local compare = std.list.compare
 local len     = std.operator.len
 local unpack  = std.table.unpack
 
-local M, List
+local M, prototype
 
 
 local function append (l, x)
@@ -32,7 +37,7 @@ end
 
 
 local function concat (l, ...)
-  local r = List {}
+  local r = prototype {}
   for _, e in ipairs {l, ...} do
     for _, v in ipairs (e) do
       r[#r + 1] = v
@@ -43,7 +48,7 @@ end
 
 
 local function rep (l, n)
-  local r = List {}
+  local r = prototype {}
   for i = 1, n do
     r = concat (r, l)
   end
@@ -52,7 +57,7 @@ end
 
 
 local function sub (l, from, to)
-  local r = List {}
+  local r = prototype {}
   local lenl = len (l)
   from = from or 1
   to = to or lenl
@@ -92,16 +97,16 @@ end
 
 
 local function enpair (t)
-  local ls = List {}
+  local ls = prototype {}
   for i, v in pairs (t) do
-    ls[#ls + 1] = List {i, v}
+    ls[#ls + 1] = prototype {i, v}
   end
   return ls
 end
 
 
 local function filter (pfn, l)
-  local r = List {}
+  local r = prototype {}
   for _, e in ipairs (l) do
     if pfn (e) then
       r[#r + 1] = e
@@ -112,7 +117,7 @@ end
 
 
 local function flatten (l)
-  local r = List {}
+  local r = prototype {}
   for v in std.tree.leaves (ipairs, l) do
     r[#r + 1] = v
   end
@@ -166,7 +171,7 @@ end
 
 
 local function map (fn, l)
-  local r = List {}
+  local r = prototype {}
   for _, e in ipairs (l) do
     local v = fn (e)
     if v ~= nil then
@@ -190,7 +195,7 @@ end
 local function relems (l) return std.ielems (std.ireverse (l)) end
 
 
-local function reverse (l) return List (std.ireverse (l)) end
+local function reverse (l) return prototype (std.ireverse (l)) end
 
 
 local function shape (s, l)
@@ -216,7 +221,7 @@ local function shape (s, l)
     if d > len (s) then
       return l[i], i + 1
     else
-      local r = List {}
+      local r = prototype {}
       for j = 1, s[d] do
         local e
         e, i = fill (i, d + 1)
@@ -230,10 +235,10 @@ end
 
 
 local function transpose (ls)
-  local rs, lenls, dims = List {}, len (ls), map (len, ls)
+  local rs, lenls, dims = prototype {}, len (ls), map (len, ls)
   if len (dims) > 0 then
     for i = 1, math.max (unpack (dims)) do
-      rs[i] = List {}
+      rs[i] = prototype {}
       for j = 1, lenls do
         rs[i][j] = ls[j][i]
       end
@@ -259,91 +264,120 @@ local function X (decl, fn)
 end
 
 
---- An Object derived List.
--- @object List
-
-List = Object {
-  -- Derived object type.
+--- List prototype object.
+-- @object prototype
+-- @string[opt="List"] _type object name
+-- @tfield[opt] table|function _init object initialisation
+-- @see std.object.prototype
+-- @usage
+-- local List = require "std.list".prototype
+-- assert (std.type (List) == "List")
+prototype = Object {
   _type      = "List",
 
+  --- Metamethods
+  -- @section metamethods
+
+  --- Concatenate lists.
+  -- @function prototype:__concat
+  -- @tparam prototype|table m another list, or table (hash part is ignored)
+  -- @see concat
+  -- @usage
+  -- new = alist .. {"append", "these", "elements"}
+  __concat = concat,
+
+  --- Append element to list.
+  -- @function prototype:__add
+  -- @param e element to append
+  -- @see append
+  -- @usage
+  -- list = list + "element"
+  __add = append,
+
+  --- List order operator.
+  -- @function prototype:__lt
+  -- @tparam prototype m another list
+  -- @see compare
+  -- @usage
+  -- max = list1 > list2 and list1 or list2
+  __lt = function (list1, list2) return compare (list1, list2) < 0 end,
+
+  --- List equality or order operator.
+  -- @function prototype:__le
+  -- @tparam prototype m another list
+  -- @see compare
+  -- @usage
+  -- min = list1 <= list2 and list1 or list2
+  __le = function (list1, list2) return compare (list1, list2) <= 0 end,
+
   __index    = {
+    --- Methods
+    -- @section methods
+
     --- Append an item to a list.
-    -- @static
-    -- @function append
-    -- @tparam List l a list
+    -- @function prototype:append
     -- @param x item
-    -- @treturn List new list with *x* appended
+    -- @treturn prototype new list with *x* appended
     -- @usage
-    -- longer = append (short, "last")
+    -- --> List {"shorter", "longer"}
+    -- longer = (List {"shorter"}):append "longer"
     append = X ("append (List, any)", append),
 
     --- Compare two lists element-by-element, from left-to-right.
-    -- @static
-    -- @function compare
-    -- @tparam List l a list
-    -- @tparam List|table m another list, or table
+    -- @function prototype:compare
+    -- @tparam prototype|table m another list, or table
     -- @return -1 if *l* is less than *m*, 0 if they are the same, and 1
     --   if *l* is greater than *m*
     -- @usage
-    -- if a_list:compare (another_list) == 0 then print "same" end
+    -- if list1:compare (list2) == 0 then print "same" end
     compare = X ("compare (List, List|table)", compare),
 
     --- Concatenate the elements from any number of lists.
-    -- @static
-    -- @function concat
-    -- @tparam List l a list
-    -- @param ... tuple of lists
-    -- @treturn List new list with elements from arguments
+    -- @function prototype:concat
+    -- @tparam prototype|table ... additional lists, or list-like tables
+    -- @treturn prototype new list with elements from arguments
     -- @usage
-    -- --> {1, 2, 3, {4, 5}, 6, 7}
-    -- list.concat ({1, 2, 3}, {{4, 5}, 6, 7})
+    -- --> List {"shorter", "short", "longer", "longest"}
+    -- longest = (List {"shorter"}):concat ({"short", "longer"}, {"longest"})
     concat = X ("concat (List, List|table...)", concat),
 
     --- Prepend an item to a list.
-    -- @static
-    -- @function cons
-    -- @tparam List l a list
+    -- @function prototype:cons
     -- @param x item
-    -- @treturn List new list with *x* followed by elements of *l*
+    -- @treturn prototype new list with *x* followed by elements of *l*
     -- @usage
-    -- --> {"x", 1, 2, 3}
-    -- list.cons ({1, 2, 3}, "x")
-    cons = X ("cons (List, any)", function (l, x) return List {x, unpack (l)} end),
+    -- --> List {"x", 1, 2, 3}
+    -- consed = (List {1, 2, 3}):cons "x"
+    cons = X ("cons (List, any)", function (l, x) return prototype {x, unpack (l)} end),
 
     --- Repeat a list.
-    -- @static
-    -- @function rep
-    -- @tparam List l a list
+    -- @function prototype:rep
     -- @int n number of times to repeat
-    -- @treturn List *n* copies of *l* appended together
+    -- @treturn prototype *n* copies of *l* appended together
     -- @usage
-    -- --> {1, 2, 3, 1, 2, 3, 1, 2, 3}
-    -- list.rep ({1, 2, 3}, 3)
+    -- --> List {1, 2, 3, 1, 2, 3, 1, 2, 3}
+    -- repped = (List {1, 2, 3}):rep (3)
     rep = X ("rep (List, int)", rep),
 
     --- Return a sub-range of a list.
     -- (The equivalent of @{string.sub} on strings; negative list indices
     -- count from the end of the list.)
-    -- @static
-    -- @function sub
-    -- @tparam List l a list
+    -- @function prototype:sub
     -- @int[opt=1] from start of range
     -- @int[opt=#l] to end of range
-    -- @treturn List new list containing elements between *from* and *to*
+    -- @treturn prototype new list containing elements between *from* and *to*
     --   inclusive
     -- @usage
-    -- --> {3, 4, 5}
-    -- list.sub ({1, 2, 3, 4, 5, 6}, 3, 5)
+    -- --> List {3, 4, 5}
+    -- subbed = (List {1, 2, 3, 4, 5, 6}):sub (3, 5)
     sub = X ("sub (List, ?int, ?int)", sub),
 
     --- Return a list with its first element removed.
-    -- @static
-    -- @function tail
-    -- @tparam List l a list
-    -- @treturn List new list with all but the first element of *l*
+    -- @function prototype:tail
+    -- @treturn prototype new list with all but the first element of *l*
     -- @usage
-    -- --> {3, {4, 5}, 6, 7}
-    -- list.tail {{1, 2}, 3, {4, 5}, 6, 7}
+    -- --> List {3, {4, 5}, 6, 7}
+    -- tailed = (List {{1, 2}, 3, {4, 5}, 6, 7}):tail ()
     tail = X ("tail (List)", function (l) return sub (l, 2) end),
 
     enpair      = DEPRECATED ("41", "'std.list:enpair'", enpair),
@@ -383,59 +417,19 @@ List = Object {
                     "use 'std.table.shape' instead",
 		    function (t, l) return shape (l, t) end),
   },
-
-  ------
-  -- Concatenate lists.
-  -- @function __concat
-  -- @tparam List l a list
-  -- @tparam List|table m another list, or table (hash part is ignored)
-  -- @see concat
-  -- @usage
-  -- new = alist .. {"append", "these", "elements"}
-  __concat = concat,
-
-  ------
-  -- Append element to list.
-  -- @function __add
-  -- @tparam List l a list
-  -- @param e element to append
-  -- @see append
-  -- @usage
-  -- list = list + "element"
-  __add = append,
-
-  ------
-  -- List order operator.
-  -- @function __lt
-  -- @tparam List l a list
-  -- @tparam List m another list
-  -- @see compare
-  -- @usage
-  -- max = list1 > list2 and list1 or list2
-  __lt = function (list1, list2) return compare (list1, list2) < 0 end,
-
-  ------
-  -- List equality or order operator.
-  -- @function __le
-  -- @tparam List l a list
-  -- @tparam List m another list
-  -- @see compare
-  -- @usage
-  -- min = list1 <= list2 and list1 or list2
-  __le = function (list1, list2) return compare (list1, list2) <= 0 end,
 }
 
 
 return std.object.Module {
-  prototype = List,
+  prototype = prototype,
 
-  append  = List.append,
-  compare = List.compare,
-  concat  = List.concat,
-  cons    = List.cons,
-  rep     = List.rep,
-  sub     = List.sub,
-  tail    = List.tail,
+  append  = prototype.append,
+  compare = prototype.compare,
+  concat  = prototype.concat,
+  cons    = prototype.cons,
+  rep     = prototype.rep,
+  sub     = prototype.sub,
+  tail    = prototype.tail,
 
   depair      = DEPRECATED ("41", "'std.list.depair'", depair),
   enpair      = DEPRECATED ("41", "'std.list.enpair'", enpair),

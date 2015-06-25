@@ -7,7 +7,7 @@
 
     local math = require "std.math"
 
- @module std.math
+ @corelibrary std.math
 ]]
 
 
@@ -53,6 +53,9 @@ end
 
 
 M = {
+  --- Core Functions
+  -- @section corefuncs
+
   --- Extend `math.floor` to take the number of decimal places.
   -- @function floor
   -- @number n number
@@ -61,13 +64,6 @@ M = {
   -- @usage tenths = floor (magnitude, 1)
   floor = X ("floor (number, ?int)", floor),
 
-  --- Overwrite core `math` methods with `std` enhanced versions.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage require "std.math".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
-
   --- Round a number to a given number of decimal places
   -- @function round
   -- @number n number
@@ -75,6 +71,17 @@ M = {
   -- @treturn number `n` rounded to `p` decimal places
   -- @usage roughly = round (exactly, 2)
   round = X ("round (number, ?int)", round),
+
+
+  --- Module Functions
+  -- @section modulefuncs
+
+  --- Overwrite core `math` methods with `std` enhanced versions.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage require "std.math".monkey_patch ()
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
 
 

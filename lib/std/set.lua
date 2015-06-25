@@ -1,20 +1,24 @@
 --[[--
  Set container prototype.
 
- Note that Functions listed below are only available from the Set
- prototype returned by requiring this module, because Container
- objects cannot have object methods.
+ This module returns a table of set operators, as well as the prototype
+ for a Set container object.
+
+ Every possible object or primitive value is always present in any Set
+ container exactly zero or one times.
+
+ In addition to the functionality described here, Set containers also
+ have all the methods and metamethods of the @{std.container.prototype}
+ (except where overridden here),
 
  Prototype Chain
  ---------------
 
       table
-       `-> Object
-            `-> Container
-                 `-> Set
+       `-> Container
+            `-> Set
 
- @classmod std.set
- @see std.container
+ @prototype std.set
  ]]
 
 local std       = require "std.base"
@@ -23,7 +27,7 @@ local Container = require "std.container".prototype
 local ielems, pairs, type = std.ielems, std.pairs, std.type
 
 
-local Set -- forward declaration
+local prototype -- forward declaration
 
 
 
@@ -64,7 +68,7 @@ local difference, symmetric_difference, intersection, union, subset,
 
 
 function difference (set1, set2)
-  local r = Set {}
+  local r = prototype {}
   for e in elems (set1) do
     if not member (set2, e) then
       insert (r, e)
@@ -80,7 +84,7 @@ end
 
 
 function intersection (set1, set2)
-  local r = Set {}
+  local r = prototype {}
   for e in elems (set1) do
     if member (set2, e) then
       insert (r, e)
@@ -131,159 +135,152 @@ end
 
 
 --- Set prototype object.
---
--- Set also inherits all the fields and methods from
--- @{std.container.Container}.
--- @object Set
+-- @object prototype
 -- @string[opt="Set"] _type object name
--- @see std.container
--- @see std.object.__call
+-- @see std.container.prototype
 -- @usage
--- local std = require "std"
--- std.type (std.set) --> "Set"
--- os.exit (0)
-Set = Container {
+-- local Set = require "std.set".prototype
+-- assert (std.type (Set) == "Set")
+prototype = Container {
   _type = "Set",
 
-  _init = function (self, t)
-            for e in ielems (t) do
-              insert (self, e)
-            end
-            return self
-          end,
+  --- Set object initialisation.
+  --
+  -- Returns table partially initialised Set container with contents
+  -- from *t*.
+  -- @init prototype._init
+  -- @tparam table new uninitialised Set container object
+  -- @tparam table t initialisation table from `__call`
+  _init = function (new, t)
+    for e in ielems (t) do
+      insert (new, e)
+    end
+    return new
+  end,
 
-  --- Union operator.
-  -- @static
-  -- @function __add
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set everything from *set1* plus everything from *set2*
+  --- Metamethods
+  -- @section metamethods
+
+  --- Union operation.
+  -- @function prototype:__add
+  -- @tparam prototype s another set
+  -- @treturn prototype everything from *this* set plus everything from *s*
   -- @see union
   -- @usage
-  -- union = set1 + set2
+  -- union = this + s
   __add = union,
 
-  --- Difference operator.
-  -- @static
-  -- @function __sub
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set everything from *set1* that is not also in *set2*
+  --- Difference operation.
+  -- @function prototype:__sub
+  -- @tparam prototype s another set
+  -- @treturn prototype everything from *this* set that is not also in *s*
   -- @see difference
   -- @usage
-  -- difference = set1 - set2
+  -- difference = this - s
   __sub = difference,
 
-  --- Intersection operator.
-  -- @static
-  -- @function __mul
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set anything this is in both *set1* and *set2*
+  --- Intersection operation.
+  -- @function prototype:__mul
+  -- @tparam prototype s another set
+  -- @treturn prototype anything in both *this* set and in *s*
   -- @see intersection
   -- @usage
-  -- intersection = set1 * set2
+  -- intersection = this * s
   __mul = intersection,
 
-  --- Symmetric difference operator.
-  -- @function __div
-  -- @static
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set everything from *set1* or *set2* but not both
+  --- Symmetric difference operation.
+  -- @function prototype:__div
+  -- @tparam prototype s another set
+  -- @treturn prototype everything in *this* set or in *s* but not in both
   -- @see symmetric_difference
   -- @usage
-  -- symmetric_difference = set1 / set2
+  -- symmetric_difference = this / s
   __div = symmetric_difference,
 
-  --- Subset operator.
+  --- Subset operation.
   -- @static
-  -- @function __le
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn boolean `true` if everything in *set1* is also in *set2*
+  -- @function prototype:__le
+  -- @tparam prototype s another set
+  -- @treturn boolean `true` if everything in *this* set is also in *s*
   -- @see subset
   -- @usage
-  -- issubset = set1 <= set2
+  -- issubset = this <= s
   __le  = subset,
 
-  --- Proper subset operator.
-  -- @static
-  -- @function __lt
-  -- @tparam Set set1 set
-  -- @tparam Set set2 another set
-  -- @treturn boolean `true` if *set2* is not equal to *set1*, but does
-  --   contain everything from *set1*
+  --- Proper subset operation.
+  -- @function prototype:__lt
+  -- @tparam prototype s another set
+  -- @treturn boolean `true` if *s* is not equal to *this* set, but does
+  --   contain everything from *this* set
   -- @see proper_subset
   -- @usage
-  -- ispropersubset = set1 < set2
+  -- ispropersubset = this < s
   __lt  = proper_subset,
 
   -- Return a string representation of this set.
+  -- @function prototype:__tostring
   -- @treturn string string representation of a set.
   -- @see std.tostring
   __tostring = function (self)
-                 local keys = {}
-                 for k in pairs (self) do
-                   keys[#keys + 1] = tostring (k)
-                 end
-                 table.sort (keys)
-                 return type (self) .. " {" .. table.concat (keys, ", ") .. "}"
-               end,
+    local keys = {}
+    for k in pairs (self) do
+      keys[#keys + 1] = tostring (k)
+    end
+    table.sort (keys)
+    return type (self) .. " {" .. table.concat (keys, ", ") .. "}"
+  end,
 }
 
 
 return std.object.Module {
-  prototype = Set,
+  prototype = prototype,
+
+  --- Functions
+  -- @section functions
 
   --- Delete an element from a set.
-  -- @static
   -- @function delete
-  -- @tparam Set set a set
+  -- @tparam prototype set a set
   -- @param e element
-  -- @treturn Set the modified *set*
+  -- @treturn prototype the modified *set*
   -- @usage
   -- set.delete (available, found)
   delete = X ("delete (Set, any)",
               function (set, e) return rawset (set, e, nil) end),
 
   --- Find the difference of two sets.
-  -- @static
   -- @function difference
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set a copy of *set1* with elements of *set2* removed
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
+  -- @treturn prototype a copy of *set1* with elements of *set2* removed
   -- @usage
-  -- all = set.difference (all, {32, 49, 56})
+  -- all = set.difference (all, Set {32, 49, 56})
   difference = X ("difference (Set, Set)", difference),
 
   --- Iterator for sets.
-  -- @static
   -- @function elems
-  -- @tparam Set set a set
-  -- @treturn *set* iterator
+  -- @tparam prototype set a set
+  -- @return *set* iterator
   -- @todo Make the iterator return only the key
   -- @usage
   -- for code in set.elems (isprintable) do print (code) end
   elems = X ("elems (Set)", elems),
 
   --- Find whether two sets are equal.
-  -- @static
   -- @function equal
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
   -- @treturn boolean `true` if *set1* and *set2* each contain identical
   --   elements, `false` otherwise
   -- @usage
-  -- if set.equal (keys, {META, CTRL, "x"}) then process (keys) end
+  -- if set.equal (keys, Set {META, CTRL, "x"}) then process (keys) end
   equal = X ( "equal (Set, Set)", equal),
 
   --- Insert an element into a set.
-  -- @static
   -- @function insert
-  -- @tparam Set set a set
+  -- @tparam prototype set a set
   -- @param e element
-  -- @treturn Set the modified *set*
+  -- @treturn prototype the modified *set*
   -- @usage
   -- for byte = 32,126 do
   --   set.insert (isprintable, string.char (byte))
@@ -291,19 +288,17 @@ return std.object.Module {
   insert = X ("insert (Set, any)", insert),
 
   --- Find the intersection of two sets.
-  -- @static
   -- @function intersection
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set a new set with elements in both *set1* and *set2*
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
+  -- @treturn prototype a new set with elements in both *set1* and *set2*
   -- @usage
   -- common = set.intersection (a, b)
   intersection = X ("intersection (Set, Set)", intersection),
 
   --- Say whether an element is in a set.
-  -- @static
   -- @function difference
-  -- @tparam Set set a set
+  -- @tparam prototype set a set
   -- @param e element
   -- @return `true` if *e* is in *set*, otherwise `false`
   -- otherwise
@@ -312,10 +307,9 @@ return std.object.Module {
   member = X ("member (Set, any)", member),
 
   --- Find whether one set is a proper subset of another.
-  -- @static
   -- @function proper_subset
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
   -- @treturn boolean `true` if *set2* contains all elements in *set1*
   --   but not only those elements, `false` otherwise
   -- @usage
@@ -328,10 +322,9 @@ return std.object.Module {
   proper_subset = X ("proper_subset (Set, Set)", proper_subset),
 
   --- Find whether one set is a subset of another.
-  -- @static
   -- @function subset
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
   -- @treturn boolean `true` if all elements in *set1* are also in *set2*,
   --   `false` otherwise
   -- @usage
@@ -339,11 +332,10 @@ return std.object.Module {
   subset = X ("subset (Set, Set)", subset),
 
   --- Find the symmetric difference of two sets.
-  -- @static
   -- @function symmetric_difference
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set a new set with elements that are in *set1* or *set2*
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
+  -- @treturn prototype a new set with elements that are in *set1* or *set2*
   --   but not both
   -- @usage
   -- unique = set.symmetric_difference (a, b)
@@ -351,11 +343,10 @@ return std.object.Module {
                             symmetric_difference),
 
   --- Find the union of two sets.
-  -- @static
   -- @function union
-  -- @tparam Set set1 a set
-  -- @tparam Set set2 another set
-  -- @treturn Set a copy of *set1* with elements in *set2* merged in
+  -- @tparam prototype set1 a set
+  -- @tparam prototype set2 another set
+  -- @treturn prototype a copy of *set1* with elements in *set2* merged in
   -- @usage
   -- all = set.union (a, b)
   union = X ("union (Set, Set)", union),

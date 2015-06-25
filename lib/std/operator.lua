@@ -1,7 +1,7 @@
 --[[--
  Functional forms of Lua operators.
 
- @module std.operator
+ @functional std.operator
 ]]
 
 local std = require "std.base"

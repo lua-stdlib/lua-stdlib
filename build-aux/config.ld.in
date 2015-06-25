@@ -1,35 +1,95 @@
 -- -*- lua -*-
 title = "@PACKAGE_STRING@ Reference"
 project = "@PACKAGE_STRING@"
-description = "Standard Lua Libraries"
+description = [[
+# Standard Lua Libraries
+
+This is a collection of light-weight libraries for Lua 5.1 (including
+LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:
+
+1. Enhanced and expanded versions of some core Lua functions in the
+   @{std} module itself;
+
+2. Enhanced versions of some core Lua libraries: @{std.debug}, @{std.io},
+   @{std.math}, @{std.package}, @{std.string} and @{std.table};
+
+3. A straight forward prototype-based object system, and a selection of
+   useful objects built on it: @{std.container}, @{std.object},
+   @{std.list}, @{std.set}, @{std.strbuf}, @{std.tree} and @{std.tuple};
+
+4. A specialized prototype object that reads the help text for a
+   command-line script, and produces a custom option parser for handling
+   the options described by that help text: @{std.optparse};
+
+5. A foundation for programming in a functional style: @{std.functional}
+   and @{std.operator};
+
+6. A runtime gradual typing system, for typechecking argument and return
+   types at function boundaries with simple annotations that can be
+   enabled or disabled for production code, with a Lua API modelled on
+   the core Lua C language API: also in @{std.debug};
+
+7. And an implementation of @{std.strict} to enforce declaration of all
+   globals prior to use.
+
+## LICENSE
+
+The code is copyright by its respective authors, and released under the
+MIT license (the same license as Lua itself).  There is no warranty.
+]]
+
 dir = "."
 
 file = {
-  -- Modules
+  -- Core Functions
   "../lib/std.lua",
+
+  -- Core Libraries
   "../lib/std/debug.lua",
-  "../lib/std/functional.lua",
   "../lib/std/io.lua",
   "../lib/std/math.lua",
-  "../lib/std/operator.lua",
   "../lib/std/package.lua",
-  "../lib/std/strict.lua",
   "../lib/std/string.lua",
   "../lib/std/table.lua",
-  "../lib/std/tree.lua",
 
-  -- Classes
+  -- Object System
   "../lib/std/container.lua",
   "../lib/std/object.lua",
   "../lib/std/list.lua",
-  "../lib/std/optparse.lua",
   "../lib/std/set.lua",
   "../lib/std/strbuf.lua",
+  "../lib/std/tree.lua",
   "../lib/std/tuple.lua",
+
+  -- Functional Style
+  "../lib/std/functional.lua",
+  "../lib/std/operator.lua",
+
+  -- Other Modules
+  "../lib/std/optparse.lua",
+  "../lib/std/strict.lua",
 }
 
+new_type ("corefunction", "Core Functions", true)
+new_type ("corelibrary", "Core Libraries", true)
+new_type ("prototype", "Object System", true)
+new_type ("functional", "Functional Style", true)
+
+function postprocess_html(s)
+  s = s:gsub("<h1>%s*Corefunction (.-)</p>", '<h1>Module %1</h1>')
+  s = s:gsub("<h1>%s*Corelibrary (.-)</p>", '<h1>Module %1</h1>')
+  s = s:gsub("<h1>%s*Prototype (.-)</p>", '<h1>Module %1</h1>')
+  s = s:gsub("<h1>%s*Functional (.-)</p>", '<h1>Module %1</h1>')
+  s = s:gsub('href="core[ _]functions', 'href="core%%20functions')
+  s = s:gsub('href="core[ _]libraries', 'href="core%%20libraries')
+  s = s:gsub('href="object[ _]system', 'href="object%%20system')
+  s = s:gsub('href="functional[ _]style', 'href="functional%%20style')
+  return s
+end
+
 new_type ("object", "Objects", false, "Fields")
+new_type ("init", "Initialisation", false, "Parameters")
 
 format = "markdown"
 backtick_references = false
-sort = true
+sort = false

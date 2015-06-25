@@ -7,7 +7,7 @@
 
     local string = require "std.string"
 
- @module std.string
+ @corelibrary std.string
 ]]
 
 local std    = require "std.base"
@@ -261,7 +261,11 @@ local function X (decl, fn)
 end
 
 M = {
+  --- Metamethods
+  -- @section metamethods
+
   --- String concatenation operation.
+  -- @function __concat
   -- @string s initial string
   -- @param o object to stringify and concatenate
   -- @return s .. tostring (o)
@@ -271,6 +275,7 @@ M = {
   __concat = __concat,
 
   --- String subscript operation.
+  -- @function __index
   -- @string s string
   -- @tparam int|string i index or method name
   -- @return `s:sub (i, i)` if i is a number, otherwise
@@ -279,6 +284,10 @@ M = {
   -- getmetatable ("").__index = require "std.string".__index
   -- third = ("12345")[3]
   __index = __index,
+
+
+  --- Core Functions
+  -- @section corefuncs
 
   --- Capitalise each word in a string.
   -- @function caps
@@ -342,16 +351,6 @@ M = {
   ltrim = X ("ltrim (string, ?string)",
              function (s, r) return (s:gsub ("^" .. (r or "%s+"), "")) end),
 
-  --- Overwrite core `string` methods with `std` enhanced versions.
-  --
-  -- Also adds auto-stringification to `..` operator on core strings, and
-  -- integer indexing of strings with `[]` dereferencing.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local string = require "std.string".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
-
   --- Write a number using SI suffixes.
   -- The number is always written to 3 s.f.
   -- @function numbertosi
@@ -384,6 +383,7 @@ M = {
   --- Convert a value to a string.
   -- The string can be passed to `functional.eval` to retrieve the value.
   -- @todo Make it work for recursive tables.
+  -- @function pickle
   -- @param x object to pickle
   -- @treturn string reversible string rendering of *x*
   -- @see std.eval
@@ -470,6 +470,20 @@ M = {
   -- @usage
   -- print (wrap (copyright, 72, 4))
   wrap = X ("wrap (string, ?int, ?int, ?int)", wrap),
+
+
+  --- Module Functions
+  -- @section modulefuncs
+
+  --- Overwrite core `string` methods with `std` enhanced versions.
+  --
+  -- Also adds auto-stringification to `..` operator on core strings, and
+  -- integer indexing of strings with `[]` dereferencing.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage local string = require "std.string".monkey_patch ()
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
 
 

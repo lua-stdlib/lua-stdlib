@@ -1,20 +1,26 @@
 --[[--
  Tree container prototype.
 
- Note that Functions listed below are only available from the Tree
- prototype returned by requiring this module, because Container objects
- cannot have object methods.
+ This module returns a table of tree operators, as well as the prototype
+ for a Tree container object.
+
+ This is not a search tree, but rather a way to efficiently store and
+ retrieve values stored with a path as a key, such as a multi-key
+ keytable.  Although it does have iterators for walking the tree with
+ various algorithms.
+
+ In addition to the functionality described here, Tree containers also
+ have all the methods and metamethods of the @{std.container.prototype}
+ (except where overridden here),
 
  Prototype Chain
  ---------------
 
       table
-       `-> Object
-            `-> Container
-                 `-> Tree
+       `-> Container
+            `-> Tree
 
- @classmod std.tree
- @see std.container
+ @prototype std.tree
 ]]
 
 local std       = require "std.base"
@@ -29,13 +35,13 @@ local reduce = std.functional.reduce
 local len    = std.operator.len
 local leaves = std.tree.leaves
 
-local Tree -- forward declaration
+local prototype -- forward declaration
 
 
 
 --- Tree iterator.
 -- @tparam function it iterator function
--- @tparam tree|table tr tree or tree-like table
+-- @tparam prototype|table tr tree container or tree-like table
 -- @treturn string type ("leaf", "branch" (pre-order) or "join" (post-order))
 -- @treturn table path to node (`{i1, ...in}`)
 -- @treturn node node
@@ -108,13 +114,12 @@ end
 
 
 --- Tree prototype object.
--- @object Tree
+-- @object prototype
 -- @string[opt="Tree"] _type object name
--- @see std.container
--- @see std.object.__call
+-- @see std.container.prototype
 -- @usage
--- local std = require "std"
--- local Tree = std.tree {}
+-- local tree = require "std.tree"
+-- local Tree = tree.prototype
 -- local tr = Tree {}
 -- tr[{"branch1", 1}] = "leaf1"
 -- tr[{"branch1", 2}] = "leaf2"
@@ -123,16 +128,17 @@ end
 -- print (tr[{"branch1", 2}])   --> leaf2
 -- print (tr[{"branch1", 3}])   --> nil
 -- --> leaf1	leaf2	leaf3
--- for leaf in std.tree.leaves (tr) do
+-- for leaf in tree.leaves (tr) do
 --   io.write (leaf .. "\t")
 -- end
-Tree = Container {
+prototype = Container {
   _type = "Tree",
 
+  --- Metamethods
+  -- @section metamethods
+
   --- Deep retrieval.
-  -- @static
-  -- @function __index
-  -- @tparam Tree tr a tree
+  -- @function prototype:__index
   -- @param i non-table, or list of keys `{i1, ...i_n}`
   -- @return `tr[i1]...[i_n]` if *i* is a key list, `tr[i]` otherwise
   -- @todo the following doesn't treat list keys correctly
@@ -148,9 +154,7 @@ Tree = Container {
   end,
 
   --- Deep insertion.
-  -- @static
-  -- @function __newindex
-  -- @tparam Tree tr a tree
+  -- @function prototype:__newindex
   -- @param i non-table, or list of keys `{i1, ...i_n}`
   -- @param[opt] v value
   -- @usage
@@ -159,7 +163,7 @@ Tree = Container {
     if stdtype (i) == "table" then
       for n = 1, len (i) - 1 do
         if stdtype (tr[i[n]]) ~= "Tree" then
-          rawset (tr, i[n], Tree {})
+          rawset (tr, i[n], prototype {})
         end
         tr = tr[i[n]]
       end
@@ -172,15 +176,18 @@ Tree = Container {
 
 
 return std.object.Module {
-  prototype = Tree,
+  prototype = prototype,
 
-  --- Make a deep copy of a tree, including any metatables.
-  -- @static
+  --- Functions
+  -- @section functions
+
+  --- Make a deep copy of a tree or table, including any metatables.
   -- @function clone
-  -- @tparam table t tree or tree-like table
+  -- @tparam table tr tree or tree-like table
   -- @tparam boolean nometa if non-`nil` don't copy metatables
-  -- @treturn Tree|table a deep copy of *tr*
+  -- @treturn prototype|table a deep copy of *tr*
   -- @see std.table.clone
+  -- @see std.object.clone
   -- @usage
   -- tr = {"one", {two=2}, {{"three"}, four=4}}
   -- copy = clone (tr)
@@ -189,11 +196,10 @@ return std.object.Module {
   clone = X ("clone (table, ?boolean|:nometa)", clone),
 
   --- Tree iterator which returns just numbered leaves, in order.
-  -- @static
   -- @function ileaves
-  -- @tparam Tree|table tr tree or tree-like table
+  -- @tparam prototype|table tr tree or tree-like table
   -- @treturn function iterator function
-  -- @treturn Tree|table the tree *tr*
+  -- @treturn prototype|table the tree *tr*
   -- @see inodes
   -- @see leaves
   -- @usage
@@ -208,16 +214,14 @@ return std.object.Module {
   --
   -- The iterator function behaves like @{nodes}, but only traverses the
   -- array part of the nodes of *tr*, ignoring any others.
-  -- @static
   -- @function inodes
-  -- @tparam Tree|table tr tree or tree-like table to iterate over
+  -- @tparam prototype|table tr tree or tree-like table to iterate over
   -- @treturn function iterator function
   -- @treturn tree|table the tree, *tr*
   -- @see nodes
   inodes = X ("inodes (table)", function (t) return _nodes (ipairs, t) end),
 
   --- Tree iterator which returns just leaves.
-  -- @static
   -- @function leaves
   -- @tparam table t tree or tree-like table
   -- @treturn function iterator function
@@ -234,7 +238,6 @@ return std.object.Module {
   leaves = X ("leaves (table)", function (t) return leaves (pairs, t) end),
 
   --- Destructively deep-merge one tree into another.
-  -- @static
   -- @function merge
   -- @tparam table t destination tree
   -- @tparam table u table with nodes to merge
@@ -256,11 +259,10 @@ return std.object.Module {
   -- you must `table.clone` a copy if you want to take a snap-shot of the
   -- current state of the `tree-path` list before the next iteration
   -- changes it.
-  -- @static
   -- @function nodes
-  -- @tparam Tree|table tr tree or tree-like table to iterate over
+  -- @tparam prototype|table tr tree or tree-like table to iterate over
   -- @treturn function iterator function
-  -- @treturn Tree|table the tree, *tr*
+  -- @treturn prototype|table the tree, *tr*
   -- @see inodes
   -- @usage
   -- -- tree = +-- node1

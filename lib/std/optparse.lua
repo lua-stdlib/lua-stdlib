@@ -1,14 +1,24 @@
 --[=[--
  Parse and process command line options.
 
+ In the common case, you can write the long-form help output typical of
+ a modern-command line program, and let this module generate a custom
+ parser that collects and diagnoses the options it describes.
+
+ The parser is a @{std.object} instance which can then be tweaked for
+ the uncommon case, by hand, or by using the @{on} function to tie your
+ custom handlers to options that are not handled quite the way you'd
+ like.
+
  Prototype Chain
  ---------------
 
       table
-       `-> Object
-            `-> OptionParser
+       `-> Container
+            `-> Object
+                 `-> OptionParser
 
- @classmod std.optparse
+ @module std.optparse
 ]=]
 
 

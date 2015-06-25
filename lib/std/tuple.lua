@@ -1,24 +1,28 @@
 --[[--
  Tuple container prototype.
 
- An interned immutable nil-preserving tuple object.
+ An interned, immutable, nil-preserving tuple object.
 
- Like Lua strings, tuples with the same elements can be quickly compared with
- a straight forward `==` comparison.
+ Like Lua strings, tuples with the same elements can be quickly compared
+ with a straight forward `==` comparison.  The `prototype` field in the
+ returned module table is the empty tuple, which can be cloned to create
+ tuples with other contents.
 
- The immutability guarantees only work if you don't change the contents of
- tables after adding them to a tuple.  Don't do that!
+ In addition to the functionality described here, Tuple containers also
+ have all the methods and metamethods of the @{std.container.prototype}
+ (except where overridden here),
+
+ The immutability guarantees only work if you don't change the contents
+ of tables after adding them to a tuple.  Don't do that!
 
  Prototype Chain
  ---------------
 
       table
-       `-> Object
-            `-> Container
-                 `-> Tuple
+       `-> Container
+            `-> Tuple
 
- @classmod std.tuple
- @see std.container
+ @prototype std.tuple
 ]]
 
 local Container = require "std.container".prototype
@@ -27,8 +31,8 @@ local std       = require "std.base"
 local stdtype = std.type
 
 
--- Stringify tuple values, as a memoization key.
--- @tparam Tuple tup tuple to process
+--- Stringify tuple values, as a memoization key.
+-- @tparam prototype tuple tuple to process
 -- @treturn string a comma separated ordered list of stringified *tup* elements
 local function argstr (tuple)
   local s = {}
@@ -41,7 +45,6 @@ end
 
 
 -- Maintain a weak functable of all interned tuples.
--- @static
 -- @function intern
 -- @param ... tuple elements
 -- @treturn table an interned proxied table with ... elements
@@ -67,14 +70,12 @@ local intern = setmetatable ({}, {
 
 
 --- Tuple prototype object.
---
--- Set also inherits all the fields from @{std.container.Container}
--- @object Tuple
+-- @object prototype
 -- @string[opt="Tuple"] _type object name
 -- @int n number of tuple elements
--- @see std.container
+-- @see std.container.prototype
 -- @usage
--- local Tuple = require "std.tuple"
+-- local Tuple = require "std.tuple".prototype
 -- function count (...)
 --   argtuple = Tuple (...)
 --   return argtuple.n
@@ -83,16 +84,19 @@ local intern = setmetatable ({}, {
 -- count (nil) --> 1
 -- count (false) --> 1
 -- count (false, nil, true, nil) --> 4
-local Tuple = Container {
+local prototype = Container {
   _type = "Tuple",
 
   _init = function (obj, ...)
     return intern (...)
   end,
 
+  --- Metamethods
+  -- @section metamethods
+
   -- The actual contents of *tup*.
   -- This ensures __newindex will trigger for existing elements too.
-  -- It also informs `table.unpack` that that the elements to unpack are
+  -- It also informs @{std.table.unpack} that that the elements to unpack are
   -- not in the usual place.
   __contents = getmetatable (intern ()).__contents,
 
@@ -102,9 +106,7 @@ local Tuple = Container {
   __index = getmetatable (intern ()).__index,
 
   --- Return the length of this tuple.
-  -- @static
-  -- @function __len
-  -- @tparam Tuple tup object to process
+  -- @function prototype:__len
   -- @treturn int number of elements in *tup*
   -- @usage
   -- -- Only works on Lua 5.2 or newer:
@@ -116,20 +118,16 @@ local Tuple = Container {
   end,
 
   --- Prevent mutation of *tup*.
-  -- This metamethod never returns, because Tuples are immutable.
-  -- @static
-  -- @function __newindex
-  -- @tparam Tuple tup object to process
+  -- @function prototype:__newindex
   -- @param k tuple key
   -- @param v tuple value
+  -- @raise cannot change immutable tuple object
   __newindex = function (self, k, v)
     error ("cannot change immutable tuple object", 2)
   end,
 
   --- Return a string representation of *tup*
-  -- @static
-  -- @function __tostring
-  -- @tparam Tuple tup object to process
+  -- @function prototype:__tostring
   -- @treturn string representation of *tup*
   -- @usage
   -- -- 'Tuple ("nil", nil, false)'
@@ -141,5 +139,5 @@ local Tuple = Container {
 
 
 return std.object.Module {
-  prototype = Tuple,
+  prototype = prototype,
 }

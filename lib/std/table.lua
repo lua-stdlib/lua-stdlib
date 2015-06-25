@@ -7,7 +7,7 @@
 
     local table = require "std.table"
 
- @module std.table
+ @corelibrary std.table
 ]]
 
 
@@ -198,9 +198,69 @@ local function X (decl, fn)
 end
 
 M = {
+  --- Core Functions
+  -- @section corefuncs
+
+  --- Enhance core *table.insert* to return its result.
+  -- If *pos* is not given, respect `__len` metamethod when calculating
+  -- default append.  Also, diagnose out of bounds *pos* arguments
+  -- consistently on any supported version of Lua.
+  -- @function insert
+  -- @tparam table t a table
+  -- @int[opt=len (t)] pos index at which to insert new element
+  -- @param v value to insert into *t*
+  -- @treturn table *t*
+  -- @usage
+  -- --> {1, "x", 2, 3, "y"}
+  -- insert (insert ({1, 2, 3}, 2, "x"), "y")
+  insert = X ("insert (table, [int], any)", std.table.insert),
+
+  --- Largest integer key in a table.
+  -- @function maxn
+  -- @tparam table t a table
+  -- @treturn int largest integer key in *t*
+  -- @usage
+  -- --> 42
+  -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
+  maxn = X ("maxn (table)", std.table.maxn),
+
+  --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
+  -- Also, diagnose out of bounds *pos* arguments consistently on any supported
+  -- version of Lua.
+  -- @function remove
+  -- @tparam table t a table
+  -- @int[opt=len (t)] pos index from which to remove an element
+  -- @return removed value, or else `nil`
+  -- @usage
+  -- --> {1, 2, 5}
+  -- t = {1, 2, "x", 5}
+  -- remove (t, 3) == "x" and t
+  remove = X ("remove (table, ?int)", remove),
+
+  --- Enhance core *table.sort* to return its result.
+  -- @function sort
+  -- @tparam table t unsorted table
+  -- @tparam[opt=std.operator.lt] comparator c ordering function callback
+  -- @return *t* with keys sorted accordind to *c*
+  -- @usage table.concat (sort (object))
+  sort = X ("sort (table, ?function)", sort),
+
+  --- Enhance core *table.unpack* to always unpack up to __len or maxn.
+  -- @function unpack
+  -- @tparam table t table to act on
+  -- @int[opt=1] i first index to unpack
+  -- @int[opt=table.maxn(t)] j last index to unpack
+  -- @return ... values of numeric indices of *t*
+  -- @usage return unpack (results_table)
+  unpack = X ("unpack (table, ?int, ?int)", std.table.unpack),
+
+
+  --- Accessor Functions
+  -- @section accessorfuncs
+
   --- Make a shallow copy of a table, including any metatable.
   --
-  -- To make deep copies, use @{tree.clone}.
+  -- To make deep copies, use @{std.tree.clone}.
   -- @function clone
   -- @tparam table t source table
   -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
@@ -268,82 +328,6 @@ M = {
   -- flatten {{1, {{2}, 3}, 4}, 5}
   flatten = X ("flatten (table)", flatten),
 
-  --- Enhance core *table.insert* to return its result.
-  -- If *pos* is not given, respect `__len` metamethod when calculating
-  -- default append.  Also, diagnose out of bounds *pos* arguments
-  -- consistently on any supported version of Lua.
-  -- @function insert
-  -- @tparam table t a table
-  -- @int[opt=len (t)] pos index at which to insert new element
-  -- @param v value to insert into *t*
-  -- @treturn table *t*
-  -- @usage
-  -- --> {1, "x", 2, 3, "y"}
-  -- insert (insert ({1, 2, 3}, 2, "x"), "y")
-  insert = X ("insert (table, [int], any)", std.table.insert),
-
-  --- Invert a table.
-  -- @function invert
-  -- @tparam table t a table with `{k=v, ...}`
-  -- @treturn table inverted table `{v=k, ...}`
-  -- @usage
-  -- --> {a=1, b=2, c=3}
-  -- invert {"a", "b", "c"}
-  invert = X ("invert (table)", std.table.invert),
-
-  --- Make the list of keys in table.
-  -- @function keys
-  -- @tparam table t a table
-  -- @treturn table list of keys from *t*
-  -- @see okeys
-  -- @see values
-  -- @usage globals = keys (_G)
-  keys = X ("keys (table)", keys),
-
-  --- Largest integer key in a table.
-  -- @function maxn
-  -- @tparam table t a table
-  -- @treturn int largest integer key in *t*
-  -- @usage
-  -- --> 42
-  -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
-  maxn = X ("maxn (table)", std.table.maxn),
-
-  --- Destructively merge another table's fields into another.
-  -- @function merge
-  -- @tparam table t destination table
-  -- @tparam table u table with fields to merge
-  -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
-  -- @bool[opt] nometa if `true` or ":nometa" don't copy metatable
-  -- @treturn table *t* with fields from *u* merged in
-  -- @see clone
-  -- @see merge_select
-  -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
-  merge = X ("merge (table, table, [table], ?boolean|:nometa)", merge_allfields),
-
-  --- Destructively merge another table's named fields into *table*.
-  --
-  -- Like `merge`, but does not merge any fields by default.
-  -- @function merge_select
-  -- @tparam table t destination table
-  -- @tparam table u table with fields to merge
-  -- @tparam[opt={}] table keys list of keys to copy
-  -- @bool[opt] nometa if `true` or ":nometa" don't copy metatable
-  -- @treturn table copy of fields in *selection* from *t*, also sharing *t*'s
-  --   metatable unless *nometa*
-  -- @see merge
-  -- @see clone_select
-  -- @usage merge_select (_G, require "std.debug", {"say"}, false)
-  merge_select = X ("merge_select (table, table, [table], ?boolean|:nometa)",
-                    merge_namedfields),
-
-  --- Overwrite core `table` methods with `std` enhanced versions.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local table = require "std.table".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
-
   --- Make a table with a default value for unset keys.
   -- @function new
   -- @param[opt=nil] x default entry value
@@ -379,19 +363,6 @@ M = {
   -- project ("xx", {{"a", xx=1, yy="z"}, {"b", yy=2}, {"c", xx=3}, {xx="yy"})
   project = X ("project (any, list of tables)", project),
 
-  --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
-  -- Also, diagnose out of bounds *pos* arguments consistently on any supported
-  -- version of Lua.
-  -- @function remove
-  -- @tparam table t a table
-  -- @int[opt=len (t)] pos index from which to remove an element
-  -- @return removed value, or else `nil`
-  -- @usage
-  -- --> {1, 2, 5}
-  -- t = {1, 2, "x", 5}
-  -- remove (t, 3) == "x" and t
-  remove = X ("remove (table, ?int)", remove),
-
   --- Shape a table according to a list of dimensions.
   --
   -- Dimensions are given outermost first and items from the original
@@ -426,23 +397,6 @@ M = {
   -- size {foo = true, bar = true, baz = false}
   size = X ("size (table)", size),
 
-  --- Enhance core *table.sort* to return its result.
-  -- @function sort
-  -- @tparam table t unsorted table
-  -- @tparam[opt=std.operator.lt] comparator c ordering function callback
-  -- @return *t* with keys sorted accordind to *c*
-  -- @usage table.concat (sort (object))
-  sort = X ("sort (table, ?function)", sort),
-
-  --- Enhance core *table.unpack* to always unpack up to __len or maxn.
-  -- @function unpack
-  -- @tparam table t table to act on
-  -- @int[opt=1] i first index to unpack
-  -- @int[opt=table.maxn(t)] j last index to unpack
-  -- @return ... values of numeric indices of *t*
-  -- @usage return unpack (results_table)
-  unpack = X ("unpack (table, ?int, ?int)", std.table.unpack),
-
   --- Make the list of values of a table.
   -- @function values
   -- @tparam table t any table
@@ -452,6 +406,67 @@ M = {
   -- --> {"a", "c", 42}
   -- values {"a", b="c", [-1]=42}
   values = X ("values (table)", values),
+
+
+  --- Mutator Functions
+  -- @section mutatorfuncs
+
+  --- Invert a table.
+  -- @function invert
+  -- @tparam table t a table with `{k=v, ...}`
+  -- @treturn table inverted table `{v=k, ...}`
+  -- @usage
+  -- --> {a=1, b=2, c=3}
+  -- invert {"a", "b", "c"}
+  invert = X ("invert (table)", std.table.invert),
+
+  --- Make the list of keys in table.
+  -- @function keys
+  -- @tparam table t a table
+  -- @treturn table list of keys from *t*
+  -- @see okeys
+  -- @see values
+  -- @usage globals = keys (_G)
+  keys = X ("keys (table)", keys),
+
+  --- Destructively merge another table's fields into another.
+  -- @function merge
+  -- @tparam table t destination table
+  -- @tparam table u table with fields to merge
+  -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`
+  -- @bool[opt] nometa if `true` or ":nometa" don't copy metatable
+  -- @treturn table *t* with fields from *u* merged in
+  -- @see clone
+  -- @see merge_select
+  -- @usage merge (_G, require "std.debug", {say = "log"}, ":nometa")
+  merge = X ("merge (table, table, [table], ?boolean|:nometa)", merge_allfields),
+
+  --- Destructively merge another table's named fields into *table*.
+  --
+  -- Like `merge`, but does not merge any fields by default.
+  -- @function merge_select
+  -- @tparam table t destination table
+  -- @tparam table u table with fields to merge
+  -- @tparam[opt={}] table keys list of keys to copy
+  -- @bool[opt] nometa if `true` or ":nometa" don't copy metatable
+  -- @treturn table copy of fields in *selection* from *t*, also sharing *t*'s
+  --   metatable unless *nometa*
+  -- @see merge
+  -- @see clone_select
+  -- @usage merge_select (_G, require "std.debug", {"say"}, false)
+  merge_select = X ("merge_select (table, table, [table], ?boolean|:nometa)",
+                    merge_namedfields),
+
+
+  --- Module Functions
+  -- @section modulefuncs
+
+  --- Overwrite core `table` methods with `std` enhanced versions.
+  -- @function monkey_patch
+  -- @tparam[opt=_G] table namespace where to install global functions
+  -- @treturn table the module table
+  -- @usage local table = require "std.table".monkey_patch ()
+  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
 
 

@@ -4,7 +4,7 @@
  A selection of higher-order functions to enable a functional style of
  programming in Lua.
 
- @module std.functional
+ @functional std.functional
 ]]
 
 

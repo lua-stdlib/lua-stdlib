@@ -25,13 +25,27 @@
  This mitigates almost all of the overhead of argument typechecking in
  stdlib API functions.
 
- @module std.debug
+ @corelibrary std.debug
 ]]
 
 
 local debug_init = require "std.debug_init"
 local std        = require "std.base"
 
+--- Control std.debug function behaviour.
+-- To declare debugging state, set _DEBUG either to `false` to disable all
+-- runtime debugging; to any "truthy" value (equivalent to enabling everything
+-- except *call*, or as documented below.
+-- @class table
+-- @name _DEBUG
+-- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
+-- @tfield[opt=false] boolean call do call trace debugging
+-- @field[opt=nil] deprecate if `false`, deprecated APIs are defined,
+--   and do not issue deprecation warnings when used; if `nil` issue a
+--   deprecation warning each time a deprecated api is used; any other
+--   value causes deprecated APIs not to be defined at all
+-- @tfield[opt=1] int level debugging level
+-- @usage _DEBUG = { argcheck = false, level = 9 }
 local _DEBUG = debug_init._DEBUG
 
 local ipairs, pairs, stdtype, tostring =
@@ -622,6 +636,9 @@ end
 
 
 M = {
+  --- API Maturity
+  -- @section maturity
+
   --- Provide a deprecated function definition according to _DEBUG.deprecate.
   -- You can check whether your covered code uses deprecated functions by
   -- setting `_DEBUG.deprecate` to  `true` before loading any stdlib modules,
@@ -646,6 +663,10 @@ M = {
   -- @usage
   -- io.stderr:write (DEPRECATIONMSG ("42", "multi-argument 'module.fname'", 2))
   DEPRECATIONMSG = DEPRECATIONMSG,
+
+
+  --- Gradual Typing
+  -- @section typing
 
   --- Check the type of an argument against expected types.
   -- Equivalent to luaL_argcheck in the Lua C API.
@@ -768,6 +789,7 @@ M = {
   end,
 
   --- Format a too many things error.
+  -- @function extramsg_toomany
   -- @string bad the thing there are too many of
   -- @int expected maximum number of *bad* things expected
   -- @int actual actual number of *bad* things that triggered the error
@@ -779,11 +801,6 @@ M = {
   --     argerror ("sevenses", 8, extramsg_toomany ("argument", 7, maxn (argt)))
   --   end
   extramsg_toomany = extramsg_toomany,
-
-  --- Extend `debug.getfenv` to unwrap functables correctly.
-  -- @tparam int|function|functable fn target function, or stack level
-  -- @treturn table environment of *fn*
-  getfenv = getfenv,
 
   --- Compact permutation list into a list of valid types at each argument.
   -- Eliminate bracketed types by combining all valid types at each position
@@ -797,22 +814,44 @@ M = {
   -- Like @{argerror} for bad results. This function does not
   -- return.  The `level` argument behaves just like the core `error`
   -- function.
+  -- @function resulterror
   -- @string name function to callout in error message
-  -- @int i argument number
+  -- @int i result number
   -- @string[opt] extramsg additional text to append to message inside parentheses
   -- @int[opt=1] level call stack level to blame for the error
   -- @usage
   -- local function slurp (file)
-  --   local h, err = input_handle (file)
-  --   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
   --   ...
+  --   if type (result) ~= "string" then resulterror ("std.io.slurp", 1, err, 2) end
   resulterror = resulterror,
 
+  --- Split a typespec string into a table of normalized type names.
+  -- @function typesplit
+  -- @tparam string|table either `"?bool|:nometa"` or `{"boolean", ":nometa"}`
+  -- @treturn table a new list with duplicates removed and leading "?"s
+  --   replaced by a "nil" element
+  typesplit = typesplit,
+
+
+  --- Function Environments
+  -- @section environments
+
+  --- Extend `debug.getfenv` to unwrap functables correctly.
+  -- @function getfenv
+  -- @tparam int|function|functable fn target function, or stack level
+  -- @treturn table environment of *fn*
+  getfenv = getfenv,
+
   --- Extend `debug.setfenv` to unwrap functables correctly.
+  -- @function setfenv
   -- @tparam function|functable fn target function
   -- @tparam table env new function environment
   -- @treturn function *fn*
   setfenv = setfenv,
+
+
+  --- Functions
+  -- @section functions
 
   --- Print a debugging message to `io.stderr`.
   -- Display arguments passed through `std.tostring` and separated by tab
@@ -839,12 +878,6 @@ M = {
   -- local debug = require "std.debug"
   trace = trace,
 
-  --- Split a typespec string into a table of normalized type names.
-  -- @tparam string|table either `"?bool|:nometa"` or `{"boolean", ":nometa"}`
-  -- @treturn table a new list with duplicates removed and leading "?"s
-  --   replaced by a "nil" element
-  typesplit = typesplit,
-
 
   -- Private:
   _setdebug = function (t)
@@ -860,8 +893,12 @@ for k, v in pairs (debug) do
   M[k] = M[k] or v
 end
 
+
+--- Metamethods
+-- @section metamethods
+
 --- Equivalent to calling `debug.say (1, ...)`
--- @function debug
+-- @function __call
 -- @see say
 -- @usage
 -- local debug = require "std.debug"
@@ -888,20 +925,3 @@ M.toomanyargmsg = DEPRECATED ("41.2.0", "debug.toomanyargmsg",
 
 
 return setmetatable (M, metatable)
-
-
-
---- Control std.debug function behaviour.
--- To declare debugging state, set _DEBUG either to `false` to disable all
--- runtime debugging; to any "truthy" value (equivalent to enabling everything
--- except *call*, or as documented below.
--- @class table
--- @name _DEBUG
--- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
--- @tfield[opt=false] boolean call do call trace debugging
--- @field[opt=nil] deprecate if `false`, deprecated APIs are defined,
---   and do not issue deprecation warnings when used; if `nil` issue a
---   deprecation warning each time a deprecated api is used; any other
---   value causes deprecated APIs not to be defined at all
--- @tfield[opt=1] int level debugging level
--- @usage _DEBUG = { argcheck = false, level = 9 }

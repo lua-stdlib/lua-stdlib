@@ -7,7 +7,7 @@
 
     local io = require "std.io"
 
- @module std.io
+ @corelibrary std.io
 ]]
 
 
@@ -145,6 +145,46 @@ end
 
 
 M = {
+  --- Diagnostic functions
+  -- @section diagnosticfuncs
+
+  --- Die with error.
+  -- This function uses the same rules to build a message prefix
+  -- as @{warn}.
+  -- @function die
+  -- @string msg format string
+  -- @param ... additional arguments to plug format string specifiers
+  -- @see warn
+  -- @usage die ("oh noes! (%s)", tostring (obj))
+  die = X ("die (string, [any...])", function (...)
+	     error (warnfmt (...), 0)
+           end),
+
+  --- Give warning with the name of program and file (if any).
+  -- If there is a global `prog` table, prefix the message with
+  -- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
+  -- if there is a global `opts` table, prefix the message with
+  -- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
+  -- returns an `opts` table that provides the required `program`
+  -- field, as long as you assign it back to `_G.opts`.
+  -- @function warn
+  -- @string msg format string
+  -- @param ... additional arguments to plug format string specifiers
+  -- @see std.optparse:parse
+  -- @see die
+  -- @usage
+  --   local OptionParser = require "std.optparse"
+  --   local parser = OptionParser "eg 0\nUsage: eg\n"
+  --   _G.arg, _G.opts = parser:parse (_G.arg)
+  --   if not _G.opts.keep_going then
+  --     require "std.io".warn "oh noes!"
+  --   end
+  warn = X ("warn (string, [any...])", warn),
+
+
+  --- Path Functions
+  -- @section pathfuncs
+
   --- Concatenate directory names into a path.
   -- @function catdir
   -- @string ... path components
@@ -164,18 +204,6 @@ M = {
   -- @usage filepath = catfile ("relative", "path", "filename")
   catfile = X ("catfile (string...)", catfile),
 
-  --- Die with error.
-  -- This function uses the same rules to build a message prefix
-  -- as @{warn}.
-  -- @function die
-  -- @string msg format string
-  -- @param ... additional arguments to plug format string specifiers
-  -- @see warn
-  -- @usage die ("oh noes! (%s)", tostring (obj))
-  die = X ("die (string, [any...])", function (...)
-	     error (warnfmt (...), 0)
-           end),
-
   --- Remove the last dirsep delimited element from a path.
   -- @function dirname
   -- @string path file path
@@ -186,6 +214,20 @@ M = {
                  return (path:gsub (catfile ("", "[^", "]*$"), ""))
 	       end),
 
+  --- Split a directory path into components.
+  -- Empty components are retained: the root directory becomes `{"", ""}`.
+  -- @function splitdir
+  -- @param path path
+  -- @return list of path components
+  -- @see catdir
+  -- @usage dir_components = splitdir (filepath)
+  splitdir = X ("splitdir (string)",
+                function (path) return split (path, dirsep) end),
+
+
+  --- Module Functions
+  -- @section modulefuncs
+
   --- Overwrite core `io` methods with `std` enhanced versions.
   --
   -- Also adds @{readlines} and @{writelines} metamethods to core file objects.
@@ -194,6 +236,10 @@ M = {
   -- @treturn table the `std.io` module table
   -- @usage local io = require "std.io".monkey_patch ()
   monkey_patch = X ("monkey_patch (?table)", monkey_patch),
+
+
+  --- IO Functions
+  -- @section iofuncs
 
   --- Process files specified on the command-line.
   -- Each filename is made the default input source with `io.input`, and
@@ -235,37 +281,6 @@ M = {
   -- @see process_files
   -- @usage contents = slurp (filename)
   slurp = X ("slurp (?file|string)", slurp),
-
-  --- Split a directory path into components.
-  -- Empty components are retained: the root directory becomes `{"", ""}`.
-  -- @function splitdir
-  -- @param path path
-  -- @return list of path components
-  -- @see catdir
-  -- @usage dir_components = splitdir (filepath)
-  splitdir = X ("splitdir (string)",
-                function (path) return split (path, dirsep) end),
-
-  --- Give warning with the name of program and file (if any).
-  -- If there is a global `prog` table, prefix the message with
-  -- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
-  -- if there is a global `opts` table, prefix the message with
-  -- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
-  -- returns an `opts` table that provides the required `program`
-  -- field, as long as you assign it back to `_G.opts`.
-  -- @function warn
-  -- @string msg format string
-  -- @param ... additional arguments to plug format string specifiers
-  -- @see std.optparse:parse
-  -- @see die
-  -- @usage
-  --   local OptionParser = require "std.optparse"
-  --   local parser = OptionParser "eg 0\nUsage: eg\n"
-  --   _G.arg, _G.opts = parser:parse (_G.arg)
-  --   if not _G.opts.keep_going then
-  --     require "std.io".warn "oh noes!"
-  --   end
-  warn = X ("warn (string, [any...])", warn),
 
   --- Write values adding a newline after each.
   -- @function writelines

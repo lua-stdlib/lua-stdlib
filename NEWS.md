@@ -4,6 +4,12 @@
 
 ### New features
 
+  - Overhaul of the LDoc documentation, adding more introductory
+    material, clearer usage examples and better internal consistency. At
+    this point we're pushing the technical limits of what LDoc can do for
+    us organization-wise, but improvements and corrections to the content
+    are always welcome!
+
   - We used to have an object module method, `std.object.type`, which
     often got imported using:
 
