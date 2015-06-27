@@ -5,6 +5,7 @@ by the [stdlib project][github]
 
 [github]: http://github.com/lua-stdlib/lua-stdlib/ "Github repository"
 
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
 [![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
 [![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
 
