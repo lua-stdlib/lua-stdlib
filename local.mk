@@ -41,12 +41,18 @@ update_copyright_env = \
 ## Declarations. ##
 ## ------------- ##
 
-classesdir		= $(docdir)/classes
-modulesdir		= $(docdir)/modules
+doccorefunctionsdir	= $(docdir)/core_functions
+doccorelibrariesdir	= $(docdir)/core_libraries
+docfunctionaldir	= $(docdir)/functional_style
+docmodulesdir		= $(docdir)/modules
+docobjectsdir		= $(docdir)/object_system
 
-dist_doc_DATA		=
-dist_classes_DATA	=
-dist_modules_DATA	=
+dist_doc_DATA			=
+dist_doccorefunctions_DATA	=
+dist_doccorelibraries_DATA	=
+dist_docfunctional_DATA		=
+dist_docmodules_DATA		=
+dist_docobjects_DATA		=
 
 include specs/specs.mk
 
@@ -121,39 +127,55 @@ EXTRA_DIST +=				\
 ## Documentation. ##
 ## -------------- ##
 
+doccorefunctions = $(srcdir)/doc/core_functions/std
+doccorelibraries = $(srcdir)/doc/core_libraries/std
+docfunctional    = $(srcdir)/doc/functional_style/std
+docmodules       = $(srcdir)/doc/modules/std
+docobjects       = $(srcdir)/doc/object_system/std
 
-dist_doc_DATA +=			\
-	$(srcdir)/doc/index.html	\
+dist_doc_DATA +=				\
+	$(srcdir)/doc/index.html		\
 	$(srcdir)/doc/ldoc.css
 
-dist_classes_DATA +=					\
-	$(srcdir)/doc/classes/std.container.html	\
-	$(srcdir)/doc/classes/std.list.html		\
-	$(srcdir)/doc/classes/std.object.html		\
-	$(srcdir)/doc/classes/std.optparse.html		\
-	$(srcdir)/doc/classes/std.set.html		\
-	$(srcdir)/doc/classes/std.strbuf.html		\
-	$(srcdir)/doc/classes/std.tree.html		\
-	$(srcdir)/doc/classes/std.tuple.html		\
+dist_doccorefunctions_DATA +=			\
+	$(doccorefunctions).html		\
 	$(NOTHING_ELSE)
 
-dist_modules_DATA +=					\
-	$(srcdir)/doc/modules/std.html			\
-	$(srcdir)/doc/modules/std.debug.html		\
-	$(srcdir)/doc/modules/std.functional.html	\
-	$(srcdir)/doc/modules/std.io.html		\
-	$(srcdir)/doc/modules/std.math.html		\
-	$(srcdir)/doc/modules/std.operator.html		\
-	$(srcdir)/doc/modules/std.package.html		\
-	$(srcdir)/doc/modules/std.strict.html		\
-	$(srcdir)/doc/modules/std.string.html		\
-	$(srcdir)/doc/modules/std.table.html		\
+dist_doccorelibraries_DATA +=			\
+	$(doccorelibraries).debug.html		\
+	$(doccorelibraries).io.html		\
+	$(doccorelibraries).math.html		\
+	$(doccorelibraries).package.html	\
+	$(doccorelibraries).string.html		\
+	$(doccorelibraries).table.html		\
+	$(NOTHING_ELSE)
+
+dist_docfunctional_DATA +=			\
+	$(docfunctional).functional.html	\
+	$(docfunctional).operator.html		\
+	$(NOTHING_ELSE)
+
+dist_docmodules_DATA +=				\
+	$(docmodules).optparse.html		\
+	$(docmodules).strict.html		\
+	$(NOTHING_ELSE)
+
+dist_docobjects_DATA +=				\
+	$(docobjects).container.html		\
+	$(docobjects).list.html			\
+	$(docobjects).object.html		\
+	$(docobjects).set.html			\
+	$(docobjects).strbuf.html		\
+	$(docobjects).tree.html			\
+	$(docobjects).tuple.html		\
 	$(NOTHING_ELSE)
 
 ## Parallel make gets confused when one command ($(LDOC)) produces
 ## multiple targets (all the html files above), so use the presence
 ## of the doc directory as a sentinel file.
-$(dist_doc_DATA) $(dist_classes_DATA) $(dist_modules_DATA): $(srcdir)/doc
+$(dist_doc_DATA) $(dist_doccorefunctions_DATA): $(srcdir)/doc
+$(dist_doccorelibraries_DATA) $(dist_docfunctional_DATA): $(srcdir)/doc
+$(dist_docmodules_DATA) $(dist_docobjects_DATA): $(srcdir)/doc
 
 $(srcdir)/doc: $(dist_lua_DATA) $(dist_luastd_DATA)
 	test -d $@ || mkdir $@
