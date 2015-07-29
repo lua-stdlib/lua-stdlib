@@ -9,7 +9,7 @@
 
  In addition to the functionality described here, Set containers also
  have all the methods and metamethods of the @{std.container.prototype}
- (except where overridden here),
+ (except where overridden here).
 
  Prototype Chain
  ---------------
