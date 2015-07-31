@@ -50,21 +50,27 @@ local function assert (expect, fmt, arg1, ...)
 end
 
 
-local function getmetamethod (x, n)
-  local _, m = pcall (function (x)
-                        return getmetatable (x)[n]
-                      end,
-                      x)
-  if type (m) ~= "function" then
-    m = nil
-  end
-  return m
+-- No need to recurse because functables are second class citizens in
+-- Lua:
+-- func=function () print "called" end
+-- func() --> "called"
+-- functable=setmetatable ({}, {__call=func})
+-- functable() --> "called"
+-- nested=setmetatable ({}, {__call=functable})
+-- nested()
+-- --> stdin:1: attempt to call a table value (global 'd')
+-- --> stack traceback:
+-- -->	stdin:1: in main chunk
+-- -->		[C]: in ?
+local function callable (x)
+  if type (x) == "function" then return x end
+  return (getmetatable (x) or {}).__call
 end
 
 
-local function callable (x)
-  if type (x) == "function" then return x end
-  return  getmetamethod (x, "__call")
+local function getmetamethod (x, n)
+  local m = (getmetatable (x) or {})[n]
+  if callable (m) then return m end
 end
 
 

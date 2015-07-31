@@ -233,14 +233,21 @@ specify std:
 
   - context with a table:
     - before:
-        method = function () end
-        t = setmetatable ({}, { _type = "table", _method = method })
+        method = function () return "called" end
+        functor = setmetatable ({}, {__call = method})
+        t = setmetatable ({}, {
+          _type = "table", _method = method, _functor = functor,
+        })
     - it returns nil for missing metamethods:
         expect (f (t, "not a metamethod on t")).to_be (nil)
-    - it returns nil for non-function metatable entries:
+    - it returns nil for non-callable metatable entries:
         expect (f (t, "_type")).to_be (nil)
     - it returns a method from the metatable:
         expect (f (t, "_method")).to_be (method)
+        expect (f (t, "_method")()).to_be "called"
+    - it returns a functor from the metatable:
+        expect (f (t, "_functor")).to_be (functor)
+        expect (f (t, "_functor")()).to_be "called"
 
   - context with an object:
     - before:

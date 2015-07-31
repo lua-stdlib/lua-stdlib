@@ -91,6 +91,10 @@
 
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
 
+  - `std.getmetamethod` now returns functable valued metamethods
+    correctly, rather than `nil` as in previous releases.  It's also
+    considerably faster now that it doesn't use `pcall` any more.
+
 ### Incompatible changes
 
   - Deprecated multi-argument `functional.bind` has been removed.
