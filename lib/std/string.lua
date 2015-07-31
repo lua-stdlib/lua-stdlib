@@ -43,7 +43,7 @@ local function __index (s, i)
 end
 
 
-local _format   = string.format
+local _format = string.format
 
 local function format (f, arg1, ...)
   return (arg1 ~= nil) and _format (f, arg1, ...) or f
@@ -156,14 +156,14 @@ local function numbertosi (n)
     [4] = "T", [5] = "P", [6] = "E", [7] = "Z",
     [8] = "Y"
   }
-  local t = format("% #.2e", n)
+  local t = _format ("% #.2e", n)
   local _, _, m, e = t:find(".(.%...)e(.+)")
   local man, exp = tonumber (m), tonumber (e)
   local siexp = math.floor (exp / 3)
   local shift = exp - siexp * 3
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
-  return format ("%0.f", man) .. s
+  return _format ("%0.f", man) .. s
 end
 
 
@@ -188,7 +188,7 @@ local function prettytostring (x, indent, spacing)
                  end,
                  function (x)
                    if type (x) == "string" then
-                     return format ("%q", x)
+                     return _format ("%q", x)
                    else
                      return tostring (x)
                    end
@@ -229,7 +229,7 @@ end
 
 local function pickle (x)
   if type (x) == "string" then
-    return format ("%q", x)
+    return _format ("%q", x)
   elseif type (x) == "number" or type (x) == "boolean" or
     type (x) == "nil" then
     return tostring (x)
