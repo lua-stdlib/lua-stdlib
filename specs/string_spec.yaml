@@ -387,6 +387,8 @@ specify std.string:
       seq = {1, {{2, 3}, 4, {5}}}
       hash = {foo={[{5,42}]={bar=0}}}
       f = M.pickle
+  - it diagnoses unpicklable arguments:
+      expect (f (function () end)).to_error "cannot pickle function"
   - it converts a primitive to a representative string:
       expect (f (nil)).to_be "nil"
       expect (f (false)).to_be "false"

@@ -352,7 +352,7 @@ local function pickle (x)
   end
 
   -- don't know what to do with this :(
-  die ("cannot pickle " .. tostring (x))
+  error ("cannot pickle " .. tostring (x))
 end
 
 
