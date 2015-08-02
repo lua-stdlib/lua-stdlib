@@ -384,27 +384,49 @@ specify std.string:
   - before:
       loadstring = loadstring or load
       function unpickle (s) return loadstring ("return " .. s) () end
-      t = {1, {{2, 3}, 4, {5}}}
+      seq = {1, {{2, 3}, 4, {5}}}
+      hash = {foo={[{5,42}]={bar=0}}}
       f = M.pickle
   - it converts a primitive to a representative string:
       expect (f (nil)).to_be "nil"
       expect (f (false)).to_be "false"
       expect (f (42)).to_be "42"
       expect (f "string").to_be '"string"'
-  - it returns a loadable string that results in the original value:
+  - it converts infinities to a loadable string:
+      expect (unpickle (f (math.huge))).to_be (math.huge)
+      expect (unpickle (f (-math.huge))).to_be (-math.huge)
+  - it converts nan values to a loadable string:
+      expect (f (0/0)).to_be "0/0"
+      nan = unpickle (f (0/0))
+      expect (type (nan)).to_be "number"
+      expect (nan).not_to_equal (nan)
+  - it round trips primitive values:
       expect (unpickle (f (nil))).to_be (nil)
       expect (unpickle (f (false))).to_be (false)
       expect (unpickle (f (42))).to_be (42)
       expect (unpickle (f "string")).to_be "string"
-  - it converts a table to a representative string:
-      expect (f {"table", 42}).to_be '{[1]="table",[2]=42}'
-  - it returns a loadable string that results in the original table:
-      expect (unpickle (f {"table", 42})).to_equal {"table", 42}
-  - it converts a nested table to a representative string:
-      expect (f (t)).
-        to_be "{[1]=1,[2]={[1]={[1]=2,[2]=3},[2]=4,[3]={[1]=5}}}"
-  - it returns a loadable string that results in the original nested table:
+  - it converts a sequence to a representative string:
+      expect (f {"sequence", 42}).to_be '{"sequence", 42}'
+  - it roundtrips sequences:
+      expect (unpickle (f {"sequence", 42})).to_equal {"sequence", 42}
+  - it converts a nested sequence to a representative string:
+      expect (f (seq)).to_be "{1, {{2, 3}, 4, {5}}}"
+  - it roundtrips a nested sequence:
+      expect (unpickle (f (seq))).to_equal (seq)
+  - it converts a hash to a representative string:
+      expect (f {hash=42}).to_be '{["hash"] = 42}'
+  - it roundtrips a hash:
+      expect (unpickle (f {hash=42})).to_equal {hash=42}
+  - it converts a mixed table to a representative string:
+      expect (f {"one", foo=3, 2}).to_be '{"one", 2; ["foo"] = 3}'
+  - it roundtrips a mixed table:
+      t = {"one", foo=3, 2}
       expect (unpickle (f (t))).to_equal (t)
+  - it converts a nested hash to a representative string:
+      expect (f (hash)).
+        to_be '{["foo"] = {[{5, 42}] = {["bar"] = 0}}}'
+  - it roundtrips a nested hash:
+      expect (unpickle (f (hash))).to_equal (hash)
 
 
 - describe prettytostring:

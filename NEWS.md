@@ -89,6 +89,8 @@
 
 ### Bug fixes
 
+  - `std.string.pickle` works with nested tables, and mutable keys.
+
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
 
   - `std.getmetamethod` now returns functable valued metamethods
