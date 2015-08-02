@@ -359,13 +359,16 @@ M = {
   pad = X ("pad (string, int, ?string)", pad),
 
   --- Convert a value to a string.
-  -- The string can be passed to `functional.eval` to retrieve the value.
+  -- The string can be passed to `std.eval` to retrieve the value.
+  -- Only primitives for which `tostring` returns an evalable result,
+  -- and objects with a `__pickle` metamethod are picklable.
   -- @function pickle
   -- @param x object to pickle
   -- @treturn string reversible string rendering of *x*
   -- @see std.eval
   -- @usage
-  -- function slow_identity (x) return functional.eval (pickle (x)) end
+  -- freeze = std.functional.memoize (pickle)
+  -- thaw   = function (x) return std.eval (x) end
   pickle = function (x)
     local __pickle = (getmetatable (x) or {}).__pickle
     if callable (__pickle) then

@@ -376,6 +376,7 @@ function pickle_table (t)
     end
   end
   if i > 1 then
+    table.sort (hash)
     buf[#buf + 1] = table.concat (hash, ", ")
   end
 

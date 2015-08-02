@@ -419,6 +419,13 @@ specify std.string:
       expect (f {hash=42}).to_be '{["hash"] = 42}'
   - it roundtrips a hash:
       expect (unpickle (f {hash=42})).to_equal {hash=42}
+  - it returns hashs keys in a stable order:
+      expect (f {
+        _=95 , a=97, ["A1"]=65.49, A=65, ["["]=91, [" "]=32,
+        ["0"]=48, ["~"]=126,
+      }).should_be ('{[" "] = 32, ["0"] = 48, ["A"] = 65, ' ..
+                    '["A1"] = 65.49, ["["] = 91, ["_"] = 95, ' ..
+                    '["a"] = 97, ["~"] = 126}')
   - it converts a mixed table to a representative string:
       expect (f {"one", foo=3, 2}).to_be '{"one", 2; ["foo"] = 3}'
   - it roundtrips a mixed table:
