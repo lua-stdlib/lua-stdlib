@@ -19,7 +19,7 @@ local getmetamethod, pairs = std.getmetamethod, std.pairs
 local callable = std.functional.callable
 local copy     = std.base.copy
 local len      = std.operator.len
-local render   = std.string.render
+local pickle, render = std.string.pickle, std.string.render
 local insert   = std.table.insert
 local type     = type -- avoid mutual recursion between debug argument checker and string.__index
 
@@ -165,73 +165,6 @@ local function numbertosi (n)
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
   return _format ("%0.f", man) .. s
-end
-
-
-local pickle_table  -- forward declaration
-
-local function pickle (x)
-  -- __pickle metamethod
-  local __pickle = (getmetatable (x) or {}).__pickle
-  if callable (__pickle) then
-    return __pickle (x)
-  elseif type (__pickle) == "string" then
-    return __pickle
-  end
-
-  -- math
-  if x == nil then
-    return "nil"
-  elseif x ~= x then
-    return "0/0"
-  elseif x == math.huge then
-    return "math.huge"
-  elseif x == -math.huge then
-    return "-math.huge"
-  end
-
-  -- common types
-  local type_x = type (x)
-  if type_x == "table" then
-    return pickle_table (x)
-  elseif type_x == "string" then
-    return _format ("%q", x)
-  elseif type_x == "number" or type_x == "boolean" then
-    return tostring (x)
-  end
-
-  -- don't know what to do with this :(
-  die ("cannot pickle " .. tostring (x))
-end
-
-
-function pickle_table (t)
-  local buf = {}
-
-  -- sequence values, if any
-  local seq, i = {}, 1
-  while t[i] ~= nil do
-    i, seq[i] = i + 1, pickle (t[i])
-  end
-  if i > 1 then
-    buf[1] = table.concat (seq, ", ")
-  end
-
-  -- hash values with keys, if any, after sequence value
-  local hash, i = {}, 1
-  for k, v in pairs (t) do
-    if seq[k] == nil then
-      i, hash[i] = i + 1, "[" .. pickle (k) .. "] = " .. pickle (v)
-    end
-  end
-  if i > 1 then
-    buf[#buf + 1] = table.concat (hash, ", ")
-  end
-
-  -- wrap in Lua table read-syntax
-  buf[1]    = "{" .. (buf[1] or "")
-  buf[#buf] = buf[#buf] .. "}"
-  return table.concat (buf, "; ")
 end
 
 
@@ -433,7 +366,16 @@ M = {
   -- @see std.eval
   -- @usage
   -- function slow_identity (x) return functional.eval (pickle (x)) end
-  pickle = pickle,
+  pickle = function (x)
+    local __pickle = (getmetatable (x) or {}).__pickle
+    if callable (__pickle) then
+      return __pickle (x)
+    elseif type (__pickle) == "string" then
+      return __pickle
+    end
+
+    return pickle (x)
+  end,
 
   --- Pretty-print a table, or other object.
   -- @function prettytostring

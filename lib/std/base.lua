@@ -327,6 +327,65 @@ local function npairs (t)
 end
 
 
+local pickle_table  -- forward declaration
+
+local function pickle (x)
+  -- math
+  if x == nil then
+    return "nil"
+  elseif x ~= x then
+    return "0/0"
+  elseif x == math.huge then
+    return "math.huge"
+  elseif x == -math.huge then
+    return "-math.huge"
+  end
+
+  -- common types
+  local type_x = type (x)
+  if type_x == "table" then
+    return pickle_table (x)
+  elseif type_x == "string" then
+    return string.format ("%q", x)
+  elseif type_x == "number" or type_x == "boolean" then
+    return tostring (x)
+  end
+
+  -- don't know what to do with this :(
+  die ("cannot pickle " .. tostring (x))
+end
+
+
+function pickle_table (t)
+  local buf = {}
+
+  -- sequence values, if any
+  local seq, i = {}, 1
+  while t[i] ~= nil do
+    i, seq[i] = i + 1, pickle (t[i])
+  end
+  if i > 1 then
+    buf[1] = table.concat (seq, ", ")
+  end
+
+  -- hash values with keys, if any, after sequence value
+  local hash, i = {}, 1
+  for k, v in pairs (t) do
+    if seq[k] == nil then
+      i, hash[i] = i + 1, "[" .. pickle (k) .. "] = " .. pickle (v)
+    end
+  end
+  if i > 1 then
+    buf[#buf + 1] = table.concat (hash, ", ")
+  end
+
+  -- wrap in Lua table read-syntax
+  buf[1]    = "{" .. (buf[1] or "")
+  buf[#buf] = buf[#buf] .. "}"
+  return table.concat (buf, "; ")
+end
+
+
 local function collect (ifn, ...)
   local argt, r = {...}, {}
   if not callable (ifn) then
@@ -555,6 +614,7 @@ return {
 
   string = {
     escape_pattern = escape_pattern,
+    pickle         = pickle,
     render         = render,
     split          = split,
   },
