@@ -52,6 +52,31 @@
     and object prototype tables, the central `std.object.mapfields`
     instantiation function is much cleaner and faster.
 
+  - `std.string.render` now takes a table of named arguments as documented;
+    the `pairs` function is now supplied with the key and value of the
+    preceding key/value pair.  There is also support for two new named
+    functions: `sort`, which can change the rendering order of keys; and
+    `term`, a predicate function to determine whether the argument can be
+    rendered directly by the `elem` function.
+
+    There are sensible fallbacks for functions not passed in the new
+    function table.  Among other advantages of this improved API, this
+    means render can be called without ceremony to perform basic object
+    rendering:
+
+    ```lua
+    std.string.render (thing)
+    ```
+
+  - There are a few clients of the improved `std.string.render`; as before,
+    `std.string.prettytostring` shows the argument object with nicely
+    formatted and indented nested tables; `std.tostring` outputs a compact
+    display for quickly recognizing objects; `std.string.pickle` outputs
+    a `std.eval`able string that recreates an equivalent object to its
+    original argument; and finally, the default `std.functional.memoize`
+    normalizer outputs stable strings, as required to retrieve previously
+    calculated memoized results.
+
   - New `std.tuple` object, for managing interned immutable nil-preserving
     tuples:
 
@@ -86,6 +111,10 @@
 
   - `std.table.len` has been deprecated in favour of `std.operator.len`,
     because it is not just for tables!
+
+  - `std.string.render` function arguments have been deprecated in favour
+    of a table of named functions backed by defaults.
+
 
 ### Bug fixes
 
@@ -130,6 +159,9 @@
     now iterates upto whatever `__len` returns rather than `std.table.maxn`.
     If `__len` is not present, or gives the same result as `maxn` then
     `npairs` continues to behave as in the previous release.
+
+  - The output format of `std.tostring` skips initial sequence keys in
+    the new compact format.
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]

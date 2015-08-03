@@ -591,10 +591,10 @@ specify std:
       expect (f {}).to_be ("{}")
   - it renders table array part compactly:
       expect (f {"one", "two", "five"}).
-        to_be '{1=one,2=two,3=five}'
+        to_be '{one,two,five}'
   - it renders a table dictionary part compactly:
       expect (f { one = true, two = 2, three = {3}}).
-        to_be '{one=true,three={1=3},two=2}'
+        to_be '{one=true,three={3},two=2}'
   - it renders table keys in table.sort order:
       expect (f { one = 3, two = 5, three = 4, four = 2, five = 1 }).
         to_be '{five=1,four=2,one=3,three=4,two=5}'

@@ -327,66 +327,6 @@ local function npairs (t)
 end
 
 
-local pickle_table  -- forward declaration
-
-local function pickle (x)
-  -- math
-  if x == nil then
-    return "nil"
-  elseif x ~= x then
-    return "0/0"
-  elseif x == math.huge then
-    return "math.huge"
-  elseif x == -math.huge then
-    return "-math.huge"
-  end
-
-  -- common types
-  local type_x = type (x)
-  if type_x == "table" then
-    return pickle_table (x)
-  elseif type_x == "string" then
-    return string.format ("%q", x)
-  elseif type_x == "number" or type_x == "boolean" then
-    return tostring (x)
-  end
-
-  -- don't know what to do with this :(
-  error ("cannot pickle " .. tostring (x))
-end
-
-
-function pickle_table (t)
-  local buf = {}
-
-  -- sequence values, if any
-  local seq, i = {}, 1
-  while t[i] ~= nil do
-    i, seq[i] = i + 1, pickle (t[i])
-  end
-  if i > 1 then
-    buf[1] = table.concat (seq, ", ")
-  end
-
-  -- hash values with keys, if any, after sequence value
-  local hash, i = {}, 1
-  for k, v in pairs (t) do
-    if seq[k] == nil then
-      i, hash[i] = i + 1, "[" .. pickle (k) .. "] = " .. pickle (v)
-    end
-  end
-  if i > 1 then
-    table.sort (hash)
-    buf[#buf + 1] = table.concat (hash, ", ")
-  end
-
-  -- wrap in Lua table read-syntax
-  buf[1]    = "{" .. (buf[1] or "")
-  buf[#buf] = buf[#buf] .. "}"
-  return table.concat (buf, "; ")
-end
-
-
 local function collect (ifn, ...)
   local argt, r = {...}, {}
   if not callable (ifn) then
@@ -431,6 +371,20 @@ local function reduce (fn, d, ifn, ...)
 end
 
 
+local fallbacks = {
+  __index = {
+    open  = function (x) return "{" end,
+    close = function (x) return "}" end,
+    elem  = _G.tostring,
+    pair  = function (x, kp, vp, k, v, kstr, vstr) return kstr .. "=" .. vstr end,
+    sep   = function (x, kp, vp, kn, vn) return kp and kn and "," or "" end,
+    sort  = function (keys) return keys end,
+    term  = function (x)
+	      return type (x) ~= "table" or getmetamethod (x, "__tostring")
+	    end,
+  },
+}
+
 -- Write pretty-printing based on:
 --
 --   John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
@@ -440,27 +394,37 @@ end
 --   http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
 --   Heavily modified by Simon Peyton Jones, Dec 96
 
-local function render (x, opencb, closecb, elemcb, paircb, sepcb, roots)
+local function render (x, fns, roots)
+  fns = setmetatable (fns or {}, fallbacks)
   roots = roots or {}
+
   local function stop_roots (x)
-    return roots[x] or render (x, opencb, closecb, elemcb, paircb, sepcb, copy (roots))
+    return roots[x] or render (x, fns, copy (roots))
   end
 
-  if type (x) ~= "table" or getmetamethod (x, "__tostring") then
-    return elemcb (x)
-  else
-    local buf, k_, v_ = { opencb (x) }		-- pre-buffer table open
-    roots[x] = elemcb (x)			-- initialise recursion protection
+  if fns.term (x) then
+    return fns.elem (x)
 
-    for _, k in ipairs (okeys (x)) do		-- for ordered table members
-      local v = x[k]
-      buf[#buf + 1] = sepcb (x, k_, v_, k, v)	-- | buffer separator
-      buf[#buf + 1] = paircb (x, k, v, stop_roots (k), stop_roots (v))
-						-- | buffer key/value pair
-      k_, v_ = k, v
+  else
+    local buf, keys = {fns.open (x)}, {}	-- pre-buffer table open
+    roots[x] = fns.elem (x)			-- recursion protection
+
+    for k in pairs (x) do			-- collect keys
+      keys[#keys + 1] = k
     end
-    buf[#buf + 1] = sepcb (x, k_, v_)		-- buffer trailing separator
-    buf[#buf + 1] = closecb (x)			-- buffer table close
+    keys = fns.sort (keys)
+
+    local pair, sep = fns.pair, fns.sep
+    local kp, vp				-- previous key and value
+    for _, k in ipairs (keys) do
+      local v = x[k]
+      buf[#buf + 1] = sep (x, kp, vp, k, v)	-- | buffer << separator
+      buf[#buf + 1] = pair (x, kp, vp, k, v, stop_roots (k), stop_roots (v))
+						-- | buffer << key/value pair
+      kp, vp = k, v
+    end
+    buf[#buf + 1] = sep (x, kp, vp)		-- buffer << trailing separator
+    buf[#buf + 1] = fns.close (x)		-- buffer << table close
 
     return table.concat (buf)			-- stringify buffer
   end
@@ -535,15 +499,22 @@ local function require (module, min, too_big, pattern)
 end
 
 
-local _tostring = _G.tostring
-
 local function tostring (x)
-  return render (x,
-                 function () return "{" end,
-		 function () return "}" end,
-                 _tostring,
-                 function (_, _, _, is, vs) return is .."=".. vs end,
-		 function (_, i, _, k) return i and k and "," or "" end)
+  return render (x, {
+    pair = function (x, kp, vp, k, v, kstr, vstr)
+      local type_k = type (k)
+      if k == 1 or type_k == "number" and k -1 == kp then
+	return vstr
+      end
+      return kstr .. "=" .. vstr
+    end,
+
+    sort = function (keys)
+      -- need to sort numeric keys to be able to skip printing them.
+      table.sort (keys, keysort)
+      return keys
+    end,
+  })
 end
 
 
@@ -615,7 +586,6 @@ return {
 
   string = {
     escape_pattern = escape_pattern,
-    pickle         = pickle,
     render         = render,
     split          = split,
   },

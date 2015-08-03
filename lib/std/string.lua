@@ -17,9 +17,9 @@ local StrBuf = require "std.strbuf".prototype
 
 local getmetamethod, pairs = std.getmetamethod, std.pairs
 local callable = std.functional.callable
-local copy     = std.base.copy
+local copy, keysort = std.base.copy, std.base.keysort
 local len      = std.operator.len
-local pickle, render = std.string.pickle, std.string.render
+local render   = std.string.render
 local insert   = std.table.insert
 local type     = type -- avoid mutual recursion between debug argument checker and string.__index
 
@@ -168,57 +168,110 @@ local function numbertosi (n)
 end
 
 
+local picklable = {
+  boolean = true, ["nil"] = true, number = true, string = true,
+}
+
+local function pickle (x)
+  return render (x, {
+    term = function (x)
+      if picklable[type (x)] or getmetamethod (x, "__tostring") then
+	return true
+      elseif type (x) ~= "table" then
+        -- don't know what to do with this :(
+        error ("cannot pickle " .. _tostring (x))
+      end
+    end,
+
+    elem = function (x)
+      -- math
+      if x ~= x then
+        return "0/0"
+      elseif x == math.huge then
+        return "math.huge"
+      elseif x == -math.huge then
+        return "-math.huge"
+      elseif x == nil then
+	return "nil"
+      end
+
+      -- common types
+      local type_x = type (x)
+      if type_x == "string" then
+        return string.format ("%q", x)
+      elseif type_x == "number" or type_x == "boolean" then
+        return _tostring (x)
+      end
+    end,
+
+    pair = function (x, kp, vp, k, v, kstr, vstr)
+      return "[" .. kstr .. "]=" .. vstr
+    end,
+  })
+end
+
+
 local function prettytostring (x, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
-  return render (x,
-                 function ()
-                   local s = spacing .. "{"
-                   spacing = spacing .. indent
-                   return s
-                 end,
-                 function ()
-                   spacing = string.gsub (spacing, indent .. "$", "")
-                   return spacing .. "}"
-                 end,
-                 function (x)
-                   if type (x) == "string" then
-                     return _format ("%q", x)
-                   else
-                     return tostring (x)
-                   end
-                 end,
-                 function (x, k, v, ks, vs)
-                   local s = spacing
-		   if type (k) ~= "string" or k:match "[^%w_]" then
-		     s = s .. "["
-                     if type (k) == "table" then
-                       s = s .. "\n"
-                     end
-                     s = s .. ks
-                     if type (k) == "table" then
-                       s = s .. "\n"
-                     end
-                     s = s .. "]"
-		   else
-		     s = s .. k
-		   end
-		   s = s .. " ="
-                   if type (v) == "table" then
-                     s = s .. "\n"
-                   else
-                     s = s .. " "
-                   end
-                   s = s .. vs
-                   return s
-                 end,
-                 function (_, k)
-                   local s = "\n"
-                   if k then
-                     s = "," .. s
-                   end
-                   return s
-                 end)
+  return render (x, {
+    open = function ()
+      local s = spacing .. "{"
+      spacing = spacing .. indent
+      return s
+    end,
+
+    close = function ()
+      spacing = string.gsub (spacing, indent .. "$", "")
+      return spacing .. "}"
+    end,
+
+    elem = function (x)
+      if type (x) == "string" then
+        return _format ("%q", x)
+      else
+        return tostring (x)
+      end
+    end,
+
+    pair = function (x, _, _, k, v, kstr, vstr)
+      local s = spacing
+      if type (k) ~= "string" or k:match "[^%w_]" then
+        s = s .. "["
+        if type (k) == "table" then
+          s = s .. "\n"
+        end
+        s = s .. kstr
+        if type (k) == "table" then
+          s = s .. "\n"
+        end
+        s = s .. "]"
+      else
+        s = s .. k
+      end
+      s = s .. " ="
+      if type (v) == "table" then
+        s = s .. "\n"
+      else
+        s = s .. " "
+      end
+      s = s .. vstr
+      return s
+    end,
+
+    sep = function (_, k)
+      local s = "\n"
+      if k then
+        s = "," .. s
+      end
+      return s
+    end,
+
+    sort = function (keys)
+      table.sort (keys, keysort)
+      return keys
+    end,
+  })
 end
 
 
@@ -232,6 +285,9 @@ end
 --[[ ================= ]]--
 --[[ Public Interface. ]]--
 --[[ ================= ]]--
+
+
+local DEPRECATIONMSG = require "std.debug".DEPRECATIONMSG
 
 
 local function X (decl, fn)
@@ -394,20 +450,33 @@ M = {
   -- detection will not work.
   -- @function render
   -- @param x object to convert to string
-  -- @tparam opentablecb open open table rendering function
-  -- @tparam closetablecb close close table rendering function
-  -- @tparam elementcb elem element rendering function
-  -- @tparam paircb pair pair rendering function
-  -- @tparam separatorcb sep separator rendering function
-  -- @tparam[opt] table roots accumulates table references to detect recursion
+  -- @tparam[opt] rendercbs fns default rendering function overrides
   -- @return string representation of *x*
   -- @usage
-  -- function tostring (x)
-  --   return render (x, lambda '="{"', lambda '="}"', tostring,
-  --                  lambda '=_4.."=".._5', lambda '= _4 and "," or ""',
-  --                  lambda '=","')
+  -- function tostablestring (x)
+  --   return render (x, {
+  --     sort = function (keys)
+  --       table.sort (keys, lambda "=tostring (_1) < tostring (_2)")
+  --       return keys
+  --     end,
+  --   })
   -- end
-  render = X ("render (?any, func, func, func, func, func, ?table)", render),
+  render = X ("render (?any, ?table|func, ?func, ?func, ?func, ?func, ?table)",
+    function (x, opencb, closecb, elemcb, paircb, sepcb, roots)
+      if type (opencb) == "function" then
+        io.stderr:write (DEPRECATIONMSG ("41.3",
+          "multiple function arguments to 'std.string.render'",
+          "pass a table of named functions as the second parameter instead", 2))
+	opencb = {
+          open = opencb, close = closecb, elem = elemcb, sep = sepcb,
+	  pair = function (x, kp, vp, k, v, kstr, vstr)
+            return paircb (x, k, v, kstr, vstr)
+	  end,
+	}
+      end
+      return render (x, opencb, roots)
+    end
+  ),
 
   --- Remove trailing matter from a string.
   -- @function rtrim
@@ -505,6 +574,22 @@ return std.base.merge (M, string)
 --- Types
 -- @section Types
 
+--- Table of default render callback functions.
+-- @table rendercbs
+-- @tfield[opt] opentablecb open open table rendering function
+-- @tfield[opt] closetablecb close close table rendering function
+-- @tfield[opt] elementcb elem element rendering function
+-- @tfield[opt] paircb pair pair rendering function
+-- @tfield[opt] separatorcb sep separator rendering function
+-- @tfield[opt] sortcb sort key sorting function
+-- @tfield[opt] termcb term terminal predicate
+-- @see render
+-- @usage
+-- function tostringstable (x)
+--   return render (x, { sort = some_sequence_reordering_fn })
+-- end
+
+
 --- Signature of @{render} open table callback.
 -- @function opentablecb
 -- @tparam table t table about to be rendered
@@ -554,3 +639,21 @@ return std.base.merge (M, string)
 -- @treturn string separator rendering
 -- @usage
 -- function separator (_, _, _, fk) return fk and "," or "" end
+
+
+--- Signature of @{render} key sorting callback.
+-- @function sortcb
+-- @tparam sequence keys all keys from rendering table
+-- @treturn sequence *keys* in desired display order
+-- @usage
+-- function unsorted (keys) return keys end
+
+
+--- Signature of @{render} terminal predicate callback.
+-- @function termcb
+-- @param x an element to be rendered
+-- @treturn boolean whether *x* can be rendered by @{elementcb}
+-- @usage
+-- function term (x)
+--   return type (x) ~= "table" or getmetamethod (x, "__tostring")
+-- end

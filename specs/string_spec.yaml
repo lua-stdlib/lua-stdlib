@@ -408,32 +408,25 @@ specify std.string:
       expect (unpickle (f (42))).to_be (42)
       expect (unpickle (f "string")).to_be "string"
   - it converts a sequence to a representative string:
-      expect (f {"sequence", 42}).to_be '{"sequence", 42}'
+      expect (f {"sequence", 42}).to_be '{[1]="sequence",[2]=42}'
   - it roundtrips sequences:
       expect (unpickle (f {"sequence", 42})).to_equal {"sequence", 42}
   - it converts a nested sequence to a representative string:
-      expect (f (seq)).to_be "{1, {{2, 3}, 4, {5}}}"
+      expect (f (seq)).
+        to_be "{[1]=1,[2]={[1]={[1]=2,[2]=3},[2]=4,[3]={[1]=5}}}"
   - it roundtrips a nested sequence:
       expect (unpickle (f (seq))).to_equal (seq)
   - it converts a hash to a representative string:
-      expect (f {hash=42}).to_be '{["hash"] = 42}'
+      expect (f {hash=42}).to_be '{["hash"]=42}'
   - it roundtrips a hash:
       expect (unpickle (f {hash=42})).to_equal {hash=42}
-  - it returns hashs keys in a stable order:
-      expect (f {
-        _=95 , a=97, ["A1"]=65.49, A=65, ["["]=91, [" "]=32,
-        ["0"]=48, ["~"]=126,
-      }).should_be ('{[" "] = 32, ["0"] = 48, ["A"] = 65, ' ..
-                    '["A1"] = 65.49, ["["] = 91, ["_"] = 95, ' ..
-                    '["a"] = 97, ["~"] = 126}')
-  - it converts a mixed table to a representative string:
-      expect (f {"one", foo=3, 2}).to_be '{"one", 2; ["foo"] = 3}'
+  # there's no guarantee of ordering...
   - it roundtrips a mixed table:
       t = {"one", foo=3, 2}
       expect (unpickle (f (t))).to_equal (t)
   - it converts a nested hash to a representative string:
       expect (f (hash)).
-        to_be '{["foo"] = {[{5, 42}] = {["bar"] = 0}}}'
+        to_be '{["foo"]={[{[1]=5,[2]=42}]={["bar"]=0}}}'
   - it roundtrips a nested hash:
       expect (unpickle (f (hash))).to_equal (hash)
 
@@ -480,30 +473,62 @@ specify std.string:
 
 - describe render:
   - before:
-      term = function (s) return function () return s end end
-      pair = function (_, _, _, i, v) return i .. "=" .. v end
-      sep  = function (_, i, _, j) return (i and j) and "," or "" end
       r = function (x)
-            return M.render (x, term "{", term "}", tostring, pair, sep)
-          end
+        return M.render (x, {
+          sort = function (keys)
+            table.sort (keys,
+                        function (a, b) return tostring (a) < tostring (b) end)
+            return keys
+          end,
+        })
+      end
       t = {1, {{2, 3}, 4, {5}}}
 
       f = M.render
 
+  - it writes an argument passing deprecation warning:
+      around = function () return "|" end
+      inside = function () return "_" end
+      between = function () return "," end
+
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {around, around, inside, inside, between})).
+        to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {around, around, inside, inside, between})).
+        not_to_contain_error "was deprecated"
+
   - context with bad arguments:
-      badargs.diagnose (f, "std.string.render (?any, func, func, func, func, func, ?table)")
+      badargs.diagnose (f, "std.string.render (?any, ?table|func, ?func, ?func, ?func, ?func, ?table)")
 
   - it converts a primitive to a representative string:
       expect (r (nil)).to_be "nil"
       expect (r (false)).to_be "false"
       expect (r (42)).to_be "42"
-      expect (r ("string")).to_be "string"
+      expect (r "string").to_be "string"
   - it converts a table to a representative string:
-      expect (r ({"table", 42})).to_be '{1=table,2=42}'
+      expect (r {"table", 42}).to_be "{1=table,2=42}"
   - it converts a nested table to a representative string:
       expect (r (t)).
         to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
   - it converts a recursive table to a representative string:
+      t[1] = t
+      expect (r (t)).
+        to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
+  - it supports the legacy api:
+      term = function (s) return function () return s end end
+      pair = function (_, _, _, i, v) return i .. "=" .. v end
+      sep  = function (_, i, _, j) return i and j and "," or "" end
+      r = function (x)
+            return f (x, term "{", term "}", tostring, pair, sep)
+          end
+      expect (r (nil)).to_be "nil"
+      expect (r (false)).to_be "false"
+      expect (r (42)).to_be "42"
+      expect (r "string").to_be "string"
+      expect (r {"table", 42}).to_be "{1=table,2=42}"
+      expect (r (t)).
+        to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
       t[1] = t
       expect (r (t)).
         to_be ("{1="..tostring (t)..",2={1={1=2,2=3},2=4,3={1=5}}}")
@@ -683,10 +708,10 @@ specify std.string:
       expect (f {}).to_be ("{}")
   - it renders table array part compactly:
       expect (f {"one", "two", "five"}).
-        to_be '{1=one,2=two,3=five}'
+        to_be '{one,two,five}'
   - it renders a table dictionary part compactly:
       expect (f { one = true, two = 2, three = {3}}).
-        to_be '{one=true,three={1=3},two=2}'
+        to_be '{one=true,three={3},two=2}'
   - it renders table keys in table.sort order:
       expect (f { one = 3, two = 5, three = 4, four = 2, five = 1 }).
         to_be '{five=1,four=2,one=3,three=4,two=5}'

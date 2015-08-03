@@ -15,6 +15,7 @@ local ielems, ipairs, ireverse, npairs, pairs =
 local copy = std.base.copy
 local callable, reduce = std.functional.callable, std.functional.reduce
 local len = std.operator.len
+local render = std.string.render
 local unpack = std.table.unpack
 local loadstring = loadstring or load
 
@@ -146,10 +147,18 @@ local function id (...)
 end
 
 
+local function fallback (...)
+  return render ({...}, {
+    sort = function (keys)
+      table.sort (keys, keysort)
+      return keys
+    end,
+  })
+end
+
+
 local function memoize (fn, normalize)
-  if normalize == nil then
-    normalize = function (...) return std.tostring {...} end
-  end
+  normalize = normalize or fallback
 
   return setmetatable ({}, {
     __call = function (self, ...)
