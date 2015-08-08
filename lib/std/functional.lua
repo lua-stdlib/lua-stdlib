@@ -147,22 +147,14 @@ local function id (...)
 end
 
 
-local function fallback (...)
-  return render ({...}, {
-    sort = function (keys)
-      table.sort (keys, keysort)
-      return keys
-    end,
-  })
-end
+local serialize = std.base.mnemonic
 
-
-local function memoize (fn, normalize)
-  normalize = normalize or fallback
+local function memoize (fn, mnemonic)
+  mnemonic = mnemonic or serialize
 
   return setmetatable ({}, {
     __call = function (self, ...)
-               local k = normalize (...)
+               local k = mnemonic (...)
                local t = self[k]
                if t == nil then
                  t = {fn (...)}
@@ -512,7 +504,7 @@ local M = {
   -- equivalencies.
   -- @function memoize
   -- @func fn pure function: a function with no side effects
-  -- @tparam[opt=std.tostring] normalize normfn function to normalize arguments
+  -- @tparam[opt=std.tostring] mnemonic mnemonicfn how to remember the arguments
   -- @treturn functable memoized function
   -- @usage
   -- local fast = memoize (function (...) --[[ slow code ]] end)
@@ -642,12 +634,12 @@ return M
 
 
 --- Signature of a @{memoize} argument normalization callback function.
--- @function normalize
+-- @function mnemonic
 -- @param ... arguments
--- @treturn string normalized arguments
+-- @treturn string stable serialized arguments
 -- @usage
--- local normalize = function (name, value, props) return name end
--- local intern = std.functional.memoize (mksymbol, normalize)
+-- local mnemonic = function (name, value, props) return name end
+-- local intern = std.functional.memoize (mksymbol, mnemonic)
 
 
 --- Signature of a @{filter} predicate callback function.

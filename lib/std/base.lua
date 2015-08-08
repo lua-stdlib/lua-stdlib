@@ -25,6 +25,7 @@
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
+local _tostring  = _G.tostring
 local type       = type
 
 
@@ -239,7 +240,7 @@ local function keysort (a, b)
   if type (a) == "number" then
     return type (b) ~= "number" or a < b
   else
-    return type (b) ~= "number" and tostring (a) < tostring (b)
+    return type (b) ~= "number" and _tostring (a) < _tostring (b)
   end
 end
 
@@ -375,7 +376,7 @@ local fallbacks = {
   __index = {
     open  = function (x) return "{" end,
     close = function (x) return "}" end,
-    elem  = _G.tostring,
+    elem  = _tostring,
     pair  = function (x, kp, vp, k, v, kstr, vstr) return kstr .. "=" .. vstr end,
     sep   = function (x, kp, vp, kn, vn) return kp and kn and "," or "" end,
     sort  = function (keys) return keys end,
@@ -428,6 +429,23 @@ local function render (x, fns, roots)
 
     return table.concat (buf)			-- stringify buffer
   end
+end
+
+
+local function mnemonic (...)
+  return render ({...}, {
+    elem = function (x)
+      if type (x) == "string" then
+	return string.format ("%q", x)
+      end
+      return _tostring (x)
+    end,
+
+    sort = function (keys)
+      table.sort (keys, keysort)
+      return keys
+    end,
+  })
 end
 
 
@@ -486,7 +504,7 @@ local _require = require
 
 local function require (module, min, too_big, pattern)
   local m = _require (module)
-  local v = tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
+  local v = _tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
     assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)
@@ -545,11 +563,12 @@ return {
   end,
 
   base = {
-    copy    = copy,
-    keysort = keysort,
-    last    = last,
-    merge   = merge,
-    raise   = raise,
+    copy     = copy,
+    keysort  = keysort,
+    last     = last,
+    merge    = merge,
+    mnemonic = mnemonic,
+    raise    = raise,
   },
 
   debug = {

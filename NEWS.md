@@ -10,21 +10,7 @@
     us organization-wise, but improvements and corrections to the content
     are always welcome!
 
-  - We used to have an object module method, `std.object.type`, which
-    often got imported using:
-
-    ```lua
-    local prototype = require "std.object".type
-    ```
-
-    So we renamed it to `std.object.prototype` to avoid a name clash with
-    the `type` symbol, and subsequently deprecated the earlier equivalent
-    `type` method; but that was a mistake, because core Lua provides `type`,
-    and and `io.type` (and in recent releases, `math.type`).  Now, for
-    orthogonality with core Lua, we're going back to using `std.object.type`,
-    because that just makes more sense.  Sorry!
-
-  - Similarly, for orthogonality with core Lua `type`, we also export the
+  - For orthogonality with core Lua `type`, we now export the
     `std.object.type` function as `std.type`.
 
   - Objects and Modules are no longer conflated - what you get back from
@@ -68,14 +54,24 @@
     std.string.render (thing)
     ```
 
-  - There are a few clients of the improved `std.string.render`; as before,
-    `std.string.prettytostring` shows the argument object with nicely
-    formatted and indented nested tables; `std.tostring` outputs a compact
-    display for quickly recognizing objects; `std.string.pickle` outputs
-    a `std.eval`able string that recreates an equivalent object to its
-    original argument; and finally, the default `std.functional.memoize`
-    normalizer outputs stable strings, as required to retrieve previously
-    calculated memoized results.
+  - `std.tostring` uses the more powerful features of `std.string.render`
+    to return a more compact representation of table arguments, that uses
+    significantly less horizontal space for sequences.
+
+  - `std.string.prettytostring` continues to use `std.string.render` for
+    more legible deeply nested table output, identically to previous
+    releases.
+
+  - `std.string.pickle` uses the more powerful features of the improved
+    render function to return a `std.eval`able string that recreates an
+    equivalent object to the original argument more accurately than
+    before.
+
+  - `std.functional.memoize` uses a fast stable render based serialization
+    call by default now, when the `mnemonic` parameter is not given.
+
+  - `std.operator.eqv` now uses render to determine equivalence between
+    tables, which means it works correctly for table keys too.
 
   - New `std.tuple` object, for managing interned immutable nil-preserving
     tuples:
@@ -106,8 +102,19 @@
 
 ### Deprecations
 
-  - `std.object.prototype` has been deprecated in favor of
-    `std.object.type` for orthogonality with `io.type` and `math.type`.
+  - We used to have an object module method, `std.object.type`, which
+    often got imported using:
+
+    ```lua
+    local prototype = require "std.object".type
+    ```
+
+    So we renamed it to `std.object.prototype` to avoid a name clash with
+    the `type` symbol, and subsequently deprecated the earlier equivalent
+    `type` method; but that was a mistake, because core Lua provides `type`,
+    and `io.type` (and in recent releases, `math.type`).  So now, for
+    orthogonality with core Lua, we're going back to using `std.object.type`,
+    because that just makes more sense.  Sorry!
 
   - `std.table.len` has been deprecated in favour of `std.operator.len`,
     because it is not just for tables!

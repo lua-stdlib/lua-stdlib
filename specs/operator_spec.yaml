@@ -191,10 +191,10 @@ specify std.operator:
       expect (f ({1, {{2, 3}, 4}}, {1, {{2, 3}, 4}})).to_be (true)
       expect (f ({a=1, b={c={2, d=3}, 4}}, {a=1, b={c={2, d=3}, 4}})).
         to_be (true)
-  - it does not compare keys recursively:
-      expect (f ({[{a=1}]=2}, {[{a=1}]=2})).to_be (false)
+  - it compares keys recursively:
+      expect (f ({[{a=1}]=2}, {[{a=1}]=2})).to_be (true)
       expect (f ({[{a=1}]={[{2}]="b"}}, {[{a=1}]={[{2}]="b"}})).
-        to_be (false)
+        to_be (true)
   - it returns false if table lengths differ:
       expect (f ({1,2,3,4}, {1,2,3,4,5})).to_be (false)
       expect (f ({1,2,3,4}, {[0]=0,1,2,3,4})).to_be (false)
