@@ -380,7 +380,9 @@ local fallbacks = {
     close = function (x) return "}" end,
     elem  = _tostring,
     pair  = function (x, kp, vp, k, v, kstr, vstr) return kstr .. "=" .. vstr end,
-    sep   = function (x, kp, vp, kn, vn) return kp and kn and "," or "" end,
+    sep   = function (x, kp, vp, kn, vn)
+	      return kp ~= nil and kn ~= nil and "," or ""
+            end,
     sort  = function (keys) return keys end,
     term  = function (x)
 	      return _type (x) ~= "table" or getmetamethod (x, "__tostring")

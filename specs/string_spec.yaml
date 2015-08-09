@@ -506,11 +506,14 @@ specify std.string:
       expect (r (false)).to_be "false"
       expect (r (42)).to_be "42"
       expect (r "string").to_be "string"
-  - it converts a table to a representative string:
-      expect (r {"table", 42}).to_be "{1=table,2=42}"
-  - it converts a nested table to a representative string:
+  - it converts a sequence to a representative string:
+      expect (r {false, "table", 42}).to_be "{1=false,2=table,3=42}"
+  - it converts a nested sequence to a representative string:
       expect (r (t)).
         to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
+  - it converts a hash to a representative string:
+      expect (r {[false]=true, hash="table", answer=42}).
+        to_be "{answer=42,false=true,hash=table}"
   - it converts a recursive table to a representative string:
       t[1] = t
       expect (r (t)).
@@ -526,7 +529,7 @@ specify std.string:
       expect (r (false)).to_be "false"
       expect (r (42)).to_be "42"
       expect (r "string").to_be "string"
-      expect (r {"table", 42}).to_be "{1=table,2=42}"
+      expect (r {false, "table", 42}).to_be "{1=false,2=table,3=42}"
       expect (r (t)).
         to_be "{1=1,2={1={1=2,2=3},2=4,3={1=5}}}"
       t[1] = t
