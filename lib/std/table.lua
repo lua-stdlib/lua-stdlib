@@ -336,14 +336,6 @@ M = {
   -- @usage t = new (0)
   new = X ("new (?any, ?table)", new),
 
-  --- Make an ordered list of keys in table.
-  -- @function okeys
-  -- @tparam table t a table
-  -- @treturn table ordered list of keys from *t*
-  -- @see keys
-  -- @usage globals = keys (_G)
-  okeys = X ("okeys (table)", std.table.okeys),
-
   --- Turn a tuple into a list.
   -- @function pack
   -- @param ... tuple
@@ -424,7 +416,6 @@ M = {
   -- @function keys
   -- @tparam table t a table
   -- @treturn table list of keys from *t*
-  -- @see okeys
   -- @see values
   -- @usage globals = keys (_G)
   keys = X ("keys (table)", keys),
@@ -487,6 +478,15 @@ M.len = DEPRECATED ("41.3", "'std.table.len'",
 
 M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
   "use 'std.getmetamethod' instead", std.getmetamethod)
+
+
+M.okeys = DEPRECATED ("41.3", "'std.table.okeys'",
+  "compose 'std.table.keys' and 'std.table.sort' instead",
+  X ("okeys (table)", function (t)
+    local r = {}
+    for k in pairs (t) do r[#r + 1] = k end
+    return std.base.sortkeys (r)
+  end))
 
 
 M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",

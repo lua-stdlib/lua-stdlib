@@ -119,6 +119,13 @@
   - `std.table.len` has been deprecated in favour of `std.operator.len`,
     because it is not just for tables!
 
+  - `std.table.okeys` has been deprecated for lack of utility.  If you
+    still need it, use this instead:
+
+    ```lua
+    local okeys = std.functional.compose (std.table.keys, std.table.sort)
+    ```
+
   - `std.string.render` function arguments have been deprecated in favour
     of a table of named functions backed by defaults.
 

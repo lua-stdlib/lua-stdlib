@@ -6,9 +6,9 @@ before: |
   extend_base         = { "clone", "clone_select", "depair", "empty",
                           "enpair", "flatten", "insert", "invert", "keys",
                           "maxn", "merge", "merge_select", "monkey_patch",
-                          "new", "okeys", "pack", "project", "remove",
-                          "shape", "size", "sort", "unpack", "values" }
-  deprecations        = { "len", "metamethod", "ripairs", "totable" }
+                          "new", "pack", "project", "remove", "shape",
+                          "size", "sort", "unpack", "values" }
+  deprecations        = { "len", "okeys", "metamethod", "ripairs", "totable" }
 
   M = require "std.table"
 
@@ -513,6 +513,12 @@ specify std.table:
       subject = { "v1", k1 = 1, "v2", k2 = 2, "v3", k3 = 3, [10]="v10" }
 
       f = M.okeys
+
+  - it writes a deprecation warning:
+      setdebug { deprecate = "nil" }
+      expect (capture (f, {{}})).to_contain_error "was deprecated"
+      setdebug { deprecate = false }
+      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
 
   - context with bad arguments:
       badargs.diagnose (f, "std.table.okeys (table)")

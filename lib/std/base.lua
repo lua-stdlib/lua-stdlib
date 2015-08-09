@@ -255,13 +255,6 @@ local function sortkeys (t)
 end
 
 
-local function okeys (t)
-  local r = {}
-  for k in pairs (t) do r[#r + 1] = k end
-  return sortkeys (r)
-end
-
-
 local function last (t) return t[len (t)] end
 
 
@@ -628,7 +621,6 @@ return {
     insert = insert,
     invert = invert,
     maxn   = maxn,
-    okeys  = okeys,
     unpack = unpack,
   },
 
