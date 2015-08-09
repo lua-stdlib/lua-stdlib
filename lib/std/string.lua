@@ -15,6 +15,7 @@ local debug  = require "std.debug"
 
 local StrBuf = require "std.strbuf".prototype
 
+local sortkeys, toqstring = std.base.sortkeys, std.base.toqstring
 local getmetamethod, pairs = std.getmetamethod, std.pairs
 local callable = std.functional.callable
 local copy, keysort = std.base.copy, std.base.keysort
@@ -172,42 +173,45 @@ local picklable = {
   boolean = true, ["nil"] = true, number = true, string = true,
 }
 
+local pickle_vtable = {
+  term = function (x)
+    if picklable[type (x)] or getmetamethod (x, "__tostring") then
+      return true
+    elseif type (x) ~= "table" then
+      -- don't know what to do with this :(
+      error ("cannot pickle " .. _tostring (x))
+    end
+  end,
+
+  elem = function (x)
+    -- math
+    if x ~= x then
+      return "0/0"
+    elseif x == math.huge then
+      return "math.huge"
+    elseif x == -math.huge then
+      return "-math.huge"
+    elseif x == nil then
+      return "nil"
+    end
+
+    -- common types
+    local type_x = type (x)
+    if type_x == "string" then
+      return _format ("%q", x)
+    elseif type_x == "number" or type_x == "boolean" then
+      return _tostring (x)
+    end
+  end,
+
+  pair = function (x, kp, vp, k, v, kstr, vstr)
+    return "[" .. kstr .. "]=" .. vstr
+  end,
+}
+
+
 local function pickle (x)
-  return render (x, {
-    term = function (x)
-      if picklable[type (x)] or getmetamethod (x, "__tostring") then
-	return true
-      elseif type (x) ~= "table" then
-        -- don't know what to do with this :(
-        error ("cannot pickle " .. _tostring (x))
-      end
-    end,
-
-    elem = function (x)
-      -- math
-      if x ~= x then
-        return "0/0"
-      elseif x == math.huge then
-        return "math.huge"
-      elseif x == -math.huge then
-        return "-math.huge"
-      elseif x == nil then
-	return "nil"
-      end
-
-      -- common types
-      local type_x = type (x)
-      if type_x == "string" then
-        return string.format ("%q", x)
-      elseif type_x == "number" or type_x == "boolean" then
-        return _tostring (x)
-      end
-    end,
-
-    pair = function (x, kp, vp, k, v, kstr, vstr)
-      return "[" .. kstr .. "]=" .. vstr
-    end,
-  })
+  return render (x, pickle_vtable)
 end
 
 
@@ -226,23 +230,18 @@ local function prettytostring (x, indent, spacing)
       return spacing .. "}"
     end,
 
-    elem = function (x)
-      if type (x) == "string" then
-        return _format ("%q", x)
-      else
-        return tostring (x)
-      end
-    end,
+    elem = toqstring,
 
     pair = function (x, _, _, k, v, kstr, vstr)
+      local type_k = type (k)
       local s = spacing
-      if type (k) ~= "string" or k:match "[^%w_]" then
+      if type_k ~= "string" or k:match "[^%w_]" then
         s = s .. "["
-        if type (k) == "table" then
+        if type_k == "table" then
           s = s .. "\n"
         end
         s = s .. kstr
-        if type (k) == "table" then
+        if type_k == "table" then
           s = s .. "\n"
         end
         s = s .. "]"
@@ -267,10 +266,7 @@ local function prettytostring (x, indent, spacing)
       return s
     end,
 
-    sort = function (keys)
-      table.sort (keys, keysort)
-      return keys
-    end,
+    sort = sortkeys,
   })
 end
 

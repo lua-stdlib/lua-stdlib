@@ -25,13 +25,15 @@
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load
-local _tostring  = _G.tostring
-local type       = type
+local _concat    = table.concat
+local _format    = string.format
+local _tostring  = tostring
+local _type      = type
 
 
 local function raise (bad, to, name, i, extramsg, level)
   level = level or 1
-  local s = string.format ("bad %s #%d %s '%s'", bad, i, to, name)
+  local s = _format ("bad %s #%d %s '%s'", bad, i, to, name)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
@@ -46,7 +48,7 @@ end
 
 
 local function assert (expect, fmt, arg1, ...)
-  local msg = (arg1 ~= nil) and string.format (fmt, arg1, ...) or fmt or ""
+  local msg = (arg1 ~= nil) and _format (fmt, arg1, ...) or fmt or ""
   return expect or error (msg, 2)
 end
 
@@ -64,7 +66,7 @@ end
 -- -->	stdin:1: in main chunk
 -- -->		[C]: in ?
 local function callable (x)
-  if type (x) == "function" then return x end
+  if _type (x) == "function" then return x end
   return (getmetatable (x) or {}).__call
 end
 
@@ -76,7 +78,7 @@ end
 
 
 local function catfile (...)
-  return table.concat ({...}, dirsep)
+  return _concat ({...}, dirsep)
 end
 
 
@@ -104,7 +106,7 @@ local _pairs = pairs
 local maxn = table.maxn or function (t)
   local n = 0
   for k in _pairs (t) do
-    if type (k) == "number" and k > n then n = k end
+    if _type (k) == "number" and k > n then n = k end
   end
   return n
 end
@@ -237,19 +239,26 @@ end
 
 -- Sort numbers first then asciibetically
 local function keysort (a, b)
-  if type (a) == "number" then
-    return type (b) ~= "number" or a < b
+  if _type (a) == "number" then
+    return _type (b) ~= "number" or a < b
   else
-    return type (b) ~= "number" and _tostring (a) < _tostring (b)
+    return _type (b) ~= "number" and _tostring (a) < _tostring (b)
   end
+end
+
+
+local _sort = table.sort
+
+local function sortkeys (t)
+  _sort (t, keysort)
+  return t
 end
 
 
 local function okeys (t)
   local r = {}
   for k in pairs (t) do r[#r + 1] = k end
-  table.sort (r, keysort)
-  return r
+  return sortkeys (r)
 end
 
 
@@ -258,7 +267,7 @@ local function last (t) return t[len (t)] end
 
 local function leaves (it, tr)
   local function visit (n)
-    if type (n) == "table" then
+    if _type (n) == "table" then
       for _, v in it (n) do
         visit (v)
       end
@@ -281,7 +290,7 @@ local function mapfields (obj, src, map)
     local k, v = next (src)
     while k do
       local key, dst = map[k] or k, obj
-      local kind = type (key)
+      local kind = _type (key)
       if kind == "string" and key:sub (1, 1) == "_" then
         mt[key] = v
       elseif next (map) and kind == "number" and len (dst) + 1 < key then
@@ -381,7 +390,7 @@ local fallbacks = {
     sep   = function (x, kp, vp, kn, vn) return kp and kn and "," or "" end,
     sort  = function (keys) return keys end,
     term  = function (x)
-	      return type (x) ~= "table" or getmetamethod (x, "__tostring")
+	      return _type (x) ~= "table" or getmetamethod (x, "__tostring")
 	    end,
   },
 }
@@ -427,30 +436,30 @@ local function render (x, fns, roots)
     buf[#buf + 1] = sep (x, kp, vp)		-- buffer << trailing separator
     buf[#buf + 1] = fns.close (x)		-- buffer << table close
 
-    return table.concat (buf)			-- stringify buffer
+    return _concat (buf)			-- stringify buffer
   end
 end
+
+
+local function toqstring (x)
+  if _type (x) ~= "string" then return _tostring (x) end
+  return _format ("%q", x)
+end
+
+
+local mnemonic_vtable = {
+  elem = toqstring,
+  sort = sortkeys,
+}
 
 
 local function mnemonic (...)
   local seq, n = {...}, select ("#", ...)
   local buf = {}
   for i = 1, n do
-    buf[i] = render (seq[i], {
-      elem = function (x)
-        if type (x) == "string" then
-	  return string.format ("%q", x)
-        end
-        return _tostring (x)
-      end,
-
-      sort = function (keys)
-        table.sort (keys, keysort)
-        return keys
-      end,
-    })
+    buf[i] = render (seq[i], mnemonic_vtable)
   end
-  return table.concat (buf, ",")
+  return _concat (buf, ",")
 end
 
 
@@ -509,7 +518,7 @@ local _require = require
 
 local function require (module, min, too_big, pattern)
   local m = _require (module)
-  local v = _tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
+  local v = _tostring (_type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
   if min then
     assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)
@@ -522,22 +531,21 @@ local function require (module, min, too_big, pattern)
 end
 
 
-local function tostring (x)
-  return render (x, {
-    pair = function (x, kp, vp, k, v, kstr, vstr)
-      local type_k = type (k)
-      if k == 1 or type_k == "number" and k -1 == kp then
-	return vstr
-      end
-      return kstr .. "=" .. vstr
-    end,
+local tostring_vtable = {
+  pair = function (x, kp, vp, k, v, kstr, vstr)
+    if k == 1 or _type (k) == "number" and k -1 == kp then
+      return vstr
+    end
+    return kstr .. "=" .. vstr
+  end,
 
-    sort = function (keys)
-      -- need to sort numeric keys to be able to skip printing them.
-      table.sort (keys, keysort)
-      return keys
-    end,
-  })
+  -- need to sort numeric keys to be able to skip printing them.
+  sort = sortkeys,
+}
+
+
+local function tostring (x)
+  return render (x, tostring_vtable)
 end
 
 
@@ -564,16 +572,18 @@ return {
   tostring      = tostring,
 
   type = function (x)
-    return (getmetatable (x) or {})._type or io.type (x) or type (x)
+    return (getmetatable (x) or {})._type or io.type (x) or _type (x)
   end,
 
   base = {
-    copy     = copy,
-    keysort  = keysort,
-    last     = last,
-    merge    = merge,
-    mnemonic = mnemonic,
-    raise    = raise,
+    copy      = copy,
+    keysort   = keysort,
+    last      = last,
+    merge     = merge,
+    mnemonic  = mnemonic,
+    raise     = raise,
+    sortkeys  = sortkeys,
+    toqstring = toqstring,
   },
 
   debug = {

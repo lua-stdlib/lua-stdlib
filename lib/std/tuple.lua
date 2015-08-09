@@ -29,6 +29,7 @@ local Container = require "std.container".prototype
 local std       = require "std.base"
 
 local stdtype = std.type
+local toqstring = std.base.toqstring
 
 
 --- Stringify tuple values, as a memoization key.
@@ -38,7 +39,7 @@ local function argstr (tuple)
   local s = {}
   for i = 1, tuple.n do
     local v = tuple[i]
-    s[i] = (type (v) ~= "string" and "%s" or "%q"):format (tostring (v))
+    s[i] = toqstring (v)
   end
   return table.concat (s, ", ")
 end
