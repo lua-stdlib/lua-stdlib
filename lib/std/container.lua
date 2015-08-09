@@ -34,9 +34,13 @@ local _DEBUG = require "std.debug_init"._DEBUG
 local std   = require "std.base"
 local debug = require "std.debug"
 
+local copy = std.base.copy
 local ipairs, tostring = std.ipairs, std.tostring
 local mapfields = std.object.mapfields
-local okeys = std.table.okeys
+local render = std.string.render
+
+local _concat = table.concat
+local _type   = type
 
 
 
@@ -72,6 +76,23 @@ local function instantiate (proto, t)
   end
   return obj
 end
+
+
+local tostring_vtable = {
+  pair = function (x, kp, vp, k, v, kstr, vstr)
+    if k == 1 or _type (k) == "number" and k -1 == kp then return vstr end
+    return kstr .. "=" .. vstr
+  end,
+
+  sep = function (x, kp, vp, kn, vn)
+    if kp == nil or kn == nil then return "" end
+    if _type (kp) == "number" and kn ~= kp + 1 then return "; " end
+    return ", "
+  end,
+
+  sort = std.base.sortkeys,
+}
+
 
 
 --[[ ================= ]]--
@@ -145,7 +166,7 @@ local prototype = {
       k, v = next (self, k)
     end
 
-    if type (mt._init) == "function" then
+    if _type (mt._init) == "function" then
       obj = mt._init (obj, ...)
     else
       obj = (self.mapfields or mapfields) (obj, (...), mt._init)
@@ -156,8 +177,8 @@ local prototype = {
       obj_mt = instantiate (mt, getmetatable (obj))
 
       -- Merge object methods.
-      if type (obj_mt.__index) == "table" and
-        type ((mt or {}).__index) == "table"
+      if _type (obj_mt.__index) == "table" and
+        _type ((mt or {}).__index) == "table"
       then
         obj_mt.__index = instantiate (mt.__index, obj_mt.__index)
       end
@@ -181,35 +202,11 @@ local prototype = {
   -- @usage
   -- assert (tostring (list) == 'Cons {car="head", cdr=Cons {car="tail"}}')
   __tostring = function (self)
-    local n, k_ = 1, nil
-    local buf = { getmetatable (self)._type, " {" }
-    for _, k in ipairs (okeys (self)) do	-- for ordered public members
-      local v = self[k]
-
-      if k_ ~= nil then				-- | buffer separator
-        if k ~= n and type (k_) == "number" and k_ == n - 1 then
-          -- `;` separates `v` elements from `k=v` elements
-          buf[#buf + 1] = "; "
-        elseif k ~= nil then
-	  -- `,` separator everywhere else
-          buf[#buf + 1] = ", "
-        end
-      end
-
-      if type (k) == "number" and k == n then	-- | buffer key/value pair
-        -- render initial array-like elements as just `v`
-        buf[#buf + 1] = tostring (v)
-        n = n + 1
-      else
-        -- render remaining elements as `k=v`
-        buf[#buf + 1] = tostring (k) .. "=" .. tostring (v)
-      end
-
-      k_ = k -- maintain loop invariant: k_ is previous key
-    end
-    buf[#buf + 1] = "}"				-- buffer object close
-
-    return table.concat (buf)			-- stringify buffer
+    return _concat {
+      -- Pass a shallow copy to render to avoid triggering __tostring
+      -- again and blowing the stack.
+      getmetatable (self)._type, " ", render (copy (self), tostring_vtable),
+    }
   end,
 }
 
@@ -224,7 +221,7 @@ if _DEBUG.argcheck then
 
     -- A function initialised object can be passed arguments of any
     -- type, so only argcheck non-function initialised objects.
-    if type (mt._init) ~= "function" then
+    if _type (mt._init) ~= "function" then
       local name, n = mt._type, select ("#", ...)
       -- Don't count `self` as an argument for error messages, because
       -- it just refers back to the object being called: `prototype {"x"}.

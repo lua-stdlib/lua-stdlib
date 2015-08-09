@@ -157,7 +157,7 @@
     ```
 
   - Objects no longer honor mangling and stripping `_functions` tables
-    from objects during instantiation, instead move you actual object
+    from objects during instantiation, instead move your actual object
     into the module `prototype` field, and add the module functions to    
     the parent table returned whn the module is required.
 
@@ -171,7 +171,8 @@
     `npairs` continues to behave as in the previous release.
 
   - The output format of `std.tostring` skips initial sequence keys in
-    the new compact format.
+    the new compact format, including stringification of Objects and
+    Containers using their `__tostring` metamethods.
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
