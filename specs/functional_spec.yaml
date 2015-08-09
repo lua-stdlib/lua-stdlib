@@ -463,33 +463,58 @@ specify std.functional:
   - before:
       f = M.memoize
 
-      memfn = f (function (x)
-                   if x then return {x} else return nil, "bzzt" end
+      memfn = f (function (...)
+                   n = select ("#", ...)
+                   if n == 0 then return nil, "bzzt" end
+                   return n, {...}
                  end)
 
   - context with bad arguments:
       badargs.diagnose (f, "std.functional.memoize (func, ?func)")
 
   - it propagates multiple return values:
-      expect (select (2, memfn (false))).to_be "bzzt"
-  - it returns the same object for the same arguments:
-      t = memfn (1)
-      expect (memfn (1)).to_be (t)
+      expect ((memfn ())).to_be (nil)
+      expect (select (2, memfn ())).to_be "bzzt"
+  - it propagates multiple arguments:
+      expect ({memfn ("a", 42, false)}).to_equal {3, {"a", 42, false}}
+  - it propagates nil arguments:
+      n, t = memfn (nil)
+      expect (t).to_equal ({})
+      expect ({memfn (nil, 2, nil, nil)}).to_equal {4, {[2]=2}}
+  - it returns the same results for the same arguments:
+      n, t = memfn (1)
+      n, u = memfn (1)
+      expect (t).to_be (u)
   - it returns a different object for different arguments:
-      expect (memfn (1)).not_to_be (memfn (2))
+      n, t = memfn (1)
+      n, u = memfn (1, 2)
+      expect (t).not_to_be (u)
   - it returns the same object for table valued arguments:
-      t = memfn {1, 2, 3}
-      expect (memfn {1, 2, 3}).to_be (t)
-      t = memfn {foo = "bar", baz = "quux"}
-      expect (memfn {foo = "bar", baz = "quux"}).to_be (t)
-      expect (memfn {baz = "quux", foo = "bar"}).to_be (t)
+      n, t = memfn {1, 2, 3}
+      n, u = memfn {1, 2, 3}
+      expect (t).to_be (u)
+      n, t = memfn {foo = "bar", baz = "quux"}
+      n, u = memfn {foo = "bar", baz = "quux"}
+      expect (t).to_be (u)
+      n, t = memfn {baz = "quux", foo = "bar"}
+      expect (t).to_be (u)
   - it returns a different object for different table arguments:
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {3, 1, 2})
-      expect (memfn {1, 2, 3}).not_to_be (memfn {1, 2, 3, 4})
-  - it accepts alternative normalization function:
-      normalize = function (...) return select ("#", ...) end
-      memfn = f (function (x) return {x} end, normalize)
+      n, t = memfn {1, 2, 3}
+      n, u = memfn {1, 2}
+      expect (t).not_to_be (u)
+      n, u = memfn {3, 1, 2}
+      expect (t).not_to_be (u)
+      n, u = memfn {1, 2, 3, 4}
+      expect (t).not_to_be (u)
+  - it returns a different object for additional trailing nils:
+      n, t = memfn (1, nil)
+      n, u = memfn (1)
+      expect (t).not_to_be (u)
+      n, u = memfn (1, nil, nil)
+      expect (t).not_to_be (u)
+  - it accepts alternative mnemonic function:
+      mnemonic = function (...) return select ("#", ...) end
+      memfn = f (function (x) return {x} end, mnemonic)
       expect (memfn "same").to_be (memfn "not same")
       expect (memfn (1, 2)).to_be (memfn (false, "x"))
       expect (memfn "one").not_to_be (memfn ("one", "two"))

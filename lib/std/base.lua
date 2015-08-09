@@ -433,19 +433,24 @@ end
 
 
 local function mnemonic (...)
-  return render ({...}, {
-    elem = function (x)
-      if type (x) == "string" then
-	return string.format ("%q", x)
-      end
-      return _tostring (x)
-    end,
+  local seq, n = {...}, select ("#", ...)
+  local buf = {}
+  for i = 1, n do
+    buf[i] = render (seq[i], {
+      elem = function (x)
+        if type (x) == "string" then
+	  return string.format ("%q", x)
+        end
+        return _tostring (x)
+      end,
 
-    sort = function (keys)
-      table.sort (keys, keysort)
-      return keys
-    end,
-  })
+      sort = function (keys)
+        table.sort (keys, keysort)
+        return keys
+      end,
+    })
+  end
+  return table.concat (buf, ",")
 end
 
 

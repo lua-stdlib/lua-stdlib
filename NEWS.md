@@ -133,6 +133,9 @@
     correctly, rather than `nil` as in previous releases.  It's also
     considerably faster now that it doesn't use `pcall` any more.
 
+  - `std.functional.memoize` now considers trailing nil arguments when
+    looking up memoized value for those particular arguments.
+
 ### Incompatible changes
 
   - Deprecated multi-argument `functional.bind` has been removed.
