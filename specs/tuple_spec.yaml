@@ -1,5 +1,4 @@
 before:
-  objtype = require "std.object".type
   Tuple   = require "std.tuple".prototype
 
   t0, t1, t2 = Tuple (), Tuple "one", Tuple (false, true)
