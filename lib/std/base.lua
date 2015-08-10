@@ -458,6 +458,57 @@ local function mnemonic (...)
 end
 
 
+local picklable = {
+  boolean = true, ["nil"] = true, number = true, string = true,
+}
+
+local pickle_vtable = {
+  term = function (x)
+    local type_x = type (x)
+    if picklable[type_x] or getmetamethod (x, "__pickle") then
+      return true
+    elseif type (x) ~= "table" then
+      -- don't know what to do with this :(
+      error ("cannot pickle " .. _tostring (x))
+    end
+  end,
+
+  elem = function (x)
+    -- math
+    if x ~= x then
+      return "0/0"
+    elseif x == math.huge then
+      return "math.huge"
+    elseif x == -math.huge then
+      return "-math.huge"
+    elseif x == nil then
+      return "nil"
+    end
+
+    -- common types
+    local type_x = type (x)
+    if type_x == "string" then
+      return _format ("%q", x)
+    elseif type_x == "number" or type_x == "boolean" then
+      return _tostring (x)
+    end
+
+    -- pickling metamethod
+    local __pickle = getmetamethod (x, "__pickle")
+    if __pickle then return __pickle (x) end
+  end,
+
+  pair = function (x, kp, vp, k, v, kstr, vstr)
+    return "[" .. kstr .. "]=" .. vstr
+  end,
+}
+
+
+local function pickle (x)
+  return render (x, pickle_vtable)
+end
+
+
 local function ripairs (t)
   local oob = 1
   while t[oob] ~= nil do
@@ -615,6 +666,7 @@ return {
 
   string = {
     escape_pattern = escape_pattern,
+    pickle         = pickle,
     render         = render,
     split          = split,
   },

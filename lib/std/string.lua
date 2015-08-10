@@ -169,52 +169,6 @@ local function numbertosi (n)
 end
 
 
-local picklable = {
-  boolean = true, ["nil"] = true, number = true, string = true,
-}
-
-local pickle_vtable = {
-  term = function (x)
-    if picklable[type (x)] or getmetamethod (x, "__tostring") then
-      return true
-    elseif type (x) ~= "table" then
-      -- don't know what to do with this :(
-      error ("cannot pickle " .. _tostring (x))
-    end
-  end,
-
-  elem = function (x)
-    -- math
-    if x ~= x then
-      return "0/0"
-    elseif x == math.huge then
-      return "math.huge"
-    elseif x == -math.huge then
-      return "-math.huge"
-    elseif x == nil then
-      return "nil"
-    end
-
-    -- common types
-    local type_x = type (x)
-    if type_x == "string" then
-      return _format ("%q", x)
-    elseif type_x == "number" or type_x == "boolean" then
-      return _tostring (x)
-    end
-  end,
-
-  pair = function (x, kp, vp, k, v, kstr, vstr)
-    return "[" .. kstr .. "]=" .. vstr
-  end,
-}
-
-
-local function pickle (x)
-  return render (x, pickle_vtable)
-end
-
-
 local function prettytostring (x, indent, spacing)
   indent = indent or "\t"
   spacing = spacing or ""
@@ -421,7 +375,7 @@ M = {
   -- @usage
   -- freeze = std.functional.memoize (pickle)
   -- thaw   = function (x) return std.eval (x) end
-  pickle = X ("pickle (?any)", pickle),
+  pickle = X ("pickle (?any)", std.string.pickle),
 
   --- Pretty-print a table, or other object.
   -- @function prettytostring
