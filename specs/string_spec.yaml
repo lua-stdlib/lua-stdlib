@@ -387,6 +387,10 @@ specify std.string:
       seq = {1, {{2, 3}, 4, {5}}}
       hash = {foo={[{5,42}]={bar=0}}}
       f = M.pickle
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.string.pickle (?any)")
+
   - it diagnoses unpicklable arguments:
       expect (f (function () end)).to_error "cannot pickle function"
   - it converts a primitive to a representative string:

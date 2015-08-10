@@ -421,16 +421,7 @@ M = {
   -- @usage
   -- freeze = std.functional.memoize (pickle)
   -- thaw   = function (x) return std.eval (x) end
-  pickle = function (x)
-    local __pickle = (getmetatable (x) or {}).__pickle
-    if callable (__pickle) then
-      return __pickle (x)
-    elseif type (__pickle) == "string" then
-      return __pickle
-    end
-
-    return pickle (x)
-  end,
+  pickle = X ("pickle (?any)", pickle),
 
   --- Pretty-print a table, or other object.
   -- @function prettytostring
