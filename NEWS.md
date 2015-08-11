@@ -143,6 +143,10 @@
   - `std.functional.memoize` now considers trailing nil arguments when
     looking up memoized value for those particular arguments.
 
+  - You can now derive other types from `std.set` by passing a `_type`
+    field in the init argument, just like the other table argument
+    objects.
+
 ### Incompatible changes
 
   - Deprecated multi-argument `functional.bind` has been removed.

@@ -21,10 +21,17 @@
  @prototype std.set
  ]]
 
+local _concat   = table.concat
+local _sort     = table.sort
+local _type     = type
+
 local std       = require "std.base"
 local Container = require "std.container".prototype
 
-local ielems, pairs, type = std.ielems, std.pairs, std.type
+local pairs    = std.pairs
+local pickle   = std.string.pickle
+local tostring = std.tostring
+local type     = std.type
 
 
 local prototype -- forward declaration
@@ -146,16 +153,23 @@ prototype = Container {
 
   --- Set object initialisation.
   --
-  -- Returns table partially initialised Set container with contents
+  -- Returns partially initialised Set container with contents
   -- from *t*.
   -- @init prototype._init
   -- @tparam table new uninitialised Set container object
   -- @tparam table t initialisation table from `__call`
   _init = function (new, t)
-    for e in ielems (t) do
-      insert (new, e)
+    local mt = {}
+    for k, v in pairs (t) do
+      local type_k = _type (k)
+      if type_k == "number" then
+        insert (new, v)
+      elseif type_k == "string" and k:sub (1, 1) == "_" then
+	mt[k] = v
+      end
+      -- non-underscore-prefixed string keys are discarded!
     end
-    return new
+    return next (mt) and setmetatable (new, mt) or new
   end,
 
   --- Metamethods
@@ -217,7 +231,7 @@ prototype = Container {
   -- ispropersubset = this < s
   __lt  = proper_subset,
 
-  -- Return a string representation of this set.
+  --- Return a string representation of this set.
   -- @function prototype:__tostring
   -- @treturn string string representation of a set.
   -- @see std.tostring

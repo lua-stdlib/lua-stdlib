@@ -23,7 +23,11 @@ specify std.set:
       expect (objtype (obj)).to_be "Set"
       expect (obj).to_equal (s)
       expect (getmetatable (obj)).to_be (getmetatable (s))
-
+  - it serves as a prototype for new types:
+      Bag = Set { _type = "Bag" }
+      expect (objtype (Bag)).to_be "Bag"
+      bag = Bag {"goo", "gar", "gar"}
+      expect (objtype (bag)).to_be "Bag"
 
 - describe delete:
   - context when called as a Set module function:
