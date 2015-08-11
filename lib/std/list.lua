@@ -273,7 +273,7 @@ end
 -- local List = require "std.list".prototype
 -- assert (std.type (List) == "List")
 prototype = Object {
-  _type      = "List",
+  _type = "std.list.List",
 
   --- Metamethods
   -- @section metamethods

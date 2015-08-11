@@ -25,10 +25,15 @@
  @prototype std.tuple
 ]]
 
+local _concat = table.concat
+local _format = string.format
+local _type   = type
+
 local Container = require "std.container".prototype
 local std       = require "std.base"
 
-local stdtype = std.type
+local pickle    = std.string.pickle
+local type      = std.type
 local toqstring = std.base.toqstring
 
 
@@ -86,7 +91,7 @@ local intern = setmetatable ({}, {
 -- count (false) --> 1
 -- count (false, nil, true, nil) --> 4
 local prototype = Container {
-  _type = "Tuple",
+  _type = "std.tuple.Tuple",
 
   _init = function (obj, ...)
     return intern (...)
@@ -134,7 +139,23 @@ local prototype = Container {
   -- -- 'Tuple ("nil", nil, false)'
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
-    return ("%s (%s)"):format (stdtype (self), argstr (self))
+    return _format ("%s (%s)", type (self), argstr (self))
+  end,
+
+  --- Return a loadable serialization of this object, where possible.
+  -- @function prototype:__pickle
+  -- @treturn string pickled object representataion
+  -- @see std.string.pickle
+  __pickle = function (self)
+    local mt, vals = getmetatable (self), {}
+    for i = 1, self.n do
+      vals[i] = pickle (self[i])
+    end
+    if _type (mt._module) == "string" then
+      return _format ('require "%s".prototype (%s)',
+                      mt._module, _concat (vals, ","))
+    end
+    return _format ("%s (%s)", mt._type, _concat (vals, ","))
   end,
 }
 

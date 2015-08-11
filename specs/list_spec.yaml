@@ -1134,3 +1134,50 @@ specify std.list:
         expect (l).to_equal (List {List {1, 2}, List {3, 4}, List {5}})
     - it combines column entries with a function:
         expect (f (l, fn)).to_equal (List {135, 24})
+
+
+- describe __pickle:
+  - before:
+      loadstring = loadstring or load
+      function unpickle (s) return loadstring ("return " .. s) () end
+      f = require "std.string".pickle
+
+      Derived = List {_type = "Derived"}
+      things = Derived {false, "str", 42}
+
+  - it returns a string:
+      expect (type (f (things))).to_be "string"
+  - it resets '_module' metafield when '_type' changes:
+      expect (getmetatable (things)._module).to_be (nil)
+  - it supports setting '_module' and '_type' metafields:
+      Everything = Derived { _type = "Everything", _module = "nearly" }
+      expect (objtype (Everything)).to_be "Everything"
+      expect (getmetatable (Everything)._module).to_be "nearly"
+      Everything = List { _type = "Everything", _module = "nearly" }
+      expect (objtype (Everything)).to_be "Everything"
+      expect (getmetatable (Everything)._module).to_be "nearly"
+  - it does not have a period in '_type':
+      Period = Derived { _type = "specs.example.Period" }
+      expect (string.find (type (Period), "%.")).to_be (nil)
+  - it propagates the '_module' metafield when '_type' is unchanged:
+      expect (getmetatable (List {1})._module).
+        to_be (getmetatable (List)._module)
+  - context with '_module' metafield:
+    - it requires the module path for later invocation:
+        expect (f (List)).to_be 'require "std.list".prototype {}'
+    - it roundtrips objects:
+        expect (unpickle (f (List))).to_equal (List)
+  - context with '_type' metafield only:
+    - it uses the '_type' value for later invocation:
+        expect (f (things)).to_be 'Derived {[1]=false,[2]="str",[3]=42}'
+    - it roundtrips objects:
+        compat = require "specl.compat"
+        compat.setfenv (unpickle, compat.getfenv (1))
+        expect (unpickle (f (things))).to_equal (things)
+  - it converts a nested object to a representative string:
+      buf = List {Derived {"?"}, ["!"]=42}
+      expect (f (buf)).
+        to_be 'require "std.list".prototype {[1]=Derived {[1]="?"},["!"]=42}'
+  - it roundtrips nested objects:
+        buf = List {Derived {"?"}, ["!"]=42}
+        expect (unpickle (f (buf))).to_equal (buf)

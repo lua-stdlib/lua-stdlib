@@ -118,3 +118,50 @@ specify std.strbuf:
       a = StrBuf {1}
       b = a {} .. 2
       expect (tostring (a)).to_be "1"
+
+
+- describe __pickle:
+  - before:
+      loadstring = loadstring or load
+      function unpickle (s) return loadstring ("return " .. s) () end
+      f = require "std.string".pickle
+
+      Derived = StrBuf {_type = "Derived"}
+      things = Derived {false, "str", 42}
+
+  - it returns a string:
+      expect (type (f (things))).to_be "string"
+  - it resets '_module' metafield when '_type' changes:
+      expect (getmetatable (things)._module).to_be (nil)
+  - it supports setting '_module' and '_type' metafields:
+      Everything = Derived { _type = "Everything", _module = "nearly" }
+      expect (objtype (Everything)).to_be "Everything"
+      expect (getmetatable (Everything)._module).to_be "nearly"
+      Everything = StrBuf { _type = "Everything", _module = "nearly" }
+      expect (objtype (Everything)).to_be "Everything"
+      expect (getmetatable (Everything)._module).to_be "nearly"
+  - it does not have a period in '_type':
+      Period = Derived { _type = "specs.example.Period" }
+      expect (string.find (type (Period), "%.")).to_be (nil)
+  - it propagates the '_module' metafield when '_type' is unchanged:
+      expect (getmetatable (StrBuf {1})._module).
+        to_be (getmetatable (StrBuf)._module)
+  - context with '_module' metafield:
+    - it requires the module path for later invocation:
+        expect (f (StrBuf)).to_be 'require "std.strbuf".prototype {}'
+    - it roundtrips objects:
+        expect (unpickle (f (StrBuf))).to_equal (StrBuf)
+  - context with '_type' metafield only:
+    - it uses the '_type' value for later invocation:
+        expect (f (things)).to_be 'Derived {[1]=false,[2]="str",[3]=42}'
+    - it roundtrips objects:
+        compat = require "specl.compat"
+        compat.setfenv (unpickle, compat.getfenv (1))
+        expect (unpickle (f (things))).to_equal (things)
+  - it converts a nested object to a representative string:
+      buf = StrBuf {Derived {"?"}, ["!"]=42}
+      expect (f (buf)).
+        to_be 'require "std.strbuf".prototype {[1]=Derived {[1]="?"},["!"]=42}'
+  - it roundtrips nested objects:
+        buf = StrBuf {Derived {"?"}, ["!"]=42}
+        expect (unpickle (f (buf))).to_equal (buf)

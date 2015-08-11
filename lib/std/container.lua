@@ -29,6 +29,12 @@
 ]]
 
 
+local _concat = table.concat
+local _find   = string.find
+local _lower  = string.lower
+local _sub    = string.sub
+local _type   = type
+
 local _DEBUG = require "std.debug_init"._DEBUG
 
 local std   = require "std.base"
@@ -37,10 +43,8 @@ local debug = require "std.debug"
 local copy = std.base.copy
 local ipairs, tostring = std.ipairs, std.tostring
 local mapfields = std.object.mapfields
+local pickle = std.string.pickle
 local render = std.string.render
-
-local _concat = table.concat
-local _type   = type
 
 
 
@@ -115,7 +119,8 @@ local tostring_vtable = {
 -- local g = Graph { "node1", "node2" }
 -- assert (nodes (g) == 2)
 local prototype = {
-  _type = "Container",
+  _module = "std.container",		-- for pickle()
+  _type = "Container",			-- for tostring() and type()
 
   --- Metamethods
   -- @section metamethods
@@ -174,6 +179,16 @@ local prototype = {
 
     -- If a metatable was set, then merge our fields and use it.
     if next (getmetatable (obj) or {}) then
+      local new_mt = getmetatable (obj)
+      local new_type = new_mt._type or ""
+      local i = _find ("." .. new_type, "%.[^%.]*$")
+      if i > 1 then
+	-- expand long-form type.
+	new_mt._type = _sub (new_type, i)
+	new_mt._module = _sub (new_type, 1, i -2)
+      end
+
+      -- Merge fields.
       obj_mt = instantiate (mt, getmetatable (obj))
 
       -- Merge object methods.
@@ -182,13 +197,18 @@ local prototype = {
       then
         obj_mt.__index = instantiate (mt.__index, obj_mt.__index)
       end
+
+      -- Invalidate obsoleted _module field
+      if new_mt._type ~= nil and new_mt._module == nil then
+	obj_mt._module = nil
+      end
     end
 
     return setmetatable (obj, obj_mt)
   end,
 
 
-  --- Return a string representation of this object.
+  --- Return a compact string representation of this object.
   --
   -- First the container name, and then between { and } an ordered list
   -- of the array elements of the contained values with numeric keys,
@@ -205,7 +225,42 @@ local prototype = {
     return _concat {
       -- Pass a shallow copy to render to avoid triggering __tostring
       -- again and blowing the stack.
-      getmetatable (self)._type, " ", render (copy (self), tostring_vtable),
+      getmetatable (self)._type,
+      " ",
+      render (copy (self), tostring_vtable),
+    }
+  end,
+
+
+  --- Return a loadable serialization of this object, where possible.
+  --
+  -- If the object contains an unpicklable element (e.g. a userdata with
+  -- no `__pickle` metamethod) then neither is the entire container
+  -- picklable, and an error will be raised.
+  --
+  -- Assuming the object metatable carries a correct `_module` field,
+  -- (either set manually when the prototype was created, or else because
+  -- the long form `_type` field was provided) that module path will be
+  -- required when the pickled object is evaluated.  Otherwise, the bare
+  -- `_type` string is used and you will be responsible for setting that
+  -- to the correct object prototype before evaluating a pickled object.
+  -- @function prototype:__pickle
+  -- @treturn string pickled object representation
+  -- @see std.string.pickle
+  __pickle = function (self)
+    local mt = getmetatable (self)
+    if _type (mt._module) == "string" then
+      -- object with _module set
+      return _concat {
+        'require "',
+        mt._module,
+        '".prototype ',
+        pickle (copy (self)),
+      }
+    end
+    -- rely on caller preloading `local ObjectName = require "obj".prototype`
+    return _concat {
+      mt._type, " ", pickle (copy (self)),
     }
   end,
 }

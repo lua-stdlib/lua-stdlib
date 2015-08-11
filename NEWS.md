@@ -67,6 +67,9 @@
     equivalent object to the original argument more accurately than
     before.
 
+  - All of stdlib's object prototypes now provide a `__pickle` metamethod,
+    which makes them picklable with `std.string.pickle` too!
+
   - `std.functional.memoize` uses a fast stable render based serialization
     call by default now, when the `mnemonic` parameter is not given.
 

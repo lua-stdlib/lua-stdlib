@@ -104,7 +104,7 @@ M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
 
 
 local prototype = Object {
-  _type = "StrBuf",
+  _type = "std.strbuf.StrBuf",
 
   --- Metamethods
   -- @section metamethods

@@ -126,7 +126,7 @@ specify std.tuple:
       expect (collect (Tuple (nil, nil))).to_be "nil,nil"
 
 
-- describe stringification:
+- describe __tostring:
   - it starts with the object type:
       expect (tostring (Tuple ())).to_match "^Tuple "
   - it contains all the elements:
@@ -134,3 +134,29 @@ specify std.tuple:
       for _, e in ipairs (elems) do
         expect (tostring (Tuple (unpack (elems)))).to_match (e)
       end
+
+
+- describe __pickle:
+  - before:
+      loadstring = loadstring or load
+      function unpickle (s) return loadstring ("return " .. s) () end
+      f = require "std.string".pickle
+
+      things = Tuple (false, "str", 42)
+
+  - it returns a string:
+      expect (type (f (things))).to_be "string"
+  - it propagates the '_module' metafield when '_type' is unchanged:
+      expect (getmetatable (Tuple (1))._module).
+        to_be (getmetatable (Tuple)._module)
+  - it requires the module path for later invocation:
+      expect (f (things)).to_be 'require "std.tuple".prototype (false,"str",42)'
+  - it roundtrips objects:
+      expect (unpickle (f (things))).to_equal (things)
+  - it converts a nested object to a representative string:
+      tuple = Tuple (Tuple ("?"), "!", 42)
+      expect (f (tuple)).to_be ('require "std.tuple".prototype ' ..
+                                '(require "std.tuple".prototype ("?"),"!",42)')
+  - it roundtrips nested objects:
+      tuple = Tuple (Tuple ("?"), "!", 42)
+      expect (unpickle (f (tuple))).to_equal (tuple)

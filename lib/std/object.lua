@@ -49,7 +49,7 @@ end
 --   command = pipeline[pid],                           -- manual assignment
 -- }
 local prototype = Container {
-  _type  = "Object",
+  _type  = "std.object.Object",
 
   --- Metamethods
   -- @section metamethods
