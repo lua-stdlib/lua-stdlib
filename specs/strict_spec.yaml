@@ -1,0 +1,64 @@
+before:
+  strict = require "std.strict"
+
+specify std.strict:
+- describe require:
+  - it returns a callable:
+      expect (getmetatable (strict).__call).not_to_be (nil)
+
+
+- describe strict:
+  - it allows assignment to declared variables:
+      scope = strict { foo = "bar" }
+
+      expect ((function () scope.foo = "baz" end) ()).
+        not_to_raise "not declared"
+      expect (scope.foo).to_be "baz"
+
+  - it diagnoses assignment to undeclared variable:
+      scope = strict { foo = "bar" }
+
+      expect ((function () scope.undefined = "rval" end) ()).
+        to_raise "assignment to undeclared variable 'undefined'"
+
+  - it allows reference to declared variables:
+      scope = strict { foo = "bar" }
+
+      expect ((function () return scope.foo end) ()).to_be "bar"
+
+  - it diagnoses reference to undeclared variable:
+      scope = strict {}
+
+      expect ((function () return scope.undefined end) ()).
+        to_raise "variable 'undefined' is not declared"
+
+  - it allows assignemnt to undeclared global variables:
+      _ENV = strict (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      defined = "rval"
+      expect (_ENV.defined).to_be "rval"
+      expect ((function () defined = "foo" end) ()).
+        not_to_raise "undeclared variable"
+
+  - it diagnoses assignment to undeclared global variable:
+      _ENV = strict (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () undefined = "rval" end) ()).
+        to_raise "assignment to undeclared variable 'undefined'"
+
+  - it diagnoses reference to undeclared global variable:
+      _ENV = strict (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () foo = undefined end) ()).
+        to_raise "variable 'undefined' is not declared"
+
+  - it does not leak into surrounding scope:
+      _ENV = strict (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () _G.undefined = "rval" end) ()).
+        not_to_raise "undefined"
+

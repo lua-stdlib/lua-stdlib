@@ -25,6 +25,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/package_spec.yaml	\
 	$(srcdir)/specs/set_spec.yaml		\
 	$(srcdir)/specs/strbuf_spec.yaml	\
+	$(srcdir)/specs/strict_spec.yaml	\
 	$(srcdir)/specs/string_spec.yaml	\
 	$(srcdir)/specs/table_spec.yaml		\
 	$(srcdir)/specs/tree_spec.yaml		\

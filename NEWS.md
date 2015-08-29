@@ -10,6 +10,17 @@
     us organization-wise, but improvements and corrections to the content
     are always welcome!
 
+  - `require "std.strict"` now returns a callable that can be applied
+    to any environment that should detect references to undeclared
+    variables.  For example, to check within the implementation of a
+    module, but without changing the behaviour of the client code:
+
+    ```lua
+    local strict = require "std.strict"
+    local _ENV = strict (setmetatable ({}, {__index = _G}))
+    if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+    ```
+
   - For orthogonality with core Lua `type`, we now export the
     `std.object.type` function as `std.type`.
 
@@ -187,6 +198,14 @@
   - The output format of `std.tostring` skips initial sequence keys in
     the new compact format, including stringification of Objects and
     Containers using their `__tostring` metamethods.
+
+  - `std.strict` now returns a callable for detecting accidental global
+    variable leakage and reference, but does not apply it to `_G` by
+    default.  You can emulate the old behaviour with:
+
+    ```lua
+    _G = require "std.strict" (_G)
+    ```
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
