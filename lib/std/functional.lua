@@ -25,7 +25,7 @@ local callable, reduce = std.functional.callable, std.functional.reduce
 local len = std.operator.len
 local render = std.string.render
 local unpack = std.table.unpack
-local loadstring = loadstring or load
+local loadstring = rawget (_G, "loadstring") or load
 
 
 local function bind (fn, bound)
