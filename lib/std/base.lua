@@ -22,6 +22,13 @@
  @module std.base
 ]]
 
+local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+end
+
 
 local dirsep     = string.match (package.config, "^(%S+)\n")
 local loadstring = rawget (_G, "loadstring") or load

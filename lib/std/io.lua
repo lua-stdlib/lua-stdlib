@@ -11,6 +11,14 @@
 ]]
 
 
+local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+end
+
+
 local std   = require "std.base"
 local debug = require "std.debug"
 
@@ -107,17 +115,19 @@ end
 
 local function warnfmt (msg, ...)
   local prefix = ""
-  if (prog or {}).name then
+  local prog = rawget (_G, "prog") or {}
+  local opts = rawget (_G, "opts") or {}
+  if prog.name then
     prefix = prog.name .. ":"
     if prog.line then
       prefix = prefix .. tostring (prog.line) .. ":"
     end
-  elseif (prog or {}).file then
+  elseif prog.file then
     prefix = prog.file .. ":"
     if prog.line then
       prefix = prefix .. tostring (prog.line) .. ":"
     end
-  elseif (opts or {}).program then
+  elseif opts.program then
     prefix = opts.program .. ":"
     if opts.line then
       prefix = prefix .. tostring (opts.line) .. ":"

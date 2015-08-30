@@ -21,6 +21,15 @@
  @prototype std.set
  ]]
 
+
+local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+end
+
+
 local _concat   = table.concat
 local _sort     = table.sort
 local _type     = type

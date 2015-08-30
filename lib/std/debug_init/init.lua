@@ -15,6 +15,7 @@ elseif _DEBUG == false then
     call      = false,
     deprecate = false,
     level     = math.huge,
+    strict    = false,
   }
 
 -- Turn everything on (except _DEBUG.call must be set explicitly).
@@ -23,6 +24,7 @@ elseif _DEBUG == true then
     argcheck  = true,
     call      = false,
     deprecate = true,
+    strict    = true,
   }
 
 else
@@ -42,6 +44,7 @@ setdefault ("argcheck", true)
 setdefault ("call", false)
 setdefault ("deprecate", nil)
 setdefault ("level", 1)
+setdefault ("strict", true)
 
 
 return M

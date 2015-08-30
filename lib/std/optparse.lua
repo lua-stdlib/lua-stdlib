@@ -22,6 +22,14 @@
 ]=]
 
 
+local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+end
+
+
 local std = require "std.base"
 
 local Object = require "std.object".prototype
@@ -166,7 +174,7 @@ function optional (self, arglist, i, value)
   end
 
   if type (value) == "function" then
-    value = value (self, opt, nil)
+    value = value (self, arglist[i], nil)
   elseif value == nil then
     value = true
   end

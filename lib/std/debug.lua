@@ -29,6 +29,14 @@
 ]]
 
 
+local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+end
+
+
 local debug_init = require "std.debug_init"
 local std        = require "std.base"
 
@@ -45,7 +53,10 @@ local std        = require "std.base"
 --   deprecation warning each time a deprecated api is used; any other
 --   value causes deprecated APIs not to be defined at all
 -- @tfield[opt=1] int level debugging level
--- @usage _DEBUG = { argcheck = false, level = 9 }
+-- @tfield[opt=true] boolean strict enforce strict variable declaration
+--   before use **in stdlib internals**
+-- @see std.strict
+-- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
 local _DEBUG = debug_init._DEBUG
 
 local ipairs, pairs, stdtype, tostring =
