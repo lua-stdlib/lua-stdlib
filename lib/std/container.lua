@@ -29,30 +29,46 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local getmetatable	= getmetatable
+local next	= next
+local require	= require
+local select	= select
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local string_find	= string.find
+local string_sub	= string.sub
+local table_concat	= table.concat
+local type	= type
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local _concat = table.concat
-local _find   = string.find
-local _lower  = string.lower
-local _sub    = string.sub
-local _type   = type
+local std	= require "std.base"
+local debug	= require "std.debug"
 
-local _DEBUG = require "std.debug_init"._DEBUG
-
-local std   = require "std.base"
-local debug = require "std.debug"
-
-local copy = std.base.copy
-local ipairs, tostring = std.ipairs, std.tostring
-local mapfields = std.object.mapfields
-local pickle = std.string.pickle
-local render = std.string.render
+local copy	= std.base.copy
+local ipairs	= std.ipairs
+local mapfields	= std.object.mapfields
+local pickle	= std.string.pickle
+local render	= std.string.render
+local tostring	= std.tostring
 
 
 
@@ -92,13 +108,13 @@ end
 
 local tostring_vtable = {
   pair = function (x, kp, vp, k, v, kstr, vstr)
-    if k == 1 or _type (k) == "number" and k -1 == kp then return vstr end
+    if k == 1 or type (k) == "number" and k -1 == kp then return vstr end
     return kstr .. "=" .. vstr
   end,
 
   sep = function (x, kp, vp, kn, vn)
     if kp == nil or kn == nil then return "" end
-    if _type (kp) == "number" and kn ~= kp + 1 then return "; " end
+    if type (kp) == "number" and kn ~= kp + 1 then return "; " end
     return ", "
   end,
 
@@ -179,7 +195,7 @@ local prototype = {
       k, v = next (self, k)
     end
 
-    if _type (mt._init) == "function" then
+    if type (mt._init) == "function" then
       obj = mt._init (obj, ...)
     else
       obj = (self.mapfields or mapfields) (obj, (...), mt._init)
@@ -189,19 +205,19 @@ local prototype = {
     if next (getmetatable (obj) or {}) then
       local new_mt = getmetatable (obj)
       local new_type = new_mt._type or ""
-      local i = _find ("." .. new_type, "%.[^%.]*$")
+      local i = string_find ("." .. new_type, "%.[^%.]*$")
       if i > 1 then
 	-- expand long-form type.
-	new_mt._type = _sub (new_type, i)
-	new_mt._module = _sub (new_type, 1, i -2)
+	new_mt._type = string_sub (new_type, i)
+	new_mt._module = string_sub (new_type, 1, i -2)
       end
 
       -- Merge fields.
       obj_mt = instantiate (mt, getmetatable (obj))
 
       -- Merge object methods.
-      if _type (obj_mt.__index) == "table" and
-        _type ((mt or {}).__index) == "table"
+      if type (obj_mt.__index) == "table" and
+        type ((mt or {}).__index) == "table"
       then
         obj_mt.__index = instantiate (mt.__index, obj_mt.__index)
       end
@@ -230,7 +246,7 @@ local prototype = {
   -- @usage
   -- assert (tostring (list) == 'Cons {car="head", cdr=Cons {car="tail"}}')
   __tostring = function (self)
-    return _concat {
+    return table_concat {
       -- Pass a shallow copy to render to avoid triggering __tostring
       -- again and blowing the stack.
       getmetatable (self)._type,
@@ -257,9 +273,9 @@ local prototype = {
   -- @see std.string.pickle
   __pickle = function (self)
     local mt = getmetatable (self)
-    if _type (mt._module) == "string" then
+    if type (mt._module) == "string" then
       -- object with _module set
-      return _concat {
+      return table_concat {
         'require "',
         mt._module,
         '".prototype ',
@@ -267,7 +283,7 @@ local prototype = {
       }
     end
     -- rely on caller preloading `local ObjectName = require "obj".prototype`
-    return _concat {
+    return table_concat {
       mt._type, " ", pickle (copy (self)),
     }
   end,
@@ -284,7 +300,7 @@ if _DEBUG.argcheck then
 
     -- A function initialised object can be passed arguments of any
     -- type, so only argcheck non-function initialised objects.
-    if _type (mt._init) ~= "function" then
+    if type (mt._init) ~= "function" then
       local name, n = mt._type, select ("#", ...)
       -- Don't count `self` as an argument for error messages, because
       -- it just refers back to the object being called: `prototype {"x"}.

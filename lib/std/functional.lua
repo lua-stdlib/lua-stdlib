@@ -8,24 +8,57 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local load	= load or loadstring
+local next	= next
+local pcall	= pcall
+local require	= require
+local select	= select
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+
+local table = {
+  remove	= table.remove,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
 local std = require "std.base"
 
-local ielems, ipairs, ireverse, npairs, pairs =
-  std.ielems, std.ipairs, std.ireverse, std.npairs, std.pairs
-local copy = std.base.copy
-local callable, reduce = std.functional.callable, std.functional.reduce
-local len = std.operator.len
-local render = std.string.render
-local unpack = std.table.unpack
-local loadstring = rawget (_G, "loadstring") or load
+local callable	= std.functional.callable
+local copy	= std.base.copy
+local ielems	= std.ielems
+local ipairs	= std.ipairs
+local ireverse	= std.ireverse
+local len	= std.operator.len
+local npairs	= std.npairs
+local pairs	= std.pairs
+local reduce	= std.functional.reduce
+local render	= std.string.render
+local unpack	= std.table.unpack
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local function bind (fn, bound)
@@ -200,7 +233,7 @@ local lambda = memoize (function (s)
 
   local ok, fn
   if expr then
-    ok, fn = pcall (loadstring (expr))
+    ok, fn = pcall (load (expr))
   end
 
   -- Diagnose invalid input.

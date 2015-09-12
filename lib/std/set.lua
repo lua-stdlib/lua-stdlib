@@ -22,25 +22,53 @@
  ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local getmetatable	= getmetatable
+local next	= next
+local rawget	= rawget
+local rawset	= rawset
+local require	= require
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local type	= type
+
+local table = {
+  concat	= table.concat,
+  sort		= table.sort,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local _concat   = table.concat
-local _sort     = table.sort
-local _type     = type
+local std	= require "std.base"
+local Container	= require "std.container".prototype
 
-local std       = require "std.base"
-local Container = require "std.container".prototype
+local pairs	= std.pairs
+local pickle	= std.string.pickle
+local tostring	= std.tostring
+local stdtype	= std.type
 
-local pairs    = std.pairs
-local pickle   = std.string.pickle
-local tostring = std.tostring
-local type     = std.type
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local prototype -- forward declaration
@@ -57,7 +85,7 @@ local prototype -- forward declaration
 -- whose values are true.
 
 
-local elems = std.pairs
+local elems = pairs
 
 
 local function insert (set, e)
@@ -170,7 +198,7 @@ prototype = Container {
   _init = function (new, t)
     local mt = {}
     for k, v in pairs (t) do
-      local type_k = _type (k)
+      local type_k = type (k)
       if type_k == "number" then
         insert (new, v)
       elseif type_k == "string" and k:sub (1, 1) == "_" then
@@ -249,8 +277,8 @@ prototype = Container {
     for k in pairs (self) do
       keys[#keys + 1] = tostring (k)
     end
-    _sort (keys)
-    return type (self) .. " {" .. _concat (keys, ", ") .. "}"
+    table.sort (keys)
+    return stdtype (self) .. " {" .. table.concat (keys, ", ") .. "}"
   end,
 
   --- Return a loadable serialization of this object, where possible.
@@ -262,20 +290,20 @@ prototype = Container {
     for k in pairs (self) do
       keys[#keys + 1] = pickle (k)
     end
-    _sort (keys)
-    if _type (mt._module) == "string" then
+    table.sort (keys)
+    if type (mt._module) == "string" then
       -- object with _module set
-      return _concat {
+      return table.concat {
 	'require "',
 	mt._module,
 	'".prototype {',
-	_concat (keys, ","),
+	table.concat (keys, ","),
 	"}",
       }
     end
     -- rely on caller preloading `local ObjName = require "module".prototype`
-    return _concat {
-      mt._type, " {", _concat (keys, ","), "}"
+    return table.concat {
+      mt._type, " {", table.concat (keys, ","), "}"
     }
   end,
 }

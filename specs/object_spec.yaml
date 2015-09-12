@@ -1,7 +1,14 @@
 before:
-  object = require "std.object"
+  this_module = "std.object"
+
+  object = require (this_module)
   Object = object.prototype
   obj    = Object {"foo", "bar", baz="quux"}
+
+  setdebug { deprecate = false }
+
+  deprecate_on = bind (deprecation, {"nil", this_module})
+  deprecate_off = bind (deprecation, {false, this_module})
 
   function copy (t)
     local r = {}
@@ -51,10 +58,10 @@ specify std.object:
       fn = Object.prototype
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (fn, {o})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (fn, {o})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("prototype", "", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("prototype", "", "{}")).
+        not_to_contain_error "was deprecated"
 
   - context when called from the object module:
     - it reports the prototype stored in the object's metatable:

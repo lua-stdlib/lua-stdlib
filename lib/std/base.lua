@@ -22,77 +22,97 @@
  @module std.base
 ]]
 
+
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local dirsep	= string.match (package.config, "^(%S+)\n")
+
+local error	= error
+local getmetatable	= getmetatable
+local load	= load or loadstring
+local next	= next
+local pairs	= pairs
+local rawget	= rawget
+local require	= require
+local select	= select
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local tonumber	= tonumber
+local tostring	= tostring
+local type	= type
+
+local coroutine = {
+  wrap		= coroutine.wrap,
+  yield		= coroutine.yield,
+}
+
+local math = {
+  huge		= math.huge,
+  min		= math.min,
+}
+
+local io = {
+  type		= io.type,
+}
+
+local string = {
+  find		= string.find,
+  format	= string.format,
+}
+
+local table = {
+  concat	= table.concat,
+  insert	= table.insert,
+  maxn		= table.maxn,
+  sort		= table.sort,
+  unpack	= table.unpack or unpack,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local dirsep     = string.match (package.config, "^(%S+)\n")
-local loadstring = rawget (_G, "loadstring") or load
-local _concat    = table.concat
-local _format    = string.format
-local _tostring  = tostring
-local _type      = type
 
+--[[ ============================ ]]--
+--[[ Enhanced Core Lua functions. ]]--
+--[[ ============================ ]]--
 
-local function raise (bad, to, name, i, extramsg, level)
-  level = level or 1
-  local s = _format ("bad %s #%d %s '%s'", bad, i, to, name)
-  if extramsg ~= nil then
-    s = s .. " (" .. extramsg .. ")"
-  end
-  error (s, level + 1)
-end
+-- Forward declarations for Helper functions below.
 
+local argerror, getmetamethod, len, vcompare
 
-local function argerror (name, i, extramsg, level)
-  level = level or 1
-  raise ("argument", "to", name, i, extramsg, level + 1)
-end
+-- These come as early as possible, because we want the rest of the code
+-- in this file to use these versions over the core Lua implementation
+-- (which have slightly varying semantics between releases).
 
 
 local function assert (expect, fmt, arg1, ...)
-  local msg = (arg1 ~= nil) and _format (fmt, arg1, ...) or fmt or ""
+  local msg = (arg1 ~= nil) and string.format (fmt, arg1, ...) or fmt or ""
   return expect or error (msg, 2)
 end
 
 
--- No need to recurse because functables are second class citizens in
--- Lua:
--- func=function () print "called" end
--- func() --> "called"
--- functable=setmetatable ({}, {__call=func})
--- functable() --> "called"
--- nested=setmetatable ({}, {__call=functable})
--- nested()
--- --> stdin:1: attempt to call a table value (global 'd')
--- --> stack traceback:
--- -->	stdin:1: in main chunk
--- -->		[C]: in ?
-local function callable (x)
-  if _type (x) == "function" then return x end
-  return (getmetatable (x) or {}).__call
-end
-
-
-local function getmetamethod (x, n)
-  local m = (getmetatable (x) or {})[n]
-  if callable (m) then return m end
-end
-
-
-local function catfile (...)
-  return _concat ({...}, dirsep)
-end
-
-
--- Lua < 5.2 doesn't call `__len` automatically!
-local function len (t)
-  local m = getmetamethod (t, "__len")
-  return m and m (t) or #t
+local function insert (t, pos, v)
+  if v == nil then pos, v = len (t) + 1, pos end
+  if pos < 1 or pos > len (t) + 1 then
+    argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
+  end
+  table.insert (t, pos, v)
+  return t
 end
 
 
@@ -110,25 +130,64 @@ end
 
 local _pairs = pairs
 
+-- Respect __pairs metamethod, even in Lua 5.1.
+local function pairs (t)
+  return (getmetamethod (t, "__pairs") or _pairs) (t)
+end
+
+
 local maxn = table.maxn or function (t)
   local n = 0
-  for k in _pairs (t) do
-    if _type (k) == "number" and k > n then n = k end
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
   end
   return n
 end
 
 
-local _unpack = table.unpack or unpack
+local _require = require
 
-local function unpack (t, i, j)
-  if j == nil then
-    -- respect __len, and then maxn if nil j was passed
-    local m = getmetamethod (t, "__len")
-    j = m and m (t) or maxn (t)
+local function require (module, min, too_big, pattern)
+  local m = _require (module)
+  local v = tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
+  if min then
+    assert (vcompare (v, min) >= 0, "require '" .. module ..
+            "' with at least version " .. min .. ", but found version " .. v)
   end
-  -- use the __contents metatable instead of t when present
-  return _unpack ( (getmetatable (t) or {}).__contents or t, i or 1, j)
+  if too_big then
+    assert (vcompare (v, too_big) < 0, "require '" .. module ..
+            "' with version less than " .. too_big .. ", but found version " .. v)
+  end
+  return m
+end
+
+
+
+--[[ ============================ ]]--
+--[[ Shared Stdlib API functions. ]]--
+--[[ ============================ ]]--
+
+
+-- No need to recurse because functables are second class citizens in
+-- Lua:
+-- func=function () print "called" end
+-- func() --> "called"
+-- functable=setmetatable ({}, {__call=func})
+-- functable() --> "called"
+-- nested=setmetatable ({}, {__call=functable})
+-- nested()
+-- --> stdin:1: attempt to call a table value (global 'd')
+-- --> stack traceback:
+-- -->	stdin:1: in main chunk
+-- -->		[C]: in ?
+local function callable (x)
+  if type (x) == "function" then return x end
+  return (getmetatable (x) or {}).__call
+end
+
+
+local function catfile (...)
+  return table.concat ({...}, dirsep)
 end
 
 
@@ -151,14 +210,6 @@ local function compare (l, m)
     return 1
   end
   return 0
-end
-
-
-local _pairs = pairs
-
--- Respect __pairs metamethod, even in Lua 5.1.
-local function pairs (t)
-  return (getmetamethod (t, "__pairs") or _pairs) (t)
 end
 
 
@@ -201,24 +252,12 @@ end
 
 
 local function eval (s)
-  return loadstring ("return " .. s)()
+  return load ("return " .. s)()
 end
 
 
 local function ielems (l)
   return wrapiterator (ipairs, l)
-end
-
-
-local _insert = table.insert
-
-local function insert (t, pos, v)
-  if v == nil then pos, v = len (t) + 1, pos end
-  if pos < 1 or pos > len (t) + 1 then
-    argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
-  end
-  _insert (t, pos, v)
-  return t
 end
 
 
@@ -246,19 +285,11 @@ end
 
 -- Sort numbers first then asciibetically
 local function keysort (a, b)
-  if _type (a) == "number" then
-    return _type (b) ~= "number" or a < b
+  if type (a) == "number" then
+    return type (b) ~= "number" or a < b
   else
-    return _type (b) ~= "number" and _tostring (a) < _tostring (b)
+    return type (b) ~= "number" and tostring (a) < tostring (b)
   end
-end
-
-
-local _sort = table.sort
-
-local function sortkeys (t)
-  _sort (t, keysort)
-  return t
 end
 
 
@@ -267,7 +298,7 @@ local function last (t) return t[len (t)] end
 
 local function leaves (it, tr)
   local function visit (n)
-    if _type (n) == "table" then
+    if type (n) == "table" then
       for _, v in it (n) do
         visit (v)
       end
@@ -290,7 +321,7 @@ local function mapfields (obj, src, map)
     local k, v = next (src)
     while k do
       local key, dst = map[k] or k, obj
-      local kind = _type (key)
+      local kind = type (key)
       if kind == "string" and key:sub (1, 1) == "_" then
         mt[key] = v
       elseif next (map) and kind == "number" and len (dst) + 1 < key then
@@ -334,6 +365,18 @@ local function npairs (t)
     if i <= n then return i, t[i] end
    end,
   t, i
+end
+
+
+local function unpack (t, i, j)
+  if j == nil then
+    -- respect __len, and then maxn if nil j was passed
+    local m = getmetamethod (t, "__len")
+    j = m and m (t) or maxn (t)
+  end
+  -- use the __contents metatable instead of t when present
+  -- FIXME: get rid of this!
+  return table.unpack ((getmetatable (t) or {}).__contents or t, i or 1, j)
 end
 
 
@@ -385,14 +428,14 @@ local fallbacks = {
   __index = {
     open  = function (x) return "{" end,
     close = function (x) return "}" end,
-    elem  = _tostring,
+    elem  = tostring,
     pair  = function (x, kp, vp, k, v, kstr, vstr) return kstr .. "=" .. vstr end,
     sep   = function (x, kp, vp, kn, vn)
 	      return kp ~= nil and kn ~= nil and "," or ""
             end,
     sort  = function (keys) return keys end,
     term  = function (x)
-	      return _type (x) ~= "table" or getmetamethod (x, "__tostring")
+	      return type (x) ~= "table" or getmetamethod (x, "__tostring")
 	    end,
   },
 }
@@ -438,14 +481,20 @@ local function render (x, fns, roots)
     buf[#buf + 1] = sep (x, kp, vp)		-- buffer << trailing separator
     buf[#buf + 1] = fns.close (x)		-- buffer << table close
 
-    return _concat (buf)			-- stringify buffer
+    return table.concat (buf)			-- stringify buffer
   end
 end
 
 
 local function toqstring (x)
-  if _type (x) ~= "string" then return _tostring (x) end
-  return _format ("%q", x)
+  if type (x) ~= "string" then return tostring (x) end
+  return string.format ("%q", x)
+end
+
+
+local function sortkeys (t)
+  table.sort (t, keysort)
+  return t
 end
 
 
@@ -461,7 +510,7 @@ local function mnemonic (...)
   for i = 1, n do
     buf[i] = render (seq[i], mnemonic_vtable)
   end
-  return _concat (buf, ",")
+  return table.concat (buf, ",")
 end
 
 
@@ -476,7 +525,7 @@ local pickle_vtable = {
       return true
     elseif type (x) ~= "table" then
       -- don't know what to do with this :(
-      error ("cannot pickle " .. _tostring (x))
+      error ("cannot pickle " .. tostring (x))
     end
   end,
 
@@ -495,9 +544,9 @@ local pickle_vtable = {
     -- common types
     local type_x = type (x)
     if type_x == "string" then
-      return _format ("%q", x)
+      return string.format ("%q", x)
     elseif type_x == "number" or type_x == "boolean" then
-      return _tostring (x)
+      return tostring (x)
     end
 
     -- pickling metamethod
@@ -513,6 +562,16 @@ local pickle_vtable = {
 
 local function pickle (x)
   return render (x, pickle_vtable)
+end
+
+
+local function raise (bad, to, name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad %s #%d %s '%s'", bad, i, to, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
 end
 
 
@@ -552,41 +611,19 @@ local function split (s, sep)
   else
     patt = "(.-)" .. (sep or "%s+")
   end
-  local b, lens = 0, len (s)
-  while b <= lens do
+  local b, slen = 0, len (s)
+  while b <= slen do
     local e, n, m = string.find (s, patt, b + 1)
-    insert (r, m or s:sub (b + 1, lens))
-    b = n or lens + 1
+    insert (r, m or s:sub (b + 1, slen))
+    b = n or slen + 1
   end
   return r
 end
 
 
-local function vcompare (a, b)
-  return compare (split (a, "%."), split (b, "%."))
-end
-
-
-local _require = require
-
-local function require (module, min, too_big, pattern)
-  local m = _require (module)
-  local v = _tostring (_type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
-  if min then
-    assert (vcompare (v, min) >= 0, "require '" .. module ..
-            "' with at least version " .. min .. ", but found version " .. v)
-  end
-  if too_big then
-    assert (vcompare (v, too_big) < 0, "require '" .. module ..
-            "' with version less than " .. too_big .. ", but found version " .. v)
-  end
-  return m
-end
-
-
 local tostring_vtable = {
   pair = function (x, kp, vp, k, v, kstr, vstr)
-    if k == 1 or _type (k) == "number" and k -1 == kp then
+    if k == 1 or type (k) == "number" and k -1 == kp then
       return vstr
     end
     return kstr .. "=" .. vstr
@@ -597,9 +634,43 @@ local tostring_vtable = {
 }
 
 
-local function tostring (x)
-  return render (x, tostring_vtable)
+--[[ ================= ]]--
+--[[ Helper functions. ]]--
+--[[ ================= ]]--
+
+-- The bare minumum of functions required to support implementation of
+-- Enhanced Core Lua functions, with forward declarations near the start
+-- of the file.
+
+
+argerror = function (name, i, extramsg, level)
+  level = level or 1
+  raise ("argument", "to", name, i, extramsg, level + 1)
 end
+
+
+-- Lua < 5.2 doesn't call `__len` automatically!
+len = function (t)
+  local m = getmetamethod (t, "__len")
+  return m and m (t) or #t
+end
+
+
+getmetamethod = function (x, n)
+  local m = (getmetatable (x) or {})[n]
+  if callable (m) then return m end
+end
+
+
+vcompare = function (a, b)
+  return compare (split (a, "%."), split (b, "%."))
+end
+
+
+
+--[[ ============= ]]--
+--[[ Internal API. ]]--
+--[[ ============= ]]--
 
 
 -- For efficient use within stdlib, these functions have no type-checking.
@@ -622,10 +693,11 @@ return {
   require       = require,
   ripairs       = ripairs,
   rnpairs       = rnpairs,
-  tostring      = tostring,
+
+  tostring      = function (x) return render (x, tostring_vtable) end,
 
   type = function (x)
-    return (getmetatable (x) or {})._type or io.type (x) or _type (x)
+    return (getmetatable (x) or {})._type or io.type (x) or type (x)
   end,
 
   base = {

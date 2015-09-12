@@ -4,19 +4,43 @@
  @functional std.operator
 ]]
 
+
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local require	= require
+local setfenv	= setfenv
+local type	= type
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local std = require "std.base"
+local std	= require "std.base"
 
-local pairs, stdtype, tostring =
-  std.pairs, std.type, std.tostring
+local pairs	= std.pairs
+local stdtype	= std.type
+local tostring	= std.tostring
 local serialize = std.base.mnemonic
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
+
 
 local function eqv (a, b)
   -- If they are the same primitive value, or they share a metatable

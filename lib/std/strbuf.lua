@@ -27,11 +27,32 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local require	= require
+local setfenv	= setfenv
+local tostring	= tostring
+local type	= type
+
+local table = {
+  concat	= table.concat,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
@@ -41,6 +62,12 @@ local debug  = require "std.debug"
 local Object = require "std.object".prototype
 
 local ielems, insert = std.ielems, std.table.insert
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local function __concat (self, x)
@@ -141,4 +168,6 @@ local prototype = Object {
 
 return std.object.Module {
   prototype = prototype,
+
+  tostring = M.tostring,
 }

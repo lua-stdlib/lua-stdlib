@@ -17,22 +17,48 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local require	= require
+local setfenv	= setfenv
+
+local math = {
+  ceil		= math.ceil,
+  max		= math.max,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local std     = require "std.base"
+local std	= require "std.base"
+local Object	= require "std.object".prototype
 
-local Object  = require "std.object".prototype
+local compare	= std.list.compare
+local ipairs	= std.ipairs
+local len	= std.operator.len
+local pairs	= std.pairs
+local unpack	= std.table.unpack
 
-local ipairs, pairs = std.ipairs, std.pairs
-local compare = std.list.compare
-local len     = std.operator.len
-local unpack  = std.table.unpack
+
+
+--[[ ================= ]]--
+--[[ Implementatation. ]]--
+--[[ ================= ]]--
+
 
 local M, prototype
 

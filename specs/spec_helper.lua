@@ -142,6 +142,41 @@ function luaproc (code, arg, stdin)
 end
 
 
+--- Check deprecation output when calling a named function in the given module.
+-- Note that the script fragments passed in *argstr* and *objectinit*
+-- can reference the module table as `M`, and (where it would make sense)
+-- an object prototype as `P` and instance as `obj`.
+-- @param deprecate value of `_DEBUG.deprecate`
+-- @string module dot delimited module path to load
+-- @string fname name of a function in the table returned by requiring *module*
+-- @param[opt=""] args arguments to pass to *fname* call, must be stringifiable
+-- @string[opt=nil] objectinit object initializer to instantiate an
+--   object for object method deprecation check
+-- @treturn specl.shell.Process|nil status of resulting process if
+--   execution was successful, otherwise nil
+function deprecation (deprecate, module, fname, args, objectinit)
+  args = args or ""
+  local script
+  if objectinit == nil then
+    script = string.format([[
+      _DEBUG = { deprecate = %s }
+      M = require "%s"
+      P = M.prototype
+      print (M.%s (%s))
+    ]], tostring (deprecate), module, fname, tostring (args))
+  else
+    script = string.format([[
+      _DEBUG = { deprecate = %s }
+      local M = require "%s"
+      local P = M.prototype
+      local obj = P (%s)
+      print (obj:%s (%s))
+    ]], tostring (deprecate), module, objectinit, fname, tostring (args))
+  end
+  return luaproc (script)
+end
+
+
 --- Concatenate the contents of listed existing files.
 -- @string ... names of existing files
 -- @treturn string concatenated contents of those files

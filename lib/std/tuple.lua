@@ -25,24 +25,55 @@
  @prototype std.tuple
 ]]
 
+
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local error	= error
+local getmetatable	= getmetatable
+local require	= require
+local select	= select
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local type	= type
+
+local string = {
+  format	= string.format,
+}
+
+local table = {
+  concat	= table.concat,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local _concat = table.concat
-local _format = string.format
-local _type   = type
+local Container	= require "std.container".prototype
+local std	= require "std.base"
 
-local Container = require "std.container".prototype
-local std       = require "std.base"
+local pickle	= std.string.pickle
+local stdtype	= std.type
+local toqstring	= std.base.toqstring
 
-local pickle    = std.string.pickle
-local type      = std.type
-local toqstring = std.base.toqstring
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 --- Stringify tuple values, as a memoization key.
@@ -147,7 +178,7 @@ local prototype = Container {
   -- -- 'Tuple ("nil", nil, false)'
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
-    return _format ("%s (%s)", type (self), argstr (self))
+    return string.format ("%s (%s)", stdtype (self), argstr (self))
   end,
 
   --- Return a loadable serialization of this object, where possible.
@@ -159,11 +190,11 @@ local prototype = Container {
     for i = 1, self.n do
       vals[i] = pickle (self[i])
     end
-    if _type (mt._module) == "string" then
-      return _format ('require "%s".prototype (%s)',
-                      mt._module, _concat (vals, ","))
+    if type (mt._module) == "string" then
+      return string.format ('require "%s".prototype (%s)',
+                      mt._module, table.concat (vals, ","))
     end
-    return _format ("%s (%s)", mt._type, _concat (vals, ","))
+    return string.format ("%s (%s)", mt._type, table.concat (vals, ","))
   end,
 }
 

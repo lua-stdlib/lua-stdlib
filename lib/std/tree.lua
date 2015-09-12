@@ -24,25 +24,62 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local getmetatable	= getmetatable
+local rawget	= rawget
+local rawset	= rawset
+local require	= require
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local type	= type
+
+local coroutine = {
+  yield		= coroutine.yield,
+  wrap		= coroutine.wrap,
+}
+
+local table = {
+  remove	= table.remove,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
+local std	= require "std.base"
+local operator	= require "std.operator"
 
-local std       = require "std.base"
-local operator  = require "std.operator"
+local Container	= require "std.container".prototype
 
-local Container = require "std.container".prototype
+local ielems	= std.ielems
+local ipairs	= std.ipairs
+local last	= std.base.last
+local len	= std.operator.len
+local leaves	= std.tree.leaves
+local pairs	= std.pairs
+local reduce	= std.functional.reduce
+local stdtype	= std.type
 
-local ielems, ipairs, pairs, stdtype =
-  std.ielems, std.ipairs, std.pairs, std.type
-local last   = std.base.last
-local reduce = std.functional.reduce
-local len    = std.operator.len
-local leaves = std.tree.leaves
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
+
 
 local prototype -- forward declaration
 

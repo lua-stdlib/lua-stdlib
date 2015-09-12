@@ -11,6 +11,11 @@ before:
                           "tfind", "trim", "wrap" }
   deprecations        = { "assert", "require_version", "tostring" }
 
+  setdebug { deprecate = false }
+
+  deprecate_on = bind (deprecation, {"nil", this_module})
+  deprecate_off = bind (deprecation, {false, this_module})
+
   M = require (this_module)
   getmetatable ("").__concat = M.__concat
   getmetatable ("").__index = M.__index
@@ -66,10 +71,10 @@ specify std.string:
       f = M.assert
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("assert", "true")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("assert", "true")).
+        not_to_contain_error "was deprecated"
 
   - context when it does not trigger:
     - it has a truthy initial argument:
@@ -491,15 +496,14 @@ specify std.string:
       f = M.render
 
   - it writes an argument passing deprecation warning:
-      around = function () return "|" end
-      inside = function () return "_" end
-      between = function () return "," end
+      around = "function () return '|' end"
+      inside = "function () return '_' end"
+      between = "function () return ',' end"
+      argstr = table.concat ({around, around, inside, inside, between}, ",")
 
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {around, around, inside, inside, between})).
+      expect (deprecate_on ("tostring", argstr)).
         to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {around, around, inside, inside, between})).
+      expect (deprecate_off ("tostring", argstr)).
         not_to_contain_error "was deprecated"
 
   - context with bad arguments:
@@ -546,10 +550,10 @@ specify std.string:
       f = M.require_version
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("require_version", '"std.string"')).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("require_version", '"std.string"')).
+        not_to_contain_error "was deprecated"
 
   - it diagnoses non-existent module:
       expect (f ("module-not-exists", "", "")).to_raise "module-not-exists"
@@ -700,10 +704,10 @@ specify std.string:
       f = M.tostring
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {"std.string"})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {"std.string"})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("tostring", 42)).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("tostring", 42)).
+        not_to_contain_error "was deprecated"
 
   - it renders primitives exactly like system tostring:
       expect (f (nil)).to_be (tostring (nil))

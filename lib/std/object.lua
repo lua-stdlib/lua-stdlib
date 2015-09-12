@@ -22,17 +22,38 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local require	= require
+local setfenv	= setfenv
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
 local container = require "std.container"
 local debug     = require "std.debug"
-local std       = require "std.base"
+local std	= require "std.base"
+
+
+
+--[[ ================= ]]--
+--[[ Implementatation. ]]--
+--[[ ================= ]]--
+
 
 local Container = container.prototype
 

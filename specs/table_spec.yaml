@@ -10,6 +10,11 @@ before: |
                           "size", "sort", "unpack", "values" }
   deprecations        = { "len", "okeys", "metamethod", "ripairs", "totable" }
 
+  setdebug { deprecate = false }
+
+  deprecate_on = bind (deprecation, {"nil", this_module})
+  deprecate_off = bind (deprecation, {false, this_module})
+
   M = require "std.table"
 
 
@@ -269,10 +274,8 @@ specify std.table:
       f = M.len
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("len", "{}")).to_contain_error "was deprecated"
+      expect (deprecate_off ("len", "{}")).not_to_contain_error "was deprecated"
 
   - context with bad arguments:
       badargs.diagnose (f, "std.table.len (table)")
@@ -437,10 +440,10 @@ specify std.table:
       f = M.metamethod
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("metamethod", "{}, 'subject'")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("metamethod", "{}, 'subject'")).
+        not_to_contain_error "was deprecated"
 
   - it returns nil for missing metamethods:
       expect (f (obj, "not a method on obj")).to_be (nil)
@@ -515,10 +518,10 @@ specify std.table:
       f = M.okeys
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("okeys", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("okeys", "{}")).
+        not_to_contain_error "was deprecated"
 
   - context with bad arguments:
       badargs.diagnose (f, "std.table.okeys (table)")
@@ -610,10 +613,10 @@ specify std.table:
       f = M.ripairs
 
   - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}, subject})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}, subject})).not_to_contain_error "was deprecated"
+      expect (deprecate_on ("ripairs", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("ripairs", "{}")).
+        not_to_contain_error "was deprecated"
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
@@ -700,11 +703,11 @@ specify std.table:
 
       f = M.totable
 
-  - it writes a deprecation warning:
-      setdebug { deprecate = "nil" }
-      expect (capture (f, {{}})).to_contain_error "was deprecated"
-      setdebug { deprecate = false }
-      expect (capture (f, {{}})).not_to_contain_error "was deprecated"
+  - it writes a deprecation warning: |
+      expect (deprecate_on ("totable", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("totable", "{}")).
+        not_to_contain_error "was deprecated"
 
   - it calls object's __totable metamethod:
       object = setmetatable ({content = t}, mt)

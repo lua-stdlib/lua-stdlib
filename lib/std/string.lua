@@ -11,33 +11,75 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local assert	= assert
+local getmetatable	= getmetatable
+local require	= require
+local setfenv	= setfenv
+local string	= string
+local tonumber	= tonumber
+local tostring	= tostring
+local type	= type
+
+local io = {
+  stderr	= io.stderr,
+}
+
+local math = {
+  abs		= math.abs,
+  floor		= math.floor,
+}
+
+local table = {
+  concat	= table.concat,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local std    = require "std.base"
-local debug  = require "std.debug"
+local std	= require "std.base"
+local debug	= require "std.debug"
 
-local StrBuf = require "std.strbuf".prototype
+local StrBuf	= require "std.strbuf".prototype
 
-local sortkeys, toqstring = std.base.sortkeys, std.base.toqstring
-local getmetamethod, pairs = std.getmetamethod, std.pairs
-local callable = std.functional.callable
-local copy, keysort = std.base.copy, std.base.keysort
-local len      = std.operator.len
-local render   = std.string.render
-local insert   = std.table.insert
-local type     = type -- avoid mutual recursion between debug argument checker and string.__index
+local callable	= std.functional.callable
+local copy	= std.base.copy
+local getmetamethod	= std.getmetamethod
+local insert	= std.table.insert
+local keysort	= std.base.keysort
+local len	= std.operator.len
+local pairs	= std.pairs
+local render	= std.string.render
+local sortkeys	= std.base.sortkeys
+local toqstring	= std.base.toqstring
+
+local _tostring	= std.tostring
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
+
 
 local M
 
-
-
-local _tostring = std.tostring
 
 local function __concat (s, o)
   return _tostring (s) .. _tostring (o)

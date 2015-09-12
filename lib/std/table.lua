@@ -11,24 +11,54 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local getmetatable	= getmetatable
+local next	= next
+local require	= require
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local table	= table
+local type	= type
+
+local math = {
+  ceil		= math.ceil,
+  min		= math.min,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local core = _G.table
+local std	= require "std.base"
+local debug	= require "std.debug"
 
-local std   = require "std.base"
-local debug = require "std.debug"
+local argerror	= debug.argerror
+local ipairs	= std.ipairs
+local pairs	= std.pairs
+local collect	= std.functional.collect
+local len	= std.operator.len
+local leaves	= std.tree.leaves
 
-local argerror      = debug.argerror
-local ipairs, pairs = std.ipairs, std.pairs
-local collect       = std.functional.collect
-local len           = std.operator.len
-local leaves        = std.tree.leaves
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local M, monkeys

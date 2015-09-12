@@ -11,26 +11,64 @@
 ]]
 
 
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
+
+
+local _G	= _G
+
+local arg	= arg
+local error	= error
+local getmetatable	= getmetatable
+local io	= io
+local rawget	= rawget
+local require	= require
+local setfenv	= setfenv
+local setmetatable	= debug.setmetatable
+local type	= type
+
+local string = {
+  format	= string.format,
+}
+
+local table = {
+  concat	= table.concat,
+}
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
+
 local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
 
 if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
 end
 
 
-local std   = require "std.base"
-local debug = require "std.debug"
+local std	= require "std.base"
+local debug	= require "std.debug"
 
-local argerror, setmetatable = debug.argerror, debug.setmetatable
-local ipairs, pairs = std.ipairs, std.pairs
-local catfile = std.io.catfile
-local len     = std.operator.len
-local dirsep  = std.package.dirsep
-local split   = std.string.split
-local insert  = std.table.insert
-local leaves  = std.tree.leaves
+local argerror	= debug.argerror
+local catfile	= std.io.catfile
+local dirsep	= std.package.dirsep
+local insert	= std.table.insert
+local ipairs	= std.ipairs
+local leaves	= std.tree.leaves
+local len	= std.operator.len
+local pairs	= std.pairs
+local split	= std.string.split
+local tostring	= std.tostring
 
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local M, monkeys

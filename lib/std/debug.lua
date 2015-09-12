@@ -29,16 +29,50 @@
 ]]
 
 
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
-  _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
-  if rawget (_G, "setfenv") then setfenv (1, _ENV) end
-end
+--[[ ============================== ]]--
+--[[ Cache all external references. ]]--
+--[[ ============================== ]]--
 
 
-local debug_init = require "std.debug_init"
-local std        = require "std.base"
+local debug	= debug
+local error	= error
+local getfenv	= getfenv
+local getmetatable	= getmetatable
+local next	= next
+local pcall	= pcall
+local require	= require
+local setfenv	= setfenv
+local setmetatable	= setmetatable
+local type	= type
+
+local io = {
+  stderr	= io.stderr,
+  type		= io.type,
+}
+
+local math = {
+  floor		= math.floor,
+  huge		= math.huge,
+  max		= math.max,
+}
+
+local string = {
+  format	= string.format,
+  match		= string.match,
+}
+
+local table = {
+  concat	= table.concat,
+  remove	= table.remove,
+  sort		= table.sort,
+}
+
+
+
+--[[ ====================================== ]]--
+--[[ Empty environment, with strict access. ]]--
+--[[ ====================================== ]]--
+
 
 --- Control std.debug function behaviour.
 -- To declare debugging state, set _DEBUG either to `false` to disable all
@@ -57,17 +91,37 @@ local std        = require "std.base"
 --   before use **in stdlib internals**
 -- @see std.strict
 -- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
-local _DEBUG = debug_init._DEBUG
+local _DEBUG = require "std.debug_init"._DEBUG
 
-local ipairs, pairs, stdtype, tostring =
-  std.ipairs, std.pairs, std.type, std.tostring
-local copy, last, raise = std.base.copy, std.base.last, std.base.raise
-local argerror = std.debug.argerror
-local len = std.operator.len
-local split = std.string.split
-local insert, maxn, unpack =
-  std.table.insert, std.table.maxn, std.table.unpack
-local type = type
+local _ENV = _G
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" {}
+  if setfenv then setfenv (1, _ENV) end
+end
+
+
+local std	= require "std.base"
+
+local argerror	= std.debug.argerror
+local copy	= std.base.copy
+local insert	= std.table.insert
+local ipairs	= std.ipairs
+local last	= std.base.last
+local len	= std.operator.len
+local maxn	= std.table.maxn
+local pairs	= std.pairs
+local raise	= std.base.raise
+local split	= std.string.split
+local stdtype	= std.type
+local tostring	= std.tostring
+local unpack	= std.table.unpack
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local M
@@ -131,7 +185,7 @@ local function setfenv (fn, env)
 end
 
 
-local _getfenv = rawget (_G, "getfenv")
+local _getfenv = getfenv
 
 local getfenv = function (fn)
   fn = fn or 1
