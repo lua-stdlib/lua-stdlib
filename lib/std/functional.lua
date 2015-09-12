@@ -13,7 +13,7 @@
 --[[ ============================== ]]--
 
 
-local load	= load or loadstring
+local loadstring= loadstring or load
 local next	= next
 local pcall	= pcall
 local require	= require
@@ -233,7 +233,7 @@ local lambda = memoize (function (s)
 
   local ok, fn
   if expr then
-    ok, fn = pcall (load (expr))
+    ok, fn = pcall (loadstring (expr))
   end
 
   -- Diagnose invalid input.
