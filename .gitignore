@@ -18,11 +18,7 @@
 /config.log
 /config.status
 /configure
-/doc/classes
-/doc/files
-/doc/index.html
-/doc/ldoc.css
-/doc/modules
+/doc
 /lib/std.lua
 /luarocks
 /m4/ax_lua.m4
