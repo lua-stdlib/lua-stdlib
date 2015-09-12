@@ -32,7 +32,7 @@ local dirsep	= string.match (package.config, "^(%S+)\n")
 
 local error	= error
 local getmetatable	= getmetatable
-local load	= load or loadstring
+local loadstring	= loadstring or load
 local next	= next
 local pairs	= pairs
 local rawget	= rawget
@@ -252,7 +252,7 @@ end
 
 
 local function eval (s)
-  return load ("return " .. s)()
+  return loadstring ("return " .. s)()
 end
 
 
