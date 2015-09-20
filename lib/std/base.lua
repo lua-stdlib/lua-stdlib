@@ -374,9 +374,8 @@ local function unpack (t, i, j)
     local m = getmetamethod (t, "__len")
     j = m and m (t) or maxn (t)
   end
-  -- use the __contents metatable instead of t when present
-  -- FIXME: get rid of this!
-  return table.unpack ((getmetatable (t) or {}).__contents or t, i or 1, j)
+  local fn = getmetamethod (t, "__unpack") or table.unpack
+  return fn (t, tonumber (i) or 1, tonumber (j))
 end
 
 

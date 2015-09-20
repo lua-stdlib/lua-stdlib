@@ -33,6 +33,7 @@
 
 local error	= error
 local getmetatable	= getmetatable
+local next	= next
 local require	= require
 local select	= select
 local setfenv	= setfenv
@@ -45,6 +46,7 @@ local string = {
 
 local table = {
   concat	= table.concat,
+  unpack	= table.unpack or unpack,
 }
 
 
@@ -76,32 +78,17 @@ local toqstring	= std.base.toqstring
 --[[ =============== ]]--
 
 
---- Stringify tuple values, as a memoization key.
--- @tparam prototype tuple tuple to process
--- @treturn string a comma separated ordered list of stringified *tup* elements
-local function argstr (tuple)
-  local s = {}
-  for i = 1, tuple.n do
-    local v = tuple[i]
-    s[i] = toqstring (v)
-  end
-  return table.concat (s, ", ")
-end
-
-
 -- Maintain a weak functable of all interned tuples.
 -- @function intern
--- @param ... tuple elements
--- @treturn table an interned proxied table with ... elements
+-- @int n number of elements in *t*, including trailing `nil`s
+-- @tparam table t table of elements
+-- @treturn table interned *n*-tuple *t*
 local intern = setmetatable ({}, {
   __mode = "kv",
 
-  __call = function (self, ...)
-    local t = {n = select ("#", ...), ...}
-    local k = argstr (t)
+  __call = function (self, k, t)
     if self[k] == nil then
-      -- Use a proxy table so that __newindex always fires
-      self[k] = setmetatable ({}, { __contents = t, __index = t })
+      self[k] = {[t] = k}
     end
     return self[k]
   end,
@@ -109,9 +96,9 @@ local intern = setmetatable ({}, {
 
 
 
---[[ ============= ]]--
---[[ Tuple Object. ]]--
---[[ ============= ]]--
+--[[ ================== ]]--
+--[[ Type Declarations. ]]--
+--[[ ================== ]]--
 
 
 --- Tuple prototype object.
@@ -133,22 +120,18 @@ local prototype = Container {
   _type = "std.tuple.Tuple",
 
   _init = function (obj, ...)
-    return intern (...)
+    local n = select ("#", ...)
+    local s, t = {}, {n = n, ...}
+    for i = 1, n do s[i] = toqstring (t[i]) end
+    return intern (table.concat (s, ", "), t)
   end,
 
   --- Metamethods
   -- @section metamethods
 
-  -- The actual contents of *tup*.
-  -- This ensures __newindex will trigger for existing elements too.
-  -- It also informs @{std.table.unpack} that that the elements to unpack are
-  -- not in the usual place.
-  __contents = getmetatable (intern ()).__contents,
-
-
-  -- Another reference to the proxy table, so that [] operations work as
-  -- expected.
-  __index = getmetatable (intern ()).__index,
+  __index = function (self, k)
+    return next (self) [k]
+  end,
 
   --- Return the length of this tuple.
   -- @function prototype:__len
@@ -178,7 +161,21 @@ local prototype = Container {
   -- -- 'Tuple ("nil", nil, false)'
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
-    return string.format ("%s (%s)", stdtype (self), argstr (self))
+    local _, argstr = next (self)
+    return string.format ("%s (%s)", stdtype (self), argstr)
+  end,
+
+  --- Unpack tuple values between index *i* and *j*, inclusive.
+  -- @function prototype:__unpack
+  -- @int[opt=1] i first index to unpack
+  -- @int[opt=len(t)] j last index to unpack
+  -- @return ... values at indices *i* through *j*, inclusive
+  -- @usage
+  -- t = Tuple (1, 3, 2, 5)
+  -- --> 3, 2, 5
+  -- table.unpack (t, 2)
+  __unpack = function (self, i, j)
+    return table.unpack (next (self), i, j)
   end,
 
   --- Return a loadable serialization of this object, where possible.
@@ -196,6 +193,9 @@ local prototype = Container {
     end
     return string.format ("%s (%s)", mt._type, table.concat (vals, ","))
   end,
+
+  -- Prototype is the 0-tuple.
+  [intern ("", {n = 0})] = "",
 }
 
 

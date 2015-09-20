@@ -91,13 +91,20 @@
     tuples:
 
     ```lua
-    local std = require "std"
-    local t3 = std.tuple (nil, false, nil)
-    local t3_ = std.tuple (nil, false, nil)
-    if t3 == t3_ then
-      for i, v in std.npairs (t3) do print (i, v) end
-    end
-    --> 1 nil   2 false   3 nil
+    local Tuple = require "std.tuple" {}
+    local t3 = Tuple (nil, false, nil)
+    local t3_ = Tuple (nil, false, nil)
+    assert (t3 == t3_)
+
+    local len = require "std.operator".len
+    assert (len (t3) == 3)
+
+    local t = {}
+    for i = 1, len (t3) do t = t3[i] end
+    assert (len (t) == 3)
+
+    local a, b, c = require "std.table".unpack (t3)
+    assert (a == nil and b == false and c == nil)
     ```
 
   - New `functional.product` returns a list of combinations made by
