@@ -26,50 +26,36 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local error	= error
+local _ENV		= _ENV
+local error		= error
 local getmetatable	= getmetatable
-local next	= next
-local require	= require
-local select	= select
-local setfenv	= setfenv
+local next		= next
+local select		= select
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local type	= type
+local type		= type
 
-local string = {
-  format	= string.format,
-}
-
-local table = {
-  concat	= table.concat,
-  unpack	= table.unpack or unpack,
-}
+local string_format	= string.format
+local table_concat	= table.concat
+local table_unpack	= table.unpack or unpack
 
 
+local std		= require "std.base"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local Container		= require "std.container".prototype
+local Module		= std.object.Module
+
+local pickle		= std.string.pickle
+local std_type		= std.type
+local toqstring		= std.base.toqstring
 
 
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local Container	= require "std.container".prototype
-local std	= require "std.base"
-
-local pickle	= std.string.pickle
-local stdtype	= std.type
-local toqstring	= std.base.toqstring
+setfenv (1, _ENV)
 
 
 
@@ -123,7 +109,7 @@ local prototype = Container {
     local n = select ("#", ...)
     local s, t = {}, {n = n, ...}
     for i = 1, n do s[i] = toqstring (t[i]) end
-    return intern (table.concat (s, ", "), t)
+    return intern (table_concat (s, ", "), t)
   end,
 
   --- Metamethods
@@ -162,7 +148,7 @@ local prototype = Container {
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
     local _, argstr = next (self)
-    return string.format ("%s (%s)", stdtype (self), argstr)
+    return string_format ("%s (%s)", std_type (self), argstr)
   end,
 
   --- Unpack tuple values between index *i* and *j*, inclusive.
@@ -175,7 +161,7 @@ local prototype = Container {
   -- --> 3, 2, 5
   -- table.unpack (t, 2)
   __unpack = function (self, i, j)
-    return table.unpack (next (self), i, j)
+    return table_unpack (next (self), i, j)
   end,
 
   --- Return a loadable serialization of this object, where possible.
@@ -188,10 +174,10 @@ local prototype = Container {
       vals[i] = pickle (self[i])
     end
     if type (mt._module) == "string" then
-      return string.format ('require "%s".prototype (%s)',
-                      mt._module, table.concat (vals, ","))
+      return string_format ('require "%s".prototype (%s)',
+                      mt._module, table_concat (vals, ","))
     end
-    return string.format ("%s (%s)", mt._type, table.concat (vals, ","))
+    return string_format ("%s (%s)", mt._type, table_concat (vals, ","))
   end,
 
   -- Prototype is the 0-tuple.
@@ -199,6 +185,6 @@ local prototype = Container {
 }
 
 
-return std.object.Module {
+return Module {
   prototype = prototype,
 }

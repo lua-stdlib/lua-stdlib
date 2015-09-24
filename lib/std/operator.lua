@@ -5,35 +5,23 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local setfenv		= setfenv or function () end
+local type		= type
 
 
-local require	= require
-local setfenv	= setfenv
-local type	= type
+local std		= require "std.base"
 
+local len		= std.operator.len
+local serialize 	= std.base.mnemonic
+local tostring		= std.tostring
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std	= require "std.base"
-
-local pairs	= std.pairs
-local stdtype	= std.type
-local tostring	= std.tostring
-local serialize = std.base.mnemonic
+setfenv (1, _ENV)
 
 
 
@@ -70,7 +58,7 @@ local M = {
   -- @tparam object|string|table x operand
   -- @treturn int length of list part of *t*
   -- @usage for i = 1, len (t) do process (t[i]) end
-  len = std.operator.len,
+  len = len,
 
   --- Dereference a table.
   -- @tparam table t a table

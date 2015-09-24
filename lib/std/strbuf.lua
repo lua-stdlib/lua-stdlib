@@ -27,41 +27,31 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local setfenv		= setfenv or function () end
+local tostring		= tostring
+local type		= type
+
+local table_concat	= table.concat
 
 
-local require	= require
-local setfenv	= setfenv
-local tostring	= tostring
-local type	= type
+local std		= require "std.base"
+local debug		= require "std.debug"
 
-local table = {
-  concat	= table.concat,
-}
+local Module		= std.object.Module
+local Object		= require "std.object".prototype
 
+local DEPRECATED	= debug.DEPRECATED
+local argscheck		= debug.argscheck
+local ielems		= std.ielems
+local insert		= std.table.insert
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std    = require "std.base"
-local debug  = require "std.debug"
-
-local Object = require "std.object".prototype
-
-local ielems, insert = std.ielems, std.table.insert
+setfenv (1, _ENV)
 
 
 
@@ -78,7 +68,7 @@ end
 local function __tostring (self)
   local strs = {}
   for e in ielems (self) do strs[#strs + 1] = tostring (e) end
-  return table.concat (strs)
+  return table_concat (strs)
 end
 
 
@@ -88,7 +78,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.strbuf." .. decl, fn)
+  return argscheck ("std.strbuf." .. decl, fn)
 end
 
 --- StrBuf prototype object.
@@ -127,8 +117,6 @@ local M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = debug.DEPRECATED
-
 M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
                          "use 'tostring (strbuf)' instead",
 	                 X ("tostring (StrBuf)", __tostring))
@@ -166,7 +154,7 @@ local prototype = Object {
 }
 
 
-return std.object.Module {
+return Module {
   prototype = prototype,
 
   tostring = M.tostring,

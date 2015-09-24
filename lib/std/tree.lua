@@ -24,55 +24,41 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
+local _ENV		= _G
 local getmetatable	= getmetatable
-local rawget	= rawget
-local rawset	= rawset
-local require	= require
-local setfenv	= setfenv
+local rawget		= rawget
+local rawset		= rawset
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local type	= type
+local type		= type
 
-local coroutine = {
-  yield		= coroutine.yield,
-  wrap		= coroutine.wrap,
-}
-
-local table = {
-  remove	= table.remove,
-}
+local coroutine_yield	= coroutine.yield
+local coroutine_wrap	= coroutine.wrap
+local table_remove	= table.remove
 
 
+local std		= require "std.base"
+local operator		= require "std.operator"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local Container		= require "std.container".prototype
+local Module		= std.object.Module
 
+local argscheck		= require "std.debug".argscheck
+local ielems		= std.ielems
+local ipairs		= std.ipairs
+local last		= std.base.last
+local leaves		= std.tree.leaves
+local len		= std.operator.len
+local pairs		= std.pairs
+local reduce		= std.functional.reduce
+local std_type		= std.type
 
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-local std	= require "std.base"
-local operator	= require "std.operator"
-
-local Container	= require "std.container".prototype
-
-local ielems	= std.ielems
-local ipairs	= std.ipairs
-local last	= std.base.last
-local len	= std.operator.len
-local leaves	= std.tree.leaves
-local pairs	= std.pairs
-local reduce	= std.functional.reduce
-local stdtype	= std.type
+setfenv (1, _ENV)
 
 
 
@@ -95,18 +81,18 @@ local function _nodes (it, tr)
   local p = {}
   local function visit (n)
     if type (n) == "table" then
-      coroutine.yield ("branch", p, n)
+      coroutine_yield ("branch", p, n)
       for i, v in it (n) do
         p[#p + 1] = i
         visit (v)
-        table.remove (p)
+        table_remove (p)
       end
-      coroutine.yield ("join", p, n)
+      coroutine_yield ("join", p, n)
     else
-      coroutine.yield ("leaf", p, n)
+      coroutine_yield ("leaf", p, n)
     end
   end
-  return coroutine.wrap (visit), tr
+  return coroutine_wrap (visit), tr
 end
 
 
@@ -155,7 +141,7 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.tree." .. decl, fn)
+  return argscheck ("std.tree." .. decl, fn)
 end
 
 
@@ -192,7 +178,7 @@ prototype = Container {
   -- @usage
   -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
   __index = function (tr, i)
-    if stdtype (i) == "table" then
+    if std_type (i) == "table" then
       return reduce (operator.get, tr, ielems, i)
     else
       return rawget (tr, i)
@@ -206,9 +192,9 @@ prototype = Container {
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
   __newindex = function (tr, i, v)
-    if stdtype (i) == "table" then
+    if std_type (i) == "table" then
       for n = 1, len (i) - 1 do
-        if stdtype (tr[i[n]]) ~= "Tree" then
+        if std_type (tr[i[n]]) ~= "Tree" then
           rawset (tr, i[n], prototype {})
         end
         tr = tr[i[n]]
@@ -221,7 +207,7 @@ prototype = Container {
 }
 
 
-return std.object.Module {
+return Module {
   prototype = prototype,
 
   --- Functions

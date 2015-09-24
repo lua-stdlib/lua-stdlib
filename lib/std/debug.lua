@@ -29,49 +29,46 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local debug	= debug
-local error	= error
-local getfenv	= getfenv
+local _ENV		= _G
+local debug		= debug
+local error		= error
+local getfenv		= getfenv
 local getmetatable	= getmetatable
-local next	= next
-local pcall	= pcall
-local require	= require
-local setfenv	= setfenv
+local next		= next
+local pcall		= pcall
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local type	= type
+local type		= type
 
-local io = {
-  stderr	= io.stderr,
-  type		= io.type,
-}
-
-local math = {
-  floor		= math.floor,
-  huge		= math.huge,
-  max		= math.max,
-}
-
-local string = {
-  format	= string.format,
-  match		= string.match,
-}
-
-local table = {
-  concat	= table.concat,
-  remove	= table.remove,
-  sort		= table.sort,
-}
+local io_stderr		= io.stderr
+local io_type		= io.type
+local math_floor	= math.floor
+local math_huge		= math.huge
+local math_max		= math.max
+local string_format	= string.format
+local table_concat	= table.concat
+local table_remove	= table.remove
+local table_sort	= table.sort
 
 
+local std		= require "std.base"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local argerror		= std.debug.argerror
+local copy		= std.base.copy
+local insert		= std.table.insert
+local ipairs		= std.ipairs
+local last		= std.base.last
+local len		= std.operator.len
+local maxn		= std.table.maxn
+local merge		= std.base.merge
+local nop		= std.functional.nop
+local pairs		= std.pairs
+local raise		= std.base.raise
+local split		= std.string.split
+local stdtype		= std.type
+local tostring		= std.tostring
+local unpack		= std.table.unpack
+
 
 
 --- Control std.debug function behaviour.
@@ -93,29 +90,12 @@ local table = {
 -- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
 local _DEBUG = require "std.debug_init"._DEBUG
 
-local _ENV = _G
-
 if _DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std	= require "std.base"
-
-local argerror	= std.debug.argerror
-local copy	= std.base.copy
-local insert	= std.table.insert
-local ipairs	= std.ipairs
-local last	= std.base.last
-local len	= std.operator.len
-local maxn	= std.table.maxn
-local pairs	= std.pairs
-local raise	= std.base.raise
-local split	= std.string.split
-local stdtype	= std.type
-local tostring	= std.tostring
-local unpack	= std.table.unpack
+setfenv (1, _ENV)
 
 
 
@@ -134,7 +114,7 @@ local function DEPRECATIONMSG (version, name, extramsg, level)
 
   local _, where = pcall (function () error ("", level + 3) end)
   if _DEBUG.deprecate == nil then
-    return (where .. string.format ("%s was deprecated in release %s, %s.\n",
+    return (where .. string_format ("%s was deprecated in release %s, %s.\n",
                                     name, tostring (version), extramsg))
   end
 
@@ -149,7 +129,7 @@ local function DEPRECATED (version, name, extramsg, fn)
 
   if not _DEBUG.deprecate then
     return function (...)
-      io.stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
+      io_stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
       return fn (...)
     end
   end
@@ -328,11 +308,11 @@ end
 local function concat (alternatives)
   if len (alternatives) > 1 then
     local t = copy (alternatives)
-    local top = table.remove (t)
+    local top = table_remove (t)
     t[#t] = t[#t] .. " or " .. top
     alternatives = t
   end
-  return table.concat (alternatives, ", ")
+  return table_concat (alternatives, ", ")
 end
 
 
@@ -345,7 +325,7 @@ local function extramsg_mismatch (expectedtypes, actual, index)
   elseif actualtype == "string" and actual:sub (1, 1) == ":" then
     actualtype = actual
   elseif type (actual) == "table" and next (actual) == nil then
-    local matchstr = "," .. table.concat (expectedtypes, ",") .. ","
+    local matchstr = "," .. table_concat (expectedtypes, ",") .. ","
     if actualtype == "table" and matchstr == ",#list," then
       actualtype = "empty list"
     elseif actualtype == "table" or matchstr:match ",#" then
@@ -419,7 +399,7 @@ if _DEBUG.argcheck then
   local function checktype (check, actual)
     if check == "any" and actual ~= nil then
       return true
-    elseif check == "file" and io.type (actual) == "file" then
+    elseif check == "file" and io_type (actual) == "file" then
       return true
     end
 
@@ -439,7 +419,7 @@ if _DEBUG.argcheck then
          return true
       end
     elseif check == "int" then
-      if actualtype == "number" and actual == math.floor (actual) then
+      if actualtype == "number" and actual == math_floor (actual) then
         return true
       end
     elseif type (check) == "string" and check:sub (1, 1) == ":" then
@@ -600,7 +580,7 @@ if _DEBUG.argcheck then
       end
 
       -- Ensure the longest permutation is first in the list.
-      table.sort (permutations, function (a, b) return #a > #b end)
+      table_sort (permutations, function (a, b) return #a > #b end)
 
       output = {
         bad          = "result",
@@ -616,13 +596,13 @@ if _DEBUG.argcheck then
       local argt = {...}
 
       -- Don't check type of self if fname has a ':' in it.
-      if fname:find (":") then table.remove (argt, 1) end
+      if fname:find (":") then table_remove (argt, 1) end
 
       -- Diagnose bad inputs.
       diagnose (argt, input)
 
       -- Propagate outer environment to inner function.
-      local x = math.max -- ??? getfenv(1) fails if we remove this ???
+      local x = math_max -- ??? FIXME: getfenv(1) fails if we remove this ???
       setfenv (inner, getfenv (1))
 
       -- Execute.
@@ -642,7 +622,7 @@ else
   -- Turn off argument checking if _DEBUG is false, or a table containing
   -- a false valued `argcheck` field.
 
-  argcheck  = std.functional.nop
+  argcheck  = nop
   argscheck = function (decl, inner) return inner end
 
 end
@@ -653,12 +633,12 @@ local function say (n, ...)
   if type (n) ~= "number" then
     level, argt = 1, {n, ...}
   end
-  if _DEBUG.level ~= math.huge and
+  if _DEBUG.level ~= math_huge and
       ((type (_DEBUG.level) == "number" and _DEBUG.level >= level) or level <= 1)
   then
     local t = {}
     for k, v in pairs (argt) do t[k] = tostring (v) end
-    io.stderr:write (table.concat (t, "\t") .. "\n")
+    io_stderr:write (table_concat (t, "\t") .. "\n")
   end
 end
 
@@ -676,7 +656,7 @@ local function trace (event)
   if event == "call" then
     level = level + 1
   else
-    level = math.max (level - 1, 0)
+    level = math_max (level - 1, 0)
   end
   if t.what == "main" then
     if event == "call" then
@@ -690,7 +670,7 @@ local function trace (event)
   else
     s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
   end
-  io.stderr:write (s .. "\n")
+  io_stderr:write (s .. "\n")
 end
 
 -- Set hooks according to _DEBUG
@@ -954,11 +934,6 @@ M = {
 }
 
 
-for k, v in pairs (debug) do
-  M[k] = M[k] or v
-end
-
-
 --- Metamethods
 -- @section metamethods
 
@@ -989,4 +964,4 @@ M.toomanyargmsg = DEPRECATED ("41.2.0", "debug.toomanyargmsg",
   end)
 
 
-return setmetatable (M, metatable)
+return setmetatable (merge (M, debug), metatable)

@@ -11,30 +11,25 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local math		= math
+local setfenv		= setfenv or function () end
 
+local math_floor	= math.floor
 
-local math	= math
-local require	= require
-local setfenv	= setfenv
+local std		= require "std.base"
 
+local argscheck		= require "std.debug".argscheck
+local copy		= std.base.copy
+local merge		= std.base.merge
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
+setfenv (1, _ENV)
 
-
-local std	= require "std.base"
 
 
 --[[ ================= ]]--
@@ -45,28 +40,26 @@ local std	= require "std.base"
 local M
 
 
-local _floor  = math.floor
-
 local function floor (n, p)
   if p and p ~= 0 then
     local e = 10 ^ p
-    return _floor (n * e) / e
+    return math_floor (n * e) / e
   else
-    return _floor (n)
+    return math_floor (n)
   end
 end
 
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.math = std.base.copy (namespace.math or {}, M)
+  namespace.math = copy (namespace.math or {}, M)
   return M
 end
 
 
 local function round (n, p)
   local e = 10 ^ (p or 0)
-  return _floor (n * e + 0.5) / e
+  return math_floor (n * e + 0.5) / e
 end
 
 
@@ -77,7 +70,7 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.math." .. decl, fn)
+  return argscheck ("std.math." .. decl, fn)
 end
 
 
@@ -114,4 +107,4 @@ M = {
 }
 
 
-return std.base.merge (M, math)
+return merge (M, math)

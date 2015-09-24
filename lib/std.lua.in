@@ -20,37 +20,27 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local _G	= _G
-
-local ipairs	= ipairs
-local pairs	= pairs
-local pcall	= pcall
-local rawset	= rawset
-local require	= require
-local setfenv	= setfenv
+local _ENV		= _G
+local _G		= _G
+local ipairs		= ipairs
+local pairs		= pairs
+local pcall		= pcall
+local rawset		= rawset
+local require		= require
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local type	= type
+local type		= type
 
 
+local argscheck		= require "std.debug".argscheck
+local std		= require "std.base"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-local std = require "std.base"
+setfenv (1, _ENV)
 
 
 
@@ -111,7 +101,7 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std." .. decl, fn)
+  return argscheck ("std." .. decl, fn)
 end
 
 M = {

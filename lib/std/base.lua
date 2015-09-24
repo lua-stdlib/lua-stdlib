@@ -23,67 +23,42 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local dirsep	= string.match (package.config, "^(%S+)\n")
-
-local error	= error
+local _ENV		= _G
+local dirsep		= string.match (package.config, "^(%S+)\n")
+local error		= error
 local getmetatable	= getmetatable
 local loadstring	= loadstring or load
-local next	= next
-local pairs	= pairs
-local rawget	= rawget
-local require	= require
-local select	= select
-local setfenv	= setfenv
+local next		= next
+local pairs		= pairs
+local rawget		= rawget
+local require		= require
+local select		= select
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local tonumber	= tonumber
-local tostring	= tostring
-local type	= type
+local tonumber		= tonumber
+local tostring		= tostring
+local type		= type
 
-local coroutine = {
-  wrap		= coroutine.wrap,
-  yield		= coroutine.yield,
-}
-
-local math = {
-  huge		= math.huge,
-  min		= math.min,
-}
-
-local io = {
-  type		= io.type,
-}
-
-local string = {
-  find		= string.find,
-  format	= string.format,
-}
-
-local table = {
-  concat	= table.concat,
-  insert	= table.insert,
-  maxn		= table.maxn,
-  sort		= table.sort,
-  unpack	= table.unpack or unpack,
-}
+local coroutine_wrap	= coroutine.wrap
+local coroutine_yield	= coroutine.yield
+local math_huge		= math.huge
+local math_min		= math.min
+local io_type		= io.type
+local string_find	= string.find
+local string_format	= string.format
+local table_concat	= table.concat
+local table_insert	= table.insert
+local table_maxn	= table.maxn
+local table_sort	= table.sort
+local table_unpack	= table.unpack or unpack
 
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
+setfenv (1, _ENV)
 
 
 
@@ -101,7 +76,7 @@ local argerror, getmetamethod, len, vcompare
 
 
 local function assert (expect, fmt, arg1, ...)
-  local msg = (arg1 ~= nil) and string.format (fmt, arg1, ...) or fmt or ""
+  local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ""
   return expect or error (msg, 2)
 end
 
@@ -111,7 +86,7 @@ local function insert (t, pos, v)
   if pos < 1 or pos > len (t) + 1 then
     argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
   end
-  table.insert (t, pos, v)
+  table_insert (t, pos, v)
   return t
 end
 
@@ -136,7 +111,7 @@ local function pairs (t)
 end
 
 
-local maxn = table.maxn or function (t)
+local maxn = table_maxn or function (t)
   local n = 0
   for k in pairs (t) do
     if type (k) == "number" and k > n then n = k end
@@ -187,13 +162,13 @@ end
 
 
 local function catfile (...)
-  return table.concat ({...}, dirsep)
+  return table_concat ({...}, dirsep)
 end
 
 
 local function compare (l, m)
   local lenl, lenm = len (l), len (m)
-  for i = 1, math.min (lenl, lenm) do
+  for i = 1, math_min (lenl, lenm) do
     local li, mi = tonumber (l[i]), tonumber (m[i])
     if li == nil or mi == nil then
       li, mi = l[i], m[i]
@@ -303,10 +278,10 @@ local function leaves (it, tr)
         visit (v)
       end
     else
-      coroutine.yield (n)
+      coroutine_yield (n)
     end
   end
-  return coroutine.wrap (visit), tr
+  return coroutine_wrap (visit), tr
 end
 
 
@@ -374,7 +349,7 @@ local function unpack (t, i, j)
     local m = getmetamethod (t, "__len")
     j = m and m (t) or maxn (t)
   end
-  local fn = getmetamethod (t, "__unpack") or table.unpack
+  local fn = getmetamethod (t, "__unpack") or table_unpack
   return fn (t, tonumber (i) or 1, tonumber (j))
 end
 
@@ -480,19 +455,19 @@ local function render (x, fns, roots)
     buf[#buf + 1] = sep (x, kp, vp)		-- buffer << trailing separator
     buf[#buf + 1] = fns.close (x)		-- buffer << table close
 
-    return table.concat (buf)			-- stringify buffer
+    return table_concat (buf)			-- stringify buffer
   end
 end
 
 
 local function toqstring (x)
   if type (x) ~= "string" then return tostring (x) end
-  return string.format ("%q", x)
+  return string_format ("%q", x)
 end
 
 
 local function sortkeys (t)
-  table.sort (t, keysort)
+  table_sort (t, keysort)
   return t
 end
 
@@ -509,7 +484,7 @@ local function mnemonic (...)
   for i = 1, n do
     buf[i] = render (seq[i], mnemonic_vtable)
   end
-  return table.concat (buf, ",")
+  return table_concat (buf, ",")
 end
 
 
@@ -532,9 +507,9 @@ local pickle_vtable = {
     -- math
     if x ~= x then
       return "0/0"
-    elseif x == math.huge then
+    elseif x == math_huge then
       return "math.huge"
-    elseif x == -math.huge then
+    elseif x == -math_huge then
       return "-math.huge"
     elseif x == nil then
       return "nil"
@@ -543,7 +518,7 @@ local pickle_vtable = {
     -- common types
     local type_x = type (x)
     if type_x == "string" then
-      return string.format ("%q", x)
+      return string_format ("%q", x)
     elseif type_x == "number" or type_x == "boolean" then
       return tostring (x)
     end
@@ -566,7 +541,7 @@ end
 
 local function raise (bad, to, name, i, extramsg, level)
   level = level or 1
-  local s = string.format ("bad %s #%d %s '%s'", bad, i, to, name)
+  local s = string_format ("bad %s #%d %s '%s'", bad, i, to, name)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
@@ -612,7 +587,7 @@ local function split (s, sep)
   end
   local b, slen = 0, len (s)
   while b <= slen do
-    local e, n, m = string.find (s, patt, b + 1)
+    local e, n, m = string_find (s, patt, b + 1)
     insert (r, m or s:sub (b + 1, slen))
     b = n or slen + 1
   end
@@ -696,7 +671,7 @@ return {
   tostring      = function (x) return render (x, tostring_vtable) end,
 
   type = function (x)
-    return (getmetatable (x) or {})._type or io.type (x) or type (x)
+    return (getmetatable (x) or {})._type or io_type (x) or type (x)
   end,
 
   base = {

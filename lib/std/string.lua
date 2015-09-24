@@ -11,65 +11,51 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local assert	= assert
+local _ENV		= _G
+local assert		= assert
 local getmetatable	= getmetatable
-local require	= require
-local setfenv	= setfenv
-local string	= string
-local tonumber	= tonumber
-local tostring	= tostring
-local type	= type
+local setfenv		= setfenv or function () end
+local string		= string
+local tonumber		= tonumber
+local tostring		= tostring
+local type		= type
 
-local io = {
-  stderr	= io.stderr,
-}
-
-local math = {
-  abs		= math.abs,
-  floor		= math.floor,
-}
-
-local table = {
-  concat	= table.concat,
-}
+local io_stderr		= io.stderr
+local math_abs		= math.abs
+local math_floor	= math.floor
 
 
+local std		= require "std.base"
+local debug		= require "std.debug"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local StrBuf		= require "std.strbuf".prototype
 
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
-  _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
-end
-
-
-local std	= require "std.base"
-local debug	= require "std.debug"
-
-local StrBuf	= require "std.strbuf".prototype
-
-local callable	= std.functional.callable
-local copy	= std.base.copy
+local DEPRECATED 	= debug.DEPRECATED
+local DEPRECATIONMSG	= debug.DEPRECATIONMSG
+local argscheck		= debug.argscheck
+local callable		= std.functional.callable
+local copy		= std.base.copy
+local escape_pattern	= std.string.escape_pattern
 local getmetamethod	= std.getmetamethod
-local insert	= std.table.insert
-local keysort	= std.base.keysort
-local len	= std.operator.len
-local pairs	= std.pairs
-local render	= std.string.render
-local sortkeys	= std.base.sortkeys
-local toqstring	= std.base.toqstring
+local insert		= std.table.insert
+local keysort		= std.base.keysort
+local len		= std.operator.len
+local merge		= std.base.merge
+local pairs		= std.pairs
+local pickle		= std.string.pickle
+local render		= std.string.render
+local sortkeys		= std.base.sortkeys
+local split		= std.string.split
+local toqstring		= std.base.toqstring
 
-local _tostring	= std.tostring
+local _tostring		= std.tostring
+
+if require "std.debug_init"._DEBUG.strict then
+  _ENV = require "std.strict" {}
+else
+  _ENV = {}
+end
+setfenv (1, _ENV)
 
 
 
@@ -150,7 +136,7 @@ end
 
 
 local function ordinal_suffix (n)
-  n = math.abs (n) % 100
+  n = math_abs (n) % 100
   local d = n % 10
   if d == 1 and n ~= 11 then
     return "st"
@@ -165,7 +151,7 @@ end
 
 
 local function pad (s, w, p)
-  p = string.rep (p or " ", math.abs (w))
+  p = string.rep (p or " ", math_abs (w))
   if w < 0 then
     return string.sub (p .. s, w)
   end
@@ -212,7 +198,7 @@ local function numbertosi (n)
   local t = _format ("% #.2e", n)
   local _, _, m, e = t:find(".(.%...)e(.+)")
   local man, exp = tonumber (m), tonumber (e)
-  local siexp = math.floor (exp / 3)
+  local siexp = math_floor (exp / 3)
   local shift = exp - siexp * 3
   local s = SIprefix[siexp] or "e" .. tostring (siexp)
   man = man * (10 ^ shift)
@@ -288,11 +274,8 @@ end
 --[[ ================= ]]--
 
 
-local DEPRECATIONMSG = require "std.debug".DEPRECATIONMSG
-
-
 local function X (decl, fn)
-  return debug.argscheck ("std.string." .. decl, fn)
+  return argscheck ("std.string." .. decl, fn)
 end
 
 M = {
@@ -343,7 +326,7 @@ M = {
   -- @string s any string
   -- @treturn string *s* with active pattern characters escaped
   -- @usage substr = inputstr:match (escape_pattern (literal))
-  escape_pattern = X ("escape_pattern (string)", std.string.escape_pattern),
+  escape_pattern = X ("escape_pattern (string)", escape_pattern),
 
   --- Escape a string to be used as a shell token.
   -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
@@ -426,7 +409,7 @@ M = {
   -- @usage
   -- freeze = std.functional.memoize (pickle)
   -- thaw   = function (x) return std.eval (x) end
-  pickle = X ("pickle (?any)", std.string.pickle),
+  pickle = X ("pickle (?any)", pickle),
 
   --- Pretty-print a table, or other object.
   -- @function prettytostring
@@ -456,7 +439,7 @@ M = {
   render = X ("render (?any, ?table|func, ?func, ?func, ?func, ?func, ?table)",
     function (x, opencb, closecb, elemcb, paircb, sepcb, roots)
       if type (opencb) == "function" then
-        io.stderr:write (DEPRECATIONMSG ("41.3",
+        io_stderr:write (DEPRECATIONMSG ("41.3",
           "multiple function arguments to 'std.string.render'",
           "pass a table of named functions as the second parameter instead", 2))
 	opencb = {
@@ -487,7 +470,7 @@ M = {
   -- @string[opt="%s+"] sep separator pattern
   -- @return list of strings
   -- @usage words = split "a very short sentence"
-  split = X ("split (string, ?string)", std.string.split),
+  split = X ("split (string, ?string)", split),
 
   --- Do `string.find`, returning a table of captures.
   -- @function tfind
@@ -543,9 +526,6 @@ M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = debug.DEPRECATED
-
-
 M.assert = DEPRECATED ("41", "'std.string.assert'",
   "use 'std.assert' instead", std.assert)
 
@@ -559,7 +539,7 @@ M.tostring = DEPRECATED ("41", "'std.string.tostring'",
 
 
 
-return std.base.merge (M, string)
+return merge (M, string)
 
 
 

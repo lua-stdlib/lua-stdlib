@@ -8,51 +8,44 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local loadstring= loadstring or load
-local next	= next
-local pcall	= pcall
-local require	= require
-local select	= select
-local setfenv	= setfenv
+local _ENV		= _G
+local loadstring	= loadstring or load
+local next		= next
+local pcall		= pcall
+local select		= select
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 
-local table = {
-  remove	= table.remove,
-}
+local table_remove	= table.remove
 
 
+local std		= require "std.base"
+local debug		= require "std.debug"
+local operator		= require "std.operator"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local DEPRECATED	= debug.DEPRECATED
+local argscheck		= debug.argscheck
+local callable		= std.functional.callable
+local collect		= std.functional.collect
+local copy		= std.base.copy
+local ielems		= std.ielems
+local ipairs		= std.ipairs
+local ireverse		= std.ireverse
+local len		= std.operator.len
+local mnemonic		= std.base.mnemonic
+local nop		= std.functional.nop
+local npairs		= std.npairs
+local pairs		= std.pairs
+local reduce		= std.functional.reduce
+local render		= std.string.render
+local unpack		= std.table.unpack
 
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std = require "std.base"
-
-local callable	= std.functional.callable
-local copy	= std.base.copy
-local ielems	= std.ielems
-local ipairs	= std.ipairs
-local ireverse	= std.ireverse
-local len	= std.operator.len
-local npairs	= std.npairs
-local pairs	= std.pairs
-local reduce	= std.functional.reduce
-local render	= std.string.render
-local unpack	= std.table.unpack
+setfenv (1, _ENV)
 
 
 
@@ -188,7 +181,7 @@ local function id (...)
 end
 
 
-local serialize = std.base.mnemonic
+local serialize = mnemonic
 
 local function memoize (fn, mnemonic)
   mnemonic = mnemonic or serialize
@@ -308,7 +301,7 @@ local function product (...)
   else
     -- Accumulate a list of products, starting by popping the last
     -- argument and making each member a one element list.
-    local d = map (lambda '={_1}', ielems, table.remove (argt))
+    local d = map (lambda '={_1}', ielems, table_remove (argt))
     -- Right associatively fold in remaining argt members.
     return foldr (_product, d, argt)
   end
@@ -339,7 +332,7 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.functional." .. decl, fn)
+  return argscheck ("std.functional." .. decl, fn)
 end
 
 local M = {
@@ -390,7 +383,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any...)", std.functional.collect),
+  collect = X ("collect ([func], any...)", collect),
 
   --- Compose functions.
   -- @function compose
@@ -557,7 +550,7 @@ local M = {
   -- @see id
   -- @usage
   -- if unsupported then vtable["memrmem"] = nop end
-  nop = std.functional.nop, -- ignores all arguments
+  nop = nop, -- ignores all arguments
 
   --- Functional list product.
   --
@@ -623,9 +616,6 @@ local M = {
 --[[ ============= ]]--
 
 
-local DEPRECATED = require "std.debug".DEPRECATED
-
-
 M.eval = DEPRECATED ("41", "'std.functional.eval'",
   "use 'std.eval' instead", std.eval)
 
@@ -645,8 +635,6 @@ end
 M.fold = DEPRECATED ("41", "'std.functional.fold'",
   "use 'std.functional.reduce' instead", fold)
 
-
-local operator = require "std.operator"
 
 local function DEPRECATEOP (old, new)
   return DEPRECATED ("41", "'std.functional.op[" .. old .. "]'",

@@ -20,13 +20,21 @@
  @module std.strict
 ]]
 
-local getinfo, error, rawset, rawget = debug.getinfo, error, rawset, rawget
+local _ENV = {
+  debug_getinfo	= debug.getinfo,
+  error		= error,
+  rawset	= rawset,
+  rawget	= rawget,
+  setfenv	= setfenv or function () end,
+  setmetatable	= setmetatable,
+}
+setfenv (1, _ENV)
 
 
 --- What kind of variable declaration is this?
 -- @treturn string "C", "Lua" or "main"
 local function what ()
-  local d = getinfo (3, "S")
+  local d = debug_getinfo (3, "S")
   return d and d.what or "C"
 end
 

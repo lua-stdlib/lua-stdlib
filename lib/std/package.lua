@@ -36,59 +36,41 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local package		= package
+local setfenv		= setfenv or function () end
+
+local package_config	= package.config
+local string_match	= string.match
+local table_concat	= table.concat
+local table_insert	= table.insert
+local table_remove	= table.remove
 
 
-local package	= package
-local require	= require
-local setfenv	= setfenv
+local std   		= require "std.base"
 
-local string = {
-  match		= string.match,
-}
-
-local table = {
-  concat	= table.concat,
-  insert	= table.insert,
-  remove	= table.remove,
-}
-
-
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
-  _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
-end
-
-
-local std   = require "std.base"
-
-local catfile	= std.io.catfile
+local argscheck		= require "std.debug".argscheck
+local catfile		= std.io.catfile
 local escape_pattern	= std.string.escape_pattern
-local invert	= std.table.invert
-local ipairs	= std.ipairs
-local pairs	= std.pairs
-local split	= std.string.split
-local unpack	= std.table.unpack
+local invert		= std.table.invert
+local ipairs		= std.ipairs
+local merge		= std.base.merge
+local pairs		= std.pairs
+local split		= std.string.split
+local unpack		= std.table.unpack
+
+if require "std.debug_init"._DEBUG.strict then
+  _ENV = require "std.strict" {}
+else
+  _ENV = {}
+end
+setfenv (1, _ENV)
 
 
 
 --[[ =============== ]]--
 --[[ Implementation. ]]--
 --[[ =============== ]]--
-
-
-local M
-
 
 
 --- Make named constants for `package.config`
@@ -100,7 +82,7 @@ local M
 -- @string execdir (Windows only) replaced by the executable's directory in a path
 -- @string igmark Mark to ignore all before it when building `luaopen_` function name.
 local dirsep, pathsep, path_mark, execdir, igmark =
-  string.match (package.config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
+  string_match (package_config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
 
 
 local function pathsub (path)
@@ -128,7 +110,7 @@ end
 
 
 local function normalize (...)
-  local i, paths, pathstrings = 1, {}, table.concat ({...}, pathsep)
+  local i, paths, pathstrings = 1, {}, table_concat ({...}, pathsep)
   for _, path in ipairs (split (pathstrings, pathsep)) do
     path = pathsub (path):
       gsub (catfile ("^[^", "]"), catfile (".", "%0")):
@@ -166,13 +148,13 @@ local function normalize (...)
       paths[path], i = i, i + 1
     end
   end
-  return table.concat (invert (paths), pathsep)
+  return table_concat (invert (paths), pathsep)
 end
 
 
 local function insert (pathstrings, ...)
   local paths = split (pathstrings, pathsep)
-  table.insert (paths, ...)
+  table_insert (paths, ...)
   return normalize (unpack (paths))
 end
 
@@ -187,8 +169,8 @@ end
 
 local function remove (pathstrings, pos)
   local paths = split (pathstrings, pathsep)
-  table.remove (paths, pos)
-  return table.concat (paths, pathsep)
+  table_remove (paths, pos)
+  return table_concat (paths, pathsep)
 end
 
 
@@ -199,11 +181,11 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.package." .. decl, fn)
+  return argscheck ("std.package." .. decl, fn)
 end
 
 
-M = {
+local M = {
   --- Look for a path segment match of *patt* in *pathstrings*.
   -- @function find
   -- @string pathstrings `pathsep` delimited path elements
@@ -268,11 +250,7 @@ M.path_mark = path_mark
 M.pathsep   = pathsep
 
 
-for k, v in pairs (package) do
-  M[k] = M[k] or v
-end
-
-return M
+return merge (M, package)
 
 
 --- Types

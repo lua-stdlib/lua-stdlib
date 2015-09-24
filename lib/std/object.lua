@@ -22,31 +22,29 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local setfenv		= setfenv or function () end
 
 
-local require	= require
-local setfenv	= setfenv
+local debug     	= require "std.debug"
+local std		= require "std.base"
+
+local Container 	= require "std.container".prototype
+local Module		= std.object.Module
+
+local DEPRECATED	= debug.DEPRECATED
+local argscheck		= debug.argscheck
+local getmetamethod	= std.getmetamethod
+local mapfields		= std.object.mapfields
+local type		= std.type
 
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local container = require "std.container"
-local debug     = require "std.debug"
-local std	= require "std.base"
+setfenv (1, _ENV)
 
 
 
@@ -55,11 +53,10 @@ local std	= require "std.base"
 --[[ ================= ]]--
 
 
-local Container = container.prototype
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.object." .. decl, fn)
+  return argscheck ("std.object." .. decl, fn)
 end
 
 
@@ -113,7 +110,7 @@ local prototype = Container {
     --   [1]    = Node { ["0"] = states[1], [""] = states.finish },
     --   finish = Node {},
     -- }
-    clone = std.getmetamethod (Container, "__call"),
+    clone = getmetamethod (Container, "__call"),
 
     --- Type of this object.
     -- @function prototype:type
@@ -121,7 +118,7 @@ local prototype = Container {
     -- @see std.type
     -- @usage
     -- assert (Object:type () == getmetatable (Object)._type)
-    type = X ("type (?any)", std.type),
+    type = X ("type (?any)", type),
 
 
     --- Object Functions
@@ -141,16 +138,16 @@ local prototype = Container {
     --   metatable of private fields (if any), both renamed according to
     --   *map*
     -- @see std.container.mapfields
-    mapfields = X ("mapfields (table, table|object, ?table)", std.object.mapfields),
+    mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
 
     -- Backwards compatibility:
-    prototype = debug.DEPRECATED ("41.3", "'std.object.prototype'", std.type),
+    prototype = DEPRECATED ("41.3", "'std.object.prototype'", type),
   },
 }
 
 
-return std.object.Module {
+return Module {
   prototype = prototype,
 
-  type = debug.DEPRECATED ("41.3", "'std.object.type'", std.type),
+  type = DEPRECATED ("41.3", "'std.object.type'", type),
 }

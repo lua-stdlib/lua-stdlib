@@ -11,48 +11,43 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
+local _ENV		= _G
 local getmetatable	= getmetatable
-local next	= next
-local require	= require
-local setfenv	= setfenv
+local next		= next
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local table	= table
-local type	= type
+local table		= table
+local type		= type
 
-local math = {
-  ceil		= math.ceil,
-  min		= math.min,
-}
+local math_ceil		= math.ceil
+local math_min		= math.min
 
 
+local std		= require "std.base"
+local debug		= require "std.debug"
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local DEPRECATED	= debug.DEPRECATED
+local argscheck		= debug.argscheck
+local argerror		= std.debug.argerror
+local collect		= std.functional.collect
+local copy		= std.base.copy
+local insert		= std.table.insert
+local invert		= std.table.invert
+local ipairs		= std.ipairs
+local leaves		= std.tree.leaves
+local len		= std.operator.len
+local maxn		= std.table.maxn
+local merge		= std.base.merge
+local pairs		= std.pairs
+local unpack		= std.table.unpack
 
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
+setfenv (1, _ENV)
 
-
-local std	= require "std.base"
-local debug	= require "std.debug"
-
-local argerror	= debug.argerror
-local ipairs	= std.ipairs
-local pairs	= std.pairs
-local collect	= std.functional.collect
-local len	= std.operator.len
-local leaves	= std.tree.leaves
 
 
 
@@ -160,7 +155,7 @@ local function shape (dims, t)
     end
   end
   if zero then
-    dims[zero] = math.ceil (len (t) / size)
+    dims[zero] = math_ceil (len (t) / size)
   end
   local function fill (i, d)
     if d > len (dims) then
@@ -199,7 +194,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.table = std.base.copy (namespace.table or {}, monkeys)
+  namespace.table = copy (namespace.table or {}, monkeys)
   return M
 end
 
@@ -209,7 +204,7 @@ local _remove = table.remove
 local function remove (t, pos)
   local lent = len (t)
   pos = pos or lent
-  if pos < math.min (1, lent) or pos > lent + 1 then -- +1? whu? that's what 5.2.3 does!?!
+  if pos < math_min (1, lent) or pos > lent + 1 then -- +1? whu? that's what 5.2.3 does!?!
     argerror ("std.table.remove", 2, "position " .. pos .. " out of bounds", 2)
   end
   return _remove (t, pos)
@@ -232,7 +227,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.table." .. decl, fn)
+  return argscheck ("std.table." .. decl, fn)
 end
 
 M = {
@@ -251,7 +246,7 @@ M = {
   -- @usage
   -- --> {1, "x", 2, 3, "y"}
   -- insert (insert ({1, 2, 3}, 2, "x"), "y")
-  insert = X ("insert (table, [int], any)", std.table.insert),
+  insert = X ("insert (table, [int], any)", insert),
 
   --- Largest integer key in a table.
   -- @function maxn
@@ -260,7 +255,7 @@ M = {
   -- @usage
   -- --> 42
   -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
-  maxn = X ("maxn (table)", std.table.maxn),
+  maxn = X ("maxn (table)", maxn),
 
   --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
   -- Also, diagnose out of bounds *pos* arguments consistently on any supported
@@ -290,7 +285,7 @@ M = {
   -- @int[opt=table.maxn(t)] j last index to unpack
   -- @return ... values of numeric indices of *t*
   -- @usage return unpack (results_table)
-  unpack = X ("unpack (table, ?int, ?int)", std.table.unpack),
+  unpack = X ("unpack (table, ?int, ?int)", unpack),
 
 
   --- Accessor Functions
@@ -448,7 +443,7 @@ M = {
   -- @usage
   -- --> {a=1, b=2, c=3}
   -- invert {"a", "b", "c"}
-  invert = X ("invert (table)", std.table.invert),
+  invert = X ("invert (table)", invert),
 
   --- Make the list of keys in table.
   -- @function keys
@@ -499,15 +494,13 @@ M = {
 }
 
 
-monkeys = std.base.copy ({}, M)  -- before deprecations and core merge
+monkeys = copy ({}, M)  -- before deprecations and core merge
 
 
 --[[ ============= ]]--
 --[[ Deprecations. ]]--
 --[[ ============= ]]--
 
-
-local DEPRECATED = debug.DEPRECATED
 
 
 M.len = DEPRECATED ("41.3", "'std.table.len'",
@@ -550,7 +543,7 @@ M.totable = DEPRECATED ("41", "'std.table.totable'",
 
 
 
-return std.base.merge (M, table)
+return merge (M, table)
 
 
 

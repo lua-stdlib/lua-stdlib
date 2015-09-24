@@ -17,41 +17,34 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
+local _ENV		= _G
+local require		= require
+local setfenv		= setfenv or function () end
+
+local math_ceil		= math.ceil
+local math_max		= math.max
 
 
-local require	= require
-local setfenv	= setfenv
+local debug		= require "std.debug"
+local std		= require "std.base"
 
-local math = {
-  ceil		= math.ceil,
-  max		= math.max,
-}
+local Module		= std.object.Module
+local Object		= require "std.object".prototype
 
+local DEPRECATED	= debug.DEPRECATED
+local argscheck		= debug.argscheck
+local compare		= std.list.compare
+local ipairs		= std.ipairs
+local len		= std.operator.len
+local pairs		= std.pairs
+local unpack		= std.table.unpack
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std	= require "std.base"
-local Object	= require "std.object".prototype
-
-local compare	= std.list.compare
-local ipairs	= std.ipairs
-local len	= std.operator.len
-local pairs	= std.pairs
-local unpack	= std.table.unpack
+setfenv (1, _ENV)
 
 
 
@@ -116,9 +109,6 @@ end
 
 -- This entire section can be deleted any time after 2016.01.03, along
 -- with all references to these functions further down.
-
-
-local DEPRECATED = require "std.debug".DEPRECATED
 
 
 local function depair (ls)
@@ -249,7 +239,7 @@ local function shape (s, l)
     end
   end
   if zero then
-    s[zero] = math.ceil (len (l) / size)
+    s[zero] = math_ceil (len (l) / size)
   end
   local function fill (i, d)
     if d > len (s) then
@@ -271,7 +261,7 @@ end
 local function transpose (ls)
   local rs, lenls, dims = prototype {}, len (ls), map (len, ls)
   if len (dims) > 0 then
-    for i = 1, math.max (unpack (dims)) do
+    for i = 1, math_max (unpack (dims)) do
       rs[i] = prototype {}
       for j = 1, lenls do
         rs[i][j] = ls[j][i]
@@ -294,7 +284,7 @@ end
 
 
 local function X (decl, fn)
-  return require "std.debug".argscheck ("std.list." .. decl, fn)
+  return argscheck ("std.list." .. decl, fn)
 end
 
 
@@ -454,7 +444,7 @@ prototype = Object {
 }
 
 
-return std.object.Module {
+return Module {
   prototype = prototype,
 
   append  = prototype.append,

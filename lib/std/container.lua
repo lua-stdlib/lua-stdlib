@@ -29,39 +29,23 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
 local getmetatable	= getmetatable
-local next	= next
-local require	= require
-local select	= select
-local setfenv	= setfenv
+local next		= next
+local select		= select
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
+local type		= type
+
 local string_find	= string.find
 local string_sub	= string.sub
 local table_concat	= table.concat
-local type	= type
 
 
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
-
-
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
-
-if _DEBUG.strict then
-  _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
-end
-
-
+local _DEBUG	= require "std.debug_init"._DEBUG
 local std	= require "std.base"
 local debug	= require "std.debug"
+
+local Module	= std.object.Module
 
 local copy	= std.base.copy
 local ipairs	= std.ipairs
@@ -69,6 +53,13 @@ local mapfields	= std.object.mapfields
 local pickle	= std.string.pickle
 local render	= std.string.render
 local tostring	= std.tostring
+
+if _DEBUG.strict then
+  _ENV = require "std.strict" {}
+else
+  _ENV = {}
+end
+setfenv (1, _ENV)
 
 
 
@@ -315,7 +306,7 @@ if _DEBUG.argcheck then
 end
 
 
-return std.object.Module {
+return Module {
   prototype = setmetatable ({}, prototype),
 
   --- Functions

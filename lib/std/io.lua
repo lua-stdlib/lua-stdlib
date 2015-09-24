@@ -11,58 +11,52 @@
 ]]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local _G	= _G
-
-local arg	= arg
-local error	= error
+local _ENV		= _ENV
+local _G		= _G
+local arg		= arg
+local error		= error
 local getmetatable	= getmetatable
-local io	= io
-local rawget	= rawget
-local require	= require
-local setfenv	= setfenv
+local io		= io
+local rawget		= rawget
+local setfenv		= setfenv or function () end
 local setmetatable	= debug.setmetatable
-local type	= type
+local type		= type
 
-local string = {
-  format	= string.format,
-}
-
-local table = {
-  concat	= table.concat,
-}
-
-
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local io_input		= io.input
+local io_open		= io.open
+local io_output		= io.output
+local io_popen		= io.popen
+local io_stderr		= io.stderr
+local io_stdin		= io.stdin
+local io_type		= io.type
+local io_write		= io.write
+local string_format	= string.format
+local table_concat	= table.concat
 
 
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+local std		= require "std.base"
 
-if _DEBUG.strict then
+local argerror		= std.debug.argerror
+local argscheck		= require "std.debug".argscheck
+local catfile		= std.io.catfile
+local copy		= std.base.copy
+local dirsep		= std.package.dirsep
+local insert		= std.table.insert
+local ipairs		= std.ipairs
+local leaves		= std.tree.leaves
+local len		= std.operator.len
+local merge		= std.base.merge
+local pairs		= std.pairs
+local split		= std.string.split
+local tostring		= std.tostring
+
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
+setfenv (1, _ENV)
 
-
-local std	= require "std.base"
-local debug	= require "std.debug"
-
-local argerror	= debug.argerror
-local catfile	= std.io.catfile
-local dirsep	= std.package.dirsep
-local insert	= std.table.insert
-local ipairs	= std.ipairs
-local leaves	= std.tree.leaves
-local len	= std.operator.len
-local pairs	= std.pairs
-local split	= std.string.split
-local tostring	= std.tostring
 
 
 
@@ -76,9 +70,9 @@ local M, monkeys
 
 local function input_handle (h)
   if h == nil then
-    return io.input ()
+    return io_input ()
   elseif type (h) == "string" then
-    return io.open (h)
+    return io_open (h)
   end
   return h
 end
@@ -110,9 +104,9 @@ end
 
 
 local function writelines (h, ...)
-  if io.type (h) ~= "file" then
-    io.write (h, "\n")
-    h = io.output ()
+  if io_type (h) ~= "file" then
+    io_write (h, "\n")
+    h = io_output ()
   end
   for v in leaves (ipairs, {...}) do
     h:write (v, "\n")
@@ -122,7 +116,7 @@ end
 
 local function monkey_patch (namespace)
   namespace = namespace or _G
-  namespace.io = std.base.copy (namespace.io or {}, monkeys)
+  namespace.io = copy (namespace.io or {}, monkeys)
 
   if namespace.io.stdin then
     local mt = getmetatable (namespace.io.stdin) or {}
@@ -142,9 +136,9 @@ local function process_files (fn)
   end
   for i, v in ipairs (arg) do
     if v == "-" then
-      io.input (io.stdin)
+      io_input (io_stdin)
     else
-      io.input (v)
+      io_input (v)
     end
     fn (v, i)
   end
@@ -172,12 +166,12 @@ local function warnfmt (msg, ...)
     end
   end
   if #prefix > 0 then prefix = prefix .. " " end
-  return prefix .. string.format (msg, ...)
+  return prefix .. string_format (msg, ...)
 end
 
 
 local function warn (msg, ...)
-  writelines (io.stderr, warnfmt (msg, ...))
+  writelines (io_stderr, warnfmt (msg, ...))
 end
 
 
@@ -188,7 +182,7 @@ end
 
 
 local function X (decl, fn)
-  return debug.argscheck ("std.io." .. decl, fn)
+  return argscheck ("std.io." .. decl, fn)
 end
 
 
@@ -240,7 +234,7 @@ M = {
   -- @see catfile
   -- @usage dirpath = catdir ("", "absolute", "directory")
   catdir = X ("catdir (string...)", function (...)
-	        return (table.concat ({...}, dirsep):gsub("^$", dirsep))
+	        return (table_concat ({...}, dirsep):gsub("^$", dirsep))
 	      end),
 
   --- Concatenate one or more directories and a filename into a path.
@@ -319,7 +313,7 @@ M = {
   -- @treturn string output, or nil if error
   -- @see os.execute
   -- @usage users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
-  shell = X ("shell (string)", function (c) return slurp (io.popen (c)) end),
+  shell = X ("shell (string)", function (c) return slurp (io_popen (c)) end),
 
   --- Slurp a file handle.
   -- @function slurp
@@ -340,10 +334,10 @@ M = {
 }
 
 
-monkeys = std.base.copy ({}, M)  -- before deprecations and core merge
+monkeys = copy ({}, M)  -- before deprecations and core merge
 
 
-return std.base.merge (M, io)
+return merge (M, io)
 
 
 

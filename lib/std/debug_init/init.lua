@@ -1,3 +1,15 @@
+-- Strict mode is always enabled in this module.
+
+local _ENV = require "std.strict" {
+  _G		= _G,
+  math_huge	= math.huge,
+  rawget	= rawget,
+  setfenv	= setfenv or function () end,
+  type		= type,
+}
+setfenv (1, _ENV)
+
+
 -- Debugging is on by default
 local M = {}
 
@@ -14,7 +26,7 @@ elseif _DEBUG == false then
     argcheck  = false,
     call      = false,
     deprecate = false,
-    level     = math.huge,
+    level     = math_huge,
     strict    = false,
   }
 

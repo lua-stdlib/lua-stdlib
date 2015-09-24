@@ -22,55 +22,38 @@
 ]=]
 
 
---[[ ============================== ]]--
---[[ Cache all external references. ]]--
---[[ ============================== ]]--
-
-
-local assert	= assert
-local error	= error
-local print	= print
-local require	= require
-local setfenv	= setfenv
+local _ENV		= _G
+local assert		= assert
+local error		= error
+local print		= print
+local require		= require
+local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
-local tostring	= tostring
-local type	= type
+local tostring		= tostring
+local type		= type
 
-local io = {
-  open		= io.open,
-  stderr	= io.stderr,
-}
-
-local os = {
-  exit		= os.exit,
-}
-
-local string = {
-  len		= string.len,
-}
+local io_open		= io.open
+local io_stderr		= io.stderr
+local os_exit		= os.exit
+local string_len	= string.len
 
 
---[[ ====================================== ]]--
---[[ Empty environment, with strict access. ]]--
---[[ ====================================== ]]--
+local std		= require "std.base"
 
-local _ENV, _DEBUG = _G, require "std.debug_init"._DEBUG
+local Object		= require "std.object".prototype
 
-if _DEBUG.strict then
+local insert		= std.table.insert
+local ipairs		= std.ipairs
+local last		= std.base.last
+local len		= std.operator.len
+local pairs		= std.pairs
+
+if require "std.debug_init"._DEBUG.strict then
   _ENV = require "std.strict" {}
-  if setfenv then setfenv (1, _ENV) end
+else
+  _ENV = {}
 end
-
-
-local std	= require "std.base"
-
-local Object	= require "std.object".prototype
-
-local insert	= std.table.insert
-local ipairs	= std.ipairs
-local last	= std.base.last
-local len	= std.operator.len
-local pairs	= std.pairs
+setfenv (1, _ENV)
 
 
 
@@ -116,7 +99,7 @@ local function normalise (self, arglist)
         insert (normal, opt)
       end
 
-    elseif opt:sub (1, 1) == "-" and string.len (opt) > 2 then
+    elseif opt:sub (1, 1) == "-" and string_len (opt) > 2 then
       local orig, split, rest = opt, {}
       repeat
         opt, rest = opt:sub (1, 2), opt:sub (3)
@@ -131,7 +114,7 @@ local function normalise (self, arglist)
         -- Split '-xyz' into '-x -yz', and reiterate for '-yz'
         elseif self[opt].handler ~= optional and
           self[opt].handler ~= required then
-	  if string.len (rest) > 0 then
+	  if string_len (rest) > 0 then
             opt = "-" .. rest
 	  else
 	    opt = nil
@@ -333,7 +316,7 @@ end
 -- parser:on ("-?", parser.version)
 local function help (self)
   print (self.helptext)
-  os.exit (0)
+  os_exit (0)
 end
 
 
@@ -347,7 +330,7 @@ end
 -- parser:on ("-V", parser.version)
 local function version (self)
   print (self.versiontext)
-  os.exit (0)
+  os_exit (0)
 end
 
 
@@ -410,7 +393,7 @@ end
 -- @usage
 -- parser:on ("--config-file", parser.required, parser.file)
 local function file (self, opt, optarg)
-  local h, errmsg = io.open (optarg, "r")
+  local h, errmsg = io_open (optarg, "r")
   if h == nil then
     return self:opterr (optarg .. ": " .. errmsg)
   end
@@ -435,9 +418,9 @@ local function opterr (self, msg)
   local prog = self.program
   -- Ensure final period.
   if msg:match ("%.$") == nil then msg = msg .. "." end
-  io.stderr:write (prog .. ": error: " .. msg .. "\n")
-  io.stderr:write (prog .. ": Try '" .. prog .. " --help' for help.\n")
-  os.exit (2)
+  io_stderr:write (prog .. ": error: " .. msg .. "\n")
+  io_stderr:write (prog .. ": Try '" .. prog .. " --help' for help.\n")
+  os_exit (2)
 end
 
 
@@ -480,7 +463,7 @@ local function on (self, opts, handler, value)
     optspec:gsub ("(%S+)",
                   function (opt)
                     -- 'x' => '-x'
-                    if string.len (opt) == 1 then
+                    if string_len (opt) == 1 then
                       opt = "-" .. opt
 
                     -- 'option-name' => '--option-name'
@@ -490,7 +473,7 @@ local function on (self, opts, handler, value)
 
                     if opt:match ("^%-[^%-]+") ~= nil then
                       -- '-xyz' => '-x -y -z'
-                      for i = 2, string.len (opt) do
+                      for i = 2, string_len (opt) do
                         insert (normal, "-" .. opt:sub (i, i))
                       end
                     else
