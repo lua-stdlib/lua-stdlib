@@ -11,9 +11,7 @@
 ]]
 
 
-local _ENV		= _G
 local math		= math
-local setfenv		= setfenv or function () end
 
 local math_floor	= math.floor
 
@@ -23,12 +21,7 @@ local argscheck		= require "std.debug".argscheck
 local copy		= std.base.copy
 local merge		= std.base.merge
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

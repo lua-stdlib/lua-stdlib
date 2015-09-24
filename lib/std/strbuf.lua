@@ -27,8 +27,6 @@
 ]]
 
 
-local _ENV		= _G
-local setfenv		= setfenv or function () end
 local tostring		= tostring
 local type		= type
 
@@ -46,12 +44,7 @@ local argscheck		= debug.argscheck
 local ielems		= std.ielems
 local insert		= std.table.insert
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

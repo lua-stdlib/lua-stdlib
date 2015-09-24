@@ -17,10 +17,6 @@
 ]]
 
 
-local _ENV		= _G
-local require		= require
-local setfenv		= setfenv or function () end
-
 local math_ceil		= math.ceil
 local math_max		= math.max
 
@@ -39,12 +35,7 @@ local len		= std.operator.len
 local pairs		= std.pairs
 local unpack		= std.table.unpack
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

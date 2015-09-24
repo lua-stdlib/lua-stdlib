@@ -11,10 +11,8 @@
 ]]
 
 
-local _ENV		= _G
 local getmetatable	= getmetatable
 local next		= next
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local table		= table
 local type		= type
@@ -41,12 +39,7 @@ local merge		= std.base.merge
 local pairs		= std.pairs
 local unpack		= std.table.unpack
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

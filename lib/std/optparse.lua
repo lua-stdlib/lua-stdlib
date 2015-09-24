@@ -22,12 +22,10 @@
 ]=]
 
 
-local _ENV		= _G
 local assert		= assert
 local error		= error
 local print		= print
 local require		= require
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local tostring		= tostring
 local type		= type
@@ -48,12 +46,7 @@ local last		= std.base.last
 local len		= std.operator.len
 local pairs		= std.pairs
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

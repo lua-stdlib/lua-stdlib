@@ -23,7 +23,6 @@
 ]]
 
 
-local _ENV		= _G
 local dirsep		= string.match (package.config, "^(%S+)\n")
 local error		= error
 local getmetatable	= getmetatable
@@ -52,13 +51,15 @@ local table_maxn	= table.maxn
 local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
 
-
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
+local function setenvtable (env)
+  if require "std.debug_init"._DEBUG.strict then
+    env = require "std.strict" (env)
+  end
+  setfenv (2, env)
+  return env
 end
-setfenv (1, _ENV)
+
+local _ENV = setenvtable {}
 
 
 
@@ -681,6 +682,7 @@ return {
     merge     = merge,
     mnemonic  = mnemonic,
     raise     = raise,
+    setenvtable = setenvtable,
     sortkeys  = sortkeys,
     toqstring = toqstring,
   },

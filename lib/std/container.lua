@@ -29,11 +29,9 @@
 ]]
 
 
-local _ENV		= _G
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local type		= type
 
@@ -42,25 +40,20 @@ local string_sub	= string.sub
 local table_concat	= table.concat
 
 
-local _DEBUG	= require "std.debug_init"._DEBUG
-local std	= require "std.base"
-local debug	= require "std.debug"
+local _DEBUG		= require "std.debug_init"._DEBUG
+local std		= require "std.base"
+local debug		= require "std.debug"
 
-local Module	= std.object.Module
+local Module		= std.object.Module
 
-local copy	= std.base.copy
-local ipairs	= std.ipairs
-local mapfields	= std.object.mapfields
-local pickle	= std.string.pickle
-local render	= std.string.render
-local tostring	= std.tostring
+local copy		= std.base.copy
+local ipairs		= std.ipairs
+local mapfields		= std.object.mapfields
+local pickle		= std.string.pickle
+local render		= std.string.render
+local tostring		= std.tostring
 
-if _DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

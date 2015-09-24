@@ -26,12 +26,10 @@
 ]]
 
 
-local _ENV		= _ENV
 local error		= error
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local type		= type
 
@@ -49,13 +47,7 @@ local pickle		= std.string.pickle
 local std_type		= std.type
 local toqstring		= std.base.toqstring
 
-
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

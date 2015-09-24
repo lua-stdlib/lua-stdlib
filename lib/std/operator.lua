@@ -5,8 +5,6 @@
 ]]
 
 
-local _ENV		= _G
-local setfenv		= setfenv or function () end
 local type		= type
 
 
@@ -16,12 +14,7 @@ local len		= std.operator.len
 local serialize 	= std.base.mnemonic
 local tostring		= std.tostring
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

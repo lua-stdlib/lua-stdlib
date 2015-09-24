@@ -22,10 +22,6 @@
 ]]
 
 
-local _ENV		= _G
-local setfenv		= setfenv or function () end
-
-
 local debug     	= require "std.debug"
 local std		= require "std.base"
 
@@ -38,13 +34,7 @@ local getmetamethod	= std.getmetamethod
 local mapfields		= std.object.mapfields
 local type		= std.type
 
-
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

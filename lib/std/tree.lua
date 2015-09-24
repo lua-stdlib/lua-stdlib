@@ -24,11 +24,9 @@
 ]]
 
 
-local _ENV		= _G
 local getmetatable	= getmetatable
 local rawget		= rawget
 local rawset		= rawset
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local type		= type
 
@@ -53,12 +51,7 @@ local pairs		= std.pairs
 local reduce		= std.functional.reduce
 local std_type		= std.type
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

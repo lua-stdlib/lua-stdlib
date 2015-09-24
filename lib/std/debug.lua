@@ -29,17 +29,16 @@
 ]]
 
 
-local _ENV		= _G
 local debug		= debug
 local error		= error
 local getfenv		= getfenv
 local getmetatable	= getmetatable
 local next		= next
 local pcall		= pcall
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local type		= type
 
+local debug_setfenv	= debug.setfenv
 local io_stderr		= io.stderr
 local io_type		= io.type
 local math_floor	= math.floor
@@ -90,12 +89,8 @@ local unpack		= std.table.unpack
 -- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
 local _DEBUG = require "std.debug_init"._DEBUG
 
-if _DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+
+local _ENV = std.base.setenvtable {}
 
 
 
@@ -136,16 +131,14 @@ local function DEPRECATED (version, name, extramsg, fn)
 end
 
 
-local _setfenv = debug.setfenv
-
 local function setfenv (fn, env)
   -- Unwrap functable:
   if type (fn) == "table" then
     fn = fn.call or (getmetatable (fn) or {}).__call
   end
 
-  if _setfenv then
-    return _setfenv (fn, env)
+  if debug_setfenv then
+    return debug_setfenv (fn, env)
 
   else
     -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html

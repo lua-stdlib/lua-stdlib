@@ -11,14 +11,12 @@
 ]]
 
 
-local _ENV		= _ENV
 local _G		= _G
 local arg		= arg
 local error		= error
 local getmetatable	= getmetatable
 local io		= io
 local rawget		= rawget
-local setfenv		= setfenv or function () end
 local setmetatable	= debug.setmetatable
 local type		= type
 
@@ -50,13 +48,7 @@ local pairs		= std.pairs
 local split		= std.string.split
 local tostring		= std.tostring
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
-
+local _ENV		= std.base.setenvtable {}
 
 
 

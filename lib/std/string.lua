@@ -11,10 +11,8 @@
 ]]
 
 
-local _ENV		= _G
 local assert		= assert
 local getmetatable	= getmetatable
-local setfenv		= setfenv or function () end
 local string		= string
 local tonumber		= tonumber
 local tostring		= tostring
@@ -46,16 +44,10 @@ local pickle		= std.string.pickle
 local render		= std.string.render
 local sortkeys		= std.base.sortkeys
 local split		= std.string.split
+local std_tostring	= std.tostring
 local toqstring		= std.base.toqstring
 
-local _tostring		= std.tostring
-
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 
@@ -68,7 +60,7 @@ local M
 
 
 local function __concat (s, o)
-  return _tostring (s) .. _tostring (o)
+  return std_tostring (s) .. std_tostring (o)
 end
 
 

@@ -8,12 +8,10 @@
 ]]
 
 
-local _ENV		= _G
 local loadstring	= loadstring or load
 local next		= next
 local pcall		= pcall
 local select		= select
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 
 local table_remove	= table.remove
@@ -40,12 +38,7 @@ local reduce		= std.functional.reduce
 local render		= std.string.render
 local unpack		= std.table.unpack
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 

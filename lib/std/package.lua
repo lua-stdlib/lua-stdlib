@@ -36,9 +36,7 @@
 ]]
 
 
-local _ENV		= _G
 local package		= package
-local setfenv		= setfenv or function () end
 
 local package_config	= package.config
 local string_match	= string.match
@@ -59,12 +57,7 @@ local pairs		= std.pairs
 local split		= std.string.split
 local unpack		= std.table.unpack
 
-if require "std.debug_init"._DEBUG.strict then
-  _ENV = require "std.strict" {}
-else
-  _ENV = {}
-end
-setfenv (1, _ENV)
+local _ENV		= std.base.setenvtable {}
 
 
 
