@@ -29,6 +29,7 @@
 ]]
 
 
+local _ENV		= _G
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
