@@ -21,6 +21,15 @@
     if rawget (_G, "setfenv") then setfenv (1, _ENV) end
     ```
 
+  - All support for deprecated APIs has been moved out of the module
+    sources, so that it needn't be loaded in production code that has
+    been properly updated not to use deprecated calls, i.e:
+
+    ```lua
+    local _DEBUG = require "std.debug_init"._DEBUG
+    _DEBUG.deprecate = true
+    ```
+
   - For orthogonality with core Lua `type`, we now export the
     `std.object.type` function as `std.type`.
 
@@ -125,6 +134,12 @@
     `DEPRECATIONMSG` functions previously found in `std.debug`.
 
 ### Deprecations
+
+  - Deprecated functions no longer support argument checks, partially to
+    simplify the deprecation plumbing, but also because if you are
+    developing code with argument checking on, then you are already
+    getting deprecation messages that tell you not to keep using these
+    functions.
 
   - We used to have an object module method, `std.object.type`, which
     often got imported using:

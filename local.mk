@@ -89,6 +89,15 @@ dist_luastd_DATA =			\
 	lib/std/tuple.lua		\
 	$(NOTHING_ELSE)
 
+luastddeletedir = $(luastddir)/delete-after
+
+dist_luastddelete_DATA =			\
+	lib/std/delete-after/2016-01-03.lua 	\
+	lib/std/delete-after/2016-01-31.lua	\
+	lib/std/delete-after/2016-03-08.lua	\
+	lib/std/delete-after/a-year.lua		\
+	$(NOTHING_ELSE)
+
 # For bugwards compatibility with LuaRocks 2.1, while ensuring that
 # `require "std.debug_init"` continues to work, we have to install
 # the former `$(luadir)/std/debug_init.lua` to `debug_init/init.lua`.

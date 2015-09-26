@@ -21,10 +21,10 @@ local math_ceil		= math.ceil
 local math_min		= math.min
 
 
-local std		= require "std.base"
 local debug		= require "std.debug"
+local deprecated	= require "std.delete-after.a-year"
+local std		= require "std.base"
 
-local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local argerror		= std.debug.argerror
 local collect		= std.functional.collect
@@ -490,50 +490,9 @@ M = {
 monkeys = copy ({}, M)  -- before deprecations and core merge
 
 
---[[ ============= ]]--
---[[ Deprecations. ]]--
---[[ ============= ]]--
-
-
-
-M.len = DEPRECATED ("41.3", "'std.table.len'",
-  "use 'std.operator.len' instead", X ("len (table)", std.operator.len))
-
-
-M.metamethod = DEPRECATED ("41", "'std.table.metamethod'",
-  "use 'std.getmetamethod' instead", std.getmetamethod)
-
-
-M.okeys = DEPRECATED ("41.3", "'std.table.okeys'",
-  "compose 'std.table.keys' and 'std.table.sort' instead",
-  X ("okeys (table)", function (t)
-    local r = {}
-    for k in pairs (t) do r[#r + 1] = k end
-    return std.base.sortkeys (r)
-  end))
-
-
-M.ripairs = DEPRECATED ("41", "'std.table.ripairs'",
-  "use 'std.ripairs' instead", std.ripairs)
-
-
-M.totable = DEPRECATED ("41", "'std.table.totable'",
-  "use 'std.pairs' instead",
-  function (x)
-    local m = std.getmetamethod (x, "__totable")
-    if m then
-      return m (x)
-    elseif type (x) == "table" then
-      return x
-    elseif type (x) == "string" then
-      local t = {}
-      x:gsub (".", function (c) t[#t + 1] = c end)
-      return t
-    else
-      return nil
-    end
-  end)
-
+if deprecated then
+  M = merge (M, deprecated.table)
+end
 
 
 return merge (M, table)

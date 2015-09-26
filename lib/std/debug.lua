@@ -48,9 +48,9 @@ local table_remove	= table.remove
 local table_sort	= table.sort
 
 
+local deprecated	= require "std.delete-after.2016-03-08"
 local std		= require "std.base"
 
-local DEPRECATED	= require "std.maturity".DEPRECATED
 local argerror		= std.debug.argerror
 local copy		= std.base.copy
 local insert		= std.table.insert
@@ -884,18 +884,9 @@ local metatable = {
 }
 
 
-
---[[ =========== ]]--
---[[ Deprecated. ]]--
---[[ =========== ]]--
-
-
-M.toomanyargmsg = DEPRECATED ("41.2.0", "debug.toomanyargmsg",
-  "use 'debug.extramsg_toomany' instead",
-  function (name, expect, actual)
-    local s = "bad argument #%d to '%s' (no more than %d argument%s expected, got %d)"
-    return s:format (expect + 1, name, expect, expect == 1 and "" or "s", actual)
-  end)
+if deprecated then
+  M = merge (M, deprecated.debug)
+end
 
 
 return setmetatable (merge (M, debug), metatable)

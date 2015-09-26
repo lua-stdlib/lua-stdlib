@@ -23,13 +23,13 @@ local math_abs		= math.abs
 local math_floor	= math.floor
 
 
-local std		= require "std.base"
 local debug		= require "std.debug"
+local deprecated	= require "std.delete-after.2016-01-03"
 local maturity		= require "std.maturity"
+local std		= require "std.base"
 
 local StrBuf		= require "std.strbuf".prototype
 
-local DEPRECATED 	= maturity.DEPRECATED
 local DEPRECATIONMSG	= maturity.DEPRECATIONMSG
 local argscheck		= debug.argscheck
 local callable		= std.functional.callable
@@ -513,23 +513,9 @@ M = {
 }
 
 
-
---[[ ============= ]]--
---[[ Deprecations. ]]--
---[[ ============= ]]--
-
-
-M.assert = DEPRECATED ("41", "'std.string.assert'",
-  "use 'std.assert' instead", std.assert)
-
-
-M.require_version = DEPRECATED ("41", "'std.string.require_version'",
-  "use 'std.require' instead", std.require)
-
-
-M.tostring = DEPRECATED ("41", "'std.string.tostring'",
-  "use 'std.tostring' instead", std.tostring)
-
+if deprecated then
+  M = merge (M, deprecated.string)
+end
 
 
 return merge (M, string)

@@ -35,14 +35,15 @@ local table_concat	= table.concat
 
 local std		= require "std.base"
 local debug		= require "std.debug"
+local deprecated	= require "std.delete-after.2016-01-31"
 
 local Module		= std.object.Module
 local Object		= require "std.object".prototype
 
-local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local ielems		= std.ielems
 local insert		= std.table.insert
+local merge		= std.base.merge
 
 local _ENV		= std.base.setenvtable {}
 
@@ -74,20 +75,7 @@ local function X (decl, fn)
   return argscheck ("std.strbuf." .. decl, fn)
 end
 
---- StrBuf prototype object.
--- @object prototype
--- @string[opt="StrBuf"] _type object name
--- @see std.object.prototype
--- @usage
--- local StrBuf = require "std.strbuf".prototype
--- local a = StrBuf {1, 2, 3}
--- local b = StrBuf {a, "five", "six"}
--- a = a .. 4
--- b = b:concat "seven"
--- print (a, b) --> 1234   1234fivesixseven
--- os.exit (0)
-
-local M = {
+local methods = {
   --- Methods
   -- @section methods
 
@@ -103,16 +91,10 @@ local M = {
   concat = X ("concat (StrBuf, any)", __concat),
 }
 
+if deprecated then
+  methods = merge (methods, deprecated.strbuf)
+end
 
-
---[[ ============= ]]--
---[[ Deprecations. ]]--
---[[ ============= ]]--
-
-
-M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
-                         "use 'tostring (strbuf)' instead",
-	                 X ("tostring (StrBuf)", __tostring))
 
 
 --[[ ================== ]]--
@@ -120,35 +102,50 @@ M.tostring = DEPRECATED ("41.1", "std.strbuf.tostring",
 --[[ ================== ]]--
 
 
-local prototype = Object {
-  _type = "std.strbuf.StrBuf",
+--- StrBuf prototype object.
+-- @object prototype
+-- @string[opt="StrBuf"] _type object name
+-- @see std.object.prototype
+-- @usage
+-- local StrBuf = require "std.strbuf".prototype
+-- local a = StrBuf {1, 2, 3}
+-- local b = StrBuf {a, "five", "six"}
+-- a = a .. 4
+-- b = b:concat "seven"
+-- print (a, b) --> 1234   1234fivesixseven
+-- os.exit (0)
 
-  --- Metamethods
-  -- @section metamethods
+local M = {
+  prototype = Object {
+    _type = "std.strbuf.StrBuf",
 
-  __index = M,
+    --- Metamethods
+    -- @section metamethods
 
-  --- Support concatenation to StrBuf objects.
-  -- @function prototype:__concat
-  -- @param x a string, or object that can be coerced to a string
-  -- @treturn prototype modified *buf*
-  -- @see concat
-  -- @usage
-  -- buf = buf .. x
-  __concat = __concat,
+    __index = methods,
 
-  --- Support fast conversion to Lua string.
-  -- @function prototype:__tostring
-  -- @treturn string concatenation of buffer contents
-  -- @see tostring
-  -- @usage
-  -- str = tostring (buf)
-  __tostring = __tostring,
+    --- Support concatenation to StrBuf objects.
+    -- @function prototype:__concat
+    -- @param x a string, or object that can be coerced to a string
+    -- @treturn prototype modified *buf*
+    -- @see concat
+    -- @usage
+    -- buf = buf .. x
+    __concat = __concat,
+
+    --- Support fast conversion to Lua string.
+    -- @function prototype:__tostring
+    -- @treturn string concatenation of buffer contents
+    -- @see tostring
+    -- @usage
+    -- str = tostring (buf)
+    __tostring = __tostring,
+  },
 }
 
+if deprecated then
+  M = merge (M, deprecated.strbuf)
+end
 
-return Module {
-  prototype = prototype,
 
-  tostring = M.tostring,
-}
+return Module (M)

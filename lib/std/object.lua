@@ -23,15 +23,16 @@
 
 
 local debug     	= require "std.debug"
+local deprecated	= require "std.delete-after.a-year"
 local std		= require "std.base"
 
 local Container 	= require "std.container".prototype
 local Module		= std.object.Module
 
-local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local getmetamethod	= std.getmetamethod
 local mapfields		= std.object.mapfields
+local merge		= std.base.merge
 local type		= std.type
 
 local _ENV		= std.base.setenvtable {}
@@ -43,10 +44,68 @@ local _ENV		= std.base.setenvtable {}
 --[[ ================= ]]--
 
 
-
-
 local function X (decl, fn)
   return argscheck ("std.object." .. decl, fn)
+end
+
+
+--- Methods
+-- @section methods
+
+local methods = {
+  --- Return a clone of this object and its metatable.
+  --
+  -- This function is useful if you need to override the normal use of
+  -- the `__call` metamethod for object cloning, without losing the
+  -- ability to clone an object.
+  -- @function prototype:clone
+  -- @param ... arguments to prototype's *\_init*, often a single table
+  -- @treturn prototype a clone of this object, with shared or merged
+  --   metatable as appropriate
+  -- @see std.container.__call
+  -- @usage
+  -- local Node = Object { _type = "Node" }
+  -- -- A trivial FSA to recognize powers of 10, either "0" or a "1"
+  -- -- followed by zero or more "0"s can transition to state 'finish'
+  -- local states; states = {
+  --   start  = Node { ["1"] = states[1], ["0"] = states.finish },
+  --   [1]    = Node { ["0"] = states[1], [""] = states.finish },
+  --   finish = Node {},
+  -- }
+  clone = getmetamethod (Container, "__call"),
+
+  --- Type of this object.
+  -- @function prototype:type
+  -- @treturn string type of this object.
+  -- @see std.type
+  -- @usage
+  -- assert (Object:type () == getmetatable (Object)._type)
+  type = X ("type (?any)", type),
+
+
+  --- Object Functions
+  -- @section objfunctions
+
+  --- Return *new* with references to the fields of *src* merged in.
+  --
+  -- You can change the value of this function in an object, and that
+  -- new function will be called during cloning instead of the
+  -- standard @{std.container.mapfields} implementation.
+  -- @function prototype.mapfields
+  -- @tparam table new partially instantiated clone container
+  -- @tparam table src @{clone} argument table that triggered cloning
+  -- @tparam[opt={}] table map key renaming specification in the form
+  --   `{old_key=new_key, ...}`
+  -- @treturn table merged public fields from *new* and *src*, with a
+  --   metatable of private fields (if any), both renamed according to
+  --   *map*
+  -- @see std.container.mapfields
+  mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
+}
+
+
+if deprecated then
+  methods = merge (methods, deprecated.object)
 end
 
 
@@ -77,67 +136,17 @@ local prototype = Container {
   -- @usage
   -- for k, v in std.pairs (anobject) do process (k, v) end
 
-  __index = {
-    --- Methods
-    -- @section methods
-
-    --- Return a clone of this object and its metatable.
-    --
-    -- This function is useful if you need to override the normal use of
-    -- the `__call` metamethod for object cloning, without losing the
-    -- ability to clone an object.
-    -- @function prototype:clone
-    -- @param ... arguments to prototype's *\_init*, often a single table
-    -- @treturn prototype a clone of this object, with shared or merged
-    --   metatable as appropriate
-    -- @see std.container.__call
-    -- @usage
-    -- local Node = Object { _type = "Node" }
-    -- -- A trivial FSA to recognize powers of 10, either "0" or a "1"
-    -- -- followed by zero or more "0"s can transition to state 'finish'
-    -- local states; states = {
-    --   start  = Node { ["1"] = states[1], ["0"] = states.finish },
-    --   [1]    = Node { ["0"] = states[1], [""] = states.finish },
-    --   finish = Node {},
-    -- }
-    clone = getmetamethod (Container, "__call"),
-
-    --- Type of this object.
-    -- @function prototype:type
-    -- @treturn string type of this object.
-    -- @see std.type
-    -- @usage
-    -- assert (Object:type () == getmetatable (Object)._type)
-    type = X ("type (?any)", type),
-
-
-    --- Object Functions
-    -- @section objfunctions
-
-    --- Return *new* with references to the fields of *src* merged in.
-    --
-    -- You can change the value of this function in an object, and that
-    -- new function will be called during cloning instead of the
-    -- standard @{std.container.mapfields} implementation.
-    -- @function prototype.mapfields
-    -- @tparam table new partially instantiated clone container
-    -- @tparam table src @{clone} argument table that triggered cloning
-    -- @tparam[opt={}] table map key renaming specification in the form
-    --   `{old_key=new_key, ...}`
-    -- @treturn table merged public fields from *new* and *src*, with a
-    --   metatable of private fields (if any), both renamed according to
-    --   *map*
-    -- @see std.container.mapfields
-    mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
-
-    -- Backwards compatibility:
-    prototype = DEPRECATED ("41.3", "'std.object.prototype'", type),
-  },
+  __index = methods,
 }
 
 
-return Module {
+local M = {
   prototype = prototype,
-
-  type = DEPRECATED ("41.3", "'std.object.type'", type),
 }
+
+if deprecated then
+  M = merge (M, deprecated.object)
+end
+
+
+return Module (M)

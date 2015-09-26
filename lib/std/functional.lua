@@ -17,12 +17,10 @@ local setmetatable	= setmetatable
 local table_remove	= table.remove
 
 
+local deprecated 	= require "std.delete-after.2016-01-03"
 local std		= require "std.base"
-local debug		= require "std.debug"
-local operator		= require "std.operator"
 
-local DEPRECATED	= require "std.maturity".DEPRECATED
-local argscheck		= debug.argscheck
+local argscheck		= require "std.debug".argscheck
 local callable		= std.functional.callable
 local collect		= std.functional.collect
 local copy		= std.base.copy
@@ -30,6 +28,7 @@ local ielems		= std.ielems
 local ipairs		= std.ipairs
 local ireverse		= std.ireverse
 local len		= std.operator.len
+local merge		= std.base.merge
 local mnemonic		= std.base.mnemonic
 local nop		= std.functional.nop
 local npairs		= std.npairs
@@ -603,49 +602,10 @@ local M = {
 }
 
 
-
---[[ ============= ]]--
---[[ Deprecations. ]]--
---[[ ============= ]]--
-
-
-M.eval = DEPRECATED ("41", "'std.functional.eval'",
-  "use 'std.eval' instead", std.eval)
-
-
-local function fold (fn, d, ifn, ...)
-  local nextfn, state, k = ifn (...)
-  local t = {nextfn (state, k)}
-
-  local r = d
-  while t[1] ~= nil do
-    r = fn (r, t[#t])
-    t = {nextfn (state, t[1])}
-  end
-  return r
+if deprecated then
+  M = merge (M, deprecated.functional)
 end
 
-M.fold = DEPRECATED ("41", "'std.functional.fold'",
-  "use 'std.functional.reduce' instead", fold)
-
-
-local function DEPRECATEOP (old, new)
-  return DEPRECATED ("41", "'std.functional.op[" .. old .. "]'",
-    "use 'std.operator." .. new .. "' instead", operator[new])
-end
-
-M.op = {
-  ["[]"]  = DEPRECATEOP ("[]",  "get"),
-  ["+"]   = DEPRECATEOP ("+",   "sum"),
-  ["-"]   = DEPRECATEOP ("-",   "diff"),
-  ["*"]   = DEPRECATEOP ("*",   "prod"),
-  ["/"]   = DEPRECATEOP ("/",   "quot"),
-  ["and"] = DEPRECATEOP ("and", "conj"),
-  ["or"]  = DEPRECATEOP ("or",  "disj"),
-  ["not"] = DEPRECATEOP ("not", "neg"),
-  ["=="]  = DEPRECATEOP ("==",  "eq"),
-  ["~="]  = DEPRECATEOP ("~=",  "neq"),
-}
 
 return M
 

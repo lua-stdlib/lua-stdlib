@@ -277,9 +277,6 @@ specify std.table:
       expect (deprecate_on ("len", "{}")).to_contain_error "was deprecated"
       expect (deprecate_off ("len", "{}")).not_to_contain_error "was deprecated"
 
-  - context with bad arguments:
-      badargs.diagnose (f, "std.table.len (table)")
-
   - it returns the length of a table:
       expect (f {"a", "b", "c"}).to_be (3)
       expect (f {1, 2, 5, a=10, 3}).to_be (4)
@@ -522,9 +519,6 @@ specify std.table:
         to_contain_error "was deprecated"
       expect (deprecate_off ("okeys", "{}")).
         not_to_contain_error "was deprecated"
-
-  - context with bad arguments:
-      badargs.diagnose (f, "std.table.okeys (table)")
 
   - it returns an empty list when subject is empty:
       expect (f {}).to_equal {}
