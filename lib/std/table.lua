@@ -24,7 +24,7 @@ local math_min		= math.min
 local std		= require "std.base"
 local debug		= require "std.debug"
 
-local DEPRECATED	= debug.DEPRECATED
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local argerror		= std.debug.argerror
 local collect		= std.functional.collect

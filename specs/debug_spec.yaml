@@ -3,10 +3,10 @@ before: |
   this_module  = "std.debug"
   global_table = "_G"
 
-  extend_base  = { "DEPRECATED", "DEPRECATIONMSG", "argcheck", "argerror",
-                   "argscheck", "extramsg_mismatch", "extramsg_toomany",
-                   "getfenv", "parsetypes", "resulterror", "setfenv", "say",
-                   "toomanyargmsg", "typesplit", "trace", "_setdebug" }
+  extend_base  = { "argcheck", "argerror", "argscheck", "extramsg_mismatch",
+                   "extramsg_toomany", "getfenv", "parsetypes", "resulterror",
+                   "setfenv", "say", "toomanyargmsg", "typesplit", "trace",
+                   "_setdebug" }
 
   M = require (this_module)
 
@@ -30,106 +30,6 @@ specify std.debug:
     - it does not touch the core debug table:
         expect (show_apis {added_to=base_module, by="std"}).
           to_equal {}
-
-
-- describe DEPRECATED:
-  - before: |
-      function runscript (body, name, args)
-        return luaproc (
-          "require '" .. this_module .. "'.DEPRECATED ('0', '" ..
-            (name or "runscript") .. "', function (...)" ..
-          " " .. body ..
-          " end) " ..
-          "('" .. table.concat (args or {}, "', '") .. "')"
-        )
-      end
-
-      f, badarg = init (M, this_module, "DEPRECATED")
-
-  - it returns a function:
-      expect (type (f ("0", "deprecated", nop))).to_be "function"
-      expect (f ("0", "deprecated", nop)).not_to_be (nop)
-  - context with deprecated function:
-    - it executes the deprecated function:
-        expect (runscript 'error "oh noes!"').to_contain_error "oh noes!"
-    - it passes arguments to the deprecated function:
-        expect (runscript ("print (table.concat ({...}, ', '))", nil,
-                           {"foo", "bar", "baz"})).to_output "foo, bar, baz\n"
-    - it returns deprecated function results: |
-        script = [[
-          DEPRECATED = require "std.debug".DEPRECATED
-          fn = DEPRECATED ("0", "fn", function () return "foo", "bar", "baz" end)
-          print (fn ())
-        ]]
-        expect (luaproc (script)).to_output "foo\tbar\tbaz\n"
-    - it writes a warning to stderr:
-        expect (runscript 'error "oh noes!"').
-          to_match_error "deprecated.*, and will be removed"
-    - it writes the version string to stderr:
-        expect (runscript 'error "oh noes!"').
-          to_contain_error "in release 0"
-    - it writes the call location to stderr: |
-        expect (runscript 'error "oh noes!"').
-          to_match_error "^%S+:1: "
-    - context with _DEBUG:
-      - before: |
-          script = [[
-            DEPRECATED = require "]] .. this_module .. [[".DEPRECATED
-            fn = DEPRECATED ("0", "fn", function () io.stderr:write "oh noes!\n" end)
-            fn ()  -- line 3
-            fn ()  -- line 4
-          ]]
-      - it warns every call by default:
-          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
-          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
-      - it does not warn at all with _DEBUG set to false:
-          script = "_DEBUG = false " .. script
-          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
-      - it does not define the function with _DEBUG set to true: |
-          script = "_DEBUG = true " .. script
-          expect (luaproc (script)).to_contain_error.any_of {
-            ":3: attempt to call global 'fn'",
-            ":3: attempt to call a nil value (global 'fn')",
-          }
-      - it warns on every call with _DEBUG.deprecate unset:
-          script = "_DEBUG = {} " .. script
-          expect (luaproc (script)).to_match_error "^%S+:3:.*deprecated"
-          expect (luaproc (script)).to_match_error "\n%S+:4:.*deprecated"
-      - it does not warn at all with _DEBUG.deprecate set to false:
-          script = "_DEBUG = { deprecate = false } " .. script
-          expect (luaproc (script)).not_to_match_error "%d:.*deprecated"
-      - it warns on every call with _DEBUG.deprecate set to true: |
-          script = "_DEBUG = { deprecate = true } " .. script
-          expect (luaproc (script)).to_contain_error.any_of {
-            ":3: attempt to call global 'fn'",
-            ":3: attempt to call a nil value (global 'fn')",
-          }
-
-
-- describe DEPRECATIONMSG:
-  - before: |
-      function mkscript (lvl)
-        return [[
-          DEPRECATIONMSG = require "]] .. this_module .. [[".DEPRECATIONMSG
-          function fn ()
-            io.stderr:write (DEPRECATIONMSG ("42", "spec file", ]] .. lvl .. [[))
-          end
-          fn () -- line 5
-          fn () -- line 6
-        ]]
-       end
-
-       f = M.DEPRECATIONMSG
-
-  - it contains deprecating the release version:
-      expect (f ("41", "foo", 2)).to_contain "41"
-  - it contains the deprecation function name:
-      expect (f ("41", "some.module.fname", 2)).to_contain "some.module.fname"
-  - it appends an optional extra message:
-      expect (f ("41", "wuh", "ah boo", 2)).to_contain ", ah boo."
-  - it blames the given stack level:
-      expect (luaproc (mkscript (1))).to_match_error "^%S+:3:.*deprecated"
-      expect (luaproc (mkscript (2))).to_match_error "^%S+:5:.*deprecated"
 
 
 - describe resulterror:

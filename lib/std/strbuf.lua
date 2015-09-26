@@ -39,7 +39,7 @@ local debug		= require "std.debug"
 local Module		= std.object.Module
 local Object		= require "std.object".prototype
 
-local DEPRECATED	= debug.DEPRECATED
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local ielems		= std.ielems
 local insert		= std.table.insert

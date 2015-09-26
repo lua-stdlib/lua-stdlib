@@ -28,7 +28,7 @@ local std		= require "std.base"
 local Container 	= require "std.container".prototype
 local Module		= std.object.Module
 
-local DEPRECATED	= debug.DEPRECATED
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local getmetamethod	= std.getmetamethod
 local mapfields		= std.object.mapfields

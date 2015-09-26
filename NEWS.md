@@ -121,6 +121,9 @@
   - Passing the result of `functional.lambda` to `tostring` returns the
     original lambda string.
 
+  - New `std.maturity` module now contains the `DEPRECATED` and
+    `DEPRECATIONMSG` functions previously found in `std.debug`.
+
 ### Deprecations
 
   - We used to have an object module method, `std.object.type`, which
@@ -169,6 +172,12 @@
     objects.
 
 ### Incompatible changes
+
+  - `std.debug.DEPRECATED` and `std.debug.DEPRECATIONMSG` have moved to
+    a new module `std.maturity`.  Deprecation DEPRECATED with multi-level
+    deprecation warnings was more confusing than simply moving the
+    functions into their own module, so there is no deprecation warning
+    to prompt you to update call-sites.
 
   - Deprecated multi-argument `functional.bind` has been removed.
 

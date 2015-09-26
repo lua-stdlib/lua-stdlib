@@ -25,11 +25,12 @@ local math_floor	= math.floor
 
 local std		= require "std.base"
 local debug		= require "std.debug"
+local maturity		= require "std.maturity"
 
 local StrBuf		= require "std.strbuf".prototype
 
-local DEPRECATED 	= debug.DEPRECATED
-local DEPRECATIONMSG	= debug.DEPRECATIONMSG
+local DEPRECATED 	= maturity.DEPRECATED
+local DEPRECATIONMSG	= maturity.DEPRECATIONMSG
 local argscheck		= debug.argscheck
 local callable		= std.functional.callable
 local copy		= std.base.copy

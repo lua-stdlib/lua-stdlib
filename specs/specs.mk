@@ -19,6 +19,7 @@ specl_SPECS =					\
 	$(srcdir)/specs/io_spec.yaml		\
 	$(srcdir)/specs/list_spec.yaml		\
 	$(srcdir)/specs/math_spec.yaml		\
+	$(srcdir)/specs/maturity_spec.yaml	\
 	$(srcdir)/specs/object_spec.yaml	\
 	$(srcdir)/specs/operator_spec.yaml	\
 	$(srcdir)/specs/optparse_spec.yaml	\

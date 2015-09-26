@@ -30,7 +30,6 @@
 
 
 local debug		= debug
-local error		= error
 local getfenv		= getfenv
 local getmetatable	= getmetatable
 local next		= next
@@ -44,7 +43,6 @@ local io_type		= io.type
 local math_floor	= math.floor
 local math_huge		= math.huge
 local math_max		= math.max
-local string_format	= string.format
 local table_concat	= table.concat
 local table_remove	= table.remove
 local table_sort	= table.sort
@@ -52,6 +50,7 @@ local table_sort	= table.sort
 
 local std		= require "std.base"
 
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argerror		= std.debug.argerror
 local copy		= std.base.copy
 local insert		= std.table.insert
@@ -100,35 +99,6 @@ local _ENV = std.base.setenvtable {}
 
 
 local M
-
-
--- Return a deprecation message if _DEBUG.deprecate is `nil`, otherwise "".
-local function DEPRECATIONMSG (version, name, extramsg, level)
-  if level == nil then level, extramsg = extramsg, nil end
-  extramsg = extramsg or "and will be removed entirely in a future release"
-
-  local _, where = pcall (function () error ("", level + 3) end)
-  if _DEBUG.deprecate == nil then
-    return (where .. string_format ("%s was deprecated in release %s, %s.\n",
-                                    name, tostring (version), extramsg))
-  end
-
-  return ""
-end
-
-
--- Define deprecated functions when _DEBUG.deprecate is not "truthy",
--- and write `DEPRECATIONMSG` output to stderr.
-local function DEPRECATED (version, name, extramsg, fn)
-  if fn == nil then fn, extramsg = extramsg, nil end
-
-  if not _DEBUG.deprecate then
-    return function (...)
-      io_stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-      return fn (...)
-    end
-  end
-end
 
 
 local function setfenv (fn, env)
@@ -674,35 +644,6 @@ end
 
 
 M = {
-  --- API Maturity
-  -- @section maturity
-
-  --- Provide a deprecated function definition according to _DEBUG.deprecate.
-  -- You can check whether your covered code uses deprecated functions by
-  -- setting `_DEBUG.deprecate` to  `true` before loading any stdlib modules,
-  -- or silence deprecation warnings by setting `_DEBUG.deprecate = false`.
-  -- @function DEPRECATED
-  -- @string version first deprecation release version
-  -- @string name function name for automatic warning message
-  -- @string[opt] extramsg additional warning text
-  -- @func fn deprecated function
-  -- @return a function to show the warning on first call, and hand off to *fn*
-  -- @usage
-  -- M.op = DEPRECATED ("41", "'std.functional.op'", std.operator)
-  DEPRECATED = DEPRECATED,
-
-  --- Format a deprecation warning message.
-  -- @function DEPRECATIONMSG
-  -- @string version first deprecation release version
-  -- @string name function name for automatic warning message
-  -- @string[opt] extramsg additional warning text
-  -- @int level call stack level to blame for the error
-  -- @treturn string deprecation warning message, or empty string
-  -- @usage
-  -- io.stderr:write (DEPRECATIONMSG ("42", "multi-argument 'module.fname'", 2))
-  DEPRECATIONMSG = DEPRECATIONMSG,
-
-
   --- Gradual Typing
   -- @section typing
 

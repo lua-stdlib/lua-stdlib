@@ -21,7 +21,7 @@ local std		= require "std.base"
 local debug		= require "std.debug"
 local operator		= require "std.operator"
 
-local DEPRECATED	= debug.DEPRECATED
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local callable		= std.functional.callable
 local collect		= std.functional.collect

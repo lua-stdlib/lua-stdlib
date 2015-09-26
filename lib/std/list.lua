@@ -27,7 +27,7 @@ local std		= require "std.base"
 local Module		= std.object.Module
 local Object		= require "std.object".prototype
 
-local DEPRECATED	= debug.DEPRECATED
+local DEPRECATED	= require "std.maturity".DEPRECATED
 local argscheck		= debug.argscheck
 local compare		= std.list.compare
 local ipairs		= std.ipairs
