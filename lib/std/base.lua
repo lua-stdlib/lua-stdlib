@@ -32,7 +32,6 @@ local pairs		= pairs
 local rawget		= rawget
 local require		= require
 local select		= select
-local setfenv		= setfenv or function () end
 local setmetatable	= setmetatable
 local tonumber		= tonumber
 local tostring		= tostring
