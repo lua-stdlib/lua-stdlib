@@ -1,6 +1,4 @@
--- Strict mode is always enabled in this module.
-
-local _ENV = require "std.strict" {
+local _ENV = {
   _G		= _G,
   math_huge	= math.huge,
   rawget	= rawget,

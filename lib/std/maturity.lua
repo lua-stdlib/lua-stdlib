@@ -34,7 +34,7 @@ local string_format	= string.format
 
 local _DEBUG		= require "std.debug_init"._DEBUG
 
-local _ENV		= require "std.base".base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 local function DEPRECATIONMSG (version, name, extramsg, level)

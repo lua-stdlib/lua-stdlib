@@ -31,6 +31,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
     -- Adding anything else here will probably cause a require loop.
     maturity		= require "std.maturity",
     std			= require "std.base",
+    strict		= require "std.strict",
   }
 
   -- Merge in deprecated APIs from previous release if still available.
@@ -41,7 +42,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local DEPRECATED	= _.maturity.DEPRECATED
 
   -- Only the above symbols are used below this line.
-  local _, _ENV		= nil, _.std.base.setenvtable {}
+  local _, _ENV		= nil, _.strict.setenvtable {}
 
 
   --[[ ========== ]]--

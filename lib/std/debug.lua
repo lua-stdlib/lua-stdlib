@@ -89,7 +89,7 @@ local unpack		= std.table.unpack
 local _DEBUG = require "std.debug_init"._DEBUG
 
 
-local _ENV = std.base.setenvtable {}
+local _ENV = require "std.strict".setenvtable {}
 
 
 

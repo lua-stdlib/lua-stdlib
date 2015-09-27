@@ -37,7 +37,7 @@ local reduce		= std.functional.reduce
 local render		= std.string.render
 local unpack		= std.table.unpack
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

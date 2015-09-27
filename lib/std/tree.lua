@@ -51,7 +51,7 @@ local pairs		= std.pairs
 local reduce		= std.functional.reduce
 local std_type		= std.type
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

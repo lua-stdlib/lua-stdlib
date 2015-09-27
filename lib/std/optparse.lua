@@ -46,7 +46,7 @@ local last		= std.base.last
 local len		= std.operator.len
 local pairs		= std.pairs
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

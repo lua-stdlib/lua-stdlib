@@ -21,7 +21,7 @@ local argscheck		= require "std.debug".argscheck
 local copy		= std.base.copy
 local merge		= std.base.merge
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

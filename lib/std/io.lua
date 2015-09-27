@@ -48,7 +48,7 @@ local pairs		= std.pairs
 local split		= std.string.split
 local tostring		= std.tostring
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

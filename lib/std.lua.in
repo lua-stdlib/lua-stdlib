@@ -33,7 +33,7 @@ local type		= type
 local argscheck		= require "std.debug".argscheck
 local std		= require "std.base"
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

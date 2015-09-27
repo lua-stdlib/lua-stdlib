@@ -21,6 +21,15 @@
     if rawget (_G, "setfenv") then setfenv (1, _ENV) end
     ```
 
+  - New `std.strict.setenvtable` encapsulates the above for portably
+    assigning an environment table at the module level, but enforcing
+    declaration strictness only when `_DEBUG.strict` (or equivalent)
+    is set:
+
+    ```lua
+    local _ENV = strict.setenvtable {}
+    ```
+
   - All support for deprecated APIs has been moved out of the module
     sources, so that it needn't be loaded in production code that has
     been properly updated not to use deprecated calls, i.e:

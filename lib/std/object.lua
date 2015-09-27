@@ -35,7 +35,7 @@ local mapfields		= std.object.mapfields
 local merge		= std.base.merge
 local type		= std.type
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

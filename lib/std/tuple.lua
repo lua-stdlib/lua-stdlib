@@ -47,7 +47,7 @@ local pickle		= std.string.pickle
 local std_type		= std.type
 local toqstring		= std.base.toqstring
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

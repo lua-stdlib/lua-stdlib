@@ -14,7 +14,7 @@ local len		= std.operator.len
 local serialize 	= std.base.mnemonic
 local tostring		= std.tostring
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

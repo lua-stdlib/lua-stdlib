@@ -57,7 +57,7 @@ local pairs		= std.pairs
 local split		= std.string.split
 local unpack		= std.table.unpack
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

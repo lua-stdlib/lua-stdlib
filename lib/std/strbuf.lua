@@ -45,7 +45,7 @@ local ielems		= std.ielems
 local insert		= std.table.insert
 local merge		= std.base.merge
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

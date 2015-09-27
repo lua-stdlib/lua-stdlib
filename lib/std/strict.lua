@@ -17,17 +17,27 @@
  the `if` statement, because on Lua >= 5.2, it doesn't exist and would
  trigger an undeclared variable error!
 
+ Or, to set an empty strictness enforcing environment table for a module
+ (after caching all symbols used after this invocation):
+
+     local _ENV = strict.setenvtable {}
+
+ The implementation calls `setfenv` appropriately in Lua 5.1 interpreters
+ to provide the same semantics.
+
  @module std.strict
 ]]
 
-local _ENV = {
-  debug_getinfo	= debug.getinfo,
-  error		= error,
-  rawset	= rawset,
-  rawget	= rawget,
-  setfenv	= setfenv or function () end,
-  setmetatable	= setmetatable,
-}
+local debug_getinfo	= debug.getinfo
+local error		= error
+local rawset		= rawset
+local rawget		= rawget
+local setfenv		= setfenv or function () end
+local setmetatable	= setmetatable
+
+local _DEBUG		= require "std.debug_init"._DEBUG
+
+local _ENV = {}
 setfenv (1, _ENV)
 
 
@@ -39,40 +49,61 @@ local function what ()
 end
 
 
-return setmetatable ({}, {
-  __call = function (self, env)
-    -- The set of globally declared variables.
-    local declared = {}
+local function restrict (env)
+  -- The set of declared variables in this scope.
+  local declared = {}
 
-    return setmetatable ({}, {
-      --- Detect dereference of undeclared global.
-      -- @function __index
-      -- @string n name of the variable being dereferenced
-      __index = function (_, n)
-        local v = env[n]
-        if v ~= nil then
-          declared[n] = true
-        elseif not declared[n] and what () ~= "C" then
-          error ("variable '" .. n .. "' is not declared", 2)
-        end
-        return v
-      end,
+  --- Metamethods
+  -- @section metamethods
 
-      --- Detect assignment to undeclared global.
-      -- @function __newindex
-      -- @string n name of the variable being declared
-      -- @param v initial value of the variable
-      __newindex = function (_, n, v)
-        local x = env[n]
-        if x == nil and not declared[n] then
-          local w = what ()
-          if w ~= "main" and w ~= "C" then
-            error ("assignment to undeclared variable '" .. n .. "'", 2)
-          end
-        end
+  return setmetatable ({}, {
+    --- Detect dereference of undeclared global.
+    -- @function __index
+    -- @string n name of the variable being dereferenced
+    __index = function (_, n)
+      local v = env[n]
+      if v ~= nil then
         declared[n] = true
-        env[n] = v
-      end,
-    })
+      elseif not declared[n] and what () ~= "C" then
+        error ("variable '" .. n .. "' is not declared", 2)
+      end
+      return v
+    end,
+
+    --- Detect assignment to undeclared global.
+    -- @function __newindex
+    -- @string n name of the variable being declared
+    -- @param v initial value of the variable
+    __newindex = function (_, n, v)
+      local x = env[n]
+      if x == nil and not declared[n] then
+        local w = what ()
+        if w ~= "main" and w ~= "C" then
+          error ("assignment to undeclared variable '" .. n .. "'", 2)
+        end
+      end
+      declared[n] = true
+      env[n] = v
+    end,
+  })
+end
+
+
+return setmetatable ({
+  --- Functions
+  -- @section functions
+
+  --- Enforce strict variable declaration in *env* according to `_DEBUG`.
+  -- @function setenvtable
+  -- @tparam table env lexical environment table
+  -- @treturn table *env* which must be assigned to `_ENV`
+  setenvtable = function (env)
+    if _DEBUG.strict then
+      env = restrict (env)
+    end
+    setfenv (2, env)
+    return env
   end,
+}, {
+  __call = function (_, ...) return restrict (...) end,
 })

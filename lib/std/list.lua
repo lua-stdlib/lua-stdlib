@@ -36,7 +36,7 @@ local merge		= std.base.merge
 local pairs		= std.pairs
 local unpack		= std.table.unpack
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 

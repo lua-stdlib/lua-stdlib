@@ -53,7 +53,7 @@ local pickle		= std.string.pickle
 local render		= std.string.render
 local tostring		= std.tostring
 
-local _ENV		= std.base.setenvtable {}
+local _ENV		= require "std.strict".setenvtable {}
 
 
 
