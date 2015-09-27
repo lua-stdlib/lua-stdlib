@@ -32,11 +32,11 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local math_max	= math.max
   local table_unpack	= table.unpack or unpack
 
-  local _, deprecated = {
+  local _, deprecated	= {
     -- Adding anything else here will probably cause a require loop.
-    maturity	= require "std.maturity",
-    std		= require "std.base",
-    strict	= require "std.strict",
+    maturity		= require "std.maturity",
+    setenvtable		= require "std.strict".setenvtable,
+    std			= require "std.base",
   }
 
   -- Merge in deprecated APIs from previous release if still available.
@@ -48,19 +48,19 @@ if not require "std.debug_init"._DEBUG.deprecate then
   -- std.operator any time in the next year or so...
   local operator	= require "std.operator"
 
+  local _assert		= _.std.assert
+  local _ipairs		= _.std.ipairs
+  local _pairs		= _.std.pairs
+  local _require	= _.std.require
+  local _tostring	= _.std.tostring
   local DEPRECATED	= _.maturity.DEPRECATED
   local eval		= _.std.eval
   local ielems		= _.std.ielems
   local ireverse	= _.std.ireverse
   local ripairs		= _.std.ripairs
-  local std_assert	= _.std.assert
-  local std_ipairs	= _.std.ipairs
-  local std_pairs	= _.std.pairs
-  local std_require	= _.std.require
-  local std_tostring	= _.std.tostring
 
   -- Only the above symbols are used below this line.
-  local _, _ENV		= nil, _.strict.setenvtable {}
+  local _, _ENV		= nil, _.setenvtable {}
 
 
   --[[ ========== ]]--
@@ -87,7 +87,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function depair (proto, ls)
     local t = {}
-    for _, v in std_ipairs (ls) do
+    for _, v in _ipairs (ls) do
       t[v[1]] = v[2]
     end
     return t
@@ -101,7 +101,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function enpair (proto, t)
     local ls = proto {}
-    for i, v in std_pairs (t) do
+    for i, v in _pairs (t) do
       ls[#ls + 1] = proto {i, v}
     end
     return ls
@@ -110,7 +110,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function filter (proto, pfn, l)
     local r = proto {}
-    for _, e in std_ipairs (l) do
+    for _, e in _ipairs (l) do
       if pfn (e) then
         r[#r + 1] = e
       end
@@ -135,7 +135,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local function reduce (fn, d, ifn, ...)
     local argt = {...}
     if not callable (ifn) then
-      ifn, argt = std_pairs, {ifn, ...}
+      ifn, argt = _pairs, {ifn, ...}
     end
 
     local nextfn, state, k = ifn (table_unpack (argt))
@@ -173,7 +173,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function index_key (proto, f, l)
     local r = {}
-    for i, v in std_ipairs (l) do
+    for i, v in _ipairs (l) do
       local k = v[f]
       if k then
         r[k] = i
@@ -185,7 +185,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function index_value (proto, f, l)
     local r = {}
-    for i, v in std_ipairs (l) do
+    for i, v in _ipairs (l) do
       local k = v[f]
       if k then
         r[k] = v
@@ -211,7 +211,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function flatten (proto, l)
     local r = proto {}
-    for v in leaves (std_ipairs, l) do
+    for v in leaves (_ipairs, l) do
       r[#r + 1] = v
     end
     return r
@@ -220,7 +220,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function map (proto, fn, l)
     local r = proto {}
-    for _, e in std_ipairs (l) do
+    for _, e in _ipairs (l) do
       local v = fn (e)
       if v ~= nil then
         r[#r + 1] = v
@@ -251,7 +251,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
     -- Check the shape and calculate the size of the zero, if any
     local size = 1
     local zero
-    for i, v in std_ipairs (s) do
+    for i, v in _ipairs (s) do
       if v == 0 then
         if zero then -- bad shape: two zeros
           return nil
@@ -384,9 +384,9 @@ if not require "std.debug_init"._DEBUG.deprecate then
     },
 
     string = {
-      assert = X ("string.assert", "std.assert", std_assert),
-      require_version = X ("string.require_version", "std.require", std_require),
-      tostring = X ("string.tostring", "std.tostring", std_tostring),
+      assert = X ("string.assert", "std.assert", _assert),
+      require_version = X ("string.require_version", "std.require", _require),
+      tostring = X ("string.tostring", "std.tostring", _tostring),
     },
 
     table = {

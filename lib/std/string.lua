@@ -23,32 +23,34 @@ local math_abs		= math.abs
 local math_floor	= math.floor
 
 
-local debug		= require "std.debug"
+local _ = {
+  debug			= require "std.debug",
+  maturity		= require "std.maturity",
+  setenvtable		= require "std.strict".setenvtable,
+  strbuf		= require "std.strbuf",
+  std			= require "std.base",
+}
+
+local StrBuf		= _.strbuf.prototype
+
+local _tostring		= _.std.tostring
+local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
+local argscheck		= _.debug.argscheck
+local copy		= _.std.base.copy
+local escape_pattern	= _.std.string.escape_pattern
+local insert		= _.std.table.insert
+local len		= _.std.operator.len
+local merge		= _.std.base.merge
+local pickle		= _.std.string.pickle
+local render		= _.std.string.render
+local sortkeys		= _.std.base.sortkeys
+local split		= _.std.string.split
+local toqstring		= _.std.base.toqstring
+
+
 local deprecated	= require "std.delete-after.2016-01-03"
-local maturity		= require "std.maturity"
-local std		= require "std.base"
 
-local StrBuf		= require "std.strbuf".prototype
-
-local DEPRECATIONMSG	= maturity.DEPRECATIONMSG
-local argscheck		= debug.argscheck
-local callable		= std.functional.callable
-local copy		= std.base.copy
-local escape_pattern	= std.string.escape_pattern
-local getmetamethod	= std.getmetamethod
-local insert		= std.table.insert
-local keysort		= std.base.keysort
-local len		= std.operator.len
-local merge		= std.base.merge
-local pairs		= std.pairs
-local pickle		= std.string.pickle
-local render		= std.string.render
-local sortkeys		= std.base.sortkeys
-local split		= std.string.split
-local std_tostring	= std.tostring
-local toqstring		= std.base.toqstring
-
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -61,7 +63,7 @@ local M
 
 
 local function __concat (s, o)
-  return std_tostring (s) .. std_tostring (o)
+  return _tostring (s) .. _tostring (o)
 end
 
 

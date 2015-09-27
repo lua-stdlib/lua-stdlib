@@ -28,7 +28,6 @@
  @prototype std.container
 ]]
 
-
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
@@ -40,20 +39,27 @@ local string_sub	= string.sub
 local table_concat	= table.concat
 
 
-local _DEBUG		= require "std.debug_init"._DEBUG
-local std		= require "std.base"
-local debug		= require "std.debug"
+local _ = {
+  debug			= require "std.debug",
+  debug_init		= require "std.debug_init",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local Module		= std.object.Module
+local Module		= _.std.object.Module
 
-local copy		= std.base.copy
-local ipairs		= std.ipairs
-local mapfields		= std.object.mapfields
-local pickle		= std.string.pickle
-local render		= std.string.render
-local tostring		= std.tostring
+local _DEBUG		= _.debug_init._DEBUG
+local argcheck		= _.debug.argcheck
+local argscheck		= _.debug.argscheck
+local argerror		= _.debug.argerror
+local copy		= _.std.base.copy
+local extramsg_toomany	= _.debug.extramsg_toomany
+local mapfields		= _.std.object.mapfields
+local pickle		= _.std.string.pickle
+local render		= _.std.string.render
+local sortkeys		= _.std.base.sortkeys
 
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -103,7 +109,7 @@ local tostring_vtable = {
     return ", "
   end,
 
-  sort = std.base.sortkeys,
+  sort = sortkeys,
 }
 
 
@@ -276,8 +282,6 @@ local prototype = {
 
 
 if _DEBUG.argcheck then
-  local argcheck, argerror, extramsg_toomany =
-      debug.argcheck, debug.argerror, debug.extramsg_toomany
   local __call = prototype.__call
 
   prototype.__call = function (self, ...)
@@ -336,6 +340,6 @@ return Module {
   -- }
   -- local groceries = Bag ("apple", "banana", "banana")
   -- local purse = Bag {_type = "Purse"} ("cards", "cash", "id")
-  mapfields = debug.argscheck (
+  mapfields = argscheck (
       "std.container.mapfields (table, table|object, ?table)", mapfields),
 }

@@ -36,17 +36,22 @@ local os_exit		= os.exit
 local string_len	= string.len
 
 
-local std		= require "std.base"
+local _ = {
+  object		= require "std.object",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local Object		= require "std.object".prototype
+local Object		= _.object.prototype
 
-local insert		= std.table.insert
-local ipairs		= std.ipairs
-local last		= std.base.last
-local len		= std.operator.len
-local pairs		= std.pairs
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local insert		= _.std.table.insert
+local last		= _.std.base.last
+local len		= _.std.operator.len
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -121,7 +126,7 @@ local function normalise (self, arglist)
       until opt == nil
 
       -- Append split options to normalised list
-      for _, v in ipairs (split) do insert (normal, v) end
+      for _, v in _ipairs (split) do insert (normal, v) end
     else
       insert (normal, opt)
     end
@@ -452,7 +457,7 @@ local function on (self, opts, handler, value)
   handler = handler or flag -- unspecified options behave as flags
 
   local normal = {}
-  for _, optspec in ipairs (opts) do
+  for _, optspec in _ipairs (opts) do
     optspec:gsub ("(%S+)",
                   function (opt)
                     -- 'x' => '-x'
@@ -478,7 +483,7 @@ local function on (self, opts, handler, value)
   -- strip leading '-', and convert non-alphanums to '_'
   local key = last (normal):match ("^%-*(.*)$"):gsub ("%W", "_")
 
-  for _, opt in ipairs (normal) do
+  for _, opt in _ipairs (normal) do
     self[opt] = { key = key, handler = handler, value = value }
   end
 end
@@ -550,7 +555,7 @@ local function parse (self, arglist, defaults)
   end
 
   -- Merge defaults into user options.
-  for k, v in pairs (defaults or {}) do
+  for k, v in _pairs (defaults or {}) do
     if self.opts[k] == nil then self.opts[k] = v end
   end
 
@@ -588,7 +593,7 @@ local function _init (_, spec)
                         function (spec) insert (specs, spec) end)
 
   -- Register option handlers according to the help text.
-  for _, spec in ipairs (specs) do
+  for _, spec in _ipairs (specs) do
     local options, handler = {}
 
     -- Loop around each '-' prefixed option on this line.

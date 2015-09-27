@@ -38,16 +38,21 @@ local table_concat	= table.concat
 local table_unpack	= table.unpack or unpack
 
 
-local std		= require "std.base"
+local _ = {
+  container		= require "std.container",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local Container		= require "std.container".prototype
-local Module		= std.object.Module
+local Container		= _.container.prototype
+local Module		= _.std.object.Module
 
-local pickle		= std.string.pickle
-local std_type		= std.type
-local toqstring		= std.base.toqstring
+local _type		= _.std.type
+local pickle		= _.std.string.pickle
+local toqstring		= _.std.base.toqstring
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -140,7 +145,7 @@ local prototype = Container {
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
     local _, argstr = next (self)
-    return string_format ("%s (%s)", std_type (self), argstr)
+    return string_format ("%s (%s)", _type (self), argstr)
   end,
 
   --- Unpack tuple values between index *i* and *j*, inclusive.

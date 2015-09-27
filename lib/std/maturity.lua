@@ -32,9 +32,22 @@ local tostring		= tostring
 local io_stderr		= io.stderr
 local string_format	= string.format
 
-local _DEBUG		= require "std.debug_init"._DEBUG
 
-local _ENV		= require "std.strict".setenvtable {}
+local _ = {
+  debug_init		= require "std.debug_init",
+  setenvtable		= require "std.strict".setenvtable,
+}
+
+local _DEBUG		= _.debug_init._DEBUG
+
+
+local _, _ENV		= nil, _.setenvtable {}
+
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
 
 
 local function DEPRECATIONMSG (version, name, extramsg, level)

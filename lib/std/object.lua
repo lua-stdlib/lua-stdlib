@@ -22,20 +22,26 @@
 ]]
 
 
-local debug     	= require "std.debug"
+local _ = {
+  container		= require "std.container",
+  debug 	    	= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
+
+local Container 	= _.container.prototype
+local Module		= _.std.object.Module
+
+local _type		= _.std.type
+local argscheck		= _.debug.argscheck
+local getmetamethod	= _.std.getmetamethod
+local mapfields		= _.std.object.mapfields
+local merge		= _.std.base.merge
+
+
 local deprecated	= require "std.delete-after.a-year"
-local std		= require "std.base"
 
-local Container 	= require "std.container".prototype
-local Module		= std.object.Module
-
-local argscheck		= debug.argscheck
-local getmetamethod	= std.getmetamethod
-local mapfields		= std.object.mapfields
-local merge		= std.base.merge
-local type		= std.type
-
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -80,7 +86,7 @@ local methods = {
   -- @see std.type
   -- @usage
   -- assert (Object:type () == getmetatable (Object)._type)
-  type = X ("type (?any)", type),
+  type = X ("type (?any)", _type),
 
 
   --- Object Functions

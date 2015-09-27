@@ -36,6 +36,7 @@
 ]]
 
 
+local ipairs		= ipairs
 local package		= package
 
 local package_config	= package.config
@@ -45,19 +46,22 @@ local table_insert	= table.insert
 local table_remove	= table.remove
 
 
-local std   		= require "std.base"
+local _ = {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std   		= require "std.base",
+}
 
-local argscheck		= require "std.debug".argscheck
-local catfile		= std.io.catfile
-local escape_pattern	= std.string.escape_pattern
-local invert		= std.table.invert
-local ipairs		= std.ipairs
-local merge		= std.base.merge
-local pairs		= std.pairs
-local split		= std.string.split
-local unpack		= std.table.unpack
+local argscheck		= _.debug.argscheck
+local catfile		= _.std.io.catfile
+local escape_pattern	= _.std.string.escape_pattern
+local invert		= _.std.table.invert
+local merge		= _.std.base.merge
+local split		= _.std.string.split
+local unpack		= _.std.table.unpack
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 

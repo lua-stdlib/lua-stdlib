@@ -29,8 +29,8 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local _, deprecated	= {
     -- Adding anything else here will probably cause a require loop.
     maturity		= require "std.maturity",
+    setenvtable		= require "std.strict".setenvtable,
     std			= require "std.base",
-    strict		= require "std.strict",
   }
 
   -- Merge in deprecated APIs from previous release if still available.
@@ -38,14 +38,14 @@ if not require "std.debug_init"._DEBUG.deprecate then
   if not _.ok then deprecated = {} end
 
 
+  local _pairs		= _.std.pairs
+  local _type		= _.std.type
   local DEPRECATED	= _.maturity.DEPRECATED
   local len		= _.std.operator.len
-  local std_pairs	= _.std.pairs
   local sortkeys	= _.std.base.sortkeys
-  local std_type	= _.std.type
 
   -- Only the above symbols are used below this line.
-  local _, _ENV		= nil, _.strict.setenvtable {}
+  local _, _ENV		= nil, _.setenvtable {}
 
  
   --[[ ========== ]]--
@@ -54,7 +54,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function okeys (t)
     local r = {}
-    for k in std_pairs (t) do r[#r + 1] = k end
+    for k in _pairs (t) do r[#r + 1] = k end
     return sortkeys (r)
   end
 
@@ -78,8 +78,8 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   M = acyclic_merge ({
     object = {
-      prototype = X ("object.prototype", "std.type", std_type),
-      type = X ("object.type", "std.type", std_type),
+      prototype = X ("object.prototype", "std.type", _type),
+      type = X ("object.type", "std.type", _type),
     },
 
     table = {

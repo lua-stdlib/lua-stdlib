@@ -30,10 +30,30 @@ local setmetatable	= setmetatable
 local type		= type
 
 
-local argscheck		= require "std.debug".argscheck
-local std		= require "std.base"
+local _ = {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local _ENV		= require "std.strict".setenvtable {}
+local _assert		= _.std.assert
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local _require		= _.std.require
+local _tostring		= _.std.tostring
+local _type		= _.std.type
+local argscheck		= _.debug.argscheck
+local copy		= _.std.base.copy
+local elems		= _.std.elems
+local eval		= _.std.eval
+local getmetamethod	= _.std.getmetamethod
+local ielems		= _.std.ielems
+local ireverse		= _.std.ireverse
+local npairs		= _.std.npairs
+local ripairs		= _.std.ripairs
+local rnpairs		= _.std.rnpairs
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -46,7 +66,7 @@ local M, monkeys
 
 
 local function monkey_patch (namespace)
-  std.base.copy (namespace or _G, monkeys)
+  copy (namespace or _G, monkeys)
   return M
 end
 
@@ -115,7 +135,7 @@ M = {
   -- @usage
   -- std.assert (expect == nil, "100% unexpected!")
   -- std.assert (expect == "expect", "%s the unexpected!", expect)
-  assert = X ("assert (?any, ?string, [any...])", std.assert),
+  assert = X ("assert (?any, ?string, [any...])", _assert),
 
   --- Evaluate a string as Lua code.
   -- @function eval
@@ -124,7 +144,7 @@ M = {
   -- @usage
   -- --> 2
   -- std.eval "math.min (2, 10)"
-  eval = X ("eval (string)", std.eval),
+  eval = X ("eval (string)", eval),
 
   --- Return named metamethod, if any, otherwise `nil`.
   -- The value found at the given key in the metatable of *x* must be a
@@ -137,7 +157,7 @@ M = {
   -- @treturn callable|nil callable metamethod, or `nil` if no metamethod
   -- @usage
   -- clone = std.getmetamethod (std.object.prototype, "__call")
-  getmetamethod = X ("getmetamethod (?any, string)", std.getmetamethod),
+  getmetamethod = X ("getmetamethod (?any, string)", getmetamethod),
 
   --- Enhance core `tostring` to render table contents as a string.
   -- @function tostring
@@ -146,14 +166,14 @@ M = {
   -- @usage
   -- -- {1=baz,foo=bar}
   -- print (std.tostring {foo="bar","baz"})
-  tostring = X ("tostring (?any)", std.tostring),
+  tostring = X ("tostring (?any)", _tostring),
 
   --- Type of an object, or primitive.
   -- @function type
   -- @param x anything
   -- @treturn string type of *x*
   -- @see std.object.type
-  type = X ("type (?any)", std.type),
+  type = X ("type (?any)", _type),
 
 
   --- Module Functions
@@ -194,7 +214,7 @@ M = {
   -- @usage
   -- -- posix.version == "posix library for Lua 5.2 / 32"
   -- posix = require ("posix", "29")
-  require = X ("require (string, ?string, ?string, ?string)", std.require),
+  require = X ("require (string, ?string, ?string, ?string)", _require),
 
   --- Iterator Functions
   -- @section iteratorfuncs
@@ -214,7 +234,7 @@ M = {
   -- --> baz
   -- --> 5
   -- std.functional.map (print, std.ielems, {"foo", "bar", [4]="baz", d=5})
-  elems = X ("elems (table)", std.elems),
+  elems = X ("elems (table)", elems),
 
   --- An iterator over the integer keyed elements of a table.
   --
@@ -233,7 +253,7 @@ M = {
   -- --> foo
   -- --> bar
   -- std.functional.map (print, std.ielems, {"foo", "bar", [4]="baz", d=5})
-  ielems = X ("ielems (table)", std.ielems),
+  ielems = X ("ielems (table)", ielems),
 
   --- An iterator over integer keyed pairs of a sequence.
   --
@@ -257,7 +277,7 @@ M = {
   -- --> 1	foo
   -- --> 2	bar
   -- std.functional.map (print, std.ipairs, {"foo", "bar", [4]="baz", d=5})
-  ipairs = X ("ipairs (table)", std.ipairs),
+  ipairs = X ("ipairs (table)", _ipairs),
 
   --- Return a new sequence with element order reversed.
   --
@@ -274,7 +294,7 @@ M = {
   -- --> bar
   -- --> foo
   -- std.functional.map (print, rielems, {"foo", "bar", [4]="baz", d=5})
-  ireverse = X ("ireverse (table)", std.ireverse),
+  ireverse = X ("ireverse (table)", ireverse),
 
   --- Ordered iterator for integer keyed values.
   -- Like ipairs, but does not stop until the __len or maxn of *t*.
@@ -290,7 +310,7 @@ M = {
   -- --> 3	nil
   -- --> 4	baz
   -- std.functional.map (print, std.npairs, {"foo", "bar", [4]="baz", d=5})
-  npairs = X ("npairs (table)", std.npairs),
+  npairs = X ("npairs (table)", npairs),
 
   --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
   -- @function pairs
@@ -306,7 +326,7 @@ M = {
   -- --> 4	baz
   -- --> d	5
   -- std.functional.map (print, std.pairs, {"foo", "bar", [4]="baz", d=5})
-  pairs = X ("pairs (table)", std.pairs),
+  pairs = X ("pairs (table)", _pairs),
 
   --- An iterator like ipairs, but in reverse.
   -- Apart from the order of the elements returned, this function follows
@@ -322,7 +342,7 @@ M = {
   -- --> 2	bar
   -- --> 1	foo
   -- std.functional.map (print, std.ripairs, {"foo", "bar", [4]="baz", d=5})
-  ripairs = X ("ripairs (table)", std.ripairs),
+  ripairs = X ("ripairs (table)", ripairs),
 
   --- An iterator like npairs, but in reverse.
   -- Apart from the order of the elements returned, this function follows
@@ -339,11 +359,11 @@ M = {
   -- --> 2	bar
   -- --> 1	foo
   -- std.functional.map (print, std.rnpairs, {"foo", "bar", [4]="baz", d=5})
-  rnpairs = X ("rnpairs (table)", std.rnpairs),
+  rnpairs = X ("rnpairs (table)", rnpairs),
 }
 
 
-monkeys = std.base.copy ({}, M)
+monkeys = copy ({}, M)
 
 -- Don't monkey_patch these apis into _G!
 for _, api in ipairs {"barrel", "monkey_patch", "version"} do

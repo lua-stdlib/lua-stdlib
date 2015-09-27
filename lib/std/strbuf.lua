@@ -33,19 +33,25 @@ local type		= type
 local table_concat	= table.concat
 
 
-local std		= require "std.base"
-local debug		= require "std.debug"
+local _ = {
+  debug			= require "std.debug",
+  object		= require "std.object",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
+
+local Module		= _.std.object.Module
+local Object		= _.object.prototype
+
+local argscheck		= _.debug.argscheck
+local ielems		= _.std.ielems
+local insert		= _.std.table.insert
+local merge		= _.std.base.merge
+
+
 local deprecated	= require "std.delete-after.2016-01-31"
 
-local Module		= std.object.Module
-local Object		= require "std.object".prototype
-
-local argscheck		= debug.argscheck
-local ielems		= std.ielems
-local insert		= std.table.insert
-local merge		= std.base.merge
-
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 

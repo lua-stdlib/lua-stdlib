@@ -32,23 +32,27 @@ local string_format	= string.format
 local table_concat	= table.concat
 
 
-local std		= require "std.base"
+local _	= {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local argerror		= std.debug.argerror
-local argscheck		= require "std.debug".argscheck
-local catfile		= std.io.catfile
-local copy		= std.base.copy
-local dirsep		= std.package.dirsep
-local insert		= std.table.insert
-local ipairs		= std.ipairs
-local leaves		= std.tree.leaves
-local len		= std.operator.len
-local merge		= std.base.merge
-local pairs		= std.pairs
-local split		= std.string.split
-local tostring		= std.tostring
+local _ipairs		= _.std.ipairs
+local _tostring		= _.std.tostring
+local argerror		= _.debug.argerror
+local argscheck		= _.debug.argscheck
+local catfile		= _.std.io.catfile
+local copy		= _.std.base.copy
+local dirsep		= _.std.package.dirsep
+local insert		= _.std.table.insert
+local leaves		= _.std.tree.leaves
+local len		= _.std.operator.len
+local merge		= _.std.base.merge
+local split		= _.std.string.split
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -100,7 +104,7 @@ local function writelines (h, ...)
     io_write (h, "\n")
     h = io_output ()
   end
-  for v in leaves (ipairs, {...}) do
+  for v in leaves (_ipairs, {...}) do
     h:write (v, "\n")
   end
 end
@@ -126,7 +130,7 @@ local function process_files (fn)
   if len (arg) == 0 then
     insert (arg, "-")
   end
-  for i, v in ipairs (arg) do
+  for i, v in _ipairs (arg) do
     if v == "-" then
       io_input (io_stdin)
     else
@@ -144,17 +148,17 @@ local function warnfmt (msg, ...)
   if prog.name then
     prefix = prog.name .. ":"
     if prog.line then
-      prefix = prefix .. tostring (prog.line) .. ":"
+      prefix = prefix .. _tostring (prog.line) .. ":"
     end
   elseif prog.file then
     prefix = prog.file .. ":"
     if prog.line then
-      prefix = prefix .. tostring (prog.line) .. ":"
+      prefix = prefix .. _tostring (prog.line) .. ":"
     end
   elseif opts.program then
     prefix = opts.program .. ":"
     if opts.line then
-      prefix = prefix .. tostring (opts.line) .. ":"
+      prefix = prefix .. _tostring (opts.line) .. ":"
     end
   end
   if #prefix > 0 then prefix = prefix .. " " end

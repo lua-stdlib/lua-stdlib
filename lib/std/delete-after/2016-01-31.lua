@@ -28,11 +28,11 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local type		= type
   local table_concat	= table.concat
 
-  local _, deprecated = {
+  local _, deprecated	= {
     -- Adding anything else here will probably cause a require loop.
-    maturity	= require "std.maturity",
-    std		= require "std.base",
-    strict	= require "std.strict",
+    maturity		= require "std.maturity",
+    setenvtable		= require "std.strict".setenvtable,
+    std			= require "std.base",
   }
 
   -- Merge in deprecated APIs from previous release if still available.
@@ -41,10 +41,10 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
 
   local DEPRECATED	= _.maturity.DEPRECATED
-  local std_ipairs	= _.std.ipairs
+  local _ipairs		= _.std.ipairs
 
   -- Only the above symbols are used below this line.
-  local _, _ENV		= nil, _.strict.setenvtable {}
+  local _, _ENV		= nil, _.setenvtable {}
 
 
   --[[ ========== ]]--
@@ -53,7 +53,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local function strbuf_tostring (strbuf)
     local strs = {}
-    for _, v in std_ipairs (strbuf) do strs[#strs + 1] = tostring (v) end
+    for _, v in _ipairs (strbuf) do strs[#strs + 1] = tostring (v) end
     return table_concat (strs)
   end
 

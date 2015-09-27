@@ -21,25 +21,30 @@ local math_ceil		= math.ceil
 local math_min		= math.min
 
 
-local debug		= require "std.debug"
+local _ = {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
+
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local argscheck		= _.debug.argscheck
+local argerror		= _.std.debug.argerror
+local collect		= _.std.functional.collect
+local copy		= _.std.base.copy
+local insert		= _.std.table.insert
+local invert		= _.std.table.invert
+local leaves		= _.std.tree.leaves
+local len		= _.std.operator.len
+local maxn		= _.std.table.maxn
+local merge		= _.std.base.merge
+local unpack		= _.std.table.unpack
+
+
 local deprecated	= require "std.delete-after.a-year"
-local std		= require "std.base"
 
-local argscheck		= debug.argscheck
-local argerror		= std.debug.argerror
-local collect		= std.functional.collect
-local copy		= std.base.copy
-local insert		= std.table.insert
-local invert		= std.table.invert
-local ipairs		= std.ipairs
-local leaves		= std.tree.leaves
-local len		= std.operator.len
-local maxn		= std.table.maxn
-local merge		= std.base.merge
-local pairs		= std.pairs
-local unpack		= std.table.unpack
-
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -61,9 +66,9 @@ local function merge_allfields (t, u, map, nometa)
     setmetatable (t, getmetatable (u))
   end
   if map then
-    for k, v in pairs (u) do t[map[k] or k] = v end
+    for k, v in _pairs (u) do t[map[k] or k] = v end
   else
-    for k, v in pairs (u) do t[k] = v end
+    for k, v in _pairs (u) do t[k] = v end
   end
   return t
 end
@@ -77,14 +82,14 @@ local function merge_namedfields (t, u, keys, nometa)
   if not nometa then
     setmetatable (t, getmetatable (u))
   end
-  for _, k in pairs (keys or {}) do t[k] = u[k] end
+  for _, k in _pairs (keys or {}) do t[k] = u[k] end
   return t
 end
 
 
 local function depair (ls)
   local t = {}
-  for _, v in ipairs (ls) do
+  for _, v in _ipairs (ls) do
     t[v[1]] = v[2]
   end
   return t
@@ -93,7 +98,7 @@ end
 
 local function enpair (t)
   local tt = {}
-  for i, v in pairs (t) do
+  for i, v in _pairs (t) do
     tt[#tt + 1] = {i, v}
   end
   return tt
@@ -101,13 +106,13 @@ end
 
 
 local function flatten (t)
-  return collect (leaves, ipairs, t)
+  return collect (leaves, _ipairs, t)
 end
 
 
 local function keys (t)
   local l = {}
-  for k in pairs (t) do
+  for k in _pairs (t) do
     l[#l + 1] = k
   end
   return l
@@ -124,7 +129,7 @@ end
 
 local function project (fkey, tt)
   local r = {}
-  for _, t in ipairs (tt) do
+  for _, t in _ipairs (tt) do
     r[#r + 1] = t[fkey]
   end
   return r
@@ -136,7 +141,7 @@ local function shape (dims, t)
   -- Check the shape and calculate the size of the zero, if any
   local size = 1
   local zero
-  for i, v in ipairs (dims) do
+  for i, v in _ipairs (dims) do
     if v == 0 then
       if zero then -- bad shape: two zeros
         return nil
@@ -169,7 +174,7 @@ end
 
 local function size (t)
   local n = 0
-  for _ in pairs (t) do
+  for _ in _pairs (t) do
     n = n + 1
   end
   return n
@@ -206,7 +211,7 @@ end
 
 local function values (t)
   local l = {}
-  for _, v in pairs (t) do
+  for _, v in _pairs (t) do
     l[#l + 1] = v
   end
   return l

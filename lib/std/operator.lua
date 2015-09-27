@@ -8,13 +8,17 @@
 local type		= type
 
 
-local std		= require "std.base"
+local _ = {
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local len		= std.operator.len
-local serialize 	= std.base.mnemonic
-local tostring		= std.tostring
+local _tostring		= _.std.tostring
+local len		= _.std.operator.len
+local serialize 	= _.std.base.mnemonic
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -44,7 +48,7 @@ local M = {
   -- @usage
   -- --> "=> 1000010010"
   -- functional.foldl (concat, "=> ", {10000, 100, 10})
-  concat = function (a, b) return tostring (a) .. tostring (b) end,
+  concat = function (a, b) return _tostring (a) .. _tostring (b) end,
 
   --- Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
   -- @function len

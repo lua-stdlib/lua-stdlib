@@ -17,27 +17,32 @@ local setmetatable	= setmetatable
 local table_remove	= table.remove
 
 
+local _ = {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
+
+local _pairs		= _.std.pairs
+local argscheck		= _.debug.argscheck
+local callable		= _.std.functional.callable
+local collect		= _.std.functional.collect
+local copy		= _.std.base.copy
+local ielems		= _.std.ielems
+local ireverse		= _.std.ireverse
+local len		= _.std.operator.len
+local merge		= _.std.base.merge
+local mnemonic		= _.std.base.mnemonic
+local nop		= _.std.functional.nop
+local npairs		= _.std.npairs
+local reduce		= _.std.functional.reduce
+local render		= _.std.string.render
+local unpack		= _.std.table.unpack
+
+
 local deprecated 	= require "std.delete-after.2016-01-03"
-local std		= require "std.base"
 
-local argscheck		= require "std.debug".argscheck
-local callable		= std.functional.callable
-local collect		= std.functional.collect
-local copy		= std.base.copy
-local ielems		= std.ielems
-local ipairs		= std.ipairs
-local ireverse		= std.ireverse
-local len		= std.operator.len
-local merge		= std.base.merge
-local mnemonic		= std.base.mnemonic
-local nop		= std.functional.nop
-local npairs		= std.npairs
-local pairs		= std.pairs
-local reduce		= std.functional.reduce
-local render		= std.string.render
-local unpack		= std.table.unpack
-
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -108,7 +113,7 @@ end
 local function filter (pfn, ifn, ...)
   local argt, r = {...}, {}
   if not callable (ifn) then
-    ifn, argt = pairs, {ifn, ...}
+    ifn, argt = _pairs, {ifn, ...}
   end
 
   local nextfn, state, k = ifn (unpack (argt))
@@ -236,7 +241,7 @@ end, id)
 local function map (mapfn, ifn, ...)
   local argt, r = {...}, {}
   if not callable (ifn) or not next (argt) then
-    ifn, argt = pairs, {ifn, ...}
+    ifn, argt = _pairs, {ifn, ...}
   end
 
   local nextfn, state, k = ifn (unpack (argt))
@@ -269,7 +274,7 @@ end
 
 local function map_with (mapfn, tt)
   local r = {}
-  for k, v in pairs (tt) do
+  for k, v in _pairs (tt) do
     r[k] = mapfn (unpack (v))
   end
   return r
@@ -302,8 +307,8 @@ end
 
 local function zip (tt)
   local r = {}
-  for outerk, inner in pairs (tt) do
-    for k, v in pairs (inner) do
+  for outerk, inner in _pairs (tt) do
+    for k, v in _pairs (inner) do
       r[k] = r[k] or {}
       r[k][outerk] = v
     end

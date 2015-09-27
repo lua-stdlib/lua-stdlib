@@ -35,23 +35,30 @@ local coroutine_wrap	= coroutine.wrap
 local table_remove	= table.remove
 
 
-local std		= require "std.base"
-local operator		= require "std.operator"
+local _ = {
+  container		= require "std.container",
+  debug			= require "std.debug",
+  operator		= require "std.operator",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local Container		= require "std.container".prototype
-local Module		= std.object.Module
+local Container		= _.container.prototype
+local Module		= _.std.object.Module
 
-local argscheck		= require "std.debug".argscheck
-local ielems		= std.ielems
-local ipairs		= std.ipairs
-local last		= std.base.last
-local leaves		= std.tree.leaves
-local len		= std.operator.len
-local pairs		= std.pairs
-local reduce		= std.functional.reduce
-local std_type		= std.type
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local _type		= _.std.type
+local argscheck		= _.debug.argscheck
+local get		= _.operator.get
+local ielems		= _.std.ielems
+local last		= _.std.base.last
+local leaves		= _.std.tree.leaves
+local len		= _.std.operator.len
+local reduce		= _.std.functional.reduce
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -96,7 +103,7 @@ local function clone (t, nometa)
   end
   local d = {[t] = r}
   local function copy (o, x)
-    for i, v in pairs (x) do
+    for i, v in _pairs (x) do
       if type (v) == "table" then
         if not d[v] then
           d[v] = {}
@@ -118,7 +125,7 @@ end
 
 
 local function merge (t, u)
-  for ty, p, n in _nodes (pairs, u) do
+  for ty, p, n in _nodes (_pairs, u) do
     if ty == "leaf" then
       t[p] = n
     end
@@ -171,8 +178,8 @@ prototype = Container {
   -- @usage
   -- del_other_window = keymap[{"C-x", "4", KEY_DELETE}]
   __index = function (tr, i)
-    if std_type (i) == "table" then
-      return reduce (operator.get, tr, ielems, i)
+    if _type (i) == "table" then
+      return reduce (get, tr, ielems, i)
     else
       return rawget (tr, i)
     end
@@ -185,9 +192,9 @@ prototype = Container {
   -- @usage
   -- function bindkey (keylist, fn) keymap[keylist] = fn end
   __newindex = function (tr, i, v)
-    if std_type (i) == "table" then
+    if _type (i) == "table" then
       for n = 1, len (i) - 1 do
-        if std_type (tr[i[n]]) ~= "Tree" then
+        if _type (tr[i[n]]) ~= "Tree" then
           rawset (tr, i[n], prototype {})
         end
         tr = tr[i[n]]
@@ -233,7 +240,7 @@ return Module {
   -- do
   --   t[#t + 1] = leaf
   -- end
-  ileaves = X ("ileaves (table)", function (t) return leaves (ipairs, t) end),
+  ileaves = X ("ileaves (table)", function (t) return leaves (_ipairs, t) end),
 
   --- Tree iterator over numbered nodes, in order.
   --
@@ -244,7 +251,7 @@ return Module {
   -- @treturn function iterator function
   -- @treturn tree|table the tree, *tr*
   -- @see nodes
-  inodes = X ("inodes (table)", function (t) return _nodes (ipairs, t) end),
+  inodes = X ("inodes (table)", function (t) return _nodes (_ipairs, t) end),
 
   --- Tree iterator which returns just leaves.
   -- @function leaves
@@ -260,7 +267,7 @@ return Module {
   -- end
   -- --> t = {2, 4, "five", "foo", "one", "three"}
   -- table.sort (t, lambda "=tostring(_1) < tostring(_2)")
-  leaves = X ("leaves (table)", function (t) return leaves (pairs, t) end),
+  leaves = X ("leaves (table)", function (t) return leaves (_pairs, t) end),
 
   --- Destructively deep-merge one tree into another.
   -- @function merge
@@ -306,5 +313,5 @@ return Module {
   -- --> "leaf"     {2}     "leaf3"
   -- --> "join"     {}      {{"leaf1", "leaf2"}, "leaf3"}
   -- os.exit (0)
-  nodes = X ("nodes (table)", function (t) return _nodes (pairs, t) end),
+  nodes = X ("nodes (table)", function (t) return _nodes (_pairs, t) end),
 }

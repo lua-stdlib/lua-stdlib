@@ -48,25 +48,42 @@ local table_remove	= table.remove
 local table_sort	= table.sort
 
 
+local _ = {
+  debug_init		= require "std.debug_init",
+  std			= require "std.base",
+  setenvtable		= require "std.strict".setenvtable,
+}
+
+local _DEBUG		= _.debug_init._DEBUG
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local _tostring		= _.std.tostring
+local _type		= _.std.type
+local argerror		= _.std.debug.argerror
+local copy		= _.std.base.copy
+local insert		= _.std.table.insert
+local last		= _.std.base.last
+local len		= _.std.operator.len
+local maxn		= _.std.table.maxn
+local merge		= _.std.base.merge
+local nop		= _.std.functional.nop
+local raise		= _.std.base.raise
+local split		= _.std.string.split
+local unpack		= _.std.table.unpack
+
+
 local deprecated	= require "std.delete-after.2016-03-08"
-local std		= require "std.base"
 
-local argerror		= std.debug.argerror
-local copy		= std.base.copy
-local insert		= std.table.insert
-local ipairs		= std.ipairs
-local last		= std.base.last
-local len		= std.operator.len
-local maxn		= std.table.maxn
-local merge		= std.base.merge
-local nop		= std.functional.nop
-local pairs		= std.pairs
-local raise		= std.base.raise
-local split		= std.string.split
-local stdtype		= std.type
-local tostring		= std.tostring
-local unpack		= std.table.unpack
+local _, _ENV		= nil, _.setenvtable {}
 
+
+
+--[[ =============== ]]--
+--[[ Implementation. ]]--
+--[[ =============== ]]--
+
+
+local M
 
 
 --- Control std.debug function behaviour.
@@ -86,19 +103,6 @@ local unpack		= std.table.unpack
 --   before use **in stdlib internals**
 -- @see std.strict
 -- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
-local _DEBUG = require "std.debug_init"._DEBUG
-
-
-local _ENV = require "std.strict".setenvtable {}
-
-
-
---[[ =============== ]]--
---[[ Implementation. ]]--
---[[ =============== ]]--
-
-
-local M
 
 
 local function setfenv (fn, env)
@@ -190,7 +194,7 @@ local function permute (t)
   if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
 
   local p = {{}}
-  for i, v in ipairs (t) do
+  for i, v in _ipairs (t) do
     local optional = v:match "%[(.+)%]"
 
     if optional == nil then
@@ -217,7 +221,7 @@ local function typesplit (types)
     types = split (types:gsub ("%s+or%s+", "|"), "%s*|%s*")
   end
   local r, seen, add_nil = {}, {}, false
-  for _, v in ipairs (types) do
+  for _, v in _ipairs (types) do
     local m = v:match "^%?(.+)$"
     if m then
       add_nil, v = true, m
@@ -237,14 +241,14 @@ end
 local function projectuniq (fkey, tt)
   -- project
   local t = {}
-  for _, u in ipairs (tt) do
+  for _, u in _ipairs (tt) do
     t[#t + 1] = u[fkey]
   end
 
   -- split and remove duplicates
   local r, s = {}, {}
-  for _, e in ipairs (t) do
-    for _, v in ipairs (typesplit (e)) do
+  for _, e in _ipairs (t) do
+    for _, v in _ipairs (typesplit (e)) do
       if s[v] == nil then
 	r[#r + 1], s[v] = v, true
       end
@@ -280,7 +284,7 @@ end
 
 
 local function extramsg_mismatch (expectedtypes, actual, index)
-  local actualtype = stdtype (actual)
+  local actualtype = _type (actual)
 
   -- Tidy up actual type for display.
   if actualtype == "nil" then
@@ -297,14 +301,14 @@ local function extramsg_mismatch (expectedtypes, actual, index)
   end
 
   if index then
-    actualtype = actualtype .. " at index " .. tostring (index)
+    actualtype = actualtype .. " at index " .. _tostring (index)
   end
 
   -- Tidy up expected types for display.
   local expectedstr = expectedtypes
   if type (expectedtypes) == "table" then
     local t = {}
-    for i, v in ipairs (expectedtypes) do
+    for i, v in _ipairs (expectedtypes) do
       if v == "func" then
         t[i] = "function"
       elseif v == "bool" then
@@ -391,7 +395,7 @@ if _DEBUG.argcheck then
       end
     end
 
-    actualtype = stdtype (actual)
+    actualtype = _type (actual)
     if check == actualtype then
       return true
     elseif check == "list" or check == "#list" then
@@ -428,7 +432,7 @@ if _DEBUG.argcheck then
     local permutations = argt.permutations
 
     local bestmismatch, t = 0
-    for i, typelist in ipairs (permutations) do
+    for i, typelist in _ipairs (permutations) do
       local mismatch = match (typelist, valuelist)
       if mismatch == nil then
         bestmismatch, t = nil, nil
@@ -455,7 +459,7 @@ if _DEBUG.argcheck then
       if typelist[i] then
 	local check, contents = typelist[i]:match "^(%S+) of (%S-)s?$"
 	if contents and type (valuelist[i]) == "table" then
-	  for k, v in pairs (valuelist[i]) do
+	  for k, v in _pairs (valuelist[i]) do
 	    if not checktype (contents, v) then
 	      argt.badtype (i, extramsg_mismatch (expected, v, k), 3)
 	    end
@@ -482,7 +486,7 @@ if _DEBUG.argcheck then
 
     -- Check actual has one of the types from expected
     local ok = false
-    for _, expect in ipairs (expected) do
+    for _, expect in _ipairs (expected) do
       local check, contents = expect:match "^(%S+) of (%S-)s?$"
       check = check or expect
 
@@ -491,7 +495,7 @@ if _DEBUG.argcheck then
 
       -- For "table of things", check all elements are a thing too.
       if ok and contents and type (actual) == "table" then
-        for k, v in pairs (actual) do
+        for k, v in _pairs (actual) do
           if not checktype (contents, v) then
             argerror (name, i, extramsg_mismatch (expected, v, k), level + 1)
           end
@@ -534,9 +538,9 @@ if _DEBUG.argcheck then
     local returntypes = decl:match "=>%s*(.+)%s*$"
     if returntypes then
       local i, permutations = 0, {}
-      for _, group in ipairs (split (returntypes, "%s+or%s+")) do
+      for _, group in _ipairs (split (returntypes, "%s+or%s+")) do
 	returntypes = split (group, ",%s*")
-	for _, t in ipairs (permute (returntypes)) do
+	for _, t in _ipairs (permute (returntypes)) do
 	  i = i + 1
           permutations[i] = t
 	end
@@ -600,7 +604,7 @@ local function say (n, ...)
       ((type (_DEBUG.level) == "number" and _DEBUG.level >= level) or level <= 1)
   then
     local t = {}
-    for k, v in pairs (argt) do t[k] = tostring (v) end
+    for k, v in _pairs (argt) do t[k] = _tostring (v) end
     io_stderr:write (table_concat (t, "\t") .. "\n")
   end
 end
@@ -860,7 +864,7 @@ M = {
 
   -- Private:
   _setdebug = function (t)
-    for k, v in pairs (t) do
+    for k, v in _pairs (t) do
       if v == "nil" then v = nil end
       _DEBUG[k] = v
     end

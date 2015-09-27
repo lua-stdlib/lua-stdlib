@@ -21,20 +21,26 @@ local math_ceil		= math.ceil
 local math_max		= math.max
 
 
-local debug		= require "std.debug"
+local _ = {
+  debug			= require "std.debug",
+  object		= require "std.object",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
+
+local Module		= _.std.object.Module
+local Object		= _.object.prototype
+
+local _ipairs		= _.std.ipairs
+local _pairs		= _.std.pairs
+local argscheck		= _.debug.argscheck
+local compare		= _.std.list.compare
+local len		= _.std.operator.len
+local merge		= _.std.base.merge
+local unpack		= _.std.table.unpack
+
+
 local deprecated	= require "std.delete-after.2016-01-03"
-local std		= require "std.base"
-
-local Module		= std.object.Module
-local Object		= require "std.object".prototype
-
-local argscheck		= debug.argscheck
-local compare		= std.list.compare
-local ipairs		= std.ipairs
-local len		= std.operator.len
-local merge		= std.base.merge
-local pairs		= std.pairs
-local unpack		= std.table.unpack
 
 local _ENV		= require "std.strict".setenvtable {}
 
@@ -57,8 +63,8 @@ end
 
 local function concat (l, ...)
   local r = prototype {}
-  for _, e in ipairs {l, ...} do
-    for _, v in ipairs (e) do
+  for _, e in _ipairs {l, ...} do
+    for _, v in _ipairs (e) do
       r[#r + 1] = v
     end
   end
@@ -232,7 +238,7 @@ local M = {}
 
 if deprecated then
   local function bindfns (dest, src)
-    for k, v in pairs (src) do
+    for k, v in _pairs (src) do
       dest[k] = dest[k] or function (...) return v (prototype, ...) end
     end
     return dest

@@ -13,15 +13,21 @@
 
 local math		= math
 
+
 local math_floor	= math.floor
 
-local std		= require "std.base"
+local _ = {
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local argscheck		= require "std.debug".argscheck
-local copy		= std.base.copy
-local merge		= std.base.merge
+local argscheck		= _.debug.argscheck
+local copy		= _.std.base.copy
+local merge		= _.std.base.merge
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 

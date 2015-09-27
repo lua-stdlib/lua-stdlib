@@ -33,18 +33,24 @@ local table_concat	= table.concat
 local table_sort	= table.sort
 
 
-local std		= require "std.base"
+local _ = {
+  container		= require "std.container",
+  debug			= require "std.debug",
+  setenvtable		= require "std.strict".setenvtable,
+  std			= require "std.base",
+}
 
-local Container		= require "std.container".prototype
-local Module		= std.object.Module
+local Container		= _.container.prototype
+local Module		= _.std.object.Module
 
-local argscheck		= require "std.debug".argscheck
-local pairs		= std.pairs
-local pickle		= std.string.pickle
-local tostring		= std.tostring
-local std_type		= std.type
+local _pairs		= _.std.pairs
+local _tostring		= _.std.tostring
+local _type		= _.std.type
+local argscheck		= _.debug.argscheck
+local pickle		= _.std.string.pickle
 
-local _ENV		= require "std.strict".setenvtable {}
+
+local _, _ENV		= nil, _.setenvtable {}
 
 
 
@@ -67,7 +73,7 @@ local prototype -- forward declaration
 -- whose values are true.
 
 
-local elems = pairs
+local elems = _pairs
 
 
 local function insert (set, e)
@@ -179,7 +185,7 @@ prototype = Container {
   -- @tparam table t initialisation table from `__call`
   _init = function (new, t)
     local mt = {}
-    for k, v in pairs (t) do
+    for k, v in _pairs (t) do
       local type_k = type (k)
       if type_k == "number" then
         insert (new, v)
@@ -256,11 +262,11 @@ prototype = Container {
   -- @see std.tostring
   __tostring = function (self)
     local keys = {}
-    for k in pairs (self) do
-      keys[#keys + 1] = tostring (k)
+    for k in _pairs (self) do
+      keys[#keys + 1] = _tostring (k)
     end
     table_sort (keys)
-    return std_type (self) .. " {" .. table_concat (keys, ", ") .. "}"
+    return _type (self) .. " {" .. table_concat (keys, ", ") .. "}"
   end,
 
   --- Return a loadable serialization of this object, where possible.
@@ -269,7 +275,7 @@ prototype = Container {
   -- @see std.string.pickle
   __pickle = function (self)
     local mt, keys = getmetatable (self), {}
-    for k in pairs (self) do
+    for k in _pairs (self) do
       keys[#keys + 1] = pickle (k)
     end
     table_sort (keys)
