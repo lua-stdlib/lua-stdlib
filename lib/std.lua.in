@@ -32,7 +32,7 @@ local type		= type
 
 local _ = {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
+  strict		= require "std.strict",
   std			= require "std.base",
 }
 
@@ -53,7 +53,7 @@ local npairs		= _.std.npairs
 local ripairs		= _.std.ripairs
 local rnpairs		= _.std.rnpairs
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 
