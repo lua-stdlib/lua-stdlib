@@ -19,8 +19,8 @@ local table_remove	= table.remove
 
 local _ = {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local _pairs		= _.std.pairs
@@ -42,7 +42,7 @@ local unpack		= _.std.table.unpack
 
 local deprecated 	= require "std.delete-after.2016-01-03"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

@@ -39,8 +39,8 @@ local _ = {
   container		= require "std.container",
   debug			= require "std.debug",
   operator		= require "std.operator",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Container		= _.container.prototype
@@ -58,7 +58,7 @@ local len		= _.std.operator.len
 local reduce		= _.std.functional.reduce
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

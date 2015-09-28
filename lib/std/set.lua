@@ -36,8 +36,8 @@ local table_sort	= table.sort
 local _ = {
   container		= require "std.container",
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Container		= _.container.prototype
@@ -50,7 +50,7 @@ local argscheck		= _.debug.argscheck
 local pickle		= _.std.string.pickle
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

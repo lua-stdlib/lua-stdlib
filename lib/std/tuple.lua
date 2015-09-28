@@ -40,8 +40,8 @@ local table_unpack	= table.unpack or unpack
 
 local _ = {
   container		= require "std.container",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Container		= _.container.prototype
@@ -52,7 +52,7 @@ local pickle		= _.std.string.pickle
 local toqstring		= _.std.base.toqstring
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

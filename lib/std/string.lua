@@ -26,9 +26,9 @@ local math_floor	= math.floor
 local _ = {
   debug			= require "std.debug",
   maturity		= require "std.maturity",
-  setenvtable		= require "std.strict".setenvtable,
-  strbuf		= require "std.strbuf",
   std			= require "std.base",
+  strbuf		= require "std.strbuf",
+  strict		= require "std.strict",
 }
 
 local StrBuf		= _.strbuf.prototype
@@ -50,7 +50,7 @@ local toqstring		= _.std.base.toqstring
 
 local deprecated	= require "std.delete-after.2016-01-03"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

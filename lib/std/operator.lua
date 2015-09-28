@@ -9,8 +9,8 @@ local type		= type
 
 
 local _ = {
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local _tostring		= _.std.tostring
@@ -18,7 +18,7 @@ local len		= _.std.operator.len
 local serialize 	= _.std.base.mnemonic
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

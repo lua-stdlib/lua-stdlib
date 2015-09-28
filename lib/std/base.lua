@@ -51,7 +51,7 @@ local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
 
 
-local _ENV		= require "std.strict".setenvtable {}
+local _ENV		= require "std.strict" {}
 
 
 

@@ -36,8 +36,8 @@ local table_concat	= table.concat
 local _ = {
   debug			= require "std.debug",
   object		= require "std.object",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Module		= _.std.object.Module
@@ -51,7 +51,7 @@ local merge		= _.std.base.merge
 
 local deprecated	= require "std.delete-after.2016-01-31"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

@@ -35,13 +35,13 @@ local string_format	= string.format
 
 local _ = {
   debug_init		= require "std.debug_init",
-  setenvtable		= require "std.strict".setenvtable,
+  strict		= require "std.strict",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

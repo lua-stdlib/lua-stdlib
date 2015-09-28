@@ -23,8 +23,8 @@ local math_min		= math.min
 
 local _ = {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local _ipairs		= _.std.ipairs
@@ -44,7 +44,7 @@ local unpack		= _.std.table.unpack
 
 local deprecated	= require "std.delete-after.a-year"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

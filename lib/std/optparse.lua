@@ -38,8 +38,8 @@ local string_len	= string.len
 
 local _ = {
   object		= require "std.object",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Object		= _.object.prototype
@@ -51,7 +51,7 @@ local last		= _.std.base.last
 local len		= _.std.operator.len
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

@@ -25,8 +25,8 @@
 local _ = {
   container		= require "std.container",
   debug 	    	= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Container 	= _.container.prototype
@@ -41,7 +41,7 @@ local merge		= _.std.base.merge
 
 local deprecated	= require "std.delete-after.a-year"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

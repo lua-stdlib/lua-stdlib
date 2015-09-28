@@ -48,8 +48,8 @@ local table_remove	= table.remove
 
 local _ = {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std   		= require "std.base",
+  strict		= require "std.strict",
 }
 
 local argscheck		= _.debug.argscheck
@@ -61,7 +61,7 @@ local split		= _.std.string.split
 local unpack		= _.std.table.unpack
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

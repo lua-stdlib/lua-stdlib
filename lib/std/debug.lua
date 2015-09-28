@@ -51,7 +51,7 @@ local table_sort	= table.sort
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
-  setenvtable		= require "std.strict".setenvtable,
+  strict		= require "std.strict",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
@@ -74,7 +74,7 @@ local unpack		= _.std.table.unpack
 
 local deprecated	= require "std.delete-after.2016-03-08"
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

@@ -16,18 +16,7 @@
     module, but without changing the behaviour of the client code:
 
     ```lua
-    local strict = require "std.strict"
-    local _ENV = strict (setmetatable ({}, {__index = _G}))
-    if rawget (_G, "setfenv") then setfenv (1, _ENV) end
-    ```
-
-  - New `std.strict.setenvtable` encapsulates the above for portably
-    assigning an environment table at the module level, but enforcing
-    declaration strictness only when `_DEBUG.strict` (or equivalent)
-    is set:
-
-    ```lua
-    local _ENV = strict.setenvtable {}
+    local _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
     ```
 
   - All support for deprecated APIs has been moved out of the module

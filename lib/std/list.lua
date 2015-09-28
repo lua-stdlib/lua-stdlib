@@ -24,8 +24,8 @@ local math_max		= math.max
 local _ = {
   debug			= require "std.debug",
   object		= require "std.object",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Module		= _.std.object.Module
@@ -42,7 +42,7 @@ local unpack		= _.std.table.unpack
 
 local deprecated	= require "std.delete-after.2016-01-03"
 
-local _ENV		= require "std.strict".setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

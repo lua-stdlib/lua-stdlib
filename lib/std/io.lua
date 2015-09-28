@@ -34,8 +34,8 @@ local table_concat	= table.concat
 
 local _	= {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local _ipairs		= _.std.ipairs
@@ -52,7 +52,7 @@ local merge		= _.std.base.merge
 local split		= _.std.string.split
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

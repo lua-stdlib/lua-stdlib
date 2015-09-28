@@ -18,8 +18,8 @@ local math_floor	= math.floor
 
 local _ = {
   debug			= require "std.debug",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local argscheck		= _.debug.argscheck
@@ -27,7 +27,7 @@ local copy		= _.std.base.copy
 local merge		= _.std.base.merge
 
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 

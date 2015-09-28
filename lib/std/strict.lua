@@ -6,24 +6,10 @@
  used anywhere or assigned to inside a function.
 
  Use the callable returned by this module to interpose a strictness check
- proxy table to the argument table.  To apply to just the current module,
- for example:
-
-     local strict = require "std.strict"
-     local _ENV = strict (setmetatable ({}, {__index = _G}))
-     if rawget (_G, "setfenv") then setfenv (1, _ENV) end
-
- Note that we have to be careful not to reference `setfenv` directly in
- the `if` statement, because on Lua >= 5.2, it doesn't exist and would
- trigger an undeclared variable error!
-
- Or, to set an empty strictness enforcing environment table for a module
- (after caching all symbols used after this invocation):
-
-     local _ENV = strict.setenvtable {}
+ proxy table to the given environment.
 
  The implementation calls `setfenv` appropriately in Lua 5.1 interpreters
- to provide the same semantics.
+ to ensure the same semantics.
 
  @module std.strict
 ]]
@@ -89,21 +75,18 @@ local function restrict (env)
 end
 
 
-return setmetatable ({
-  --- Functions
-  -- @section functions
-
-  --- Enforce strict variable declaration in *env* according to `_DEBUG`.
-  -- @function setenvtable
+return setmetatable ({}, {
+  --- Enforce strict variable declarations in *env* according to `_DEBUG`.
+  -- @function strict:__call
   -- @tparam table env lexical environment table
   -- @treturn table *env* which must be assigned to `_ENV`
-  setenvtable = function (env)
+  -- @usage
+  -- local _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+  __call = function (_, env)
     if _DEBUG.strict then
       env = restrict (env)
     end
     setfenv (2, env)
     return env
   end,
-}, {
-  __call = function (_, ...) return restrict (...) end,
 })

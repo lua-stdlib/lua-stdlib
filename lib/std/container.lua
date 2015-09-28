@@ -42,8 +42,8 @@ local table_concat	= table.concat
 local _ = {
   debug			= require "std.debug",
   debug_init		= require "std.debug_init",
-  setenvtable		= require "std.strict".setenvtable,
   std			= require "std.base",
+  strict		= require "std.strict",
 }
 
 local Module		= _.std.object.Module
@@ -59,7 +59,7 @@ local pickle		= _.std.string.pickle
 local render		= _.std.string.render
 local sortkeys		= _.std.base.sortkeys
 
-local _, _ENV		= nil, _.setenvtable {}
+local _, _ENV		= nil, _.strict {}
 
 
 
