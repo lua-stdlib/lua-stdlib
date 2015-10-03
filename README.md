@@ -3,8 +3,6 @@ Standard Lua libraries
 
 by the [stdlib project][github]
 
-[github]: http://github.com/lua-stdlib/lua-stdlib/ "Github repository"
-
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
 [![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
 [![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
@@ -18,6 +16,7 @@ The libraries are copyright by their authors 2000-2015 (see the
 Stdlib has no run-time prerequisites beyond a standard Lua system.
 
 [authors]: http://github.com/lua-stdlib/lua-stdlib/blob/master/AUTHORS
+[github]: http://github.com/lua-stdlib/lua-stdlib/ "Github repository"
 [lua]: http://www.lua.org "The Lua Project"
 [mit]: http://mit-license.org "MIT License"
 
@@ -57,12 +56,12 @@ official release. Unfortunately, we don't have time to provide support
 for taking this most difficult and dangerous option. It is presumed
 that you already know enough to be aware of what you are getting yourself
 into - however, there are full logs of complete bootstrap builds in
-[Travis][] after every commit thatyou can examine if you get stuck, and
-the bootstrap script tries very hard to tell you why it is unhappy and,
-sometimes, even how to fix things before trying again.
+[Travis][] after every commit, that you can examine if you get stuck.
+Also, the bootstrap script tries very hard to tell you why it is unhappy
+and, sometimes, even how to fix things before trying again.
 
 [install]: http://raw.githubusercontent.com/lua-stdlib/lua-stdlib/release/INSTALL
-[luarocks]: http://www.luarocks.org "LuaRocks Project"
+[luarocks]: http://www.luarocks.org "Lua package manager"
 [releases]: http://github.com/lua-stdlib/lua-stdlib/releases
 [rockspec.conf]: http://github.com/lua-stdlib/lua-stdlib/blob/release/rockspec.conf
 [travis]: http://travis-ci.org/lua-stdlib/lua-stdlib/builds
@@ -85,8 +84,8 @@ stdlib.
 Documentation
 -------------
 
-The libraries are [documented in LDoc][github.io]. Pre-built HTML
-files are included in the release.
+The latest release of these libraries is [documented in LDoc][github.io].
+Pre-built HTML files are included in the release.
 
 [github.io]: http://lua-stdlib.github.io/lua-stdlib
 
@@ -96,12 +95,20 @@ Bug reports and code contributions
 
 These libraries are written and maintained by their users.
 
-Please make bug report and suggestions as [GitHub Issues][issues].
+Please make bug reports and suggestions as [GitHub Issues][issues].
 Pull requests are especially appreciated.
 
 But first, please check that your issue has not already been reported by
 someone else, and that it is not already fixed by [master][github] in
 preparation for the next release (see Installation section above for how
 to temporarily install master with [LuaRocks][]).
+
+There is no strict coding style, but please bear in mind the following
+points when proposing changes:
+
+0. Follow existing code. There are a lot of useful patterns and avoided
+   traps there.
+
+1. 2-character indentation using SPACES in Lua sources.
 
 [issues]: http://github.com/lua-stdlib/lua-stdlib/issues
