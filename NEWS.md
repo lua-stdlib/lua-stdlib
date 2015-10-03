@@ -10,7 +10,7 @@
     us organization-wise, but improvements and corrections to the content
     are always welcome!
 
-  - `require "std.strict"` now returns a callable that can be applied
+  - `require "std.strict"` now returns a function that can be applied
     to any environment that should detect references to undeclared
     variables.  For example, to check within the implementation of a
     module, but without changing the behaviour of the client code:
