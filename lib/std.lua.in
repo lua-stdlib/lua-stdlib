@@ -21,13 +21,18 @@
 
 
 local _G		= _G
+local error		= error
 local ipairs		= ipairs
 local pairs		= pairs
 local pcall		= pcall
 local rawset		= rawset
 local require		= require
 local setmetatable	= setmetatable
+local tostring		= tostring
 local type		= type
+
+local string_format	= string.format
+local string_match	= string.match
 
 
 local _ = {
@@ -36,13 +41,13 @@ local _ = {
   std			= require "std.base",
 }
 
-local _assert		= _.std.assert
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _require		= _.std.require
 local _tostring		= _.std.tostring
 local _type		= _.std.type
 local argscheck		= _.debug.argscheck
+local compare		= _.std.list.compare
 local copy		= _.std.base.copy
 local elems		= _.std.elems
 local eval		= _.std.eval
@@ -52,6 +57,7 @@ local ireverse		= _.std.ireverse
 local npairs		= _.std.npairs
 local ripairs		= _.std.ripairs
 local rnpairs		= _.std.rnpairs
+local split		= _.std.string.split
 
 local _, _ENV		= nil, _.strict {}
 
@@ -68,6 +74,12 @@ local M, monkeys
 local function monkey_patch (namespace)
   copy (namespace or _G, monkeys)
   return M
+end
+
+
+local function _assert (expect, fmt, arg1, ...)
+  local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ""
+  return expect or error (msg, 2)
 end
 
 
@@ -104,6 +116,29 @@ local function barrel (namespace)
   require "std.table".monkey_patch (namespace)
 
   return monkey_patch (namespace)
+end
+
+
+local function vcompare (a, b)
+  return compare (split (a, "%."), split (b, "%."))
+end
+
+
+local function _require (module, min, too_big, pattern)
+  pattern = pattern or "([%.%d]+)%D*$"
+
+  local s, m = "", require (module)
+  if type (m) == "table" then s = tostring (m.version or m._VERSION or "") end
+  local v = string_match (s, pattern)
+  if min then
+    _assert (vcompare (v, min) >= 0, "require '" .. module ..
+            "' with at least version " .. min .. ", but found version " .. v)
+  end
+  if too_big then
+    _assert (vcompare (v, too_big) < 0, "require '" .. module ..
+            "' with version less than " .. too_big .. ", but found version " .. v)
+  end
+  return m
 end
 
 

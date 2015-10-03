@@ -30,7 +30,6 @@ local loadstring	= loadstring or load
 local next		= next
 local pairs		= pairs
 local rawget		= rawget
-local require		= require
 local select		= select
 local setmetatable	= setmetatable
 local tonumber		= tonumber
@@ -61,17 +60,11 @@ local _ENV		= require "std.strict" {}
 
 -- Forward declarations for Helper functions below.
 
-local argerror, getmetamethod, len, vcompare
+local argerror, getmetamethod, len
 
 -- These come as early as possible, because we want the rest of the code
 -- in this file to use these versions over the core Lua implementation
 -- (which have slightly varying semantics between releases).
-
-
-local function assert (expect, fmt, arg1, ...)
-  local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ""
-  return expect or error (msg, 2)
-end
 
 
 local function insert (t, pos, v)
@@ -110,23 +103,6 @@ local maxn = table_maxn or function (t)
     if type (k) == "number" and k > n then n = k end
   end
   return n
-end
-
-
-local _require = require
-
-local function require (module, min, too_big, pattern)
-  local m = _require (module)
-  local v = tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
-  if min then
-    assert (vcompare (v, min) >= 0, "require '" .. module ..
-            "' with at least version " .. min .. ", but found version " .. v)
-  end
-  if too_big then
-    assert (vcompare (v, too_big) < 0, "require '" .. module ..
-            "' with version less than " .. too_big .. ", but found version " .. v)
-  end
-  return m
 end
 
 
@@ -629,11 +605,6 @@ getmetamethod = function (x, n)
 end
 
 
-vcompare = function (a, b)
-  return compare (split (a, "%."), split (b, "%."))
-end
-
-
 
 --[[ ============= ]]--
 --[[ Internal API. ]]--
@@ -648,7 +619,6 @@ end
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
-  assert        = assert,
   elems         = elems,
   eval          = eval,
   getmetamethod = getmetamethod,
@@ -657,7 +627,6 @@ return {
   ireverse      = ireverse,
   npairs        = npairs,
   pairs         = pairs,
-  require       = require,
   ripairs       = ripairs,
   rnpairs       = rnpairs,
 

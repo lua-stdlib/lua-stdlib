@@ -22,14 +22,23 @@ local M		= false
 
 if not require "std.debug_init"._DEBUG.deprecate then
 
+  local assert		= assert
+  local error		= error
   local getmetatable	= getmetatable
   local pairs		= pairs
+  local require		= require
+  local tonumber	= tonumber
+  local tostring	= tostring
   local type		= type
 
   local coroutine_yield	= coroutine.yield
   local coroutine_wrap	= coroutine.wrap
   local math_ceil	= math.ceil
+  local math_min	= math.min
   local math_max	= math.max
+  local string_find	= string.find
+  local string_format	= string.format
+  local table_insert	= table.insert
   local table_unpack	= table.unpack or unpack
 
   local _, deprecated	= {
@@ -48,10 +57,8 @@ if not require "std.debug_init"._DEBUG.deprecate then
   -- std.operator any time in the next year or so...
   local operator	= require "std.operator"
 
-  local _assert		= _.std.assert
   local _ipairs		= _.std.ipairs
   local _pairs		= _.std.pairs
-  local _require	= _.std.require
   local _tostring	= _.std.tostring
   local DEPRECATED	= _.maturity.DEPRECATED
   local eval		= _.std.eval
@@ -66,6 +73,13 @@ if not require "std.debug_init"._DEBUG.deprecate then
   --[[ ========== ]]--
   --[[ Death Row! ]]--
   --[[ ========== ]]--
+
+
+  local function _assert (expect, fmt, arg1, ...)
+    local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ""
+    return expect or error (msg, 2)
+  end
+
 
   local function callable (x)
     if type (x) == "function" then return x end
@@ -82,6 +96,28 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local function len (t)
     local m = getmetamethod (t, "__len")
     return m and m (t) or #t
+  end
+
+
+  local function compare (l, m)
+    local lenl, lenm = len (l), len (m)
+    for i = 1, math_min (lenl, lenm) do
+      local li, mi = tonumber (l[i]), tonumber (m[i])
+      if li == nil or mi == nil then
+        li, mi = l[i], m[i]
+      end
+      if li < mi then
+        return -1
+      elseif li > mi then
+        return 1
+      end
+    end
+    if lenl < lenm then
+      return -1
+    elseif lenl > lenm then
+      return 1
+    end
+    return 0
   end
 
 
@@ -282,6 +318,24 @@ if not require "std.debug_init"._DEBUG.deprecate then
   end
 
 
+  local function split (s, sep)
+    local r, patt = {}
+    if sep == "" then
+      patt = "(.)"
+      table_insert (r, "")
+    else
+      patt = "(.-)" .. (sep or "%s+")
+    end
+    local b, slen = 0, len (s)
+    while b <= slen do
+      local e, n, m = string_find (s, patt, b + 1)
+      table_insert (r, m or s:sub (b + 1, slen))
+      b = n or slen + 1
+    end
+    return r
+  end
+
+
   local function totable (x)
     local m = getmetamethod (x, "__totable")
     if m then
@@ -309,6 +363,26 @@ if not require "std.debug_init"._DEBUG.deprecate then
       end
     end
     return rs
+  end
+
+
+  local function vcompare (a, b)
+    return compare (split (a, "%."), split (b, "%."))
+  end
+
+
+  local function _require (module, min, too_big, pattern)
+    local m = require (module)
+    local v = tostring (type (m) == "table" and (m.version or m._VERSION) or ""):match (pattern or "([%.%d]+)%D*$")
+    if min then
+      assert (vcompare (v, min) >= 0, "require '" .. module ..
+              "' with at least version " .. min .. ", but found version " .. v)
+    end
+    if too_big then
+      assert (vcompare (v, too_big) < 0, "require '" .. module ..
+              "' with version less than " .. too_big .. ", but found version " .. v)
+    end
+    return m
   end
 
 
