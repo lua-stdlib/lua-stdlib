@@ -4,7 +4,7 @@ before:
   this_module  = "std.functional"
   global_table = "_G"
 
-  exported_apis = { "bind", "callable", "case", "collect", "compose",
+  exported_apis = { "any", "bind", "callable", "case", "collect", "compose",
                     "cond", "curry", "eval", "filter", "fold", "foldl",
                     "foldr", "id", "lambda", "map", "map_with", "memoize",
                     "nop", "op", "product", "reduce", "zip", "zip_with" }
@@ -32,6 +32,29 @@ specify std.functional:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
           to_equal {}
+
+
+- describe any:
+  - before:
+      stop = function () return true end
+      fail = function () return false end
+
+      f = M.any
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.any (func*)")
+
+  - it returns a single function:
+      expect (type (f (M.id))).to_be "function"
+  - it propagates arguments and returned results:
+      expect (f (M.id) (true)).to_be (true)
+      expect ({f (M.id) (1, 2, 3)}).to_equal {1, 2, 3}
+  - it calls all functions until one returns non-nil:
+      expect (f (M.id, M.id, stop, fail) (nil)).to_be (true)
+  - it only looks at first returned value:
+      expect (f (M.id, M.id, stop, fail) (nil, "ignored")).to_be (true)
+  - it does not call remaining functions after non-nil return:
+      expect (f (M.id, fail) (true)).to_be (true)
 
 
 - describe bind:

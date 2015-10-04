@@ -51,6 +51,22 @@ local _, _ENV		= nil, _.strict {}
 --[[ =============== ]]--
 
 
+local function any (...)
+  local fns = {...}
+
+  return function (...)
+    local argt = {}
+    for _, fn in npairs (fns) do
+      argt = {fn (...)}
+      if argt[1] ~= nil then
+        return unpack (argt)
+      end
+    end
+    return unpack (argt)
+  end
+end
+
+
 local function bind (fn, bound)
   return function (...)
     local argt, i = copy (bound), 1
@@ -333,6 +349,14 @@ local function X (decl, fn)
 end
 
 local M = {
+  --- Call a series of functions until one returns non-nil.
+  -- @function any
+  -- @func ... functions to call
+  -- @treturn function to call fn1 .. fnN until one returns non-nil.
+  -- @usage
+  -- old_object_type = any (std.object.type, io.type, type)
+  any = X ("any (func...)", any),
+
   --- Partially apply a function.
   -- @function bind
   -- @func fn function to apply partially

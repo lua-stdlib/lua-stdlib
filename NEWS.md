@@ -114,6 +114,10 @@
     assert (a == nil and b == false and c == nil)
     ```
 
+  - New `functional.any` returns a function that calls each of the
+    passed functions with the same arguments, stopping and returning the
+    result from the first of those calls that does not equal `nil`.
+
   - New `functional.product` returns a list of combinations made by
     taking one element from each of the argument lists.  See LDocs for
     an example.
