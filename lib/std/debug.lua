@@ -58,7 +58,6 @@ local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
-local _type		= _.std.type
 local argerror		= _.std.debug.argerror
 local copy		= _.std.base.copy
 local insert		= _.std.table.insert
@@ -283,8 +282,13 @@ local function concat (alternatives)
 end
 
 
+local function _type (x)
+  return (getmetatable (x) or {})._type or io_type (x) or type (x)
+end
+
+
 local function extramsg_mismatch (expectedtypes, actual, index)
-  local actualtype = _type (actual)
+  local actualtype = _type (actual) or type (actual)
 
   -- Tidy up actual type for display.
   if actualtype == "nil" then

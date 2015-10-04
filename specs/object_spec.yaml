@@ -88,6 +88,7 @@ specify std.object:
         expect (fn "0.0").to_be "string"
         expect (fn (function () end)).to_be "function"
         expect (fn {}).to_be "table"
+
   - context when called as an object method:
     - it reports the type stored in the object's metatable:
         expect (o:prototype ()).to_be "Object"
@@ -109,6 +110,12 @@ specify std.object:
       fn = object.type
 
   - context when called from the object module:
+    - it writes an argument passing deprecation warning:
+        expect (deprecate_on ("type", "{}")).
+          to_contain_error "non-object argument to 'std.object.type' was deprecated"
+        expect (deprecate_off ("type", "{}")).
+          not_to_contain_error "was deprecated"
+
     - it reports the type stored in the object's metatable:
         expect (fn (o)).to_be "Object"
     - it reports the type of a cloned object:
@@ -121,19 +128,29 @@ specify std.object:
         p = Portal {}
         expect (fn (p)).to_be "Demon"
         expect (fn (p {})).to_be "Demon"
-    - it recognizes a file object:
-        h = io.open (os.tmpname ())
-        expect (fn (h)).to_be "file"
-        h:close ()
-        expect (fn (h)).to_be "closed file"
-    - it recognizes a primitive object:
-        expect (fn (nil)).to_be "nil"
-        expect (fn (false)).to_be "boolean"
-        expect (fn (0.0)).to_be "number"
-        expect (fn "0.0").to_be "string"
-        expect (fn (function () end)).to_be "function"
-        expect (fn {}).to_be "table"
+    - it returns nil for a primitive object:
+        # Have to use a separate process, because we already loaded
+        # debug_init and thus deprecated methods into this process
+        expect (deprecation ("true", this_module, "type", "nil")).
+          to_output "nil\n"
+        expect (deprecation ("true", this_module, "type", "false")).
+          to_output "nil\n"
+        expect (deprecation ("true", this_module, "type", "0.0")).
+          to_output "nil\n"
+        expect (deprecation ("true", this_module, "type", "'0.0'")).
+          to_output "nil\n"
+        expect (deprecation ("true", this_module, "type", "function () end")).
+          to_output "nil\n"
+        expect (deprecation ("true", this_module, "type", "{}")).
+          to_output "nil\n"
+
   - context when called as an object method:
+    - it writes a deprecation warning:
+        expect (deprecate_on ("type", "", "{}")).
+          to_contain_error "was deprecated"
+        expect (deprecate_off ("type", "", "{}")).
+          not_to_contain_error "was deprecated"
+
     - it reports the type stored in the object's metatable:
         expect (o:type ()).to_be "Object"
     - it reports the type of a cloned object:
@@ -146,6 +163,18 @@ specify std.object:
         p = Portal {}
         expect (p:type ()).to_be "Demon"
         expect ((p {}):type ()).to_be "Demon"
+    - it recognizes a file object:
+        h = io.open (os.tmpname ())
+        expect (o.type (h)).to_be "file"
+        h:close ()
+        expect (o.type (h)).to_be "closed file"
+    - it recognizes a primitive object:
+        expect (o.type (nil)).to_be "nil"
+        expect (o.type (false)).to_be "boolean"
+        expect (o.type (0.0)).to_be "number"
+        expect (o.type "0.0").to_be "string"
+        expect (o.type (function () end)).to_be "function"
+        expect (o.type {}).to_be "table"
 
 
 - describe instantiation from a prototype:

@@ -28,9 +28,6 @@
     _DEBUG.deprecate = true
     ```
 
-  - For orthogonality with core Lua `type`, we now export the
-    `std.object.type` function as `std.type`.
-
   - Objects and Modules are no longer conflated - what you get back from
     a `require "std.something"` is now ALWAYS a module:
 
@@ -205,19 +202,23 @@
 
   - Now that the `prototype` field is used to reference a module's
     object prototype, `std.object.prototype` no longer return the object
-    type of an argument. Use either `std.type` or the type function from
-    an instantiated object:
+    type of an argument. Additionally, for orthogonality with the way Lua
+    itself uses `io.type` and `math.type` to get more detail about certain
+    objects than `type` itself, `std.object.type` now operates purely on
+    stdlib objects with a `_type` metatable field, and returns `nil` for
+    anything else.
+
+    To replicate the old behaviour, use this:
 
     ```lua
-    local stdtype = require "std.type"
-    local Object = require "std.object".prototype
-    local objtype = Object.type
+    local std = require "std"
+    local object_type = std.functional.any (std.object.type, io.type, type)
     ```
 
   - Objects no longer honor mangling and stripping `_functions` tables
     from objects during instantiation, instead move your actual object
     into the module `prototype` field, and add the module functions to    
-    the parent table returned whn the module is required.
+    the parent table returned when the module is required.
 
   - `functional.lambda` no longer returns a bare function, but a functable
     that can be called and stringified.

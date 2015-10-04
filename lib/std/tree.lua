@@ -48,7 +48,6 @@ local Module		= _.std.object.Module
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local _type		= _.std.type
 local argscheck		= _.debug.argscheck
 local get		= _.operator.get
 local ielems		= _.std.ielems
@@ -142,6 +141,14 @@ end
 
 local function X (decl, fn)
   return argscheck ("std.tree." .. decl, fn)
+end
+
+
+--- Return the object type, if set, otherwise the Lua type.
+-- @param x item to act on
+-- @treturn string object type of *x*, otherwise `type (x)`
+local function _type (x)
+  return (getmetatable (x) or {})._type or type (x)
 end
 
 

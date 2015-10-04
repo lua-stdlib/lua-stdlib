@@ -45,7 +45,6 @@ local Module		= _.std.object.Module
 
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
-local _type		= _.std.type
 local argscheck		= _.debug.argscheck
 local pickle		= _.std.string.pickle
 
@@ -266,7 +265,7 @@ prototype = Container {
       keys[#keys + 1] = _tostring (k)
     end
     table_sort (keys)
-    return _type (self) .. " {" .. table_concat (keys, ", ") .. "}"
+    return getmetatable (self)._type .. " {" .. table_concat (keys, ", ") .. "}"
   end,
 
   --- Return a loadable serialization of this object, where possible.

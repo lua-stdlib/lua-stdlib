@@ -47,7 +47,6 @@ local _ = {
 local Container		= _.container.prototype
 local Module		= _.std.object.Module
 
-local _type		= _.std.type
 local pickle		= _.std.string.pickle
 local toqstring		= _.std.base.toqstring
 
@@ -145,7 +144,7 @@ local prototype = Container {
   -- print (Tuple ("nil", nil, false))
   __tostring = function (self)
     local _, argstr = next (self)
-    return string_format ("%s (%s)", _type (self), argstr)
+    return string_format ("%s (%s)", getmetatable (self)._type, argstr)
   end,
 
   --- Unpack tuple values between index *i* and *j*, inclusive.

@@ -22,9 +22,13 @@
 ]]
 
 
+local getmetatable	= getmetatable
+
+
 local _ = {
   container		= require "std.container",
   debug 	    	= require "std.debug",
+  maturity		= require "std.maturity",
   std			= require "std.base",
   strict		= require "std.strict",
 }
@@ -32,7 +36,6 @@ local _ = {
 local Container 	= _.container.prototype
 local Module		= _.std.object.Module
 
-local _type		= _.std.type
 local argscheck		= _.debug.argscheck
 local getmetamethod	= _.std.getmetamethod
 local mapfields		= _.std.object.mapfields
@@ -80,14 +83,6 @@ local methods = {
   -- }
   clone = getmetamethod (Container, "__call"),
 
-  --- Type of this object.
-  -- @function prototype:type
-  -- @treturn string type of this object.
-  -- @see std.type
-  -- @usage
-  -- assert (Object:type () == getmetatable (Object)._type)
-  type = X ("type (?any)", _type),
-
 
   --- Object Functions
   -- @section objfunctions
@@ -111,7 +106,7 @@ local methods = {
 
 
 if deprecated then
-  methods = merge (methods, deprecated.object)
+  methods = merge (methods, deprecated.methods.object)
 end
 
 
@@ -147,11 +142,14 @@ local prototype = Container {
 
 
 local M = {
-  prototype = prototype,
+  prototype	= prototype,
+  type		= function (x) return (getmetatable (x) or {})._type end,
 }
 
 if deprecated then
-  M = merge (M, deprecated.object)
+  -- Yes, we really are overwriting the new fast object.type with the
+  -- deprecation warning backwards compatible version here!
+  M = merge (deprecated.object, M)
 end
 
 

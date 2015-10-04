@@ -23,8 +23,12 @@ local M		= false
 
 if not require "std.debug_init"._DEBUG.deprecate then
 
+  local getmetatable	= getmetatable
   local pairs		= pairs
   local type		= type
+
+  local io_stderr	= io.stderr
+  local io_type		= io.type
 
   local _, deprecated	= {
     -- Adding anything else here will probably cause a require loop.
@@ -39,8 +43,8 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
 
   local _pairs		= _.std.pairs
-  local _type		= _.std.type
   local DEPRECATED	= _.maturity.DEPRECATED
+  local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
   local len		= _.std.operator.len
   local sortkeys	= _.std.base.sortkeys
 
@@ -56,6 +60,11 @@ if not require "std.debug_init"._DEBUG.deprecate then
     local r = {}
     for k in _pairs (t) do r[#r + 1] = k end
     return sortkeys (r)
+  end
+
+
+  local function _type (x)
+    return (getmetatable (x) or {})._type or io_type (x) or type (x)
   end
 
 
@@ -78,13 +87,28 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   M = acyclic_merge ({
     object = {
-      prototype = X ("object.prototype", "std.type", _type),
-      type = X ("object.type", "std.type", _type),
+      type = function (x)
+        local r = (getmetatable (x) or {})._type
+	if r == nil then
+	  io_stderr:write (DEPRECATIONMSG (RELEASE,
+            "non-object argument to 'std.object.type'",
+            [[check for 'type (x) == "table"' before calling 'std.object.type (x)' instead]],
+	    2))
+	 end
+	 return r or io_type (x) or type (x)
+      end,
     },
 
     table = {
       len = X ("table.len", "std.operator.len", len),
       okeys = DEPRECATED (RELEASE, "'std.table.okeys'", "compose 'std.table.keys' and 'std.table.sort' instead", okeys),
+    },
+
+    methods = {
+      object = {
+        prototype = DEPRECATED (RELEASE, "'std.object.prototype'", "use 'std.functional.any (std.object.type, io.type, type)' instead", _type),
+        type = DEPRECATED (RELEASE, "'std.object.type'", "use 'std.functional.any (std.object.type, io.type, type)' instead", _type),
+      },
     },
   },
   deprecated)

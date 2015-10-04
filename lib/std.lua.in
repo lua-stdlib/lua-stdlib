@@ -45,7 +45,6 @@ local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _require		= _.std.require
 local _tostring		= _.std.tostring
-local _type		= _.std.type
 local argscheck		= _.debug.argscheck
 local compare		= _.std.list.compare
 local copy		= _.std.base.copy
@@ -202,13 +201,6 @@ M = {
   -- -- {1=baz,foo=bar}
   -- print (std.tostring {foo="bar","baz"})
   tostring = X ("tostring (?any)", _tostring),
-
-  --- Type of an object, or primitive.
-  -- @function type
-  -- @param x anything
-  -- @treturn string type of *x*
-  -- @see std.object.type
-  type = X ("type (?any)", _type),
 
 
   --- Module Functions

@@ -40,7 +40,6 @@ local coroutine_wrap	= coroutine.wrap
 local coroutine_yield	= coroutine.yield
 local math_huge		= math.huge
 local math_min		= math.min
-local io_type		= io.type
 local string_find	= string.find
 local string_format	= string.format
 local table_concat	= table.concat
@@ -631,10 +630,6 @@ return {
   rnpairs       = rnpairs,
 
   tostring      = function (x) return render (x, tostring_vtable) end,
-
-  type = function (x)
-    return (getmetatable (x) or {})._type or io_type (x) or type (x)
-  end,
 
   base = {
     copy      = copy,
