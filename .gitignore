@@ -19,7 +19,7 @@
 /config.status
 /configure
 /doc
-/lib/std.lua
+/lib/std/version.lua
 /luarocks
 /m4/ax_lua.m4
 /m4/slingshot.m4

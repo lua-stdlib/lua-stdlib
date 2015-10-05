@@ -154,7 +154,6 @@ end
 M = {
   --- Release version string.
   -- @field version
-  version = "General Lua libraries / @VERSION@",
 
 
   --- Core Functions

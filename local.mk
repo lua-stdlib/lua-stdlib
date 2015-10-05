@@ -61,10 +61,6 @@ include specs/specs.mk
 ## Build. ##
 ## ------ ##
 
-dist_lua_DATA +=			\
-	lib/std.lua			\
-	$(NOTHING_ELSE)
-
 luastddir = $(luadir)/std
 
 dist_luastd_DATA =			\
@@ -73,6 +69,7 @@ dist_luastd_DATA =			\
 	lib/std/debug.lua		\
 	lib/std/functional.lua		\
 	lib/std/io.lua			\
+	lib/std/init.lua		\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/maturity.lua		\
@@ -87,6 +84,7 @@ dist_luastd_DATA =			\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
 	lib/std/tuple.lua		\
+	lib/std/version.lua		\
 	$(NOTHING_ELSE)
 
 luastddeletedir = $(luastddir)/delete-after
@@ -110,12 +108,11 @@ dist_luastddebug_DATA =			\
 	lib/std/debug_init/init.lua	\
 	$(NOTHING_ELSE)
 
-# In order to avoid regenerating std.lua at configure time, which
-# causes the documentation to be rebuilt and hence requires users to
-# have ldoc installed, put std/std.lua in as a Makefile dependency.
-# (Strictly speaking, distributing an AC_CONFIG_FILE would be wrong.)
-lib/std.lua: lib/std.lua.in
-	./config.status --file=$@
+lib/std/version.lua:
+	echo 'return "General Lua libraries / $(VERSION)"' > $@T
+	@test -f $@ || cp -f $@T $@
+	@cmp -s $@T $@ || cp -f $@T $@
+	@rm -f $@T
 
 
 ## Use a builtin rockspec build with root at $(srcdir)/lib, and note
@@ -129,7 +126,6 @@ mkrockspecs_args = --module-dir $(srcdir)/lib --repository lua-stdlib
 
 EXTRA_DIST +=				\
 	build-aux/config.ld.in		\
-	lib/std.lua.in			\
 	$(NOTHING_ELSE)
 
 

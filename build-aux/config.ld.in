@@ -42,7 +42,7 @@ dir = "."
 
 file = {
   -- Core Functions
-  "../lib/std.lua",
+  "../lib/std/init.lua",
 
   -- Core Libraries
   "../lib/std/debug.lua",

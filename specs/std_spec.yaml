@@ -5,7 +5,7 @@ before: |
   exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
                     "ielems", "ipairs", "ireverse", "monkey_patch",
                     "npairs", "pairs", "require", "ripairs", "rnpairs",
-                    "tostring", "version" }
+                    "tostring" }
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -27,6 +27,7 @@ before: |
             })
 
   M = require (this_module)
+  M.version = nil               -- previous specs may have autoloaded it
 
 
 specify std:
@@ -455,9 +456,9 @@ specify std:
         expect (f "std").to_be (require "std")
     - it uses _VERSION when version field is nil:
         std = require "std"
-        M._VERSION, M.version = M.version, M._VERSION
+        M._VERSION, M.version = M.version, nil
         expect (f ("std", "41", "9999")).to_be (require "std")
-        M._VERSION, M.version = M.version, M._VERSION
+        M._VERSION, M.version = nil, M._VERSION
   - context with semantic versioning:
     - before:
         std = require "std"
