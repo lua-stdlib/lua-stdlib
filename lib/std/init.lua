@@ -52,11 +52,13 @@ local elems		= _.std.elems
 local eval		= _.std.eval
 local getmetamethod	= _.std.getmetamethod
 local ielems		= _.std.ielems
-local ireverse		= _.std.ireverse
+local merge		= _.std.base.merge
 local npairs		= _.std.npairs
 local ripairs		= _.std.ripairs
 local rnpairs		= _.std.rnpairs
 local split		= _.std.string.split
+
+local deprecated	= require "std.delete-after.a-year"
 
 local _, _ENV		= nil, _.strict {}
 
@@ -305,23 +307,6 @@ M = {
   -- std.functional.map (print, std.ipairs, {"foo", "bar", [4]="baz", d=5})
   ipairs = X ("ipairs (table)", _ipairs),
 
-  --- Return a new sequence with element order reversed.
-  --
-  -- Apart from the order of the elements returned, this function follows
-  -- the same rules as @{ipairs} for determining first and last elements.
-  -- @function ireverse
-  -- @tparam table t a table
-  -- @treturn table a new table with integer keyed elements in reverse
-  --   order with respect to *t*
-  -- @see ielems
-  -- @see ipairs
-  -- @usage
-  -- local rielems = std.functional.compose (std.ireverse, std.ielems)
-  -- --> bar
-  -- --> foo
-  -- std.functional.map (print, rielems, {"foo", "bar", [4]="baz", d=5})
-  ireverse = X ("ireverse (table)", ireverse),
-
   --- Ordered iterator for integer keyed values.
   -- Like ipairs, but does not stop until the __len or maxn of *t*.
   -- @function npairs
@@ -395,6 +380,12 @@ monkeys = copy ({}, M)
 for _, api in ipairs {"barrel", "monkey_patch", "version"} do
   monkeys[api] = nil
 end
+
+
+if deprecated then
+  M = merge (M, deprecated.std)
+end
+
 
 
 --- Metamethods

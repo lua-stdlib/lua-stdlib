@@ -213,19 +213,6 @@ local function invert (t)
 end
 
 
--- Be careful to reverse only the valid sequence part of a table.
-local function ireverse (t)
-  local oob = 1
-  while t[oob] ~= nil do
-    oob = oob + 1
-  end
-
-  local r = {}
-  for i = 1, oob - 1 do r[oob - i] = t[i] end
-  return r
-end
-
-
 -- Sort numbers first then asciibetically
 local function keysort (a, b)
   if type (a) == "number" then
@@ -598,7 +585,6 @@ return {
   getmetamethod = getmetamethod,
   ielems        = ielems,
   ipairs        = ipairs,
-  ireverse      = ireverse,
   npairs        = npairs,
   pairs         = pairs,
   ripairs       = ripairs,

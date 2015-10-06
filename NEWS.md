@@ -154,6 +154,10 @@
     orthogonality with core Lua, we're going back to using `std.object.type`,
     because that just makes more sense.  Sorry!
 
+  - `std.ireverse` has been deprecated in favour of
+    `std.functional.ireverse` because of the functional style of a
+    non-destructive sequence reversing operation.
+
   - `std.table.flatten` and `std.table.shape` have been deprecated in
     favour of `std.functional.flatten` and `std.functional.shape`
     because these functions are far more useful in conjunction with a

@@ -3,9 +3,14 @@ before: |
   global_table  = "_G"
 
   exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "ireverse", "monkey_patch",
-                    "npairs", "pairs", "require", "ripairs", "rnpairs",
-                    "tostring" }
+                    "ielems", "ipairs", "monkey_patch", "npairs", "pairs",
+                    "require", "ripairs", "rnpairs", "tostring" }
+  deprecations  = { "ireverse" }
+
+  setdebug { deprecate = false }
+
+  deprecate_on = bind (deprecation, {"nil", this_module})
+  deprecate_off = bind (deprecation, {false, this_module})
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable ({ content = "a string" }, {
@@ -38,7 +43,10 @@ specify std:
   - it exports the documented apis:
       t = {}
       for k in pairs (M) do t[#t + 1] = k end
-      expect (t).to_contain.a_permutation_of (exported_apis)
+      apis = {}
+      for i, v in ipairs (exported_apis) do apis[i] = v end
+      for _, v in ipairs (deprecations) do apis[#apis + 1] = v end
+      expect (t).to_contain.a_permutation_of (apis)
 
 - context when lazy loading:
   - it has no submodules on initial load:
@@ -328,8 +336,11 @@ specify std:
   - before:
       f = M.ireverse
 
-  - context with bad arguments:
-      badargs.diagnose (f, "std.ireverse (table)")
+  - it writes a deprecation warning:
+      expect (deprecate_on ("ireverse", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("ireverse", "{}")).
+        not_to_contain_error "was deprecated"
 
   - it returns a new list:
       t = {1, 2, 5}

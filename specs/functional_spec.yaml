@@ -6,9 +6,9 @@ before:
 
   exported_apis = { "any", "bind", "callable", "case", "collect", "compose",
                     "cond", "curry", "eval", "filter", "flatten", "fold",
-                    "foldl", "foldr", "id", "lambda", "map", "map_with",
-                    "memoize", "nop", "op", "product", "reduce", "shape",
-                    "zip", "zip_with" }
+                    "foldl", "foldr", "id", "ireverse", "lambda", "map",
+                    "map_with", "memoize", "nop", "op", "product", "reduce",
+                    "shape", "zip", "zip_with" }
 
   setdebug { deprecate = false }
 
@@ -373,6 +373,35 @@ specify std.functional:
       expect (f {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
   - it returns multiple arguments unchanged:
       expect ({f (1, "two", false)}).to_equal {1, "two", false}
+
+
+- describe ireverse:
+  - before: |
+      __index = setmetatable ({ content = "a string" }, {
+          __index = function (t, n)
+                      if n <= #t.content then
+                        return t.content:sub (n, n)
+                      end
+                    end,
+          __len   = function (t) return #t.content end,
+      })
+
+      f = M.ireverse
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.ireverse (table)")
+
+  - it returns a new list:
+      t = {1, 2, 5}
+      expect (f (t)).not_to_be (t)
+  - it reverses the elements relative to the original list:
+      expect (f {1, 2, "five"}).to_equal {"five", 2, 1}
+  - it ignores the dictionary part of a table:
+      expect (f {1, 2, "five"; a = "b", c = "d"}).to_equal {"five", 2, 1}
+  - it respects __len metamethod:
+      expect (f (__index)).to_equal {"g", "n", "i", "r", "t", "s", " ", "a"}
+  - it works for an empty list:
+      expect (f {}).to_equal {}
 
 
 - describe lambda:

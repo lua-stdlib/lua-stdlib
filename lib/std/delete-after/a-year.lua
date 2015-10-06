@@ -88,6 +88,18 @@ if not require "std.debug_init"._DEBUG.deprecate then
   end
 
 
+  local function ireverse (t)
+    local oob = 1
+    while t[oob] ~= nil do
+      oob = oob + 1
+    end
+
+    local r = {}
+    for i = 1, oob - 1 do r[oob - i] = t[i] end
+    return r
+  end
+
+
   local function okeys (t)
     local r = {}
     for k in _pairs (t) do r[#r + 1] = k end
@@ -165,6 +177,10 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	 end
 	 return r or io_type (x) or type (x)
       end,
+    },
+
+    std = {
+      ireverse = X ("ireverse", "functional.ireverse", ireverse),
     },
 
     table = {

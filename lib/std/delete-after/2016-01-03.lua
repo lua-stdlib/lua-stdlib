@@ -63,7 +63,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local DEPRECATED	= _.maturity.DEPRECATED
   local eval		= _.std.eval
   local ielems		= _.std.ielems
-  local ireverse	= _.std.ireverse
   local ripairs		= _.std.ripairs
 
   -- Only the above symbols are used below this line.
@@ -164,6 +163,18 @@ if not require "std.debug_init"._DEBUG.deprecate then
       r = fn (r, t[#t])
       t = {nextfn (state, t[1])}
     end
+    return r
+  end
+
+
+  local function ireverse (t)
+    local oob = 1
+    while t[oob] ~= nil do
+      oob = oob + 1
+    end
+
+    local r = {}
+    for i = 1, oob - 1 do r[oob - i] = t[i] end
     return r
   end
 
@@ -449,9 +460,9 @@ if not require "std.debug_init"._DEBUG.deprecate then
       map_with    = X ("list.map_with'", "std.functional.map_with", map_with),
       project     = X ("list.project", "std.table.project", project),
       relems      = DEPRECATED (RELEASE, "'std.list.relems'",
-                      "compose 'std.ielems' and 'std.ireverse' instead", relems),
+                      "compose 'std.ielems' and 'std.functional.ireverse' instead", relems),
       reverse     = DEPRECATED (RELEASE, "'std.list.reverse'",
-                      "compose 'std.list' and 'std.ireverse' instead", reverse),
+                      "compose 'std.list' and 'std.functional.ireverse' instead", reverse),
       shape       = X ("list.shape", "std.table.shape", shape),
       transpose   = X ("list.transpose", "std.functional.zip", transpose),
       zip_with    = X ("list.zip_with", "std.functional.zip_with", zip_with),
@@ -494,7 +505,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	                 function (proto, self, x) return project (proto, x, self) end),
         relems      = X ("list:relems",  relems),
         reverse     = DEPRECATED (RELEASE, "'std.list:reverse'",
-                        "compose 'std.list' and 'std.ireverse' instead", reverse),
+                        "compose 'std.list' and 'std.functional.ireverse' instead", reverse),
         shape       = X ("list:shape", "std.table.shape",
 	                 function (proto, t, l) return shape (proto, l, t) end),
       },

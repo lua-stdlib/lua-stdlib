@@ -30,7 +30,6 @@ local argscheck		= _.debug.argscheck
 local callable		= _.std.functional.callable
 local copy		= _.std.base.copy
 local ielems		= _.std.ielems
-local ireverse		= _.std.ireverse
 local len		= _.std.operator.len
 local merge		= _.std.base.merge
 local mnemonic		= _.std.base.mnemonic
@@ -208,6 +207,19 @@ local function foldl (fn, d, t)
     d, t = d[1], tail
   end
   return reduce (fn, d, ielems, t)
+end
+
+
+-- Be careful to reverse only the valid sequence part of a table.
+local function ireverse (t)
+  local oob = 1
+  while t[oob] ~= nil do
+    oob = oob + 1
+  end
+
+  local r = {}
+  for i = 1, oob - 1 do r[oob - i] = t[i] end
+  return r
 end
 
 
@@ -576,6 +588,23 @@ local M = {
   -- @param ... arguments
   -- @return *arguments*
   id = id,  -- any number of any type arguments!
+
+  --- Return a new sequence with element order reversed.
+  --
+  -- Apart from the order of the elements returned, this function follows
+  -- the same rules as @{ipairs} for determining first and last elements.
+  -- @function ireverse
+  -- @tparam table t a table
+  -- @treturn table a new table with integer keyed elements in reverse
+  --   order with respect to *t*
+  -- @see ielems
+  -- @see ipairs
+  -- @usage
+  -- local rielems = std.functional.compose (std.ireverse, std.ielems)
+  -- --> bar
+  -- --> foo
+  -- std.functional.map (print, rielems, {"foo", "bar", [4]="baz", d=5})
+  ireverse = X ("ireverse (table)", ireverse),
 
   --- Compile a lambda string into a Lua function.
   --
