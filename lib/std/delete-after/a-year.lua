@@ -138,7 +138,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   -- Ensure deprecated APIs observe _DEBUG warning standards.
   local function X (old, new, fn)
-    return DEPRECATED (RELEASE, "'std." .. old .. "'", "use '" .. new .. "' instead", fn)
+    return DEPRECATED (RELEASE, "'std." .. old .. "'", "use 'std." .. new .. "' instead", fn)
   end
 
   local function acyclic_merge (dest, src)
@@ -169,7 +169,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
     table = {
       flatten = X ("table.flatten", "functional.flatten", flatten),
-      len = X ("table.len", "std.operator.len", len),
+      len = X ("table.len", "operator.len", len),
       okeys = DEPRECATED (RELEASE, "'std.table.okeys'", "compose 'std.table.keys' and 'std.table.sort' instead", okeys),
       shape = X ("table.shape", "functional.shape", shape),
     },
