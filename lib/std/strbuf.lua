@@ -27,8 +27,8 @@
 ]]
 
 
+local ipairs		= ipairs
 local tostring		= tostring
-local type		= type
 
 local table_concat	= table.concat
 
@@ -44,8 +44,6 @@ local Module		= _.std.object.Module
 local Object		= _.object.prototype
 
 local argscheck		= _.debug.argscheck
-local ielems		= _.std.ielems
-local insert		= _.std.table.insert
 local merge		= _.std.base.merge
 
 
@@ -61,13 +59,14 @@ local _, _ENV		= nil, _.strict {}
 
 
 local function __concat (self, x)
-  return insert (self, x)
+  self[#self + 1] = x
+  return self
 end
 
 
 local function __tostring (self)
   local strs = {}
-  for e in ielems (self) do strs[#strs + 1] = tostring (e) end
+  for _, e in ipairs (self) do strs[#strs + 1] = tostring (e) end
   return table_concat (strs)
 end
 
@@ -76,10 +75,6 @@ end
 --[[ Public Interface. ]]--
 --[[ ================= ]]--
 
-
-local function X (decl, fn)
-  return argscheck ("std.strbuf." .. decl, fn)
-end
 
 local methods = {
   --- Methods
@@ -94,7 +89,7 @@ local methods = {
   -- @treturn prototype modified buffer
   -- @usage
   -- c = StrBuf {} :concat "append this" :concat (StrBuf {" and", " this"})
-  concat = X ("concat (StrBuf, any)", __concat),
+  concat = argscheck ("std.strbuf.concat (StrBuf, any)", __concat),
 }
 
 if deprecated then
