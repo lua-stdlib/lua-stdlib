@@ -14,6 +14,7 @@ local pcall		= pcall
 local select		= select
 local setmetatable	= setmetatable
 
+local math_ceil		= math.ceil
 local table_remove	= table.remove
 
 
@@ -23,10 +24,10 @@ local _ = {
   strict		= require "std.strict",
 }
 
+local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.debug.argscheck
 local callable		= _.std.functional.callable
-local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
 local ielems		= _.std.ielems
 local ireverse		= _.std.ireverse
@@ -37,6 +38,7 @@ local nop		= _.std.functional.nop
 local npairs		= _.std.npairs
 local reduce		= _.std.functional.reduce
 local render		= _.std.string.render
+local leaves		= _.std.tree.leaves
 local unpack		= _.std.table.unpack
 
 
@@ -85,6 +87,31 @@ local function case (with, branches)
     return match (with)
   end
   return match
+end
+
+
+local function collect (ifn, ...)
+  local argt, r = {...}, {}
+  if not callable (ifn) then
+    ifn, argt = npairs, {ifn, ...}
+  end
+
+  -- How many return values from ifn?
+  local arity = 1
+  for e, v in ifn (unpack (argt)) do
+    if v then arity, r = 2, {} break end
+    -- Build an arity-1 result table on first pass...
+    r[#r + 1] = e
+  end
+
+  if arity == 2 then
+    -- ...oops, it was arity-2 all along, start again!
+    for k, v in ifn (unpack (argt)) do
+      r[k] = v
+    end
+  end
+
+  return r
 end
 
 
@@ -166,6 +193,11 @@ local function filter (pfn, ifn, ...)
   end
 
   return r
+end
+
+
+local function flatten (t)
+  return collect (leaves, _ipairs, t)
 end
 
 
@@ -321,6 +353,42 @@ local function product (...)
 end
 
 
+local function shape (dims, t)
+  t = flatten (t)
+  -- Check the shape and calculate the size of the zero, if any
+  local size = 1
+  local zero
+  for i, v in _ipairs (dims) do
+    if v == 0 then
+      if zero then -- bad shape: two zeros
+        return nil
+      else
+        zero = i
+      end
+    else
+      size = size * v
+    end
+  end
+  if zero then
+    dims[zero] = math_ceil (len (t) / size)
+  end
+  local function fill (i, d)
+    if d > len (dims) then
+      return t[i], i + 1
+    else
+      local r = {}
+      for j = 1, dims[d] do
+        local e
+        e, i = fill (i, d + 1)
+        r[#r + 1] = e
+      end
+      return r, i
+    end
+  end
+  return (fill (1, 1))
+end
+
+
 local function zip (tt)
   local r = {}
   for outerk, inner in _pairs (tt) do
@@ -466,6 +534,15 @@ local M = {
   -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
   filter = X ("filter (func, [func], any...)", filter),
 
+  --- Flatten a nested table into a list.
+  -- @function flatten
+  -- @tparam table t a table
+  -- @treturn table a list of all non-table elements of *t*
+  -- @usage
+  -- --> {1, 2, 3, 4, 5}
+  -- flatten {{1, {{2}, 3}, 4}, 5}
+  flatten = X ("flatten (table)", flatten),
+
   --- Fold a binary function left associatively.
   -- If parameter *d* is omitted, the first element of *t* is used,
   -- and *t* treated as if it had been passed without that element.
@@ -598,6 +675,31 @@ local M = {
   -- --> 2 ^ 3 ^ 4 ==> 4096
   -- reduce (std.operator.pow, 2, std.ielems, {3, 4})
   reduce = X ("reduce (func, any, [func], any...)", reduce),
+
+  --- Shape a table according to a list of dimensions.
+  --
+  -- Dimensions are given outermost first and items from the original
+  -- list are distributed breadth first; there may be one 0 indicating
+  -- an indefinite number. Hence, `{0}` is a flat list,
+  -- `{1}` is a singleton, `{2, 0}` is a list of
+  -- two lists, and `{0, 2}` is a list of pairs.
+  --
+  -- Algorithm: turn shape into all positive numbers, calculating
+  -- the zero if necessary and making sure there is at most one;
+  -- recursively walk the shape, adding empty tables until the bottom
+  -- level is reached at which point add table items instead, using a
+  -- counter to walk the flattened original list.
+  --
+  -- @todo Use ileaves instead of flatten (needs a while instead of a
+  -- for in fill function)
+  -- @function shape
+  -- @tparam table dims table of dimensions `{d1, ..., dn}`
+  -- @tparam table t a table of elements
+  -- @return reshaped list
+  -- @usage
+  -- --> {{"a", "b"}, {"c", "d"}, {"e", "f"}}
+  -- shape ({3, 2}, {"a", "b", "c", "d", "e", "f"})
+  shape = X ("shape (table, table)", shape),
 
   --- Zip a table of tables.
   -- Make a new table, with lists of elements at the same index in the

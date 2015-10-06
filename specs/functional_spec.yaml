@@ -5,9 +5,10 @@ before:
   global_table = "_G"
 
   exported_apis = { "any", "bind", "callable", "case", "collect", "compose",
-                    "cond", "curry", "eval", "filter", "fold", "foldl",
-                    "foldr", "id", "lambda", "map", "map_with", "memoize",
-                    "nop", "op", "product", "reduce", "zip", "zip_with" }
+                    "cond", "curry", "eval", "filter", "flatten", "fold",
+                    "foldl", "foldr", "id", "lambda", "map", "map_with",
+                    "memoize", "nop", "op", "product", "reduce", "shape",
+                    "zip", "zip_with" }
 
   setdebug { deprecate = false }
 
@@ -284,6 +285,23 @@ specify std.functional:
       t = {"first", second=2, last="three"}
       expect (f (function (k, v) return type (v) == "string" end, t)).
         to_equal {"first", last="three"}
+
+
+- describe flatten:
+  - before:
+      t = {{{"one"}}, "two", {{"three"}, "four"}}
+
+      f = M.flatten
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.flatten (table)")
+
+  - it returns a table:
+      expect (type (f (t))).to_be "table"
+  - it works for an empty table:
+      expect (f {}).to_equal {}
+  - it flattens a nested table:
+      expect (f (t)).to_equal {"one", "two", "three", "four"}
 
 
 - describe fold:
@@ -772,6 +790,36 @@ specify std.functional:
       expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it passes all iterator results to accumulator function:
       expect (f (rawset, {}, {"one", two=5})).to_equal {"one", two=5}
+
+
+- describe shape:
+  - before:
+      l = {1, 2, 3, 4, 5, 6}
+
+      f = M.shape
+
+  - context with bad arguments:
+      badargs.diagnose (f, "std.functional.shape (table, table)")
+
+  - it returns a table:
+      expect (objtype (f ({2, 3}, l))).to_be "table"
+  - it works for an empty table:
+      expect (f ({0}, {})).to_equal ({})
+  - it returns the result in a new table:
+      expect (f ({2, 3}, l)).not_to_be (l)
+  - it does not perturb the argument table:
+      f ({2, 3}, l)
+      expect (l).to_equal {1, 2, 3, 4, 5, 6}
+  - it reshapes a table according to given dimensions:
+      expect (f ({2, 3}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({3, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
+  - it treats 0-valued dimensions as an indefinite number:
+      expect (f ({2, 0}, l)).
+        to_equal ({{1, 2, 3}, {4, 5, 6}})
+      expect (f ({0, 2}, l)).
+        to_equal ({{1, 2}, {3, 4}, {5, 6}})
 
 
 - describe zip:

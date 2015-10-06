@@ -322,31 +322,6 @@ local function unpack (t, i, j)
 end
 
 
-local function collect (ifn, ...)
-  local argt, r = {...}, {}
-  if not callable (ifn) then
-    ifn, argt = npairs, {ifn, ...}
-  end
-
-  -- How many return values from ifn?
-  local arity = 1
-  for e, v in ifn (unpack (argt)) do
-    if v then arity, r = 2, {} break end
-    -- Build an arity-1 result table on first pass...
-    r[#r + 1] = e
-  end
-
-  if arity == 2 then
-    -- ...oops, it was arity-2 all along, start again!
-    for k, v in ifn (unpack (argt)) do
-      r[k] = v
-    end
-  end
-
-  return r
-end
-
-
 local function reduce (fn, d, ifn, ...)
   local argt = {...}
   if not callable (ifn) then
@@ -648,7 +623,6 @@ return {
 
   functional = {
     callable = callable,
-    collect  = collect,
     nop      = function () end,
     reduce   = reduce,
   },

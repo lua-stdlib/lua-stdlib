@@ -4,11 +4,12 @@ before: |
   global_table        = "_G"
 
   extend_base         = { "clone", "clone_select", "depair", "empty",
-                          "enpair", "flatten", "insert", "invert", "keys",
-                          "maxn", "merge", "merge_select", "monkey_patch",
-                          "new", "pack", "project", "remove", "shape",
-                          "size", "sort", "unpack", "values" }
-  deprecations        = { "len", "okeys", "metamethod", "ripairs", "totable" }
+                          "enpair", "insert", "invert", "keys", "maxn",
+                          "merge", "merge_select", "monkey_patch", "new",
+                          "pack", "project", "remove", "size", "sort",
+                          "unpack", "values" }
+  deprecations        = { "flatten", "len", "okeys", "metamethod", "ripairs",
+                          "shape",  "totable" }
 
   setdebug { deprecate = false }
 
@@ -177,8 +178,11 @@ specify std.table:
 
       f = M.flatten
 
-  - context with bad arguments:
-      badargs.diagnose (f, "std.table.flatten (table)")
+  - it writes a deprecation warning:
+      expect (deprecate_on ("ripairs", "{}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("ripairs", "{}")).
+        not_to_contain_error "was deprecated"
 
   - it returns a table:
       expect (type (f (t))).to_be "table"
@@ -631,8 +635,11 @@ specify std.table:
 
       f = M.shape
 
-  - context with bad arguments:
-      badargs.diagnose (f, "std.table.shape (table, table)")
+  - it writes a deprecation warning:
+      expect (deprecate_on ("shape", "{}, {}")).
+        to_contain_error "was deprecated"
+      expect (deprecate_off ("shape", "{}, {}")).
+        not_to_contain_error "was deprecated"
 
   - it returns a table:
       expect (objtype (f ({2, 3}, l))).to_be "table"

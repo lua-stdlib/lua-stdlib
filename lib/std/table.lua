@@ -17,7 +17,6 @@ local setmetatable	= setmetatable
 local table		= table
 local type		= type
 
-local math_ceil		= math.ceil
 local math_min		= math.min
 
 
@@ -105,11 +104,6 @@ local function enpair (t)
 end
 
 
-local function flatten (t)
-  return collect (leaves, _ipairs, t)
-end
-
-
 local function keys (t)
   local l = {}
   for k in _pairs (t) do
@@ -133,42 +127,6 @@ local function project (fkey, tt)
     r[#r + 1] = t[fkey]
   end
   return r
-end
-
-
-local function shape (dims, t)
-  t = flatten (t)
-  -- Check the shape and calculate the size of the zero, if any
-  local size = 1
-  local zero
-  for i, v in _ipairs (dims) do
-    if v == 0 then
-      if zero then -- bad shape: two zeros
-        return nil
-      else
-        zero = i
-      end
-    else
-      size = size * v
-    end
-  end
-  if zero then
-    dims[zero] = math_ceil (len (t) / size)
-  end
-  local function fill (i, d)
-    if d > len (dims) then
-      return t[i], i + 1
-    else
-      local r = {}
-      for j = 1, dims[d] do
-        local e
-        e, i = fill (i, d + 1)
-        r[#r + 1] = e
-      end
-      return r, i
-    end
-  end
-  return (fill (1, 1))
 end
 
 
@@ -350,15 +308,6 @@ M = {
   -- @usage if empty (t) then error "ohnoes" end
   empty = X ("empty (table)", function (t) return not next (t) end),
 
-  --- Flatten a nested table into a list.
-  -- @function flatten
-  -- @tparam table t a table
-  -- @treturn table a list of all non-table elements of *t*
-  -- @usage
-  -- --> {1, 2, 3, 4, 5}
-  -- flatten {{1, {{2}, 3}, 4}, 5}
-  flatten = X ("flatten (table)", flatten),
-
   --- Make a table with a default value for unset keys.
   -- @function new
   -- @param[opt=nil] x default entry value
@@ -385,31 +334,6 @@ M = {
   -- --> {1, 3, "yy"}
   -- project ("xx", {{"a", xx=1, yy="z"}, {"b", yy=2}, {"c", xx=3}, {xx="yy"})
   project = X ("project (any, list of tables)", project),
-
-  --- Shape a table according to a list of dimensions.
-  --
-  -- Dimensions are given outermost first and items from the original
-  -- list are distributed breadth first; there may be one 0 indicating
-  -- an indefinite number. Hence, `{0}` is a flat list,
-  -- `{1}` is a singleton, `{2, 0}` is a list of
-  -- two lists, and `{0, 2}` is a list of pairs.
-  --
-  -- Algorithm: turn shape into all positive numbers, calculating
-  -- the zero if necessary and making sure there is at most one;
-  -- recursively walk the shape, adding empty tables until the bottom
-  -- level is reached at which point add table items instead, using a
-  -- counter to walk the flattened original list.
-  --
-  -- @todo Use ileaves instead of flatten (needs a while instead of a
-  -- for in fill function)
-  -- @function shape
-  -- @tparam table dims table of dimensions `{d1, ..., dn}`
-  -- @tparam table t a table of elements
-  -- @return reshaped list
-  -- @usage
-  -- --> {{"a", "b"}, {"c", "d"}, {"e", "f"}}
-  -- shape ({3, 2}, {"a", "b", "c", "d", "e", "f"})
-  shape = X ("shape (table, table)", shape),
 
   --- Find the number of elements in a table.
   -- @function size

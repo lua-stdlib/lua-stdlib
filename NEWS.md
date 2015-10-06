@@ -154,6 +154,12 @@
     orthogonality with core Lua, we're going back to using `std.object.type`,
     because that just makes more sense.  Sorry!
 
+  - `std.table.flatten` and `std.table.shape` have been deprecated in
+    favour of `std.functional.flatten` and `std.functional.shape`
+    because these functions are far more useful in conjunction with a
+    functional programming style than with regular tables in imperative
+    code.
+
   - `std.table.len` has been deprecated in favour of `std.operator.len`,
     because it is not just for tables!
 
