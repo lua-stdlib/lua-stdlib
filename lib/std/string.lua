@@ -21,6 +21,7 @@ local type		= type
 local io_stderr		= io.stderr
 local math_abs		= math.abs
 local math_floor	= math.floor
+local table_insert	= table.insert
 
 
 local _ = {
@@ -38,7 +39,6 @@ local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
 local argscheck		= _.debug.argscheck
 local copy		= _.std.base.copy
 local escape_pattern	= _.std.string.escape_pattern
-local insert		= _.std.table.insert
 local len		= _.std.operator.len
 local merge		= _.std.base.merge
 local pickle		= _.std.string.pickle
@@ -100,7 +100,7 @@ local function finds (s, p, i, ...)
   repeat
     from, to, r = tfind (s, p, i, ...)
     if from ~= nil then
-      insert (l, {from, to, capt = r})
+      table_insert (l, {from, to, capt = r})
       i = to + 1
     end
   until not from

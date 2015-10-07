@@ -34,6 +34,7 @@ local io_open		= io.open
 local io_stderr		= io.stderr
 local os_exit		= os.exit
 local string_len	= string.len
+local table_insert	= table.insert
 
 
 local _ = {
@@ -46,7 +47,6 @@ local Object		= _.object.prototype
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local insert		= _.std.table.insert
 local last		= _.std.base.last
 local len		= _.std.operator.len
 
@@ -85,8 +85,8 @@ local function normalise (self, arglist)
 
 	-- Only split recognised long options.
 	if self[optname] then
-          insert (normal, optname)
-          insert (normal, opt:sub (x + 1))
+          table_insert (normal, optname)
+          table_insert (normal, opt:sub (x + 1))
 	else
 	  x = nil
 	end
@@ -94,7 +94,7 @@ local function normalise (self, arglist)
 
       if x == nil then
 	-- No '=', or substring before '=' is not a known option name.
-        insert (normal, opt)
+        table_insert (normal, opt)
       end
 
     elseif opt:sub (1, 1) == "-" and string_len (opt) > 2 then
@@ -126,9 +126,9 @@ local function normalise (self, arglist)
       until opt == nil
 
       -- Append split options to normalised list
-      for _, v in _ipairs (split) do insert (normal, v) end
+      for _, v in _ipairs (split) do table_insert (normal, v) end
     else
-      insert (normal, opt)
+      table_insert (normal, opt)
     end
   end
 
@@ -147,7 +147,7 @@ local function set (self, opt, value)
   local opts = self.opts[key]
 
   if type (opts) == "table" then
-    insert (opts, value)
+    table_insert (opts, value)
   elseif opts ~= nil then
     self.opts[key] = { opts, value }
   else
@@ -264,7 +264,7 @@ end
 -- parser:on ("--", parser.finished)
 local function finished (self, arglist, i)
   for opt = i + 1, len (arglist) do
-    insert (self.unrecognised, arglist[opt])
+    table_insert (self.unrecognised, arglist[opt])
   end
   return 1 + len (arglist)
 end
@@ -472,10 +472,10 @@ local function on (self, opts, handler, value)
                     if opt:match ("^%-[^%-]+") ~= nil then
                       -- '-xyz' => '-x -y -z'
                       for i = 2, string_len (opt) do
-                        insert (normal, "-" .. opt:sub (i, i))
+                        table_insert (normal, "-" .. opt:sub (i, i))
                       end
                     else
-                      insert (normal, opt)
+                      table_insert (normal, opt)
                     end
                   end)
   end
@@ -537,12 +537,12 @@ local function parse (self, arglist, defaults)
     local opt = arglist[i]
 
     if self[opt] == nil then
-      insert (self.unrecognised, opt)
+      table_insert (self.unrecognised, opt)
       i = i + 1
 
       -- Following non-'-' prefixed argument is an optarg.
       if i <= len (arglist) and arglist[i]:match "^[^%-]" then
-        insert (self.unrecognised, arglist[i])
+        table_insert (self.unrecognised, arglist[i])
         i = i + 1
       end
 
@@ -590,7 +590,7 @@ local function _init (_, spec)
   -- by a '-'.
   local specs = {}
   parser.helptext:gsub ("\n  %s*(%-[^\n]+)",
-                        function (spec) insert (specs, spec) end)
+                        function (spec) table_insert (specs, spec) end)
 
   -- Register option handlers according to the help text.
   for _, spec in _ipairs (specs) do
@@ -626,7 +626,7 @@ local function _init (_, spec)
       local _, c = spec:gsub ("^%-([-%w]),?%s+(.*)$",
                               function (opt, rest)
                                 if opt == "-" then opt = "--" end
-                                insert (options, opt)
+                                table_insert (options, opt)
                                 spec = rest
                               end)
 
@@ -636,7 +636,7 @@ local function _init (_, spec)
         -- Consume long option.
         spec:gsub ("^%-%-([%-%w]+),?%s+(.*)$",
                    function (opt, rest)
-                     insert (options, opt)
+                     table_insert (options, opt)
                      spec = rest
                    end)
       end

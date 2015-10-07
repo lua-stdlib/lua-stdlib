@@ -30,6 +30,7 @@ local io_type		= io.type
 local io_write		= io.write
 local string_format	= string.format
 local table_concat	= table.concat
+local table_insert	= table.insert
 
 
 local _	= {
@@ -45,7 +46,6 @@ local argscheck		= _.debug.argscheck
 local catfile		= _.std.io.catfile
 local copy		= _.std.base.copy
 local dirsep		= _.std.package.dirsep
-local insert		= _.std.table.insert
 local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
 local merge		= _.std.base.merge
@@ -128,7 +128,7 @@ end
 local function process_files (fn)
   -- N.B. "arg" below refers to the global array of command-line args
   if len (arg) == 0 then
-    insert (arg, "-")
+    table_insert (arg, "-")
   end
   for i, v in _ipairs (arg) do
     if v == "-" then

@@ -66,16 +66,6 @@ local argerror, getmetamethod, len
 -- (which have slightly varying semantics between releases).
 
 
-local function insert (t, pos, v)
-  if v == nil then pos, v = len (t) + 1, pos end
-  if pos < 1 or pos > len (t) + 1 then
-    argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
-  end
-  table_insert (t, pos, v)
-  return t
-end
-
-
 -- Iterate over keys 1..n, where n is the key before the first nil
 -- valued ordinal key (like Lua 5.3).
 local function ipairs (l)
@@ -511,14 +501,14 @@ local function split (s, sep)
   local r, patt = {}
   if sep == "" then
     patt = "(.)"
-    insert (r, "")
+    table_insert (r, "")
   else
     patt = "(.-)" .. (sep or "%s+")
   end
   local b, slen = 0, len (s)
   while b <= slen do
     local e, n, m = string_find (s, patt, b + 1)
-    insert (r, m or s:sub (b + 1, slen))
+    table_insert (r, m or s:sub (b + 1, slen))
     b = n or slen + 1
   end
   return r
@@ -642,7 +632,6 @@ return {
   },
 
   table = {
-    insert = insert,
     invert = invert,
     maxn   = maxn,
     unpack = unpack,

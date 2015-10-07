@@ -18,6 +18,7 @@ local table		= table
 local type		= type
 
 local math_min		= math.min
+local table_insert	= table.insert
 
 
 local _ = {
@@ -32,7 +33,6 @@ local argscheck		= _.debug.argscheck
 local argerror		= _.std.debug.argerror
 local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
-local insert		= _.std.table.insert
 local invert		= _.std.table.invert
 local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
@@ -101,6 +101,16 @@ local function enpair (t)
     tt[#tt + 1] = {i, v}
   end
   return tt
+end
+
+
+local function insert (t, pos, v)
+  if v == nil then pos, v = len (t) + 1, pos end
+  if pos < 1 or pos > len (t) + 1 then
+    argerror ("std.table.insert", 2, "position " .. pos .. " out of bounds", 2)
+  end
+  table_insert (t, pos, v)
+  return t
 end
 
 

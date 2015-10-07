@@ -44,6 +44,7 @@ local math_floor	= math.floor
 local math_huge		= math.huge
 local math_max		= math.max
 local table_concat	= table.concat
+local table_insert	= table.insert
 local table_remove	= table.remove
 local table_sort	= table.sort
 
@@ -60,7 +61,6 @@ local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
 local argerror		= _.std.debug.argerror
 local copy		= _.std.base.copy
-local insert		= _.std.table.insert
 local last		= _.std.base.last
 local len		= _.std.operator.len
 local maxn		= _.std.table.maxn
@@ -199,7 +199,7 @@ local function permute (t)
     if optional == nil then
       -- Append non-optional type-spec to each permutation.
       for b = 1, #p do
-	insert (p[b], markdots (p[b], v))
+	table_insert (p[b], markdots (p[b], v))
       end
     else
       -- Duplicate all existing permutations, and add optional type-spec
@@ -207,7 +207,7 @@ local function permute (t)
       local o = #p
       for b = 1, o do
         p[b + o] = copy (p[b])
-        insert (p[b], markdots (p[b], optional))
+        table_insert (p[b], markdots (p[b], optional))
       end
     end
   end
