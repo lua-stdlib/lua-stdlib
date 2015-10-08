@@ -45,6 +45,7 @@ local string_format	= string.format
 local table_concat	= table.concat
 local table_insert	= table.insert
 local table_maxn	= table.maxn
+local table_pack	= table.pack
 local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
 
@@ -285,6 +286,11 @@ local function npairs (t)
     if i <= n then return i, t[i] end
    end,
   t, i
+end
+
+
+local pack = table_pack or function (...)
+   return {n = select ("#", ...), ...}
 end
 
 
@@ -634,6 +640,7 @@ return {
   table = {
     invert = invert,
     maxn   = maxn,
+    pack   = pack,
     unpack = unpack,
   },
 

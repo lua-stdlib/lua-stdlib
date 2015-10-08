@@ -38,6 +38,7 @@ local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
 local maxn		= _.std.table.maxn
 local merge		= _.std.base.merge
+local pack		= _.std.table.pack
 local unpack		= _.std.table.unpack
 
 
@@ -223,6 +224,15 @@ M = {
   -- maxn {"a", b="c", 99, [42]="x", "x", [5]=67}
   maxn = X ("maxn (table)", maxn),
 
+  --- Turn a tuple into a list, with tuple-size in field `n`
+  -- @function pack
+  -- @param ... tuple
+  -- @return list-like table, with tuple-size in field `n`
+  -- @usage
+  -- --> {1, 2, "ax", n=3}
+  -- pack (("ax1"):find "(%D+)")
+  pack = pack,
+
   --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.
   -- Also, diagnose out of bounds *pos* arguments consistently on any supported
   -- version of Lua.
@@ -325,15 +335,6 @@ M = {
   -- @treturn table table whose unset elements are *x*
   -- @usage t = new (0)
   new = X ("new (?any, ?table)", new),
-
-  --- Turn a tuple into a list.
-  -- @function pack
-  -- @param ... tuple
-  -- @return list
-  -- @usage
-  -- --> {1, 2, "ax"}
-  -- pack (("ax1"):find "(%D+)")
-  pack = function (...) return {...} end,
 
   --- Project a list of fields from a list of tables.
   -- @function project

@@ -122,7 +122,7 @@
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
     when recursive table contents are equivalent.
 
-  - New `std.operator.len` replaces deprecated `std.table.len`.
+  - New `operator.len` replaces deprecated `table.len`.
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
@@ -194,6 +194,9 @@
   - You can now derive other types from `std.set` by passing a `_type`
     field in the init argument, just like the other table argument
     objects.
+
+  - `table.pack` now sets `n` field to number of arguments packed, even
+    in Lua 5.1.
 
 ### Incompatible changes
 

@@ -16,7 +16,7 @@ before: |
   deprecate_on = bind (deprecation, {"nil", this_module})
   deprecate_off = bind (deprecation, {false, this_module})
 
-  M = require "std.table"
+  M = require (this_module)
 
 
 specify std.table:
@@ -29,7 +29,12 @@ specify std.table:
         expect (show_apis {added_to=base_module, by=this_module}).
           to_equal {}
     - it contains apis from the core table table:
-        apis = require "std.base".base.copy (extend_base)
+        apis = {}
+        for _, v in ipairs (extend_base) do
+          if v ~= "pack" or M.pack ~= table.pack then
+            apis[#apis + 1] = v
+          end
+        end
         for _, v in ipairs (deprecations) do
           apis[#apis + 1] = v
         end
@@ -534,14 +539,18 @@ specify std.table:
 - describe pack:
   - before:
       unpack = unpack or table.unpack
-      t = {"one", "two", "five"}
+      t = {"one", "two", "five", n=3}
       f = M.pack
   - it creates an empty table with no arguments:
-      expect (f ()).to_equal {}
+      expect (f ()).to_equal {n=0}
   - it creates a table with arguments as elements:
       expect (f ("one", "two", "five")).to_equal (t)
   - it is the inverse operation to unpack:
       expect (f (unpack (t))).to_equal (t)
+  - it saves the tuple length in field n:
+      expect (f (1, 2, 5).n).to_be (3)
+      expect (f ("", false, nil).n).to_be (3)
+      expect (f (nil, nil, nil).n).to_be (3)
 
 
 - describe project:
