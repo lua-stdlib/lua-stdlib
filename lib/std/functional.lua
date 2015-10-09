@@ -13,6 +13,7 @@ local next		= next
 local pcall		= pcall
 local select		= select
 local setmetatable	= setmetatable
+local type		= type
 
 local math_ceil		= math.ceil
 local table_remove	= table.remove
@@ -35,6 +36,7 @@ local merge		= _.std.base.merge
 local mnemonic		= _.std.base.mnemonic
 local nop		= _.std.functional.nop
 local npairs		= _.std.npairs
+local pack		= _.std.table.pack
 local reduce		= _.std.functional.reduce
 local render		= _.std.string.render
 local leaves		= _.std.tree.leaves
@@ -53,12 +55,12 @@ local _, _ENV		= nil, _.strict {}
 
 
 local function any (...)
-  local fns = {...}
+  local fns = pack (...)
 
   return function (...)
     local argt = {}
-    for _, fn in npairs (fns) do
-      argt = {fn (...)}
+    for i = 1, fns.n do
+      argt = {fns[i] (...)}
       if argt[1] ~= nil then
         return unpack (argt)
       end
@@ -70,10 +72,10 @@ end
 
 local function bind (fn, bound)
   return function (...)
-    local argt, i = copy (bound), 1
-    for _, v in npairs {...} do
+    local argt, unbound, i = copy (bound), pack (...), 1
+    for j = 1, unbound.n do
       while argt[i] ~= nil do i = i + 1 end
-      argt[i], i = v, i + 1
+      argt[i], i = unbound[j], i + 1
     end
     return fn (unpack (argt))
   end
@@ -90,14 +92,21 @@ end
 
 
 local function collect (ifn, ...)
-  local argt, r = {...}, {}
+  local r = {}
   if not callable (ifn) then
-    ifn, argt = npairs, {ifn, ...}
+    -- No iterator behaves like npairs, which would collect all integer
+    -- key values from the first argument table:
+    local k, v = next (ifn)
+    repeat
+      if type (k) == "number" then r[k] = v end
+      k, v = next (ifn, k)
+    until k == nil
+    return r
   end
 
-  -- How many return values from ifn?
+  -- Or else result depends on how many return values from ifn?
   local arity = 1
-  for e, v in ifn (unpack (argt)) do
+  for e, v in ifn (...) do
     if v then arity, r = 2, {} break end
     -- Build an arity-1 result table on first pass...
     r[#r + 1] = e
@@ -105,7 +114,7 @@ local function collect (ifn, ...)
 
   if arity == 2 then
     -- ...oops, it was arity-2 all along, start again!
-    for k, v in ifn (unpack (argt)) do
+    for k, v in ifn (...) do
       r[k] = v
     end
   end
@@ -115,12 +124,12 @@ end
 
 
 local function compose (...)
-  local fns = {...}
+  local fns = pack (...)
 
   return function (...)
     local argt = {...}
-    for _, fn in npairs (fns) do
-      argt = {fn (unpack (argt))}
+    for i = 1, fns.n do
+      argt = {fns[i] (unpack (argt))}
     end
     return unpack (argt)
   end
