@@ -37,10 +37,10 @@ local table_remove	= table.remove
 
 local _ = {
   container		= require "std.container",
-  debug			= require "std.debug",
   operator		= require "std.operator",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local Container		= _.container.prototype
@@ -48,7 +48,7 @@ local Module		= _.std.object.Module
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local get		= _.operator.get
 local ielems		= _.std.ielems
 local last		= _.std.base.last

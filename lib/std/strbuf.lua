@@ -34,16 +34,16 @@ local table_concat	= table.concat
 
 
 local _ = {
-  debug			= require "std.debug",
   object		= require "std.object",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
 local Object		= _.object.prototype
 
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local merge		= _.std.base.merge
 
 

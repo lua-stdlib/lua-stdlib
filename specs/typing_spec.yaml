@@ -1,71 +1,33 @@
-before: |
-  base_module  = "debug"
-  this_module  = "std.debug"
-  global_table = "_G"
-
-  extend_base  = { "getfenv", "setfenv", "say", "trace", "_setdebug" }
-
-  deprecations = { "argcheck", "argerror", "argscheck", "extramsg_mismatch",
-                   "extramsg_toomany", "parsetypes", "resulterror",
-                   "toomanyargmsg", "typesplit" }
-
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
+before:
+  this_module = "std.typing"
 
   M = require (this_module)
 
-
-specify std.debug:
-- context when required:
-  - context by name:
-    - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
-    - it does not touch the core debug table:
-        expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
-    - it contains apis from the core debug table:
-        apis = {}
-        for _, v in ipairs (extend_base) do apis[#apis + 1] = v end
-        for _, v in ipairs (deprecations) do apis[#apis + 1] = v end
-        expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (apis)
-
-  - context via the std module:
-    - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
-    - it does not touch the core debug table:
-        expect (show_apis {added_to=base_module, by="std"}).
-          to_equal {}
+specify std.typing:
+- describe require:
+  - it does not perturb the global namespace:
+      expect (show_apis {added_to="_G", by="std.typing"}).
+        to_equal {}
 
 
 - describe resulterror:
   - before: |
       function mkstack (level)
         return string.format ([[
-          _DEBUG = nil                               -- line 1
-          local debug = require "std.debug"          -- line 2
-          function ohnoes ()                         -- line 3
-            debug.resulterror ("ohnoes", 1, nil, %s) -- line 4
-          end                                        -- line 5
-          function caller ()                         -- line 6
-            local r = ohnoes ()                      -- line 7
-            return "not a tail call"                 -- line 8
-          end                                        -- line 9
-          caller ()                                  -- line 10
+          _DEBUG = true                               -- line 1
+          local typing = require "std.typing"         -- line 2
+          function ohnoes ()                          -- line 3
+            typing.resulterror ("ohnoes", 1, nil, %s) -- line 4
+          end                                         -- line 5
+          function caller ()                          -- line 6
+            local r = ohnoes ()                       -- line 7
+            return "not a tail call"                  -- line 8
+          end                                         -- line 9
+          caller ()                                   -- line 10
         ]], tostring (level))
       end
 
       f = M.resulterror
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("resulterror", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("resulterror", "{}")).
-        not_to_contain_error "was deprecated"
 
   - it blames the call site by default: |
       expect (luaproc (mkstack ())).to_contain_error ":4: bad result"
@@ -84,26 +46,20 @@ specify std.debug:
   - before: |
       function mkstack (level)
         return string.format ([[
-          _DEBUG = nil                            -- line 1
-          local debug = require "std.debug"       -- line 2
-          function ohnoes ()                      -- line 3
-            debug.argerror ("ohnoes", 1, nil, %s) -- line 4
-          end                                     -- line 5
-          function caller ()                      -- line 6
-            local r = ohnoes ()                   -- line 7
-            return "not a tail call"              -- line 8
-          end                                     -- line 9
-          caller ()                               -- line 10
+          _DEBUG = true                            -- line 1
+          local typing = require "std.typing"      -- line 2
+          function ohnoes ()                       -- line 3
+            typing.argerror ("ohnoes", 1, nil, %s) -- line 4
+          end                                      -- line 5
+          function caller ()                       -- line 6
+            local r = ohnoes ()                    -- line 7
+            return "not a tail call"               -- line 8
+          end                                      -- line 9
+          caller ()                                -- line 10
         ]], tostring (level))
       end
 
-      f, badarg = init (M, this_module,  "argerror")
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("argerror", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("argerror", "{}")).
-        not_to_contain_error "was deprecated"
+      f, badarg = init (M, this_module, "argerror")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
@@ -144,27 +100,20 @@ specify std.debug:
 
       function mkstack (level, debugp)
         return string.format ([[
-          _DEBUG = %s                                       -- line 1
-          local debug = require "std.debug"                 -- line 2
-          require "std.debug_init"._DEBUG.deprecate = false -- line 3
-          function ohnoes (t)                               -- line 4
-            debug.argcheck ("ohnoes", 1, "table", t, %s)    -- line 5
-          end                                               -- line 6
-          function caller ()                                -- line 7
-            local r = ohnoes "not a table"                  -- line 8
-            return "not a tail call"                        -- line 9
-          end                                               -- line 10
-          caller ()                                         -- line 11
+          _DEBUG = %s                                     -- line 1
+          local typing = require "std.typing"             -- line 2
+          function ohnoes (t)                             -- line 3
+            typing.argcheck ("ohnoes", 1, "table", t, %s) -- line 4
+          end                                             -- line 5
+          function caller ()                              -- line 6
+            local r = ohnoes "not a table"                -- line 7
+            return "not a tail call"                      -- line 8
+          end                                             -- line 9
+          caller ()                                       -- line 10
         ]], tostring (debugp), tostring (level))
       end
 
-      f, badarg = init (M, this_module,  "argcheck")
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("argcheck", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("argcheck", "{}")).
-        not_to_contain_error "was deprecated"
+      f, badarg = init (M, this_module, "argcheck")
 
   - it diagnoses missing arguments:
       pending "Lua 5.1 support is dropped"
@@ -183,11 +132,11 @@ specify std.debug:
       expect (f ("foo", 1, "bar", 2, 3, false)).to_raise (badarg (6))
 
   - it blames the calling function by default: |
-      expect (luaproc (mkstack ())).to_contain_error ":8: bad argument"
+      expect (luaproc (mkstack ())).to_contain_error ":7: bad argument"
   - it honors optional call stack level reporting: |
-      expect (luaproc (mkstack (1))).to_contain_error ":5: bad argument"
-      expect (luaproc (mkstack (2))).to_contain_error ":8: bad argument"
-      expect (luaproc (mkstack (3))).to_contain_error ":11: bad argument"
+      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+      expect (luaproc (mkstack (3))).to_contain_error ":10: bad argument"
   - it can be disabled by setting _DEBUG to false:
       expect (luaproc (mkstack (nil, false))).
         not_to_contain_error "bad argument"
@@ -493,53 +442,15 @@ specify std.debug:
         expect (fn ("?#table|?table", {})).not_to_raise "any error"
 
 
-- describe debug:
-  - before: |
-      function mkwrap (k, v)
-        local fmt = "%s"
-        if type (v) == "string" then fmt = "%q" end
-        return k, string.format (fmt, require "std".tostring (v))
-      end
-
-      function mkdebug (debugp, ...)
-        return string.format ([[
-          _DEBUG = %s
-          require "std.debug" (%s)
-        ]],
-        require "std".tostring (debugp),
-        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
-      end
-
-  - it does nothing when _DEBUG is disabled:
-      expect (luaproc (mkdebug (false, "nothing to see here"))).
-        not_to_contain_error "nothing to see here"
-  - it writes to stderr when _DEBUG is not set:
-      expect (luaproc (mkdebug (nil, "debugging"))).
-        to_contain_error "debugging"
-  - it writes to stderr when _DEBUG is enabled:
-      expect (luaproc (mkdebug (true, "debugging"))).
-        to_contain_error "debugging"
-  - it writes to stderr when _DEBUG.level is not set:
-      expect (luaproc (mkdebug ({}, "debugging"))).
-        to_contain_error "debugging"
-  - it writes to stderr when _DEBUG.level is specified:
-      expect (luaproc (mkdebug ({level = 0}, "debugging"))).
-        to_contain_error "debugging"
-      expect (luaproc (mkdebug ({level = 1}, "debugging"))).
-        to_contain_error "debugging"
-      expect (luaproc (mkdebug ({level = 2}, "debugging"))).
-        to_contain_error "debugging"
-
-
 - describe argscheck:
   - before: |
       function mkstack (name, spec)
         return string.format ([[
-          local argscheck = require "std.debug".argscheck -- line 1
-          local function caller ()                        -- line 2
-            argscheck ("%s", function () end)             -- line 3
-          end                                             -- line 4
-          caller ()                                       -- line 5
+          local argscheck = require "std.typing".argscheck -- line 1
+          local function caller ()                         -- line 2
+            argscheck ("%s", function () end)              -- line 3
+          end                                              -- line 4
+          caller ()                                        -- line 5
         ]], tostring (name), tostring (spec))
       end
 
@@ -551,12 +462,6 @@ specify std.debug:
       _, badarg, badresult = init (M, "", "inner")
       id = function (...) return ... end
 
-  - it writes a deprecation warning:
-      expect (deprecate_on ("argscheck", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("argscheck", "{}")).
-        not_to_contain_error "was deprecated"
-
   - it returns the wrapped function:
       expect (wrapped).not_to_be (inner)
       expect (wrapped ()).to_be "MAGIC"
@@ -564,7 +469,7 @@ specify std.debug:
       script = [[
         _DEBUG = false
         local debug = require "std.debug_init"
-        local argscheck = require "std.debug".argscheck
+        local argscheck = require "std.typing".argscheck
         local function inner () return "MAGIC" end
         local wrapped = argscheck ("inner (?any)", inner)
         os.exit (wrapped == inner and 0 or 1)
@@ -928,12 +833,6 @@ specify std.debug:
   - before:
       f = M.extramsg_mismatch
 
-  - it writes a deprecation warning:
-      expect (deprecate_on ("extramsg_mismatch", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("extramsg_mismatch", "{}")).
-        not_to_contain_error "was deprecated"
-
   - it returns the expected types:
       expect (f "nil").to_contain "nil expected, "
       expect (f "bool").to_contain "boolean expected, "
@@ -961,12 +860,6 @@ specify std.debug:
   - before:
       f = M.extramsg_toomany
 
-  - it writes a deprecation warning:
-      expect (deprecate_on ("extramsg_toomany", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("extramsg_toomany", "{}")).
-        not_to_contain_error "was deprecated"
-
   - it returns the expected thing:
       expect (f ("mojo", 1, 2)).to_contain "no more than 1 mojo"
   - it uses singular thing when 1 is expected:
@@ -977,195 +870,3 @@ specify std.debug:
   - it returns the actual count:
       expect (f ("bad", 0, 1)).to_contain ", got 1"
       expect (f ("bad", 99, 999)).to_contain ", got 999"
-
-
-- context function environments:
-  - before:
-      env = {
-        tostring = function (x) return '"' .. tostring (x) .. '"' end,
-      }
-      fn = function (x) return tostring (x) end
-      ft = setmetatable ({}, { __call = function (_, ...) return fn (...) end })
-
-  - describe getfenv:
-    - before:
-        f = M.getfenv
-    - it returns a table:
-        expect (type (f (fn))).to_be "table"
-    - it gets a function execution environment:
-        M.setfenv (fn, env)
-        expect (f (fn)).to_be (env)
-    - it understands functables:
-        M.setfenv (ft, env)
-        expect (f (ft)).to_be (env)
-
-  - describe setfenv:
-    - before:
-        f = M.setfenv
-    - it returns the passed function:
-        expect (f (fn, env)).to_be (fn)
-    - it sets a function execution environment:
-        f (fn, env)
-        expect (fn (42)).to_be '"42"'
-    - it understands functables:
-        f (ft, env)
-        expect (fn (5)).to_be '"5"'
-
-
-- describe say:
-  - before: |
-      function mkwrap (k, v)
-        local fmt = "%s"
-        if type (v) == "string" then fmt = "%q" end
-        return k, string.format (fmt, require "std".tostring (v))
-      end
-
-      function mksay (debugp, ...)
-        return string.format ([[
-          _DEBUG = %s
-          require "std.debug".say (%s)
-        ]],
-        require "std".tostring (debugp),
-        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
-      end
-
-      f = M.say
-
-  - it uses stdlib tostring:
-      expect (luaproc [[require "std.debug".say {"debugging"}]]).
-        to_contain_error (require "std".tostring {"debugging"})
-  - context when _DEBUG is disabled:
-    - it does nothing when message level is not set:
-        expect (luaproc (mksay (false, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-    - it does nothing when message is set:
-        expect (luaproc (mksay (false, -999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (false, 0, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (false, 1, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (false, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (false, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-  - context when _DEBUG is not set:
-    - it writes to stderr when message level is not set:
-        expect (luaproc (mksay (nil, "debugging"))).
-          to_contain_error "debugging"
-    - it writes to stderr when message level is 1 or lower:
-        expect (luaproc (mksay (nil, -999, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay (nil, 0, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay (nil, 1, "debugging"))).
-          to_contain_error "debugging"
-    - it does nothing when message level is 2 or higher:
-        expect (luaproc (mksay (nil, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (nil, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-  - context when _DEBUG is enabled:
-    - it writes to stderr when message level is not set:
-        expect (luaproc (mksay (true, "debugging"))).
-          to_contain_error "debugging"
-    - it writes to stderr when message level is 1 or lower:
-        expect (luaproc (mksay (true, -999, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay (true, 0, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay (true, 1, "debugging"))).
-          to_contain_error "debugging"
-    - it does nothing when message level is 2 or higher:
-        expect (luaproc (mksay (true, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay (true, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-  - context when _DEBUG.level is not set:
-    - it writes to stderr when message level is not set:
-        expect (luaproc (mksay ({}, "debugging"))).
-          to_contain_error "debugging"
-    - it writes to stderr when message level is 1 or lower:
-        expect (luaproc (mksay ({}, -999, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay ({}, 0, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay ({}, 1, "debugging"))).
-          to_contain_error "debugging"
-    - it does nothing when message level is 2 or higher:
-        expect (luaproc (mksay ({}, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-        expect (luaproc (mksay ({}, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-  - context when _DEBUG.level is specified:
-    - it writes to stderr when message level is 1 or lower:
-        expect (luaproc (mksay ({level = 0}, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay ({level = 1}, "debugging"))).
-          to_contain_error "debugging"
-        expect (luaproc (mksay ({level = 2}, "debugging"))).
-          to_contain_error "debugging"
-    - it does nothing when message level is higher than debug level:
-        expect (luaproc (mksay ({level = 2}, 3, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
-    - it writes to stderr when message level equals debug level:
-        expect (luaproc (mksay ({level = 2}, 2, "debugging"))).
-          to_contain_error "debugging"
-    - it writes to stderr when message level is lower than debug level:
-        expect (luaproc (mksay ({level = 2}, 1, "debugging"))).
-          to_contain_error "debugging"
-
-
-- describe trace:
-  - before:
-      f = init (M, this_module,  "trace")
-
-  - it does nothing when _DEBUG is disabled:
-      expect (luaproc [[
-        _DEBUG = false
-        require "std.debug"
-        os.exit (0)
-      ]]).to_succeed_with ""
-  - it does nothing when _DEBUG is not set:
-      expect (luaproc [[
-        require "std.debug"
-        os.exit (0)
-      ]]).to_succeed_with ""
-  - it does nothing when _DEBUG is enabled:
-      expect (luaproc [[
-        _DEBUG = true
-        require "std.debug"
-        os.exit (0)
-      ]]).to_succeed_with ""
-  - it enables automatically when _DEBUG.call is set: |
-      expect (luaproc [[
-        _DEBUG = {call = true}
-        local debug = require "std.debug"
-        os.exit (1)
-      ]]).to_fail_while_containing ":3 call exit"
-  - it is enabled manually with debug.sethook: |
-      expect (luaproc [[
-        local debug = require "std.debug"
-        debug.sethook (debug.trace, "cr")
-        os.exit (1)
-      ]]).to_fail_while_containing ":3 call exit"
-  - it writes call trace log to standard error: |
-      expect (luaproc [[
-        local debug = require "std.debug"
-        debug.sethook (debug.trace, "cr")
-        os.exit (0)
-      ]]).to_contain_error ":3 call exit"
-  - it traces lua calls: |
-      expect (luaproc [[
-        local debug = require "std.debug"         -- line 1
-        local function incr (i) return i + 1 end  -- line 2
-        debug.sethook (debug.trace, "cr")         -- line 3
-        os.exit (incr (41))                       -- line 4
-      ]]).to_fail_while_matching ".*:4 call incr <2:.*:4 return incr <2:.*"
-  - it traces C api calls: |
-      expect (luaproc [[
-        local debug = require "std.debug"
-        local function incr (i) return i + 1 end
-        debug.sethook (debug.trace, "cr")
-        os.exit (incr (41))
-      ]]).to_fail_while_matching ".*:4 call exit %[C%]%s$"

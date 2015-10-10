@@ -35,9 +35,9 @@ local table_sort	= table.sort
 
 local _ = {
   container		= require "std.container",
-  debug			= require "std.debug",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local Container		= _.container.prototype
@@ -45,7 +45,7 @@ local Module		= _.std.object.Module
 
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local pickle		= _.std.string.pickle
 
 

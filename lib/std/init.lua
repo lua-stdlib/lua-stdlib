@@ -36,16 +36,16 @@ local string_match	= string.match
 
 
 local _ = {
-  debug			= require "std.debug",
   strict		= require "std.strict",
   std			= require "std.base",
+  typing		= require "std.typing",
 }
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _require		= _.std.require
 local _tostring		= _.std.tostring
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
 local copy		= _.std.base.copy
 local elems		= _.std.elems

@@ -25,6 +25,7 @@
 
 local dirsep		= string.match (package.config, "^(%S+)\n")
 local error		= error
+local getfenv		= getfenv
 local getmetatable	= getmetatable
 local loadstring	= loadstring or load
 local next		= next
@@ -38,6 +39,11 @@ local type		= type
 
 local coroutine_wrap	= coroutine.wrap
 local coroutine_yield	= coroutine.yield
+local debug_getinfo	= debug.getinfo
+local debug_getupvalue	= debug.getupvalue
+local debug_setfenv	= debug.setfenv
+local debug_setupvalue	= debug.setupvalue
+local debug_upvaluejoin	= debug.upvaluejoin
 local math_huge		= math.huge
 local math_min		= math.min
 local string_find	= string.find
@@ -60,7 +66,7 @@ local _ENV		= require "std.strict" {}
 
 -- Forward declarations for Helper functions below.
 
-local argerror, getmetamethod, len
+local getmetamethod, len
 
 -- These come as early as possible, because we want the rest of the code
 -- in this file to use these versions over the core Lua implementation
@@ -187,6 +193,37 @@ end
 
 local function eval (s)
   return loadstring ("return " .. s)()
+end
+
+
+local function _getfenv (fn)
+  fn = fn or 1
+
+  -- Unwrap functable:
+  if type (fn) == "table" then
+    fn = fn.call or (getmetatable (fn) or {}).__call
+  end
+
+  if getfenv then
+    if type (fn) == "number" then fn = fn + 1 end
+
+    -- Stack frame count is critical here, so ensure we don't optimise one
+    -- away in LuaJIT...
+    return getfenv (fn), nil
+
+  else
+    if type (fn) == "number" then
+      fn = debug_getinfo (fn + 1, "f").func
+    end
+
+    local name, env
+    local up = 0
+    repeat
+      up = up + 1
+      name, env = debug_getupvalue (fn, up)
+    until name == '_ENV' or name == nil
+    return env
+  end
 end
 
 
@@ -465,16 +502,6 @@ local function pickle (x)
 end
 
 
-local function raise (bad, to, name, i, extramsg, level)
-  level = level or 1
-  local s = string_format ("bad %s #%d %s '%s'", bad, i, to, name)
-  if extramsg ~= nil then
-    s = s .. " (" .. extramsg .. ")"
-  end
-  error (s, level + 1)
-end
-
-
 local function ripairs (t)
   local oob = 1
   while t[oob] ~= nil do
@@ -500,6 +527,33 @@ local function rnpairs (t)
       return n, t[n]
     end
   end, t, oob
+end
+
+
+local function _setfenv (fn, env)
+  -- Unwrap functable:
+  if type (fn) == "table" then
+    fn = fn.call or (getmetatable (fn) or {}).__call
+  end
+
+  if debug_setfenv then
+    return debug_setfenv (fn, env)
+
+  else
+    -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+    local name
+    local up = 0
+    repeat
+      up = up + 1
+      name = debug_getupvalue (fn, up)
+    until name == '_ENV' or name == nil
+    if name then
+      debug_upvaluejoin (fn, up, function () return name end, 1)
+      debug_setupvalue (fn, up, env)
+    end
+
+    return fn
+  end
 end
 
 
@@ -541,12 +595,6 @@ local tostring_vtable = {
 -- The bare minumum of functions required to support implementation of
 -- Enhanced Core Lua functions, with forward declarations near the start
 -- of the file.
-
-
-argerror = function (name, i, extramsg, level)
-  level = level or 1
-  raise ("argument", "to", name, i, extramsg, level + 1)
-end
 
 
 -- Lua < 5.2 doesn't call `__len` automatically!
@@ -594,13 +642,13 @@ return {
     last      = last,
     merge     = merge,
     mnemonic  = mnemonic,
-    raise     = raise,
     sortkeys  = sortkeys,
     toqstring = toqstring,
   },
 
   debug = {
-    argerror = argerror,
+    getfenv  = _getfenv,
+    setfenv  = _setfenv,
   },
 
   functional = {

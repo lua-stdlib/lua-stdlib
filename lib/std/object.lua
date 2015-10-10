@@ -27,16 +27,16 @@ local getmetatable	= getmetatable
 
 local _ = {
   container		= require "std.container",
-  debug 	    	= require "std.debug",
   maturity		= require "std.maturity",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing 	    	= require "std.typing",
 }
 
 local Container 	= _.container.prototype
 local Module		= _.std.object.Module
 
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local getmetamethod	= _.std.getmetamethod
 local mapfields		= _.std.object.mapfields
 local merge		= _.std.base.merge

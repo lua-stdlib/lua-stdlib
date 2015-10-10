@@ -22,10 +22,10 @@ local math_max		= math.max
 
 
 local _ = {
-  debug			= require "std.debug",
   object		= require "std.object",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
@@ -33,7 +33,7 @@ local Object		= _.object.prototype
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
 local len		= _.std.operator.len
 local merge		= _.std.base.merge

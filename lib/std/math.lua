@@ -17,12 +17,12 @@ local math		= math
 local math_floor	= math.floor
 
 local _ = {
-  debug			= require "std.debug",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local copy		= _.std.base.copy
 local merge		= _.std.base.merge
 

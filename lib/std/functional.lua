@@ -20,14 +20,14 @@ local table_remove	= table.remove
 
 
 local _ = {
-  debug			= require "std.debug",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local callable		= _.std.functional.callable
 local copy		= _.std.base.copy
 local ielems		= _.std.ielems

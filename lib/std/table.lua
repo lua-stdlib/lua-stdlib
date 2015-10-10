@@ -22,15 +22,15 @@ local table_insert	= table.insert
 
 
 local _ = {
-  debug			= require "std.debug",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local argscheck		= _.debug.argscheck
-local argerror		= _.std.debug.argerror
+local argscheck		= _.typing.argscheck
+local argerror		= _.typing.argerror
 local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
 local invert		= _.std.table.invert

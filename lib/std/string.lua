@@ -25,18 +25,18 @@ local table_insert	= table.insert
 
 
 local _ = {
-  debug			= require "std.debug",
   maturity		= require "std.maturity",
   std			= require "std.base",
   strbuf		= require "std.strbuf",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local StrBuf		= _.strbuf.prototype
 
 local _tostring		= _.std.tostring
 local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local copy		= _.std.base.copy
 local escape_pattern	= _.std.string.escape_pattern
 local len		= _.std.operator.len

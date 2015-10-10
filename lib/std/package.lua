@@ -47,12 +47,12 @@ local table_remove	= table.remove
 
 
 local _ = {
-  debug			= require "std.debug",
   std   		= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
-local argscheck		= _.debug.argscheck
+local argscheck		= _.typing.argscheck
 local catfile		= _.std.io.catfile
 local escape_pattern	= _.std.string.escape_pattern
 local invert		= _.std.table.invert

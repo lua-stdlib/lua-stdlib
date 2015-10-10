@@ -40,20 +40,20 @@ local table_concat	= table.concat
 
 
 local _ = {
-  debug			= require "std.debug",
   debug_init		= require "std.debug_init",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
 
 local _DEBUG		= _.debug_init._DEBUG
-local argcheck		= _.debug.argcheck
-local argscheck		= _.debug.argscheck
-local argerror		= _.debug.argerror
+local argcheck		= _.typing.argcheck
+local argscheck		= _.typing.argscheck
+local argerror		= _.typing.argerror
 local copy		= _.std.base.copy
-local extramsg_toomany	= _.debug.extramsg_toomany
+local extramsg_toomany	= _.typing.extramsg_toomany
 local mapfields		= _.std.object.mapfields
 local pickle		= _.std.string.pickle
 local render		= _.std.string.render

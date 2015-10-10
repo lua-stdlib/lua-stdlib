@@ -84,6 +84,7 @@ dist_luastd_DATA =			\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
 	lib/std/tuple.lua		\
+	lib/std/typing.lua		\
 	lib/std/version.lua		\
 	$(NOTHING_ELSE)
 
@@ -165,6 +166,7 @@ dist_docmodules_DATA +=				\
 	$(docmodules).maturity.html		\
 	$(docmodules).optparse.html		\
 	$(docmodules).strict.html		\
+	$(docmodules).typing.html		\
 	$(NOTHING_ELSE)
 
 dist_docobjects_DATA +=				\

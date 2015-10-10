@@ -34,15 +34,15 @@ local table_insert	= table.insert
 
 
 local _	= {
-  debug			= require "std.debug",
   std			= require "std.base",
   strict		= require "std.strict",
+  typing		= require "std.typing",
 }
 
 local _ipairs		= _.std.ipairs
 local _tostring		= _.std.tostring
-local argerror		= _.debug.argerror
-local argscheck		= _.debug.argscheck
+local argerror		= _.typing.argerror
+local argscheck		= _.typing.argscheck
 local catfile		= _.std.io.catfile
 local copy		= _.std.base.copy
 local dirsep		= _.std.package.dirsep
