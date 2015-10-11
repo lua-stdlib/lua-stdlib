@@ -197,6 +197,9 @@
     correctly, rather than `nil` as in previous releases.  It's also
     considerably faster now that it doesn't use `pcall` any more.
 
+  - `std.functional.bind` returns functions that propagate trailing `nil`
+    arguments correctly.
+
   - `std.functional.memoize` now considers trailing nil arguments when
     looking up memoized value for those particular arguments.
 

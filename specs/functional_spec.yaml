@@ -79,8 +79,16 @@ specify std.functional:
   - it supports out of order extra arguments:
       expect (f (op.pow, {[2] = 3}) (2)).to_be (8)
   - it propagates nil arguments correctly:
-      expect ({f (M.id, {[2]="b", [4]="d"}) (nil, 3, 5, 6, nil)}).
-        to_equal {nil, "b", 3, "d", 5, 6, nil}
+      r = pack (f (M.id, {[4]="d"}) (1))
+      expect (r).to_equal (pack (1, nil, nil, "d"))
+      r = pack (f (M.id, {[4]="d"}) (nil, 2))
+      expect (r).to_equal (pack (nil, 2, nil, "d"))
+      r = pack (f (M.id, {[2]="b", [4]="d"}) (nil, 3, 5, 6, nil))
+      expect (r).to_equal (pack (nil, "b", 3, "d", 5, 6, nil))
+      r = pack (f (M.id, {[2]="b", [4]="d"}) (nil, 3, nil, nil, 7))
+      expect (r).to_equal (pack (nil, "b", 3, "d", nil, nil, 7))
+      r = pack (f (M.id, {[2]="b", [4]="d"}) (nil, 3, nil, nil, 7, nil, nil))
+      expect (r).to_equal (pack (nil, "b", 3, "d", nil, nil, 7, nil, nil))
 
 
 - describe callable:

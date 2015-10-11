@@ -72,12 +72,33 @@ end
 
 local function bind (fn, bound)
   return function (...)
-    local argt, unbound, i = copy (bound), pack (...), 1
+    local argt, unbound = {}, pack (...)
+
+    -- Inline `argt = copy (bound)`...
+    local n = 0
+    for k, v in _pairs (bound) do
+      -- ...but only copy integer keys.
+      if type (k) == "number" and math_ceil (k) == k then
+        argt[k] = v
+        n = k > n and k or n  -- Inline `n = maxn (unbound)` in same pass.
+      end
+    end
+
+    -- Respect packed *bound* table.
+    n = bound.n or n
+
+    -- Bind *unbound* parameters sequentially into *argt* gaps.
+    local i = 1
     for j = 1, unbound.n do
       while argt[i] ~= nil do i = i + 1 end
       argt[i], i = unbound[j], i + 1
     end
-    return fn (unpack (argt))
+
+    -- Even if there are gaps remaining above *i*, pass at least *n* args.
+    if n >= i then return fn (unpack (argt, 1, n)) end
+
+    -- Otherwise, we filled gaps beyond *n*, and pass that many args.
+    return fn (unpack (argt, 1, i - 1))
   end
 end
 

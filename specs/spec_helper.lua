@@ -36,6 +36,11 @@ maxn = table.maxn or function (t)
 end
 
 
+pack = table.pack or function (...)
+  return {n = select ("#", ...), ...}
+end
+
+
 -- Take care to always unpack upto the highest numeric index, for
 -- consistency across Lua versions.
 local _unpack = table.unpack or unpack
