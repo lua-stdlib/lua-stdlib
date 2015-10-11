@@ -27,10 +27,12 @@
 
 local error		= error
 local pcall		= pcall
+local select		= select
 local tostring		= tostring
 
 local io_stderr		= io.stderr
 local string_format	= string.format
+local table_unpack	= table.unpack or unpack
 
 
 local _ = {
@@ -64,13 +66,28 @@ local function DEPRECATIONMSG (version, name, extramsg, level)
 end
 
 
+local function result_pack (...)
+  return {n = select ("#", ...), ...}
+end
+
+
+local function result_unpack (v)
+  return table_unpack (v, 1, v.n)
+end
+
+
 local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
   if not _DEBUG.deprecate then
     return function (...)
       io_stderr:write (DEPRECATIONMSG (version, name, extramsg, 2))
-      return fn (...)
+
+      -- `return fn (...)` is subject to tail call elimination, which
+      -- would lose a stack frame and change the `level` argument
+      -- required for frame counting functions, so we do this instead:
+      local r = result_pack (fn (...))
+      return result_unpack (r)
     end
   end
 end

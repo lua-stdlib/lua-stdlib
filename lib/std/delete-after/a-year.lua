@@ -28,6 +28,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local next		= next
   local pairs		= pairs
   local pcall		= pcall
+  local select		= select
   local type		= type
 
   local io_stderr	= io.stderr
@@ -629,7 +630,15 @@ if not require "std.debug_init"._DEBUG.deprecate then
   end
 
   local function XX (base, fn)
-    return DEPRECATED (RELEASE, "'std.debug." .. base .. "'", "use 'std.argcheck." .. base .. "' instead", fn)
+    return DEPRECATED (RELEASE, "'std.debug." .. base .. "'", "use 'std.argcheck." .. base .. "' instead", fn) or nil
+  end
+
+  local function result_pack (...)
+    return {n = select ("#", ...), ...}
+  end
+
+  local function result_unpack (v)
+    return table_unpack (v, 1, v.n)
   end
 
   local function acyclic_merge (dest, src)
@@ -646,15 +655,28 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   M = acyclic_merge ({
     debug = {
-      argcheck = XX ("argcheck", argcheck),
-      argerror = XX ("argerror", argerror),
+      argcheck = XX ("argcheck", function (name, i, expected, actual, level)
+	-- Add 2 to the level, this anonymous function and XX, being
+	-- careful not to let tail call elimination remove a stack
+	-- frame:
+        local r = result_pack (argcheck (name, i, expected, actual, (level or 1) + 2))
+	return result_unpack (r)
+      end),
+      argerror = XX ("argerror", function (name, i, extramsg, level)
+        local r = result_pack (argerror (name, i, extramsg, (level or 1) + 2))
+	return result_unpack (r)
+      end),
       argscheck = XX ("argscheck", argscheck),
       extramsg_mismatch = XX ("extramsg_mismatch", function (expected, actual, index)
-        return extramsg_mismatch (typesplit (expected), actual, index)
+        local r = result_pack (extramsg_mismatch (typesplit (expected), actual, index))
+	return result_unpack (r)
       end),
       extramsg_toomany = XX ("extramsg_toomany", extramsg_toomany),
       parsetypes = XX ("parsetypes", parsetypes),
-      resulterror = XX ("resulterror", resulterror),
+      resulterror = XX ("resulterror", function (name, i, extramsg, level)
+        local r = result_pack (resulterror (name, i, extramsg, (level or 1) + 2))
+	return result_unpack (r)
+      end),
       typesplit = XX ("typesplit", typesplit),
     },
 

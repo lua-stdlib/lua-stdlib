@@ -46,16 +46,17 @@ specify std.debug:
   - before: |
       function mkstack (level)
         return string.format ([[
-          _DEBUG = nil                               -- line 1
-          local debug = require "std.debug"          -- line 2
-          function ohnoes ()                         -- line 3
-            debug.resulterror ("ohnoes", 1, nil, %s) -- line 4
-          end                                        -- line 5
-          function caller ()                         -- line 6
-            local r = ohnoes ()                      -- line 7
-            return "not a tail call"                 -- line 8
-          end                                        -- line 9
-          caller ()                                  -- line 10
+          _DEBUG = nil                                      -- line 1
+          local debug = require "std.debug"                 -- line 2
+          require "std.debug_init"._DEBUG.deprecate = false -- line 3
+          function ohnoes ()                                -- line 4
+            debug.resulterror ("ohnoes", 1, nil, %s)        -- line 5
+          end                                               -- line 6
+          function caller ()                                -- line 7
+            local r = ohnoes ()                             -- line 8
+            return "not a tail call"                        -- line 9
+          end                                               -- line 10
+          caller ()                                         -- line 11
         ]], tostring (level))
       end
 
@@ -68,10 +69,10 @@ specify std.debug:
         not_to_contain_error "was deprecated"
 
   - it blames the call site by default: |
-      expect (luaproc (mkstack ())).to_contain_error ":4: bad result"
+      expect (luaproc (mkstack ())).to_contain_error ":5: bad result"
   - it honors optional call stack level reporting: |
-      expect (luaproc (mkstack (1))).to_contain_error ":4: bad result"
-      expect (luaproc (mkstack (2))).to_contain_error ":7: bad result"
+      expect (luaproc (mkstack (1))).to_contain_error ":5: bad result"
+      expect (luaproc (mkstack (2))).to_contain_error ":8: bad result"
   - it reports the calling function name:
       expect (f ('expect', 1)).to_raise "'expect'"
   - it reports the argument number: |
@@ -84,16 +85,17 @@ specify std.debug:
   - before: |
       function mkstack (level)
         return string.format ([[
-          _DEBUG = nil                            -- line 1
-          local debug = require "std.debug"       -- line 2
-          function ohnoes ()                      -- line 3
-            debug.argerror ("ohnoes", 1, nil, %s) -- line 4
-          end                                     -- line 5
-          function caller ()                      -- line 6
-            local r = ohnoes ()                   -- line 7
-            return "not a tail call"              -- line 8
-          end                                     -- line 9
-          caller ()                               -- line 10
+          _DEBUG = nil                                      -- line 1
+          local debug = require "std.debug"                 -- line 2
+          require "std.debug_init"._DEBUG.deprecate = false -- line 3
+          function ohnoes ()                                -- line 4
+            debug.argerror ("ohnoes", 1, nil, %s)           -- line 5
+          end                                               -- line 6
+          function caller ()                                -- line 7
+            local r = ohnoes ()                             -- line 8
+            return "not a tail call"                        -- line 9
+          end                                               -- line 10
+          caller ()                                         -- line 11
         ]], tostring (level))
       end
 
@@ -122,10 +124,10 @@ specify std.debug:
       expect (f ("foo", 1, "bar", 2, false)).to_raise (badarg (5))
 
   - it blames the call site by default: |
-      expect (luaproc (mkstack ())).to_contain_error ":4: bad argument"
+      expect (luaproc (mkstack ())).to_contain_error ":5: bad argument"
   - it honors optional call stack level reporting: |
-      expect (luaproc (mkstack (1))).to_contain_error ":4: bad argument"
-      expect (luaproc (mkstack (2))).to_contain_error ":7: bad argument"
+      expect (luaproc (mkstack (1))).to_contain_error ":5: bad argument"
+      expect (luaproc (mkstack (2))).to_contain_error ":8: bad argument"
   - it reports the calling function name:
       expect (f ('expect', 1)).to_raise "'expect'"
   - it reports the argument number: |
@@ -183,7 +185,7 @@ specify std.debug:
       expect (f ("foo", 1, "bar", 2, 3, false)).to_raise (badarg (6))
 
   - it blames the calling function by default: |
-      expect (luaproc (mkstack ())).to_contain_error ":8: bad argument"
+      expect (luaproc (mkstack ())).to_contain_error ":5: bad argument"
   - it honors optional call stack level reporting: |
       expect (luaproc (mkstack (1))).to_contain_error ":5: bad argument"
       expect (luaproc (mkstack (2))).to_contain_error ":8: bad argument"
