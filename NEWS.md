@@ -28,6 +28,9 @@
     _DEBUG.deprecate = true
     ```
 
+  - New `std.typing` module contains the typechecking functions
+    previously in `std.debug`.
+
   - Objects and Modules are no longer conflated - what you get back from
     a `require "std.something"` is now ALWAYS a module:
 
@@ -176,6 +179,12 @@
 
   - `std.string.render` function arguments have been deprecated in favour
     of a table of named functions backed by defaults.
+
+  - `std.debug.argerror`, `std.debug.argcheck`, `std.debug.argscheck`,
+    `std.debug.extramsg_mismatch`, `std.debug.extramsg_toomany`,
+    `std.debug.parsetypes`, `std.debug.resulterror` and `std.debug.typesplit`
+    have all been deprecated in favour of their namesakes in the newly
+    factored out `std.typing` module.
 
 
 ### Bug fixes
