@@ -107,22 +107,6 @@ specify std.debug:
       expect (deprecate_off ("argerror", "{}")).
         not_to_contain_error "was deprecated"
 
-  - it diagnoses missing arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f ()).to_raise (badarg (1, "string"))
-      expect (f "foo").to_raise (badarg (2, "int"))
-  - it diagnoses wrong argument types:
-      pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("foo", false)).to_raise (badarg (2, "int", "boolean"))
-      expect (f ("foo", 1, false)).
-        to_raise (badarg (3, "string or nil", "boolean"))
-      expect (f ("foo", 1, "bar", false)).
-        to_raise (badarg (4, "int or nil", "boolean"))
-  - it diagnoses too many arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f ("foo", 1, "bar", 2, false)).to_raise (badarg (5))
-
   - it blames the call site by default: |
       expect (luaproc (mkstack ())).to_contain_error ":5: bad argument"
   - it honors optional call stack level reporting: |
@@ -167,22 +151,6 @@ specify std.debug:
         to_contain_error "was deprecated"
       expect (deprecate_off ("argcheck", "{}")).
         not_to_contain_error "was deprecated"
-
-  - it diagnoses missing arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f ()).to_raise (badarg (1, "string"))
-      expect (f "foo").to_raise (badarg (2, "int"))
-      expect (f ("foo", 1)).to_raise (badarg (3, "string"))
-  - it diagnoses wrong argument types:
-      pending "Lua 5.1 support is dropped"
-      expect (f (false)).to_raise (badarg (1, "string", "boolean"))
-      expect (f ("foo", false)).to_raise (badarg (2, "int", "boolean"))
-      expect (f ("foo", 1, false)).to_raise (badarg (3, "string", "boolean"))
-      expect (f ("foo", 1, "bar", 2, false)).
-        to_raise (badarg (5, "int or nil", "boolean"))
-  - it diagnoses too many arguments:
-      pending "Lua 5.1 support is dropped"
-      expect (f ("foo", 1, "bar", 2, 3, false)).to_raise (badarg (6))
 
   - it blames the calling function by default: |
       expect (luaproc (mkstack ())).to_contain_error ":5: bad argument"
