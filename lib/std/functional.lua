@@ -75,7 +75,7 @@ local function bind (fn, bound)
     local argt, unbound = {}, pack (...)
 
     -- Inline `argt = copy (bound)`...
-    local n = 0
+    local n = bound.n or 0
     for k, v in _pairs (bound) do
       -- ...but only copy integer keys.
       if type (k) == "number" and math_ceil (k) == k then
@@ -83,9 +83,6 @@ local function bind (fn, bound)
         n = k > n and k or n  -- Inline `n = maxn (unbound)` in same pass.
       end
     end
-
-    -- Respect packed *bound* table.
-    n = bound.n or n
 
     -- Bind *unbound* parameters sequentially into *argt* gaps.
     local i = 1
