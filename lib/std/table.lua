@@ -34,7 +34,6 @@ local argerror		= _.typing.argerror
 local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
 local invert		= _.std.table.invert
-local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
 local maxn		= _.std.table.maxn
 local merge		= _.std.base.merge
