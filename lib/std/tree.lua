@@ -313,7 +313,7 @@ return Module {
   --   print (node_type, path, node)
   -- end
   -- --> "branch"   {}      {{"leaf1", "leaf2"}, "leaf3"}
-  -- --> "branch"   {1}     {"leaf1", "leaf"2")
+  -- --> "branch"   {1}     {"leaf1", "leaf2")
   -- --> "leaf"     {1,1}   "leaf1"
   -- --> "leaf"     {1,2}   "leaf2"
   -- --> "join"     {1}     {"leaf1", "leaf2"}
