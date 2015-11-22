@@ -43,7 +43,6 @@ local _ = {
 
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local _require		= _.std.require
 local _tostring		= _.std.tostring
 local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
