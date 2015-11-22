@@ -624,7 +624,7 @@ local M = {
   -- @tparam table t a table
   -- @treturn table a new table with integer keyed elements in reverse
   --   order with respect to *t*
-  -- @see ielems
+  -- @see std.ielems
   -- @see ipairs
   -- @usage
   -- local rielems = std.functional.compose (std.ireverse, std.ielems)
