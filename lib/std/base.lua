@@ -638,7 +638,6 @@ return {
 
   base = {
     copy      = copy,
-    keysort   = keysort,
     last      = last,
     merge     = merge,
     mnemonic  = mnemonic,
