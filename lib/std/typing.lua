@@ -38,7 +38,6 @@ local string_gsub	= string.gsub
 local string_match	= string.match
 local table_concat	= table.concat
 local table_insert	= table.insert
-local table_pack	= table.pack
 local table_remove	= table.remove
 local table_sort	= table.sort
 
@@ -58,6 +57,7 @@ local _tostring		= _.std.tostring
 local copy		= _.std.base.copy
 local len		= _.std.operator.len
 local nop		= _.std.functional.nop
+local pack		= _.std.table.pack
 local split		= _.std.string.split
 local unpack		= _.std.table.unpack
 
@@ -488,7 +488,7 @@ if _DEBUG.argcheck then
     end
 
     return function (...)
-      local argt = table_pack (...)
+      local argt = pack (...)
 
       -- Don't check type of self if fname has a ':' in it.
       if string_find (fname, ":") then
@@ -504,7 +504,7 @@ if _DEBUG.argcheck then
       _setfenv (inner, _getfenv (1))
 
       -- Execute.
-      local results = table_pack (inner (...))
+      local results = pack (inner (...))
 
       -- Diagnose bad outputs.
       if returntypes then
