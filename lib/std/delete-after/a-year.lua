@@ -42,6 +42,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local string_match	= string.match
   local table_concat	= table.concat
   local table_insert	= table.insert
+  local table_maxn	= table.maxn
   local table_remove	= table.remove
   local table_sort	= table.sort
   local table_unpack	= table.unpack or unpack
@@ -70,7 +71,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local copy		= _.std.base.copy
   local leaves		= _.std.tree.leaves
   local len		= _.std.operator.len
-  local maxn		= _.std.table.maxn
   local nop		= _.std.functional.nop
   local sortkeys	= _.std.base.sortkeys
   local split		= _.std.string.split
@@ -78,6 +78,15 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   -- Only the above symbols are used below this line.
   local _, _ENV		= nil, _.strict {}
+
+
+  local maxn = table_maxn or function (t)
+    local n = 0
+    for k in pairs (t) do
+      if type (k) == "number" and k > n then n = k end
+    end
+    return n
+  end
 
 
   --[[ ========== ]]--

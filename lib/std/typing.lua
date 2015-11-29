@@ -38,6 +38,7 @@ local string_gsub	= string.gsub
 local string_match	= string.match
 local table_concat	= table.concat
 local table_insert	= table.insert
+local table_pack	= table.pack
 local table_remove	= table.remove
 local table_sort	= table.sort
 
@@ -56,7 +57,6 @@ local _setfenv		= _.std.debug.setfenv
 local _tostring		= _.std.tostring
 local copy		= _.std.base.copy
 local len		= _.std.operator.len
-local maxn		= _.std.table.maxn
 local nop		= _.std.functional.nop
 local split		= _.std.string.split
 local unpack		= _.std.table.unpack
@@ -279,7 +279,7 @@ if _DEBUG.argcheck then
       local ok = pcall (argcheck, "pcall", i, typelist[i], valuelist[i])
       if not ok then return i end
     end
-    for i = n + 1, maxn (valuelist) do -- additional values against final type
+    for i = n + 1, valuelist.n do -- additional values against final type
       local ok = pcall (argcheck, "pcall", i, typelist[n], valuelist[i])
       if not ok then return i end
     end
@@ -396,12 +396,12 @@ if _DEBUG.argcheck then
       end
 
       -- Otherwise the argument type itself was mismatched.
-      if t.dots or #t >= maxn (valuelist) then
+      if t.dots or #t >= valuelist.n then
         argt.badtype (i, extramsg_mismatch (expected, valuelist[i]), 3)
       end
     end
 
-    local n, t = maxn (valuelist), t or permutations[1]
+    local n, t = valuelist.n, t or permutations[1]
     if t and t.dots == nil and n > #t then
       argt.badtype (#t + 1, extramsg_toomany (argt.bad, #t, n), 3)
     end
@@ -488,10 +488,13 @@ if _DEBUG.argcheck then
     end
 
     return function (...)
-      local argt = {...}
+      local argt = table_pack (...)
 
       -- Don't check type of self if fname has a ':' in it.
-      if string_find (fname, ":") then table_remove (argt, 1) end
+      if string_find (fname, ":") then
+	table_remove (argt, 1)
+	argt.n = argt.n - 1
+      end
 
       -- Diagnose bad inputs.
       diagnose (argt, input)
@@ -501,7 +504,7 @@ if _DEBUG.argcheck then
       _setfenv (inner, _getfenv (1))
 
       -- Execute.
-      local results = {inner (...)}
+      local results = table_pack (inner (...))
 
       -- Diagnose bad outputs.
       if returntypes then
@@ -653,8 +656,8 @@ return {
   -- @see resulterror
   -- @see extramsg_mismatch
   -- @usage
-  --   if maxn (argt) > 7 then
-  --     argerror ("sevenses", 8, extramsg_toomany ("argument", 7, maxn (argt)))
+  --   if select ("#", ...) > 7 then
+  --     argerror ("sevenses", 8, extramsg_toomany ("argument", 7, select ("#", ...)))
   --   end
   extramsg_toomany = extramsg_toomany,
 

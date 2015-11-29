@@ -19,6 +19,7 @@ local type		= type
 
 local math_min		= math.min
 local table_insert	= table.insert
+local table_maxn	= table.maxn
 
 
 local _ = {
@@ -35,7 +36,6 @@ local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
 local invert		= _.std.table.invert
 local len		= _.std.operator.len
-local maxn		= _.std.table.maxn
 local merge		= _.std.base.merge
 local pack		= _.std.table.pack
 local unpack		= _.std.table.unpack
@@ -120,6 +120,15 @@ local function keys (t)
     l[#l + 1] = k
   end
   return l
+end
+
+
+local maxn = table_maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
 end
 
 
