@@ -42,7 +42,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local string_match	= string.match
   local table_concat	= table.concat
   local table_insert	= table.insert
-  local table_maxn	= table.maxn
   local table_remove	= table.remove
   local table_sort	= table.sort
   local table_unpack	= table.unpack or unpack
@@ -72,6 +71,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local leaves		= _.std.tree.leaves
   local len		= _.std.operator.len
   local nop		= _.std.functional.nop
+  local pack		= _.std.table.pack
   local sortkeys	= _.std.base.sortkeys
   local split		= _.std.string.split
   local unpack		= _.std.table.unpack
@@ -79,14 +79,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   -- Only the above symbols are used below this line.
   local _, _ENV		= nil, _.strict {}
 
-
-  local maxn = table_maxn or function (t)
-    local n = 0
-    for k in _pairs (t) do
-      if type (k) == "number" and k > n then n = k end
-    end
-    return n
-  end
 
 
   --[[ ========== ]]--
@@ -302,7 +294,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	local ok = pcall (argcheck, "pcall", i, typelist[i], valuelist[i])
 	if not ok then return i end
       end
-      for i = n + 1, maxn (valuelist) do -- additional values against final type
+      for i = n + 1, valuelist.n do -- additional values against final type
 	local ok = pcall (argcheck, "pcall", i, typelist[n], valuelist[i])
 	if not ok then return i end
       end
@@ -419,12 +411,12 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	end
 
 	-- Otherwise the argument type itself was mismatched.
-	if t.dots or #t >= maxn (valuelist) then
+	if t.dots or #t >= valuelist.n then
 	  argt.badtype (i, extramsg_mismatch (expected, valuelist[i]), 3)
 	end
       end
 
-      local n, t = maxn (valuelist), t or permutations[1]
+      local n, t = valuelist.n, t or permutations[1]
       if t and t.dots == nil and n > #t then
 	argt.badtype (#t + 1, extramsg_toomany (argt.bad, #t, n), 3)
       end
@@ -511,10 +503,13 @@ if not require "std.debug_init"._DEBUG.deprecate then
       end
 
       return function (...)
-	local argt = {...}
+	local argt = pack (...)
 
 	-- Don't check type of self if fname has a ':' in it.
-	if string_find (fname, ":") then table_remove (argt, 1) end
+	if string_find (fname, ":") then
+          table_remove (argt, 1)
+          argt.n = argt.n - 1
+        end
 
 	-- Diagnose bad inputs.
 	diagnose (argt, input)
@@ -524,7 +519,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	_setfenv (inner, _getfenv (1))
 
 	-- Execute.
-	local results = {inner (...)}
+	local results = pack (inner (...))
 
 	-- Diagnose bad outputs.
 	if returntypes then
