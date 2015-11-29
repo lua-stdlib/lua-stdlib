@@ -82,7 +82,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
   local maxn = table_maxn or function (t)
     local n = 0
-    for k in pairs (t) do
+    for k in _pairs (t) do
       if type (k) == "number" and k > n then n = k end
     end
     return n
