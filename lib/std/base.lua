@@ -328,12 +328,14 @@ end
 
 
 local function reduce (fn, d, ifn, ...)
-  local argt = {...}
+  local argt
   if not callable (ifn) then
-    ifn, argt = pairs, {ifn, ...}
+    ifn, argt = pairs, pack (ifn, ...)
+  else
+    argt = pack (...)
   end
 
-  local nextfn, state, k = ifn (unpack (argt))
+  local nextfn, state, k = ifn (unpack (argt, 1, argt.n))
   local t = {nextfn (state, k)}	-- table of iteration 1
 
   local r = d			-- initialise accumulator

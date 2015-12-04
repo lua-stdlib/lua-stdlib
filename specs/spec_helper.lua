@@ -25,6 +25,14 @@ local LUA = os.getenv "LUA" or "lua"
 setdebug = require "std.debug"._setdebug
 
 
+-- Simplified version for specifications, does not support functable
+-- valued __len metamethod, so don't write examples that need that!
+function len (x)
+  local __len = getmetatable (x) or {}
+  return type (__len) == "function" and __len (x) or #x
+end
+
+
 -- Make sure we have a maxn even when _VERSION ~= 5.1
 -- @fixme remove this when we get unpack from specl.std
 maxn = table.maxn or function (t)
@@ -47,7 +55,7 @@ local _unpack = table.unpack or unpack
 
 -- @fixme pick this up from specl.std with the next release
 function unpack (t, i, j)
-  return _unpack (t, i or 1, j or maxn (t))
+  return _unpack (t, tonumber (i) or 1, tonumber (j or t.n or len (t)))
 end
 
 

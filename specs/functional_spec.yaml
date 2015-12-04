@@ -15,6 +15,15 @@ before:
   deprecate_on = bind (deprecation, {"nil", this_module})
   deprecate_off = bind (deprecation, {false, this_module})
 
+  function iter (...)
+    local l = pack (...)
+    local oob = l.n + 1
+    return function (l, n)
+      n = n - 1
+      if n > 0 then return n, l[n] or false end
+    end, l, oob
+  end
+
   M = require (this_module)
 
 
@@ -50,6 +59,10 @@ specify std.functional:
   - it propagates arguments and returned results:
       expect (f (M.id) (true)).to_be (true)
       expect ({f (M.id) (1, 2, 3)}).to_equal {1, 2, 3}
+  - it propagates nil arguments correctly:
+      truthy = function (x) return x and true or false end
+      expect (f (truthy) (true, false, nil, nil, 0, nil)).
+        to_equal (true, false, false, false, true, false)
   - it calls all functions until one returns non-nil:
       expect (f (M.id, M.id, stop, fail) (nil)).to_be (true)
   - it only looks at first returned value:
@@ -117,6 +130,7 @@ specify std.functional:
       expect (f {}).to_be (nil)
       expect (f "").to_be (nil)
 
+
 - describe case:
   - before:
       yes     = function ()  return true end
@@ -162,17 +176,21 @@ specify std.functional:
       f = M.collect
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.functional.collect ([func], any*)")
+      badargs.diagnose (f, "std.functional.collect ([func], ?any*)")
 
   - it collects a list of single return value iterator results:
       expect (f (base.ielems, {"a", "b", "c"})).to_equal {"a", "b", "c"}
   - it collects a table of key:value iterator results:
       t = {"first", second="two", last=3}
       expect (f (pairs, t)).to_equal (t)
-  - it propagates nil arguments correctly:
-      expect (f {"a", nil, nil, "d", "e"}).to_equal {"a", [4]="d", [5]="e"}
   - it defaults to npairs iteration:
       expect (f {1, 2, [5]=5, a="b", c="d"}).to_equal {1, 2, [5]=5}
+  - it propagates nil arguments correctly:
+      expect (f {"a", nil, nil, "d", "e"}).to_equal {"a", [4]="d", [5]="e"}
+      expect (f (iter, "a", nil, nil, "d", "e")).
+        to_equal {"a", false, false, "d", "e"}
+      expect (f (iter, nil, nil, 3, 4, nil, nil)).
+        to_equal {false, false, 3, 4, false, false}
 
 
 - describe compose:
@@ -185,8 +203,10 @@ specify std.functional:
   - it composes a single function correctly:
       expect (f (M.id) (1)).to_be (1)
   - it propagates nil arguments correctly:
-      expect ({f (M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
-      expect ({f (M.id, M.id) (1, nil, nil, 4)}).to_equal {1, nil, nil, 4}
+      expect (pack (f (M.id) (nil, 2, nil, nil))).
+        to_equal (pack (nil, 2, nil, nil))
+      expect (pack (f (M.id, M.id) (nil, 2, nil, nil))).
+        to_equal (pack (nil, 2, nil, nil))
   - it composes functions in the correct order:
       expect (f (math.sin, math.cos) (1)).
         to_be (math.cos (math.sin (1)))
@@ -276,6 +296,8 @@ specify std.functional:
   - it propagates nil arguments correctly:
       t = {"a", nil, nil, "d", "e"}
       expect (f (M.id, base.npairs, t)).to_equal (t)
+      expect (f (M.id, iter, nil, nil, 3, 4, nil, nil)).
+        to_equal {false, false, 3, 4, false, false}
   - it passes all iteration result values to filter predicate:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)
@@ -381,6 +403,11 @@ specify std.functional:
       expect (f {1, 1, 2, 3}).to_equal {1, 1, 2, 3}
   - it returns multiple arguments unchanged:
       expect ({f (1, "two", false)}).to_equal {1, "two", false}
+  - it propagates nil values correctly:
+      expect (pack (f ("a", nil, nil, "d", "e"))).
+        to_equal (pack ("a", nil, nil, "d", "e"))
+      expect (pack (f (nil, nil, 3, 4, nil, nil))).
+        to_equal (pack (nil, nil, 3, 4, nil, nil))
 
 
 - describe ireverse:
@@ -473,7 +500,7 @@ specify std.functional:
       f = M.map
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.functional.map (func, [func], any*)")
+      badargs.diagnose (f, "std.functional.map (func, [func], ?any*)")
 
   - it works with an empty table:
       expect (f (M.id, ipairs, {})).to_equal {}
@@ -483,8 +510,8 @@ specify std.functional:
   - it propagates nil arguments correctly:
       t = {"a", nil, nil, "d", "e"}
       expect (f (M.id, base.npairs, t)).to_equal (t)
-      t = {nil, nil, 3, 4}
-      expect (f (M.id, base.npairs, t)).to_equal (t)
+      expect (f (M.id, iter, nil, nil, 3, 4, nil, nil)).
+        to_equal {false, false, 3, 4, false, false}
   - it passes all iteration result values to map function:
       t = {}
       f (function (k, v) t[k] = v end, pairs, elements)
@@ -805,7 +832,7 @@ specify std.functional:
       f = M.reduce
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.functional.reduce (func, any, [func], any*)")
+      badargs.diagnose (f, "std.functional.reduce (func, any, [func], ?any*)")
 
   - it works with an empty table:
       expect (f (op.sum, 2, ipairs, {})).to_be (2)
@@ -823,6 +850,8 @@ specify std.functional:
         to_equal {"1", "nil", "nil", "a", "false"}
       expect (f (set, {}, base.npairs, {nil, nil, "3"})).
         to_equal {"nil", "nil", "3"}
+      expect (f (set, {}, iter, nil, nil, 3, 4, nil, nil)).
+        to_equal {"false", "false", "3", "4", "false", "false"}
   - it reduces elements from left to right:
       expect (f (op.pow, 2, base.ielems, {3, 4})).to_be ((2 ^ 3) ^ 4)
   - it passes all iterator results to accumulator function:

@@ -58,14 +58,14 @@ local function any (...)
   local fns = pack (...)
 
   return function (...)
-    local argt = {}
+    local argt = {n = 0}
     for i = 1, fns.n do
-      argt = {fns[i] (...)}
+      argt = pack (fns[i] (...))
       if argt[1] ~= nil then
-        return unpack (argt)
+        return unpack (argt, 1, argt.n)
       end
     end
-    return unpack (argt)
+    return unpack (argt, 1, argt.n)
   end
 end
 
@@ -145,11 +145,11 @@ local function compose (...)
   local fns = pack (...)
 
   return function (...)
-    local argt = {...}
+    local argt = pack (...)
     for i = 1, fns.n do
-      argt = {fns[i] (unpack (argt))}
+      argt = pack (fns[i] (unpack (argt, 1, argt.n)))
     end
-    return unpack (argt)
+    return unpack (argt, 1, argt.n)
   end
 end
 
@@ -180,12 +180,12 @@ end
 
 
 local function filter (pfn, ifn, ...)
-  local argt, r = {...}, {}
+  local argt, r = pack (...), {}
   if not callable (ifn) then
-    ifn, argt = _pairs, {ifn, ...}
+    ifn, argt = _pairs, pack (ifn, ...)
   end
 
-  local nextfn, state, k = ifn (unpack (argt))
+  local nextfn, state, k = ifn (unpack (argt, 1, argt.n))
 
   local t = {nextfn (state, k)}	-- table of iteration 1
   local arity = #t		-- How many return values from ifn?
@@ -326,12 +326,12 @@ end, id)
 
 
 local function map (mapfn, ifn, ...)
-  local argt, r = {...}, {}
-  if not callable (ifn) or not next (argt) then
-    ifn, argt = _pairs, {ifn, ...}
+  local argt, r = pack (...), {}
+  if not callable (ifn) or argt.n == 0 then
+    ifn, argt = _pairs, pack (ifn, ...)
   end
 
-  local nextfn, state, k = ifn (unpack (argt))
+  local nextfn, state, k = ifn (unpack (argt, 1, argt.n))
   local mapargs = {nextfn (state, k)}
 
   local arity = 1
@@ -511,7 +511,7 @@ local M = {
   -- @usage
   -- --> {"a", "b", "c"}
   -- collect {"a", "b", "c", x=1, y=2, z=5}
-  collect = X ("collect ([func], any...)", collect),
+  collect = X ("collect ([func], ?any...)", collect),
 
   --- Compose functions.
   -- @function compose
@@ -571,7 +571,7 @@ local M = {
   -- @usage
   -- --> {2, 4}
   -- filter (lambda '|e|e%2==0', std.elems, {1, 2, 3, 4})
-  filter = X ("filter (func, [func], any...)", filter),
+  filter = X ("filter (func, [func], ?any...)", filter),
 
   --- Flatten a nested table into a list.
   -- @function flatten
@@ -669,7 +669,7 @@ local M = {
   -- @usage
   -- --> {1, 4, 9, 16}
   -- map (lambda '=_1*_1', std.ielems, {1, 2, 3, 4})
-  map = X ("map (func, [func], any...)", map),
+  map = X ("map (func, [func], ?any...)", map),
 
   --- Map a function over a table of argument lists.
   -- @function map_with
@@ -730,7 +730,7 @@ local M = {
   -- @usage
   -- --> 2 ^ 3 ^ 4 ==> 4096
   -- reduce (std.operator.pow, 2, std.ielems, {3, 4})
-  reduce = X ("reduce (func, any, [func], any...)", reduce),
+  reduce = X ("reduce (func, any, [func], ?any...)", reduce),
 
   --- Shape a table according to a list of dimensions.
   --
