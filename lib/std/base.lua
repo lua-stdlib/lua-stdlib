@@ -50,6 +50,7 @@ local string_find	= string.find
 local string_format	= string.format
 local table_concat	= table.concat
 local table_insert	= table.insert
+local table_maxn	= table.maxn
 local table_pack	= table.pack
 local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
@@ -89,6 +90,15 @@ local _pairs = pairs
 -- Respect __pairs metamethod, even in Lua 5.1.
 local function pairs (t)
   return (getmetamethod (t, "__pairs") or _pairs) (t)
+end
+
+
+local maxn = table_maxn or function (t)
+  local n = 0
+  for k in pairs (t) do
+    if type (k) == "number" and k > n then n = k end
+  end
+  return n
 end
 
 
@@ -306,7 +316,8 @@ end
 
 
 local function npairs (t)
-  local i, n = 0, t.n or len (t)
+  local m = getmetamethod (t, "__len")
+  local i, n = 0, m and m(t) or maxn (t)
   return function (t)
     i = i + 1
     if i <= n then return i, t[i] end
@@ -321,7 +332,11 @@ end
 
 
 local function unpack (t, i, j)
-  j = j or t.n or len (t)
+  if j == nil then
+    -- respect __len, and then maxn if nil j was passed
+    local m = getmetamethod (t, "__len")
+    j = m and m (t) or maxn (t)
+  end
   local fn = getmetamethod (t, "__unpack") or table_unpack
   return fn (t, tonumber (i) or 1, tonumber (j))
 end
@@ -505,7 +520,8 @@ end
 
 
 local function rnpairs (t)
-  local oob = (t.n or len (t)) + 1
+  local m = getmetamethod (t, "__len")
+  local oob = (m and m (t) or maxn (t)) + 1
 
   return function (t, n)
     n = n - 1
@@ -672,6 +688,7 @@ return {
 
   table = {
     invert = invert,
+    maxn   = maxn,
     pack   = pack,
     unpack = unpack,
   },

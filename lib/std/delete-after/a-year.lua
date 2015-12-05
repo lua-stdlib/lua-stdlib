@@ -70,6 +70,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local copy		= _.std.base.copy
   local leaves		= _.std.tree.leaves
   local len		= _.std.operator.len
+  local maxn		= _.std.table.maxn
   local nop		= _.std.functional.nop
   local pack		= _.std.table.pack
   local sortkeys	= _.std.base.sortkeys

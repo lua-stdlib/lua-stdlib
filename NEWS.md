@@ -250,10 +250,6 @@
     into the module `prototype` field, and add the module functions to    
     the parent table returned when the module is required.
 
-  - `std.npairs` and `std.rnpairs` no longer honor the `maxn` table size,
-    instead using either the `n` field (as set by `table.pack`) or else
-    the result of the length operator.
-
   - `functional.lambda` no longer returns a bare function, but a functable
     that can be called and stringified.
 
