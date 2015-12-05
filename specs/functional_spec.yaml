@@ -581,6 +581,9 @@ specify std.functional:
   - it propagates multiple return values:
       expect ((memfn ())).to_be (nil)
       expect (select (2, memfn ())).to_be "bzzt"
+  - it propogates nil return values:
+      expect (pack (f (function (...) return ... end) (nil, nil, 3, 4, nil, nil))).
+        to_equal (pack (nil, nil, 3, 4, nil, nil))
   - it propagates multiple arguments:
       expect ({memfn ("a", 42, false)}).to_equal {3, {"a", 42, false}}
   - it propagates nil arguments:

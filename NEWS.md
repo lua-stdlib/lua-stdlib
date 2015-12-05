@@ -213,7 +213,8 @@
     `nil` arguments correctly.
 
   - `std.functional.memoize` now considers trailing nil arguments when
-    looking up memoized value for those particular arguments.
+    looking up memoized value for those particular arguments, and propagates
+    `nil` return values from `mnemonic` functions correctly.
 
   - `std.functional.filter`, `std.functional.map` and
     `std.functional.reduce` now pass trailing nil arguments to their

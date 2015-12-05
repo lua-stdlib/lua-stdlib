@@ -275,10 +275,10 @@ local function memoize (fn, mnemonic)
                local k = mnemonic (...)
                local t = self[k]
                if t == nil then
-                 t = {fn (...)}
+                 t = pack (fn (...))
                  self[k] = t
                end
-               return unpack (t)
+               return unpack (t, 1, t.n)
              end
   })
 end
