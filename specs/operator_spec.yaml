@@ -43,7 +43,8 @@ specify std.operator:
         expect (f {1, 2, 5, a=10, 3}).to_be (4)
     - it works with an empty table:
         expect (f {}).to_be (0)
-    - it ignores elements after a hole:
+    - it always ignores elements after the first hole:
+        expect (f {1, 2, nil, nil, 3}).to_be (2)
         expect (f {1, 2, [5]=3}).to_be (2)
     - it respects __len metamethod:
         t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})

@@ -29,7 +29,14 @@ setdebug = require "std.debug"._setdebug
 -- valued __len metamethod, so don't write examples that need that!
 function len (x)
   local __len = getmetatable (x) or {}
-  return type (__len) == "function" and __len (x) or #x
+  if type (__len) == "function" then return __len (x) end
+  if type (x) ~= "table" then return #x end
+
+  local n = #x
+  for i = 1, n do
+    if x[i] == nil then return i -1 end
+  end
+  return n
 end
 
 

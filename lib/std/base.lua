@@ -600,9 +600,19 @@ local tostring_vtable = {
 
 
 -- Lua < 5.2 doesn't call `__len` automatically!
-len = function (t)
-  local m = getmetamethod (t, "__len")
-  return m and m (t) or #t
+-- Also PUC-Rio Lua #operation can return any numerically indexed
+-- element with an immediately following nil valued element, which is
+-- non-deterministic for non-sequence tables.
+len = function (x)
+  local m = getmetamethod (x, "__len")
+  if m then return m (x) end
+  if type (x) ~= "table" then return #x end
+
+  local n = #x
+  for i = 1, n do
+    if x[i] == nil then return i -1 end
+  end
+  return n
 end
 
 

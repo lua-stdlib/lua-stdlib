@@ -125,7 +125,18 @@
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
     when recursive table contents are equivalent.
 
-  - New `operator.len` replaces deprecated `table.len`.
+  - New `operator.len` replaces deprecated `table.len`.  `operator.len`
+    is always deterministic; counting only numerically indexed elements
+    immediately up to the first `nil` valued element (PUC-Rio Lua does
+    not have this feature for its `#` operator):
+
+    ```lua
+    local t1 = {1, 2, [5]=3}
+    local t2 = {1, 2, nil, nil, 3}
+    print (eqv(t1, t2)) --> true
+    print (len(t1) == len(t2)) --> true
+    print (#t1 == #t2) --> LuaJIT: true, PUC-Rio: false
+    ```
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
