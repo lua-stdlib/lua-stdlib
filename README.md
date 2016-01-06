@@ -9,7 +9,7 @@ by the [stdlib project][github]
 
 
 This is a collection of Lua libraries for LuaJIT, Lua 5.1, 5.2 and 5.3.
-The libraries are copyright by their authors 2000-2015 (see the
+The libraries are copyright by their authors 2000-2016 (see the
 [AUTHORS][] file for details), and released under the [MIT license][mit]
 (the same license as Lua itself). There is no warranty.
 
