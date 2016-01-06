@@ -35,7 +35,6 @@ local len		= _.std.operator.len
 local merge		= _.std.base.merge
 local mnemonic		= _.std.base.mnemonic
 local nop		= _.std.functional.nop
-local npairs		= _.std.npairs
 local pack		= _.std.table.pack
 local reduce		= _.std.functional.reduce
 local render		= _.std.string.render

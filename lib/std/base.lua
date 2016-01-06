@@ -315,17 +315,6 @@ local function Module (t)
 end
 
 
-local function npairs (t)
-  local m = getmetamethod (t, "__len")
-  local i, n = 0, m and m(t) or maxn (t)
-  return function (t)
-    i = i + 1
-    if i <= n then return i, t[i] end
-   end,
-  t, i
-end
-
-
 local pack = table_pack or function (...)
    return {n = select ("#", ...), ...}
 end
@@ -519,19 +508,6 @@ local function ripairs (t)
 end
 
 
-local function rnpairs (t)
-  local m = getmetamethod (t, "__len")
-  local oob = (m and m (t) or maxn (t)) + 1
-
-  return function (t, n)
-    n = n - 1
-    if n > 0 then
-      return n, t[n]
-    end
-  end, t, oob
-end
-
-
 local function _setfenv (fn, env)
   -- Unwrap functable:
   if type (fn) == "table" then
@@ -641,10 +617,8 @@ return {
   getmetamethod = getmetamethod,
   ielems        = ielems,
   ipairs        = ipairs,
-  npairs        = npairs,
   pairs         = pairs,
   ripairs       = ripairs,
-  rnpairs       = rnpairs,
 
   tostring      = function (x) return render (x, tostring_vtable) end,
 

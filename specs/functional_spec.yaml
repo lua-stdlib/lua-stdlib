@@ -14,6 +14,16 @@ before:
   deprecate_on = bind (deprecation, {"nil", this_module})
   deprecate_off = bind (deprecation, {false, this_module})
 
+  function npairs (t)
+    local m = base.getmetamethod (t, "__len")
+    local i, n = 0, m and m(t) or base.table.maxn (t)
+    return function (t)
+      i = i + 1
+      if i <= n then return i, t[i] end
+     end,
+    t, i
+  end
+
   function iter (...)
     local l = pack (...)
     local oob = l.n + 1
@@ -279,7 +289,7 @@ specify std.functional:
       expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
   - it propagates nil arguments correctly:
       t = {"a", nil, nil, "d", "e"}
-      expect (f (M.id, base.npairs, t)).to_equal (t)
+      expect (f (M.id, npairs, t)).to_equal (t)
       expect (f (M.id, iter, nil, nil, 3, 4, nil, nil)).
         to_equal {false, false, 3, 4, false, false}
   - it passes all iteration result values to filter predicate:
@@ -468,7 +478,7 @@ specify std.functional:
       expect (f (M.id, pairs, inverse)).to_contain.a_permutation_of (elements)
   - it propagates nil arguments correctly:
       t = {"a", nil, nil, "d", "e"}
-      expect (f (M.id, base.npairs, t)).to_equal (t)
+      expect (f (M.id, npairs, t)).to_equal (t)
       expect (f (M.id, iter, nil, nil, 3, 4, nil, nil)).
         to_equal {false, false, 3, 4, false, false}
   - it passes all iteration result values to map function:
@@ -645,9 +655,9 @@ specify std.functional:
       expect (f (op.prod, 2, base.ielems, {3, 4})).to_be (2 * 3 * 4)
   - it propagates nil arguments correctly:
       function set (t, k, v) t[k] = tostring (v) return t end
-      expect (f (set, {}, base.npairs, {1, nil, nil, "a", false})).
+      expect (f (set, {}, npairs, {1, nil, nil, "a", false})).
         to_equal {"1", "nil", "nil", "a", "false"}
-      expect (f (set, {}, base.npairs, {nil, nil, "3"})).
+      expect (f (set, {}, npairs, {nil, nil, "3"})).
         to_equal {"nil", "nil", "3"}
       expect (f (set, {}, iter, nil, nil, 3, 4, nil, nil)).
         to_equal {"false", "false", "3", "4", "false", "false"}

@@ -51,10 +51,9 @@ local elems		= _.std.elems
 local eval		= _.std.eval
 local getmetamethod	= _.std.getmetamethod
 local ielems		= _.std.ielems
+local maxn		= _.std.table.maxn
 local merge		= _.std.base.merge
-local npairs		= _.std.npairs
 local ripairs		= _.std.ripairs
-local rnpairs		= _.std.rnpairs
 local split		= _.std.string.split
 
 local deprecated	= require "std.delete-after.a-year"
@@ -116,6 +115,30 @@ local function barrel (namespace)
   require "std.table".monkey_patch (namespace)
 
   return monkey_patch (namespace)
+end
+
+
+local function npairs (t)
+  local m = getmetamethod (t, "__len")
+  local i, n = 0, m and m(t) or maxn (t)
+  return function (t)
+    i = i + 1
+    if i <= n then return i, t[i] end
+   end,
+  t, i
+end
+
+
+local function rnpairs (t)
+  local m = getmetamethod (t, "__len")
+  local oob = (m and m (t) or maxn (t)) + 1
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, oob
 end
 
 
