@@ -43,7 +43,7 @@ local leaves		= _.std.tree.leaves
 local unpack		= _.std.table.unpack
 
 
-local deprecated 	= require "std.delete-after.2016-01-03"
+local deprecated 	= nil
 
 local _, _ENV		= nil, _.strict {}
 

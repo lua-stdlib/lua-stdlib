@@ -48,7 +48,7 @@ local split		= _.std.string.split
 local toqstring		= _.std.base.toqstring
 
 
-local deprecated	= require "std.delete-after.2016-01-03"
+local deprecated	= nil
 
 local _, _ENV		= nil, _.strict {}
 

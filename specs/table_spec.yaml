@@ -8,8 +8,7 @@ before: |
                           "merge", "merge_select", "monkey_patch", "new",
                           "pack", "project", "remove", "size", "sort",
                           "unpack", "values" }
-  deprecations        = { "flatten", "len", "okeys", "metamethod", "ripairs",
-                          "shape",  "totable" }
+  deprecations        = { "flatten", "len", "okeys", "shape" }
 
   setdebug { deprecate = false }
 
@@ -184,9 +183,9 @@ specify std.table:
       f = M.flatten
 
   - it writes a deprecation warning:
-      expect (deprecate_on ("ripairs", "{}")).
+      expect (deprecate_on ("flatten", "{}")).
         to_contain_error "was deprecated"
-      expect (deprecate_off ("ripairs", "{}")).
+      expect (deprecate_off ("flatten", "{}")).
         not_to_contain_error "was deprecated"
 
   - it returns a table:
@@ -434,31 +433,6 @@ specify std.table:
         expect (getmetatable (f ({}, t1mt, {"k1"}, ":nometa"))).to_be (nil)
 
 
-- describe metamethod:
-  - before:
-      Object = require "std.object"
-      objmethod = function () end
-      obj = Object {
-        _type = "DerivedObject",
-        _method = objmethod,
-      }
-
-      f = M.metamethod
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("metamethod", "{}, 'subject'")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("metamethod", "{}, 'subject'")).
-        not_to_contain_error "was deprecated"
-
-  - it returns nil for missing metamethods:
-      expect (f (obj, "not a method on obj")).to_be (nil)
-  - it returns nil for non-function metatable entries:
-      expect (f (obj, "_type")).to_be (nil)
-  - it returns a method from the metatable:
-      expect (f (obj, "_method")).to_be (objmethod)
-
-
 - describe monkey_patch:
   - before:
       f = M.monkey_patch
@@ -615,29 +589,6 @@ specify std.table:
       expect (t).to_equal {1, 2, 5, 42}
 
 
-- describe ripairs:
-  - before:
-      f = M.ripairs
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("ripairs", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("ripairs", "{}")).
-        not_to_contain_error "was deprecated"
-
-  - it returns a function, the table and a number:
-      fn, t, i = f {1, 2, 3}
-      expect ({type (fn), t, type (i)}).to_equal {"function", {1, 2, 3}, "number"}
-  - it iterates over a array part of a table:
-      t, u = {1, 2, 3; a=4, b=5, c=6}, {}
-      for i, v in f (t) do u[i] = v end
-      expect (u).to_equal {1, 2, 3}
-  - it returns elements in reverse order:
-      t, u = {"one", "two", "five"}, {}
-      for _, v in f (t) do u[#u + 1] = v end
-      expect (u).to_equal {"five", "two", "one"}
-
-
 - describe shape:
   - before:
       l = {1, 2, 3, 4, 5, 6}
@@ -703,29 +654,6 @@ specify std.table:
       expect (subject).to_equal (target)
   - it returns the sorted table:
       expect (f (subject, cmp)).to_equal (target)
-
-
-- describe totable:
-  - before:
-      t  = {"one", "two", "five"}
-      mt = { _type = "MockObject",
-             __totable = function (self) return self.content end }
-
-      f = M.totable
-
-  - it writes a deprecation warning: |
-      expect (deprecate_on ("totable", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("totable", "{}")).
-        not_to_contain_error "was deprecated"
-
-  - it calls object's __totable metamethod:
-      object = setmetatable ({content = t}, mt)
-      expect (f (object)).to_be (t)
-  - it returns a table with no __totable metamethod unchanged:
-      t = {content = t}
-      object = setmetatable (t, { _type = "Thing" })
-      expect (f (object)).to_be (t)
 
 
 - describe unpack:

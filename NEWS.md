@@ -237,10 +237,25 @@
 
   - Deprecated multi-argument `functional.bind` has been removed.
 
-  - Deprecated methods `list:depair`, `list:map_with`, `list:transpose` and
-    `list:zip_with` have been removed.
+  - Deprecated methods `list:depair`, `list:elems`, `list:enpair`,
+    `list:filter`, `list:flatten`, `list:foldl`, `list:foldr`,
+    `list:index_key`, `list:index_value`, `list:map`, `list:map_with`,
+    `list:project`, `list:relems`, `list:reverse`, `list:shape`,
+    `list:transpose` and `list:zip_with` have been removed.
 
-  - Deprecated function `table.clone_rename` has been removed.
+  - Deprecated functions `functional.eval`, `functional.fold`,
+    `functional.op["[]"]`, `functional.op["+"]`, `functional.op["-"]`,
+    `functional.op["*"]`, `functional.op["/"], `functional.op["and"]',
+    `functional.op["or"]`, `functional.op["not"]`, `functional.op["=="]`,
+    `functional.op["~="]`, `list.depair`, `list.elems`, `list.enpair`,
+    `list.filter`, `list.flatten`, `list.foldl`, `list.foldr`,
+    `list.index_key`, `list.index_value`, `list.map`, `list.map_with`,
+    `list.project`, `list.relems`, `list.reverse`, `list.shape`,
+    `list.transpose`, `list.zip_with`, `string.assert`,
+    `string.require_version`, `string.tostring`, `table.clone_rename`,
+    `table.metamethod`, `table.ripairs` and `table.totable` have been
+    removed.  See previous entries below for what they were replaced
+    by.
 
   - Now that the `prototype` field is used to reference a module's
     object prototype, `std.object.prototype` no longer return the object
