@@ -47,7 +47,6 @@ local _tostring		= _.std.tostring
 local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
 local copy		= _.std.base.copy
-local elems		= _.std.elems
 local eval		= _.std.eval
 local getmetamethod	= _.std.getmetamethod
 local ielems		= _.std.ielems
@@ -115,6 +114,17 @@ local function barrel (namespace)
   require "std.table".monkey_patch (namespace)
 
   return monkey_patch (namespace)
+end
+
+
+local function elems (t)
+  -- capture _pairs iterator initial state
+  local fn, istate, ctrl = _pairs (t)
+  return function (state, _)
+    local v
+    ctrl, v = fn (state, ctrl)
+    if ctrl then return v end
+  end, istate, true -- wrapped initial state
 end
 
 

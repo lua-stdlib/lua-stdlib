@@ -14,6 +14,16 @@ before:
   deprecate_on = bind (deprecation, {"nil", this_module})
   deprecate_off = bind (deprecation, {false, this_module})
 
+
+  function elems (t)
+    local fn, istate, ctrl = base.pairs (t)
+    return function (state, _)
+      local v
+      ctrl, v = fn (state, ctrl)
+      if ctrl then return v end
+    end, istate, true
+  end
+
   function npairs (t)
     local m = base.getmetamethod (t, "__len")
     local i, n = 0, m and m(t) or base.table.maxn (t)
@@ -286,7 +296,7 @@ specify std.functional:
       expect (f (M.id, pairs, {})).to_equal {}
   - it iterates through element keys:
       expect (f (M.id, base.ielems, elements)).to_equal {"a", "b", "c", "d", "e"}
-      expect (f (M.id, base.elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
+      expect (f (M.id, elems, inverse)).to_contain.a_permutation_of {1, 2, 3, 4, 5}
   - it propagates nil arguments correctly:
       t = {"a", nil, nil, "d", "e"}
       expect (f (M.id, npairs, t)).to_equal (t)
@@ -488,7 +498,7 @@ specify std.functional:
   - it returns a list of mapped single return value iterator results:
       expect (f (function (e) return e:match "[aeiou]" end, base.ielems, elements)).
         to_equal {"a", "e"}
-      expect (f (function (e) return e .. "x" end, base.elems, elements)).
+      expect (f (function (e) return e .. "x" end, elems, elements)).
         to_contain.a_permutation_of {"ax", "bx", "cx", "dx", "ex"}
   - it returns a table of mapped key:value iterator results:
       t = {"first", second=2, last="three"}

@@ -160,32 +160,6 @@ local function copy (dest, src)
 end
 
 
---- Iterator adaptor for discarding first value from core iterator function.
--- @func factory iterator to be wrapped
--- @param ... *factory* arguments
--- @treturn function iterator that discards first returned value of
---   factory iterator
--- @return invariant state from *factory*
--- @return `true`
--- @usage
--- for v in wrapiterator (ipairs {"a", "b", "c"}) do process (v) end
-local function wrapiterator (factory, ...)
-  -- Capture wrapped ctrl variable into an upvalue...
-  local fn, istate, ctrl = factory (...)
-  -- Wrap the returned iterator fn to maintain wrapped ctrl.
-  return function (state, _)
-           local v
-	   ctrl, v = fn (state, ctrl)
-	   if ctrl then return v end
-	 end, istate, true -- wrapped initial state, and wrapper ctrl
-end
-
-
-local function elems (t)
-  return wrapiterator (pairs, t)
-end
-
-
 local function escape_pattern (s)
   return (s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
 end
@@ -227,8 +201,14 @@ local function _getfenv (fn)
 end
 
 
-local function ielems (l)
-  return wrapiterator (ipairs, l)
+local function ielems (t)
+  -- capture _pairs iterator initial state
+  local fn, istate, ctrl = ipairs (t)
+  return function (state, _)
+    local v
+    ctrl, v = fn (state, ctrl)
+    if ctrl then return v end
+  end, istate, true -- wrapped initial state
 end
 
 
@@ -612,7 +592,6 @@ end
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
-  elems         = elems,
   eval          = eval,
   getmetamethod = getmetamethod,
   ielems        = ielems,
