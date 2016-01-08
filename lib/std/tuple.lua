@@ -4,7 +4,7 @@
  An interned, immutable, nil-preserving tuple object.
 
  Like Lua strings, tuples with the same elements can be quickly compared
- with a straight forward `==` comparison.  The `prototype` field in the
+ with a straight-forward `==` comparison.  The `prototype` field in the
  returned module table is the empty tuple, which can be cloned to create
  tuples with other contents.
 
@@ -31,6 +31,7 @@ local getmetatable	= getmetatable
 local next		= next
 local select		= select
 local setmetatable	= setmetatable
+local tonumber		= tonumber
 local type		= type
 
 local string_format	= string.format
@@ -77,6 +78,20 @@ local intern = setmetatable ({}, {
 })
 
 
+--- Unpack tuple values between index *i* and *j*, inclusive.
+-- @function unpack
+-- @int[opt=1] i first index to unpack
+-- @int[opt=t.n] j last index to unpack
+-- @return ... values at indices *i* through *j*, inclusive
+-- @usage
+-- t = Tuple (1, 3, 2, 5)
+-- --> 3, 2, 5
+-- tuple.unpack (t, 2)
+local function unpack (t, i, j)
+  return table_unpack (next (t), tonumber (i) or 1, tonumber (j) or t.n)
+end
+
+
 
 --[[ ================== ]]--
 --[[ Type Declarations. ]]--
@@ -112,6 +127,7 @@ local prototype = Container {
   -- @section metamethods
 
   __index = function (self, k)
+    if k == "unpack" then return unpack end
     return next (self) [k]
   end,
 
@@ -147,19 +163,6 @@ local prototype = Container {
     return string_format ("%s (%s)", getmetatable (self)._type, argstr)
   end,
 
-  --- Unpack tuple values between index *i* and *j*, inclusive.
-  -- @function prototype:__unpack
-  -- @int[opt=1] i first index to unpack
-  -- @int[opt=len(t)] j last index to unpack
-  -- @return ... values at indices *i* through *j*, inclusive
-  -- @usage
-  -- t = Tuple (1, 3, 2, 5)
-  -- --> 3, 2, 5
-  -- table.unpack (t, 2)
-  __unpack = function (self, i, j)
-    return table_unpack (next (self), i, j)
-  end,
-
   --- Return a loadable serialization of this object, where possible.
   -- @function prototype:__pickle
   -- @treturn string pickled object representataion
@@ -183,4 +186,5 @@ local prototype = Container {
 
 return Module {
   prototype = prototype,
+  unpack = unpack,
 }
