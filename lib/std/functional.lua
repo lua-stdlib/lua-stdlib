@@ -29,20 +29,15 @@ local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
 local callable		= _.std.functional.callable
-local copy		= _.std.base.copy
 local ielems		= _.std.ielems
 local len		= _.std.operator.len
-local merge		= _.std.base.merge
 local mnemonic		= _.std.base.mnemonic
 local nop		= _.std.functional.nop
 local pack		= _.std.table.pack
 local reduce		= _.std.functional.reduce
-local render		= _.std.string.render
 local leaves		= _.std.tree.leaves
 local unpack		= _.std.table.unpack
 
-
-local deprecated 	= nil
 
 local _, _ENV		= nil, _.strict {}
 
@@ -786,11 +781,6 @@ local M = {
   -- conc {{1, 2}, {3, 4}, {5}}, conc {{a=1, b=2}, x={a=3, b=4}, {b=5}}
   zip_with = X ("zip_with (function, table of tables)", zip_with),
 }
-
-
-if deprecated then
-  M = merge (M, deprecated.functional)
-end
 
 
 return M
