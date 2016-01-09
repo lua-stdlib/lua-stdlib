@@ -17,8 +17,7 @@
 ]]
 
 
-local math_ceil		= math.ceil
-local math_max		= math.max
+local table_unpack	= table.unpack or unpack
 
 
 local _ = {
@@ -36,11 +35,7 @@ local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
 local len		= _.std.operator.len
-local merge		= _.std.base.merge
-local unpack		= _.std.table.unpack
 
-
-local deprecated	= nil
 
 local _, _ENV		= nil, _.strict {}
 
@@ -51,7 +46,7 @@ local _, _ENV		= nil, _.strict {}
 --[[ ================= ]]--
 
 
-local prototype
+local List
 
 
 local function append (l, x)
@@ -62,7 +57,7 @@ end
 
 
 local function concat (l, ...)
-  local r = prototype {}
+  local r = List {}
   for _, e in _ipairs {l, ...} do
     for _, v in _ipairs (e) do
       r[#r + 1] = v
@@ -73,7 +68,7 @@ end
 
 
 local function rep (l, n)
-  local r = prototype {}
+  local r = List {}
   for i = 1, n do
     r = concat (r, l)
   end
@@ -82,7 +77,7 @@ end
 
 
 local function sub (l, from, to)
-  local r = prototype {}
+  local r = List {}
   local lenl = len (l)
   from = from or 1
   to = to or lenl
@@ -148,7 +143,7 @@ local methods = {
   -- @usage
   -- --> List {"x", 1, 2, 3}
   -- consed = (List {1, 2, 3}):cons "x"
-  cons = X ("cons (List, any)", function (l, x) return prototype {x, unpack (l)} end),
+  cons = X ("cons (List, any)", function (l, x) return List {x, table_unpack (l, 1, len (l))} end),
 
   --- Repeat a list.
   -- @function prototype:rep
@@ -190,7 +185,7 @@ local methods = {
 -- @usage
 -- local List = require "std.list".prototype
 -- assert (std.type (List) == "List")
-local List = {
+List = Object {
   _type = "std.list.List",
 
   --- Metamethods
@@ -232,28 +227,8 @@ local List = {
 }
 
 
--- Lots of scope to tidy and simplify once we don't need to merge in the
--- deprecated functions below.
-local M = {}
-
-if deprecated then
-  local function bindfns (dest, src)
-    for k, v in _pairs (src) do
-      dest[k] = dest[k] or function (...) return v (prototype, ...) end
-    end
-    return dest
-  end
-
-  methods = bindfns (methods, deprecated.methods.list)
-  M = bindfns (M, deprecated.list)
-end
-
-
-prototype = Object (List)
-
-
-return Module (merge ({
-  prototype = prototype,
+return Module {
+  prototype = List,
 
   append  = methods.append,
   compare = methods.compare,
@@ -262,4 +237,4 @@ return Module (merge ({
   rep     = methods.rep,
   sub     = methods.sub,
   tail    = methods.tail,
-}, M))
+}
