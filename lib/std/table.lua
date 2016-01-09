@@ -20,7 +20,7 @@ local type		= type
 
 local math_min		= math.min
 local table_insert	= table.insert
-local table_unpack	= table.unpack
+local table_unpack	= table.unpack or unpack
 
 
 local _ = {

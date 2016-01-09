@@ -44,7 +44,7 @@ local string_match	= string.match
 local table_concat	= table.concat
 local table_insert	= table.insert
 local table_remove	= table.remove
-local table_unpack	= table.unpack
+local table_unpack	= table.unpack or unpack
 
 
 local _ = {
