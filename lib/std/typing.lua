@@ -40,6 +40,7 @@ local table_concat	= table.concat
 local table_insert	= table.insert
 local table_remove	= table.remove
 local table_sort	= table.sort
+local table_unpack	= table.unpack
 
 
 local _ = {
@@ -59,7 +60,6 @@ local len		= _.std.operator.len
 local nop		= _.std.functional.nop
 local pack		= _.std.table.pack
 local split		= _.std.string.split
-local unpack		= _.std.table.unpack
 
 
 local _, _ENV		= nil, _.strict {}
@@ -511,7 +511,7 @@ if _DEBUG.argcheck then
 	diagnose (results, output)
       end
 
-      return unpack (results)
+      return table_unpack (results, 1, results.n)
     end
   end
 

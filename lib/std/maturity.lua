@@ -71,11 +71,6 @@ local function result_pack (...)
 end
 
 
-local function result_unpack (v)
-  return table_unpack (v, 1, v.n)
-end
-
-
 local function DEPRECATED (version, name, extramsg, fn)
   if fn == nil then fn, extramsg = extramsg, nil end
 
@@ -87,7 +82,7 @@ local function DEPRECATED (version, name, extramsg, fn)
       -- would lose a stack frame and change the `level` argument
       -- required for frame counting functions, so we do this instead:
       local r = result_pack (fn (...))
-      return result_unpack (r)
+      return table_unpack (r, 1, r.n)
     end
   end
 end

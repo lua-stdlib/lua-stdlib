@@ -44,6 +44,7 @@ local string_match	= string.match
 local table_concat	= table.concat
 local table_insert	= table.insert
 local table_remove	= table.remove
+local table_unpack	= table.unpack
 
 
 local _ = {
@@ -56,9 +57,9 @@ local argscheck		= _.typing.argscheck
 local catfile		= _.std.io.catfile
 local escape_pattern	= _.std.string.escape_pattern
 local invert		= _.std.table.invert
+local len		= _.std.operator.len
 local merge		= _.std.base.merge
 local split		= _.std.string.split
-local unpack		= _.std.table.unpack
 
 
 local _, _ENV		= nil, _.strict {}
@@ -152,7 +153,7 @@ end
 local function insert (pathstrings, ...)
   local paths = split (pathstrings, pathsep)
   table_insert (paths, ...)
-  return normalize (unpack (paths))
+  return normalize (table_unpack (paths, 1, len (paths)))
 end
 
 

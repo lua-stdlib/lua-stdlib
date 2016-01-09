@@ -15,10 +15,12 @@ local getmetatable	= getmetatable
 local next		= next
 local setmetatable	= setmetatable
 local table		= table
+local tonumber		= tonumber
 local type		= type
 
 local math_min		= math.min
 local table_insert	= table.insert
+local table_unpack	= table.unpack
 
 
 local _ = {
@@ -33,12 +35,12 @@ local argscheck		= _.typing.argscheck
 local argerror		= _.typing.argerror
 local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
+local getmetamethod	= _.std.getmetamethod
 local invert		= _.std.table.invert
 local len		= _.std.operator.len
 local maxn		= _.std.table.maxn
 local merge		= _.std.base.merge
 local pack		= _.std.table.pack
-local unpack		= _.std.table.unpack
 
 
 local deprecated	= require "std.delete-after.a-year"
@@ -174,6 +176,16 @@ local function remove (t, pos)
     argerror ("std.table.remove", 2, "position " .. pos .. " out of bounds", 2)
   end
   return _remove (t, pos)
+end
+
+
+local function unpack (t, i, j)
+  if j == nil then
+    -- if j was not given, respect __len, otherwise use maxn
+    local m = getmetamethod (t, "__len")
+    j = m and m (t) or maxn (t)
+  end
+  return table_unpack (t, tonumber (i) or 1, tonumber (j))
 end
 
 

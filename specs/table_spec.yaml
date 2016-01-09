@@ -664,6 +664,12 @@ specify std.table:
       expect (f {}).to_be (nil)
   - it returns numeric indexed table elements:
       expect ({f (t)}).to_equal (t)
+  - it respects __len metamethod:
+      function two (t)
+        return setmetatable (t, { __len = function () return 2 end})
+      end
+      expect (pack (f (two {})).n).to_be (2)
+      expect (pack (f (two (t))).n).to_be (2)
   - it returns holes in numeric indices as nil:
       expect ({f {nil, 2}}).to_equal {[2] = 2}
       expect ({f {nil, nil, 3}}).to_equal {[3] = 3}

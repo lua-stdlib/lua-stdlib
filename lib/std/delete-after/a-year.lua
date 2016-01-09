@@ -42,6 +42,9 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local string_match	= string.match
   local table_concat	= table.concat
   local table_insert	= table.insert
+  local table_pack	= table.pack or function (...)
+    return {n = select ("#", ...), ...}
+  end
   local table_remove	= table.remove
   local table_sort	= table.sort
   local table_unpack	= table.unpack or unpack
@@ -75,7 +78,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local pack		= _.std.table.pack
   local sortkeys	= _.std.base.sortkeys
   local split		= _.std.string.split
-  local unpack		= _.std.table.unpack
 
   -- Only the above symbols are used below this line.
   local _, _ENV		= nil, _.strict {}
@@ -527,7 +529,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	  diagnose (results, output)
 	end
 
-	return unpack (results)
+	return table_unpack (results, 1, results.n)
       end
     end
 
@@ -543,11 +545,11 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
 
   local function collect (ifn, ...)
-    local argt, r = {...}, {}
+    local argt, r = pack (...), {}
 
     -- How many return values from ifn?
     local arity = 1
-    for e, v in ifn (table_unpack (argt)) do
+    for e, v in ifn (table_unpack (argt, 1, argt.n)) do
       if v then arity, r = 2, {} break end
       -- Build an arity-1 result table on first pass...
       r[#r + 1] = e
@@ -555,7 +557,7 @@ if not require "std.debug_init"._DEBUG.deprecate then
 
     if arity == 2 then
       -- ...oops, it was arity-2 all along, start again!
-      for k, v in ifn (table_unpack (argt)) do
+      for k, v in ifn (table_unpack (argt, 1, argt.n)) do
         r[k] = v
       end
     end
@@ -638,14 +640,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
     return DEPRECATED (RELEASE, "'std.debug." .. base .. "'", "use 'std.argcheck." .. base .. "' instead", fn) or nil
   end
 
-  local function result_pack (...)
-    return {n = select ("#", ...), ...}
-  end
-
-  local function result_unpack (v)
-    return table_unpack (v, 1, v.n)
-  end
-
   local function acyclic_merge (dest, src)
     for k, v in pairs (src) do
       if type (v) == "table" then
@@ -664,23 +658,23 @@ if not require "std.debug_init"._DEBUG.deprecate then
 	-- Add 2 to the level, this anonymous function and XX, being
 	-- careful not to let tail call elimination remove a stack
 	-- frame:
-        local r = result_pack (argcheck (name, i, expected, actual, (level or 1) + 2))
-	return result_unpack (r)
+        local r = table_pack (argcheck (name, i, expected, actual, (level or 1) + 2))
+	return table_unpack (r, 1, r.n)
       end),
       argerror = XX ("argerror", function (name, i, extramsg, level)
-        local r = result_pack (argerror (name, i, extramsg, (level or 1) + 2))
-	return result_unpack (r)
+        local r = table_pack (argerror (name, i, extramsg, (level or 1) + 2))
+	return table_unpack (r, 1, r.n)
       end),
       argscheck = XX ("argscheck", argscheck),
       extramsg_mismatch = XX ("extramsg_mismatch", function (expected, actual, index)
-        local r = result_pack (extramsg_mismatch (typesplit (expected), actual, index))
-	return result_unpack (r)
+        local r = table_pack (extramsg_mismatch (typesplit (expected), actual, index))
+	return table_unpack (r, 1, r.n)
       end),
       extramsg_toomany = XX ("extramsg_toomany", extramsg_toomany),
       parsetypes = XX ("parsetypes", parsetypes),
       resulterror = XX ("resulterror", function (name, i, extramsg, level)
-        local r = result_pack (resulterror (name, i, extramsg, (level or 1) + 2))
-	return result_unpack (r)
+        local r = table_pack (resulterror (name, i, extramsg, (level or 1) + 2))
+	return table_unpack (r, 1, r.n)
       end),
       typesplit = XX ("typesplit", typesplit),
     },

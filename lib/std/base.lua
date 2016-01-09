@@ -300,17 +300,6 @@ local pack = table_pack or function (...)
 end
 
 
-local function unpack (t, i, j)
-  if j == nil then
-    -- respect __len, and then maxn if nil j was passed
-    local m = getmetamethod (t, "__len")
-    j = m and m (t) or maxn (t)
-  end
-  local fn = getmetamethod (t, "__unpack") or table_unpack
-  return fn (t, tonumber (i) or 1, tonumber (j))
-end
-
-
 local function reduce (fn, d, ifn, ...)
   local argt
   if not callable (ifn) then
@@ -319,14 +308,14 @@ local function reduce (fn, d, ifn, ...)
     argt = pack (...)
   end
 
-  local nextfn, state, k = ifn (unpack (argt, 1, argt.n))
-  local t = {nextfn (state, k)}	-- table of iteration 1
+  local nextfn, state, k = ifn (table_unpack (argt, 1, argt.n))
+  local t = pack (nextfn (state, k))		-- table of iteration 1
 
-  local r = d			-- initialise accumulator
-  while t[1] ~= nil do		-- until iterator returns nil
+  local r = d					-- initialise accumulator
+  while t[1] ~= nil do				-- until iterator returns nil
     k = t[1]
-    r = fn (r, unpack (t))	-- pass all iterator results to fn
-    t = {nextfn (state, k)}	-- maintain loop invariant
+    r = fn (r, table_unpack (t, 1, t.n))	-- pass all iterator results to fn
+    t = pack (nextfn (state, k))		-- maintain loop invariant
   end
   return r
 end
@@ -653,7 +642,6 @@ return {
     invert = invert,
     maxn   = maxn,
     pack   = pack,
-    unpack = unpack,
   },
 
   tree = {
