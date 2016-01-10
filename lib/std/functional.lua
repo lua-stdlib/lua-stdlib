@@ -293,8 +293,7 @@ local lambda = memoize (function (s)
     if body then
       expr = [[
         return function (...)
-          local unpack = table.unpack or unpack
-          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = unpack {...}
+          local _1,_2,_3,_4,_5,_6,_7,_8,_9 = ...
 	  local _ = _1
 	  return ]] .. body .. [[
         end
