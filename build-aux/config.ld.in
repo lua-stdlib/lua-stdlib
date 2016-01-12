@@ -17,19 +17,15 @@ LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:
    useful objects built on it: @{std.container}, @{std.object},
    @{std.list}, @{std.set}, @{std.strbuf}, @{std.tree} and @{std.tuple};
 
-4. A specialized prototype object that reads the help text for a
-   command-line script, and produces a custom option parser for handling
-   the options described by that help text: @{std.optparse};
-
-5. A foundation for programming in a functional style: @{std.functional}
+4. A foundation for programming in a functional style: @{std.functional}
    and @{std.operator};
 
-6. A runtime gradual typing system, for typechecking argument and return
+5. A runtime gradual typing system, for typechecking argument and return
    types at function boundaries with simple annotations that can be
    enabled or disabled for production code, with a Lua API modelled on
    the core Lua C language API: also in @{std.typing};
 
-7. And an implementation of @{std.strict} to enforce declaration of all
+6. And an implementation of @{std.strict} to enforce declaration of all
    globals prior to use.
 
 ## LICENSE
@@ -67,7 +63,6 @@ file = {
 
   -- Other Modules
   "../lib/std/maturity.lua",
-  "../lib/std/optparse.lua",
   "../lib/std/strict.lua",
   "../lib/std/typing.lua",
 }

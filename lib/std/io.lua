@@ -202,13 +202,10 @@ M = {
   -- If there is a global `prog` table, prefix the message with
   -- `prog.name` or `prog.file`, and `prog.line` if any.  Otherwise
   -- if there is a global `opts` table, prefix the message with
-  -- `opts.program` and `opts.line` if any.  @{std.optparse:parse}
-  -- returns an `opts` table that provides the required `program`
-  -- field, as long as you assign it back to `_G.opts`.
+  -- `opts.program` and `opts.line` if any.
   -- @function warn
   -- @string msg format string
   -- @param ... additional arguments to plug format string specifiers
-  -- @see std.optparse:parse
   -- @see die
   -- @usage
   --   local OptionParser = require "std.optparse"

@@ -10,6 +10,15 @@
     us organization-wise, but improvements and corrections to the content
     are always welcome!
 
+  - With this release, stdlib is much more focused, and non-core module
+    `std.optparse` has been moved into its own package and release
+    cycle.  You can install it separately from its [own project][optparse]
+    or using Luarocks:
+
+    ```bash
+    luarocks install optparse
+    ```
+
   - `require "std.strict"` now returns a function that can be applied
     to any environment that should detect references to undeclared
     variables.  For example, to check within the implementation of a
@@ -228,6 +237,9 @@
     in Lua 5.1.
 
 ### Incompatible changes
+
+  - `std.optparse` has been moved to its own package, and is no longer
+    shipped as part of stdlib.
 
   - `std.debug.DEPRECATED` and `std.debug.DEPRECATIONMSG` have moved to
     a new module `std.maturity`.  Deprecation DEPRECATED with multi-level
@@ -1608,3 +1620,6 @@
   - It's just a snapshot of CVS, but it's pretty stable at the moment; stdlib,
     until such time as greater interest or participation enables (or forces!)
     formal releases will be in permanent beta, and tracking CVS is recommended.
+
+
+[own project]: https://github.com/gvvaughan/optparse

@@ -75,7 +75,6 @@ dist_luastd_DATA =			\
 	lib/std/maturity.lua		\
 	lib/std/object.lua		\
 	lib/std/operator.lua		\
-	lib/std/optparse.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
@@ -163,7 +162,6 @@ dist_docfunctional_DATA +=			\
 
 dist_docmodules_DATA +=				\
 	$(docmodules).maturity.html		\
-	$(docmodules).optparse.html		\
 	$(docmodules).strict.html		\
 	$(docmodules).typing.html		\
 	$(NOTHING_ELSE)
