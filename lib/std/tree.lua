@@ -24,6 +24,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local getmetatable	= getmetatable
 local rawget		= rawget
 local rawset		= rawset
@@ -37,15 +38,16 @@ local table_remove	= table.remove
 
 local _ = {
   container		= require "std.container",
+  debug_init		= require "std.debug_init",
   operator		= require "std.operator",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
 local Container		= _.container.prototype
 local Module		= _.std.object.Module
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
@@ -57,7 +59,14 @@ local len		= _.std.operator.len
 local reduce		= _.std.functional.reduce
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

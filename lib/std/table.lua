@@ -11,6 +11,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local getmetatable	= getmetatable
 local next		= next
 local setmetatable	= setmetatable
@@ -23,12 +24,15 @@ local table_insert	= table.insert
 local table_unpack	= table.unpack or unpack
 
 
+local deprecated	= require "std.delete-after.a-year"
+
 local _ = {
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
@@ -43,10 +47,14 @@ local merge		= _.std.base.merge
 local pack		= _.std.table.pack
 
 
-local deprecated	= require "std.delete-after.a-year"
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
-local _, _ENV		= nil, _.strict {}
-
+_ = nil
 
 
 

@@ -28,6 +28,7 @@
  @prototype std.container
 ]]
 
+local _ENV		= _ENV
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
@@ -42,7 +43,6 @@ local table_concat	= table.concat
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
@@ -59,7 +59,15 @@ local pickle		= _.std.string.pickle
 local render		= _.std.string.render
 local sortkeys		= _.std.base.sortkeys
 
-local _, _ENV		= nil, _.strict {}
+
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

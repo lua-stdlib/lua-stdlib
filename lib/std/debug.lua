@@ -11,6 +11,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local debug		= debug
 local setmetatable	= setmetatable
 local type		= type
@@ -21,10 +22,11 @@ local math_max		= math.max
 local table_concat	= table.concat
 
 
+local deprecated	= require "std.delete-after.a-year"
+
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
@@ -35,9 +37,14 @@ local _tostring		= _.std.tostring
 local merge		= _.std.base.merge
 
 
-local deprecated	= require "std.delete-after.a-year"
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
-local _, _ENV		= nil, _.strict {}
+_ = nil
 
 
 
@@ -60,8 +67,7 @@ local _, _ENV		= nil, _.strict {}
 --   value causes deprecated APIs not to be defined at all
 -- @tfield[opt=1] int level debugging level
 -- @tfield[opt=true] boolean strict enforce strict variable declaration
---   before use **in stdlib internals**
--- @see std.strict
+--   before use **in stdlib internals** (if `require "strict"` works)
 -- @usage _DEBUG = { argcheck = false, level = 9, strict = false }
 
 

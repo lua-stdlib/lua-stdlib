@@ -54,7 +54,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
     debug_init		= require "std.debug_init",
     maturity		= require "std.maturity",
     std			= require "std.base",
-    strict		= require "std.strict",
   }
 
   -- Merge in deprecated APIs from previous release if still available.
@@ -78,9 +77,6 @@ if not require "std.debug_init"._DEBUG.deprecate then
   local pack		= _.std.table.pack
   local sortkeys	= _.std.base.sortkeys
   local split		= _.std.string.split
-
-  -- Only the above symbols are used below this line.
-  local _, _ENV		= nil, _.strict {}
 
 
 

@@ -10,22 +10,15 @@
     us organization-wise, but improvements and corrections to the content
     are always welcome!
 
-  - With this release, stdlib is much more focused, and non-core module
-    `std.optparse` has been moved into its own package and release
-    cycle.  You can install it separately from its [own project][optparse]
+  - With this release, stdlib is much more focused, and non-core modules
+    `std.optparse` and `std.strict` have been moved into their own packages
+    and release cycle.  You can still install them separately from their
+    [own][optparse] [projects][strict]
     or using Luarocks:
 
     ```bash
     luarocks install optparse
-    ```
-
-  - `require "std.strict"` now returns a function that can be applied
-    to any environment that should detect references to undeclared
-    variables.  For example, to check within the implementation of a
-    module, but without changing the behaviour of the client code:
-
-    ```lua
-    local _ENV = require "std.strict" (setmetatable ({}, {__index = _G}))
+    luarocks install strict
     ```
 
   - All support for deprecated APIs has been moved out of the module
@@ -238,8 +231,8 @@
 
 ### Incompatible changes
 
-  - `std.optparse` has been moved to its own package, and is no longer
-    shipped as part of stdlib.
+  - `std.optparse` and `std.strict` have been moved to their own packages,
+    and are no longer shipped as part of stdlib.
 
   - `std.debug.DEPRECATED` and `std.debug.DEPRECATIONMSG` have moved to
     a new module `std.maturity`.  Deprecation DEPRECATED with multi-level
@@ -301,14 +294,6 @@
   - The output format of `std.tostring` skips initial sequence keys in
     the new compact format, including stringification of Objects and
     Containers using their `__tostring` metamethods.
-
-  - `std.strict` now returns a callable for detecting accidental global
-    variable leakage and reference, but does not apply it to `_G` by
-    default.  You can emulate the old behaviour with:
-
-    ```lua
-    _G = require "std.strict" (_G)
-    ```
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
@@ -1622,4 +1607,5 @@
     formal releases will be in permanent beta, and tracking CVS is recommended.
 
 
-[own project]: https://github.com/gvvaughan/optparse
+[optparse]: https://github.com/gvvaughan/optparse
+[strict]: https://github.com/lua-stdlib/strict

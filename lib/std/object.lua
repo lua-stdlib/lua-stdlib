@@ -22,29 +22,38 @@
 ]]
 
 
+local _ENV		= _ENV
 local getmetatable	= getmetatable
 
 
+local deprecated	= require "std.delete-after.a-year"
+
 local _ = {
+  debug_init		= require "std.debug_init",
   container		= require "std.container",
   maturity		= require "std.maturity",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing 	    	= require "std.typing",
 }
 
 local Container 	= _.container.prototype
 local Module		= _.std.object.Module
 
+local _DEBUG		= _.debug_init._DEBUG
 local argscheck		= _.typing.argscheck
 local getmetamethod	= _.std.getmetamethod
 local mapfields		= _.std.object.mapfields
 local merge		= _.std.base.merge
 
 
-local deprecated	= require "std.delete-after.a-year"
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
-local _, _ENV		= nil, _.strict {}
+_ = nil
 
 
 

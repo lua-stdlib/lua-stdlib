@@ -8,6 +8,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local loadstring	= loadstring or load
 local next		= next
 local pcall		= pcall
@@ -21,11 +22,12 @@ local table_unpack	= table.unpack or unpack
 
 
 local _ = {
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
@@ -39,7 +41,14 @@ local reduce		= _.std.functional.reduce
 local leaves		= _.std.tree.leaves
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

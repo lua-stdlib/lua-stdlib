@@ -19,9 +19,10 @@
             `-> Set
 
  @prototype std.set
- ]]
+]]
 
 
+local _ENV		= _ENV
 local getmetatable	= getmetatable
 local next		= next
 local rawget		= rawget
@@ -35,21 +36,29 @@ local table_sort	= table.sort
 
 local _ = {
   container		= require "std.container",
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
 local Container		= _.container.prototype
 local Module		= _.std.object.Module
 
+local _DEBUG		= _.debug_init._DEBUG
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
 local argscheck		= _.typing.argscheck
 local pickle		= _.std.string.pickle
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

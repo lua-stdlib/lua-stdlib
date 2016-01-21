@@ -25,9 +25,6 @@ LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:
    enabled or disabled for production code, with a Lua API modelled on
    the core Lua C language API: also in @{std.typing};
 
-6. And an implementation of @{std.strict} to enforce declaration of all
-   globals prior to use.
-
 ## LICENSE
 
 The code is copyright by its respective authors, and released under the
@@ -63,7 +60,6 @@ file = {
 
   -- Other Modules
   "../lib/std/maturity.lua",
-  "../lib/std/strict.lua",
   "../lib/std/typing.lua",
 }
 

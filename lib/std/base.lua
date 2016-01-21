@@ -23,9 +23,10 @@
 ]]
 
 
+local _ENV		= _ENV
 local dirsep		= string.match (package.config, "^(%S+)\n")
 local error		= error
-local getfenv		= getfenv
+local getfenv		= getfenv or false
 local getmetatable	= getmetatable
 local loadstring	= loadstring or load
 local next		= next
@@ -56,7 +57,15 @@ local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
 
 
-local _ENV		= require "std.strict" {}
+local _DEBUG		= require "std.debug_init"._DEBUG
+
+
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
 
 

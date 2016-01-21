@@ -11,6 +11,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local assert		= assert
 local getmetatable	= getmetatable
 local string		= string
@@ -24,16 +25,19 @@ local math_floor	= math.floor
 local table_insert	= table.insert
 
 
+local deprecated	= nil
+
 local _ = {
+  debug_init		= require "std.debug_init",
   maturity		= require "std.maturity",
   std			= require "std.base",
   strbuf		= require "std.strbuf",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
 local StrBuf		= _.strbuf.prototype
 
+local _DEBUG		= _.debug_init._DEBUG
 local _tostring		= _.std.tostring
 local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
 local argscheck		= _.typing.argscheck
@@ -48,9 +52,14 @@ local split		= _.std.string.split
 local toqstring		= _.std.base.toqstring
 
 
-local deprecated	= nil
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
-local _, _ENV		= nil, _.strict {}
+_ = nil
 
 
 

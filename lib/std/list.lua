@@ -17,19 +17,22 @@
 ]]
 
 
+local _ENV		= _ENV
+
 local table_unpack	= table.unpack or unpack
 
 
 local _ = {
+  debug_init		= require "std.debug_init",
   object		= require "std.object",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
 local Object		= _.object.prototype
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local argscheck		= _.typing.argscheck
@@ -37,7 +40,14 @@ local compare		= _.std.list.compare
 local len		= _.std.operator.len
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

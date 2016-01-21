@@ -11,6 +11,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local _G		= _G
 local arg		= arg
 local error		= error
@@ -34,11 +35,12 @@ local table_insert	= table.insert
 
 
 local _	= {
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _tostring		= _.std.tostring
 local argerror		= _.typing.argerror
@@ -52,7 +54,14 @@ local merge		= _.std.base.merge
 local split		= _.std.string.split
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

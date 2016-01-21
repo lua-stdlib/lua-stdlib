@@ -27,29 +27,38 @@
 ]]
 
 
+local _ENV		= _ENV
 local ipairs		= ipairs
 local tostring		= tostring
 
 local table_concat	= table.concat
 
 
+local deprecated	= require "std.delete-after.2016-01-31"
+
 local _ = {
+  debug_init		= require "std.debug_init",
   object		= require "std.object",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
 local Object		= _.object.prototype
 
+local _DEBUG		= _.debug_init._DEBUG
 local argscheck		= _.typing.argscheck
 local merge		= _.std.base.merge
 
 
-local deprecated	= require "std.delete-after.2016-01-31"
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
 
-local _, _ENV		= nil, _.strict {}
+_ = nil
 
 
 

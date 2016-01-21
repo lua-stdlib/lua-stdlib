@@ -20,6 +20,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local _G		= _G
 local error		= error
 local ipairs		= ipairs
@@ -35,12 +36,15 @@ local string_format	= string.format
 local string_match	= string.match
 
 
+local deprecated	= require "std.delete-after.a-year"
+
 local _ = {
-  strict		= require "std.strict",
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
@@ -55,9 +59,16 @@ local merge		= _.std.base.merge
 local ripairs		= _.std.ripairs
 local split		= _.std.string.split
 
-local deprecated	= require "std.delete-after.a-year"
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
+
 
 
 

@@ -11,23 +11,31 @@
 ]]
 
 
+local _ENV		= _ENV
 local math		= math
-
 
 local math_floor	= math.floor
 
 local _ = {
+  debug_init		= require "std.debug_init",
   std			= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local argscheck		= _.typing.argscheck
 local copy		= _.std.base.copy
 local merge		= _.std.base.merge
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

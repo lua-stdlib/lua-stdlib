@@ -78,7 +78,6 @@ dist_luastd_DATA =			\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
-	lib/std/strict.lua		\
 	lib/std/string.lua		\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
@@ -162,7 +161,6 @@ dist_docfunctional_DATA +=			\
 
 dist_docmodules_DATA +=				\
 	$(docmodules).maturity.html		\
-	$(docmodules).strict.html		\
 	$(docmodules).typing.html		\
 	$(NOTHING_ELSE)
 

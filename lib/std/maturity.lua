@@ -25,6 +25,8 @@
  @module std.maturity
 ]]
 
+
+local _ENV		= _ENV
 local error		= error
 local pcall		= pcall
 local select		= select
@@ -37,13 +39,19 @@ local table_unpack	= table.unpack or unpack
 
 local _ = {
   debug_init		= require "std.debug_init",
-  strict		= require "std.strict",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 

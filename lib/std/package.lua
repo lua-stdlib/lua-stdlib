@@ -36,6 +36,7 @@
 ]]
 
 
+local _ENV		= _ENV
 local ipairs		= ipairs
 local package		= package
 
@@ -48,11 +49,12 @@ local table_unpack	= table.unpack or unpack
 
 
 local _ = {
+  debug_init		= require "std.debug_init",
   std   		= require "std.base",
-  strict		= require "std.strict",
   typing		= require "std.typing",
 }
 
+local _DEBUG		= _.debug_init._DEBUG
 local argscheck		= _.typing.argscheck
 local catfile		= _.std.io.catfile
 local escape_pattern	= _.std.string.escape_pattern
@@ -62,7 +64,14 @@ local merge		= _.std.base.merge
 local split		= _.std.string.split
 
 
-local _, _ENV		= nil, _.strict {}
+if _DEBUG.strict then
+  local ok, strict	= pcall (require, "strict")
+  if ok then
+    _ENV = strict {}
+  end
+end
+
+_ = nil
 
 
 
