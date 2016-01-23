@@ -5,8 +5,6 @@
 ## Specs. ##
 ## ------ ##
 
-SPECL_OPTS = --unicode
-
 ## For compatibility with Specl < 11, std_spec.yaml has to be
 ## last, so that when `require "std"` leaks symbols into the
 ## Specl global environment, subsequent example blocks are not
