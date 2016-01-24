@@ -1,60 +1,35 @@
-local _ENV = {
-  _G		= _G,
-  math_huge	= math.huge,
-  rawget	= rawget,
-  setfenv	= setfenv or function () end,
-  type		= type,
-}
-setfenv (1, _ENV)
+--[[
+ Return a table of debug parameters.
+
+ Before loading this module, set the global `_DEBUG` according to what
+ debugging features you wish to use until the application exits.
+]]
 
 
--- Debugging is on by default
-local M = {}
-
--- Use rawget to satisfy std.strict.
-local _DEBUG = rawget (_G, "_DEBUG")
-
--- User specified fields.
-if type (_DEBUG) == "table" then
-  M._DEBUG = _DEBUG
-
--- Turn everything off.
-elseif _DEBUG == false then
-  M._DEBUG  = {
-    argcheck  = false,
-    call      = false,
-    deprecate = false,
-    level     = math_huge,
-    strict    = false,
-  }
-
--- Turn everything on (except _DEBUG.call must be set explicitly).
-elseif _DEBUG == true then
-  M._DEBUG  = {
-    argcheck  = true,
-    call      = false,
-    deprecate = true,
-    strict    = true,
-  }
-
-else
-  M._DEBUG  = {}
-end
-
-
-local function setdefault (field, value)
-  if M._DEBUG[field] == nil then
-    M._DEBUG[field] = value
+local function set (explicit, default, development, production)
+  if type(_DEBUG) == "table" then
+    if _DEBUG[explicit] == nil then
+      return default
+    end
+    return _DEBUG[explicit]
   end
+  if _DEBUG == false then
+    return production
+  elseif _DEBUG == nil then
+    return default
+  end
+  return development
 end
 
 
--- Default settings if otherwise unspecified.
-setdefault ("argcheck", true)
-setdefault ("call", false)
-setdefault ("deprecate", nil)
-setdefault ("level", 1)
-setdefault ("strict", true)
-
-
-return M
+return {
+  _DEBUG = {
+    -- _G._DEBUG is: table[name]   nil   true    false
+    -- ------------------------------------------------
+    argcheck  = set ("argcheck",  true,  true,   false),
+    call      = set ("call",      false, false,  false),
+    deprecate = set ("deprecate", nil,   true,   false),
+    level     = set ("level",     1,     1,      math.huge),
+    strict    = set ("strict",    true,  true,   false),
+  },
+}
