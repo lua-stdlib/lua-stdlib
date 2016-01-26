@@ -41,14 +41,12 @@ local deprecated	= require "std.delete-after.a-year"
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
-  typing		= require "std.typing",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
 local _tostring		= _.std.tostring
-local argscheck		= _.typing.argscheck
 local compare		= _.std.list.compare
 local copy		= _.std.base.copy
 local eval		= _.std.eval
@@ -60,6 +58,20 @@ local ripairs		= _.std.ripairs
 local split		= _.std.string.split
 
 
+-- Perform typechecking with functions exported from this module, unless
+-- disabled in `_DEBUG` or the "typecheck" module is not loadable.
+local argscheck
+if _DEBUG.argcheck then
+  local ok, typecheck	= pcall (require, "typecheck")
+  if ok then
+    argscheck		= typecheck.argscheck
+  end
+end
+argscheck		= argscheck or function (decl, inner) return inner end
+
+
+-- Use a strict environment for the rest of this module, unless disabled
+-- in `_DEBUG` or the "strict" module is not loadable.
 if _DEBUG.strict then
   local ok, strict	= pcall (require, "strict")
   if ok then

@@ -27,7 +27,6 @@ specl_SPECS =					\
 	$(srcdir)/specs/table_spec.yaml		\
 	$(srcdir)/specs/tree_spec.yaml		\
 	$(srcdir)/specs/tuple_spec.yaml		\
-	$(srcdir)/specs/typing_spec.yaml	\
 	$(srcdir)/specs/std_spec.yaml		\
 	$(NOTHING_ELSE)
 

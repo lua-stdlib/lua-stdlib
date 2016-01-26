@@ -51,11 +51,9 @@ local table_unpack	= table.unpack or unpack
 local _ = {
   debug_init		= require "std.debug_init",
   std   		= require "std.base",
-  typing		= require "std.typing",
 }
 
 local _DEBUG		= _.debug_init._DEBUG
-local argscheck		= _.typing.argscheck
 local catfile		= _.std.io.catfile
 local escape_pattern	= _.std.string.escape_pattern
 local invert		= _.std.table.invert
@@ -64,6 +62,20 @@ local merge		= _.std.base.merge
 local split		= _.std.string.split
 
 
+-- Perform typechecking with functions exported from this module, unless
+-- disabled in `_DEBUG` or the "typecheck" module is not loadable.
+local argscheck
+if _DEBUG.argcheck then
+  local ok, typecheck	= pcall (require, "typecheck")
+  if ok then
+    argscheck		= typecheck.argscheck
+  end
+end
+argscheck		= argscheck or function (decl, inner) return inner end
+
+
+-- Use a strict environment for the rest of this module, unless disabled
+-- in `_DEBUG` or the "strict" module is not loadable.
 if _DEBUG.strict then
   local ok, strict	= pcall (require, "strict")
   if ok then

@@ -1,8 +1,12 @@
-local inprocess = require "specl.inprocess"
-local hell      = require "specl.shell"
-local std       = require "specl.std"
+local typecheck
+have_typecheck, typecheck	= pcall (require, "typecheck")
 
-badargs = require "specl.badargs"
+local inprocess			= require "specl.inprocess"
+local hell			= require "specl.shell"
+local std			= require "specl.std"
+
+badargs				= require "specl.badargs"
+
 
 local top_srcdir = os.getenv "top_srcdir" or "."
 local top_builddir = os.getenv "top_builddir" or "."
@@ -67,6 +71,13 @@ end
 
 
 -- In case we're not using a bleeding edge release of Specl...
+_diagnose = badargs.diagnose
+badargs.diagnose = function (...)
+  if have_typecheck then
+    return _diagnose (...)
+  end
+end
+
 badargs.result = badargs.result or function (fname, i, want, got)
   if want == nil then i, want =  i - 1, i end -- numbers only for narg error
 

@@ -33,19 +33,31 @@ local _ = {
   container		= require "std.container",
   maturity		= require "std.maturity",
   std			= require "std.base",
-  typing 	    	= require "std.typing",
 }
 
 local Container 	= _.container.prototype
 local Module		= _.std.object.Module
 
 local _DEBUG		= _.debug_init._DEBUG
-local argscheck		= _.typing.argscheck
 local getmetamethod	= _.std.getmetamethod
 local mapfields		= _.std.object.mapfields
 local merge		= _.std.base.merge
 
 
+-- Perform typechecking with functions exported from this module, unless
+-- disabled in `_DEBUG` or the "typecheck" module is not loadable.
+local argscheck
+if _DEBUG.argcheck then
+  local ok, typecheck	= pcall (require, "typecheck")
+  if ok then
+    argscheck		= typecheck.argscheck
+  end
+end
+argscheck		= argscheck or function (decl, inner) return inner end
+
+
+-- Use a strict environment for the rest of this module, unless disabled
+-- in `_DEBUG` or the "strict" module is not loadable.
 if _DEBUG.strict then
   local ok, strict	= pcall (require, "strict")
   if ok then

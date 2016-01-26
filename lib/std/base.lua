@@ -117,6 +117,16 @@ end
 --[[ ============================ ]]--
 
 
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string_format ("bad %s #%d %s '%s'", bad, i, to, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
+end
+
+
 -- No need to recurse because functables are second class citizens in
 -- Lua:
 -- func=function () print "called" end
@@ -609,6 +619,7 @@ return {
   },
 
   debug = {
+    argerror = argerror,
     getfenv  = _getfenv,
     setfenv  = _setfenv,
   },

@@ -22,7 +22,7 @@
  Not setting `_DEBUG.deprecate` will warn on every call to deprecated
  APIs.
 
- @module std.maturity
+ @coremodule std.maturity
 ]]
 
 
@@ -97,7 +97,7 @@ end
 
 
 return {
-  --- Provide a deprecated function definition according to _DEBUG.deprecate.
+  -- Provide a deprecated function definition according to _DEBUG.deprecate.
   -- You can check whether your covered code uses deprecated functions by
   -- setting `_DEBUG.deprecate` to  `true` before loading any stdlib modules,
   -- or silence deprecation warnings by setting `_DEBUG.deprecate = false`.
@@ -111,7 +111,7 @@ return {
   -- M.op = DEPRECATED ("41", "'std.functional.op'", std.operator)
   DEPRECATED = DEPRECATED,
 
-  --- Format a deprecation warning message.
+  -- Format a deprecation warning message.
   -- @function DEPRECATIONMSG
   -- @string version first deprecation release version
   -- @string name function name for automatic warning message

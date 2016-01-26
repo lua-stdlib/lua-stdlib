@@ -163,8 +163,10 @@ specify std.string:
       newstring = f (subject)
       expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
-      expect (f ()).to_raise ("string expected")
-      expect (f {"a table"}).to_raise ("string expected")
+      if typecheck then
+        expect (f ()).to_raise ("string expected")
+        expect (f {"a table"}).to_raise ("string expected")
+      end
 
 
 - describe finds:
@@ -687,5 +689,7 @@ specify std.string:
       expect (f (subject, 10, 12)).to_raise ("less than the line width")
       expect (f (subject, 99, 99)).to_raise ("less than the line width")
   - it diagnoses non-string arguments:
-      expect (f ()).to_raise ("string expected")
-      expect (f {"a table"}).to_raise ("string expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("string expected")
+        expect (f {"a table"}).to_raise ("string expected")
+      end

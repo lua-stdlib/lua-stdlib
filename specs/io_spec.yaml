@@ -244,18 +244,20 @@ specify std.io:
   - context with bad arguments: |
       badargs.diagnose (f, "std.io.readlines (?file|string)")
 
-      examples {
-        ["it diagnoses non-existent file"] = function ()
-          expect (f "not-an-existing-file").
-            to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
-        end
-      }
-      closed = io.open (name, "r") closed:close ()
-      examples {
-        ["it diagnoses closed file argument"] = function ()
-          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
-        end
-      }
+      if have_typecheck then
+        examples {
+          ["it diagnoses non-existent file"] = function ()
+            expect (f "not-an-existing-file").
+              to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
+          end
+        }
+        closed = io.open (name, "r") closed:close ()
+        examples {
+          ["it diagnoses closed file argument"] = function ()
+            expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+          end
+        }
+      end
 
   - it closes file handle upon completion:
       h = io.open (name)
@@ -297,18 +299,20 @@ specify std.io:
   - context with bad arguments: |
       badargs.diagnose (f, "std.io.slurp (?file|string)")
 
-      examples {
-        ["it diagnoses non-existent file"] = function ()
-          expect (f "not-an-existing-file").
-            to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
-        end
-      }
-      closed = io.open (name, "r") closed:close ()
-      examples {
-        ["it diagnoses closed file argument"] = function ()
-          expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
-        end
-      }
+      if have_typecheck then
+        examples {
+          ["it diagnoses non-existent file"] = function ()
+            expect (f "not-an-existing-file").
+              to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+          end
+        }
+        closed = io.open (name, "r") closed:close ()
+        examples {
+          ["it diagnoses closed file argument"] = function ()
+            expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+          end
+        }
+      end
 
   - it reads content from an existing named file:
       expect (f (name)).to_be (content)
@@ -414,14 +418,22 @@ specify std.io:
 
   - context with bad arguments:
     - 'it diagnoses argument #1 type not FILE*, string, number or nil':
-        expect (f (false)).to_raise (badarg (1, "?file|string|number", "boolean"))
+        if have_typecheck then
+          expect (f (false)).to_raise (badarg (1, "?file|string|number", "boolean"))
+        end
     - 'it diagnoses argument #2 type not string, number or nil':
-        expect (f (1, false)).to_raise (badarg (2, "string|number", "boolean"))
+        if have_typecheck then
+          expect (f (1, false)).to_raise (badarg (2, "string|number", "boolean"))
+        end
     - 'it diagnoses argument #3 type not string, number or nil':
-        expect (f (1, 2, false)).to_raise (badarg (3, "string|number", "boolean"))
+        if have_typecheck then
+          expect (f (1, 2, false)).to_raise (badarg (3, "string|number", "boolean"))
+        end
     - it diagnoses closed file argument: |
         closed = io.open (name, "r") closed:close ()
-        expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
+        if have_typecheck then
+          expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
+        end
 
   - it does not close the file handle upon completion:
       expect (io.type (h)).not_to_be "closed file"

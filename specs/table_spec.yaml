@@ -30,7 +30,7 @@ specify std.table:
     - it contains apis from the core table table:
         apis = {}
         for _, v in ipairs (extend_base) do
-          if v ~= "pack" or M.pack ~= table.pack then
+          if M[v] ~= table[v] then
             apis[#apis + 1] = v
           end
         end

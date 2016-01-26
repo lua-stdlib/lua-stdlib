@@ -11,11 +11,15 @@ specify std.container:
 - describe construction:
   - context with table _init:
     - it diagnoses missing arguments: |
-        expect (Container ()).
-          to_raise "bad argument #1 to 'Container' (table expected, got no value)"
+        if have_typecheck then
+          expect (Container ()).
+            to_raise "bad argument #1 to 'Container' (table expected, got no value)"
+        end
     - it diagnoses too many arguments: |
-        expect (Container ({}, false)).
-          to_raise "bad argument #2 to 'Container' (no more than 1 argument expected, got 2)"
+        if have_typecheck then
+          expect (Container ({}, false)).
+            to_raise "bad argument #2 to 'Container' (no more than 1 argument expected, got 2)"
+        end
   - context with function _init:
     - before:
         Thing = Container { _type = "Thing", _init = function (obj) return obj end }

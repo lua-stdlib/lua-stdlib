@@ -43,23 +43,38 @@ local table_concat	= table.concat
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
-  typing		= require "std.typing",
 }
 
 local Module		= _.std.object.Module
 
 local _DEBUG		= _.debug_init._DEBUG
-local argcheck		= _.typing.argcheck
-local argscheck		= _.typing.argscheck
-local argerror		= _.typing.argerror
+local argerror		= _.std.debug.argerror
 local copy		= _.std.base.copy
-local extramsg_toomany	= _.typing.extramsg_toomany
 local mapfields		= _.std.object.mapfields
 local pickle		= _.std.string.pickle
 local render		= _.std.string.render
 local sortkeys		= _.std.base.sortkeys
 
 
+-- Perform typechecking with functions exported from this module, unless
+-- disabled in `_DEBUG` or the "typecheck" module is not loadable.
+local argcheck, argscheck, extramsg_toomany
+if _DEBUG.argcheck then
+  local ok, typecheck	= pcall (require, "typecheck")
+  if ok then
+    argcheck		= typecheck.argcheck
+    argscheck		= typecheck.argscheck
+    extramsg_toomany	= typecheck.extramsg_toomany
+  else
+    _DEBUG.argcheck	= false
+  end
+end
+argcheck		= argcheck or function () end
+argscheck		= argscheck or function (decl, inner) return inner end
+
+
+-- Use a strict environment for the rest of this module, unless disabled
+-- in `_DEBUG` or the "strict" module is not loadable.
 if _DEBUG.strict then
   local ok, strict	= pcall (require, "strict")
   if ok then

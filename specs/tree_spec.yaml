@@ -57,8 +57,10 @@ specify std.tree:
       expect (subject).to_equal (target)
       expect (subject).to_be (subject)
   - it diagnoses non-table arguments:
-      expect (f ()).to_raise ("table expected")
-      expect (f "foo").to_raise ("table expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("table expected")
+        expect (f "foo").to_raise ("table expected")
+      end
 
 
 - describe ileaves:
@@ -92,8 +94,10 @@ specify std.tree:
       end
       expect (l).to_equal {"one", "three", "five"}
   - it diagnoses non-table arguments:
-      expect (f ()).to_raise ("table expected")
-      expect (f "string").to_raise ("table expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("table expected")
+        expect (f "string").to_raise ("table expected")
+      end
 
 
 - describe inodes:
@@ -178,8 +182,10 @@ specify std.tree:
                   {"leaf",   {2},       subject[2]},          --  five,
                   {"join",   {},        subject}}             -- }
   - it diagnoses non-table arguments:
-      expect (f ()).to_raise ("table expected")
-      expect (f "string").to_raise ("table expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("table expected")
+        expect (f "string").to_raise ("table expected")
+      end
 
 
 - describe leaves:
@@ -215,8 +221,10 @@ specify std.tree:
       expect (l).to_contain.
         a_permutation_of {"one", 2, "three", 4, "bar", "five"}
   - it diagnoses non-table arguments:
-      expect (f ()).to_raise ("table expected")
-      expect (f "string").to_raise ("table expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("table expected")
+        expect (f "string").to_raise ("table expected")
+      end
 
 
 - describe merge:
@@ -245,8 +253,10 @@ specify std.tree:
       expect (m.k3).to_be (t2.k3)
       expect (m.k3).not_to_be (original.k3)
   - it diagnoses non-table arguments:
-      expect (f (nil, {})).to_raise ("table expected")
-      expect (f ({}, nil)).to_raise ("table expected")
+      if have_typecheck then
+        expect (f (nil, {})).to_raise ("table expected")
+        expect (f ({}, nil)).to_raise ("table expected")
+      end
 
 
 - describe nodes:
@@ -354,8 +364,10 @@ specify std.tree:
                   {"leaf",   {3},   subject[{3}]},   --  3rd,
                   {"join",   {},    subject[{}]}}    -- }
   - it diagnoses non-table arguments:
-      expect (f ()).to_raise ("table expected")
-      expect (f "string").to_raise ("table expected")
+      if have_typecheck then
+        expect (f ()).to_raise ("table expected")
+        expect (f "string").to_raise ("table expected")
+      end
 
 
 - describe __index:
