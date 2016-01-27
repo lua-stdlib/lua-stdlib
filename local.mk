@@ -133,7 +133,7 @@ EXTRA_DIST +=				\
 doccorefunctions = $(srcdir)/doc/core_functions/std
 doccorelibraries = $(srcdir)/doc/core_libraries/std
 docfunctional    = $(srcdir)/doc/functional_style/std
-docmodules       = $(srcdir)/doc/modules/std
+docmodules       = $(srcdir)/doc/core_modules/std
 docobjects       = $(srcdir)/doc/object_system/std
 
 dist_doc_DATA +=				\
