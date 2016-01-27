@@ -42,7 +42,6 @@ local _	= {
 local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _tostring		= _.std.tostring
-local argerror		= _.std.debug.argerror
 local catfile		= _.std.io.catfile
 local copy		= _.std.base.copy
 local dirsep		= _.std.package.dirsep
@@ -54,13 +53,17 @@ local split		= _.std.string.split
 
 -- Perform typechecking with functions exported from this module, unless
 -- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
+local argerror, argscheck
 if _DEBUG.argcheck then
   local ok, typecheck	= pcall (require, "typecheck")
   if ok then
+    argerror		= typecheck.argerror
     argscheck		= typecheck.argscheck
+  else
+    _DEBUG.argcheck	= false
   end
 end
+argerror		= argerror or _.std.debug.argerror
 argscheck		= argscheck or function (decl, inner) return inner end
 
 

@@ -41,7 +41,7 @@ local leaves		= _.std.tree.leaves
 
 -- Perform typechecking with functions exported from this module, unless
 -- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argcheck, argerror, argscheck, extramsg_toomany
+local argscheck
 if _DEBUG.argcheck then
   local ok, typecheck	= pcall (require, "typecheck")
   if ok then

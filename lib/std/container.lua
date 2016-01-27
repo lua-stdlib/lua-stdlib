@@ -48,7 +48,6 @@ local _ = {
 local Module		= _.std.object.Module
 
 local _DEBUG		= _.debug_init._DEBUG
-local argerror		= _.std.debug.argerror
 local copy		= _.std.base.copy
 local mapfields		= _.std.object.mapfields
 local pickle		= _.std.string.pickle
@@ -58,18 +57,18 @@ local sortkeys		= _.std.base.sortkeys
 
 -- Perform typechecking with functions exported from this module, unless
 -- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argcheck, argscheck, extramsg_toomany
+local argcheck, argerror, argscheck, extramsg_toomany
 if _DEBUG.argcheck then
   local ok, typecheck	= pcall (require, "typecheck")
   if ok then
     argcheck		= typecheck.argcheck
+    argerror		= typecheck.argerror
     argscheck		= typecheck.argscheck
     extramsg_toomany	= typecheck.extramsg_toomany
   else
     _DEBUG.argcheck	= false
   end
 end
-argcheck		= argcheck or function () end
 argscheck		= argscheck or function (decl, inner) return inner end
 
 
