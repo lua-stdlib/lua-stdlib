@@ -119,7 +119,7 @@ end
 
 local function argerror (name, i, extramsg, level)
   level = level or 1
-  local s = string_format ("bad %s #%d %s '%s'", bad, i, to, name)
+  local s = string_format ("bad argument #%d to '%s'", i, name)
   if extramsg ~= nil then
     s = s .. " (" .. extramsg .. ")"
   end
