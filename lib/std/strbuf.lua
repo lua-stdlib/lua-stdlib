@@ -34,8 +34,6 @@ local tostring		= tostring
 local table_concat	= table.concat
 
 
-local deprecated	= require "std.delete-after.2016-01-31"
-
 local _ = {
   debug_init		= require "std.debug_init",
   object		= require "std.object",
@@ -113,10 +111,6 @@ local methods = {
   concat = argscheck ("std.strbuf.concat (StrBuf, any)", __concat),
 }
 
-if deprecated then
-  methods = merge (methods, deprecated.strbuf)
-end
-
 
 
 --[[ ================== ]]--
@@ -137,7 +131,7 @@ end
 -- print (a, b) --> 1234   1234fivesixseven
 -- os.exit (0)
 
-local M = {
+return Module {
   prototype = Object {
     _type = "std.strbuf.StrBuf",
 
@@ -164,10 +158,3 @@ local M = {
     __tostring = __tostring,
   },
 }
-
-if deprecated then
-  M = merge (M, deprecated.strbuf)
-end
-
-
-return Module (M)

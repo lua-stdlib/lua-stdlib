@@ -4,10 +4,6 @@ before:
   StrBuf = require (this_module).prototype
   b      = StrBuf {"foo", "bar"}
 
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
 
 specify std.strbuf:
 - describe require:
@@ -54,29 +50,8 @@ specify std.strbuf:
 
 
 - describe tostring:
-  - context as a module function:
-    - it writes a deprecation warning:
-        expect (deprecate_on ("tostring", "P {'foo', 'bar'}")).
-          to_contain_error "was deprecated"
-        expect (deprecate_off ("tostring", "P {'foo', 'bar'}")).
-          not_to_contain_error "was deprecated"
-
-    - it returns buffered string:
-        expect (StrBuf.tostring (b)).to_be "foobar"
-
-  - context as an object method:
-    - it writes a deprecation warning:
-        expect (deprecate_on ("tostring", "", "{'foo', 'bar'}")).
-          to_contain_error "was deprecated"
-        expect (deprecate_off ("tostring", "", "{'foo', 'bar'}")).
-          not_to_contain_error "was deprecated"
-
-    - it returns buffered string:
-        expect (b:tostring ()).to_be "foobar"
-
-  - context as a metamethod:
-    - it returns buffered string:
-        expect (tostring (b)).to_be "foobar"
+  - it returns buffered string:
+      expect (tostring (b)).to_be "foobar"
 
 
 - describe concat:

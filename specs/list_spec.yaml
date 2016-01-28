@@ -4,11 +4,6 @@ before:
   List        = M.prototype
   l           = List {"foo", "bar", "baz"}
 
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
-
 
 specify std.list:
 - context when required:

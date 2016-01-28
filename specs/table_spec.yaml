@@ -8,12 +8,6 @@ before: |
                           "merge", "merge_select", "monkey_patch", "new",
                           "pack", "project", "remove", "size", "sort",
                           "unpack", "values" }
-  deprecations        = { "flatten", "len", "okeys", "shape" }
-
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
 
   M = require (this_module)
 
@@ -33,9 +27,6 @@ specify std.table:
           if M[v] ~= table[v] then
             apis[#apis + 1] = v
           end
-        end
-        for _, v in ipairs (deprecations) do
-          apis[#apis + 1] = v
         end
         expect (show_apis {from=base_module, not_in=this_module}).
           to_contain.a_permutation_of (apis)
@@ -176,26 +167,6 @@ specify std.table:
       expect (f (t)).to_equal (l)
 
 
-- describe flatten:
-  - before:
-      t = {{{"one"}}, "two", {{"three"}, "four"}}
-
-      f = M.flatten
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("flatten", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("flatten", "{}")).
-        not_to_contain_error "was deprecated"
-
-  - it returns a table:
-      expect (type (f (t))).to_be "table"
-  - it works for an empty table:
-      expect (f {}).to_equal {}
-  - it flattens a nested table:
-      expect (f (t)).to_equal {"one", "two", "three", "four"}
-
-
 - describe insert:
   - before:
       f, badarg = init (M, this_module,  "insert")
@@ -275,26 +246,6 @@ specify std.table:
       -- returned table will have all 10000 keys in the same order...
       for i = 10000, 1, -1 do table.insert (subject, i) end
       expect (f (subject)).not_to_equal (subject)
-
-
-- describe len:
-  - before:
-      f = M.len
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("len", "{}")).to_contain_error "was deprecated"
-      expect (deprecate_off ("len", "{}")).not_to_contain_error "was deprecated"
-
-  - it returns the length of a table:
-      expect (f {"a", "b", "c"}).to_be (3)
-      expect (f {1, 2, 5, a=10, 3}).to_be (4)
-  - it works with an empty table:
-      expect (f {}).to_be (0)
-  - it ignores elements after a hole:
-      expect (f {1, 2, [5]=3}).to_be (2)
-  - it respects __len metamethod:
-      t = setmetatable ({1, 2, [5]=3}, {__len = function () return 42 end})
-      expect (f (t)).to_be (42)
 
 
 - describe maxn:
@@ -491,25 +442,6 @@ specify std.table:
       expect (t[1]).to_be (default)
 
 
-- describe okeys:
-  - before:
-      subject = { "v1", k1 = 1, "v2", k2 = 2, "v3", k3 = 3, [10]="v10" }
-
-      f = M.okeys
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("okeys", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("okeys", "{}")).
-        not_to_contain_error "was deprecated"
-
-  - it returns an empty list when subject is empty:
-      expect (f {}).to_equal {}
-  - it makes an ordered list of table keys:
-      expect (f (subject)).
-        to_equal {1, 2, 3, 10, "k1", "k2", "k3"}
-
-
 - describe pack:
   - before:
       unpack = unpack or table.unpack
@@ -587,39 +519,6 @@ specify std.table:
       expect (t).to_equal {1, 2, 5, "third", 42}
       expect (f (t, 4)).to_be "third"
       expect (t).to_equal {1, 2, 5, 42}
-
-
-- describe shape:
-  - before:
-      l = {1, 2, 3, 4, 5, 6}
-
-      f = M.shape
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("shape", "{}, {}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("shape", "{}, {}")).
-        not_to_contain_error "was deprecated"
-
-  - it returns a table:
-      expect (objtype (f ({2, 3}, l))).to_be "table"
-  - it works for an empty table:
-      expect (f ({0}, {})).to_equal ({})
-  - it returns the result in a new table:
-      expect (f ({2, 3}, l)).not_to_be (l)
-  - it does not perturb the argument table:
-      f ({2, 3}, l)
-      expect (l).to_equal {1, 2, 3, 4, 5, 6}
-  - it reshapes a table according to given dimensions:
-      expect (f ({2, 3}, l)).
-        to_equal ({{1, 2, 3}, {4, 5, 6}})
-      expect (f ({3, 2}, l)).
-        to_equal ({{1, 2}, {3, 4}, {5, 6}})
-  - it treats 0-valued dimensions as an indefinite number:
-      expect (f ({2, 0}, l)).
-        to_equal ({{1, 2, 3}, {4, 5, 6}})
-      expect (f ({0, 2}, l)).
-        to_equal ({{1, 2}, {3, 4}, {5, 6}})
 
 
 - describe size:

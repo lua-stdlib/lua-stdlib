@@ -5,11 +5,6 @@ before:
   Object = object.prototype
   obj    = Object {"foo", "bar", baz="quux"}
 
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
-
   function copy (t)
     local r = {}
     for k, v in pairs (t) do r[k] = v end
@@ -50,59 +45,6 @@ specify std.object:
         expect (getmetatable (o)).not_to_be (getmetatable (Object))
         expect (getmetatable (o)._baz).to_be "quux"
 
-# std.object.prototype is now something entirely different to
-# Object.prototype as specified here.
-- describe prototype:
-  - before:
-      o = Object {}
-      fn = Object.prototype
-
-  - it writes a deprecation warning:
-      expect (deprecate_on ("prototype", "", "{}")).
-        to_contain_error "was deprecated"
-      expect (deprecate_off ("prototype", "", "{}")).
-        not_to_contain_error "was deprecated"
-
-  - context when called from the object module:
-    - it reports the prototype stored in the object's metatable:
-        expect (fn (o)).to_be "Object"
-    - it reports the type of a cloned object:
-        expect (fn (o {})).to_be "Object"
-    - it reports the type of a derived object:
-        Example = Object {_type = "Example"}
-        expect (fn (Example)).to_be "Example"
-    - it reports the type of a cloned derived object:
-        Portal = Object {_type = "Demon"}
-        p = Portal {}
-        expect (fn (p)).to_be "Demon"
-        expect (fn (p {})).to_be "Demon"
-    - it recognizes a file object:
-        h = io.open (os.tmpname ())
-        expect (fn (h)).to_be "file"
-        h:close ()
-        expect (fn (h)).to_be "closed file"
-    - it recognizes a primitive object:
-        expect (fn (nil)).to_be "nil"
-        expect (fn (false)).to_be "boolean"
-        expect (fn (0.0)).to_be "number"
-        expect (fn "0.0").to_be "string"
-        expect (fn (function () end)).to_be "function"
-        expect (fn {}).to_be "table"
-
-  - context when called as an object method:
-    - it reports the type stored in the object's metatable:
-        expect (o:prototype ()).to_be "Object"
-    - it reports the type of a cloned object:
-        expect ((o {}):prototype ()).to_be "Object"
-    - it reports the type of a subclassed object:
-        Example = Object {_type = "Example"}
-        expect (Example:prototype ()).to_be "Example"
-    - it reports the type of a cloned subclassed object:
-        Portal = Object {_type = "Demon"}
-        p = Portal {}
-        expect (p:prototype ()).to_be "Demon"
-        expect ((p {}):prototype ()).to_be "Demon"
-
 
 - describe type:
   - before:
@@ -110,12 +52,6 @@ specify std.object:
       fn = object.type
 
   - context when called from the object module:
-    - it writes an argument passing deprecation warning:
-        expect (deprecate_on ("type", "{}")).
-          to_contain_error "non-object argument to 'std.object.type' was deprecated"
-        expect (deprecate_off ("type", "{}")).
-          not_to_contain_error "was deprecated"
-
     - it reports the type stored in the object's metatable:
         expect (fn (o)).to_be "Object"
     - it reports the type of a cloned object:
@@ -129,52 +65,11 @@ specify std.object:
         expect (fn (p)).to_be "Demon"
         expect (fn (p {})).to_be "Demon"
     - it returns nil for a primitive object:
-        # Have to use a separate process, because we already loaded
-        # debug_init and thus deprecated methods into this process
-        expect (deprecation ("true", this_module, "type", "nil")).
-          to_output "nil\n"
-        expect (deprecation ("true", this_module, "type", "false")).
-          to_output "nil\n"
-        expect (deprecation ("true", this_module, "type", "0.0")).
-          to_output "nil\n"
-        expect (deprecation ("true", this_module, "type", "'0.0'")).
-          to_output "nil\n"
-        expect (deprecation ("true", this_module, "type", "function () end")).
-          to_output "nil\n"
-        expect (deprecation ("true", this_module, "type", "{}")).
-          to_output "nil\n"
-
-  - context when called as an object method:
-    - it writes a deprecation warning:
-        expect (deprecate_on ("type", "", "{}")).
-          to_contain_error "was deprecated"
-        expect (deprecate_off ("type", "", "{}")).
-          not_to_contain_error "was deprecated"
-
-    - it reports the type stored in the object's metatable:
-        expect (o:type ()).to_be "Object"
-    - it reports the type of a cloned object:
-        expect ((o {}):type ()).to_be "Object"
-    - it reports the type of a subclassed object:
-        Example = Object {_type = "Example"}
-        expect (Example:type ()).to_be "Example"
-    - it reports the type of a cloned subclassed object:
-        Portal = Object {_type = "Demon"}
-        p = Portal {}
-        expect (p:type ()).to_be "Demon"
-        expect ((p {}):type ()).to_be "Demon"
-    - it recognizes a file object:
-        h = io.open (os.tmpname ())
-        expect (o.type (h)).to_be "file"
-        h:close ()
-        expect (o.type (h)).to_be "closed file"
-    - it recognizes a primitive object:
-        expect (o.type (nil)).to_be "nil"
-        expect (o.type (false)).to_be "boolean"
-        expect (o.type (0.0)).to_be "number"
-        expect (o.type "0.0").to_be "string"
-        expect (o.type (function () end)).to_be "function"
-        expect (o.type {}).to_be "table"
+        expect (fn (nil)).to_be (nil)
+        expect (fn (0.0)).to_be (nil)
+        expect (fn ('0.0')).to_be (nil)
+        expect (fn (function () end)).to_be (nil)
+        expect (fn {}).to_be (nil)
 
 
 - describe instantiation from a prototype:
@@ -314,10 +209,10 @@ specify std.object:
   - context with no custom instance methods:
     # :type is a method defined by the root object
     - it inherits prototype object methods:
-        instance = Object {}
+        instance = Object { type = object.type }
         expect (instance:type ()).to_be "Object"
     - it propagates prototype methods to derived instances:
-        Derived = Object {_type = "Derived"}
+        Derived = Object { _type = "Derived", type = object.type }
         instance = Derived {}
         expect (instance:type ()).to_be "Derived"
   - context with custom object methods:
@@ -329,6 +224,7 @@ specify std.object:
                       self[item] = (self[item] or 0) + 1
                       return self
                     end,
+            type  = object.type,
           },
         }
     - it inherits prototype object methods:

@@ -9,12 +9,6 @@ before:
                     "id", "ireverse", "lambda", "map", "map_with", "memoize",
                     "nop", "product", "reduce", "shape", "zip", "zip_with" }
 
-  setdebug { deprecate = false }
-
-  deprecate_on = bind (deprecation, {"nil", this_module})
-  deprecate_off = bind (deprecation, {false, this_module})
-
-
   function elems (t)
     local fn, istate, ctrl = base.pairs (t)
     return function (state, _)

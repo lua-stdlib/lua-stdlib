@@ -26,8 +26,6 @@ local _ENV		= _ENV
 local getmetatable	= getmetatable
 
 
-local deprecated	= require "std.delete-after.a-year"
-
 local _ = {
   debug_init		= require "std.debug_init",
   container		= require "std.container",
@@ -126,11 +124,6 @@ local methods = {
 }
 
 
-if deprecated then
-  methods = merge (methods, deprecated.methods.object)
-end
-
-
 --- Object prototype.
 -- @object prototype
 -- @string[opt="Object"] _type object name
@@ -162,16 +155,7 @@ local prototype = Container {
 }
 
 
-local M = {
+return Module {
   prototype	= prototype,
   type		= function (x) return (getmetatable (x) or {})._type end,
 }
-
-if deprecated then
-  -- Yes, we really are overwriting the new fast object.type with the
-  -- deprecation warning backwards compatible version here!
-  M = merge (deprecated.object, M)
-end
-
-
-return Module (M)

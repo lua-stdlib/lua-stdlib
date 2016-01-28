@@ -21,14 +21,8 @@
     luarocks install strict
     ```
 
-  - All support for deprecated APIs has been moved out of the module
-    sources, so that it needn't be loaded in production code that has
-    been properly updated not to use deprecated calls, i.e:
-
-    ```lua
-    local _DEBUG = require "std.debug_init"._DEBUG
-    _DEBUG.deprecate = true
-    ```
+  - All support for deprecated APIs has been removed, reducing the
+    install size even further.
 
   - Objects and Modules are no longer conflated - what you get back from
     a `require "std.something"` is now ALWAYS a module:
@@ -124,10 +118,10 @@
   - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
     when recursive table contents are equivalent.
 
-  - New `operator.len` replaces deprecated `table.len`.  `operator.len`
-    is always deterministic; counting only numerically indexed elements
-    immediately up to the first `nil` valued element (PUC-Rio Lua does
-    not have this feature for its `#` operator):
+  - New `operator.len` replaces `table.len`.  `operator.len` is always
+    deterministic; counting only numerically indexed elements immediately up
+    to the first `nil` valued element (PUC-Rio Lua does not guarantee this
+    with its `#` operator):
 
     ```lua
     local t1 = {1, 2, [5]=3}
@@ -145,14 +139,6 @@
   - New `std.maturity` module now contains the `DEPRECATED` and
     `DEPRECATIONMSG` functions previously found in `std.debug`.
 
-### Deprecations
-
-  - Deprecated functions no longer support argument checks, partially to
-    simplify the deprecation plumbing, but also because if you are
-    developing code with argument checking on, then you are already
-    getting deprecation messages that tell you not to keep using these
-    functions.
-
   - We used to have an object module method, `std.object.type`, which
     often got imported using:
 
@@ -167,28 +153,28 @@
     orthogonality with core Lua, we're going back to using `std.object.type`,
     because that just makes more sense.  Sorry!
 
-  - `std.ireverse` has been deprecated in favour of
-    `std.functional.ireverse` because of the functional style of a
-    non-destructive sequence reversing operation.
+  - `std.ireverse` has been replaced by `std.functional.ireverse` because
+    of the functional style of a non-destructive sequence reversing
+    operation.
 
-  - `std.table.flatten` and `std.table.shape` have been deprecated in
+  - `std.table.flatten` and `std.table.shape` have been replaced by
     favour of `std.functional.flatten` and `std.functional.shape`
     because these functions are far more useful in conjunction with a
     functional programming style than with regular tables in imperative
     code.
 
-  - `std.table.len` has been deprecated in favour of `std.operator.len`,
-    because it is not just for tables!
+  - `std.table.len` has moved to `std.operator.len`, because it is not just
+    for tables!
 
-  - `std.table.okeys` has been deprecated for lack of utility.  If you
+  - `std.table.okeys` has been removed for lack of utility.  If you
     still need it, use this instead:
 
     ```lua
     local okeys = std.functional.compose (std.table.keys, std.table.sort)
     ```
 
-  - `std.string.render` function arguments have been deprecated in favour
-    of a table of named functions backed by defaults.
+  - `std.string.render` function arguments have been replaced by a table
+    of named functions backed by defaults.
 
 
 ### Bug fixes
@@ -206,8 +192,8 @@
     `nil` arguments correctly.
 
   - `std.functional.memoize` now considers trailing nil arguments when
-    looking up memoized value for those particular arguments, and propagates
-    `nil` return values from `mnemonic` functions correctly.
+    looking up a memoized value for those particular arguments, and
+    propagates `nil` return values from `mnemonic` functions correctly.
 
   - `std.functional.filter`, `std.functional.map` and
     `std.functional.reduce` now pass trailing nil arguments to their

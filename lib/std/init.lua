@@ -36,8 +36,6 @@ local string_format	= string.format
 local string_match	= string.match
 
 
-local deprecated	= require "std.delete-after.a-year"
-
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
@@ -435,12 +433,6 @@ monkeys = copy ({}, M)
 for _, api in ipairs {"barrel", "monkey_patch", "version"} do
   monkeys[api] = nil
 end
-
-
-if deprecated then
-  M = merge (M, deprecated.std)
-end
-
 
 
 --- Metamethods

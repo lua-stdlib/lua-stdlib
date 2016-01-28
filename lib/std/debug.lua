@@ -22,8 +22,6 @@ local math_max		= math.max
 local table_concat	= table.concat
 
 
-local deprecated	= require "std.delete-after.a-year"
-
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
@@ -168,15 +166,6 @@ local M = {
   -- _DEBUG = { call = true }
   -- local debug = require "std.debug"
   trace = trace,
-
-
-  -- Private:
-  _setdebug = function (t)
-    for k, v in _pairs (t) do
-      if v == "nil" then v = nil end
-      _DEBUG[k] = v
-    end
-  end,
 }
 
 
@@ -194,11 +183,6 @@ local metatable = {
              M.say (1, ...)
            end,
 }
-
-
-if deprecated then
-  M = merge (M, deprecated.debug)
-end
 
 
 return setmetatable (merge (M, debug), metatable)

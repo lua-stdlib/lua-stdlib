@@ -24,8 +24,6 @@ local table_insert	= table.insert
 local table_unpack	= table.unpack or unpack
 
 
-local deprecated	= require "std.delete-after.a-year"
-
 local _ = {
   debug_init		= require "std.debug_init",
   std			= require "std.base",
@@ -462,11 +460,6 @@ M = {
 
 
 monkeys = copy ({}, M)  -- before deprecations and core merge
-
-
-if deprecated then
-  M = merge (M, deprecated.table)
-end
 
 
 return merge (M, table)
