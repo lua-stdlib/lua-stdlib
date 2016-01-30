@@ -29,7 +29,6 @@ local deprecated	= nil
 
 local _ = {
   debug_init		= require "std.debug_init",
-  maturity		= require "std.maturity",
   std			= require "std.base",
   strbuf		= require "std.strbuf",
 }
@@ -38,7 +37,6 @@ local StrBuf		= _.strbuf.prototype
 
 local _DEBUG		= _.debug_init._DEBUG
 local _tostring		= _.std.tostring
-local DEPRECATIONMSG	= _.maturity.DEPRECATIONMSG
 local copy		= _.std.base.copy
 local escape_pattern	= _.std.string.escape_pattern
 local len		= _.std.operator.len
@@ -452,20 +450,8 @@ M = {
   --     end,
   --   })
   -- end
-  render = X ("render (?any, ?table|func, ?func, ?func, ?func, ?func, ?table)",
-    function (x, opencb, closecb, elemcb, paircb, sepcb, roots)
-      if type (opencb) == "function" then
-        io_stderr:write (DEPRECATIONMSG ("41.3",
-          "multiple function arguments to 'std.string.render'",
-          "pass a table of named functions as the second parameter instead", 2))
-	opencb = {
-          open = opencb, close = closecb, elem = elemcb, sep = sepcb,
-	  pair = function (x, kp, vp, k, v, kstr, vstr)
-            return paircb (x, k, v, kstr, vstr)
-	  end,
-	}
-      end
-      return render (x, opencb, roots)
+  render = X ("render (?any, ?table)", function (x, rendercbs, roots)
+      return render (x, rendercbs, roots)
     end
   ),
 

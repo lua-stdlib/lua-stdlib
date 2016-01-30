@@ -29,7 +29,6 @@ local getmetatable	= getmetatable
 local _ = {
   debug_init		= require "std.debug_init",
   container		= require "std.container",
-  maturity		= require "std.maturity",
   std			= require "std.base",
 }
 

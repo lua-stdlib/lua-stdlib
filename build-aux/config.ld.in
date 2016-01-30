@@ -52,26 +52,20 @@ file = {
   -- Functional Style
   "../lib/std/functional.lua",
   "../lib/std/operator.lua",
-
-  -- Other Modules
-  "../lib/std/maturity.lua",
 }
 
 new_type ("corefunction", "Core_Functions", true)
 new_type ("corelibrary", "Core_Libraries", true)
-new_type ("coremodule", "Core_Modules", true)
 new_type ("prototype", "Object_System", true)
 new_type ("functional", "Functional_Style", true)
 
 function postprocess_html(s)
   s = s:gsub("<h1>%s*Corefunction (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Corelibrary (.-)</p>", '<h1>Module %1</h1>')
-  s = s:gsub("<h1>%s*Coremodule (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Prototype (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Functional (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h2>Core_Functions</h2>", '<h2>Core Functions</h2>')
   s = s:gsub("<h2>Core_Libraries</h2>", '<h2>Core Libraries</h2>')
-  s = s:gsub("<h2>Core_Modules</h2>", '<h2>Core Modules</h2>')
   s = s:gsub("<h2>Object_System</h2>", '<h2>Object System</h2>')
   s = s:gsub("<h2>Functional_Style</h2>", '<h2>Functional Style</h2>')
   return s

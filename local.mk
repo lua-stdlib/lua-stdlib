@@ -72,7 +72,6 @@ dist_luastd_DATA =			\
 	lib/std/init.lua		\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
-	lib/std/maturity.lua		\
 	lib/std/object.lua		\
 	lib/std/operator.lua		\
 	lib/std/package.lua		\
@@ -125,7 +124,6 @@ EXTRA_DIST +=				\
 doccorefunctions = $(srcdir)/doc/core_functions/std
 doccorelibraries = $(srcdir)/doc/core_libraries/std
 docfunctional    = $(srcdir)/doc/functional_style/std
-docmodules       = $(srcdir)/doc/core_modules/std
 docobjects       = $(srcdir)/doc/object_system/std
 
 dist_doc_DATA +=				\
@@ -150,10 +148,6 @@ dist_docfunctional_DATA +=			\
 	$(docfunctional).operator.html		\
 	$(NOTHING_ELSE)
 
-dist_docmodules_DATA +=				\
-	$(docmodules).maturity.html		\
-	$(NOTHING_ELSE)
-
 dist_docobjects_DATA +=				\
 	$(docobjects).container.html		\
 	$(docobjects).list.html			\
@@ -169,7 +163,7 @@ dist_docobjects_DATA +=				\
 ## of the doc directory as a sentinel file.
 $(dist_doc_DATA) $(dist_doccorefunctions_DATA): $(srcdir)/doc
 $(dist_doccorelibraries_DATA) $(dist_docfunctional_DATA): $(srcdir)/doc
-$(dist_docmodules_DATA) $(dist_docobjects_DATA): $(srcdir)/doc
+$(dist_docobjects_DATA): $(srcdir)/doc
 
 $(srcdir)/doc: $(dist_lua_DATA) $(dist_luastd_DATA)
 	test -d $@ || mkdir $@
