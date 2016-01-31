@@ -22,7 +22,6 @@ local _ = {
 }
 
 local _DEBUG		= _.debug_init._DEBUG
-local copy		= _.std.base.copy
 local merge		= _.std.base.merge
 
 
@@ -69,13 +68,6 @@ local function floor (n, p)
 end
 
 
-local function monkey_patch (namespace)
-  namespace = namespace or _G
-  namespace.math = copy (namespace.math or {}, M)
-  return M
-end
-
-
 local function round (n, p)
   local e = 10 ^ (p or 0)
   return math_floor (n * e + 0.5) / e
@@ -112,17 +104,6 @@ M = {
   -- @treturn number `n` rounded to `p` decimal places
   -- @usage roughly = round (exactly, 2)
   round = X ("round (number, ?int)", round),
-
-
-  --- Module Functions
-  -- @section modulefuncs
-
-  --- Overwrite core `math` methods with `std` enhanced versions.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage require "std.math".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
 
 

@@ -1,16 +1,10 @@
 --[[--
  Enhanced Lua core functions, and others.
 
- After requiring this module, simply referencing symbols in the
- submodule hierarchy will load the necessary modules on demand.
-
- By default there are no changes to any global symbols, or monkey
- patching of core module tables and metatables.  However, sometimes it's
- still convenient to do that: For example, when using stdlib from the
- REPL, or in a prototype where you want to throw caution to the wind and
- compatibility with other modules be damned. In that case, you can give
- stdlib permission to scribble all over your namespaces by using the
- various `monkey_patch` calls in the library.
+ After requiring this module, simply referencing symbols in the submodule
+ hierarchy will load the necessary modules on demand. There are no
+ changes to any global symbols, or monkey patching of core module tables
+ and metatables.
 
  @todo Write a style guide (indenting/wrapping, capitalisation,
    function and variable names); library functions should call
@@ -21,7 +15,6 @@
 
 
 local _ENV		= _ENV
-local _G		= _G
 local error		= error
 local ipairs		= ipairs
 local pairs		= pairs
@@ -87,49 +80,12 @@ _ = nil
 --[[ =============== ]]--
 
 
-local M, monkeys
-
-
-local function monkey_patch (namespace)
-  copy (namespace or _G, monkeys)
-  return M
-end
+local M
 
 
 local function _assert (expect, fmt, arg1, ...)
   local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ""
   return expect or error (msg, 2)
-end
-
-
-local function barrel (namespace)
-  namespace = namespace or _G
-
-  -- Older releases installed the following into _G by default.
-  for _, name in pairs {
-    "io.die", "io.warn",
-
-    "string.pickle", "string.prettytostring", "string.render",
-
-    "table.pack",
-
-    "tree.ileaves", "tree.inodes", "tree.leaves", "tree.nodes",
-  } do
-    local module, method = name:match "^(.*)%.(.-)$"
-    namespace[method] = M[module][method]
-  end
-
-  -- Support old api names, for backwards compatibility.
-  namespace.metamethod = M.getmetamethod
-  namespace.op = M.operator
-  namespace.require_version = M.require
-
-  require "std.io".monkey_patch (namespace)
-  require "std.math".monkey_patch (namespace)
-  require "std.string".monkey_patch (namespace)
-  require "std.table".monkey_patch (namespace)
-
-  return monkey_patch (namespace)
 end
 
 
@@ -254,29 +210,6 @@ M = {
 
   --- Module Functions
   -- @section modulefuncs
-
-  --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
-  --
-  -- Apply **all** of stdlib's `monkey_patch` functions to *namespace*.
-  --
-  -- Additionally, for backwards compatibility only, write an historical
-  -- selection of stdlib submodule functions into the given namespace too
-  -- (at least until the next major release).
-  -- @function barrel
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table module table
-  -- @usage local std = require "std".barrel ()
-  barrel = X ("barrel (?table)", barrel),
-
-  --- Overwrite core methods and metamethods with `std` enhanced versions.
-  --
-  -- Write all functions from this module, except `std.barrel` and
-  -- `std.monkey_patch`, into *namespace*.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local std = require "std".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 
   --- Enhance core `require` to assert version number compatibility.
   -- By default match against the last substring of (dot-delimited)
@@ -420,14 +353,6 @@ M = {
   -- std.functional.map (print, std.rnpairs, {"foo", "bar", [4]="baz", d=5})
   rnpairs = X ("rnpairs (table)", rnpairs),
 }
-
-
-monkeys = copy ({}, M)
-
--- Don't monkey_patch these apis into _G!
-for _, api in ipairs {"barrel", "monkey_patch", "version"} do
-  monkeys[api] = nil
-end
 
 
 --- Metamethods

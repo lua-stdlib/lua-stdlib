@@ -3,7 +3,7 @@ before:
   this_module  = "std.math"
   global_table = "_G"
 
-  extend_base  = { "floor", "monkey_patch", "round" }
+  extend_base  = { "floor", "round" }
 
   M = require (this_module)
 
@@ -50,26 +50,6 @@ specify std.math:
       expect (f (99999e-3, 3)).to_be (99999e-3)
       expect (f (99999e-4, 3)).to_be (9999e-3)
       expect (f (99999e-5, 3)).to_be (999e-3)
-
-
-- describe monkey_patch:
-  - before:
-      f = M.monkey_patch
-
-  - context with bad arguments:
-      badargs.diagnose (f, "std.math.monkey_patch (?table)")
-
-  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
-  # by Specl to prevent us from affecting any other examples, thus the
-  # address is different by now.
-  - it returns std.math module table:
-      expect (f {}).to_equal (M)
-  - it injects std.math apis into the given namespace:
-      namespace = {}
-      f (namespace)
-      for _, api in ipairs (extend_base) do
-        expect (namespace.math[api]).to_be (M[api])
-      end
 
 
 - describe round:

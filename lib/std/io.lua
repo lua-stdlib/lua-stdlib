@@ -43,7 +43,6 @@ local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _tostring		= _.std.tostring
 local catfile		= _.std.io.catfile
-local copy		= _.std.base.copy
 local dirsep		= _.std.package.dirsep
 local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
@@ -85,7 +84,7 @@ _ = nil
 --[[ =============== ]]--
 
 
-local M, monkeys
+local M
 
 
 local function input_handle (h)
@@ -131,21 +130,6 @@ local function writelines (h, ...)
   for v in leaves (_ipairs, {...}) do
     h:write (v, "\n")
   end
-end
-
-
-local function monkey_patch (namespace)
-  namespace = namespace or _G
-  namespace.io = copy (namespace.io or {}, monkeys)
-
-  if namespace.io.stdin then
-    local mt = getmetatable (namespace.io.stdin) or {}
-    mt.readlines  = M.readlines
-    mt.writelines = M.writelines
-    setmetatable (namespace.io.stdin, mt)
-  end
-
-  return M
 end
 
 
@@ -284,19 +268,6 @@ M = {
                 function (path) return split (path, dirsep) end),
 
 
-  --- Module Functions
-  -- @section modulefuncs
-
-  --- Overwrite core `io` methods with `std` enhanced versions.
-  --
-  -- Also adds @{readlines} and @{writelines} metamethods to core file objects.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the `std.io` module table
-  -- @usage local io = require "std.io".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
-
-
   --- IO Functions
   -- @section iofuncs
 
@@ -349,9 +320,6 @@ M = {
   -- @usage writelines (io.stdout, "first line", "next line")
   writelines = X ("writelines (?file|string|number, [string|number...])", writelines),
 }
-
-
-monkeys = copy ({}, M)  -- before deprecations and core merge
 
 
 return merge (M, io)

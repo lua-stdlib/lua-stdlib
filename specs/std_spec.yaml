@@ -2,8 +2,8 @@ before: |
   this_module   = "std"
   global_table  = "_G"
 
-  exported_apis = { "assert", "barrel", "elems", "eval", "getmetamethod",
-                    "ielems", "ipairs", "monkey_patch", "npairs", "pairs",
+  exported_apis = { "assert", "elems", "eval", "getmetamethod",
+                    "ielems", "ipairs", "npairs", "pairs",
                     "require", "ripairs", "rnpairs", "tostring" }
 
   -- Tables with iterator metamethods used by various examples.
@@ -79,101 +79,6 @@ specify std:
     - it plugs specifiers with string.format: |
         expect (f (nil, "%s %d: %q", "here", 42, "a string")).
           to_raise (string.format ("%s %d: %q", "here", 42, "a string"))
-
-
-- describe barrel:
-  - before:
-      mt = { "file metatable" }
-      namespace = {
-        io = {
-          stdin  = setmetatable ({}, mt),
-          stdout = setmetatable ({}, mt),
-          stderr = setmetatable ({}, mt),
-        },
-      }
-
-      f = M.barrel
-
-      f (namespace)
-
-  - context with bad arguments:
-      badargs.diagnose (f, "std.barrel (?table)")
-
-  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
-  # by Specl to prevent us from affecting any other examples, thus the
-  # address is different by now.
-  #- it returns std module table:
-  #    expect (f (namespace)).to_equal (M)
-  - it installs std monkey patches:
-      for _, api in ipairs (exported_apis) do
-        if type (M[api]) == "function" and
-          api ~= "barrel" and api ~= "monkey_patch"
-        then
-          expect (namespace[api]).to_be (M[api])
-        end
-      end
-  - it installs std.io monkey patches:
-      for _, api in ipairs { "catdir", "catfile", "die", "monkey_patch",
-        "process_files", "readlines", "shell", "slurp", "splitdir", "warn",
-        "writelines" }
-      do
-        expect (namespace.io[api]).to_be (M.io[api])
-      end
-      expect (mt.readlines).to_be (M.io.readlines)
-      expect (mt.writelines).to_be (M.io.writelines)
-  - it installs std.math monkey patches:
-      for _, api in ipairs { "floor", "monkey_patch", "round" } do
-        expect (namespace.math[api]).to_be (M.math[api])
-      end
-  - it installs std.string monkey patches:
-      # FIXME: string metatable monkey-patches leak out!
-      mt = getmetatable ""
-      expect (mt.__concat).to_be (M.string.__concat)
-      expect (mt.__index).to_be (M.string.__index)
-
-      for _, api in ipairs { "__concat", "__index", "caps", "chomp",
-        "escape_pattern", "escape_shell", "finds", "format", "ltrim",
-        "monkey_patch", "numbertosi", "ordinal_suffix", "pad",
-        "prettytostring", "render", "rtrim", "split", "tfind", "trim",
-        "wrap" }
-      do
-        expect (namespace.string[api]).to_be (M.string[api])
-      end
-  - it installs std.table monkey patches:
-      for _, api in ipairs { "clone", "clone_select", "depair", "empty",
-        "enpair", "insert", "invert", "keys", "maxn", "merge",
-        "merge_select", "monkey_patch", "new", "pack", "project",
-        "size", "sort", "values" }
-      do
-        expect (namespace.table[api]).to_be (M.table[api])
-      end
-  - it scribbles backwards compatibility apis:
-      for api, fn in pairs {
-        die             = M.io.die,
-        ileaves         = M.tree.ileaves,
-        inodes          = M.tree.inodes,
-        leaves          = M.tree.leaves,
-        metamethod      = M.getmetamethod,
-        nodes           = M.tree.nodes,
-        pack            = M.table.pack,
-        prettytostring  = M.string.prettytostring,
-        render          = M.string.render,
-        require_version = M.require,
-        warn            = M.io.warn,
-      } do
-        expect (namespace[api]).to_be (fn)
-      end
-  - context when lazy loading:
-    - it has no submodules on initial load:
-        for _, v in pairs (M) do
-          expect (type (v)).not_to_be "table"
-        end
-    - it loads submodules on demand:
-        lazy = M.strbuf
-        expect (lazy).to_be (require "std.strbuf")
-    - it loads submodule functions on demand:
-        expect (M.object.type (M.strbuf {"Lazy"})).
-          to_be "StrBuf"
 
 
 - describe elems:
@@ -311,39 +216,6 @@ specify std:
       t = {}
       for i, v in f {} do t[i] = v end
       expect (t).to_equal {}
-
-
-- describe monkey_patch:
-  - before:
-      io_mt = {}
-      t = {
-        io = {
-          stdin  = setmetatable ({}, io_mt),
-          stdout = setmetatable ({}, io_mt),
-          stderr = setmetatable ({}, io_mt),
-        },
-        math = {},
-        table = {},
-      }
-
-      f = M.monkey_patch
-
-      f (t)
-
-  - context with bad arguments:
-      badargs.diagnose (f, "std.monkey_patch (?table)")
-
-  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
-  # by Specl to prevent us from affecting any other examples, thus the
-  # address is different by now.
-  - it returns std module table:
-      expect (f (t)).to_equal (M)
-  - it installs std module functions:
-      for _, v in ipairs (exported_apis) do
-        if type (M[v]) == "function" and v ~= "barrel" and v ~= "monkey_patch" then
-          expect (t[v]).to_be (M[v])
-        end
-      end
 
 
 - describe npairs:

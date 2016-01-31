@@ -124,18 +124,6 @@ local function finds (s, p, i, ...)
 end
 
 
-local function monkey_patch (namespace)
-  namespace = namespace or _G
-  namespace.string = copy (namespace.string or {}, M)
-
-  local string_metatable = getmetatable ""
-  string_metatable.__concat = M.__concat
-  string_metatable.__index = M.__index
-
-  return M
-end
-
-
 local function caps (s)
   return (s:gsub ("(%w)([%w]*)", function (l, ls) return l:upper () .. ls end))
 end
@@ -302,7 +290,7 @@ M = {
   -- @param o object to stringify and concatenate
   -- @return s .. tostring (o)
   -- @usage
-  -- local string = require "std.string".monkey_patch ()
+  -- local string = setmetatable ("", require "std.string")
   -- concatenated = "foo" .. {"bar"}
   __concat = __concat,
 
@@ -492,20 +480,6 @@ M = {
   -- @usage
   -- print (wrap (copyright, 72, 4))
   wrap = X ("wrap (string, ?int, ?int, ?int)", wrap),
-
-
-  --- Module Functions
-  -- @section modulefuncs
-
-  --- Overwrite core `string` methods with `std` enhanced versions.
-  --
-  -- Also adds auto-stringification to `..` operator on core strings, and
-  -- integer indexing of strings with `[]` dereferencing.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local string = require "std.string".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
 
 

@@ -121,6 +121,11 @@
     `std.strict` and `std.tuple` have been moved to their own packages,
     and are no longer shipped as part of stdlib.
 
+  - Monkey patching calls `std.barrel`, `std.monkey_patch`,
+    `std.io.monkey_patch`, `std.math.monkey_patch`,
+    `std.string.monkey_patch` and `std.table.monkey_patch` have all
+    been removed.
+
   - `std.debug.argerror`, `std.debug.argcheck`, `std.debug.argscheck`,
     `std.debug.extramsg_mismatch`, `std.debug.extramsg_toomany`,
     `std.debug.parsetypes`, `std.debug.resulterror` and `std.debug.typesplit`
@@ -131,19 +136,13 @@
     removed.  At some point these will resurface in a new standalone
     package.
 
-  - Deprecated multi-argument `functional.bind` has been removed.
-
   - Deprecated methods `list:depair`, `list:elems`, `list:enpair`,
     `list:filter`, `list:flatten`, `list:foldl`, `list:foldr`,
     `list:index_key`, `list:index_value`, `list:map`, `list:map_with`,
     `list:project`, `list:relems`, `list:reverse`, `list:shape`,
     `list:transpose` and `list:zip_with` have been removed.
 
-  - Deprecated functions `functional.eval`, `functional.fold`,
-    `functional.op["[]"]`, `functional.op["+"]`, `functional.op["-"]`,
-    `functional.op["*"]`, `functional.op["/"], `functional.op["and"]',
-    `functional.op["or"]`, `functional.op["not"]`, `functional.op["=="]`,
-    `functional.op["~="]`, `list.depair`, `list.elems`, `list.enpair`,
+  - Deprecated functions `list.depair`, `list.elems`, `list.enpair`,
     `list.filter`, `list.flatten`, `list.foldl`, `list.foldr`,
     `list.index_key`, `list.index_value`, `list.map`, `list.map_with`,
     `list.project`, `list.relems`, `list.reverse`, `list.shape`,

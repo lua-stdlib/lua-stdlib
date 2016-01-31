@@ -75,7 +75,7 @@ _ = nil
 --[[ =============== ]]--
 
 
-local M, monkeys
+local M
 
 
 local function merge_allfields (t, u, map, nometa)
@@ -177,13 +177,6 @@ local _sort = table.sort
 local function sort (t, c)
   _sort (t, c)
   return t
-end
-
-
-local function monkey_patch (namespace)
-  namespace = namespace or _G
-  namespace.table = copy (namespace.table or {}, monkeys)
-  return M
 end
 
 
@@ -444,21 +437,7 @@ M = {
   -- @usage merge_select (_G, require "std.debug", {"say"}, false)
   merge_select = X ("merge_select (table, table, [table], ?boolean|:nometa)",
                     merge_namedfields),
-
-
-  --- Module Functions
-  -- @section modulefuncs
-
-  --- Overwrite core `table` methods with `std` enhanced versions.
-  -- @function monkey_patch
-  -- @tparam[opt=_G] table namespace where to install global functions
-  -- @treturn table the module table
-  -- @usage local table = require "std.table".monkey_patch ()
-  monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
-
-
-monkeys = copy ({}, M)  -- before deprecations and core merge
 
 
 return merge (M, table)

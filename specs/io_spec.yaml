@@ -3,7 +3,7 @@ before: |
   this_module        = "std.io"
   global_table       = "_G"
 
-  extend_base        = { "catdir", "catfile", "die", "dirname", "monkey_patch",
+  extend_base        = { "catdir", "catfile", "die", "dirname",
                          "process_files", "readlines", "shell", "slurp",
                          "splitdir", "warn", "writelines" }
 
@@ -142,39 +142,6 @@ specify std.io:
 
   - it removes final separator and following:
       expect (f (path)).to_be (table.concat ({"", "one", "two"}, dirsep))
-
-
-- describe monkey_patch:
-  - before:
-      namespace = {}
-
-      f = M.monkey_patch
-
-  - context with bad arguments:
-      badargs.diagnose (f, "std.io.monkey_patch (?table)")
-
-  # Ideally, `.to_be (M)`, except that M is cloned from a nested context
-  # by Specl to prevent us from affecting any other examples, thus the
-  # address is different by now.
-  - it returns std.io module table:
-      expect (f {}).to_equal (M)
-  - it injects std.io apis into the given namespace:
-      namespace = {}
-      f (namespace)
-      for _, api in ipairs (extend_base) do
-        expect (namespace.io[api]).to_be (M[api])
-      end
-  - it installs file methods:
-      mt = { "file metatable" }
-      io = f {
-        io = {
-          stdin  = setmetatable ({ "stdin"  }, mt),
-          stdout = setmetatable ({ "stdout" }, mt),
-          stderr = setmetatable ({ "stderr" }, mt)
-        }
-      }
-      expect (mt.readlines).to_be (M.readlines)
-      expect (mt.writelines).to_be (M.writelines)
 
 
 - describe process_files:
