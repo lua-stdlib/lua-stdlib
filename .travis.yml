@@ -127,7 +127,7 @@ install:
   - if test -f 'stdlib-42.0.0-1.rockspec'; then
       sudo luarocks make 'stdlib-42.0.0-1.rockspec' LUA="$LUA";
     else
-      sudo luarocks make --force 'stdlib-git-1.rockspec' LUA="$LUA";
+      sudo luarocks make 'stdlib-git-1.rockspec' LUA="$LUA";
     fi
 
   # Clean up files created by root
