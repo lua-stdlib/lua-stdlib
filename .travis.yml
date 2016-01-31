@@ -115,21 +115,13 @@ install:
        sudo luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
     done'
 
-  # Fudge timestamps on release branches.
-  - 'if test -f configure; then
-      test -f aclocal.m4 && touch aclocal.m4;
-      sleep 1; touch Makefile.in;
-      sleep 1; test -f config.h.in && touch config.h.in;
-      sleep 1; touch configure;
-    fi'
-
   # Build from rockspec, forcing uninstall of older luarocks installed
   # above when testing the git rockspec, both for enforcing backwards
   # compatibility by default, and for ease of maintenance.
   - if test -f "stdlib-$_VERSION-1.rockspec"; then
       sudo luarocks make "stdlib-$_VERSION-1.rockspec" LUA="$LUA";
     else
-      sudo luarocks make --force 'stdlib-git-1.rockspec' LUA="$LUA";
+      sudo luarocks make 'stdlib-git-1.rockspec' LUA="$LUA";
     fi
 
   # Clean up files created by root
