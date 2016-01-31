@@ -1,7 +1,7 @@
 package = "stdlib"
 version = "git-1"
 description = {
-  detailed = "stdlib is a library of modules for common programming tasks, including list, table and functional operations, objects, pickling, pretty-printing and command-line option parsing.",
+  detailed = "stdlib is a library of modules for common programming tasks, including list and table operations, objects, pickling and pretty-printing.",
   homepage = "http://lua-stdlib.github.io/lua-stdlib",
   license = "MIT/X11",
   summary = "General Lua Libraries",
