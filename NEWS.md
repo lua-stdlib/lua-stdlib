@@ -73,14 +73,6 @@
     more legible deeply nested table output, identically to previous
     releases.
 
-  - `std.string.pickle` uses the more powerful features of the improved
-    render function to return a `std.eval`able string that recreates an
-    equivalent object to the original argument more accurately than
-    before.
-
-  - All of stdlib's object prototypes now provide a `__pickle` metamethod,
-    which makes them picklable with `std.string.pickle` too!
-
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
   - We used to have an object module method, `std.object.type`, which
@@ -109,8 +101,6 @@
 
 
 ### Bug fixes
-
-  - `std.string.pickle` works with nested tables, and mutable keys.
 
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
 

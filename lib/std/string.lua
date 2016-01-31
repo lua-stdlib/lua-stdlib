@@ -40,7 +40,6 @@ local copy		= _.std.base.copy
 local escape_pattern	= _.std.string.escape_pattern
 local len		= _.std.operator.len
 local merge		= _.std.base.merge
-local pickle		= _.std.string.pickle
 local render		= _.std.string.render
 local sortkeys		= _.std.base.sortkeys
 local split		= _.std.string.split
@@ -412,19 +411,6 @@ M = {
   -- @treturn string *s* justified to *w* characters wide
   -- @usage print (pad (trim (outputstr, 78)) .. "\n")
   pad = X ("pad (string, int, ?string)", pad),
-
-  --- Convert a value to a string.
-  -- The string can be passed to `std.eval` to retrieve the value.
-  -- Only primitives for which `tostring` returns an evalable result,
-  -- and objects with a `__pickle` metamethod are picklable.
-  -- @function pickle
-  -- @param x object to pickle
-  -- @treturn string reversible string rendering of *x*
-  -- @see std.eval
-  -- @usage
-  -- freeze = std.functional.memoize (pickle)
-  -- thaw   = function (x) return std.eval (x) end
-  pickle = X ("pickle (?any)", pickle),
 
   --- Pretty-print a table, or other object.
   -- @function prettytostring

@@ -133,7 +133,7 @@ local methods = {
 
 return Module {
   prototype = Object {
-    _type = "std.strbuf.StrBuf",
+    _type = "StrBuf",
 
     --- Metamethods
     -- @section metamethods

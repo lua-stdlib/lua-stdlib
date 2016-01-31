@@ -138,7 +138,7 @@ local methods = {
 --   command = pipeline[pid],                           -- manual assignment
 -- }
 local prototype = Container {
-  _type  = "std.object.Object",
+  _type  = "Object",
 
   --- Metamethods
   -- @section metamethods

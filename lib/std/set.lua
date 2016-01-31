@@ -194,7 +194,7 @@ end
 -- local Set = require "std.set".prototype
 -- assert (std.type (Set) == "Set")
 prototype = Container {
-  _type = "std.set.Set",
+  _type = "Set",
 
   --- Set object initialisation.
   --
@@ -287,32 +287,6 @@ prototype = Container {
     end
     table_sort (keys)
     return getmetatable (self)._type .. " {" .. table_concat (keys, ", ") .. "}"
-  end,
-
-  --- Return a loadable serialization of this object, where possible.
-  -- @function prototype:__pickle
-  -- @treturn string pickled object representation
-  -- @see std.string.pickle
-  __pickle = function (self)
-    local mt, keys = getmetatable (self), {}
-    for k in _pairs (self) do
-      keys[#keys + 1] = pickle (k)
-    end
-    table_sort (keys)
-    if type (mt._module) == "string" then
-      -- object with _module set
-      return table_concat {
-	'require "',
-	mt._module,
-	'".prototype {',
-	table_concat (keys, ","),
-	"}",
-      }
-    end
-    -- rely on caller preloading `local ObjName = require "module".prototype`
-    return table_concat {
-      mt._type, " {", table_concat (keys, ","), "}"
-    }
   end,
 }
 

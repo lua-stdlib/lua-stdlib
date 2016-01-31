@@ -234,7 +234,7 @@ end
 --   io.write (leaf .. "\t")
 -- end
 prototype = Container {
-  _type = "std.tree.Tree",
+  _type = "Tree",
 
   --- Metamethods
   -- @section metamethods
