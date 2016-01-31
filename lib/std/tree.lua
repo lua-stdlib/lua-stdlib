@@ -34,12 +34,12 @@ local type		= type
 local coroutine_yield	= coroutine.yield
 local coroutine_wrap	= coroutine.wrap
 local table_remove	= table.remove
+local table_unpack	= table.unpack or unpack
 
 
 local _ = {
   container		= require "std.container",
   debug_init		= require "std.debug_init",
-  operator		= require "std.operator",
   std			= require "std.base",
 }
 
@@ -49,12 +49,10 @@ local Module		= _.std.object.Module
 local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local get		= _.operator.get
 local ielems		= _.std.ielems
 local last		= _.std.base.last
 local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
-local reduce		= _.std.functional.reduce
 
 
 -- Perform typechecking with functions exported from this module, unless
@@ -116,6 +114,24 @@ local function _nodes (it, tr)
 end
 
 
+-- No need to recurse because functables are second class citizens in
+-- Lua:
+-- func=function () print "called" end
+-- func() --> "called"
+-- functable=setmetatable ({}, {__call=func})
+-- functable() --> "called"
+-- nested=setmetatable ({}, {__call=functable})
+-- nested()
+-- --> stdin:1: attempt to call a table value (global 'd')
+-- --> stack traceback:
+-- -->	stdin:1: in main chunk
+-- -->		[C]: in ?
+local function callable (x)
+  if type (x) == "function" then return x end
+  return (getmetatable (x) or {}).__call
+end
+
+
 local function clone (t, nometa)
   local r = {}
   if not nometa then
@@ -144,6 +160,11 @@ local function clone (t, nometa)
 end
 
 
+local function get (t, k)
+  return t and t[k] or nil
+end
+
+
 local function merge (t, u)
   for ty, p, n in _nodes (_pairs, u) do
     if ty == "leaf" then
@@ -151,6 +172,27 @@ local function merge (t, u)
     end
   end
   return t
+end
+
+
+local function reduce (fn, d, ifn, ...)
+  local argt
+  if not callable (ifn) then
+    ifn, argt = pairs, pack (ifn, ...)
+  else
+    argt = pack (...)
+  end
+
+  local nextfn, state, k = ifn (table_unpack (argt, 1, argt.n))
+  local t = pack (nextfn (state, k))		-- table of iteration 1
+
+  local r = d					-- initialise accumulator
+  while t[1] ~= nil do				-- until iterator returns nil
+    k = t[1]
+    r = fn (r, table_unpack (t, 1, t.n))	-- pass all iterator results to fn
+    t = pack (nextfn (state, k))		-- maintain loop invariant
+  end
+  return r
 end
 
 

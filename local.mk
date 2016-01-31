@@ -43,14 +43,12 @@ update_copyright_env = \
 
 doccorefunctionsdir	= $(docdir)/core_functions
 doccorelibrariesdir	= $(docdir)/core_libraries
-docfunctionaldir	= $(docdir)/functional_style
 docmodulesdir		= $(docdir)/modules
 docobjectsdir		= $(docdir)/object_system
 
 dist_doc_DATA			=
 dist_doccorefunctions_DATA	=
 dist_doccorelibraries_DATA	=
-dist_docfunctional_DATA		=
 dist_docmodules_DATA		=
 dist_docobjects_DATA		=
 
@@ -67,20 +65,17 @@ dist_luastd_DATA =			\
 	lib/std/base.lua		\
 	lib/std/container.lua		\
 	lib/std/debug.lua		\
-	lib/std/functional.lua		\
 	lib/std/io.lua			\
 	lib/std/init.lua		\
 	lib/std/list.lua		\
 	lib/std/math.lua		\
 	lib/std/object.lua		\
-	lib/std/operator.lua		\
 	lib/std/package.lua		\
 	lib/std/set.lua			\
 	lib/std/strbuf.lua		\
 	lib/std/string.lua		\
 	lib/std/table.lua		\
 	lib/std/tree.lua		\
-	lib/std/tuple.lua		\
 	lib/std/version.lua		\
 	$(NOTHING_ELSE)
 
@@ -123,7 +118,6 @@ EXTRA_DIST +=				\
 
 doccorefunctions = $(srcdir)/doc/core_functions/std
 doccorelibraries = $(srcdir)/doc/core_libraries/std
-docfunctional    = $(srcdir)/doc/functional_style/std
 docobjects       = $(srcdir)/doc/object_system/std
 
 dist_doc_DATA +=				\
@@ -143,11 +137,6 @@ dist_doccorelibraries_DATA +=			\
 	$(doccorelibraries).table.html		\
 	$(NOTHING_ELSE)
 
-dist_docfunctional_DATA +=			\
-	$(docfunctional).functional.html	\
-	$(docfunctional).operator.html		\
-	$(NOTHING_ELSE)
-
 dist_docobjects_DATA +=				\
 	$(docobjects).container.html		\
 	$(docobjects).list.html			\
@@ -155,15 +144,13 @@ dist_docobjects_DATA +=				\
 	$(docobjects).set.html			\
 	$(docobjects).strbuf.html		\
 	$(docobjects).tree.html			\
-	$(docobjects).tuple.html		\
 	$(NOTHING_ELSE)
 
 ## Parallel make gets confused when one command ($(LDOC)) produces
 ## multiple targets (all the html files above), so use the presence
 ## of the doc directory as a sentinel file.
 $(dist_doc_DATA) $(dist_doccorefunctions_DATA): $(srcdir)/doc
-$(dist_doccorelibraries_DATA) $(dist_docfunctional_DATA): $(srcdir)/doc
-$(dist_docobjects_DATA): $(srcdir)/doc
+$(dist_doccorelibraries_DATA) $(dist_docobjects_DATA): $(srcdir)/doc
 
 $(srcdir)/doc: $(dist_lua_DATA) $(dist_luastd_DATA)
 	test -d $@ || mkdir $@

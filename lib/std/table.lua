@@ -32,7 +32,6 @@ local _ = {
 local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
-local collect		= _.std.functional.collect
 local copy		= _.std.base.copy
 local getmetamethod	= _.std.getmetamethod
 local invert		= _.std.table.invert

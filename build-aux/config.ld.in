@@ -15,10 +15,7 @@ LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:
 
 3. A straight forward prototype-based object system, and a selection of
    useful objects built on it: @{std.container}, @{std.object},
-   @{std.list}, @{std.set}, @{std.strbuf}, @{std.tree} and @{std.tuple};
-
-4. A foundation for programming in a functional style: @{std.functional}
-   and @{std.operator};
+   @{std.list}, @{std.set}, @{std.strbuf} and @{std.tree}.
 
 ## LICENSE
 
@@ -47,27 +44,19 @@ file = {
   "../lib/std/set.lua",
   "../lib/std/strbuf.lua",
   "../lib/std/tree.lua",
-  "../lib/std/tuple.lua",
-
-  -- Functional Style
-  "../lib/std/functional.lua",
-  "../lib/std/operator.lua",
 }
 
 new_type ("corefunction", "Core_Functions", true)
 new_type ("corelibrary", "Core_Libraries", true)
 new_type ("prototype", "Object_System", true)
-new_type ("functional", "Functional_Style", true)
 
 function postprocess_html(s)
   s = s:gsub("<h1>%s*Corefunction (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Corelibrary (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Prototype (.-)</p>", '<h1>Module %1</h1>')
-  s = s:gsub("<h1>%s*Functional (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h2>Core_Functions</h2>", '<h2>Core Functions</h2>')
   s = s:gsub("<h2>Core_Libraries</h2>", '<h2>Core Libraries</h2>')
   s = s:gsub("<h2>Object_System</h2>", '<h2>Object System</h2>')
-  s = s:gsub("<h2>Functional_Style</h2>", '<h2>Functional Style</h2>')
   return s
 end
 

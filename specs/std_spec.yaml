@@ -149,21 +149,12 @@ specify std:
       end
   - it scribbles backwards compatibility apis:
       for api, fn in pairs {
-        bind            = M.functional.bind,
-        collect         = M.functional.collect,
-        compose         = M.functional.compose,
-        curry           = M.functional.curry,
         die             = M.io.die,
-        filter          = M.functional.filter,
-        fold            = M.functional.fold,
-        id              = M.functional.id,
         ileaves         = M.tree.ileaves,
         inodes          = M.tree.inodes,
         leaves          = M.tree.leaves,
-        map             = M.functional.map,
         metamethod      = M.getmetamethod,
         nodes           = M.tree.nodes,
-        op              = M.operator,
         pack            = M.table.pack,
         pickle          = M.string.pickle,
         prettytostring  = M.string.prettytostring,

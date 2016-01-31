@@ -319,27 +319,6 @@ local pack = table_pack or function (...)
 end
 
 
-local function reduce (fn, d, ifn, ...)
-  local argt
-  if not callable (ifn) then
-    ifn, argt = pairs, pack (ifn, ...)
-  else
-    argt = pack (...)
-  end
-
-  local nextfn, state, k = ifn (table_unpack (argt, 1, argt.n))
-  local t = pack (nextfn (state, k))		-- table of iteration 1
-
-  local r = d					-- initialise accumulator
-  while t[1] ~= nil do				-- until iterator returns nil
-    k = t[1]
-    r = fn (r, table_unpack (t, 1, t.n))	-- pass all iterator results to fn
-    t = pack (nextfn (state, k))		-- maintain loop invariant
-  end
-  return r
-end
-
-
 local fallbacks = {
   __index = {
     open  = function (x) return "{" end,
@@ -402,31 +381,9 @@ local function render (x, fns, roots)
 end
 
 
-local function toqstring (x)
-  if type (x) ~= "string" then return tostring (x) end
-  return string_format ("%q", x)
-end
-
-
 local function sortkeys (t)
   table_sort (t, keysort)
   return t
-end
-
-
-local mnemonic_vtable = {
-  elem = toqstring,
-  sort = sortkeys,
-}
-
-
-local function mnemonic (...)
-  local seq, n = {...}, select ("#", ...)
-  local buf = {}
-  for i = 1, n do
-    buf[i] = render (seq[i], mnemonic_vtable)
-  end
-  return table_concat (buf, ",")
 end
 
 
@@ -613,7 +570,6 @@ return {
     copy      = copy,
     last      = last,
     merge     = merge,
-    mnemonic  = mnemonic,
     sortkeys  = sortkeys,
     toqstring = toqstring,
   },
@@ -622,12 +578,6 @@ return {
     argerror = argerror,
     getfenv  = _getfenv,
     setfenv  = _setfenv,
-  },
-
-  functional = {
-    callable = callable,
-    nop      = function () end,
-    reduce   = reduce,
   },
 
   io = {

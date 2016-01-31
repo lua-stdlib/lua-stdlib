@@ -107,10 +107,6 @@ local function barrel (namespace)
 
   -- Older releases installed the following into _G by default.
   for _, name in pairs {
-    "functional.bind", "functional.collect", "functional.compose",
-    "functional.curry", "functional.filter", "functional.id",
-    "functional.map",
-
     "io.die", "io.warn",
 
     "string.pickle", "string.prettytostring", "string.render",
@@ -124,7 +120,6 @@ local function barrel (namespace)
   end
 
   -- Support old api names, for backwards compatibility.
-  namespace.fold = M.functional.fold
   namespace.metamethod = M.getmetamethod
   namespace.op = M.operator
   namespace.require_version = M.require

@@ -23,9 +23,8 @@ local io_stderr		= io.stderr
 local math_abs		= math.abs
 local math_floor	= math.floor
 local table_insert	= table.insert
+local string_format	= string.format
 
-
-local deprecated	= nil
 
 local _ = {
   debug_init		= require "std.debug_init",
@@ -45,7 +44,6 @@ local pickle		= _.std.string.pickle
 local render		= _.std.string.render
 local sortkeys		= _.std.base.sortkeys
 local split		= _.std.string.split
-local toqstring		= _.std.base.toqstring
 
 
 -- Perform typechecking with functions exported from this module, unless
@@ -235,7 +233,10 @@ local function prettytostring (x, indent, spacing)
       return spacing .. "}"
     end,
 
-    elem = toqstring,
+    elem = function (x)
+      if type (x) ~= "string" then return tostring (x) end
+      return string_format ("%q", x)
+    end,
 
     pair = function (x, _, _, k, v, kstr, vstr)
       local type_k = type (k)
@@ -520,11 +521,6 @@ M = {
   -- @usage local string = require "std.string".monkey_patch ()
   monkey_patch = X ("monkey_patch (?table)", monkey_patch),
 }
-
-
-if deprecated then
-  M = merge (M, deprecated.string)
-end
 
 
 return merge (M, string)

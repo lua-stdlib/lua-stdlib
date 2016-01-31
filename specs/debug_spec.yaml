@@ -8,6 +8,39 @@ before: |
   M = require (this_module)
 
 
+  table_unpack = table.unpack or unpack
+
+  function map (mapfn, ...)
+    local argt, r = pack (...), {}
+
+    local nextfn, state, k = pairs (table_unpack (argt, 1, argt.n))
+    local mapargs = pack (nextfn (state, k))
+
+    local arity = 1
+    while mapargs[1] ~= nil do
+      local d, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
+      if v ~= nil then
+        arity, r = 2, {} break
+      end
+      r[#r + 1] = d
+      mapargs = {nextfn (state, mapargs[1])}
+    end
+
+    if arity > 1 then
+      -- No need to start over here, because either:
+      --   (i) arity was never 1, and the original value of mapargs is correct
+      --  (ii) arity used to be 1, but we only consumed nil values, so the
+      --       current mapargs with arity > 1 is the correct next value to use
+      while mapargs[1] ~=  nil do
+        local k, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
+        r[k] = v
+        mapargs = pack (nextfn (state, mapargs[1]))
+      end
+    end
+    return r
+  end
+
+
 specify std.debug:
 - context when required:
   - context by name:
@@ -44,7 +77,7 @@ specify std.debug:
           require "std.debug" (%s)
         ]],
         require "std".tostring (debugp),
-        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
+        table.concat (map (mkwrap, {...}), ", "))
       end
 
   - it does nothing when _DEBUG is disabled:
@@ -82,7 +115,7 @@ specify std.debug:
           require "std.debug".say (%s)
         ]],
         require "std".tostring (debugp),
-        table.concat (require "std.functional".map (mkwrap, {...}), ", "))
+        table.concat (map (mkwrap, {...}), ", "))
       end
 
       f = M.say

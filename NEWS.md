@@ -11,10 +11,10 @@
     are always welcome!
 
   - With this release, stdlib is much more focused, and non-core modules
-    `std.optparse` and `std.strict` have been moved into their own packages
+    `std.functional`, `std.maturity`, `std.operator`, `std.optparse`,
+    `std.strict` and `std.tuple` have been moved into their own packages
     and release cycle.  You can still install them separately from their
-    [own][optparse] [projects][strict]
-    or using Luarocks:
+    own projects or using Luarocks:
 
     ```bash
     luarocks install optparse
@@ -81,60 +81,7 @@
   - All of stdlib's object prototypes now provide a `__pickle` metamethod,
     which makes them picklable with `std.string.pickle` too!
 
-  - `std.functional.memoize` uses a fast stable render based serialization
-    call by default now, when the `mnemonic` parameter is not given.
-
-  - `std.operator.eqv` now uses render to determine equivalence between
-    tables, which means it works correctly for table keys too.
-
-  - New `std.tuple` object, for managing interned immutable nil-preserving
-    tuples:
-
-    ```lua
-    local Tuple = require "std.tuple" {}
-    local t3 = Tuple (nil, false, nil)
-    local t3_ = Tuple (nil, false, nil)
-    assert (t3 == t3_)
-
-    local len = require "std.operator".len
-    assert (len (t3) == 3)
-
-    local t = {}
-    for i = 1, len (t3) do t = t3[i] end
-    assert (len (t) == 3)
-
-    local a, b, c = require "std.table".unpack (t3)
-    assert (a == nil and b == false and c == nil)
-    ```
-
-  - New `functional.any` returns a function that calls each of the
-    passed functions with the same arguments, stopping and returning the
-    result from the first of those calls that does not equal `nil`.
-
-  - New `functional.product` returns a list of combinations made by
-    taking one element from each of the argument lists.  See LDocs for
-    an example.
-
-  - New `operator.eqv` is similar to `operator.eq`, except that it succeeds
-    when recursive table contents are equivalent.
-
-  - New `operator.len` replaces `table.len`.  `operator.len` is always
-    deterministic; counting only numerically indexed elements immediately up
-    to the first `nil` valued element (PUC-Rio Lua does not guarantee this
-    with its `#` operator):
-
-    ```lua
-    local t1 = {1, 2, [5]=3}
-    local t2 = {1, 2, nil, nil, 3}
-    print (eqv(t1, t2)) --> true
-    print (len(t1) == len(t2)) --> true
-    print (#t1 == #t2) --> LuaJIT: true, PUC-Rio: false
-    ```
-
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
-
-  - Passing the result of `functional.lambda` to `tostring` returns the
-    original lambda string.
 
   - We used to have an object module method, `std.object.type`, which
     often got imported using:
@@ -149,19 +96,6 @@
     and `io.type` (and in recent releases, `math.type`).  So now, for
     orthogonality with core Lua, we're going back to using `std.object.type`,
     because that just makes more sense.  Sorry!
-
-  - `std.ireverse` has been replaced by `std.functional.ireverse` because
-    of the functional style of a non-destructive sequence reversing
-    operation.
-
-  - `std.table.flatten` and `std.table.shape` have been replaced by
-    favour of `std.functional.flatten` and `std.functional.shape`
-    because these functions are far more useful in conjunction with a
-    functional programming style than with regular tables in imperative
-    code.
-
-  - `std.table.len` has moved to `std.operator.len`, because it is not just
-    for tables!
 
   - `std.table.okeys` has been removed for lack of utility.  If you
     still need it, use this instead:
@@ -184,18 +118,6 @@
     correctly, rather than `nil` as in previous releases.  It's also
     considerably faster now that it doesn't use `pcall` any more.
 
-  - `std.functional.any`, `std.functional.bind` and
-    `std.functional.compose` return functions that propagate trailing
-    `nil` arguments correctly.
-
-  - `std.functional.memoize` now considers trailing nil arguments when
-    looking up a memoized value for those particular arguments, and
-    propagates `nil` return values from `mnemonic` functions correctly.
-
-  - `std.functional.filter`, `std.functional.map` and
-    `std.functional.reduce` now pass trailing nil arguments to their
-    iterator function correctly.
-
   - You can now derive other types from `std.set` by passing a `_type`
     field in the init argument, just like the other table argument
     objects.
@@ -205,7 +127,8 @@
 
 ### Incompatible changes
 
-  - `std.optparse` and `std.strict` have been moved to their own packages,
+  - `std.functional`, `std.maturity`, `std.operator`, `std.optparse`,
+    `std.strict` and `std.tuple` have been moved to their own packages,
     and are no longer shipped as part of stdlib.
 
   - `std.debug.argerror`, `std.debug.argcheck`, `std.debug.argscheck`,
@@ -259,9 +182,6 @@
     from objects during instantiation, instead move your actual object
     into the module `prototype` field, and add the module functions to    
     the parent table returned when the module is required.
-
-  - `functional.lambda` no longer returns a bare function, but a functable
-    that can be called and stringified.
 
   - Passing a table with a `__len` metamethod, that returns a value other
     the index of the largest non-nil valued integer key, to `std.npairs`
