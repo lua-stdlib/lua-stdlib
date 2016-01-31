@@ -37,7 +37,7 @@ local table_sort	= table.sort
 local _ = {
   container		= require "std.container",
   debug_init		= require "std.debug_init",
-  std			= require "std.base",
+  std			= require "std._base",
 }
 
 local Container		= _.container.prototype

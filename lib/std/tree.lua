@@ -40,7 +40,7 @@ local table_unpack	= table.unpack or unpack
 local _ = {
   container		= require "std.container",
   debug_init		= require "std.debug_init",
-  std			= require "std.base",
+  std			= require "std._base",
 }
 
 local Container		= _.container.prototype

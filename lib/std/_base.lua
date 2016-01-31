@@ -18,8 +18,6 @@
  This implies that when re-exporting from another module when argument type
  checking is in force, we must export a wrapper function that can check the
  user's arguments fully at the API boundary.
-
- @module std.base
 ]]
 
 

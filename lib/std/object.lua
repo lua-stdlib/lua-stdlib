@@ -29,7 +29,7 @@ local getmetatable	= getmetatable
 local _ = {
   debug_init		= require "std.debug_init",
   container		= require "std.container",
-  std			= require "std.base",
+  std			= require "std._base",
 }
 
 local Container 	= _.container.prototype

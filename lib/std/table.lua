@@ -26,7 +26,7 @@ local table_unpack	= table.unpack or unpack
 
 local _ = {
   debug_init		= require "std.debug_init",
-  std			= require "std.base",
+  std			= require "std._base",
 }
 
 local _DEBUG		= _.debug_init._DEBUG

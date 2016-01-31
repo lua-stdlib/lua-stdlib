@@ -40,7 +40,7 @@ local table_concat	= table.concat
 
 local _ = {
   debug_init		= require "std.debug_init",
-  std			= require "std.base",
+  std			= require "std._base",
 }
 
 local Module		= _.std.object.Module

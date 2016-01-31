@@ -28,7 +28,7 @@ local string_format	= string.format
 
 local _ = {
   debug_init		= require "std.debug_init",
-  std			= require "std.base",
+  std			= require "std._base",
   strbuf		= require "std.strbuf",
 }
 

@@ -6,7 +6,7 @@ SPECL	= specl
 
 luadir	= lib/std
 SOURCES =				\
-	$(luadir)/base.lua		\
+	$(luadir)/_base.lua		\
 	$(luadir)/container.lua		\
 	$(luadir)/debug.lua		\
 	$(luadir)/debug_init/init.lua	\

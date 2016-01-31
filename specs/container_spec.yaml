@@ -60,7 +60,7 @@ specify std.container:
         expect (objtype (v)).to_be (objtype (Container))
   - context with module functions:
     - before:
-        Bag = require "std.base".object.Module {
+        Bag = require "std._base".object.Module {
           prototype = Container { _type = "Bag" },
           count = function (bag)
             local n = 0
