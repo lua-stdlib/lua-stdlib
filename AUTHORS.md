@@ -1,12 +1,10 @@
-                        Stdlib's contributors
-                        ---------------------
+# Stdlib's contributors
 
-This file lists major contributors to stdlib. If you think you should
-be on it, please tell the mailing list (see README for the address).
-Thanks also to all those who have contributed bug fixes, suggestions
-and support.
+This file lists major contributors to _stdlib_. If you think you
+should be on it, please raise a [github][] issue. Thanks also to all
+those who have contributed bug fixes, suggestions and support.
 
-Gary V. Vaughan now maintains stdlib, having rewritten and reorganised
+Gary V. Vaughan now maintains _stdlib_, having rewritten and reorganised
 the libraries for hygiene, consistent argument type checking in debug
 mode, and object orientation, in addition to adding a lot of new
 functionality.
@@ -25,3 +23,5 @@ private standard library.
 
 Johann Hibschman supplied the code on which math.floor and math.round
 were based.
+
+[github]: https://github.com/lua-stdlib/lua-stdlib/issues

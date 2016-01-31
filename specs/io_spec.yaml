@@ -147,7 +147,7 @@ specify std.io:
 - describe process_files:
   - before:
       name = "Makefile"
-      names = {"Makefile", "config.log", "config.status", "build-aux/config.ld"}
+      names = {"LICENSE.md", "Makefile", "README.md"}
       ascript = [[
         require "std.io".process_files (function (a) print (a) end)
       ]]
@@ -182,7 +182,7 @@ specify std.io:
       expect (luaproc (ascript, names)).
         to_output (table.concat (names, "\n") .. "\n")
   - it passes argument numbers to supplied function:
-      expect (luaproc (iscript, names)).to_output "1\n2\n3\n4\n"
+      expect (luaproc (iscript, names)).to_output "1\n2\n3\n"
   - it sets each file argument as the default input:
       expect (luaproc (catscript, name)).to_output (concat_file_content (name))
       expect (luaproc (catscript, names)).

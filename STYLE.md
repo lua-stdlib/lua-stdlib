@@ -1,10 +1,7 @@
 ## Lua
 
  - Requiring any stdlib module must not leak any symbols into the global
-   namespace.  To help users who want to do that, there are monkey_patch
-   functions in the relevant modules.  For convenience when writing
-   throw-away scripts, there's also `std.barrel()`, to replicate the
-   behaviour of pre-hygienic stdlib.
+   namespace.
 
  - Any stdlib module may `require "std.base"`, and use any functions from
    there, as well as functions from `std.debug` (and `debug_init`); but,
@@ -63,24 +60,22 @@
  - Do argument check all object methods (functions available from an
    object created by a module function -- usually listed in the
    `__index` subtable of the object metatable), to catch pathological
-   calls early, preferably using a `debug.argscheck` wrapper around the
-   internal implementatin: this way, implementation functions can call
-   each other without excessive rechecking of argument types.
+   calls early, preferably using a `typecheck.argscheck` wrapper around
+   the internal implementation: this way, implementation functions can
+   call each other without excessive rechecking of argument types.
 
  - Do argument check all module functions (functions available in the
    table returned from requiring that module).
 
  - Do argument check metamethods, to catch pathological calls early.
 
- - Avoid using the `_functions` table in objects as much as possible;
-   it slows down cloning and complicates the API.
 
 ## LDocs
 
  - LDocs should be next to each function's argcheck wrapper (if it has
    one) in the export table, so that it's easy to check the consistency
    between the types declared in the LDocs and the argument types
-   enforced by `debug.argscheck` or equivalent.
+   enforced by `typecheck.argscheck` or equivalent.
 
  - `backtick_references` is disabled for stdlib, if you want an inline
    cross-reference, use `@{reference}`.
