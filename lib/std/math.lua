@@ -11,40 +11,17 @@
 ]]
 
 
-local _ENV		= _ENV
 local math		= math
 
 local math_floor	= math.floor
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
 
-local _DEBUG		= _.debug_init._DEBUG
-local merge		= _.std.base.merge
+local _			= require "std._base"
 
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local merge		= _.base.merge
 
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argcheck, argscheck, extramsg_toomany
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
 
@@ -81,7 +58,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.math." .. decl, fn)
+  return argscheck and argscheck ("std.math." .. decl, fn) or fn
 end
 
 

@@ -55,13 +55,40 @@ local table_sort	= table.sort
 local table_unpack	= table.unpack or unpack
 
 
+
+--[[ ================== ]]--
+--[[ Initialize _DEBUG. ]]--
+--[[ ================== ]]--
+
+
 local _DEBUG		= require "std.debug_init"._DEBUG
 
+local strict, typecheck
+do
+  local ok
 
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
+  -- Unless strict was disabled (`_DEBUG = false`), or that module is not
+  -- available, check for use of undeclared variables in this module...
+  if _DEBUG.strict then
+    ok, strict		= pcall (require, "strict")
+    if ok then
+      _ENV = strict {}
+    else
+      -- ...otherwise, the strict function is not available at all!
+      _DEBUG.strict	= false
+      strict		= false
+    end
+  end
+
+  -- Unless strict was disabled (`_DEBUG = false`), or that module is not
+  -- available, check for use of undeclared variables in this module...
+  if _DEBUG.argcheck then
+    ok, typecheck	= pcall (require, "typecheck")
+    if not ok then
+      -- ...otherwise, the strict function is not available at all!
+      _DEBUG.argcheck	= false
+      typecheck		= false
+    end
   end
 end
 
@@ -504,6 +531,10 @@ end
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
+  _DEBUG	= _DEBUG,
+  strict	= strict,
+  typecheck	= typecheck,
+
   eval          = eval,
   getmetamethod = getmetamethod,
   ielems        = ielems,

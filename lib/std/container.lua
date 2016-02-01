@@ -28,7 +28,6 @@
  @prototype std.container
 ]]
 
-local _ENV		= _ENV
 local getmetatable	= getmetatable
 local next		= next
 local select		= select
@@ -38,48 +37,22 @@ local type		= type
 local table_concat	= table.concat
 
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
+local _			= require "std._base"
 
-local Module		= _.std.object.Module
+local Module		= _.object.Module
 
-local _DEBUG		= _.debug_init._DEBUG
-local copy		= _.std.base.copy
-local mapfields		= _.std.object.mapfields
-local render		= _.std.string.render
-local sortkeys		= _.std.base.sortkeys
+local argcheck		= _.typecheck and _.typecheck.argcheck
+local argerror		= _.argerror
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local copy		= _.base.copy
+local extramsg_toomany	= _.typecheck and _.typecheck.extramsg_toomany
+local mapfields		= _.object.mapfields
+local render		= _.string.render
+local sortkeys		= _.base.sortkeys
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argcheck, argerror, argscheck, extramsg_toomany
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argcheck		= typecheck.argcheck
-    argerror		= typecheck.argerror
-    argscheck		= typecheck.argscheck
-    extramsg_toomany	= typecheck.extramsg_toomany
-  else
-    _DEBUG.argcheck	= false
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
-
 
 
 --[[ ================= ]]--
@@ -249,7 +222,7 @@ local prototype = {
 }
 
 
-if _DEBUG.argcheck then
+if argcheck then
   local __call = prototype.__call
 
   prototype.__call = function (self, ...)
@@ -271,6 +244,10 @@ if _DEBUG.argcheck then
   end
 end
 
+
+local function X (decl, fn)
+  return argscheck and argscheck ("std.container." .. decl, fn) or fn
+end
 
 return Module {
   prototype = setmetatable ({}, prototype),
@@ -308,6 +285,5 @@ return Module {
   -- }
   -- local groceries = Bag ("apple", "banana", "banana")
   -- local purse = Bag {_type = "Purse"} ("cards", "cash", "id")
-  mapfields = argscheck (
-      "std.container.mapfields (table, table|object, ?table)", mapfields),
+  mapfields = X ("mapfields (table, table|object, ?table)", mapfields),
 }

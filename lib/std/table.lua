@@ -11,7 +11,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local getmetatable	= getmetatable
 local next		= next
 local setmetatable	= setmetatable
@@ -24,47 +23,21 @@ local table_insert	= table.insert
 local table_unpack	= table.unpack or unpack
 
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
+local _			= require "std._base"
 
-local _DEBUG		= _.debug_init._DEBUG
-local _ipairs		= _.std.ipairs
-local _pairs		= _.std.pairs
-local copy		= _.std.base.copy
-local getmetamethod	= _.std.getmetamethod
-local invert		= _.std.table.invert
-local len		= _.std.operator.len
-local maxn		= _.std.table.maxn
-local merge		= _.std.base.merge
-local pack		= _.std.table.pack
+local _ipairs		= _.ipairs
+local _pairs		= _.pairs
+local argerror		= _.debug.argerror
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local copy		= _.base.copy
+local getmetamethod	= _.getmetamethod
+local invert		= _.table.invert
+local len		= _.operator.len
+local maxn		= _.table.maxn
+local merge		= _.base.merge
+local pack		= _.table.pack
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argerror, argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argerror		= typecheck.argerror
-    argscheck		= typecheck.argscheck
-  else
-    _DEBUG.argcheck	= false
-  end
-end
-argerror		= argerror or _.std.debug.argerror
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or _ENV
 
 _ = nil
 
@@ -218,7 +191,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.table." .. decl, fn)
+  return argscheck and argscheck ("std.table." .. decl, fn) or fn
 end
 
 M = {

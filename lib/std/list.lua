@@ -17,13 +17,10 @@
 ]]
 
 
-local _ENV		= _ENV
-
 local table_unpack	= table.unpack or unpack
 
 
 local _ = {
-  debug_init		= require "std.debug_init",
   object		= require "std.object",
   std			= require "std._base",
 }
@@ -31,33 +28,13 @@ local _ = {
 local Module		= _.std.object.Module
 local Object		= _.object.prototype
 
-local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
+local argscheck		= _.std.typecheck and _.std.typecheck.argscheck
 local compare		= _.std.list.compare
 local len		= _.std.operator.len
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.std.strict and _.std.strict {} or {}
 
 _ = nil
 
@@ -123,7 +100,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.list." .. decl, fn)
+  return argscheck and argscheck ("std.list." .. decl, fn) or fn
 end
 
 

@@ -11,7 +11,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local _G		= _G
 local arg		= arg
 local error		= error
@@ -34,46 +33,20 @@ local table_concat	= table.concat
 local table_insert	= table.insert
 
 
-local _	= {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
+local _			= require "std._base"
 
-local _DEBUG		= _.debug_init._DEBUG
-local _ipairs		= _.std.ipairs
-local _tostring		= _.std.tostring
-local catfile		= _.std.io.catfile
-local dirsep		= _.std.package.dirsep
-local leaves		= _.std.tree.leaves
-local len		= _.std.operator.len
-local merge		= _.std.base.merge
-local split		= _.std.string.split
+local _ipairs		= _.ipairs
+local _tostring		= _.tostring
+local argerror		= _.debug.argerror
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local catfile		= _.io.catfile
+local dirsep		= _.package.dirsep
+local leaves		= _.tree.leaves
+local len		= _.operator.len
+local merge		= _.base.merge
+local split		= _.string.split
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argerror, argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argerror		= typecheck.argerror
-    argscheck		= typecheck.argscheck
-  else
-    _DEBUG.argcheck	= false
-  end
-end
-argerror		= argerror or _.std.debug.argerror
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
 
@@ -186,7 +159,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.io." .. decl, fn)
+  return argscheck and argscheck ("std.io." .. decl, fn) or fn
 end
 
 

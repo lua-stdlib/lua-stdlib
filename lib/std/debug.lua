@@ -11,7 +11,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local debug		= debug
 local setmetatable	= setmetatable
 local type		= type
@@ -22,25 +21,16 @@ local math_max		= math.max
 local table_concat	= table.concat
 
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
+local _			= require "std._base"
 
-local _DEBUG		= _.debug_init._DEBUG
-local _getfenv		= _.std.debug.getfenv
-local _pairs		= _.std.pairs
-local _setfenv		= _.std.debug.setfenv
-local _tostring		= _.std.tostring
-local merge		= _.std.base.merge
+local _DEBUG		= _._DEBUG
+local _getfenv		= _.debug.getfenv
+local _pairs		= _.pairs
+local _setfenv		= _.debug.setfenv
+local _tostring		= _.tostring
+local merge		= _.base.merge
 
-
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
 

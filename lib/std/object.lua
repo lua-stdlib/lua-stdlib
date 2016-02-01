@@ -22,12 +22,10 @@
 ]]
 
 
-local _ENV		= _ENV
 local getmetatable	= getmetatable
 
 
 local _ = {
-  debug_init		= require "std.debug_init",
   container		= require "std.container",
   std			= require "std._base",
 }
@@ -35,32 +33,12 @@ local _ = {
 local Container 	= _.container.prototype
 local Module		= _.std.object.Module
 
-local _DEBUG		= _.debug_init._DEBUG
+local argscheck		= _.std.typecheck and _.std.typecheck.argscheck
 local getmetamethod	= _.std.getmetamethod
 local mapfields		= _.std.object.mapfields
 local merge		= _.std.base.merge
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.std.strict and _.std.strict {} or {}
 
 _ = nil
 
@@ -72,7 +50,7 @@ _ = nil
 
 
 local function X (decl, fn)
-  return argscheck ("std.object." .. decl, fn)
+  return argscheck and argscheck ("std.object." .. decl, fn) or fn
 end
 
 

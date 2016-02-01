@@ -14,7 +14,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local error		= error
 local ipairs		= ipairs
 local pairs		= pairs
@@ -29,49 +28,25 @@ local string_format	= string.format
 local string_match	= string.match
 
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std			= require "std._base",
-}
+local _			= require "std._base"
 
-local _DEBUG		= _.debug_init._DEBUG
-local _ipairs		= _.std.ipairs
-local _pairs		= _.std.pairs
-local _tostring		= _.std.tostring
-local compare		= _.std.list.compare
-local copy		= _.std.base.copy
-local eval		= _.std.eval
-local getmetamethod	= _.std.getmetamethod
-local ielems		= _.std.ielems
-local maxn		= _.std.table.maxn
-local merge		= _.std.base.merge
-local ripairs		= _.std.ripairs
-local split		= _.std.string.split
+local _ipairs		= _.ipairs
+local _pairs		= _.pairs
+local _tostring		= _.tostring
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local compare		= _.list.compare
+local copy		= _.base.copy
+local eval		= _.eval
+local getmetamethod	= _.getmetamethod
+local ielems		= _.ielems
+local maxn		= _.table.maxn
+local merge		= _.base.merge
+local ripairs		= _.ripairs
+local split		= _.string.split
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
-
 
 
 
@@ -154,7 +129,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std." .. decl, fn)
+  return argscheck and argscheck ("std." .. decl, fn) or fn
 end
 
 M = {

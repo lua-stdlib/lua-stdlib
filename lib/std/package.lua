@@ -36,7 +36,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local ipairs		= ipairs
 local package		= package
 
@@ -48,40 +47,17 @@ local table_remove	= table.remove
 local table_unpack	= table.unpack or unpack
 
 
-local _ = {
-  debug_init		= require "std.debug_init",
-  std   		= require "std._base",
-}
+local _   		= require "std._base"
 
-local _DEBUG		= _.debug_init._DEBUG
-local catfile		= _.std.io.catfile
-local escape_pattern	= _.std.string.escape_pattern
-local invert		= _.std.table.invert
-local len		= _.std.operator.len
-local merge		= _.std.base.merge
-local split		= _.std.string.split
+local argscheck		= _.typecheck and _.typecheck.argscheck
+local catfile		= _.io.catfile
+local escape_pattern	= _.string.escape_pattern
+local invert		= _.table.invert
+local len		= _.operator.len
+local merge		= _.base.merge
+local split		= _.string.split
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.strict and _.strict {} or {}
 
 _ = nil
 
@@ -200,7 +176,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.package." .. decl, fn)
+  return argscheck and argscheck ("std.package." .. decl, fn) or fn
 end
 
 

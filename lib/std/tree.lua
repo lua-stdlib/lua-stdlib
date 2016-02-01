@@ -24,7 +24,6 @@
 ]]
 
 
-local _ENV		= _ENV
 local getmetatable	= getmetatable
 local rawget		= rawget
 local rawset		= rawset
@@ -39,42 +38,22 @@ local table_unpack	= table.unpack or unpack
 
 local _ = {
   container		= require "std.container",
-  debug_init		= require "std.debug_init",
   std			= require "std._base",
 }
 
 local Container		= _.container.prototype
 local Module		= _.std.object.Module
 
-local _DEBUG		= _.debug_init._DEBUG
 local _ipairs		= _.std.ipairs
 local _pairs		= _.std.pairs
+local argscheck		= _.std.typecheck and _.std.typecheck.argscheck
 local ielems		= _.std.ielems
 local last		= _.std.base.last
 local leaves		= _.std.tree.leaves
 local len		= _.std.operator.len
+local pack		= _.std.table.pack
 
-
--- Perform typechecking with functions exported from this module, unless
--- disabled in `_DEBUG` or the "typecheck" module is not loadable.
-local argscheck
-if _DEBUG.argcheck then
-  local ok, typecheck	= pcall (require, "typecheck")
-  if ok then
-    argscheck		= typecheck.argscheck
-  end
-end
-argscheck		= argscheck or function (decl, inner) return inner end
-
-
--- Use a strict environment for the rest of this module, unless disabled
--- in `_DEBUG` or the "strict" module is not loadable.
-if _DEBUG.strict then
-  local ok, strict	= pcall (require, "strict")
-  if ok then
-    _ENV = strict {}
-  end
-end
+local _ENV		= _.std.strict and _.std.strict {} or {}
 
 _ = nil
 
@@ -203,7 +182,7 @@ end
 
 
 local function X (decl, fn)
-  return argscheck ("std.tree." .. decl, fn)
+  return argscheck and argscheck ("std.tree." .. decl, fn) or fn
 end
 
 
