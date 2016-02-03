@@ -1,9 +1,3 @@
-This software comprises files that are copyright their respective
-authors (see the AUTHORS file for details), and distributed under
-the terms of the MIT license (the same license as Lua itself),
-unless noted otherwise in the body of that file.
-
-====================================================================
 Copyright (C) 2002-2016 stdlib authors
 
 Permission is hereby granted, free of charge, to any person
@@ -24,4 +18,3 @@ MENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
 FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-====================================================================
