@@ -265,8 +265,6 @@ M = {
   -- @section accessorfuncs
 
   --- Make a shallow copy of a table, including any metatable.
-  --
-  -- To make deep copies, use @{std.tree.clone}.
   -- @function clone
   -- @tparam table t source table
   -- @tparam[opt={}] table map table of `{old_key=new_key, ...}`

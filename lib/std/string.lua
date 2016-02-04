@@ -21,28 +21,24 @@ local type		= type
 local io_stderr		= io.stderr
 local math_abs		= math.abs
 local math_floor	= math.floor
+local table_concat	= table.concat
 local table_insert	= table.insert
 local string_format	= string.format
 
 
-local _ = {
-  std			= require "std._base",
-  strbuf		= require "std.strbuf",
-}
+local _			= require "std._base"
 
-local StrBuf		= _.strbuf.prototype
+local _tostring		= _.tostring
+local argscheck		= _.typecheck and _.std.typecheck.argscheck
+local copy		= _.base.copy
+local escape_pattern	= _.string.escape_pattern
+local len		= _.operator.len
+local merge		= _.base.merge
+local render		= _.string.render
+local sortkeys		= _.base.sortkeys
+local split		= _.string.split
 
-local _tostring		= _.std.tostring
-local argscheck		= _.std.typecheck and _.std.typecheck.argscheck
-local copy		= _.std.base.copy
-local escape_pattern	= _.std.string.escape_pattern
-local len		= _.std.operator.len
-local merge		= _.std.base.merge
-local render		= _.std.string.render
-local sortkeys		= _.std.base.sortkeys
-local split		= _.std.string.split
-
-local _ENV		= _.std.strict and _.std.strict {} or _ENV
+local _ENV		= _.strict and _.strict {} or _ENV
 
 _ = nil
 
@@ -142,7 +138,7 @@ local function wrap (s, w, ind, ind1)
   ind1 = ind1 or ind
   assert (ind1 < w and ind < w,
           "the indents must be less than the line width")
-  local r = StrBuf { string.rep (" ", ind1) }
+  local r = { string.rep (" ", ind1) }
   local i, lstart, lens = 1, ind1, len (s)
   while i <= lens do
     local j = i + w - lstart
@@ -153,14 +149,14 @@ local function wrap (s, w, ind, ind1)
     while s[j] == " " do
       j = j - 1
     end
-    r:concat (s:sub (i, j))
+    table_insert (r, s:sub (i, j))
     i = ni
     if i < lens then
-      r:concat ("\n" .. string.rep (" ", ind))
+      table_insert (r, "\n" .. string.rep (" ", ind))
       lstart = ind
     end
   end
-  return tostring (r)
+  return table_concat (r)
 end
 
 

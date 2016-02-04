@@ -24,31 +24,6 @@
   - All support for deprecated APIs has been removed, reducing the
     install size even further.
 
-  - Objects and Modules are no longer conflated - what you get back from
-    a `require "std.something"` is now ALWAYS a module:
-
-    ```lua
-    local object = require "std.object"
-    assert (object.type (object) == "Module")
-    ```
-
-    And the modules that provide objects have a new `prototype` field
-    that contains the prototye for that kind of object:
-
-    ```lua
-    local Object = object.prototype
-    assert (object.type (Object) == "Object")
-    ```
-
-    For backwards compatibility, if you call the module with a
-    constructor table, the previous recommended way to disambiguate
-    between a module and the object it prototyped, that table is passed
-    through to that module's object prototype.
-
-  - Now that we have proper separation of concerns between module tables
-    and object prototype tables, the central `std.object.mapfields`
-    instantiation function is much cleaner and faster.
-
   - `std.string.render` now takes a table of named arguments as documented;
     the `pairs` function is now supplied with the key and value of the
     preceding key/value pair.  There is also support for two new named
@@ -75,30 +50,12 @@
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
-  - We used to have an object module method, `std.object.type`, which
-    often got imported using:
-
-    ```lua
-    local prototype = require "std.object".type
-    ```
-
-    So we renamed it to `std.object.prototype` to avoid a name clash with
-    the `type` symbol, and subsequently deprecated the earlier equivalent
-    `type` method; but that was a mistake, because core Lua provides `type`,
-    and `io.type` (and in recent releases, `math.type`).  So now, for
-    orthogonality with core Lua, we're going back to using `std.object.type`,
-    because that just makes more sense.  Sorry!
-
   - `std.table.okeys` has been removed for lack of utility.  If you
     still need it, use this instead:
 
     ```lua
     local okeys = std.functional.compose (std.table.keys, std.table.sort)
     ```
-
-  - `std.string.render` function arguments have been replaced by a table
-    of named functions backed by defaults.
-
 
 ### Bug fixes
 
@@ -108,18 +65,15 @@
     correctly, rather than `nil` as in previous releases.  It's also
     considerably faster now that it doesn't use `pcall` any more.
 
-  - You can now derive other types from `std.set` by passing a `_type`
-    field in the init argument, just like the other table argument
-    objects.
-
   - `table.pack` now sets `n` field to number of arguments packed, even
     in Lua 5.1.
 
 ### Incompatible changes
 
-  - `std.functional`, `std.maturity`, `std.operator`, `std.optparse`,
-    `std.strict` and `std.tuple` have been moved to their own packages,
-    and are no longer shipped as part of stdlib.
+  - `std.container`, `std.functional`, `std.list`, `std.maturity`,
+    `std.object`, `std.operator`, `std.optparse`, `std.set`,
+    `std.strbuf`, `std.strict` and `std.tuple` have been moved to their
+    own packages, and are no longer shipped as part of stdlib.
 
   - Monkey patching calls `std.barrel`, `std.monkey_patch`,
     `std.io.monkey_patch`, `std.math.monkey_patch`,
@@ -136,41 +90,10 @@
     removed.  At some point these will resurface in a new standalone
     package.
 
-  - Deprecated methods `list:depair`, `list:elems`, `list:enpair`,
-    `list:filter`, `list:flatten`, `list:foldl`, `list:foldr`,
-    `list:index_key`, `list:index_value`, `list:map`, `list:map_with`,
-    `list:project`, `list:relems`, `list:reverse`, `list:shape`,
-    `list:transpose` and `list:zip_with` have been removed.
-
-  - Deprecated functions `list.depair`, `list.elems`, `list.enpair`,
-    `list.filter`, `list.flatten`, `list.foldl`, `list.foldr`,
-    `list.index_key`, `list.index_value`, `list.map`, `list.map_with`,
-    `list.project`, `list.relems`, `list.reverse`, `list.shape`,
-    `list.transpose`, `list.zip_with`, `string.assert`,
-    `string.require_version`, `string.tostring`, `table.clone_rename`,
-    `table.metamethod`, `table.ripairs` and `table.totable` have been
-    removed.  See previous entries below for what they were replaced
-    by.
-
-  - Now that the `prototype` field is used to reference a module's
-    object prototype, `std.object.prototype` no longer return the object
-    type of an argument. Additionally, for orthogonality with the way Lua
-    itself uses `io.type` and `math.type` to get more detail about certain
-    objects than `type` itself, `std.object.type` now operates purely on
-    stdlib objects with a `_type` metatable field, and returns `nil` for
-    anything else.
-
-    To replicate the old behaviour, use this:
-
-    ```lua
-    local std = require "std"
-    local object_type = std.functional.any (std.object.type, io.type, type)
-    ```
-
-  - Objects no longer honor mangling and stripping `_functions` tables
-    from objects during instantiation, instead move your actual object
-    into the module `prototype` field, and add the module functions to    
-    the parent table returned when the module is required.
+  - Deprecated functions `string.assert`, `string.require_version`,
+    `string.tostring`, `table.clone_rename`, `table.metamethod`,
+    `table.ripairs` and `table.totable` have been removed.  See previous
+    NEWS entries below for what they were replaced by.
 
   - Passing a table with a `__len` metamethod, that returns a value other
     the index of the largest non-nil valued integer key, to `std.npairs`

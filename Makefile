@@ -7,20 +7,14 @@ SPECL	= specl
 luadir	= lib/std
 SOURCES =				\
 	$(luadir)/_base.lua		\
-	$(luadir)/container.lua		\
 	$(luadir)/debug.lua		\
 	$(luadir)/debug_init/init.lua	\
 	$(luadir)/init.lua		\
 	$(luadir)/io.lua		\
-	$(luadir)/list.lua		\
 	$(luadir)/math.lua		\
-	$(luadir)/object.lua		\
 	$(luadir)/package.lua		\
-	$(luadir)/set.lua		\
-	$(luadir)/strbuf.lua		\
 	$(luadir)/string.lua		\
 	$(luadir)/table.lua		\
-	$(luadir)/tree.lua		\
 	$(luadir)/version.lua		\
 	$(NOTHING_ELSE)
 

@@ -13,10 +13,6 @@ LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:
 2. Enhanced versions of some core Lua libraries: @{std.debug}, @{std.io},
    @{std.math}, @{std.package}, @{std.string} and @{std.table};
 
-3. A straight forward prototype-based object system, and a selection of
-   useful objects built on it: @{std.container}, @{std.object},
-   @{std.list}, @{std.set}, @{std.strbuf} and @{std.tree}.
-
 ## LICENSE
 
 The code is copyright by its respective authors, and released under the
@@ -26,41 +22,26 @@ MIT license (the same license as Lua itself).  There is no warranty.
 dir = "."
 
 file = {
-  -- Core Functions
   "../lib/std/init.lua",
-
-  -- Core Libraries
   "../lib/std/debug.lua",
   "../lib/std/io.lua",
   "../lib/std/math.lua",
   "../lib/std/package.lua",
   "../lib/std/string.lua",
   "../lib/std/table.lua",
-
-  -- Object System
-  "../lib/std/container.lua",
-  "../lib/std/object.lua",
-  "../lib/std/list.lua",
-  "../lib/std/set.lua",
-  "../lib/std/strbuf.lua",
-  "../lib/std/tree.lua",
 }
 
 new_type ("corefunction", "Core_Functions", true)
 new_type ("corelibrary", "Core_Libraries", true)
-new_type ("prototype", "Object_System", true)
 
 function postprocess_html(s)
   s = s:gsub("<h1>%s*Corefunction (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h1>%s*Corelibrary (.-)</p>", '<h1>Module %1</h1>')
-  s = s:gsub("<h1>%s*Prototype (.-)</p>", '<h1>Module %1</h1>')
   s = s:gsub("<h2>Core_Functions</h2>", '<h2>Core Functions</h2>')
   s = s:gsub("<h2>Core_Libraries</h2>", '<h2>Core Libraries</h2>')
-  s = s:gsub("<h2>Object_System</h2>", '<h2>Object System</h2>')
   return s
 end
 
-new_type ("object", "Objects", false, "Fields")
 new_type ("init", "Initialisation", false, "Parameters")
 
 format = "markdown"

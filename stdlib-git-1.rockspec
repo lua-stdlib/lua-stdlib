@@ -5,7 +5,7 @@ description = {
   summary = "General Lua Libraries",
   detailed = [[
     stdlib is a library of modules for common programming tasks,
-    including list and table operations, objects, and pretty-printing.
+    including list and table operations, and pretty-printing.
   ]],
   homepage = "http://lua-stdlib.github.io/lua-stdlib",
   license = "MIT/X11",
@@ -24,18 +24,12 @@ build = {
   modules = {
     std			= "lib/std/init.lua",
     ["std.base"]	= "lib/std/_base.lua",
-    ["std.container"]	= "lib/std/container.lua",
     ["std.debug"]	= "lib/std/debug.lua",
     ["std.debug_init"]	= "lib/std/debug_init/init.lua",
     ["std.io"]		= "lib/std/io.lua",
-    ["std.list"]	= "lib/std/list.lua",
     ["std.math"]	= "lib/std/math.lua",
-    ["std.object"]	= "lib/std/object.lua",
     ["std.package"]	= "lib/std/package.lua",
-    ["std.set"]		= "lib/std/set.lua",
-    ["std.strbuf"]	= "lib/std/strbuf.lua",
     ["std.string"]	= "lib/std/string.lua",
     ["std.table"]	= "lib/std/table.lua",
-    ["std.tree"]	= "lib/std/tree.lua",
   },
 }
