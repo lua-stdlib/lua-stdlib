@@ -16,6 +16,7 @@
 
 local error		= error
 local ipairs		= ipairs
+local loadstring	= loadstring or load
 local pairs		= pairs
 local pcall		= pcall
 local rawset		= rawset
@@ -36,12 +37,9 @@ local _tostring		= _.tostring
 local argscheck		= _.typecheck and _.typecheck.argscheck
 local compare		= _.list.compare
 local copy		= _.base.copy
-local eval		= _.eval
 local getmetamethod	= _.getmetamethod
-local ielems		= _.ielems
 local maxn		= _.table.maxn
 local merge		= _.base.merge
-local ripairs		= _.ripairs
 local split		= _.string.split
 
 local _ENV		= _.strict and _.strict {} or {}
@@ -75,6 +73,22 @@ local function elems (t)
 end
 
 
+local function eval (s)
+  return loadstring ("return " .. s)()
+end
+
+
+local function ielems (t)
+  -- capture _pairs iterator initial state
+  local fn, istate, ctrl = _ipairs (t)
+  return function (state, _)
+    local v
+    ctrl, v = fn (state, ctrl)
+    if ctrl then return v end
+  end, istate, true -- wrapped initial state
+end
+
+
 local function npairs (t)
   local m = getmetamethod (t, "__len")
   local i, n = 0, m and m(t) or maxn (t)
@@ -83,6 +97,21 @@ local function npairs (t)
     if i <= n then return i, t[i] end
    end,
   t, i
+end
+
+
+local function ripairs (t)
+  local oob = 1
+  while t[oob] ~= nil do
+    oob = oob + 1
+  end
+
+  return function (t, n)
+    n = n - 1
+    if n > 0 then
+      return n, t[n]
+    end
+  end, t, oob
 end
 
 

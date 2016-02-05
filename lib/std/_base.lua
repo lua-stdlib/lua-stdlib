@@ -26,7 +26,6 @@ local dirsep		= string.match (package.config, "^(%S+)\n")
 local error		= error
 local getfenv		= getfenv or false
 local getmetatable	= getmetatable
-local loadstring	= loadstring or load
 local next		= next
 local pairs		= pairs
 local rawget		= rawget
@@ -209,11 +208,6 @@ local function escape_pattern (s)
 end
 
 
-local function eval (s)
-  return loadstring ("return " .. s)()
-end
-
-
 local function _getfenv (fn)
   fn = fn or 1
 
@@ -245,17 +239,6 @@ local function _getfenv (fn)
 end
 
 
-local function ielems (t)
-  -- capture _pairs iterator initial state
-  local fn, istate, ctrl = ipairs (t)
-  return function (state, _)
-    local v
-    ctrl, v = fn (state, ctrl)
-    if ctrl then return v end
-  end, istate, true -- wrapped initial state
-end
-
-
 local function invert (t)
   local i = {}
   for k, v in pairs (t) do
@@ -275,9 +258,6 @@ local function keysort (a, b)
 end
 
 
-local function last (t) return t[len (t)] end
-
-
 local function leaves (it, tr)
   local function visit (n)
     if type (n) == "table" then
@@ -292,50 +272,9 @@ local function leaves (it, tr)
 end
 
 
-local function mapfields (obj, src, map)
-  local mt = getmetatable (obj) or {}
-
-  -- Map key pairs.
-  -- Copy all pairs when `map == nil`, but discard unmapped src keys
-  -- when map is provided (i.e. if `map == {}`, copy nothing).
-  if map == nil or next (map) then
-    map = map or {}
-    local k, v = next (src)
-    while k do
-      local key, dst = map[k] or k, obj
-      local kind = type (key)
-      if kind == "string" and key:sub (1, 1) == "_" then
-        mt[key] = v
-      elseif next (map) and kind == "number" and len (dst) + 1 < key then
-        -- When map is given, but has fewer entries than src, stop copying
-        -- fields when map is exhausted.
-        break
-      else
-        dst[key] = v
-      end
-      k, v = next (src, k)
-    end
-  end
-
-  -- Only set non-empty metatable.
-  if next (mt) then
-    setmetatable (obj, mt)
-  end
-  return obj
-end
-
-
 local function merge (dest, src)
   for k, v in pairs (src) do dest[k] = dest[k] or v end
   return dest
-end
-
-
-local function Module (t)
-  return setmetatable (t, {
-    _type  = "Module",
-    __call = function (self, ...) return self.prototype (...) end,
-  })
 end
 
 
@@ -409,21 +348,6 @@ end
 local function sortkeys (t)
   table_sort (t, keysort)
   return t
-end
-
-
-local function ripairs (t)
-  local oob = 1
-  while t[oob] ~= nil do
-    oob = oob + 1
-  end
-
-  return function (t, n)
-    n = n - 1
-    if n > 0 then
-      return n, t[n]
-    end
-  end, t, oob
 end
 
 
@@ -535,18 +459,14 @@ return {
   strict	= strict,
   typecheck	= typecheck,
 
-  eval          = eval,
   getmetamethod = getmetamethod,
-  ielems        = ielems,
   ipairs        = ipairs,
   pairs         = pairs,
-  ripairs       = ripairs,
 
   tostring      = function (x) return render (x, tostring_vtable) end,
 
   base = {
     copy      = copy,
-    last      = last,
     merge     = merge,
     sortkeys  = sortkeys,
     toqstring = toqstring,
