@@ -42,7 +42,7 @@ report for example):
     luarocks install http://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/stdlib-git-1.rockspec
 ```
 
-The best way to install without [LuaRocks][] is to copy the `functional`
+The best way to install without [LuaRocks][] is to copy the `std`
 folder and its contents into a directory on your package search path.
 
 [luarocks]: http://www.luarocks.org "Lua package manager"
