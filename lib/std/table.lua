@@ -247,7 +247,7 @@ M = {
   -- @function sort
   -- @tparam table t unsorted table
   -- @tparam[opt=std.operator.lt] comparator c ordering function callback
-  -- @return *t* with keys sorted accordind to *c*
+  -- @return *t* with keys sorted according to *c*
   -- @usage table.concat (sort (object))
   sort = X ("sort (table, ?function)", sort),
 
