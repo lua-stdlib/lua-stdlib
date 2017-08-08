@@ -268,7 +268,7 @@ M = {
   -- print (std.tostring {foo="bar","baz"})
   tostring = X ("tostring (?any)", base.tostring),
 
-  version = "General Lua libraries / 41.1.1",
+  version = "General Lua libraries / 41.2.1",
 }
 
 

@@ -1,5 +1,12 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release 41.2.1 (2017-08-07) [stable]
+
+### Bug fixes
+
+  - `std.version` reports the correct release again.
+
+
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
 
 ### New features
