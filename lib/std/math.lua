@@ -36,12 +36,11 @@ local M
 
 
 local function floor (n, p)
-  if p and p ~= 0 then
-    local e = 10 ^ p
-    return math_floor (n * e) / e
-  else
+  if (p or 0) == 0 then
     return math_floor (n)
   end
+  local e = 10 ^ p
+  return math_floor (n * e) / e
 end
 
 
@@ -74,7 +73,7 @@ M = {
   -- @usage tenths = floor (magnitude, 1)
   floor = X ("floor (number, ?int)", floor),
 
-  --- Round a number to a given number of decimal places
+  --- Round a number to a given number of decimal places.
   -- @function round
   -- @number n number
   -- @int[opt=0] p number of decimal places to round to
