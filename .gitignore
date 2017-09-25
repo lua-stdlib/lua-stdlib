@@ -3,5 +3,6 @@
 /Makefile
 /doc
 !/doc/config.ld.in
+/lib/std/version.lua
 /stdlib-*.rockspec
 !/stdlib-git-*.rockspec

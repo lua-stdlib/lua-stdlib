@@ -128,8 +128,20 @@ local function rnpairs (t)
 end
 
 
+local vconvert = setmetatable ({
+  string = function (x) return split (x, "%.") end,
+  number = function (x) return {x} end,
+  table = function (x) return x end,
+}, {
+  __call = function (self, x)
+    local fn = self[type (x)] or function () return 0 end
+    return fn(x)
+  end,
+})
+
+
 local function vcompare (a, b)
-  return compare (split (a, "%."), split (b, "%."))
+  return compare (vconvert (a), vconvert (b))
 end
 
 
@@ -138,7 +150,7 @@ local function _require (module, min, too_big, pattern)
 
   local s, m = "", require (module)
   if type (m) == "table" then s = tostring (m.version or m._VERSION or "") end
-  local v = string_match (s, pattern)
+  local v = string_match (s, pattern) or 0
   if min then
     _assert (vcompare (v, min) >= 0, "require '" .. module ..
             "' with at least version " .. min .. ", but found version " .. v)

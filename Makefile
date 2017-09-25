@@ -4,6 +4,8 @@ MKDIR	= mkdir -p
 SED	= sed
 SPECL	= specl
 
+VERSION = git
+
 luadir	= lib/std
 SOURCES =				\
 	$(luadir)/_base.lua		\
@@ -21,6 +23,14 @@ SOURCES =				\
 
 all: doc
 
+$(luadir)/version.lua: .FORCE
+	@echo 'return "General Lua libraries / $(VERSION)"' > '$@T';		\
+	if cmp -s '$@' '$@T'; then						\
+	    rm -f '$@T';							\
+	else									\
+	    mv '$@T' '$@';							\
+	fi
+
 doc: doc/config.ld $(SOURCES)
 	$(LDOC) -c doc/config.ld .
 
@@ -33,3 +43,5 @@ CHECK_ENV = LUA=$(LUA)
 
 check:
 	LUA=$(LUA) $(SPECL) $(SPECL_OPTS) specs/*_spec.yaml
+
+.FORCE:

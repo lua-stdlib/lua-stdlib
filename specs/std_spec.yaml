@@ -276,14 +276,15 @@ specify std:
     - it returns the module table:
         expect (f ("std", "0", "9999")).to_be (require "std")
     - it places no upper bound by default:
-        expect (f ("std", "41")).to_be (require "std")
+        expect (f ("std", "0")).to_be (require "std")
     - it places no lower bound by default:
         expect (f "std").to_be (require "std")
     - it uses _VERSION when version field is nil:
-        std = require "std"
-        M._VERSION, M.version = M.version, nil
-        expect (f ("std", "41", "9999")).to_be (require "std")
-        M._VERSION, M.version = nil, M._VERSION
+        expect (luaproc [[
+          package.loaded["poop"] = {_VERSION="41.1"}
+          f = require "std".require
+          print (f ("poop", "41", "9999")._VERSION)
+        ]]).to_succeed_with "41.1\n"
   - context with semantic versioning:
     - before:
         std = require "std"
