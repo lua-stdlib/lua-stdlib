@@ -76,6 +76,7 @@ points when proposing changes:
 0. Follow existing code. There are a lot of useful patterns and avoided
    traps there.
 
-1. 2-character indentation using SPACES in Lua sources.
+1. 3-character indentation using SPACES in Lua sources: It makes rogue
+   TABS easier to see, and lines up nicely with 'if' and 'end' keywords.
 
 [issues]: http://github.com/lua-stdlib/lua-stdlib/issues

@@ -1,11 +1,11 @@
 before: |
-  base_module        = "io"
-  this_module        = "std.io"
-  global_table       = "_G"
+  base_module = "io"
+  this_module = "std.io"
+  global_table = "_G"
 
-  extend_base        = { "catdir", "catfile", "die", "dirname",
-                         "process_files", "readlines", "shell", "slurp",
-                         "splitdir", "warn", "writelines" }
+  extend_base = { "catdir", "catfile", "die", "dirname",
+                  "process_files", "readlines", "shell", "slurp",
+                  "splitdir", "warn", "writelines" }
 
   dirsep = string.match (package.config, "^([^\n]+)\n")
 
@@ -17,21 +17,21 @@ specify std.io:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core io table:
         expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it contains apis from the core io table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+           to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core io table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_equal {}
+           to_equal {}
 
 
 - describe catdir:
@@ -50,7 +50,7 @@ specify std.io:
   - it joins multiple arguments with platform directory separator:
       expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
       expect (f ("1", "2", "3", "4", "5")).
-        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
+         to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe catfile:
@@ -69,7 +69,7 @@ specify std.io:
   - it joins multiple arguments with platform directory separator:
       expect (f ("one", "two")).to_be ("one" .. dirsep .. "two")
       expect (f ("1", "2", "3", "4", "5")).
-        to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
+         to_be (table.concat ({"1", "2", "3", "4", "5"}, dirsep))
 
 
 - describe die:
@@ -103,25 +103,25 @@ specify std.io:
       expect (luaproc (script)).to_fail_while_matching ": file:125: By 'eck!\n"
   - it prefers `prog.name` to `prog.file` or `opts.program`: |
       script = [[
-        prog = { file = "file", name = "name" }
-        opts = { program = "program" }
+         prog = { file = "file", name = "name" }
+         opts = { program = "program" }
       ]] .. script
       expect (luaproc (script)).to_fail_while_matching ": name: By 'eck!\n"
   - it appends `prog.line` if any to `prog.name` over anything else: |
       script = [[
-        prog = { file = "file", line = 125, name = "name" }
-        opts = { line = 99, program = "program" }
+         prog = { file = "file", line = 125, name = "name" }
+         opts = { line = 99, program = "program" }
       ]] .. script
       expect (luaproc (script)).to_fail_while_matching ": name:125: By 'eck!\n"
   - it prefers `prog.file` to `opts.program`: |
       script = [[
-        prog = { file = "file" }; opts = { program = "program" }
+         prog = { file = "file" }; opts = { program = "program" }
       ]] .. script
       expect (luaproc (script)).to_fail_while_matching ": file: By 'eck!\n"
   - it appends `prog.line` if any to `prog.file` over using `opts`: |
       script = [[
-        prog = { file = "file", line = 125 }
-        opts = { line = 99, program = "program" }
+         prog = { file = "file", line = 125 }
+         opts = { line = 99, program = "program" }
       ]] .. script
       expect (luaproc (script)).to_fail_while_matching ": file:125: By 'eck!\n"
   - it prefixes `opts.program` if any: |
@@ -149,16 +149,16 @@ specify std.io:
       name = "Makefile"
       names = {"LICENSE.md", "Makefile", "README.md"}
       ascript = [[
-        require "std.io".process_files (function (a) print (a) end)
+         require "std.io".process_files (function (a) print (a) end)
       ]]
       lscript = [[
-        require "std.io".process_files ("=print (_1)")
+         require "std.io".process_files ("=print (_1)")
       ]]
       iscript = [[
-        require "std.io".process_files (function (_, i) print (i) end)
+         require "std.io".process_files (function (_, i) print (i) end)
       ]]
       catscript = [[
-        require "std.io".process_files (function () io.write (io.input ():read "*a") end)
+         require "std.io".process_files (function () io.write (io.input ():read "*a") end)
       ]]
 
       f = M.process_files
@@ -167,12 +167,12 @@ specify std.io:
       badargs.diagnose (f, "std.io.process_files (func)")
 
       examples {
-        ["it diagnoses non-file 'arg' elements"] = function ()
-          expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
-            "cannot open file 'not-an-existing-file'",               -- Lua 5.2
-            "bad argument #1 to 'io_input' (not-an-existing-file:",  -- Lua 5.1
-          }
-        end
+         ["it diagnoses non-file 'arg' elements"] = function ()
+            expect (luaproc (ascript, "not-an-existing-file")).to_contain_error.any_of {
+               "cannot open file 'not-an-existing-file'",               -- Lua 5.2
+               "bad argument #1 to 'io_input' (not-an-existing-file:",  -- Lua 5.1
+            }
+         end
       }
 
   - it defaults to `-` if no arguments were passed:
@@ -180,13 +180,13 @@ specify std.io:
   - it iterates over arguments with supplied function:
       expect (luaproc (ascript, name)).to_output (name .. "\n")
       expect (luaproc (ascript, names)).
-        to_output (table.concat (names, "\n") .. "\n")
+         to_output (table.concat (names, "\n") .. "\n")
   - it passes argument numbers to supplied function:
       expect (luaproc (iscript, names)).to_output "1\n2\n3\n"
   - it sets each file argument as the default input:
       expect (luaproc (catscript, name)).to_output (concat_file_content (name))
       expect (luaproc (catscript, names)).
-        to_output (concat_file_content (unpack (names)))
+         to_output (concat_file_content (unpack (names)))
   - it processes io.stdin if no arguments were passed:
       ## FIXME: where does that closing newline come from??
       expect (luaproc (catscript, nil, "some\nlines\nof input")).to_output "some\nlines\nof input\n"
@@ -212,18 +212,18 @@ specify std.io:
       badargs.diagnose (f, "std.io.readlines (?file|string)")
 
       if have_typecheck then
-        examples {
-          ["it diagnoses non-existent file"] = function ()
-            expect (f "not-an-existing-file").
-              to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
-          end
-        }
-        closed = io.open (name, "r") closed:close ()
-        examples {
-          ["it diagnoses closed file argument"] = function ()
-            expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
-          end
-        }
+         examples {
+            ["it diagnoses non-existent file"] = function ()
+               expect (f "not-an-existing-file").
+                  to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
+            end
+         }
+         closed = io.open (name, "r") closed:close ()
+         examples {
+            ["it diagnoses closed file argument"] = function ()
+               expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+            end
+         }
       end
 
   - it closes file handle upon completion:
@@ -267,18 +267,18 @@ specify std.io:
       badargs.diagnose (f, "std.io.slurp (?file|string)")
 
       if have_typecheck then
-        examples {
-          ["it diagnoses non-existent file"] = function ()
-            expect (f "not-an-existing-file").
-              to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
-          end
-        }
-        closed = io.open (name, "r") closed:close ()
-        examples {
-          ["it diagnoses closed file argument"] = function ()
-            expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
-          end
-        }
+         examples {
+            ["it diagnoses non-existent file"] = function ()
+               expect (f "not-an-existing-file").
+                  to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
+            end
+         }
+         closed = io.open (name, "r") closed:close ()
+         examples {
+            ["it diagnoses closed file argument"] = function ()
+               expect (f (closed)).to_raise (badarg (1, "?file|string", "closed file"))
+            end
+         }
       end
 
   - it reads content from an existing named file:
@@ -311,7 +311,7 @@ specify std.io:
   - it returns multiple components split at platform directory separator:
       expect (f ("one" .. dirsep .. "two")).to_equal {"one", "two"}
       expect (f (table.concat ({"1", "2", "3", "4", "5"}, dirsep))).
-        to_equal {"1", "2", "3", "4", "5"}
+         to_equal {"1", "2", "3", "4", "5"}
 
 
 - describe warn:
@@ -341,25 +341,25 @@ specify std.io:
       expect (luaproc (script)).to_output_error "file:125: Ayup!\n"
   - it prefers `prog.name` to `prog.file` or `opts.program`: |
       script = [[
-        prog = { file = "file", name = "name" }
-        opts = { program = "program" }
+         prog = { file = "file", name = "name" }
+         opts = { program = "program" }
       ]] .. script
       expect (luaproc (script)).to_output_error "name: Ayup!\n"
   - it appends `prog.line` if any to `prog.name` over anything else: |
       script = [[
-        prog = { file = "file", line = 125, name = "name" }
-        opts = { line = 99, program = "program" }
+         prog = { file = "file", line = 125, name = "name" }
+         opts = { line = 99, program = "program" }
       ]] .. script
       expect (luaproc (script)).to_output_error "name:125: Ayup!\n"
   - it prefers `prog.file` to `opts.program`: |
       script = [[
-        prog = { file = "file" }; opts = { program = "program" }
+         prog = { file = "file" }; opts = { program = "program" }
       ]] .. script
       expect (luaproc (script)).to_output_error "file: Ayup!\n"
   - it appends `prog.line` if any to `prog.file` over using `opts`: |
       script = [[
-        prog = { file = "file", line = 125 }
-        opts = { line = 99, program = "program" }
+         prog = { file = "file", line = 125 }
+         opts = { line = 99, program = "program" }
       ]] .. script
       expect (luaproc (script)).to_output_error "file:125: Ayup!\n"
   - it prefixes `opts.program` if any: |
@@ -386,20 +386,20 @@ specify std.io:
   - context with bad arguments:
     - 'it diagnoses argument #1 type not FILE*, string, number or nil':
         if have_typecheck then
-          expect (f (false)).to_raise (badarg (1, "?file|string|number", "boolean"))
+           expect (f (false)).to_raise (badarg (1, "?file|string|number", "boolean"))
         end
     - 'it diagnoses argument #2 type not string, number or nil':
         if have_typecheck then
-          expect (f (1, false)).to_raise (badarg (2, "string|number", "boolean"))
+           expect (f (1, false)).to_raise (badarg (2, "string|number", "boolean"))
         end
     - 'it diagnoses argument #3 type not string, number or nil':
         if have_typecheck then
-          expect (f (1, 2, false)).to_raise (badarg (3, "string|number", "boolean"))
+           expect (f (1, 2, false)).to_raise (badarg (3, "string|number", "boolean"))
         end
     - it diagnoses closed file argument: |
         closed = io.open (name, "r") closed:close ()
         if have_typecheck then
-          expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
+           expect (f (closed)).to_raise (badarg (1, "?file|string|number", "closed file"))
         end
 
   - it does not close the file handle upon completion:

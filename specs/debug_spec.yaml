@@ -8,37 +8,37 @@ before: |
   M = require (this_module)
 
 
-  table_unpack = table.unpack or unpack
+   table_unpack = table.unpack or unpack
 
-  function map (mapfn, ...)
-    local argt, r = pack (...), {}
+   function map (mapfn, ...)
+      local argt, r = pack (...), {}
 
-    local nextfn, state, k = pairs (table_unpack (argt, 1, argt.n))
-    local mapargs = pack (nextfn (state, k))
+      local nextfn, state, k = pairs (table_unpack (argt, 1, argt.n))
+      local mapargs = pack (nextfn (state, k))
 
-    local arity = 1
-    while mapargs[1] ~= nil do
-      local d, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
-      if v ~= nil then
-        arity, r = 2, {} break
+      local arity = 1
+      while mapargs[1] ~= nil do
+         local d, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
+         if v ~= nil then
+            arity, r = 2, {} break
+         end
+         r[#r + 1] = d
+         mapargs = {nextfn (state, mapargs[1])}
       end
-      r[#r + 1] = d
-      mapargs = {nextfn (state, mapargs[1])}
-    end
 
-    if arity > 1 then
-      -- No need to start over here, because either:
-      --   (i) arity was never 1, and the original value of mapargs is correct
-      --  (ii) arity used to be 1, but we only consumed nil values, so the
-      --       current mapargs with arity > 1 is the correct next value to use
-      while mapargs[1] ~=  nil do
-        local k, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
-        r[k] = v
-        mapargs = pack (nextfn (state, mapargs[1]))
+      if arity > 1 then
+         -- No need to start over here, because either:
+         --   (i) arity was never 1, and the original value of mapargs is correct
+         --  (ii) arity used to be 1, but we only consumed nil values, so the
+         --       current mapargs with arity > 1 is the correct next value to use
+         while mapargs[1] ~=  nil do
+            local k, v = mapfn (table_unpack (mapargs, 1, mapargs.n))
+            r[k] = v
+            mapargs = pack (nextfn (state, mapargs[1]))
+         end
       end
-    end
-    return r
-  end
+      return r
+   end
 
 
 specify std.debug:
@@ -46,163 +46,163 @@ specify std.debug:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core debug table:
         expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it contains apis from the core debug table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+           to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core debug table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_equal {}
+           to_equal {}
 
 
 - describe debug:
   - before: |
       function mkwrap (k, v)
-        local fmt = "%s"
-        if type (v) == "string" then fmt = "%q" end
-        return k, string.format (fmt, require "std".tostring (v))
+         local fmt = "%s"
+         if type (v) == "string" then fmt = "%q" end
+         return k, string.format (fmt, require "std".tostring (v))
       end
 
       function mkdebug (debugp, ...)
-        return string.format ([[
-          _DEBUG = %s
-          require "std.debug" (%s)
-        ]],
-        require "std".tostring (debugp),
-        table.concat (map (mkwrap, {...}), ", "))
+         return string.format ([[
+            _DEBUG = %s
+            require "std.debug" (%s)
+         ]],
+         require "std".tostring (debugp),
+         table.concat (map (mkwrap, {...}), ", "))
       end
 
   - it does nothing when _DEBUG is disabled:
       expect (luaproc (mkdebug (false, "nothing to see here"))).
-        not_to_contain_error "nothing to see here"
+         not_to_contain_error "nothing to see here"
   - it writes to stderr when _DEBUG is not set:
       expect (luaproc (mkdebug (nil, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
   - it writes to stderr when _DEBUG is enabled:
       expect (luaproc (mkdebug (true, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
   - it writes to stderr when _DEBUG.level is not set:
       expect (luaproc (mkdebug ({}, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
   - it writes to stderr when _DEBUG.level is specified:
       expect (luaproc (mkdebug ({level = 0}, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
       expect (luaproc (mkdebug ({level = 1}, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
       expect (luaproc (mkdebug ({level = 2}, "debugging"))).
-        to_contain_error "debugging"
+         to_contain_error "debugging"
 
 
 - describe say:
   - before: |
       function mkwrap (k, v)
-        local fmt = "%s"
-        if type (v) == "string" then fmt = "%q" end
-        return k, string.format (fmt, require "std".tostring (v))
+         local fmt = "%s"
+         if type (v) == "string" then fmt = "%q" end
+         return k, string.format (fmt, require "std".tostring (v))
       end
 
       function mksay (debugp, ...)
-        return string.format ([[
-          _DEBUG = %s
-          require "std.debug".say (%s)
-        ]],
-        require "std".tostring (debugp),
-        table.concat (map (mkwrap, {...}), ", "))
+         return string.format ([[
+            _DEBUG = %s
+            require "std.debug".say (%s)
+         ]],
+         require "std".tostring (debugp),
+         table.concat (map (mkwrap, {...}), ", "))
       end
 
       f = M.say
 
   - it uses stdlib tostring:
       expect (luaproc [[require "std.debug".say {"debugging"}]]).
-        to_contain_error (require "std".tostring {"debugging"})
+         to_contain_error (require "std".tostring {"debugging"})
   - context when _DEBUG is disabled:
     - it does nothing when message level is not set:
         expect (luaproc (mksay (false, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
     - it does nothing when message is set:
         expect (luaproc (mksay (false, -999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (false, 0, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (false, 1, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (false, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (false, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
   - context when _DEBUG is not set:
     - it writes to stderr when message level is not set:
         expect (luaproc (mksay (nil, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it writes to stderr when message level is 1 or lower:
         expect (luaproc (mksay (nil, -999, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay (nil, 0, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay (nil, 1, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it does nothing when message level is 2 or higher:
         expect (luaproc (mksay (nil, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (nil, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
   - context when _DEBUG is enabled:
     - it writes to stderr when message level is not set:
         expect (luaproc (mksay (true, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it writes to stderr when message level is 1 or lower:
         expect (luaproc (mksay (true, -999, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay (true, 0, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay (true, 1, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it does nothing when message level is 2 or higher:
         expect (luaproc (mksay (true, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay (true, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
   - context when _DEBUG.level is not set:
     - it writes to stderr when message level is not set:
         expect (luaproc (mksay ({}, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it writes to stderr when message level is 1 or lower:
         expect (luaproc (mksay ({}, -999, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay ({}, 0, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay ({}, 1, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it does nothing when message level is 2 or higher:
         expect (luaproc (mksay ({}, 2, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
         expect (luaproc (mksay ({}, 999, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
   - context when _DEBUG.level is specified:
     - it writes to stderr when message level is 1 or lower:
         expect (luaproc (mksay ({level = 0}, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay ({level = 1}, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
         expect (luaproc (mksay ({level = 2}, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it does nothing when message level is higher than debug level:
         expect (luaproc (mksay ({level = 2}, 3, "nothing to see here"))).
-          not_to_contain_error "nothing to see here"
+           not_to_contain_error "nothing to see here"
     - it writes to stderr when message level equals debug level:
         expect (luaproc (mksay ({level = 2}, 2, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
     - it writes to stderr when message level is lower than debug level:
         expect (luaproc (mksay ({level = 2}, 1, "debugging"))).
-          to_contain_error "debugging"
+           to_contain_error "debugging"
 
 
 - describe trace:
@@ -211,50 +211,50 @@ specify std.debug:
 
   - it does nothing when _DEBUG is disabled:
       expect (luaproc [[
-        _DEBUG = false
-        require "std.debug"
-        os.exit (0)
+         _DEBUG = false
+         require "std.debug"
+         os.exit (0)
       ]]).to_succeed_with ""
   - it does nothing when _DEBUG is not set:
       expect (luaproc [[
-        require "std.debug"
-        os.exit (0)
+         require "std.debug"
+         os.exit (0)
       ]]).to_succeed_with ""
   - it does nothing when _DEBUG is enabled:
       expect (luaproc [[
-        _DEBUG = true
-        require "std.debug"
-        os.exit (0)
+         _DEBUG = true
+         require "std.debug"
+         os.exit (0)
       ]]).to_succeed_with ""
   - it enables automatically when _DEBUG.call is set: |
       expect (luaproc [[
-        _DEBUG = {call = true}
-        local debug = require "std.debug"
-        os.exit (1)
+         _DEBUG = {call = true}
+         local debug = require "std.debug"
+         os.exit (1)
       ]]).to_fail_while_containing ":3 call exit"
   - it is enabled manually with debug.sethook: |
       expect (luaproc [[
-        local debug = require "std.debug"
-        debug.sethook (debug.trace, "cr")
-        os.exit (1)
+         local debug = require "std.debug"
+         debug.sethook (debug.trace, "cr")
+         os.exit (1)
       ]]).to_fail_while_containing ":3 call exit"
   - it writes call trace log to standard error: |
       expect (luaproc [[
-        local debug = require "std.debug"
-        debug.sethook (debug.trace, "cr")
-        os.exit (0)
+         local debug = require "std.debug"
+         debug.sethook (debug.trace, "cr")
+         os.exit (0)
       ]]).to_contain_error ":3 call exit"
   - it traces lua calls: |
       expect (luaproc [[
-        local debug = require "std.debug"         -- line 1
-        local function incr (i) return i + 1 end  -- line 2
-        debug.sethook (debug.trace, "cr")         -- line 3
-        os.exit (incr (41))                       -- line 4
+         local debug = require "std.debug"         -- line 1
+         local function incr (i) return i + 1 end  -- line 2
+         debug.sethook (debug.trace, "cr")         -- line 3
+         os.exit (incr (41))                       -- line 4
       ]]).to_fail_while_matching ".*:4 call incr <2:.*:4 return incr <2:.*"
   - it traces C api calls: |
       expect (luaproc [[
-        local debug = require "std.debug"
-        local function incr (i) return i + 1 end
-        debug.sethook (debug.trace, "cr")
-        os.exit (incr (41))
+         local debug = require "std.debug"
+         local function incr (i) return i + 1 end
+         debug.sethook (debug.trace, "cr")
+         os.exit (incr (41))
       ]]).to_fail_while_matching ".*:4 call exit %[C%]%s$"

@@ -1,13 +1,13 @@
 before: |
-  base_module         = "table"
-  this_module         = "std.table"
-  global_table        = "_G"
+  base_module = "table"
+  this_module = "std.table"
+  global_table = "_G"
 
-  extend_base         = { "clone", "clone_select", "depair", "empty",
-                          "enpair", "insert", "invert", "keys", "maxn",
-                          "merge", "merge_select", "new",
-                          "pack", "project", "remove", "size", "sort",
-                          "unpack", "values" }
+  extend_base = { "clone", "clone_select", "depair", "empty",
+                  "enpair", "insert", "invert", "keys", "maxn",
+                  "merge", "merge_select", "new",
+                  "pack", "project", "remove", "size", "sort",
+                  "unpack", "values" }
 
   M = require (this_module)
 
@@ -17,19 +17,19 @@ specify std.table:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core table table:
         expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it contains apis from the core table table:
         apis = {}
         for _, v in ipairs (extend_base) do
-          if M[v] ~= table[v] then
-            apis[#apis + 1] = v
-          end
+           if M[v] ~= table[v] then
+              apis[#apis + 1] = v
+           end
         end
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (apis)
+           to_contain.a_permutation_of (apis)
 
   - context via the std module:
     - it does not touch the global table:
@@ -175,17 +175,17 @@ specify std.table:
       badargs.diagnose (f, "std.table.insert (table, [int], any)")
 
       examples {
-        ["it diagnoses more than 2 arguments with no pos"] = function ()
-          pending "#issue 76"
-          expect (f ({}, false, false)).to_raise (badarg (3))
-        end
+         ["it diagnoses more than 2 arguments with no pos"] = function ()
+            pending "#issue 76"
+            expect (f ({}, false, false)).to_raise (badarg (3))
+         end
       }
       examples {
-        ["it diagnoses out of bounds pos arguments"] = function ()
-          expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
-          expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
-          expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
-        end
+         ["it diagnoses out of bounds pos arguments"] = function ()
+            expect (f ({}, 0, "x")).to_raise "position 0 out of bounds"
+            expect (f ({}, 2, "x")).to_raise "position 2 out of bounds"
+            expect (f ({1}, 5, "x")).to_raise "position 5 out of bounds"
+         end
       }
 
   - it returns the modified table:
@@ -283,10 +283,10 @@ specify std.table:
       badargs.diagnose (f, "std.table.merge (table, table, [table], ?boolean|:nometa)")
 
       examples {
-        ["it diagnoses more than 2 arguments with no pos"] = function ()
-          pending "#issue 76"
-          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
-        end
+         ["it diagnoses more than 2 arguments with no pos"] = function ()
+            pending "#issue 76"
+            expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+         end
       }
 
   - it does not create a whole new table:
@@ -330,10 +330,10 @@ specify std.table:
   - before: |
       -- Additional merge keys which are moderately unusual
       tablekey = {"?"}
-      t1       = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
-      t1mt     = setmetatable (M.clone (t1), {"meta!"})
-      t2       = { ["if"] = true, [tablekey] = false, _ = "underscore", k3 = t1.k1 }
-      t2keys   = { "if", tablekey, "_", "k3" }
+      t1 = { k1 = {"v1"}, k2 = "if", k3 = {"?"} }
+      t1mt = setmetatable (M.clone (t1), {"meta!"})
+      t2 = { ["if"] = true, [tablekey] = false, _ = "underscore", k3 = t1.k1 }
+      t2keys = { "if", tablekey, "_", "k3" }
       target = {}
       for k, v in pairs (t1) do target[k] = v end
       for k, v in pairs (t2) do target[k] = v end
@@ -344,10 +344,10 @@ specify std.table:
       badargs.diagnose (f, "std.table.merge_select (table, table, [table], ?boolean|:nometa)")
 
       examples {
-        ["it diagnoses more than 2 arguments with no pos"] = function ()
-          pending "#issue 76"
-          expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
-        end
+         ["it diagnoses more than 2 arguments with no pos"] = function ()
+            pending "#issue 76"
+            expect (f ({}, {}, ":nometa", false)).to_raise (badarg (4))
+         end
       }
 
   - it does not create a whole new table:
@@ -442,9 +442,9 @@ specify std.table:
 - describe project:
   - before:
       l = {
-        {first = false, second = true, third = true},
-        {first = 1, second = 2, third = 3},
-        {first = "1st", second = "2nd", third = "3rd"},
+         {first = false, second = true, third = true},
+         {first = 1, second = 2, third = 3},
+         {first = "1st", second = "2nd", third = "3rd"},
       }
 
       f = M.project
@@ -470,11 +470,11 @@ specify std.table:
       badargs.diagnose (f, "std.table.remove (table, ?int)")
 
       examples {
-        ["it diagnoses out of bounds pos arguments"] = function ()
-          expect (f ({1}, 0)).to_raise "position 0 out of bounds"
-          expect (f ({1}, 3)).to_raise "position 3 out of bounds"
-          expect (f ({1}, 5)).to_raise "position 5 out of bounds"
-        end
+         ["it diagnoses out of bounds pos arguments"] = function ()
+            expect (f ({1}, 0)).to_raise "position 0 out of bounds"
+            expect (f ({1}, 3)).to_raise "position 3 out of bounds"
+            expect (f ({1}, 5)).to_raise "position 5 out of bounds"
+         end
       }
 
   - it returns the removed element:
@@ -520,8 +520,8 @@ specify std.table:
 - describe sort:
   - before:
       subject = { 5, 2, 4, 1, 0, 3 }
-      target  = { 0, 1, 2, 3, 4, 5 }
-      cmp     = function (a, b) return a < b end
+      target = { 0, 1, 2, 3, 4, 5 }
+      cmp = function (a, b) return a < b end
 
       f = M.sort
 
@@ -545,7 +545,7 @@ specify std.table:
       expect ({f (t)}).to_equal (t)
   - it respects __len metamethod:
       function two (t)
-        return setmetatable (t, { __len = function () return 2 end})
+         return setmetatable (t, { __len = function () return 2 end})
       end
       expect (pack (f (two {})).n).to_be (2)
       expect (pack (f (two (t))).n).to_be (2)

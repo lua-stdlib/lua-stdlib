@@ -1,14 +1,14 @@
 before:
-  base_module         = "string"
-  this_module         = "std.string"
-  global_table        = "_G"
+  base_module = "string"
+  this_module = "std.string"
+  global_table = "_G"
 
-  extend_base         = { "__concat", "__index",
-                          "caps", "chomp", "escape_pattern", "escape_shell",
-                          "finds", "format", "ltrim",
-                          "numbertosi", "ordinal_suffix", "pad",
-                          "prettytostring", "render", "rtrim", "split",
-                          "tfind", "trim", "wrap" }
+  extend_base = { "__concat", "__index",
+                  "caps", "chomp", "escape_pattern", "escape_shell",
+                  "finds", "format", "ltrim",
+                  "numbertosi", "ordinal_suffix", "pad",
+                  "prettytostring", "render", "rtrim", "split",
+                  "tfind", "trim", "wrap" }
 
   M = require (this_module)
   getmetatable ("").__concat = M.__concat
@@ -22,21 +22,21 @@ specify std.string:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core string table:
         expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it contains apis from the core string table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+           to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core string table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_equal {}
+           to_equal {}
 
 - describe ..:
   - it concatenates string arguments:
@@ -45,11 +45,11 @@ specify std.string:
   - it stringifies non-string arguments:
       argument = { "a table" }
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
+         to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it stringifies nil arguments:
       argument = nil
       expect (subject .. argument).
-        to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
+         to_be (string.format ("%s%s", subject, require "std".tostring (argument)))
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. " concatenate something"
@@ -102,7 +102,7 @@ specify std.string:
       magic = {}
       meta = "^$()%.[]*+-?"
       for i = 1, string.len (meta) do
-        magic[meta:sub (i, i)] = true
+         magic[meta:sub (i, i)] = true
       end
       f = M.escape_pattern
 
@@ -113,10 +113,10 @@ specify std.string:
     - before:
         subject, target = "", ""
         for c = 32, 126 do
-          s = string.char (c)
-          subject = subject .. s
-          if magic[s] then target = target .. "%" end
-          target = target .. s
+           s = string.char (c)
+           subject = subject .. s
+           if magic[s] then target = target .. "%" end
+           target = target .. s
         end
     - "it inserts a % before any non-alphanumeric in a string":
         expect (f (subject)).to_be (target)
@@ -139,10 +139,10 @@ specify std.string:
     - before:
         subject, target = "", ""
         for c = 32, 126 do
-          s = string.char (c)
-          subject = subject .. s
-          if s:match ("[][ ()\\\"']") then target = target .. "\\" end
-          target = target .. s
+           s = string.char (c)
+           subject = subject .. s
+           if s:match ("[][ ()\\\"']") then target = target .. "\\" end
+           target = target .. s
         end
     - "it inserts a \\ before any shell metacharacters":
         expect (f (subject)).to_be (target)
@@ -154,8 +154,8 @@ specify std.string:
       expect (subject).to_be (original)
   - "it diagnoses non-string arguments":
       if typecheck then
-        expect (f ()).to_raise ("string expected")
-        expect (f {"a table"}).to_raise ("string expected")
+         expect (f ()).to_raise ("string expected")
+         expect (f {"a table"}).to_raise ("string expected")
       end
 
 
@@ -244,8 +244,8 @@ specify std.string:
                 "1k", "1M", "1G", "1T", "1P", "1E", "1Z", "1Y", "1e9"}
       subject = {}
       for n = -28, 28, 3 do
-        m = 10 * (10 ^ n)
-        table.insert (subject, f (m))
+         m = 10 * (10 ^ n)
+         table.insert (subject, f (m))
       end
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
@@ -262,14 +262,14 @@ specify std.string:
   - it returns the English suffix for a number:
       subject, target = {}, {}
       for n = -120, 120 do
-        suffix = "th"
-        m = math.abs (n) % 10
-        if m == 1 and math.abs (n) % 100 ~= 11 then suffix = "st"
-        elseif m == 2 and math.abs (n) % 100 ~= 12 then suffix = "nd"
-        elseif m == 3 and math.abs (n) % 100 ~= 13 then suffix = "rd"
-        end
-        table.insert (target, n .. suffix)
-        table.insert (subject, n .. f (n))
+         suffix = "th"
+         m = math.abs (n) % 10
+         if m == 1 and math.abs (n) % 100 ~= 11 then suffix = "st"
+         elseif m == 2 and math.abs (n) % 100 ~= 12 then suffix = "nd"
+         elseif m == 3 and math.abs (n) % 100 ~= 13 then suffix = "rd"
+         end
+         table.insert (target, n .. suffix)
+         table.insert (subject, n .. f (n))
       end
       expect (subject).to_equal (target)
   - it coerces string arguments to a number:
@@ -344,19 +344,19 @@ specify std.string:
   - it renders an array prettily:
       a = {"one", "two", "three"}
       expect (f (a, "")).
-        to_be '{\n[1] = "one",\n[2] = "two",\n[3] = "three",\n}'
+         to_be '{\n[1] = "one",\n[2] = "two",\n[3] = "three",\n}'
   - it renders a table prettily:
       t = { one = true, two = 2, three = {3}}
       expect (f (t, "")).
-        to_be '{\none = true,\nthree =\n{\n[1] = 3,\n},\ntwo = 2,\n}'
+         to_be '{\none = true,\nthree =\n{\n[1] = 3,\n},\ntwo = 2,\n}'
   - it renders table keys in table.sort order:
       t = { one = 3, two = 5, three = 4, four = 2, five = 1 }
       expect (f (t, "")).
-        to_be '{\nfive = 1,\nfour = 2,\none = 3,\nthree = 4,\ntwo = 5,\n}'
+         to_be '{\nfive = 1,\nfour = 2,\none = 3,\nthree = 4,\ntwo = 5,\n}'
   - it renders keys with invalid symbol names in long hand:
       t = { _ = 0, word = 0, ["?"] = 1, ["a-key"] = 1, ["[]"] = 1 }
       expect (f (t, "")).
-        to_be '{\n["?"] = 1,\n["[]"] = 1,\n_ = 0,\n["a-key"] = 1,\nword = 0,\n}'
+         to_be '{\n["?"] = 1,\n["[]"] = 1,\n_ = 0,\n["a-key"] = 1,\nword = 0,\n}'
 
 
 - describe rtrim:
@@ -395,7 +395,7 @@ specify std.string:
 
   - it falls back to "%s+" when no pattern is given:
       expect (f (subject)).
-        to_equal {"first,", "the", "second", "one,", "final", "entry"}
+         to_equal {"first,", "the", "second", "one,", "final", "entry"}
   - it returns a one-element list for an empty string:
       expect (f ("", ", ")).to_equal {""}
   - it makes a table of substrings delimited by a separator:
@@ -417,14 +417,14 @@ specify std.string:
   - it is available as a string metamethod:
       expect (subject:split ", ").to_equal (target)
       expect (("/foo/bar/baz.quux"):split "/").
-        to_equal {"", "foo", "bar", "baz.quux"}
+         to_equal {"", "foo", "bar", "baz.quux"}
   - it does not perturb the original subject:
       original = subject
       newstring = f (subject, "e")
       expect (subject).to_be (original)
   - it takes a Lua pattern as a separator:
       expect (f (subject, "%s+")).
-        to_equal {"first,", "the", "second", "one,", "final", "entry"}
+         to_equal {"first,", "the", "second", "one,", "final", "entry"}
 
 
 - describe tfind:
@@ -484,10 +484,10 @@ specify std.string:
 - describe wrap:
   - before:
       subject = "This is a collection of Lua libraries for Lua 5.1 " ..
-        "and 5.2. The libraries are copyright by their authors 2000" ..
-        "-2015 (see the AUTHORS file for details), and released und" ..
-        "er the MIT license (the same license as Lua itself). There" ..
-        " is no warranty."
+         "and 5.2. The libraries are copyright by their authors 2000" ..
+         "-2015 (see the AUTHORS file for details), and released und" ..
+         "er the MIT license (the same license as Lua itself). There" ..
+         " is no warranty."
 
       f = M.wrap
 
@@ -496,32 +496,32 @@ specify std.string:
 
   - it inserts newlines to wrap a string:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
-        "nd 5.2. The libraries are\ncopyright by their authors 2000" ..
-        "-2015 (see the AUTHORS file for details), and\nreleased un" ..
-        "der the MIT license (the same license as Lua itself). Ther" ..
-        "e is no\nwarranty."
+         "nd 5.2. The libraries are\ncopyright by their authors 2000" ..
+         "-2015 (see the AUTHORS file for details), and\nreleased un" ..
+         "der the MIT license (the same license as Lua itself). Ther" ..
+         "e is no\nwarranty."
       expect (f (subject)).to_be (target)
   - it honours a column width parameter:
       target = "This is a collection of Lua libraries for Lua 5.1 a" ..
-        "nd 5.2. The libraries\nare copyright by their authors 2000" ..
-        "-2015 (see the AUTHORS file for\ndetails), and released un" ..
-        "der the MIT license (the same license as Lua\nitself). The" ..
-        "re is no warranty."
+         "nd 5.2. The libraries\nare copyright by their authors 2000" ..
+         "-2015 (see the AUTHORS file for\ndetails), and released un" ..
+         "der the MIT license (the same license as Lua\nitself). The" ..
+         "re is no warranty."
       expect (f (subject, 72)).to_be (target)
   - it supports indenting by a fixed number of columns:
       target = "        This is a collection of Lua libraries for L" ..
-        "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
-        "eir authors 2000-2015 (see the\n        AUTHORS file for d" ..
-        "etails), and released under the MIT license\n        (the " ..
-        "same license as Lua itself). There is no warranty."
+         "ua 5.1 and 5.2. The\n        libraries are copyright by th" ..
+         "eir authors 2000-2015 (see the\n        AUTHORS file for d" ..
+         "etails), and released under the MIT license\n        (the " ..
+         "same license as Lua itself). There is no warranty."
       expect (f (subject, 72, 8)).to_be (target)
   - context given a long unwrapped string:
     - before:
         target = "    This is a collection of Lua libraries for Lua 5" ..
-          ".1 and 5.2.\n  The libraries are copyright by their author" ..
-          "s 2000-2015 (see\n  the AUTHORS file for details), and rel" ..
-          "eased under the MIT\n  license (the same license as Lua it" ..
-          "self). There is no\n  warranty."
+           ".1 and 5.2.\n  The libraries are copyright by their author" ..
+           "s 2000-2015 (see\n  the AUTHORS file for details), and rel" ..
+           "eased under the MIT\n  license (the same license as Lua it" ..
+           "self). There is no\n  warranty."
     - it can indent the first line differently:
         expect (f (subject, 64, 2, 4)).to_be (target)
     - it is available as a string metamethod:
@@ -535,6 +535,6 @@ specify std.string:
       expect (f (subject, 99, 99)).to_raise ("less than the line width")
   - it diagnoses non-string arguments:
       if have_typecheck then
-        expect (f ()).to_raise ("string expected")
-        expect (f {"a table"}).to_raise ("string expected")
+         expect (f ()).to_raise ("string expected")
+         expect (f {"a table"}).to_raise ("string expected")
       end

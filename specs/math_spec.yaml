@@ -13,21 +13,21 @@ specify std.math:
   - context by name:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core math table:
         expect (show_apis {added_to=base_module, by=this_module}).
-          to_equal {}
+           to_equal {}
     - it contains apis from the core math table:
         expect (show_apis {from=base_module, not_in=this_module}).
-          to_contain.a_permutation_of (extend_base)
+           to_contain.a_permutation_of (extend_base)
 
   - context via the std module:
     - it does not touch the global table:
         expect (show_apis {added_to=global_table, by="std"}).
-          to_equal {}
+           to_equal {}
     - it does not touch the core math table:
         expect (show_apis {added_to=base_module, by="std"}).
-          to_equal {}
+           to_equal {}
 
 
 - describe floor:
