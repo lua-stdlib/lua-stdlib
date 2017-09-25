@@ -5,7 +5,7 @@
  the core `io` module table.   An hygienic way to import this module, then,
  is simply to override core `io` locally:
 
-      local io = require "std.io"
+      local io = require 'std.io'
 
  @corelibrary std.io
 ]]
@@ -33,7 +33,7 @@ local table_concat = table.concat
 local table_insert = table.insert
 
 
-local _ = require "std._base"
+local _ = require 'std._base'
 
 local _ipairs = _.ipairs
 local _tostring = _.tostring
@@ -63,7 +63,7 @@ local M
 local function input_handle (h)
    if h == nil then
       return io_input ()
-   elseif type (h) == "string" then
+   elseif type (h) == 'string' then
       return io_open (h)
    end
    return h
@@ -72,10 +72,10 @@ end
 
 local function slurp (file)
    local h, err = input_handle (file)
-   if h == nil then argerror ("std.io.slurp", 1, err, 2) end
+   if h == nil then argerror ('std.io.slurp', 1, err, 2) end
 
    if h then
-      local s = h:read ("*a")
+      local s = h:read ('*a')
       h:close ()
       return s
    end
@@ -84,7 +84,7 @@ end
 
 local function readlines (file)
    local h, err = input_handle (file)
-   if h == nil then argerror ("std.io.readlines", 1, err, 2) end
+   if h == nil then argerror ('std.io.readlines', 1, err, 2) end
 
    local l = {}
    for line in h:lines () do
@@ -96,23 +96,23 @@ end
 
 
 local function writelines (h, ...)
-   if io_type (h) ~= "file" then
-      io_write (h, "\n")
+   if io_type (h) ~= 'file' then
+      io_write (h, '\n')
       h = io_output ()
    end
    for v in leaves (_ipairs, {...}) do
-      h:write (v, "\n")
+      h:write (v, '\n')
    end
 end
 
 
 local function process_files (fn)
-   -- N.B. "arg" below refers to the global array of command-line args
+   -- N.B. 'arg' below refers to the global array of command-line args
    if len (arg) == 0 then
-      table_insert (arg, "-")
+      table_insert (arg, '-')
    end
    for i, v in _ipairs (arg) do
-      if v == "-" then
+      if v == '-' then
          io_input (io_stdin)
       else
          io_input (v)
@@ -123,26 +123,26 @@ end
 
 
 local function warnfmt (msg, ...)
-   local prefix = ""
-   local prog = rawget (_G, "prog") or {}
-   local opts = rawget (_G, "opts") or {}
+   local prefix = ''
+   local prog = rawget (_G, 'prog') or {}
+   local opts = rawget (_G, 'opts') or {}
    if prog.name then
-      prefix = prog.name .. ":"
+      prefix = prog.name .. ':'
       if prog.line then
-         prefix = prefix .. _tostring (prog.line) .. ":"
+         prefix = prefix .. _tostring (prog.line) .. ':'
       end
    elseif prog.file then
-      prefix = prog.file .. ":"
+      prefix = prog.file .. ':'
       if prog.line then
-         prefix = prefix .. _tostring (prog.line) .. ":"
+         prefix = prefix .. _tostring (prog.line) .. ':'
       end
    elseif opts.program then
-      prefix = opts.program .. ":"
+      prefix = opts.program .. ':'
       if opts.line then
-         prefix = prefix .. _tostring (opts.line) .. ":"
+         prefix = prefix .. _tostring (opts.line) .. ':'
       end
    end
-   if #prefix > 0 then prefix = prefix .. " " end
+   if #prefix > 0 then prefix = prefix .. ' ' end
    return prefix .. string_format (msg, ...)
 end
 
@@ -159,7 +159,7 @@ end
 
 
 local function X (decl, fn)
-   return argscheck and argscheck ("std.io." .. decl, fn) or fn
+   return argscheck and argscheck ('std.io.' .. decl, fn) or fn
 end
 
 
@@ -175,8 +175,8 @@ M = {
    -- @param ... additional arguments to plug format string specifiers
    -- @see warn
    -- @usage
-   --    die ("oh noes! (%s)", tostring (obj))
-   die = X ("die (string, [any...])", function (...)
+   --    die ('oh noes! (%s)', tostring (obj))
+   die = X ('die (string, [any...])', function (...)
       error (warnfmt (...), 0)
    end),
 
@@ -190,13 +190,13 @@ M = {
    -- @param ... additional arguments to plug format string specifiers
    -- @see die
    -- @usage
-   --    local OptionParser = require "std.optparse"
-   --    local parser = OptionParser "eg 0\nUsage: eg\n"
+   --    local OptionParser = require 'std.optparse'
+   --    local parser = OptionParser 'eg 0\nUsage: eg\n'
    --    _G.arg, _G.opts = parser:parse (_G.arg)
    --    if not _G.opts.keep_going then
-   --       require "std.io".warn "oh noes!"
+   --       require 'std.io'.warn 'oh noes!'
    --    end
-   warn = X ("warn (string, [any...])", warn),
+   warn = X ('warn (string, [any...])', warn),
 
 
    --- Path Functions
@@ -208,9 +208,9 @@ M = {
    -- @return path without trailing separator
    -- @see catfile
    -- @usage
-   --    dirpath = catdir ("", "absolute", "directory")
-   catdir = X ("catdir (string...)", function (...)
-      return (table_concat ({...}, dirsep):gsub("^$", dirsep))
+   --    dirpath = catdir ('', 'absolute', 'directory')
+   catdir = X ('catdir (string...)', function (...)
+      return (table_concat ({...}, dirsep):gsub('^$', dirsep))
    end),
 
    --- Concatenate one or more directories and a filename into a path.
@@ -220,8 +220,8 @@ M = {
    -- @see catdir
    -- @see splitdir
    -- @usage
-   --    filepath = catfile ("relative", "path", "filename")
-   catfile = X ("catfile (string...)", catfile),
+   --    filepath = catfile ('relative', 'path', 'filename')
+   catfile = X ('catfile (string...)', catfile),
 
    --- Remove the last dirsep delimited element from a path.
    -- @function dirname
@@ -229,20 +229,20 @@ M = {
    -- @treturn string a new path with the last dirsep and following
    --    truncated
    -- @usage
-   --    dir = dirname "/base/subdir/filename"
-   dirname = X ("dirname (string)", function (path)
-      return (path:gsub (catfile ("", "[^", "]*$"), ""))
+   --    dir = dirname '/base/subdir/filename'
+   dirname = X ('dirname (string)', function (path)
+      return (path:gsub (catfile ('', '[^', ']*$'), ''))
    end),
 
    --- Split a directory path into components.
-   -- Empty components are retained: the root directory becomes `{"", ""}`.
+   -- Empty components are retained: the root directory becomes `{'', ''}`.
    -- @function splitdir
    -- @param path path
    -- @return list of path components
    -- @see catdir
    -- @usage
    --    dir_components = splitdir (filepath)
-   splitdir = X ("splitdir (string)", function (path)
+   splitdir = X ('splitdir (string)', function (path)
       return split (path, dirsep)
    end),
 
@@ -261,9 +261,9 @@ M = {
    -- @usage
    --    #! /usr/bin/env lua
    --    -- minimal cat command
-   --    local io = require "std.io"
+   --    local io = require 'std.io'
    --    io.process_files (function () io.write (io.slurp ()) end)
-   process_files = X ("process_files (function)", process_files),
+   process_files = X ('process_files (function)', process_files),
 
    --- Read a file or file handle into a list of lines.
    -- The lines in the returned list are not `\n` terminated.
@@ -272,8 +272,8 @@ M = {
    --    if file is a file handle, that file is closed after reading
    -- @treturn list lines
    -- @usage
-   --    list = readlines "/etc/passwd"
-   readlines = X ("readlines (?file|string)", readlines),
+   --    list = readlines '/etc/passwd'
+   readlines = X ('readlines (?file|string)', readlines),
 
    --- Perform a shell command and return its output.
    -- @function shell
@@ -282,7 +282,7 @@ M = {
    -- @see os.execute
    -- @usage
    --    users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
-   shell = X ("shell (string)", function (c) return slurp (io_popen (c)) end),
+   shell = X ('shell (string)', function (c) return slurp (io_popen (c)) end),
 
    --- Slurp a file handle.
    -- @function slurp
@@ -292,7 +292,7 @@ M = {
    -- @see process_files
    -- @usage
    --    contents = slurp (filename)
-   slurp = X ("slurp (?file|string)", slurp),
+   slurp = X ('slurp (?file|string)', slurp),
 
    --- Write values adding a newline after each.
    -- @function writelines
@@ -300,8 +300,8 @@ M = {
    --    the file is **not** closed after writing
    -- @tparam string|number ... values to write (as for write)
    -- @usage
-   --    writelines (io.stdout, "first line", "next line")
-   writelines = X ("writelines (?file|string|number, [string|number...])", writelines),
+   --    writelines (io.stdout, 'first line', 'next line')
+   writelines = X ('writelines (?file|string|number, [string|number...])', writelines),
 }
 
 
@@ -318,6 +318,6 @@ return merge (M, io)
 -- @int i argument number of *filename*
 -- @usage
 --    local fileprocessor = function (filename, i)
---       io.write (tostring (i) .. ":\n===\n" .. io.slurp (filename) .. "\n")
+--       io.write (tostring (i) .. ':\n===\n' .. io.slurp (filename) .. '\n')
 --    end
 --    io.process_files (fileprocessor)

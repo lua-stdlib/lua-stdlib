@@ -12,7 +12,7 @@ local function choose (t)
          t[k] = v.fast
       elseif _DEBUG == nil then
          t[k] = v.default
-      elseif type(_DEBUG) ~= "table" then
+      elseif type(_DEBUG) ~= 'table' then
          t[k] = v.safe
       elseif _DEBUG[k] ~= nil then
          t[k] = _DEBUG[k]

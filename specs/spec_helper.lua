@@ -1,40 +1,40 @@
 local typecheck
-have_typecheck, typecheck = pcall (require, "typecheck")
+have_typecheck, typecheck = pcall (require, 'typecheck')
 
-local inprocess = require "specl.inprocess"
-local hell = require "specl.shell"
-local std = require "specl.std"
+local inprocess = require 'specl.inprocess'
+local hell = require 'specl.shell'
+local std = require 'specl.std'
 
-badargs = require "specl.badargs"
+badargs = require 'specl.badargs'
 
 
-local top_srcdir = os.getenv "top_srcdir" or "."
-local top_builddir = os.getenv "top_builddir" or "."
+local top_srcdir = os.getenv 'top_srcdir' or '.'
+local top_builddir = os.getenv 'top_builddir' or '.'
 
 package.path = std.package.normalize (
-   top_builddir .. "/lib/?.lua",
-   top_builddir .. "/lib/?/init.lua",
-   top_srcdir .. "/lib/?.lua",
-   top_srcdir .. "/lib/?/init.lua",
+   top_builddir .. '/lib/?.lua',
+   top_builddir .. '/lib/?/init.lua',
+   top_srcdir .. '/lib/?.lua',
+   top_srcdir .. '/lib/?/init.lua',
    package.path
 )
 
 
 -- Allow user override of LUA binary used by hell.spawn, falling
--- back to environment PATH search for "lua" if nothing else works.
-local LUA = os.getenv "LUA" or "lua"
+-- back to environment PATH search for 'lua' if nothing else works.
+local LUA = os.getenv 'LUA' or 'lua'
 
 
 -- Tweak _DEBUG without tripping over Specl nested environments.
-setdebug = require "std.debug"._setdebug
+setdebug = require 'std.debug'._setdebug
 
 
 -- Simplified version for specifications, does not support functable
 -- valued __len metamethod, so don't write examples that need that!
 function len (x)
    local __len = getmetatable (x) or {}
-   if type (__len) == "function" then return __len (x) end
-   if type (x) ~= "table" then return #x end
+   if type (__len) == 'function' then return __len (x) end
+   if type (x) ~= 'table' then return #x end
 
    local n = #x
    for i = 1, n do
@@ -49,14 +49,14 @@ end
 maxn = table.maxn or function (t)
    local n = 0
    for k in pairs (t) do
-      if type (k) == "number" and k > n then n = k end
+      if type (k) == 'number' and k > n then n = k end
    end
    return n
 end
 
 
 pack = table.pack or function (...)
-   return {n = select ("#", ...), ...}
+   return {n = select ('#', ...), ...}
 end
 
 
@@ -81,33 +81,33 @@ end
 badargs.result = badargs.result or function (fname, i, want, got)
    if want == nil then i, want =   i - 1, i end -- numbers only for narg error
 
-   if got == nil and type (want) == "number" then
+   if got == nil and type (want) == 'number' then
       local s = "bad result #%d from '%s' (no more than %d result%s expected, got %d)"
-      return s:format (i + 1, fname, i, i == 1 and "" or "s", want)
+      return s:format (i + 1, fname, i, i == 1 and '' or 's', want)
    end
 
    local function showarg (s)
-      return ("|" .. s .. "|"):
-         gsub ("|%?", "|nil|"):
-         gsub ("|nil|", "|no value|"):
-         gsub ("|any|", "|any value|"):
-         gsub ("|#", "|non-empty "):
-         gsub ("|func|", "|function|"):
-         gsub ("|file|", "|FILE*|"):
-         gsub ("^|", ""):
-         gsub ("|$", ""):
-         gsub ("|([^|]+)$", "or %1"):
-         gsub ("|", ", ")
+      return ('|' .. s .. '|'):
+         gsub ('|%?', '|nil|'):
+         gsub ('|nil|', '|no value|'):
+         gsub ('|any|', '|any value|'):
+         gsub ('|#', '|non-empty '):
+         gsub ('|func|', '|function|'):
+         gsub ('|file|', '|FILE*|'):
+         gsub ('^|', ''):
+         gsub ('|$', ''):
+         gsub ('|([^|]+)$', 'or %1'):
+         gsub ('|', ', ')
    end
 
    return string.format ("bad result #%d from '%s' (%s expected, got %s)",
-                         i, fname, showarg (want), got or "no value")
+                         i, fname, showarg (want), got or 'no value')
 end
 
 
 -- Wrap up badargs function in a succinct single call.
 function init (M, mname, fname)
-   local name = (mname .. "." .. fname):gsub ("^%.", "")
+   local name = (mname .. '.' .. fname):gsub ('^%.', '')
    return M[fname],
       function (...) return badargs.format (name, ...) end,
       function (...) return badargs.result (name, ...) end
@@ -145,7 +145,7 @@ end
 
 local function mkscript (code)
    local f = os.tmpname ()
-   local h = io.open (f, "w")
+   local h = io.open (f, 'w')
    h:write (code)
    h:close ()
    return f
@@ -161,11 +161,11 @@ end
 --    execution was successful, otherwise nil
 function luaproc (code, arg, stdin)
    local f = mkscript (code)
-   if type (arg) ~= "table" then arg = {arg} end
+   if type (arg) ~= 'table' then arg = {arg} end
    local cmd = {LUA, f, unpack (arg)}
    -- inject env and stdin keys separately to avoid truncating `...` in
    -- cmd constructor
-   cmd.env = { LUA_PATH=package.path, LUA_INIT="", LUA_INIT_5_2="" }
+   cmd.env = { LUA_PATH=package.path, LUA_INIT='', LUA_INIT_5_2='' }
    cmd.stdin = stdin
    local proc = hell.spawn (cmd)
    os.remove (f)
@@ -180,25 +180,25 @@ end
 -- @param deprecate value of `_DEBUG.deprecate`
 -- @string module dot delimited module path to load
 -- @string fname name of a function in the table returned by requiring *module*
--- @param[opt=""] args arguments to pass to *fname* call, must be stringifiable
+-- @param[opt=''] args arguments to pass to *fname* call, must be stringifiable
 -- @string[opt=nil] objectinit object initializer to instantiate an
 --    object for object method deprecation check
 -- @treturn specl.shell.Process|nil status of resulting process if
 --    execution was successful, otherwise nil
 function deprecation (deprecate, module, fname, args, objectinit)
-   args = args or ""
+   args = args or ''
    local script
    if objectinit == nil then
       script = string.format([[
          _DEBUG = { deprecate = %s }
-         M = require "%s"
+         M = require '%s'
          P = M.prototype
          print (M.%s (%s))
       ]], tostring (deprecate), module, fname, tostring (args))
    else
       script = string.format([[
          _DEBUG = { deprecate = %s }
-         local M = require "%s"
+         local M = require '%s'
          local P = M.prototype
          local obj = P (%s)
          print (obj:%s (%s))
@@ -215,7 +215,7 @@ function concat_file_content (...)
    local t = {}
    for _, name in ipairs {...} do
       h = io.open (name)
-      t[#t + 1] = h:read "*a"
+      t[#t + 1] = h:read '*a'
    end
    return table.concat (t)
 end
@@ -225,9 +225,9 @@ local function tabulate_output (code)
    local proc = luaproc (code)
    if proc.status ~= 0 then return error (proc.errout) end
    local r = {}
-   proc.output:gsub ("(%S*)[%s]*",
+   proc.output:gsub ('(%S*)[%s]*',
       function (x)
-         if x ~= "" then r[x] = true end
+         if x ~= '' then r[x] = true end
       end)
    return r
 end
@@ -235,16 +235,16 @@ end
 
 --- Show changes to tables wrought by a require statement.
 -- There are a few modes to this function, controlled by what named
--- arguments are given.   Lists new keys in T1 after `require "import"`:
+-- arguments are given.   Lists new keys in T1 after `require 'import'`:
 --
 --       show_apis {added_to=T1, by=import}
 --
--- List keys returned from `require "import"`, which have the same
+-- List keys returned from `require 'import'`, which have the same
 -- value in T1:
 --
 --       show_apis {from=T1, used_by=import}
 --
--- List keys from `require "import"`, which are also in T1 but with
+-- List keys from `require 'import'`, which are also in T1 but with
 -- a different value:
 --
 --       show_apis {from=T1, enhanced_by=import}
@@ -267,7 +267,7 @@ function show_apis (argt)
             before[k] = true
          end
 
-         local M = require "]] .. by .. [["
+         local M = require ']] .. by .. [['
          for k in pairs (]] .. added_to .. [[) do
             after[k] = true
          end
@@ -280,7 +280,7 @@ function show_apis (argt)
    elseif from and not_in then
       return tabulate_output ([[
          local from = ]] .. from .. [[
-         local M = require "]] .. not_in .. [["
+         local M = require ']] .. not_in .. [['
 
          for k in pairs (M) do
             -- M[1] is typically the module namespace name, don't match
@@ -292,7 +292,7 @@ function show_apis (argt)
    elseif from and enhanced_in then
       return tabulate_output ([[
          local from = ]] .. from .. [[
-         local M = require "]] .. enhanced_in .. [["
+         local M = require ']] .. enhanced_in .. [['
 
          for k, v in pairs (M) do
             if from[k] ~= M[k] and from[k] ~= nil then print (k) end
@@ -314,7 +314,7 @@ function show_apis (argt)
       ]])
    end
 
-   assert (false, "missing argument to show_apis")
+   assert (false, 'missing argument to show_apis')
 end
 
 
@@ -326,8 +326,8 @@ capture = inprocess.capture or
 do
    -- Custom matcher for set size and set membership.
 
-   local util       = require "specl.util"
-   local matchers = require "specl.matchers"
+   local util = require 'specl.util'
+   local matchers = require 'specl.matchers'
 
    local Matcher, matchers, q =
             matchers.Matcher, matchers.matchers, matchers.stringify
@@ -339,15 +339,15 @@ do
          return size == expect
       end,
 
-      actual = "table",
+      actual = 'table',
 
       format_expect = function (self, expect)
-         return " a table containing " .. expect .. " elements, "
+         return ' a table containing ' .. expect .. ' elements, '
       end,
 
       format_any_of = function (self, alternatives)
-         return " a table with any of " ..
-                   util.concat (alternatives, util.QUOTED) .. " elements, "
+         return ' a table with any of ' ..
+                   util.concat (alternatives, util.QUOTED) .. ' elements, '
       end,
    }
 
@@ -356,15 +356,15 @@ do
          return actual[expect] ~= nil
       end,
 
-      actual = "set",
+      actual = 'set',
 
       format_expect = function (self, expect)
-         return " a set containing " .. q (expect) .. ", "
+         return ' a set containing ' .. q (expect) .. ', '
       end,
 
       format_any_of = function (self, alternatives)
-         return " a set containing any of " ..
-                   util.concat (alternatives, util.QUOTED) .. ", "
+         return ' a set containing any of ' ..
+                   util.concat (alternatives, util.QUOTED) .. ', '
       end,
    }
 

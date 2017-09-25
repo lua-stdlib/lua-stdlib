@@ -5,14 +5,14 @@
  from the core `package` table.   An hygienic way to import this module, then, is
  simply to override core `package` locally:
 
-      local package = require "std.package"
+      local package = require 'std.package'
 
  Manage `package.path` with normalization, duplicate removal,
  insertion & removal of elements and automatic folding of '/' and '?'
  onto `package.dirsep` and `package.path_mark`, for easy addition of
  new paths. For example, instead of all this:
 
-      lib = std.io.catfile (".", "lib", package.path_mark .. ".lua")
+      lib = std.io.catfile ('.', 'lib', package.path_mark .. '.lua')
       paths = std.string.split (package.path, package.pathsep)
       for i, path in ipairs (paths) do
          -- ... lots of normalization code...
@@ -30,7 +30,7 @@
 
  You can now write just:
 
-      package.path = package.normalize ("./lib/?.lua", package.path)
+      package.path = package.normalize ('./lib/?.lua', package.path)
 
  @corelibrary std.package
 ]]
@@ -47,7 +47,7 @@ local table_remove = table.remove
 local table_unpack = table.unpack or unpack
 
 
-local _ = require "std._base"
+local _ = require 'std._base'
 
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
@@ -77,17 +77,17 @@ _ = nil
 -- @string execdir (Windows only) replaced by the executable's directory in a path
 -- @string igmark Mark to ignore all before it when building `luaopen_` function name.
 local dirsep, pathsep, path_mark, execdir, igmark =
-   string_match (package_config, "^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)")
+   string_match (package_config, '^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)')
 
 
 local function pathsub (path)
-   return path:gsub ("%%?.", function (capture)
-      if capture == "?" then
+   return path:gsub ('%%?.', function (capture)
+      if capture == '?' then
          return path_mark
-      elseif capture == "/" then
+      elseif capture == '/' then
          return dirsep
       else
-         return capture:gsub ("^%%", "", 1)
+         return capture:gsub ('^%%', '', 1)
       end
    end)
 end
@@ -108,30 +108,30 @@ local function normalize (...)
    local i, paths, pathstrings = 1, {}, table_concat ({...}, pathsep)
    for _, path in ipairs (split (pathstrings, pathsep)) do
       path = pathsub (path):
-         gsub (catfile ("^[^", "]"), catfile (".", "%0")):
-         gsub (catfile ("", "%.", ""), dirsep):
-         gsub (catfile ("", "%.$"), ""):
-         gsub (catfile ("^%.", "%..", ""), catfile ("..", "")):
-         gsub (catfile ("", "$"), "")
+         gsub (catfile ('^[^', ']'), catfile ('.', '%0')):
+         gsub (catfile ('', '%.', ''), dirsep):
+         gsub (catfile ('', '%.$'), ''):
+         gsub (catfile ('^%.', '%..', ''), catfile ('..', '')):
+         gsub (catfile ('', '$'), '')
 
       -- Carefully remove redundant /foo/../ matches.
       repeat
          local again = false
-         path = path:gsub (catfile ("", "([^", "]+)", "%.%.", ""),
+         path = path:gsub (catfile ('', '([^', ']+)', '%.%.', ''),
             function (dir1)
-               if dir1 == ".." then   -- don't remove /../../
-                  return catfile ("", "..", "..", "")
+               if dir1 == '..' then   -- don't remove /../../
+                  return catfile ('', '..', '..', '')
                else
                   again = true
                   return dirsep
                end
-            end):gsub (catfile ("", "([^", "]+)", "%.%.$"),
+            end):gsub (catfile ('', '([^', ']+)', '%.%.$'),
                function (dir1)
-                  if dir1 == ".." then -- don't remove /../..
-                     return catfile ("", "..", "..")
+                  if dir1 == '..' then -- don't remove /../..
+                     return catfile ('', '..', '..')
                   else
                      again = true
-                     return ""
+                     return ''
                   end
                end)
       until again == false
@@ -175,7 +175,7 @@ end
 
 
 local function X (decl, fn)
-   return argscheck and argscheck ("std.package." .. decl, fn) or fn
+   return argscheck and argscheck ('std.package.' .. decl, fn) or fn
 end
 
 
@@ -192,8 +192,8 @@ local M = {
    -- @return the matching element number (not byte index!) and full text
    --    of the matching element, if any; otherwise nil
    -- @usage
-   --    i, s = find (package.path, "^[^" .. package.dirsep .. "/]")
-   find = X ("find (string, string, ?int, ?boolean|:plain)", find),
+   --    i, s = find (package.path, '^[^' .. package.dirsep .. '/]')
+   find = X ('find (string, string, ?int, ?boolean|:plain)', find),
 
    --- Insert a new element into a `package.path` like string of paths.
    -- @function insert
@@ -203,8 +203,8 @@ local M = {
    -- @string value new path element to insert
    -- @treturn string a new string with the new element inserted
    -- @usage
-   --    package.path = insert (package.path, 1, install_dir .. "/?.lua")
-   insert = X ("insert (string, [int], string)", insert),
+   --    package.path = insert (package.path, 1, install_dir .. '/?.lua')
+   insert = X ('insert (string, [int], string)', insert),
 
    --- Call a function with each element of a path string.
    -- @function mappath
@@ -214,7 +214,7 @@ local M = {
    -- @return nil, or first non-nil returned by *callback*
    -- @usage
    --    mappath (package.path, searcherfn, transformfn)
-   mappath = X ("mappath (string, function, [any...])", mappath),
+   mappath = X ('mappath (string, function, [any...])', mappath),
 
    --- Normalize a path list.
    -- Removing redundant `.` and `..` directories, and keep only the first
@@ -227,7 +227,7 @@ local M = {
    -- @treturn string a single normalized `pathsep` delimited paths string
    -- @usage
    --    package.path = normalize (user_paths, sys_paths, package.path)
-   normalize = X ("normalize (string...)", normalize),
+   normalize = X ('normalize (string...)', normalize),
 
    --- Remove any element from a `package.path` like string of paths.
    -- @function remove
@@ -237,7 +237,7 @@ local M = {
    -- @treturn string a new string with given element removed
    -- @usage
    --    package.path = remove (package.path)
-   remove = X ("remove (string, ?int)", remove),
+   remove = X ('remove (string, ?int)', remove),
 }
 
 

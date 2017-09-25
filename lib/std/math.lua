@@ -5,7 +5,7 @@
  the core math table.   An hygienic way to import this module, then, is simply
  to override the core `math` locally:
 
-      local math = require "std.math"
+      local math = require 'std.math'
 
  @corelibrary std.math
 ]]
@@ -16,7 +16,7 @@ local math = math
 local math_floor = math.floor
 
 
-local _ = require "std._base"
+local _ = require 'std._base'
 
 local argscheck = _.typecheck and _.typecheck.argscheck
 local merge = _.base.merge
@@ -57,7 +57,7 @@ end
 
 
 local function X (decl, fn)
-   return argscheck and argscheck ("std.math." .. decl, fn) or fn
+   return argscheck and argscheck ('std.math.' .. decl, fn) or fn
 end
 
 
@@ -72,7 +72,7 @@ M = {
    -- @treturn number `n` truncated to `p` decimal places
    -- @usage
    --    tenths = floor (magnitude, 1)
-   floor = X ("floor (number, ?int)", floor),
+   floor = X ('floor (number, ?int)', floor),
 
    --- Round a number to a given number of decimal places.
    -- @function round
@@ -81,7 +81,7 @@ M = {
    -- @treturn number `n` rounded to `p` decimal places
    -- @usage
    --    roughly = round (exactly, 2)
-   round = X ("round (number, ?int)", round),
+   round = X ('round (number, ?int)', round),
 }
 
 

@@ -1,9 +1,9 @@
 before:
-  base_module  = "math"
-  this_module  = "std.math"
-  global_table = "_G"
+  base_module  = 'math'
+  this_module  = 'std.math'
+  global_table = '_G'
 
-  extend_base  = { "floor", "round" }
+  extend_base  = { 'floor', 'round' }
 
   M = require (this_module)
 
@@ -23,10 +23,10 @@ specify std.math:
 
   - context via the std module:
     - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by="std"}).
+        expect (show_apis {added_to=global_table, by='std'}).
            to_equal {}
     - it does not touch the core math table:
-        expect (show_apis {added_to=base_module, by="std"}).
+        expect (show_apis {added_to=base_module, by='std'}).
            to_equal {}
 
 
@@ -35,7 +35,7 @@ specify std.math:
       f = M.floor
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.math.floor (number, ?int)")
+      badargs.diagnose (f, 'std.math.floor (number, ?int)')
 
   - it rounds to the nearest smaller integer:
       expect (f (1.2)).to_be (1)
@@ -57,7 +57,7 @@ specify std.math:
       f = M.round
 
   - context with bad arguments:
-      badargs.diagnose (f, "std.math.round (number, ?int)")
+      badargs.diagnose (f, 'std.math.round (number, ?int)')
 
   - it rounds to the nearest integer:
       expect (f (1.2)).to_be (1)

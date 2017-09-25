@@ -5,7 +5,7 @@
  from the core debug table.   An hygienic way to import this module, then, is
  simply to override the core `debug` locally:
 
-      local debug = require "std.debug"
+      local debug = require 'std.debug'
 
  @corelibrary std.debug
 ]]
@@ -21,7 +21,7 @@ local math_max = math.max
 local table_concat = table.concat
 
 
-local _ = require "std._base"
+local _ = require 'std._base'
 
 local _DEBUG = _._DEBUG
 local _getfenv = _.debug.getfenv
@@ -55,22 +55,22 @@ _ = nil
 --    value causes deprecated APIs not to be defined at all
 -- @tfield[opt=1] int level debugging level
 -- @tfield[opt=true] boolean strict enforce strict variable declaration
---    before use **in stdlib internals** (if `require "strict"` works)
+--    before use **in stdlib internals** (if `require 'strict'` works)
 -- @usage
 --    _DEBUG = { argcheck = false, level = 9, strict = false }
 
 
 local function say (n, ...)
    local level, argt = n, {...}
-   if type (n) ~= "number" then
+   if type (n) ~= 'number' then
       level, argt = 1, {n, ...}
    end
    if _DEBUG.level ~= math_huge and
-         ((type (_DEBUG.level) == "number" and _DEBUG.level >= level) or level <= 1)
+         ((type (_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
    then
       local t = {}
       for k, v in _pairs (argt) do t[k] = _tostring (v) end
-      io_stderr:write (table_concat (t, "\t") .. "\n")
+      io_stderr:write (table_concat (t, '\t') .. '\n')
    end
 end
 
@@ -79,35 +79,35 @@ local level = 0
 
 local function trace (event)
    local t = debug.getinfo (3)
-   local s = " >>> "
-   for i = 1, level do s = s .. " " end
+   local s = ' >>> '
+   for i = 1, level do s = s .. ' ' end
    if t ~= nil and t.currentline >= 0 then
-      s = s .. t.short_src .. ":" .. t.currentline .. " "
+      s = s .. t.short_src .. ':' .. t.currentline .. ' '
    end
    t = debug.getinfo (2)
-   if event == "call" then
+   if event == 'call' then
       level = level + 1
    else
       level = math_max (level - 1, 0)
    end
-   if t.what == "main" then
-      if event == "call" then
-         s = s .. "begin " .. t.short_src
+   if t.what == 'main' then
+      if event == 'call' then
+         s = s .. 'begin ' .. t.short_src
       else
-         s = s .. "end " .. t.short_src
+         s = s .. 'end ' .. t.short_src
       end
-   elseif t.what == "Lua" then
-      s = s .. event .. " " .. (t.name or "(Lua)") .. " <" ..
-         t.linedefined .. ":" .. t.short_src .. ">"
+   elseif t.what == 'Lua' then
+      s = s .. event .. ' ' .. (t.name or '(Lua)') .. ' <' ..
+         t.linedefined .. ':' .. t.short_src .. '>'
    else
-      s = s .. event .. " " .. (t.name or "(C)") .. " [" .. t.what .. "]"
+      s = s .. event .. ' ' .. (t.name or '(C)') .. ' [' .. t.what .. ']'
    end
-   io_stderr:write (s .. "\n")
+   io_stderr:write (s .. '\n')
 end
 
 -- Set hooks according to _DEBUG
-if type (_DEBUG) == "table" and _DEBUG.call then
-   debug.sethook (trace, "cr")
+if type (_DEBUG) == 'table' and _DEBUG.call then
+   debug.sethook (trace, 'cr')
 end
 
 
@@ -142,20 +142,20 @@ local M = {
    -- @int[opt=1] n debugging level, smaller is higher priority
    -- @param ... objects to print (as for print)
    -- @usage
-   --    local _DEBUG = require "std.debug_init"._DEBUG
+   --    local _DEBUG = require 'std.debug_init'._DEBUG
    --    _DEBUG.level = 3
-   --    say (2, "_DEBUG table contents:", _DEBUG)
+   --    say (2, '_DEBUG table contents:', _DEBUG)
    say = say,
 
    --- Trace function calls.
-   -- Use as debug.sethook (trace, "cr"), which is done automatically
+   -- Use as debug.sethook (trace, 'cr'), which is done automatically
    -- when `_DEBUG.call` is set.
    -- Based on test/trace-calls.lua from the Lua distribution.
    -- @function trace
    -- @string event event causing the call
    -- @usage
    --    _DEBUG = { call = true }
-   --    local debug = require "std.debug"
+   --    local debug = require 'std.debug'
    trace = trace,
 }
 
@@ -167,8 +167,8 @@ local M = {
 -- @function __call
 -- @see say
 -- @usage
---    local debug = require "std.debug"
---    debug "oh noes!"
+--    local debug = require 'std.debug'
+--    debug 'oh noes!'
 local metatable = {
    __call = function (self, ...)
                    M.say (1, ...)

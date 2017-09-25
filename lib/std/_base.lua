@@ -22,7 +22,7 @@
 
 
 local _ENV = _ENV
-local dirsep = string.match (package.config, "^(%S+)\n")
+local dirsep = string.match (package.config, '^(%S+)\n')
 local error = error
 local getfenv = getfenv or false
 local getmetatable = getmetatable
@@ -60,7 +60,7 @@ local table_unpack = table.unpack or unpack
 --[[ ================== ]]--
 
 
-local _DEBUG = require "std.debug_init"._DEBUG
+local _DEBUG = require 'std.debug_init'._DEBUG
 
 local strict, typecheck
 do
@@ -69,7 +69,7 @@ do
    -- Unless strict was disabled (`_DEBUG = false`), or that module is not
    -- available, check for use of undeclared variables in this module...
    if _DEBUG.strict then
-      ok, strict = pcall (require, "strict")
+      ok, strict = pcall (require, 'strict')
       if ok then
          _ENV = strict {}
       else
@@ -82,7 +82,7 @@ do
    -- Unless strict was disabled (`_DEBUG = false`), or that module is not
    -- available, check for use of undeclared variables in this module...
    if _DEBUG.argcheck then
-      ok, typecheck = pcall (require, "typecheck")
+      ok, typecheck = pcall (require, 'typecheck')
       if not ok then
          -- ...otherwise, the strict function is not available at all!
          _DEBUG.argcheck = false
@@ -122,14 +122,14 @@ local _pairs = pairs
 
 -- Respect __pairs metamethod, even in Lua 5.1.
 local function pairs (t)
-   return (getmetamethod (t, "__pairs") or _pairs) (t)
+   return (getmetamethod (t, '__pairs') or _pairs) (t)
 end
 
 
 local maxn = table_maxn or function (t)
    local n = 0
    for k in pairs (t) do
-      if type (k) == "number" and k > n then n = k end
+      if type (k) == 'number' and k > n then n = k end
    end
    return n
 end
@@ -145,7 +145,7 @@ local function argerror (name, i, extramsg, level)
    level = level or 1
    local s = string_format ("bad argument #%d to '%s'", i, name)
    if extramsg ~= nil then
-      s = s .. " (" .. extramsg .. ")"
+      s = s .. ' (' .. extramsg .. ')'
    end
    error (s, level + 1)
 end
@@ -153,10 +153,10 @@ end
 
 -- No need to recurse because functables are second class citizens in
 -- Lua:
--- func=function () print "called" end
--- func() --> "called"
+-- func=function () print 'called' end
+-- func() --> 'called'
 -- functable=setmetatable ({}, {__call=func})
--- functable() --> "called"
+-- functable() --> 'called'
 -- nested=setmetatable ({}, {__call=functable})
 -- nested()
 -- --> stdin:1: attempt to call a table value (global 'd')
@@ -164,7 +164,7 @@ end
 -- -->	stdin:1: in main chunk
 -- -->		[C]: in ?
 local function callable (x)
-   if type (x) == "function" then return x end
+   if type (x) == 'function' then return x end
    return (getmetatable (x) or {}).__call
 end
 
@@ -204,7 +204,7 @@ end
 
 
 local function escape_pattern (s)
-   return (s:gsub ("[%^%$%(%)%%%.%[%]%*%+%-%?]", "%%%0"))
+   return (s:gsub ('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
 end
 
 
@@ -212,20 +212,20 @@ local function _getfenv (fn)
    fn = fn or 1
 
    -- Unwrap functable:
-   if type (fn) == "table" then
+   if type (fn) == 'table' then
       fn = fn.call or (getmetatable (fn) or {}).__call
    end
 
    if getfenv then
-      if type (fn) == "number" then fn = fn + 1 end
+      if type (fn) == 'number' then fn = fn + 1 end
 
       -- Stack frame count is critical here, so ensure we don't optimise one
       -- away in LuaJIT...
       return getfenv (fn), nil
 
    else
-      if type (fn) == "number" then
-         fn = debug_getinfo (fn + 1, "f").func
+      if type (fn) == 'number' then
+         fn = debug_getinfo (fn + 1, 'f').func
       end
 
       local name, env
@@ -250,17 +250,17 @@ end
 
 -- Sort numbers first then asciibetically
 local function keysort (a, b)
-   if type (a) == "number" then
-      return type (b) ~= "number" or a < b
+   if type (a) == 'number' then
+      return type (b) ~= 'number' or a < b
    else
-      return type (b) ~= "number" and tostring (a) < tostring (b)
+      return type (b) ~= 'number' and tostring (a) < tostring (b)
    end
 end
 
 
 local function leaves (it, tr)
    local function visit (n)
-      if type (n) == "table" then
+      if type (n) == 'table' then
          for _, v in it (n) do
             visit (v)
          end
@@ -279,22 +279,22 @@ end
 
 
 local pack = table_pack or function (...)
-    return {n = select ("#", ...), ...}
+    return {n = select ('#', ...), ...}
 end
 
 
 local fallbacks = {
    __index = {
-      open = function (x) return "{" end,
-      close = function (x) return "}" end,
+      open = function (x) return '{' end,
+      close = function (x) return '}' end,
       elem = tostring,
-      pair = function (x, kp, vp, k, v, kstr, vstr) return kstr .. "=" .. vstr end,
+      pair = function (x, kp, vp, k, v, kstr, vstr) return kstr .. '=' .. vstr end,
       sep = function (x, kp, vp, kn, vn)
-         return kp ~= nil and kn ~= nil and "," or ""
+         return kp ~= nil and kn ~= nil and ',' or ''
       end,
       sort = function (keys) return keys end,
       term = function (x)
-         return type (x) ~= "table" or getmetamethod (x, "__tostring")
+         return type (x) ~= 'table' or getmetamethod (x, '__tostring')
       end,
    },
 }
@@ -353,7 +353,7 @@ end
 
 local function _setfenv (fn, env)
    -- Unwrap functable:
-   if type (fn) == "table" then
+   if type (fn) == 'table' then
       fn = fn.call or (getmetatable (fn) or {}).__call
    end
 
@@ -380,11 +380,11 @@ end
 
 local function split (s, sep)
    local r, patt = {}
-   if sep == "" then
-      patt = "(.)"
-      table_insert (r, "")
+   if sep == '' then
+      patt = '(.)'
+      table_insert (r, '')
    else
-      patt = "(.-)" .. (sep or "%s+")
+      patt = '(.-)' .. (sep or '%s+')
    end
    local b, slen = 0, len (s)
    while b <= slen do
@@ -398,10 +398,10 @@ end
 
 local tostring_vtable = {
    pair = function (x, kp, vp, k, v, kstr, vstr)
-      if k == 1 or type (k) == "number" and k -1 == kp then
+      if k == 1 or type (k) == 'number' and k -1 == kp then
          return vstr
       end
-      return kstr .. "=" .. vstr
+      return kstr .. '=' .. vstr
    end,
 
    -- need to sort numeric keys to be able to skip printing them.
@@ -423,9 +423,9 @@ local tostring_vtable = {
 -- element with an immediately following nil valued element, which is
 -- non-deterministic for non-sequence tables.
 len = function (x)
-   local m = getmetamethod (x, "__len")
+   local m = getmetamethod (x, '__len')
    if m then return m (x) end
-   if type (x) ~= "table" then return #x end
+   if type (x) ~= 'table' then return #x end
 
    local n = #x
    for i = 1, n do
