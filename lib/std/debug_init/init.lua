@@ -6,8 +6,8 @@
 ]]
 
 
-local function choose (t)
-   for k, v in pairs (t) do
+local function choose(t)
+   for k, v in pairs(t) do
       if _DEBUG == false then
          t[k] = v.fast
       elseif _DEBUG == nil then
@@ -26,10 +26,10 @@ end
 
 return {
    _DEBUG = choose {
-      argcheck  = { default = true,  safe = true,    fast = false},
-      call      = { default = false, safe = false,   fast = false},
-      deprecate = { default = nil,   safe = true,    fast = false},
-      level     = { default = 1,     safe = 1,       fast = math.huge},
-      strict    = { default = true,  safe = true,    fast = false},
+      argcheck  = { default=true,  safe=true,    fast=false},
+      call      = { default=false, safe=false,   fast=false},
+      deprecate = { default=nil,   safe=true,    fast=false},
+      level     = { default=1,     safe=1,       fast=math.huge},
+      strict    = { default=true,  safe=true,    fast=false},
    },
 }

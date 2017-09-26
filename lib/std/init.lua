@@ -6,9 +6,9 @@
  changes to any global symbols, or monkey patching of core module tables
  and metatables.
 
- @todo Write a style guide (indenting/wrapping, capitalisation,
+ @todo Write a style guide(indenting/wrapping, capitalisation,
     function and variable names); library functions should call
-    error, not die; OO vs non-OO (a thorny problem).
+    error, not die; OO vs non-OO(a thorny problem).
  @todo pre-compile.
  @corefunction std
 ]]
@@ -56,43 +56,43 @@ _ = nil
 local M
 
 
-local function _assert (expect, fmt, arg1, ...)
-   local msg = (arg1 ~= nil) and string_format (fmt, arg1, ...) or fmt or ''
-   return expect or error (msg, 2)
+local function _assert(expect, fmt, arg1, ...)
+   local msg =(arg1 ~= nil) and string_format(fmt, arg1, ...) or fmt or ''
+   return expect or error(msg, 2)
 end
 
 
-local function elems (t)
+local function elems(t)
    -- capture _pairs iterator initial state
-   local fn, istate, ctrl = _pairs (t)
-   return function (state, _)
+   local fn, istate, ctrl = _pairs(t)
+   return function(state, _)
       local v
-      ctrl, v = fn (state, ctrl)
+      ctrl, v = fn(state, ctrl)
       if ctrl then return v end
    end, istate, true -- wrapped initial state
 end
 
 
-local function eval (s)
-   return loadstring ('return ' .. s)()
+local function eval(s)
+   return loadstring('return ' .. s)()
 end
 
 
-local function ielems (t)
+local function ielems(t)
    -- capture _pairs iterator initial state
-   local fn, istate, ctrl = _ipairs (t)
-   return function (state, _)
+   local fn, istate, ctrl = _ipairs(t)
+   return function(state, _)
       local v
-      ctrl, v = fn (state, ctrl)
+      ctrl, v = fn(state, ctrl)
       if ctrl then return v end
    end, istate, true -- wrapped initial state
 end
 
 
-local function npairs (t)
-   local m = getmetamethod (t, '__len')
-   local i, n = 0, m and m(t) or maxn (t)
-   return function (t)
+local function npairs(t)
+   local m = getmetamethod(t, '__len')
+   local i, n = 0, m and m(t) or maxn(t)
+   return function(t)
       i = i + 1
       if i <= n then return i, t[i] end
     end,
@@ -100,13 +100,13 @@ local function npairs (t)
 end
 
 
-local function ripairs (t)
+local function ripairs(t)
    local oob = 1
    while t[oob] ~= nil do
       oob = oob + 1
    end
 
-   return function (t, n)
+   return function(t, n)
       n = n - 1
       if n > 0 then
          return n, t[n]
@@ -115,11 +115,11 @@ local function ripairs (t)
 end
 
 
-local function rnpairs (t)
-   local m = getmetamethod (t, '__len')
-   local oob = (m and m (t) or maxn (t)) + 1
+local function rnpairs(t)
+   local m = getmetamethod(t, '__len')
+   local oob =(m and m(t) or maxn(t)) + 1
 
-   return function (t, n)
+   return function(t, n)
       n = n - 1
       if n > 0 then
          return n, t[n]
@@ -128,35 +128,35 @@ local function rnpairs (t)
 end
 
 
-local vconvert = setmetatable ({
-  string = function (x) return split (x, '%.') end,
-  number = function (x) return {x} end,
-  table = function (x) return x end,
+local vconvert = setmetatable({
+  string = function(x) return split(x, '%.') end,
+  number = function(x) return {x} end,
+  table = function(x) return x end,
 }, {
-  __call = function (self, x)
-    local fn = self[type (x)] or function () return 0 end
+  __call = function(self, x)
+    local fn = self[type(x)] or function() return 0 end
     return fn(x)
   end,
 })
 
 
-local function vcompare (a, b)
-   return compare (vconvert (a), vconvert (b))
+local function vcompare(a, b)
+   return compare(vconvert(a), vconvert(b))
 end
 
 
-local function _require (module, min, too_big, pattern)
+local function _require(module, min, too_big, pattern)
    pattern = pattern or '([%.%d]+)%D*$'
 
-   local s, m = '', require (module)
-   if type (m) == 'table' then s = tostring (m.version or m._VERSION or '') end
-   local v = string_match (s, pattern) or 0
+   local s, m = '', require(module)
+   if type(m) == 'table' then s = tostring(m.version or m._VERSION or '') end
+   local v = string_match(s, pattern) or 0
    if min then
-      _assert (vcompare (v, min) >= 0, "require '" .. module ..
+      _assert(vcompare(v, min) >= 0, "require '" .. module ..
          "' with at least version " .. min .. ', but found version ' .. v)
    end
    if too_big then
-      _assert (vcompare (v, too_big) < 0, "require '" .. module ..
+      _assert(vcompare(v, too_big) < 0, "require '" .. module ..
          "' with version less than " .. too_big .. ', but found version ' .. v)
    end
    return m
@@ -169,8 +169,8 @@ end
 --[[ ================= ]]--
 
 
-local function X (decl, fn)
-   return argscheck and argscheck ('std.' .. decl, fn) or fn
+local function X(decl, fn)
+   return argscheck and argscheck('std.' .. decl, fn) or fn
 end
 
 M = {
@@ -188,9 +188,9 @@ M = {
    -- @param[opt] ... arguments to format
    -- @return value of *expect*, if *truthy*
    -- @usage
-   --    std.assert (expect == nil, '100% unexpected!')
-   --    std.assert (expect == 'expect', '%s the unexpected!', expect)
-   assert = X ('assert (?any, ?string, [any...])', _assert),
+   --    std.assert(expect == nil, '100% unexpected!')
+   --    std.assert(expect == 'expect', '%s the unexpected!', expect)
+   assert = X('assert(?any, ?string, [any...])', _assert),
 
    --- Evaluate a string as Lua code.
    -- @function eval
@@ -198,8 +198,8 @@ M = {
    -- @return result of evaluating `s`
    -- @usage
    --    --> 2
-   --    std.eval 'math.min (2, 10)'
-   eval = X ('eval (string)', eval),
+   --    std.eval 'math.min(2, 10)'
+   eval = X('eval(string)', eval),
 
    --- Return named metamethod, if any, otherwise `nil`.
    -- The value found at the given key in the metatable of *x* must be a
@@ -211,8 +211,8 @@ M = {
    -- @string n name of metamethod to lookup
    -- @treturn callable|nil callable metamethod, or `nil` if no metamethod
    -- @usage
-   --    clone = std.getmetamethod (std.object.prototype, '__call')
-   getmetamethod = X ('getmetamethod (?any, string)', getmetamethod),
+   --    clone = std.getmetamethod(std.object.prototype, '__call')
+   getmetamethod = X('getmetamethod(?any, string)', getmetamethod),
 
    --- Enhance core `tostring` to render table contents as a string.
    -- @function tostring
@@ -220,26 +220,26 @@ M = {
    -- @treturn string compact string rendering of *x*
    -- @usage
    --    -- {1=baz,foo=bar}
-   --    print (std.tostring {foo='bar','baz'})
-   tostring = X ('tostring (?any)', _tostring),
+   --    print(std.tostring {foo='bar','baz'})
+   tostring = X('tostring(?any)', _tostring),
 
 
    --- Module Functions
    -- @section modulefuncs
 
    --- Enhance core `require` to assert version number compatibility.
-   -- By default match against the last substring of (dot-delimited)
+   -- By default match against the last substring of(dot-delimited)
    -- digits in the module version string.
    -- @function require
    -- @string module module to require
    -- @string[opt] min lowest acceptable version
    -- @string[opt] too_big lowest version that is too big
    -- @string[opt] pattern to match version in `module.version` or
-   --   `module._VERSION` (default: `'([%.%d]+)%D*$'`)
+   --   `module._VERSION`(default: `'([%.%d]+)%D*$'`)
    -- @usage
    --    -- posix.version == 'posix library for Lua 5.2 / 32'
-   --    posix = require ('posix', '29')
-   require = X ('require (string, ?string, ?string, ?string)', _require),
+   --    posix = require('posix', '29')
+   require = X('require(string, ?string, ?string, ?string)', _require),
 
    --- Iterator Functions
    -- @section iteratorfuncs
@@ -258,8 +258,8 @@ M = {
    --    --> bar
    --    --> baz
    --    --> 5
-   --    std.functional.map (print, std.ielems, {'foo', 'bar', [4]='baz', d=5})
-   elems = X ('elems (table)', elems),
+   --    std.functional.map(print, std.ielems, {'foo', 'bar', [4]='baz', d=5})
+   elems = X('elems(table)', elems),
 
    --- An iterator over the integer keyed elements of a table.
    --
@@ -277,8 +277,8 @@ M = {
    -- @usage
    --    --> foo
    --    --> bar
-   --    std.functional.map (print, std.ielems, {'foo', 'bar', [4]='baz', d=5})
-   ielems = X ('ielems (table)', ielems),
+   --    std.functional.map(print, std.ielems, {'foo', 'bar', [4]='baz', d=5})
+   ielems = X('ielems(table)', ielems),
 
    --- An iterator over integer keyed pairs of a sequence.
    --
@@ -301,8 +301,8 @@ M = {
    -- @usage
    --    --> 1	foo
    --    --> 2	bar
-   --    std.functional.map (print, std.ipairs, {'foo', 'bar', [4]='baz', d=5})
-   ipairs = X ('ipairs (table)', _ipairs),
+   --    std.functional.map(print, std.ipairs, {'foo', 'bar', [4]='baz', d=5})
+   ipairs = X('ipairs(table)', _ipairs),
 
    --- Ordered iterator for integer keyed values.
    -- Like ipairs, but does not stop until the __len or maxn of *t*.
@@ -317,8 +317,8 @@ M = {
    --    --> 2	bar
    --    --> 3	nil
    --    --> 4	baz
-   --    std.functional.map (print, std.npairs, {'foo', 'bar', [4]='baz', d=5})
-   npairs = X ('npairs (table)', npairs),
+   --    std.functional.map(print, std.npairs, {'foo', 'bar', [4]='baz', d=5})
+   npairs = X('npairs(table)', npairs),
 
    --- Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
    -- @function pairs
@@ -333,8 +333,8 @@ M = {
    --    --> 2	bar
    --    --> 4	baz
    --    --> d	5
-   --    std.functional.map (print, std.pairs, {'foo', 'bar', [4]='baz', d=5})
-   pairs = X ('pairs (table)', _pairs),
+   --    std.functional.map(print, std.pairs, {'foo', 'bar', [4]='baz', d=5})
+   pairs = X('pairs(table)', _pairs),
 
    --- An iterator like ipairs, but in reverse.
    -- Apart from the order of the elements returned, this function follows
@@ -349,8 +349,8 @@ M = {
    -- @usage
    --    --> 2	bar
    --    --> 1	foo
-   --    std.functional.map (print, std.ripairs, {'foo', 'bar', [4]='baz', d=5})
-   ripairs = X ('ripairs (table)', ripairs),
+   --    std.functional.map(print, std.ripairs, {'foo', 'bar', [4]='baz', d=5})
+   ripairs = X('ripairs(table)', ripairs),
 
    --- An iterator like npairs, but in reverse.
    -- Apart from the order of the elements returned, this function follows
@@ -366,15 +366,15 @@ M = {
    --    --> 3	nil
    --    --> 2	bar
    --    --> 1	foo
-   --    std.functional.map (print, std.rnpairs, {'foo', 'bar', [4]='baz', d=5})
-   rnpairs = X ('rnpairs (table)', rnpairs),
+   --    std.functional.map(print, std.rnpairs, {'foo', 'bar', [4]='baz', d=5})
+   rnpairs = X('rnpairs(table)', rnpairs),
 }
 
 
 --- Metamethods
 -- @section Metamethods
 
-return setmetatable (M, {
+return setmetatable(M, {
    --- Lazy loading of stdlib modules.
    -- Don't load everything on initial startup, wait until first attempt
    -- to access a submodule, and then load it on demand.
@@ -385,10 +385,10 @@ return setmetatable (M, {
    -- @usage
    --    local std = require 'std'
    --    local Object = std.object.prototype
-   __index = function (self, name)
-       local ok, t = pcall (require, 'std.' .. name)
+   __index = function(self, name)
+       local ok, t = pcall(require, 'std.' .. name)
        if ok then
-            rawset (self, name, t)
+            rawset(self, name, t)
             return t
        end
     end,

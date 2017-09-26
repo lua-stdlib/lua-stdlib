@@ -43,7 +43,7 @@ _ = nil
 
 --- Control std.debug function behaviour.
 -- To declare debugging state, set _DEBUG either to `false` to disable all
--- runtime debugging; to any "truthy" value (equivalent to enabling everything
+-- runtime debugging; to any "truthy" value(equivalent to enabling everything
 -- except *call*, or as documented below.
 -- @class table
 -- @name _DEBUG
@@ -55,40 +55,40 @@ _ = nil
 --    value causes deprecated APIs not to be defined at all
 -- @tfield[opt=1] int level debugging level
 -- @tfield[opt=true] boolean strict enforce strict variable declaration
---    before use **in stdlib internals** (if `require 'strict'` works)
+--    before use **in stdlib internals**(if `require 'strict'` works)
 -- @usage
---    _DEBUG = { argcheck = false, level = 9, strict = false }
+--    _DEBUG = {argcheck=false, level=9, strict=false}
 
 
-local function say (n, ...)
+local function say(n, ...)
    local level, argt = n, {...}
-   if type (n) ~= 'number' then
+   if type(n) ~= 'number' then
       level, argt = 1, {n, ...}
    end
    if _DEBUG.level ~= math_huge and
-         ((type (_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
+        ((type(_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
    then
       local t = {}
-      for k, v in _pairs (argt) do t[k] = _tostring (v) end
-      io_stderr:write (table_concat (t, '\t') .. '\n')
+      for k, v in _pairs(argt) do t[k] = _tostring(v) end
+      io_stderr:write(table_concat(t, '\t') .. '\n')
    end
 end
 
 
 local level = 0
 
-local function trace (event)
-   local t = debug.getinfo (3)
+local function trace(event)
+   local t = debug.getinfo(3)
    local s = ' >>> '
    for i = 1, level do s = s .. ' ' end
    if t ~= nil and t.currentline >= 0 then
       s = s .. t.short_src .. ':' .. t.currentline .. ' '
    end
-   t = debug.getinfo (2)
+   t = debug.getinfo(2)
    if event == 'call' then
       level = level + 1
    else
-      level = math_max (level - 1, 0)
+      level = math_max(level - 1, 0)
    end
    if t.what == 'main' then
       if event == 'call' then
@@ -97,17 +97,17 @@ local function trace (event)
          s = s .. 'end ' .. t.short_src
       end
    elseif t.what == 'Lua' then
-      s = s .. event .. ' ' .. (t.name or '(Lua)') .. ' <' ..
+      s = s .. event .. ' ' ..(t.name or '(Lua)') .. ' <' ..
          t.linedefined .. ':' .. t.short_src .. '>'
    else
-      s = s .. event .. ' ' .. (t.name or '(C)') .. ' [' .. t.what .. ']'
+      s = s .. event .. ' ' ..(t.name or '(C)') .. ' [' .. t.what .. ']'
    end
-   io_stderr:write (s .. '\n')
+   io_stderr:write(s .. '\n')
 end
 
 -- Set hooks according to _DEBUG
-if type (_DEBUG) == 'table' and _DEBUG.call then
-   debug.sethook (trace, 'cr')
+if type(_DEBUG) == 'table' and _DEBUG.call then
+   debug.sethook(trace, 'cr')
 end
 
 
@@ -140,21 +140,21 @@ local M = {
    -- nil, nothing is written.
    -- @function say
    -- @int[opt=1] n debugging level, smaller is higher priority
-   -- @param ... objects to print (as for print)
+   -- @param ... objects to print(as for print)
    -- @usage
    --    local _DEBUG = require 'std.debug_init'._DEBUG
    --    _DEBUG.level = 3
-   --    say (2, '_DEBUG table contents:', _DEBUG)
+   --    say(2, '_DEBUG table contents:', _DEBUG)
    say = say,
 
    --- Trace function calls.
-   -- Use as debug.sethook (trace, 'cr'), which is done automatically
+   -- Use as debug.sethook(trace, 'cr'), which is done automatically
    -- when `_DEBUG.call` is set.
    -- Based on test/trace-calls.lua from the Lua distribution.
    -- @function trace
    -- @string event event causing the call
    -- @usage
-   --    _DEBUG = { call = true }
+   --    _DEBUG = {call=true}
    --    local debug = require 'std.debug'
    trace = trace,
 }
@@ -163,17 +163,17 @@ local M = {
 --- Metamethods
 -- @section metamethods
 
---- Equivalent to calling `debug.say (1, ...)`
+--- Equivalent to calling `debug.say(1, ...)`
 -- @function __call
 -- @see say
 -- @usage
 --    local debug = require 'std.debug'
 --    debug 'oh noes!'
 local metatable = {
-   __call = function (self, ...)
-                   M.say (1, ...)
-                end,
+   __call = function(self, ...)
+      M.say(1, ...)
+   end,
 }
 
 
-return setmetatable (merge (M, debug), metatable)
+return setmetatable(merge(M, debug), metatable)

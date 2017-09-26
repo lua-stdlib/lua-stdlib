@@ -52,14 +52,14 @@ _ = nil
 local M
 
 
-local function __concat (s, o)
-   return _tostring (s) .. _tostring (o)
+local function __concat(s, o)
+   return _tostring(s) .. _tostring(o)
 end
 
 
-local function __index (s, i)
-   if type (i) == 'number' then
-      return s:sub (i, i)
+local function __index(s, i)
+   if type(i) == 'number' then
+      return s:sub(i, i)
    else
       -- Fall back to module metamethods
       return M[i]
@@ -69,28 +69,28 @@ end
 
 local _format = string.format
 
-local function format (f, arg1, ...)
-   return (arg1 ~= nil) and _format (f, arg1, ...) or f
+local function format(f, arg1, ...)
+   return(arg1 ~= nil) and _format(f, arg1, ...) or f
 end
 
 
-local function tpack (from, to, ...)
+local function tpack(from, to, ...)
    return from, to, {...}
 end
 
-local function tfind (s, ...)
-   return tpack (s:find (...))
+local function tfind(s, ...)
+   return tpack(s:find(...))
 end
 
 
-local function finds (s, p, i, ...)
+local function finds(s, p, i, ...)
    i = i or 1
    local l = {}
    local from, to, r
    repeat
-      from, to, r = tfind (s, p, i, ...)
+      from, to, r = tfind(s, p, i, ...)
       if from ~= nil then
-         table_insert (l, {from, to, capt = r})
+         table_insert(l, {from, to, capt=r})
          i = to + 1
       end
    until not from
@@ -98,18 +98,18 @@ local function finds (s, p, i, ...)
 end
 
 
-local function caps (s)
-   return (s:gsub ('(%w)([%w]*)', function (l, ls) return l:upper () .. ls end))
+local function caps(s)
+   return(s:gsub('(%w)([%w]*)', function(l, ls) return l:upper() .. ls end))
 end
 
 
-local function escape_shell (s)
-   return (s:gsub ('([ %(%)%\\%[%]\'"])', '\\%1'))
+local function escape_shell(s)
+   return(s:gsub('([ %(%)%\\%[%]\'"])', '\\%1'))
 end
 
 
-local function ordinal_suffix (n)
-   n = math_abs (n) % 100
+local function ordinal_suffix(n)
+   n = math_abs(n) % 100
    local d = n % 10
    if d == 1 and n ~= 11 then
       return 'st'
@@ -123,84 +123,84 @@ local function ordinal_suffix (n)
 end
 
 
-local function pad (s, w, p)
-   p = string.rep (p or ' ', math_abs (w))
+local function pad(s, w, p)
+   p = string.rep(p or ' ', math_abs(w))
    if w < 0 then
-      return string.sub (p .. s, w)
+      return string.sub(p .. s, w)
    end
-   return string.sub (s .. p, 1, w)
+   return string.sub(s .. p, 1, w)
 end
 
 
-local function wrap (s, w, ind, ind1)
+local function wrap(s, w, ind, ind1)
    w = w or 78
    ind = ind or 0
    ind1 = ind1 or ind
-   assert (ind1 < w and ind < w,
+   assert(ind1 < w and ind < w,
            'the indents must be less than the line width')
-   local r = { string.rep (' ', ind1) }
-   local i, lstart, lens = 1, ind1, len (s)
+   local r = {string.rep(' ', ind1)}
+   local i, lstart, lens = 1, ind1, len(s)
    while i <= lens do
       local j = i + w - lstart
-      while len (s[j]) > 0 and s[j] ~= ' ' and j > i do
+      while len(s[j]) > 0 and s[j] ~= ' ' and j > i do
          j = j - 1
       end
       local ni = j + 1
       while s[j] == ' ' do
          j = j - 1
       end
-      table_insert (r, s:sub (i, j))
+      table_insert(r, s:sub(i, j))
       i = ni
       if i < lens then
-         table_insert (r, '\n' .. string.rep (' ', ind))
+         table_insert(r, '\n' .. string.rep(' ', ind))
          lstart = ind
       end
    end
-   return table_concat (r)
+   return table_concat(r)
 end
 
 
-local function numbertosi (n)
+local function numbertosi(n)
    local SIprefix = {
-      [-8] = 'y', [-7] = 'z', [-6] = 'a', [-5] = 'f',
-      [-4] = 'p', [-3] = 'n', [-2] = 'mu', [-1] = 'm',
-      [0] = '', [1] = 'k', [2] = 'M', [3] = 'G',
-      [4] = 'T', [5] = 'P', [6] = 'E', [7] = 'Z',
-      [8] = 'Y'
+      [-8]='y', [-7]='z', [-6]='a', [-5]='f',
+      [-4]='p', [-3]='n', [-2]='mu', [-1]='m',
+      [0]='',  [1]='k', [2]='M', [3]='G',
+      [4]='T', [5]='P', [6]='E', [7]='Z',
+      [8]='Y'
    }
-   local t = _format ('% #.2e', n)
+   local t = _format('% #.2e', n)
    local _, _, m, e = t:find('.(.%...)e(.+)')
-   local man, exp = tonumber (m), tonumber (e)
-   local siexp = math_floor (exp / 3)
+   local man, exp = tonumber(m), tonumber(e)
+   local siexp = math_floor(exp / 3)
    local shift = exp - siexp * 3
-   local s = SIprefix[siexp] or 'e' .. tostring (siexp)
-   man = man * (10 ^ shift)
-   return _format ('%0.f', man) .. s
+   local s = SIprefix[siexp] or 'e' .. tostring(siexp)
+   man = man *(10 ^ shift)
+   return _format('%0.f', man) .. s
 end
 
 
-local function prettytostring (x, indent, spacing)
+local function prettytostring(x, indent, spacing)
    indent = indent or '\t'
    spacing = spacing or ''
-   return render (x, {
-      open = function ()
+   return render(x, {
+      open = function()
          local s = spacing .. '{'
          spacing = spacing .. indent
          return s
       end,
 
-      close = function ()
-         spacing = string.gsub (spacing, indent .. '$', '')
+      close = function()
+         spacing = string.gsub(spacing, indent .. '$', '')
          return spacing .. '}'
       end,
 
-      elem = function (x)
-         if type (x) ~= 'string' then return tostring (x) end
-         return string_format ('%q', x)
+      elem = function(x)
+         if type(x) ~= 'string' then return tostring(x) end
+         return string_format('%q', x)
       end,
 
-      pair = function (x, _, _, k, v, kstr, vstr)
-         local type_k = type (k)
+      pair = function(x, _, _, k, v, kstr, vstr)
+         local type_k = type(k)
          local s = spacing
          if type_k ~= 'string' or k:match '[^%w_]' then
             s = s .. '['
@@ -216,7 +216,7 @@ local function prettytostring (x, indent, spacing)
             s = s .. k
          end
          s = s .. ' ='
-         if type (v) == 'table' then
+         if type(v) == 'table' then
             s = s .. '\n'
          else
             s = s .. ' '
@@ -225,7 +225,7 @@ local function prettytostring (x, indent, spacing)
          return s
       end,
 
-      sep = function (_, k)
+      sep = function(_, k)
          local s = '\n'
          if k then
             s = ',' .. s
@@ -238,9 +238,9 @@ local function prettytostring (x, indent, spacing)
 end
 
 
-local function trim (s, r)
+local function trim(s, r)
    r = r or '%s+'
-   return (s:gsub ('^' .. r, ''):gsub (r .. '$', ''))
+   return(s:gsub('^' .. r, ''):gsub(r .. '$', ''))
 end
 
 
@@ -250,8 +250,8 @@ end
 --[[ ================= ]]--
 
 
-local function X (decl, fn)
-   return argscheck and argscheck ('std.string.' .. decl, fn) or fn
+local function X(decl, fn)
+   return argscheck and argscheck('std.string.' .. decl, fn) or fn
 end
 
 M = {
@@ -262,9 +262,9 @@ M = {
    -- @function __concat
    -- @string s initial string
    -- @param o object to stringify and concatenate
-   -- @return s .. tostring (o)
+   -- @return s .. tostring(o)
    -- @usage
-   --    local string = setmetatable ('', require 'std.string')
+   --    local string = setmetatable('', require 'std.string')
    --    concatenated = 'foo' .. {'bar'}
    __concat = __concat,
 
@@ -272,11 +272,11 @@ M = {
    -- @function __index
    -- @string s string
    -- @tparam int|string i index or method name
-   -- @return `s:sub (i, i)` if i is a number, otherwise
-   --    fall back to a `std.string` metamethod (if any).
+   -- @return `s:sub(i, i)` if i is a number, otherwise
+   --    fall back to a `std.string` metamethod(if any).
    -- @usage
-   --    getmetatable ('').__index = require 'std.string'.__index
-   --    third = ('12345')[3]
+   --    getmetatable('').__index = require 'std.string'.__index
+   --    third =('12345')[3]
    __index = __index,
 
 
@@ -288,24 +288,24 @@ M = {
    -- @string s any string
    -- @treturn string *s* with each word capitalized
    -- @usage
-   --    userfullname = caps (input_string)
-   caps = X ('caps (string)', caps),
+   --    userfullname = caps(input_string)
+   caps = X('caps(string)', caps),
 
    --- Remove any final newline from a string.
    -- @function chomp
    -- @string s any string
    -- @treturn string *s* with any single trailing newline removed
    -- @usage
-   --    line = chomp (line)
-   chomp = X ('chomp (string)', function (s) return (s:gsub ('\n$', '')) end),
+   --    line = chomp(line)
+   chomp = X('chomp(string)', function(s) return(s:gsub('\n$', '')) end),
 
    --- Escape a string to be used as a pattern.
    -- @function escape_pattern
    -- @string s any string
    -- @treturn string *s* with active pattern characters escaped
    -- @usage
-   --    substr = inputstr:match (escape_pattern (literal))
-   escape_pattern = X ('escape_pattern (string)', escape_pattern),
+   --    substr = inputstr:match(escape_pattern(literal))
+   escape_pattern = X('escape_pattern(string)', escape_pattern),
 
    --- Escape a string to be used as a shell token.
    -- Quotes spaces, parentheses, brackets, quotes, apostrophes and
@@ -314,8 +314,8 @@ M = {
    -- @string s any string
    -- @treturn string *s* with active shell characters escaped
    -- @usage
-   --    os.execute ('echo ' .. escape_shell (outputstr))
-   escape_shell = X ('escape_shell (string)', escape_shell),
+   --    os.execute('echo ' .. escape_shell(outputstr))
+   escape_shell = X('escape_shell(string)', escape_shell),
 
    --- Repeatedly `string.find` until target string is exhausted.
    -- @function finds
@@ -323,13 +323,13 @@ M = {
    -- @string pattern pattern to match in *s*
    -- @int[opt=1] init start position
    -- @bool[opt] plain inhibit magic characters
-   -- @return list of `{from, to; capt = {captures}}`
+   -- @return list of `{from, to; capt={captures}}`
    -- @see std.string.tfind
    -- @usage
-   --    for t in std.elems (finds ('the target string', '%S+')) do
-   --       print (tostring (t.capt))
+   --    for t in std.elems(finds('the target string', '%S+')) do
+   --       print(tostring(t.capt))
    --    end
-   finds = X ('finds (string, string, ?int, ?boolean|:plain)', finds),
+   finds = X('finds(string, string, ?int, ?boolean|:plain)', finds),
 
    --- Extend to work better with one argument.
    -- If only one argument is passed, no formatting is attempted.
@@ -338,8 +338,8 @@ M = {
    -- @param[opt] ... arguments to format
    -- @return formatted string
    -- @usage
-   --    print (format '100% stdlib!')
-   format = X ('format (string, [any...])', format),
+   --    print(format '100% stdlib!')
+   format = X('format(string, [any...])', format),
 
    --- Remove leading matter from a string.
    -- @function ltrim
@@ -347,9 +347,9 @@ M = {
    -- @string[opt='%s+'] r leading pattern
    -- @treturn string *s* with leading *r* stripped
    -- @usage
-   --    print ('got: ' .. ltrim (userinput))
-   ltrim = X ('ltrim (string, ?string)', function (s, r)
-      return (s:gsub ('^' .. (r or '%s+'), ''))
+   --    print('got: ' .. ltrim(userinput))
+   ltrim = X('ltrim(string, ?string)', function(s, r)
+      return(s:gsub('^' ..(r or '%s+'), ''))
    end),
 
    --- Write a number using SI suffixes.
@@ -358,8 +358,8 @@ M = {
    -- @tparam number|string n any numeric value
    -- @treturn string *n* simplifed using largest available SI suffix.
    -- @usage
-   --    print (numbertosi (bitspersecond) .. 'bps')
-   numbertosi = X ('numbertosi (number|string)', numbertosi),
+   --    print(numbertosi(bitspersecond) .. 'bps')
+   numbertosi = X('numbertosi(number|string)', numbertosi),
 
    --- Return the English suffix for an ordinal.
    -- @function ordinal_suffix
@@ -367,21 +367,21 @@ M = {
    -- @treturn string English suffix for *n*
    -- @usage
    --    local now = os.date '*t'
-   --    print ('%d%s day of the week', now.day, ordinal_suffix (now.day))
-   ordinal_suffix = X ('ordinal_suffix (int|string)', ordinal_suffix),
+   --    print('%d%s day of the week', now.day, ordinal_suffix(now.day))
+   ordinal_suffix = X('ordinal_suffix(int|string)', ordinal_suffix),
 
    --- Justify a string.
-   -- When the string is longer than w, it is truncated (left or right
+   -- When the string is longer than w, it is truncated(left or right
    -- according to the sign of w).
    -- @function pad
    -- @string s a string to justify
-   -- @int w width to justify to (-ve means right-justify; +ve means
+   -- @int w width to justify to(-ve means right-justify; +ve means
    --    left-justify)
    -- @string[opt=' '] p string to pad with
    -- @treturn string *s* justified to *w* characters wide
    -- @usage
-   --    print (pad (trim (outputstr, 78)) .. '\n')
-   pad = X ('pad (string, int, ?string)', pad),
+   --    print(pad(trim(outputstr, 78)) .. '\n')
+   pad = X('pad(string, int, ?string)', pad),
 
    --- Pretty-print a table, or other object.
    -- @function prettytostring
@@ -390,8 +390,8 @@ M = {
    -- @string[opt=''] spacing space before every line
    -- @treturn string pretty string rendering of *x*
    -- @usage
-   --    print (prettytostring (std, '   '))
-   prettytostring = X ('prettytostring (?any, ?string, ?string)', prettytostring),
+   --    print(prettytostring(std, '   '))
+   prettytostring = X('prettytostring(?any, ?string, ?string)', prettytostring),
 
    --- Turn tables into strings with recursion detection.
    -- N.B. Functions calling render should not recurse, or recursion
@@ -401,16 +401,16 @@ M = {
    -- @tparam[opt] rendercbs fns default rendering function overrides
    -- @return string representation of *x*
    -- @usage
-   --    function tostablestring (x)
-   --       return render (x, {
-   --          sort = function (keys)
-   --             table.sort (keys, lambda '=tostring (_1) < tostring (_2)')
+   --    function tostablestring(x)
+   --       return render(x, {
+   --          sort = function(keys)
+   --             table.sort(keys, lambda '=tostring(_1) < tostring(_2)')
    --             return keys
    --          end,
    --       })
    --    end
-   render = X ('render (?any, ?table)', function (x, rendercbs, roots)
-      return render (x, rendercbs, roots)
+   render = X('render(?any, ?table)', function(x, rendercbs, roots)
+      return render(x, rendercbs, roots)
    end),
 
    --- Remove trailing matter from a string.
@@ -419,9 +419,9 @@ M = {
    -- @string[opt='%s+'] r trailing pattern
    -- @treturn string *s* with trailing *r* stripped
    -- @usage
-   --    print ('got: ' .. rtrim (userinput))
-   rtrim = X ('rtrim (string, ?string)', function (s, r)
-      return (s:gsub ((r or '%s+') .. '$', ''))
+   --    print('got: ' .. rtrim(userinput))
+   rtrim = X('rtrim(string, ?string)', function(s, r)
+      return(s:gsub((r or '%s+') .. '$', ''))
    end),
 
    --- Split a string at a given separator.
@@ -433,7 +433,7 @@ M = {
    -- @return list of strings
    -- @usage
    --    words = split 'a very short sentence'
-   split = X ('split (string, ?string)', split),
+   split = X('split(string, ?string)', split),
 
    --- Do `string.find`, returning a table of captures.
    -- @function tfind
@@ -446,8 +446,8 @@ M = {
    -- @treturn table list of captured strings
    -- @see std.string.finds
    -- @usage
-   --    b, e, captures = tfind ('the target string', '%s', 10)
-   tfind = X ('tfind (string, string, ?int, ?boolean|:plain)', tfind),
+   --    b, e, captures = tfind('the target string', '%s', 10)
+   tfind = X('tfind(string, string, ?int, ?boolean|:plain)', tfind),
 
    --- Remove leading and trailing matter from a string.
    -- @function trim
@@ -455,8 +455,8 @@ M = {
    -- @string[opt='%s+'] r trailing pattern
    -- @treturn string *s* with leading and trailing *r* stripped
    -- @usage
-   --    print ('got: ' .. trim (userinput))
-   trim = X ('trim (string, ?string)', trim),
+   --    print('got: ' .. trim(userinput))
+   trim = X('trim(string, ?string)', trim),
 
    --- Wrap a string into a paragraph.
    -- @function wrap
@@ -466,12 +466,12 @@ M = {
    -- @int[opt=ind] ind1 indent of first line
    -- @treturn string *s* wrapped to *w* columns
    -- @usage
-   --    print (wrap (copyright, 72, 4))
-   wrap = X ('wrap (string, ?int, ?int, ?int)', wrap),
+   --    print(wrap(copyright, 72, 4))
+   wrap = X('wrap(string, ?int, ?int, ?int)', wrap),
 }
 
 
-return merge (M, string)
+return merge(M, string)
 
 
 
@@ -489,8 +489,8 @@ return merge (M, string)
 -- @tfield[opt] termcb term terminal predicate
 -- @see render
 -- @usage
---    function tostringstable (x)
---       return render (x, { sort = some_sequence_reordering_fn })
+--    function tostringstable(x)
+--       return render(x, {sort=some_sequence_reordering_fn})
 --    end
 
 
@@ -500,7 +500,7 @@ return merge (M, string)
 -- @treturn string open table rendering
 -- @see render
 -- @usage
---    function open (t) return '{' end
+--    function open(t) return '{' end
 
 
 --- Signature of @{render} close table callback.
@@ -509,7 +509,7 @@ return merge (M, string)
 -- @treturn string close table rendering
 -- @see render
 -- @usage
---    function close (t) return '}' end
+--    function close(t) return '}' end
 
 
 --- Signature of @{render} element callback.
@@ -518,7 +518,7 @@ return merge (M, string)
 -- @treturn string element rendering
 -- @see render
 -- @usage
---    function element (e) return require 'std'.tostring (e) end
+--    function element(e) return require 'std'.tostring(e) end
 
 
 --- Signature of @{render} pair callback.
@@ -533,7 +533,7 @@ return merge (M, string)
 -- @treturn string pair rendering
 -- @see render
 -- @usage
---    function pair (_, _, _, key, value) return key .. '=' .. value end
+--    function pair(_, _, _, key, value) return key .. '=' .. value end
 
 
 --- Signature of @{render} separator callback.
@@ -545,7 +545,7 @@ return merge (M, string)
 -- @param fv *t* value following separator, or `nil` for last value
 -- @treturn string separator rendering
 -- @usage
---    function separator (_, _, _, fk) return fk and ',' or '' end
+--    function separator(_, _, _, fk) return fk and ',' or '' end
 
 
 --- Signature of @{render} key sorting callback.
@@ -553,7 +553,7 @@ return merge (M, string)
 -- @tparam sequence keys all keys from rendering table
 -- @treturn sequence *keys* in desired display order
 -- @usage
---    function unsorted (keys) return keys end
+--    function unsorted(keys) return keys end
 
 
 --- Signature of @{render} terminal predicate callback.
@@ -561,6 +561,6 @@ return merge (M, string)
 -- @param x an element to be rendered
 -- @treturn boolean whether *x* can be rendered by @{elementcb}
 -- @usage
---    function term (x)
---       return type (x) ~= 'table' or getmetamethod (x, '__tostring')
+--    function term(x)
+--       return type(x) ~= 'table' or getmetamethod(x, '__tostring')
 --    end

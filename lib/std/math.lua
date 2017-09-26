@@ -35,18 +35,18 @@ _ = nil
 local M
 
 
-local function floor (n, p)
-   if (p or 0) == 0 then
-      return math_floor (n)
+local function floor(n, p)
+   if(p or 0) == 0 then
+      return math_floor(n)
    end
    local e = 10 ^ p
-   return math_floor (n * e) / e
+   return math_floor(n * e) / e
 end
 
 
-local function round (n, p)
-   local e = 10 ^ (p or 0)
-   return math_floor (n * e + 0.5) / e
+local function round(n, p)
+   local e = 10 ^(p or 0)
+   return math_floor(n * e + 0.5) / e
 end
 
 
@@ -56,8 +56,8 @@ end
 --[[ ================= ]]--
 
 
-local function X (decl, fn)
-   return argscheck and argscheck ('std.math.' .. decl, fn) or fn
+local function X(decl, fn)
+   return argscheck and argscheck('std.math.' .. decl, fn) or fn
 end
 
 
@@ -71,8 +71,8 @@ M = {
    -- @int[opt=0] p number of decimal places to truncate to
    -- @treturn number `n` truncated to `p` decimal places
    -- @usage
-   --    tenths = floor (magnitude, 1)
-   floor = X ('floor (number, ?int)', floor),
+   --    tenths = floor(magnitude, 1)
+   floor = X('floor(number, ?int)', floor),
 
    --- Round a number to a given number of decimal places.
    -- @function round
@@ -80,9 +80,9 @@ M = {
    -- @int[opt=0] p number of decimal places to round to
    -- @treturn number `n` rounded to `p` decimal places
    -- @usage
-   --    roughly = round (exactly, 2)
-   round = X ('round (number, ?int)', round),
+   --    roughly = round(exactly, 2)
+   round = X('round(number, ?int)', round),
 }
 
 
-return merge (M, math)
+return merge(M, math)

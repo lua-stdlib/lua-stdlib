@@ -82,4 +82,7 @@ points when proposing changes:
 2. Simple strings are easiest to type using single-quote delimiters,
    saving double-quotes for where a string contains apostrophes.
 
+3. Save horizontal space by only using SPACES where the parser requires
+   them.
+
 [issues]: http://github.com/lua-stdlib/lua-stdlib/issues

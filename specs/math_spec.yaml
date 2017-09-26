@@ -3,30 +3,30 @@ before:
   this_module  = 'std.math'
   global_table = '_G'
 
-  extend_base  = { 'floor', 'round' }
+  extend_base  = {'floor', 'round'}
 
-  M = require (this_module)
+  M = require(this_module)
 
 
 specify std.math:
 - context when required:
   - context by name:
     - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by=this_module}).
+        expect(show_apis {added_to=global_table, by=this_module}).
            to_equal {}
     - it does not touch the core math table:
-        expect (show_apis {added_to=base_module, by=this_module}).
+        expect(show_apis {added_to=base_module, by=this_module}).
            to_equal {}
     - it contains apis from the core math table:
-        expect (show_apis {from=base_module, not_in=this_module}).
-           to_contain.a_permutation_of (extend_base)
+        expect(show_apis {from=base_module, not_in=this_module}).
+           to_contain.a_permutation_of(extend_base)
 
   - context via the std module:
     - it does not touch the global table:
-        expect (show_apis {added_to=global_table, by='std'}).
+        expect(show_apis {added_to=global_table, by='std'}).
            to_equal {}
     - it does not touch the core math table:
-        expect (show_apis {added_to=base_module, by='std'}).
+        expect(show_apis {added_to=base_module, by='std'}).
            to_equal {}
 
 
@@ -35,21 +35,21 @@ specify std.math:
       f = M.floor
 
   - context with bad arguments:
-      badargs.diagnose (f, 'std.math.floor (number, ?int)')
+      badargs.diagnose(f, 'std.math.floor(number, ?int)')
 
   - it rounds to the nearest smaller integer:
-      expect (f (1.2)).to_be (1)
-      expect (f (1.9)).to_be (1)
-      expect (f (999e-2)).to_be (9)
-      expect (f (999e-3)).to_be (0)
+      expect(f(1.2)).to_be(1)
+      expect(f(1.9)).to_be(1)
+      expect(f(999e-2)).to_be(9)
+      expect(f(999e-3)).to_be(0)
   - it rounds down to specified number of decimal places:
-      expect (f (1.2345, 0)).to_be (1.0)
-      expect (f (1.2345, 1)).to_be (1.2)
-      expect (f (1.2345, 2)).to_be (1.23)
-      expect (f (9.9999, 2)).to_be (9.99)
-      expect (f (99999e-3, 3)).to_be (99999e-3)
-      expect (f (99999e-4, 3)).to_be (9999e-3)
-      expect (f (99999e-5, 3)).to_be (999e-3)
+      expect(f(1.2345, 0)).to_be(1.0)
+      expect(f(1.2345, 1)).to_be(1.2)
+      expect(f(1.2345, 2)).to_be(1.23)
+      expect(f(9.9999, 2)).to_be(9.99)
+      expect(f(99999e-3, 3)).to_be(99999e-3)
+      expect(f(99999e-4, 3)).to_be(9999e-3)
+      expect(f(99999e-5, 3)).to_be(999e-3)
 
 
 - describe round:
@@ -57,40 +57,40 @@ specify std.math:
       f = M.round
 
   - context with bad arguments:
-      badargs.diagnose (f, 'std.math.round (number, ?int)')
+      badargs.diagnose(f, 'std.math.round(number, ?int)')
 
   - it rounds to the nearest integer:
-      expect (f (1.2)).to_be (1)
-      expect (f (1.9)).to_be (2)
-      expect (f (949e-2)).to_be (9)
-      expect (f (999e-2)).to_be (10)
+      expect(f(1.2)).to_be(1)
+      expect(f(1.9)).to_be(2)
+      expect(f(949e-2)).to_be(9)
+      expect(f(999e-2)).to_be(10)
   - it rounds to specified number of decimal places:
-      expect (f (1.234, 0)).to_be (1.0)
-      expect (f (5.678, 0)).to_be (6.0)
-      expect (f (1.234, 1)).to_be (1.2)
-      expect (f (5.678, 1)).to_be (5.7)
-      expect (f (1.234, 2)).to_be (1.23)
-      expect (f (5.678, 2)).to_be (5.68)
-      expect (f (9.999, 2)).to_be (10)
-      expect (f (11111e-2, 3)).to_be (11111e-2)
-      expect (f (99999e-2, 3)).to_be (99999e-2)
-      expect (f (11111e-3, 3)).to_be (11111e-3)
-      expect (f (99999e-3, 3)).to_be (99999e-3)
-      expect (f (11111e-4, 3)).to_be (1111e-3)
-      expect (f (99999e-4, 3)).to_be (10)
-      expect (f (99999e-5, 3)).to_be (1)
+      expect(f(1.234, 0)).to_be(1.0)
+      expect(f(5.678, 0)).to_be(6.0)
+      expect(f(1.234, 1)).to_be(1.2)
+      expect(f(5.678, 1)).to_be(5.7)
+      expect(f(1.234, 2)).to_be(1.23)
+      expect(f(5.678, 2)).to_be(5.68)
+      expect(f(9.999, 2)).to_be(10)
+      expect(f(11111e-2, 3)).to_be(11111e-2)
+      expect(f(99999e-2, 3)).to_be(99999e-2)
+      expect(f(11111e-3, 3)).to_be(11111e-3)
+      expect(f(99999e-3, 3)).to_be(99999e-3)
+      expect(f(11111e-4, 3)).to_be(1111e-3)
+      expect(f(99999e-4, 3)).to_be(10)
+      expect(f(99999e-5, 3)).to_be(1)
   - it rounds negative values correctly:
-      expect (f (-1.234, 0)).to_be (-1.0)
-      expect (f (-5.678, 0)).to_be (-6.0)
-      expect (f (-1.234, 1)).to_be (-1.2)
-      expect (f (-5.678, 1)).to_be (-5.7)
-      expect (f (-1.234, 2)).to_be (-1.23)
-      expect (f (-5.678, 2)).to_be (-5.68)
-      expect (f (-9.999, 2)).to_be (-10)
-      expect (f (-11111e-2, 3)).to_be (-11111e-2)
-      expect (f (-99999e-2, 3)).to_be (-99999e-2)
-      expect (f (-11111e-3, 3)).to_be (-11111e-3)
-      expect (f (-99999e-3, 3)).to_be (-99999e-3)
-      expect (f (-11111e-4, 3)).to_be (-1111e-3)
-      expect (f (-99999e-4, 3)).to_be (-10)
-      expect (f (-99999e-5, 3)).to_be (-1)
+      expect(f(-1.234, 0)).to_be(-1.0)
+      expect(f(-5.678, 0)).to_be(-6.0)
+      expect(f(-1.234, 1)).to_be(-1.2)
+      expect(f(-5.678, 1)).to_be(-5.7)
+      expect(f(-1.234, 2)).to_be(-1.23)
+      expect(f(-5.678, 2)).to_be(-5.68)
+      expect(f(-9.999, 2)).to_be(-10)
+      expect(f(-11111e-2, 3)).to_be(-11111e-2)
+      expect(f(-99999e-2, 3)).to_be(-99999e-2)
+      expect(f(-11111e-3, 3)).to_be(-11111e-3)
+      expect(f(-99999e-3, 3)).to_be(-99999e-3)
+      expect(f(-11111e-4, 3)).to_be(-1111e-3)
+      expect(f(-99999e-4, 3)).to_be(-10)
+      expect(f(-99999e-5, 3)).to_be(-1)

@@ -1,5 +1,5 @@
 local typecheck
-have_typecheck, typecheck = pcall (require, 'typecheck')
+have_typecheck, typecheck = pcall(require, 'typecheck')
 
 local inprocess = require 'specl.inprocess'
 local hell = require 'specl.shell'
@@ -11,7 +11,7 @@ badargs = require 'specl.badargs'
 local top_srcdir = os.getenv 'top_srcdir' or '.'
 local top_builddir = os.getenv 'top_builddir' or '.'
 
-package.path = std.package.normalize (
+package.path = std.package.normalize(
    top_builddir .. '/lib/?.lua',
    top_builddir .. '/lib/?/init.lua',
    top_srcdir .. '/lib/?.lua',
@@ -31,10 +31,10 @@ setdebug = require 'std.debug'._setdebug
 
 -- Simplified version for specifications, does not support functable
 -- valued __len metamethod, so don't write examples that need that!
-function len (x)
-   local __len = getmetatable (x) or {}
-   if type (__len) == 'function' then return __len (x) end
-   if type (x) ~= 'table' then return #x end
+function len(x)
+   local __len = getmetatable(x) or {}
+   if type(__len) == 'function' then return __len(x) end
+   if type(x) ~= 'table' then return #x end
 
    local n = #x
    for i = 1, n do
@@ -46,17 +46,17 @@ end
 
 -- Make sure we have a maxn even when _VERSION ~= 5.1
 -- @fixme remove this when we get unpack from specl.std
-maxn = table.maxn or function (t)
+maxn = table.maxn or function(t)
    local n = 0
-   for k in pairs (t) do
-      if type (k) == 'number' and k > n then n = k end
+   for k in pairs(t) do
+      if type(k) == 'number' and k > n then n = k end
    end
    return n
 end
 
 
-pack = table.pack or function (...)
-   return {n = select ('#', ...), ...}
+pack = table.pack or function(...)
+   return {n=select('#', ...), ...}
 end
 
 
@@ -65,72 +65,72 @@ end
 local _unpack = table.unpack or unpack
 
 -- @fixme pick this up from specl.std with the next release
-function unpack (t, i, j)
-   return _unpack (t, tonumber (i) or 1, tonumber (j or t.n or len (t)))
+function unpack(t, i, j)
+   return _unpack(t, tonumber(i) or 1, tonumber(j or t.n or len(t)))
 end
 
 
 -- In case we're not using a bleeding edge release of Specl...
 _diagnose = badargs.diagnose
-badargs.diagnose = function (...)
+badargs.diagnose = function(...)
    if have_typecheck then
-      return _diagnose (...)
+      return _diagnose(...)
    end
 end
 
-badargs.result = badargs.result or function (fname, i, want, got)
-   if want == nil then i, want =   i - 1, i end -- numbers only for narg error
+badargs.result = badargs.result or function(fname, i, want, got)
+   if want == nil then i, want = i - 1, i end -- numbers only for narg error
 
-   if got == nil and type (want) == 'number' then
-      local s = "bad result #%d from '%s' (no more than %d result%s expected, got %d)"
-      return s:format (i + 1, fname, i, i == 1 and '' or 's', want)
+   if got == nil and type(want) == 'number' then
+      local s = "bad result #%d from '%s'(no more than %d result%s expected, got %d)"
+      return s:format(i + 1, fname, i, i == 1 and '' or 's', want)
    end
 
-   local function showarg (s)
-      return ('|' .. s .. '|'):
-         gsub ('|%?', '|nil|'):
-         gsub ('|nil|', '|no value|'):
-         gsub ('|any|', '|any value|'):
-         gsub ('|#', '|non-empty '):
-         gsub ('|func|', '|function|'):
-         gsub ('|file|', '|FILE*|'):
-         gsub ('^|', ''):
-         gsub ('|$', ''):
-         gsub ('|([^|]+)$', 'or %1'):
-         gsub ('|', ', ')
+   local function showarg(s)
+      return('|' .. s .. '|'):
+         gsub('|%?', '|nil|'):
+         gsub('|nil|', '|no value|'):
+         gsub('|any|', '|any value|'):
+         gsub('|#', '|non-empty '):
+         gsub('|func|', '|function|'):
+         gsub('|file|', '|FILE*|'):
+         gsub('^|', ''):
+         gsub('|$', ''):
+         gsub('|([^|]+)$', 'or %1'):
+         gsub('|', ', ')
    end
 
-   return string.format ("bad result #%d from '%s' (%s expected, got %s)",
-                         i, fname, showarg (want), got or 'no value')
+   return string.format("bad result #%d from '%s'(%s expected, got %s)",
+                         i, fname, showarg(want), got or 'no value')
 end
 
 
 -- Wrap up badargs function in a succinct single call.
-function init (M, mname, fname)
-   local name = (mname .. '.' .. fname):gsub ('^%.', '')
+function init(M, mname, fname)
+   local name =(mname .. '.' .. fname):gsub('^%.', '')
    return M[fname],
-      function (...) return badargs.format (name, ...) end,
-      function (...) return badargs.result (name, ...) end
+      function(...) return badargs.format(name, ...) end,
+      function(...) return badargs.result(name, ...) end
 end
 
 
 -- A copy of base.lua:type, so that an unloadable base.lua doesn't
 -- prevent everything else from working.
-function objtype (o)
-   return (getmetatable (o) or {})._type or io.type (o) or type (o)
+function objtype(o)
+   return(getmetatable(o) or {})._type or io.type(o) or type(o)
 end
 
 
-function nop () end
+function nop() end
 
 
 -- Error message specifications use this to shorten argument lists.
 -- Copied from functional.lua to avoid breaking all tests if functional
 -- cannot be loaded correctly.
-function bind (f, fix)
-   return function (...)
+function bind(f, fix)
+   return function(...)
       local arg = {}
-      for i, v in pairs (fix) do
+      for i, v in pairs(fix) do
          arg[i] = v
       end
       local i = 1
@@ -138,16 +138,16 @@ function bind (f, fix)
          while arg[i] ~= nil do i = i + 1 end
          arg[i] = v
       end
-      return f (unpack (arg))
+      return f(unpack(arg))
    end
 end
 
 
-local function mkscript (code)
-   local f = os.tmpname ()
-   local h = io.open (f, 'w')
-   h:write (code)
-   h:close ()
+local function mkscript(code)
+   local f = os.tmpname()
+   local h = io.open(f, 'w')
+   h:write(code)
+   h:close()
    return f
 end
 
@@ -159,23 +159,23 @@ end
 -- @string[opt] stdin standard input contents for the script process
 -- @treturn specl.shell.Process|nil status of resulting process if
 --    execution was successful, otherwise nil
-function luaproc (code, arg, stdin)
-   local f = mkscript (code)
-   if type (arg) ~= 'table' then arg = {arg} end
-   local cmd = {LUA, f, unpack (arg)}
+function luaproc(code, arg, stdin)
+   local f = mkscript(code)
+   if type(arg) ~= 'table' then arg = {arg} end
+   local cmd = {LUA, f, unpack(arg)}
    -- inject env and stdin keys separately to avoid truncating `...` in
    -- cmd constructor
-   cmd.env = { LUA_PATH=package.path, LUA_INIT='', LUA_INIT_5_2='' }
+   cmd.env = {LUA_PATH=package.path, LUA_INIT='', LUA_INIT_5_2=''}
    cmd.stdin = stdin
-   local proc = hell.spawn (cmd)
-   os.remove (f)
+   local proc = hell.spawn(cmd)
+   os.remove(f)
    return proc
 end
 
 
 --- Check deprecation output when calling a named function in the given module.
 -- Note that the script fragments passed in *argstr* and *objectinit*
--- can reference the module table as `M`, and (where it would make sense)
+-- can reference the module table as `M`, and(where it would make sense)
 -- an object prototype as `P` and instance as `obj`.
 -- @param deprecate value of `_DEBUG.deprecate`
 -- @string module dot delimited module path to load
@@ -185,48 +185,48 @@ end
 --    object for object method deprecation check
 -- @treturn specl.shell.Process|nil status of resulting process if
 --    execution was successful, otherwise nil
-function deprecation (deprecate, module, fname, args, objectinit)
+function deprecation(deprecate, module, fname, args, objectinit)
    args = args or ''
    local script
    if objectinit == nil then
       script = string.format([[
-         _DEBUG = { deprecate = %s }
+         _DEBUG = {deprecate=%s}
          M = require '%s'
          P = M.prototype
-         print (M.%s (%s))
-      ]], tostring (deprecate), module, fname, tostring (args))
+         print(M.%s(%s))
+      ]], tostring(deprecate), module, fname, tostring(args))
    else
       script = string.format([[
-         _DEBUG = { deprecate = %s }
+         _DEBUG = {deprecate=%s}
          local M = require '%s'
          local P = M.prototype
-         local obj = P (%s)
-         print (obj:%s (%s))
-      ]], tostring (deprecate), module, objectinit, fname, tostring (args))
+         local obj = P(%s)
+         print(obj:%s(%s))
+      ]], tostring(deprecate), module, objectinit, fname, tostring(args))
    end
-   return luaproc (script)
+   return luaproc(script)
 end
 
 
 --- Concatenate the contents of listed existing files.
 -- @string ... names of existing files
 -- @treturn string concatenated contents of those files
-function concat_file_content (...)
+function concat_file_content(...)
    local t = {}
    for _, name in ipairs {...} do
-      h = io.open (name)
+      h = io.open(name)
       t[#t + 1] = h:read '*a'
    end
-   return table.concat (t)
+   return table.concat(t)
 end
 
 
-local function tabulate_output (code)
-   local proc = luaproc (code)
-   if proc.status ~= 0 then return error (proc.errout) end
+local function tabulate_output(code)
+   local proc = luaproc(code)
+   if proc.status ~= 0 then return error(proc.errout) end
    local r = {}
-   proc.output:gsub ('(%S*)[%s]*',
-      function (x)
+   proc.output:gsub('(%S*)[%s]*',
+      function(x)
          if x ~= '' then r[x] = true end
       end)
    return r
@@ -255,72 +255,72 @@ end
 --
 -- @tparam table argt one of the combinations above
 -- @treturn table a list of keys according to criteria above
-function show_apis (argt)
+function show_apis(argt)
    local added_to, from, not_in, enhanced_in, enhanced_after, by =
       argt.added_to, argt.from, argt.not_in, argt.enhanced_in,
       argt.enhanced_after, argt.by
 
    if added_to and by then
-      return tabulate_output ([[
+      return tabulate_output([[
          local before, after = {}, {}
-         for k in pairs (]] .. added_to .. [[) do
+         for k in pairs(]] .. added_to .. [[) do
             before[k] = true
          end
 
          local M = require ']] .. by .. [['
-         for k in pairs (]] .. added_to .. [[) do
+         for k in pairs(]] .. added_to .. [[) do
             after[k] = true
          end
 
-         for k in pairs (after) do
-            if not before[k] then print (k) end
+         for k in pairs(after) do
+            if not before[k] then print(k) end
          end
       ]])
 
    elseif from and not_in then
-      return tabulate_output ([[
+      return tabulate_output([[
          local from = ]] .. from .. [[
          local M = require ']] .. not_in .. [['
 
-         for k in pairs (M) do
+         for k in pairs(M) do
             -- M[1] is typically the module namespace name, don't match
             -- that!
-            if k ~= 1 and from[k] ~= M[k] then print (k) end
+            if k ~= 1 and from[k] ~= M[k] then print(k) end
          end
       ]])
 
    elseif from and enhanced_in then
-      return tabulate_output ([[
+      return tabulate_output([[
          local from = ]] .. from .. [[
          local M = require ']] .. enhanced_in .. [['
 
-         for k, v in pairs (M) do
-            if from[k] ~= M[k] and from[k] ~= nil then print (k) end
+         for k, v in pairs(M) do
+            if from[k] ~= M[k] and from[k] ~= nil then print(k) end
          end
       ]])
 
    elseif from and enhanced_after then
-      return tabulate_output ([[
+      return tabulate_output([[
          local before, after = {}, {}
          local from = ]] .. from .. [[
 
-         for k, v in pairs (from) do before[k] = v end
+         for k, v in pairs(from) do before[k] = v end
          ]] .. enhanced_after .. [[
-         for k, v in pairs (from) do after[k] = v end
+         for k, v in pairs(from) do after[k] = v end
 
-         for k, v in pairs (before) do
-            if after[k] ~= nil and after[k] ~= v then print (k) end
+         for k, v in pairs(before) do
+            if after[k] ~= nil and after[k] ~= v then print(k) end
          end
       ]])
    end
 
-   assert (false, 'missing argument to show_apis')
+   assert(false, 'missing argument to show_apis')
 end
 
 
 -- Stub inprocess.capture if necessary; new in Specl 12.
 capture = inprocess.capture or
-             function (f, arg) return nil, nil, f (unpack (arg or {})) end
+             function(f, arg) return nil, nil, f(unpack(arg or {})) end
 
 
 do
@@ -333,38 +333,38 @@ do
             matchers.Matcher, matchers.matchers, matchers.stringify
 
    matchers.have_size = Matcher {
-      function (self, actual, expect)
+      function(self, actual, expect)
          local size = 0
-         for _ in pairs (actual) do size = size + 1 end
+         for _ in pairs(actual) do size = size + 1 end
          return size == expect
       end,
 
       actual = 'table',
 
-      format_expect = function (self, expect)
+      format_expect = function(self, expect)
          return ' a table containing ' .. expect .. ' elements, '
       end,
 
-      format_any_of = function (self, alternatives)
+      format_any_of = function(self, alternatives)
          return ' a table with any of ' ..
-                   util.concat (alternatives, util.QUOTED) .. ' elements, '
+                   util.concat(alternatives, util.QUOTED) .. ' elements, '
       end,
    }
 
    matchers.have_member = Matcher {
-      function (self, actual, expect)
+      function(self, actual, expect)
          return actual[expect] ~= nil
       end,
 
       actual = 'set',
 
-      format_expect = function (self, expect)
-         return ' a set containing ' .. q (expect) .. ', '
+      format_expect = function(self, expect)
+         return ' a set containing ' .. q(expect) .. ', '
       end,
 
-      format_any_of = function (self, alternatives)
+      format_any_of = function(self, alternatives)
          return ' a set containing any of ' ..
-                   util.concat (alternatives, util.QUOTED) .. ', '
+                   util.concat(alternatives, util.QUOTED) .. ', '
       end,
    }
 

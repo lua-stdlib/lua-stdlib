@@ -22,7 +22,7 @@
 
 
 local _ENV = _ENV
-local dirsep = string.match (package.config, '^(%S+)\n')
+local dirsep = string.match(package.config, '^(%S+)\n')
 local error = error
 local getfenv = getfenv or false
 local getmetatable = getmetatable
@@ -69,7 +69,7 @@ do
    -- Unless strict was disabled (`_DEBUG = false`), or that module is not
    -- available, check for use of undeclared variables in this module...
    if _DEBUG.strict then
-      ok, strict = pcall (require, 'strict')
+      ok, strict = pcall(require, 'strict')
       if ok then
          _ENV = strict {}
       else
@@ -82,7 +82,7 @@ do
    -- Unless strict was disabled (`_DEBUG = false`), or that module is not
    -- available, check for use of undeclared variables in this module...
    if _DEBUG.argcheck then
-      ok, typecheck = pcall (require, 'typecheck')
+      ok, typecheck = pcall(require, 'typecheck')
       if not ok then
          -- ...otherwise, the strict function is not available at all!
          _DEBUG.argcheck = false
@@ -107,9 +107,9 @@ local getmetamethod, len
 
 
 -- Iterate over keys 1..n, where n is the key before the first nil
--- valued ordinal key (like Lua 5.3).
-local function ipairs (l)
-   return function (l, n)
+-- valued ordinal key(like Lua 5.3).
+local function ipairs(l)
+   return function(l, n)
       n = n + 1
       if l[n] ~= nil then
          return n, l[n]
@@ -121,15 +121,15 @@ end
 local _pairs = pairs
 
 -- Respect __pairs metamethod, even in Lua 5.1.
-local function pairs (t)
-   return (getmetamethod (t, '__pairs') or _pairs) (t)
+local function pairs(t)
+   return(getmetamethod(t, '__pairs') or _pairs)(t)
 end
 
 
-local maxn = table_maxn or function (t)
+local maxn = table_maxn or function(t)
    local n = 0
-   for k in pairs (t) do
-      if type (k) == 'number' and k > n then n = k end
+   for k in pairs(t) do
+      if type(k) == 'number' and k > n then n = k end
    end
    return n
 end
@@ -141,43 +141,43 @@ end
 --[[ ============================ ]]--
 
 
-local function argerror (name, i, extramsg, level)
+local function argerror(name, i, extramsg, level)
    level = level or 1
-   local s = string_format ("bad argument #%d to '%s'", i, name)
+   local s = string_format("bad argument #%d to '%s'", i, name)
    if extramsg ~= nil then
-      s = s .. ' (' .. extramsg .. ')'
+      s = s .. '(' .. extramsg .. ')'
    end
-   error (s, level + 1)
+   error(s, level + 1)
 end
 
 
 -- No need to recurse because functables are second class citizens in
 -- Lua:
--- func=function () print 'called' end
+-- func = function() print 'called' end
 -- func() --> 'called'
--- functable=setmetatable ({}, {__call=func})
+-- functable=setmetatable({}, {__call=func})
 -- functable() --> 'called'
--- nested=setmetatable ({}, {__call=functable})
+-- nested=setmetatable({}, {__call=functable})
 -- nested()
--- --> stdin:1: attempt to call a table value (global 'd')
+-- --> stdin:1: attempt to call a table value(global 'd')
 -- --> stack traceback:
 -- -->	stdin:1: in main chunk
 -- -->		[C]: in ?
-local function callable (x)
-   if type (x) == 'function' then return x end
-   return (getmetatable (x) or {}).__call
+local function callable(x)
+   if type(x) == 'function' then return x end
+   return(getmetatable(x) or {}).__call
 end
 
 
-local function catfile (...)
-   return table_concat ({...}, dirsep)
+local function catfile(...)
+   return table_concat({...}, dirsep)
 end
 
 
-local function compare (l, m)
-   local lenl, lenm = len (l), len (m)
-   for i = 1, math_min (lenl, lenm) do
-      local li, mi = tonumber (l[i]), tonumber (m[i])
+local function compare(l, m)
+   local lenl, lenm = len(l), len(m)
+   for i = 1, math_min(lenl, lenm) do
+      local li, mi = tonumber(l[i]), tonumber(m[i])
       if li == nil or mi == nil then
          li, mi = l[i], m[i]
       end
@@ -196,52 +196,52 @@ local function compare (l, m)
 end
 
 
-local function copy (dest, src)
+local function copy(dest, src)
    if src == nil then dest, src = {}, dest end
-   for k, v in pairs (src) do dest[k] = v end
+   for k, v in pairs(src) do dest[k] = v end
    return dest
 end
 
 
-local function escape_pattern (s)
-   return (s:gsub ('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
+local function escape_pattern(s)
+   return(s:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
 end
 
 
-local function _getfenv (fn)
+local function _getfenv(fn)
    fn = fn or 1
 
    -- Unwrap functable:
-   if type (fn) == 'table' then
-      fn = fn.call or (getmetatable (fn) or {}).__call
+   if type(fn) == 'table' then
+      fn = fn.call or(getmetatable(fn) or {}).__call
    end
 
    if getfenv then
-      if type (fn) == 'number' then fn = fn + 1 end
+      if type(fn) == 'number' then fn = fn + 1 end
 
       -- Stack frame count is critical here, so ensure we don't optimise one
       -- away in LuaJIT...
-      return getfenv (fn), nil
+      return getfenv(fn), nil
 
    else
-      if type (fn) == 'number' then
-         fn = debug_getinfo (fn + 1, 'f').func
+      if type(fn) == 'number' then
+         fn = debug_getinfo(fn + 1, 'f').func
       end
 
       local name, env
       local up = 0
       repeat
          up = up + 1
-         name, env = debug_getupvalue (fn, up)
+         name, env = debug_getupvalue(fn, up)
       until name == '_ENV' or name == nil
       return env
    end
 end
 
 
-local function invert (t)
+local function invert(t)
    local i = {}
-   for k, v in pairs (t) do
+   for k, v in pairs(t) do
       i[v] = k
    end
    return i
@@ -249,52 +249,52 @@ end
 
 
 -- Sort numbers first then asciibetically
-local function keysort (a, b)
-   if type (a) == 'number' then
-      return type (b) ~= 'number' or a < b
+local function keysort(a, b)
+   if type(a) == 'number' then
+      return type(b) ~= 'number' or a < b
    else
-      return type (b) ~= 'number' and tostring (a) < tostring (b)
+      return type(b) ~= 'number' and tostring(a) < tostring(b)
    end
 end
 
 
-local function leaves (it, tr)
-   local function visit (n)
-      if type (n) == 'table' then
-         for _, v in it (n) do
-            visit (v)
+local function leaves(it, tr)
+   local function visit(n)
+      if type(n) == 'table' then
+         for _, v in it(n) do
+            visit(v)
          end
       else
-         coroutine_yield (n)
+         coroutine_yield(n)
       end
    end
-   return coroutine_wrap (visit), tr
+   return coroutine_wrap(visit), tr
 end
 
 
-local function merge (dest, src)
-   for k, v in pairs (src) do dest[k] = dest[k] or v end
+local function merge(dest, src)
+   for k, v in pairs(src) do dest[k] = dest[k] or v end
    return dest
 end
 
 
-local pack = table_pack or function (...)
-    return {n = select ('#', ...), ...}
+local pack = table_pack or function(...)
+    return {n=select('#', ...), ...}
 end
 
 
 local fallbacks = {
    __index = {
-      open = function (x) return '{' end,
-      close = function (x) return '}' end,
+      open = function(x) return '{' end,
+      close = function(x) return '}' end,
       elem = tostring,
-      pair = function (x, kp, vp, k, v, kstr, vstr) return kstr .. '=' .. vstr end,
-      sep = function (x, kp, vp, kn, vn)
+      pair = function(x, kp, vp, k, v, kstr, vstr) return kstr .. '=' .. vstr end,
+      sep = function(x, kp, vp, kn, vn)
          return kp ~= nil and kn ~= nil and ',' or ''
       end,
-      sort = function (keys) return keys end,
-      term = function (x)
-         return type (x) ~= 'table' or getmetamethod (x, '__tostring')
+      sort = function(keys) return keys end,
+      term = function(x)
+         return type(x) ~= 'table' or getmetamethod(x, '__tostring')
       end,
    },
 }
@@ -308,57 +308,57 @@ local fallbacks = {
 --    http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
 --    Heavily modified by Simon Peyton Jones, Dec 96
 
-local function render (x, fns, roots)
-   fns = setmetatable (fns or {}, fallbacks)
+local function render(x, fns, roots)
+   fns = setmetatable(fns or {}, fallbacks)
    roots = roots or {}
 
-   local function stop_roots (x)
-      return roots[x] or render (x, fns, copy (roots))
+   local function stop_roots(x)
+      return roots[x] or render(x, fns, copy(roots))
    end
 
-   if fns.term (x) then
-      return fns.elem (x)
+   if fns.term(x) then
+      return fns.elem(x)
 
    else
-      local buf, keys = {fns.open (x)}, {}	-- pre-buffer table open
-      roots[x] = fns.elem (x)			-- recursion protection
+      local buf, keys = {fns.open(x)}, {}	-- pre-buffer table open
+      roots[x] = fns.elem(x)			-- recursion protection
 
-      for k in pairs (x) do			-- collect keys
+      for k in pairs(x) do			-- collect keys
          keys[#keys + 1] = k
       end
-      keys = fns.sort (keys)
+      keys = fns.sort(keys)
 
       local pair, sep = fns.pair, fns.sep
       local kp, vp				-- previous key and value
-      for _, k in ipairs (keys) do
+      for _, k in ipairs(keys) do
          local v = x[k]
-         buf[#buf + 1] = sep (x, kp, vp, k, v)	-- | buffer << separator
-         buf[#buf + 1] = pair (x, kp, vp, k, v, stop_roots (k), stop_roots (v))
+         buf[#buf + 1] = sep(x, kp, vp, k, v)	-- | buffer << separator
+         buf[#buf + 1] = pair(x, kp, vp, k, v, stop_roots(k), stop_roots(v))
 						-- | buffer << key/value pair
          kp, vp = k, v
       end
-      buf[#buf + 1] = sep (x, kp, vp)		-- buffer << trailing separator
-      buf[#buf + 1] = fns.close (x)		-- buffer << table close
+      buf[#buf + 1] = sep(x, kp, vp)		-- buffer << trailing separator
+      buf[#buf + 1] = fns.close(x)		-- buffer << table close
 
-      return table_concat (buf)			-- stringify buffer
+      return table_concat(buf)			-- stringify buffer
    end
 end
 
 
-local function sortkeys (t)
-   table_sort (t, keysort)
+local function sortkeys(t)
+   table_sort(t, keysort)
    return t
 end
 
 
-local function _setfenv (fn, env)
+local function _setfenv(fn, env)
    -- Unwrap functable:
-   if type (fn) == 'table' then
-      fn = fn.call or (getmetatable (fn) or {}).__call
+   if type(fn) == 'table' then
+      fn = fn.call or(getmetatable(fn) or {}).__call
    end
 
    if debug_setfenv then
-      return debug_setfenv (fn, env)
+      return debug_setfenv(fn, env)
 
    else
       -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
@@ -366,11 +366,11 @@ local function _setfenv (fn, env)
       local up = 0
       repeat
          up = up + 1
-         name = debug_getupvalue (fn, up)
+         name = debug_getupvalue(fn, up)
       until name == '_ENV' or name == nil
       if name then
-         debug_upvaluejoin (fn, up, function () return name end, 1)
-         debug_setupvalue (fn, up, env)
+         debug_upvaluejoin(fn, up, function() return name end, 1)
+         debug_setupvalue(fn, up, env)
       end
 
       return fn
@@ -378,18 +378,18 @@ local function _setfenv (fn, env)
 end
 
 
-local function split (s, sep)
+local function split(s, sep)
    local r, patt = {}
    if sep == '' then
       patt = '(.)'
-      table_insert (r, '')
+      table_insert(r, '')
    else
-      patt = '(.-)' .. (sep or '%s+')
+      patt = '(.-)' ..(sep or '%s+')
    end
-   local b, slen = 0, len (s)
+   local b, slen = 0, len(s)
    while b <= slen do
-      local e, n, m = string_find (s, patt, b + 1)
-      table_insert (r, m or s:sub (b + 1, slen))
+      local e, n, m = string_find(s, patt, b + 1)
+      table_insert(r, m or s:sub(b + 1, slen))
       b = n or slen + 1
    end
    return r
@@ -397,8 +397,8 @@ end
 
 
 local tostring_vtable = {
-   pair = function (x, kp, vp, k, v, kstr, vstr)
-      if k == 1 or type (k) == 'number' and k -1 == kp then
+   pair = function(x, kp, vp, k, v, kstr, vstr)
+      if k == 1 or type(k) == 'number' and k -1 == kp then
          return vstr
       end
       return kstr .. '=' .. vstr
@@ -422,10 +422,10 @@ local tostring_vtable = {
 -- Also PUC-Rio Lua #operation can return any numerically indexed
 -- element with an immediately following nil valued element, which is
 -- non-deterministic for non-sequence tables.
-len = function (x)
-   local m = getmetamethod (x, '__len')
-   if m then return m (x) end
-   if type (x) ~= 'table' then return #x end
+len = function(x)
+   local m = getmetamethod(x, '__len')
+   if m then return m(x) end
+   if type(x) ~= 'table' then return #x end
 
    local n = #x
    for i = 1, n do
@@ -435,9 +435,9 @@ len = function (x)
 end
 
 
-getmetamethod = function (x, n)
-   local m = (getmetatable (x) or {})[n]
-   if callable (m) then return m end
+getmetamethod = function(x, n)
+   local m =(getmetatable(x) or {})[n]
+   if callable(m) then return m end
 end
 
 
@@ -463,7 +463,7 @@ return {
    ipairs = ipairs,
    pairs = pairs,
 
-   tostring = function (x) return render (x, tostring_vtable) end,
+   tostring = function(x) return render(x, tostring_vtable) end,
 
    base = {
       copy = copy,
