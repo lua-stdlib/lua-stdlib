@@ -1,4 +1,4 @@
-Copyright (C) 2002-2016 stdlib authors
+Copyright (C) 2002-2017 stdlib authors
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

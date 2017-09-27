@@ -116,8 +116,8 @@
     useful for iterating over argument lists with nils:
 
     ```lua
-    function fn (a, b, c) for _, v in npairs {...} do print (v) end
-    fn (nil, nil, 3) --> nil nil 3
+    function fn(a, b, c) for _, v in npairs {...} do print(v) end
+    fn(nil, nil, 3) --> nil nil 3
     ```
 
   - New `debug.getfenv` and `debug.setfenv` that work with Lua 5.2 and
@@ -143,8 +143,8 @@
     deprecated api like this:
 
     ```lua
-    if maxn (argt) > 7 then
-      argerror ("fname", 8, extramsg_toomany ("argument", 7, maxn (argt)), 2)
+    if maxn(argt) > 7 then
+      argerror('fname', 8, extramsg_toomany('argument', 7, maxn(argt)), 2)
     end
     ```
 
@@ -187,8 +187,8 @@
   - Anything that responds to `tostring` can be appended to a `std.strbuf`:
 
     ```lua
-    local a, b = StrBuf { "foo", "bar" }, StrBuf { "baz", "quux" }
-    a = a .. b --> "foobarbazquux"
+    local a, b = StrBuf {'foo', 'bar'}, StrBuf {'baz', 'quux'}
+    a = a .. b --> 'foobarbazquux'
     ```
 
   - `std.strbuf` stringifies lazily, so adding tables to a StrBuf
@@ -205,29 +205,29 @@
     specified as:
 
     ```lua
-    fn = argscheck ("fname (?any...) => int, table or nil, string", fname)
+    fn = argscheck('fname(?any...) => int, table or nil, string', fname)
     ```
 
     Optional results can be marked with brackets, and an ellipsis following
     the final type denotes any additional results must match that final
     type specification. Alternative result type groups are separated by "or".
 
-  - New `table.unpack (t, [i, [j]])` function that defaults j to
-    `table.maxn (t)`, even on luajit which stops before the first nil
+  - New `table.unpack(t, [i, [j]])` function that defaults j to
+    `table.maxn(t)`, even on luajit which stops before the first nil
     valued numeric index otherwise.
 
 ### Deprecations
 
   - `std.strbuf.tostring` has been deprecated in favour of `tostring`.
-    Why write `std.strbuf.tostring (sb)` or `sb:tostring ()` when it is
-    more idiomatic to write `tostring (sb)`?
+    Why write `std.strbuf.tostring(sb)` or `sb:tostring()` when it is
+    more idiomatic to write `tostring(sb)`?
 
 ### Bug fixes
 
   - `std.barrel` and the various `monkey_patch` functions now return
     their parent module table as documented.
 
-  - stdlib modules are all `std.strict` compliant; require "std.strict"
+  - stdlib modules are all `std.strict` compliant; require 'std.strict'
     before requiring other modules no longer raises an error.
 
   - `debug.argscheck` can now diagnose when there are too many arguments,
@@ -306,13 +306,13 @@
   - New `functional.lambda` function for compiling lambda strings:
 
     ```lua
-    table.sort (t, lambda "|a,b| a<b")
+    table.sort(t, lambda '|a,b| a<b')
     ```
 
     or, equivalently using auto-arguments:
 
     ```lua
-    table.sort (t, lambda "= _1 < _2"
+    table.sort(t, lambda '= _1 < _2'
     ```
 
   - New `functional.map_with` that returns a new table with keys matching
@@ -321,7 +321,7 @@
     `list.map_with`.
 
   - `functional.memoize` now propagates multiple return values correctly.
-    This allows memoizing of functions that use the `return nil, "message"`
+    This allows memoizing of functions that use the `return nil, 'message'`
     pattern for error message reporting.
 
   - New `functional.nop` function, for use where a function is required
@@ -410,8 +410,8 @@
 
     ```lua
     _DEBUG = false
-    _DEBUG = { deprecate = false }
-    require "std.debug_init".deprecate = false
+    _DEBUG = {deprecate=false}
+    require 'std.debug_init'.deprecate = false
     ```
 
     Or, to confirm you're not trying to call a deprecated function at
@@ -420,8 +420,8 @@
 
     ```lua
     _DEBUG = true
-    _DEBUG = { deprecate = true }
-    require "std.debug_init".deprecate = true
+    _DEBUG = {deprecate=true}
+    require 'std.debug_init'.deprecate = true
     ```
 
     The `_DEBUG` global must be set before requiring any stdlib modules,
@@ -465,7 +465,7 @@
     old name now gives a deprecation warning.
 
   - `list.relems` has been deprecated, in favour of the more idiomatic
-    `functional.compose (std.ireverse, std.ielems)`.
+    `functional.compose(std.ireverse, std.ielems)`.
 
   - `list.reverse` has been deprecated in favour of the more general
     and more accurately named `std.ireverse`.
@@ -502,7 +502,7 @@
     monkey_patch functions now, by injecting its methods into the given
     (or global) namespace.  To get the previous effect of running all the
     monkey_patch functions, either run them all manually, or call
-    `std.barrel ()` as before.
+    `std.barrel()` as before.
 
   - `functional.bind` sets fixed positional arguments when called as
     before, but when the newly bound function is called, those arguments
@@ -511,9 +511,9 @@
     an error previously, it now prints "100" as expected.
 
     ```lua
-    local function add (a, b) return a + b end
-    local incr = functional.bind (add, {1})
-    print (incr (99))
+    local function add(a, b) return a + b end
+    local incr = functional.bind(add, {1})
+    print(incr(99))
     ```
 
     If you have any code that calls functions returned from `bind`, you
@@ -530,7 +530,7 @@
     module `std.operator`.  It will also continue to be available from the
     legacy `functional.op` access point for the forseeable future.
 
-  - The `functional.op[".."]` operator is no longer a list concatenation
+  - The `functional.op['..']` operator is no longer a list concatenation
     only loaded when `std.list` is required, but a regular string
     concatenation just like Lua's `..` operator.
 
@@ -548,8 +548,8 @@
     before loading any stdlib modules:
 
     ```lua
-    _DEBUG = { argcheck = false }
-    local set = require "std.set"
+    _DEBUG = {argcheck=false}
+    local set = require 'std.set'
     ```
 
   - `string.pad` will still (by implementation accident) coerce non-
@@ -619,13 +619,13 @@
 ### Incompatible changes
 
   - Core methods and metamethods are no longer monkey patched by default
-    when you `require "std"` (or `std.io`, `std.math`, `std.string` or
+    when you `require 'std'` (or `std.io`, `std.math`, `std.string` or
     `std.table`).  Instead they provide a new `monkey_patch` method you
     should use when you don't care about interactions with other
     modules:
 
     ```lua
-    local io = require "std.io".monkey_patch ()
+    local io = require 'std.io'.monkey_patch()
     ```
 
     To install all of stdlib's monkey patches, the `std` module itself
@@ -637,14 +637,14 @@
     adjust the first line to:
 
     ```lua
-    local std = require "std".monkey_patch ()
+    local std = require 'std'.monkey_patch()
     ```
 
-  - The global namespace is no longer clobbered by `require "std"`. To
+  - The global namespace is no longer clobbered by `require 'std'`. To
     get the old behaviour back:
 
     ```lua
-    local std = require "std".barrel (_G)
+    local std = require 'std'.barrel(_G)
     ```
 
     This will execute all available monkey_patch functions, and then
@@ -698,40 +698,40 @@
     new paths. For example, instead of all this:
 
     ```lua
-    lib = std.io.catfile (".", "lib", package.path_mark .. ".lua")
-    paths = std.string.split (package.path, package.pathsep)
-    for i, path in ipairs (paths) do
+    lib = std.io.catfile('.', 'lib', package.path_mark .. '.lua')
+    paths = std.string.split(package.path, package.pathsep)
+    for i, path in ipairs(paths) do
       -- ... lots of normalization code...
     end
     i = 1
     while i <= #paths do
       if paths[i] == lib then
-        table.remove (paths, i)
+        table.remove(paths, i)
       else
         i = i + 1
       end
     end
-    table.insert (paths, 1, lib)
-    package.path = table.concat (paths, package.pathsep)
+    table.insert(paths, 1, lib)
+    package.path = table.concat(paths, package.pathsep)
     ```
 
     You can now write just:
 
     ```lua
-    package.path = package.normalize ("./lib/?.lua", package.path)
+    package.path = package.normalize('./lib/?.lua', package.path)
     ```
 
   - `std.optparse:parse` accepts a second optional parameter, a table of
     default option values.
 
   - `table.clone` accepts an optional table of key field renames in the
-    form of `{oldkey = newkey, ...}` subsuming the functionality of
+    form of `{oldkey=newkey, ...}` subsuming the functionality of
     `table.clone_rename`. The final `nometa` parameter is supported
     whether or not a rename map is given:
 
     ```lua
-    r = table.clone (t, "nometa")
-    r = table.clone (t, {oldkey = newkey}, "nometa")
+    r = table.clone(t, 'nometa')
+    r = table.clone(t, {oldkey=newkey}, 'nometa')
     ```
 
 ### Deprecations
@@ -746,7 +746,7 @@
     unhandled option in a combined (i.e. `-xyz`) short option string.
 
   - Surplus unmapped fields are now discarded during object cloning, for
-    example when a prototype has `_init` set to `{ "first", "second" }`,
+    example when a prototype has `_init` set to `{'first', 'second'}`,
     and is cloned using `Proto {'one', 'two', 'three'}`, then the
     unmapped `three` argument is now discarded.
 
@@ -754,12 +754,12 @@
     used as a key list to dereference the root of the tree, particularly
     `tree[{}]` now returns the root node of `tree`, to match the initial
     `branch` and final `join` results from a full traversal by
-    `std.tree.nodes (tree)`.
+    `std.tree.nodes(tree)`.
 
 ### Incompatible changes
 
   - `std.string` no longer sets `__append`, `__concat` and `__index` in
-    the core strings metatable by default, though `require "std"` does
+    the core strings metatable by default, though `require 'std'` does
     continue to do so.  See LDocs for `std.string` for details.
 
   - `std.optparse` no longer normalizes unhandled options.  For example,
@@ -792,17 +792,17 @@
 
     ```lua
     Proto = Object {
-      _type = "proto"
-      _init = function (self, arg, ...)
-        if type (arg) == "table" then
-          mapfields (self, arg)
+      _type = 'proto'
+      _init = function(self, arg, ...)
+        if type(arg) == 'table' then
+          mapfields(self, arg)
         else
           -- non-table instantiation code
         end
       end,
     }
-    new = Proto (str, #str)
-    Derived = proto { _type = "Derived", ... }
+    new = Proto(str, #str)
+    Derived = proto {_type='Derived', ...}
     ```
 
   - Much faster object cloning; `mapfields` is in imperative style and
@@ -824,11 +824,11 @@
      global namespace where they can access it:
 
     ```lua
-    local OptionParser = require "std.optparse"
-    local parser = OptionParser "eg 0\nUsage: eg\n"
-    _G.arg, _G.opts = parser:parse (_G.arg)
+    local OptionParser = require 'std.optparse'
+    local parser = OptionParser 'eg 0\nUsage: eg\n'
+    _G.arg, _G.opts = parser:parse(_G.arg)
     if not _G.opts.keep_going then
-      require "std.io".warn "oh noes!"
+      require 'std.io'.warn 'oh noes!'
     end
     ```
 
@@ -848,7 +848,7 @@
   - `string.split` no longer goes into an infinite loop when given an
     empty separator string.
 
-  - Fix `getmetatable (container._functions) == getmetatable (container)`,
+  - Fix `getmetatable(container._functions) == getmetatable(container)`,
     which made tostring on containers misbehave, among other latent bugs.
 
   - `_functions` is never copied into a metatable now, finally solving
@@ -868,7 +868,7 @@
     metatable will automatically require submodules on first reference:
 
     ```lua
-   local std = require "std"
+   local std = require 'std'
    local prototype = std.container.prototype
     ```
 
@@ -910,30 +910,30 @@
     dependencies on other std modules into the global namespace.
 
   - Objects derived from the `std.object` prototype have a new
-    <derived_object>:prototype () method that returns the contents of the
+    <derived_object>:prototype() method that returns the contents of the
     new internal `_type` field.  This can be overridden during cloning
     with, e.g.:
 
     ```lua
-    local Object = require "std.object"
-    Prototype = Object { _type = "Prototype", <other_fields> }
+    local Object = require 'std.object'
+    Prototype = Object {_type='Prototype', <other_fields>}
     ```
 
   - Objects derived from the `std.object` prototype return a new table
     with a shallow copy of all non-private fields (keys that do not
-    begin with "_") when passed to `table.totable` - unless overridden
+    begin with '_') when passed to `table.totable` - unless overridden
     in the derived object's __totable field.
 
   - list and strbuf are now derived from `std.object`, which means that
-    they respond to `object.prototype` with appropriate type names ("List",
-    "StrBuf", etc.) and can be used as prototypes for further derived
-    objects or clones; support object:prototype (); respond to totable etc.
+    they respond to `object.prototype` with appropriate type names ('List',
+    'StrBuf', etc.) and can be used as prototypes for further derived
+    objects or clones; support object:prototype(); respond to totable etc.
 
   - A new Container module at `std.container` makes separation between
-    container objects (which are free to use __index as a "[]" access
+    container objects (which are free to use __index as a '[]' access
     metamethod, but) which have no object methods, and regular objects
     (which do have object methods, but) which cannot use the __index
-    metamethod for "[]" access to object contents.
+    metamethod for '[]' access to object contents.
 
   - set and tree are now derived from `std.container`, so there are no
     object methods.  Instead there are a full complement of equivalent
@@ -965,7 +965,7 @@
     release.
 
     ```lua
-    local prototype = (require 'std.object').prototype
+    local prototype = require 'std.object'.prototype
     ```
 
     ...makes for more readable code, rather than confusion between the
@@ -979,7 +979,7 @@
     `_ext` suffix.  Instead, you must now use, e.g.:
 
     ```lua
-    local string = require "std.string"
+    local string = require 'std.string'
     ```
 
     These names are now stable, and will be available from here for
@@ -999,7 +999,7 @@
     and now uses prototype functions instead:
 
     ```lua
-    local union = Set.union (set1, set2)
+    local union = Set.union(set1, set2)
     ```
 
 
@@ -1025,7 +1025,7 @@
     except `std.lua` itself.  Importing individual modules now involves:
 
     ```lua
-    local list = require "std.list"
+    local list = require 'std.list'
     ```
 
     If you want to have all the symbols previously available from the
@@ -1033,7 +1033,7 @@
     yourself, or import everything with:
 
     ```lua
-    require "std"
+    require 'std'
     ```
 
     which still behaves per previous releases.
@@ -1060,7 +1060,7 @@
   - there are some requirement loops between modules, so not everything can
     be required independently just now;
 
-  - `require "std"` will continue to inject std symbols into the system
+  - `require 'std'` will continue to inject std symbols into the system
     tables for backwards compatibility;
 
   - stdlib no longer ships a copy of Specl, which you will need to install
@@ -1097,7 +1097,7 @@
     packaging, which requires you to assign the return values from your imports:
 
     ```lua
-    getopt = require "getopt"
+    getopt = require 'getopt'
     ```
 
   - Extension modules, table_ext, package_ext etc. return the unextended module
@@ -1105,7 +1105,7 @@
     return values or save them for programatically backing out the changes:
 
     ```lua
-    table_unextended = require "table_ext"
+    table_unextended = require 'table_ext'
     ```
 
   - Additionally, Specl (see http://github.com/gvvaughan/specl/) specifications
@@ -1162,7 +1162,7 @@
 
 ## Noteworthy changes in release 26 (2012-02-18) [stable]
 
-  - This release improves getoptâs output messages and conformance to
+  - This release improves getopt's output messages and conformance to
     standard practice for default options. io.processFiles now unsets prog.file
     when it finishes, so that a program can tell when itâs no longer
     processing a file. Three new tree iterators, inodes, leaves and ileaves,
@@ -1254,7 +1254,7 @@
     io.writeLine. It also simplifies the op table, which now merely sugars the
     built-in operators rather than extending them. It adds a new tree module,
     which subsumes the old table.deepclone and table.lookup functions.
-    table.subscript has become op["[]"], and table.subscripts has been removed;
+    table.subscript has become op['[]'], and table.subscripts has been removed;
     the old treeIter iterator has been simplified and generalised, and renamed
     to nodes. The mk1file script and std.lua library loader have had the module
     list factored out into modules.lua. strict.lua from the Lua distribution is
@@ -1273,7 +1273,7 @@
 ## Noteworthy changes in release 13 (2010-06-02) [stable]
 
   - This release removes the lcs module from the standard set loaded by
-    "std", removes an unnecessary definition of print, and tidies up the
+    'std', removes an unnecessary definition of print, and tidies up the
     implementation of the "op" table of functional versions of the infix
     operators and logical operators.
 
@@ -1286,7 +1286,7 @@
     to io.splitdir, making them behave the same as the corresponding Perl
     functions. The dependency on lrexlib has been removed along with the rex
     wrapper module. Some of the more esoteric and special-purpose modules
-    (mbox, xml, parser) are no longer loaded by 'require "std"'.
+    (mbox, xml, parser) are no longer loaded by 'require 'std''.
 
     This leaves stdlib with no external dependencies, and a rather more
     coherent set of basic modules.

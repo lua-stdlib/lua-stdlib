@@ -1,3 +1,8 @@
+--[[
+ General Lua Libraries for Lua 5.1, 5.2 & 5.3
+ Copyright (C) 2011-2017 Gary V. Vaughan
+ Copyright (C) 2002-2014 Reuben Thomas <rrt@sc3d.org>
+]]
 --[[--
  Prevent dependency loops with key function implementations.
 

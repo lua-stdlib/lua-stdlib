@@ -1,6 +1,11 @@
--- -*- lua -*-
-title = "stdlib @PACKAGE_VERSION@ Reference"
-project = "stdlib @PACKAGE_VERSION@"
+--[[
+ General Lua Libraries for Lua 5.1, 5.2 & 5.3
+ Copyright (C) 2011-2017 Gary V. Vaughan
+ Copyright (C) 2002-2014 Reuben Thomas <rrt@sc3d.org>
+]]
+
+title = 'stdlib @PACKAGE_VERSION@ Reference'
+project = 'stdlib @PACKAGE_VERSION@'
 description = [[
 # Standard Lua Libraries
 
@@ -19,31 +24,31 @@ The code is copyright by its respective authors, and released under the
 MIT license (the same license as Lua itself).  There is no warranty.
 ]]
 
-dir = "."
+dir = '.'
 
 file = {
-  "../lib/std/init.lua",
-  "../lib/std/debug.lua",
-  "../lib/std/io.lua",
-  "../lib/std/math.lua",
-  "../lib/std/package.lua",
-  "../lib/std/string.lua",
-  "../lib/std/table.lua",
+  '../lib/std/init.lua',
+  '../lib/std/debug.lua',
+  '../lib/std/io.lua',
+  '../lib/std/math.lua',
+  '../lib/std/package.lua',
+  '../lib/std/string.lua',
+  '../lib/std/table.lua',
 }
 
-new_type ("corefunction", "Core_Functions", true)
-new_type ("corelibrary", "Core_Libraries", true)
+new_type ('corefunction', 'Core_Functions', true)
+new_type ('corelibrary', 'Core_Libraries', true)
 
 function postprocess_html(s)
-  s = s:gsub("<h1>%s*Corefunction (.-)</p>", '<h1>Module %1</h1>')
-  s = s:gsub("<h1>%s*Corelibrary (.-)</p>", '<h1>Module %1</h1>')
-  s = s:gsub("<h2>Core_Functions</h2>", '<h2>Core Functions</h2>')
-  s = s:gsub("<h2>Core_Libraries</h2>", '<h2>Core Libraries</h2>')
+  s = s:gsub('<h1>%s*Corefunction (.-)</p>', '<h1>Module %1</h1>')
+  s = s:gsub('<h1>%s*Corelibrary (.-)</p>', '<h1>Module %1</h1>')
+  s = s:gsub('<h2>Core_Functions</h2>', '<h2>Core Functions</h2>')
+  s = s:gsub('<h2>Core_Libraries</h2>', '<h2>Core Libraries</h2>')
   return s
 end
 
-new_type ("init", "Initialisation", false, "Parameters")
+new_type ('init', 'Initialisation', false, 'Parameters')
 
-format = "markdown"
+format = 'markdown'
 backtick_references = false
 sort = false
