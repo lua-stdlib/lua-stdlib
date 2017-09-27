@@ -5,6 +5,7 @@ by the [stdlib project][github]
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
 [![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
+[![codecov.io](https://codecov.io/gh/lua-stdlib/lua-stdlib/branch/master/graph/badge.svg)](https://codecov.io/gh/lua-stdlib/lua-stdlib)
 [![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
 
 
