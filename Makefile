@@ -42,6 +42,6 @@ doc/config.ld: doc/config.ld.in
 CHECK_ENV = LUA=$(LUA)
 
 check:
-	LUA=$(LUA) $(SPECL) $(SPECL_OPTS) specs/*_spec.yaml
+	LUA=$(LUA) $(SPECL) $(SPECL_OPTS) spec/*_spec.yaml
 
 .FORCE:
