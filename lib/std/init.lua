@@ -68,7 +68,9 @@ local function elems(t)
    return function(state, _)
       local v
       ctrl, v = fn(state, ctrl)
-      if ctrl then return v end
+      if ctrl then
+         return v
+      end
    end, istate, true -- wrapped initial state
 end
 
@@ -84,7 +86,9 @@ local function ielems(t)
    return function(state, _)
       local v
       ctrl, v = fn(state, ctrl)
-      if ctrl then return v end
+      if ctrl then
+         return v
+      end
    end, istate, true -- wrapped initial state
 end
 
@@ -94,7 +98,9 @@ local function npairs(t)
    local i, n = 0, m and m(t) or maxn(t)
    return function(t)
       i = i + 1
-      if i <= n then return i, t[i] end
+      if i <= n then
+         return i, t[i]
+      end
     end,
    t, i
 end
@@ -129,14 +135,22 @@ end
 
 
 local vconvert = setmetatable({
-  string = function(x) return split(x, '%.') end,
-  number = function(x) return {x} end,
-  table = function(x) return x end,
+   string = function(x)
+      return split(x, '%.')
+   end,
+   number = function(x)
+      return {x}
+   end,
+   table = function(x)
+      return x
+   end,
 }, {
-  __call = function(self, x)
-    local fn = self[type(x)] or function() return 0 end
-    return fn(x)
-  end,
+   __call = function(self, x)
+     local fn = self[type(x)] or function()
+        return 0
+     end
+     return fn(x)
+   end,
 })
 
 
@@ -149,7 +163,9 @@ local function _require(module, min, too_big, pattern)
    pattern = pattern or '([%.%d]+)%D*$'
 
    local s, m = '', require(module)
-   if type(m) == 'table' then s = tostring(m.version or m._VERSION or '') end
+   if type(m) == 'table' then
+      s = tostring(m.version or m._VERSION or '')
+   end
    local v = string_match(s, pattern) or 0
    if min then
       _assert(vcompare(v, min) >= 0, "require '" .. module ..
@@ -388,8 +404,8 @@ return setmetatable(M, {
    __index = function(self, name)
        local ok, t = pcall(require, 'std.' .. name)
        if ok then
-            rawset(self, name, t)
-            return t
+          rawset(self, name, t)
+          return t
        end
     end,
 })

@@ -22,7 +22,9 @@ before: |
            return t.content:sub(n, n)
         end
      end,
-     __len = function(t) return #t.content end,
+     __len = function(t)
+        return #t.content
+     end,
   })
 
   M = require(this_module)
@@ -36,7 +38,9 @@ specify std:
          to_equal {}
   - it exports the documented apis:
       t = {}
-      for k in pairs(M) do t[#t + 1] = k end
+      for k in pairs(M) do
+         t[#t + 1] = k
+      end
       expect(t).to_contain.a_permutation_of(exported_apis)
 
 - context when lazy loading:
@@ -95,12 +99,16 @@ specify std:
       expect(t).to_contain.a_permutation_of {'foo', 'baz', 42}
   - it respects __pairs metamethod: |
       t = {}
-      for v in f(__pairs) do t[#t + 1] = v end
+      for v in f(__pairs) do
+         t[#t + 1] = v
+      end
       expect(t).
          to_contain.a_permutation_of {'a', ' ', 's', 't', 'r', 'i', 'n', 'g'}
   - it works for an empty list:
       t = {}
-      for e in f {} do t[#t + 1] = e end
+      for e in f {} do
+         t[#t + 1] = e
+      end
       expect(t).to_equal {}
 
 
@@ -127,7 +135,9 @@ specify std:
 
   - context with a table:
     - before:
-        method = function() return 'called' end
+        method = function()
+           return 'called'
+        end
         functor = setmetatable({}, {__call=method})
         t = setmetatable({}, {
            _type='table', _method=method, _functor=functor,
@@ -165,11 +175,15 @@ specify std:
       expect(t).to_equal {'foo', 42}
   - it respects __len metamethod:
       t = {}
-      for v in f(__index) do t[#t + 1] = v end
+      for v in f(__index) do
+         t[#t + 1] = v
+      end
       expect(t).to_equal {'a', ' ', 's', 't', 'r', 'i', 'n', 'g'}
   - it works for an empty list:
       t = {}
-      for e in f {} do t[#t + 1] = e end
+      for e in f {} do
+         t[#t + 1] = e
+      end
       expect(t).to_equal {}
 
 
@@ -194,11 +208,15 @@ specify std:
       expect(t).to_equal {'foo', 42}
   - it respects __len metamethod:
       t = {}
-      for k, v in f(__index) do t[k] = v end
+      for k, v in f(__index) do
+         t[k] = v
+      end
       expect(t).to_equal {'a', ' ', 's', 't', 'r', 'i', 'n', 'g'}
   - it works for an empty list:
       t = {}
-      for i, v in f {} do t[i] = v end
+      for i, v in f {} do
+         t[i] = v
+      end
       expect(t).to_equal {}
 
 
@@ -229,7 +247,9 @@ specify std:
       expect(table.concat(t, ',')).to_be 'nil,false,nil,nil'
   - it works for an empty list:
       t = {}
-      for i, v in f {} do t[i] = v end
+      for i, v in f {} do
+         t[i] = v
+      end
       expect(t).to_equal {}
 
 
@@ -248,12 +268,16 @@ specify std:
       expect(t).to_equal {'foo', bar='baz', 42}
   - it respects __pairs metamethod: |
       t = {}
-      for k, v in f(__pairs) do t[k] = v end
+      for k, v in f(__pairs) do
+         t[k] = v
+      end
       expect(t).
          to_contain.a_permutation_of {'a', ' ', 's', 't', 'r', 'i', 'n', 'g'}
   - it works for an empty list:
       t = {}
-      for k, v in f {} do t[k] = v end
+      for k, v in f {} do
+         t[k] = v
+      end
       expect(t).to_equal {}
 
 
@@ -351,22 +375,32 @@ specify std:
       expect({type(fn), t, type(i)}).to_equal {'function', {1, 2, 3}, 'number'}
   - it iterates over the array part of a table:
       t, u = {1, 2, 3; a=4, b=5, c=6}, {}
-      for i, v in f(t) do u[i] = v end
+      for i, v in f(t) do
+         u[i] = v
+      end
       expect(u).to_equal {1, 2, 3}
   - it returns elements in reverse order:
       t, u = {'one', 'two', 'five'}, {}
-      for _, v in f(t) do u[#u + 1] = v end
+      for _, v in f(t) do
+         u[#u + 1] = v
+      end
       expect(u).to_equal {'five', 'two', 'one'}
   - it respects __len metamethod:
       t = {}
-      for i, v in f(__index) do t[i] = v end
+      for i, v in f(__index) do
+         t[i] = v
+      end
       expect(t).to_equal {'a', ' ', 's', 't', 'r', 'i', 'n', 'g'}
       t = {}
-      for _, v in f(__index) do t[#t + 1] = v end
+      for _, v in f(__index) do
+         t[#t + 1] = v
+      end
       expect(t).to_equal {'g', 'n', 'i', 'r', 't', 's', ' ', 'a'}
   - it works with the empty list:
       t = {}
-      for k, v in f {} do t[k] = v end
+      for k, v in f {} do
+         t[k] = v
+      end
       expect(t).to_equal {}
 
 
@@ -383,11 +417,15 @@ specify std:
          to_equal {'function', {1, 2, nil, nil, 3}, 'number'}
   - it iterates over the array part of a table:
       t, u = {1, 2, nil, nil, 3; a=4, b=5, c=6}, {}
-      for i, v in f(t) do u[i] = v end
+      for i, v in f(t) do
+         u[i] = v
+      end
       expect(u).to_equal {1, 2, nil, nil, 3}
   - it returns elements in reverse order:
       t, u, i = {'one', 'two', nil, nil, 'five'}, {}, 1
-      for _, v in f(t) do u[i], i = v, i + 1 end
+      for _, v in f(t) do
+         u[i], i = v, i + 1
+      end
       expect(u).to_equal {'five', nil, nil, 'two', 'one'}
   - it respects __len metamethod:
       t = {}
@@ -397,7 +435,9 @@ specify std:
       expect(table.concat(t, ',')).to_be 'nil,nil,false,nil'
   - it works with the empty list:
       t = {}
-      for k, v in f {} do t[k] = v end
+      for k, v in f {} do
+         t[k] = v
+      end
       expect(t).to_equal {}
 
 

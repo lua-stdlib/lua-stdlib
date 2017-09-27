@@ -67,7 +67,9 @@ specify std.debug:
   - before: |
       function mkwrap(k, v)
          local fmt = '%s'
-         if type(v) == 'string' then fmt = '%q' end
+         if type(v) == 'string' then
+            fmt = '%q'
+         end
          return k, string.format(fmt, require 'std'.tostring(v))
       end
 
@@ -105,7 +107,9 @@ specify std.debug:
   - before: |
       function mkwrap(k, v)
          local fmt = '%s'
-         if type(v) == 'string' then fmt = '%q' end
+         if type(v) == 'string' then
+            fmt = '%q'
+         end
          return k, string.format(fmt, require 'std'.tostring(v))
       end
 

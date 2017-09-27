@@ -95,11 +95,17 @@ end
 
 local function find(pathstrings, patt, init, plain)
    local paths = split(pathstrings, pathsep)
-   if plain then patt = escape_pattern(patt) end
+   if plain then
+      patt = escape_pattern(patt)
+   end
    init = init or 1
-   if init < 0 then init = #paths - init end
+   if init < 0 then
+      init = #paths - init
+   end
    for i = init, #paths do
-      if paths[i]:find(patt) then return i, paths[i] end
+      if paths[i]:find(patt) then
+         return i, paths[i]
+      end
    end
 end
 
@@ -156,7 +162,9 @@ end
 local function mappath(pathstrings, callback, ...)
    for _, path in ipairs(split(pathstrings, pathsep)) do
       local r = callback(path, ...)
-      if r ~= nil then return r end
+      if r ~= nil then
+         return r
+      end
    end
 end
 

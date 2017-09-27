@@ -33,12 +33,18 @@ setdebug = require 'std.debug'._setdebug
 -- valued __len metamethod, so don't write examples that need that!
 function len(x)
    local __len = getmetatable(x) or {}
-   if type(__len) == 'function' then return __len(x) end
-   if type(x) ~= 'table' then return #x end
+   if type(__len) == 'function' then
+      return __len(x)
+   end
+   if type(x) ~= 'table' then
+      return #x
+   end
 
    local n = #x
    for i = 1, n do
-      if x[i] == nil then return i -1 end
+      if x[i] == nil then
+         return i -1
+      end
    end
    return n
 end
@@ -49,7 +55,9 @@ end
 maxn = table.maxn or function(t)
    local n = 0
    for k in pairs(t) do
-      if type(k) == 'number' and k > n then n = k end
+      if type(k) == 'number' and k > n then
+         n = k
+      end
    end
    return n
 end
@@ -79,7 +87,9 @@ badargs.diagnose = function(...)
 end
 
 badargs.result = badargs.result or function(fname, i, want, got)
-   if want == nil then i, want = i - 1, i end -- numbers only for narg error
+   if want == nil then -- numbers only for narg error
+      i, want = i - 1, i
+   end
 
    if got == nil and type(want) == 'number' then
       local s = "bad result #%d from '%s'(no more than %d result%s expected, got %d)"
@@ -101,7 +111,7 @@ badargs.result = badargs.result or function(fname, i, want, got)
    end
 
    return string.format("bad result #%d from '%s'(%s expected, got %s)",
-                         i, fname, showarg(want), got or 'no value')
+      i, fname, showarg(want), got or 'no value')
 end
 
 
@@ -109,8 +119,12 @@ end
 function init(M, mname, fname)
    local name =(mname .. '.' .. fname):gsub('^%.', '')
    return M[fname],
-      function(...) return badargs.format(name, ...) end,
-      function(...) return badargs.result(name, ...) end
+      function(...)
+         return badargs.format(name, ...)
+      end,
+      function(...)
+         return badargs.result(name, ...)
+      end
 end
 
 
@@ -135,7 +149,9 @@ function bind(f, fix)
       end
       local i = 1
       for _, v in pairs {...} do
-         while arg[i] ~= nil do i = i + 1 end
+         while arg[i] ~= nil do
+            i = i + 1
+         end
          arg[i] = v
       end
       return f(unpack(arg))
@@ -161,7 +177,9 @@ end
 --    execution was successful, otherwise nil
 function luaproc(code, arg, stdin)
    local f = mkscript(code)
-   if type(arg) ~= 'table' then arg = {arg} end
+   if type(arg) ~= 'table' then
+      arg = {arg}
+   end
    local cmd = {LUA, f, unpack(arg)}
    -- inject env and stdin keys separately to avoid truncating `...` in
    -- cmd constructor
@@ -223,11 +241,15 @@ end
 
 local function tabulate_output(code)
    local proc = luaproc(code)
-   if proc.status ~= 0 then return error(proc.errout) end
+   if proc.status ~= 0 then
+      return error(proc.errout)
+   end
    local r = {}
    proc.output:gsub('(%S*)[%s]*',
       function(x)
-         if x ~= '' then r[x] = true end
+         if x ~= '' then
+            r[x] = true
+         end
       end)
    return r
 end
@@ -273,7 +295,9 @@ function show_apis(argt)
          end
 
          for k in pairs(after) do
-            if not before[k] then print(k) end
+            if not before[k] then
+               print(k)
+            end
          end
       ]])
 
@@ -285,7 +309,9 @@ function show_apis(argt)
          for k in pairs(M) do
             -- M[1] is typically the module namespace name, don't match
             -- that!
-            if k ~= 1 and from[k] ~= M[k] then print(k) end
+            if k ~= 1 and from[k] ~= M[k] then
+               print(k)
+            end
          end
       ]])
 
@@ -295,7 +321,9 @@ function show_apis(argt)
          local M = require ']] .. enhanced_in .. [['
 
          for k, v in pairs(M) do
-            if from[k] ~= M[k] and from[k] ~= nil then print(k) end
+            if from[k] ~= M[k] and from[k] ~= nil then
+               print(k)
+            end
          end
       ]])
 
@@ -304,12 +332,18 @@ function show_apis(argt)
          local before, after = {}, {}
          local from = ]] .. from .. [[
 
-         for k, v in pairs(from) do before[k] = v end
+         for k, v in pairs(from) do
+            before[k] = v
+         end
          ]] .. enhanced_after .. [[
-         for k, v in pairs(from) do after[k] = v end
+         for k, v in pairs(from) do
+            after[k] = v
+         end
 
          for k, v in pairs(before) do
-            if after[k] ~= nil and after[k] ~= v then print(k) end
+            if after[k] ~= nil and after[k] ~= v then
+               print(k)
+            end
          end
       ]])
    end
@@ -319,8 +353,9 @@ end
 
 
 -- Stub inprocess.capture if necessary; new in Specl 12.
-capture = inprocess.capture or
-             function(f, arg) return nil, nil, f(unpack(arg or {})) end
+capture = inprocess.capture or function(f, arg)
+   return nil, nil, f(unpack(arg or {}))
+end
 
 
 do
@@ -335,7 +370,9 @@ do
    matchers.have_size = Matcher {
       function(self, actual, expect)
          local size = 0
-         for _ in pairs(actual) do size = size + 1 end
+         for _ in pairs(actual) do
+            size = size + 1
+         end
          return size == expect
       end,
 

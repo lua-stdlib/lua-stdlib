@@ -129,7 +129,9 @@ end
 local maxn = table_maxn or function(t)
    local n = 0
    for k in pairs(t) do
-      if type(k) == 'number' and k > n then n = k end
+      if type(k) == 'number' and k > n then
+         n = k
+      end
    end
    return n
 end
@@ -164,7 +166,9 @@ end
 -- -->	stdin:1: in main chunk
 -- -->		[C]: in ?
 local function callable(x)
-   if type(x) == 'function' then return x end
+   if type(x) == 'function' then
+      return x
+   end
    return(getmetatable(x) or {}).__call
 end
 
@@ -197,14 +201,18 @@ end
 
 
 local function copy(dest, src)
-   if src == nil then dest, src = {}, dest end
-   for k, v in pairs(src) do dest[k] = v end
+   if src == nil then
+      dest, src = {}, dest
+   end
+   for k, v in pairs(src) do
+      dest[k] = v
+   end
    return dest
 end
 
 
 local function escape_pattern(s)
-   return(s:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
+   return (s:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
 end
 
 
@@ -217,7 +225,9 @@ local function _getfenv(fn)
    end
 
    if getfenv then
-      if type(fn) == 'number' then fn = fn + 1 end
+      if type(fn) == 'number' then
+         fn = fn + 1
+      end
 
       -- Stack frame count is critical here, so ensure we don't optimise one
       -- away in LuaJIT...
@@ -252,9 +262,8 @@ end
 local function keysort(a, b)
    if type(a) == 'number' then
       return type(b) ~= 'number' or a < b
-   else
-      return type(b) ~= 'number' and tostring(a) < tostring(b)
    end
+   return type(b) ~= 'number' and tostring(a) < tostring(b)
 end
 
 
@@ -273,7 +282,9 @@ end
 
 
 local function merge(dest, src)
-   for k, v in pairs(src) do dest[k] = dest[k] or v end
+   for k, v in pairs(src) do
+      dest[k] = dest[k] or v
+   end
    return dest
 end
 
@@ -288,11 +299,15 @@ local fallbacks = {
       open = function(x) return '{' end,
       close = function(x) return '}' end,
       elem = tostring,
-      pair = function(x, kp, vp, k, v, kstr, vstr) return kstr .. '=' .. vstr end,
+      pair = function(x, kp, vp, k, v, kstr, vstr)
+         return kstr .. '=' .. vstr
+      end,
       sep = function(x, kp, vp, kn, vn)
          return kp ~= nil and kn ~= nil and ',' or ''
       end,
-      sort = function(keys) return keys end,
+      sort = function(keys)
+         return keys
+      end,
       term = function(x)
          return type(x) ~= 'table' or getmetamethod(x, '__tostring')
       end,
@@ -424,20 +439,28 @@ local tostring_vtable = {
 -- non-deterministic for non-sequence tables.
 len = function(x)
    local m = getmetamethod(x, '__len')
-   if m then return m(x) end
-   if type(x) ~= 'table' then return #x end
+   if m then
+      return m(x)
+   end
+   if type(x) ~= 'table' then
+      return #x
+    end
 
    local n = #x
    for i = 1, n do
-      if x[i] == nil then return i -1 end
+      if x[i] == nil then
+         return i -1
+      end
    end
    return n
 end
 
 
 getmetamethod = function(x, n)
-   local m =(getmetatable(x) or {})[n]
-   if callable(m) then return m end
+   local m = (getmetatable(x) or {})[n]
+   if callable(m) then
+      return m
+   end
 end
 
 
@@ -463,7 +486,9 @@ return {
    ipairs = ipairs,
    pairs = pairs,
 
-   tostring = function(x) return render(x, tostring_vtable) end,
+   tostring = function(x)
+      return render(x, tostring_vtable)
+   end,
 
    base = {
       copy = copy,

@@ -11,8 +11,12 @@ before: |
 
   path = M.normalize('begin', 'middle', 'end')
 
-  function catfile(...) return table.concat({...}, M.dirsep) end
-  function catpath(...) return table.concat({...}, M.pathsep) end
+  function catfile(...)
+     return table.concat({...}, M.dirsep)
+  end
+  function catpath(...)
+     return table.concat({...}, M.pathsep)
+  end
 
 
 specify std.package:
@@ -99,7 +103,9 @@ specify std.package:
 
   - it calls a function with each path element:
       t = {}
-      f(path, function(e) t[#t + 1] = e end)
+      f(path, function(e)
+         t[#t + 1] = e
+      end)
       expect(t).to_equal(expected)
   - it passes additional arguments through: |
       reversed = {}
@@ -107,7 +113,9 @@ specify std.package:
          table.insert(reversed, expected[i])
       end
       t = {}
-      f(path, function(e, pos) table.insert(t, pos, e) end, 1)
+      f(path, function(e, pos)
+         table.insert(t, pos, e)
+      end, 1)
       expect(t).to_equal(reversed)
 
 

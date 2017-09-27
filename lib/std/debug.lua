@@ -69,7 +69,9 @@ local function say(n, ...)
         ((type(_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
    then
       local t = {}
-      for k, v in _pairs(argt) do t[k] = _tostring(v) end
+      for k, v in _pairs(argt) do
+         t[k] = _tostring(v)
+      end
       io_stderr:write(table_concat(t, '\t') .. '\n')
    end
 end
@@ -80,7 +82,9 @@ local level = 0
 local function trace(event)
    local t = debug.getinfo(3)
    local s = ' >>> '
-   for i = 1, level do s = s .. ' ' end
+   for i = 1, level do
+      s = s .. ' '
+   end
    if t ~= nil and t.currentline >= 0 then
       s = s .. t.short_src .. ':' .. t.currentline .. ' '
    end

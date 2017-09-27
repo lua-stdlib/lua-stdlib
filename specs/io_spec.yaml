@@ -149,16 +149,22 @@ specify std.io:
       name = 'Makefile'
       names = {'LICENSE.md', 'Makefile', 'README.md'}
       ascript = [[
-         require 'std.io'.process_files(function(a) print(a) end)
+         require 'std.io'.process_files(function(a)
+            print(a)
+         end)
       ]]
       lscript = [[
          require 'std.io'.process_files('=print(_1)')
       ]]
       iscript = [[
-         require 'std.io'.process_files(function(_, i) print(i) end)
+         require 'std.io'.process_files(function(_, i)
+            print(i)
+         end)
       ]]
       catscript = [[
-         require 'std.io'.process_files(function() io.write(io.input():read '*a') end)
+         require 'std.io'.process_files(function()
+            io.write(io.input():read '*a')
+         end)
       ]]
 
       f = M.process_files
@@ -199,14 +205,19 @@ specify std.io:
   - before: |
       name = 'Makefile'
       h = io.open(name)
-      lines = {} for l in h:lines() do lines[#lines + 1] = l end
+      lines = {}
+      for l in h:lines() do
+         lines[#lines + 1] = l
+      end
       h:close()
 
       defaultin = io.input()
 
       f, badarg = init(M, this_module,  'readlines')
   - after:
-      if io.type(defaultin) ~= 'closed file' then io.input(defaultin) end
+      if io.type(defaultin) ~= 'closed file' then
+         io.input(defaultin)
+      end
 
   - context with bad arguments: |
       badargs.diagnose(f, 'std.io.readlines(?file|string)')
@@ -261,7 +272,9 @@ specify std.io:
       defaultin = io.input()
       f, badarg = init(M, this_module,  'slurp')
   - after:
-      if io.type(defaultin) ~= 'closed file' then io.input(defaultin) end
+      if io.type(defaultin) ~= 'closed file' then
+         io.input(defaultin)
+      end
 
   - context with bad arguments: |
       badargs.diagnose(f, 'std.io.slurp(?file|string)')
@@ -379,7 +392,9 @@ specify std.io:
       defaultout = io.output()
       f, badarg = init(M, this_module,  'writelines')
   - after:
-      if io.type(defaultout) ~= 'closed file' then io.output(defaultout) end
+      if io.type(defaultout) ~= 'closed file' then
+         io.output(defaultout)
+      end
       h:close()
       os.remove(name)
 

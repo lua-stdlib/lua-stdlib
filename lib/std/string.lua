@@ -99,7 +99,9 @@ end
 
 
 local function caps(s)
-   return(s:gsub('(%w)([%w]*)', function(l, ls) return l:upper() .. ls end))
+   return(s:gsub('(%w)([%w]*)', function(l, ls)
+      return l:upper() .. ls
+   end))
 end
 
 
@@ -137,7 +139,7 @@ local function wrap(s, w, ind, ind1)
    ind = ind or 0
    ind1 = ind1 or ind
    assert(ind1 < w and ind < w,
-           'the indents must be less than the line width')
+      'the indents must be less than the line width')
    local r = {string.rep(' ', ind1)}
    local i, lstart, lens = 1, ind1, len(s)
    while i <= lens do
@@ -195,7 +197,9 @@ local function prettytostring(x, indent, spacing)
       end,
 
       elem = function(x)
-         if type(x) ~= 'string' then return tostring(x) end
+         if type(x) ~= 'string' then
+            return tostring(x)
+         end
          return string_format('%q', x)
       end,
 
@@ -297,7 +301,9 @@ M = {
    -- @treturn string *s* with any single trailing newline removed
    -- @usage
    --    line = chomp(line)
-   chomp = X('chomp(string)', function(s) return(s:gsub('\n$', '')) end),
+   chomp = X('chomp(string)', function(s)
+      return(s:gsub('\n$', ''))
+   end),
 
    --- Escape a string to be used as a pattern.
    -- @function escape_pattern

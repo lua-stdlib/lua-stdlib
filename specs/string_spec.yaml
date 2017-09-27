@@ -115,7 +115,9 @@ specify std.string:
         for c = 32, 126 do
            s = string.char(c)
            subject = subject .. s
-           if magic[s] then target = target .. '%' end
+           if magic[s] then
+              target = target .. '%'
+           end
            target = target .. s
         end
     - 'it inserts a % before any non-alphanumeric in a string':
@@ -141,7 +143,9 @@ specify std.string:
         for c = 32, 126 do
            s = string.char(c)
            subject = subject .. s
-           if s:match('[][ ()\\\'"]') then target = target .. '\\' end
+           if s:match('[][ ()\\\'"]') then
+              target = target .. '\\'
+           end
            target = target .. s
         end
     - 'it inserts a \\ before any shell metacharacters':
@@ -264,9 +268,12 @@ specify std.string:
       for n = -120, 120 do
          suffix = 'th'
          m = math.abs(n) % 10
-         if m == 1 and math.abs(n) % 100 ~= 11 then suffix = 'st'
-         elseif m == 2 and math.abs(n) % 100 ~= 12 then suffix = 'nd'
-         elseif m == 3 and math.abs(n) % 100 ~= 13 then suffix = 'rd'
+         if m == 1 and math.abs(n) % 100 ~= 11 then
+            suffix = 'st'
+         elseif m == 2 and math.abs(n) % 100 ~= 12 then
+            suffix = 'nd'
+         elseif m == 3 and math.abs(n) % 100 ~= 13 then
+            suffix = 'rd'
          end
          table.insert(target, n .. suffix)
          table.insert(subject, n .. f(n))

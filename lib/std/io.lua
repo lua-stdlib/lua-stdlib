@@ -72,7 +72,9 @@ end
 
 local function slurp(file)
    local h, err = input_handle(file)
-   if h == nil then argerror('std.io.slurp', 1, err, 2) end
+   if h == nil then
+      argerror('std.io.slurp', 1, err, 2)
+   end
 
    if h then
       local s = h:read('*a')
@@ -84,7 +86,9 @@ end
 
 local function readlines(file)
    local h, err = input_handle(file)
-   if h == nil then argerror('std.io.readlines', 1, err, 2) end
+   if h == nil then
+      argerror('std.io.readlines', 1, err, 2)
+   end
 
    local l = {}
    for line in h:lines() do
@@ -142,7 +146,9 @@ local function warnfmt(msg, ...)
          prefix = prefix .. _tostring(opts.line) .. ':'
       end
    end
-   if #prefix > 0 then prefix = prefix .. ' ' end
+   if #prefix > 0 then
+      prefix = prefix .. ' '
+   end
    return prefix .. string_format(msg, ...)
 end
 

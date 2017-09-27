@@ -60,9 +60,13 @@ local function merge_allfields(t, u, map, nometa)
       setmetatable(t, getmetatable(u))
    end
    if map then
-      for k, v in _pairs(u) do t[map[k] or k] = v end
+      for k, v in _pairs(u) do
+         t[map[k] or k] = v
+      end
    else
-      for k, v in _pairs(u) do t[k] = v end
+      for k, v in _pairs(u) do
+         t[k] = v
+      end
    end
    return t
 end
@@ -76,7 +80,9 @@ local function merge_namedfields(t, u, keys, nometa)
    if not nometa then
       setmetatable(t, getmetatable(u))
    end
-   for _, k in _pairs(keys or {}) do t[k] = u[k] end
+   for _, k in _pairs(keys or {}) do
+      t[k] = u[k]
+   end
    return t
 end
 
@@ -100,7 +106,9 @@ end
 
 
 local function insert(t, pos, v)
-   if v == nil then pos, v = len(t) + 1, pos end
+   if v == nil then
+      pos, v = len(t) + 1, pos
+   end
    if pos < 1 or pos > len(t) + 1 then
       argerror('std.table.insert', 2, 'position ' .. pos .. ' out of bounds', 2)
    end
@@ -293,8 +301,9 @@ M = {
    -- @see merge_select
    -- @usage
    --    partialcopy = clone_select(original, {'this', 'and_this'}, true)
-   clone_select = X('clone_select(table, [table], ?boolean|:nometa)',
-      function(...) return merge_namedfields({}, ...) end),
+   clone_select = X('clone_select(table, [table], ?boolean|:nometa)', function(...)
+      return merge_namedfields({}, ...)
+   end),
 
    --- Turn a list of pairs into a table.
    -- @todo Find a better name.
@@ -324,7 +333,9 @@ M = {
    -- @treturn boolean `true` if *t* is empty, otherwise `false`
    -- @usage
    --    if empty(t) then error 'ohnoes' end
-   empty = X('empty(table)', function(t) return not next(t) end),
+   empty = X('empty(table)', function(t)
+      return not next(t)
+   end),
 
    --- Make a table with a default value for unset keys.
    -- @function new
@@ -414,7 +425,7 @@ M = {
    -- @usage
    --    merge_select(_G, require 'std.debug', {'say'}, false)
    merge_select = X('merge_select(table, table, [table], ?boolean|:nometa)',
-                     merge_namedfields),
+      merge_namedfields),
 }
 
 
