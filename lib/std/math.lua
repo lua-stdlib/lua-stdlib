@@ -16,19 +16,17 @@
 ]]
 
 
-local math = math
-
-local math_floor = math.floor
-
-
 local _ = require 'std._base'
 
 local argscheck = _.typecheck and _.typecheck.argscheck
-local merge = _.base.merge
-
-local _ENV = _.strict and _.strict {} or {}
 
 _ = nil
+
+
+local _ENV = require 'std.normalize' {
+   'math',
+   merge = 'table.merge',
+}
 
 
 
@@ -40,18 +38,20 @@ _ = nil
 local M
 
 
+local _floor = math.floor
+
 local function floor(n, p)
    if(p or 0) == 0 then
-      return math_floor(n)
+      return _floor(n)
    end
    local e = 10 ^ p
-   return math_floor(n * e) / e
+   return _floor(n * e) / e
 end
 
 
 local function round(n, p)
    local e = 10 ^(p or 0)
-   return math_floor(n * e + 0.5) / e
+   return _floor(n * e + 0.5) / e
 end
 
 
@@ -90,4 +90,4 @@ M = {
 }
 
 
-return merge(M, math)
+return merge(math, M)

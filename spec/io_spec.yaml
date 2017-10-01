@@ -178,8 +178,8 @@ specify std.io:
       examples {
          ["it diagnoses non-file 'arg' elements"] = function()
             expect(luaproc(ascript, 'not-an-existing-file')).to_contain_error.any_of {
-               "cannot open file 'not-an-existing-file'",               -- Lua 5.2
-               "bad argument #1 to 'io_input' (not-an-existing-file:",  -- Lua 5.1
+               "cannot open file 'not-an-existing-file'",            -- Lua 5.2
+               "bad argument #1 to 'input' (not-an-existing-file:",  -- Lua 5.1
             }
          end
       }

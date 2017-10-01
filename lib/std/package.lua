@@ -14,10 +14,10 @@
 
  Manage `package.path` with normalization, duplicate removal,
  insertion & removal of elements and automatic folding of '/' and '?'
- onto `package.dirsep` and `package.path_mark`, for easy addition of
+ onto `package.dirsep` and `package.pathmark`, for easy addition of
  new paths. For example, instead of all this:
 
-      lib = std.io.catfile('.', 'lib', package.path_mark .. '.lua')
+      lib = std.io.catfile('.', 'lib', package.pathmark .. '.lua')
       paths = std.string.split(package.path, package.pathsep)
       for i, path in ipairs(paths) do
          -- ... lots of normalization code...
@@ -41,30 +41,26 @@
 ]]
 
 
-local ipairs = ipairs
-local package = package
-
-local package_config = package.config
-local string_match = string.match
-local table_concat = table.concat
-local table_insert = table.insert
-local table_remove = table.remove
-local table_unpack = table.unpack or unpack
-
-
 local _ = require 'std._base'
 
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
 local escape_pattern = _.string.escape_pattern
 local invert = _.table.invert
-local len = _.operator.len
-local merge = _.base.merge
 local split = _.string.split
 
-local _ENV = _.strict and _.strict {} or {}
-
 _ = nil
+
+local _ENV = require 'std.normalize' {
+   'package',
+   concat = 'table.concat',
+   dirsep = 'package.dirsep',
+   table_insert = 'table.insert',
+   merge = 'table.merge',
+   pathmark = 'package.pathmark',
+   pathsep = 'package.pathsep',
+   table_remove = 'table.remove',
+}
 
 
 
@@ -78,17 +74,15 @@ _ = nil
 -- @table package
 -- @string dirsep directory separator
 -- @string pathsep path separator
--- @string path_mark string that marks substitution points in a path template
+-- @string pathmark string that marks substitution points in a path template
 -- @string execdir(Windows only) replaced by the executable's directory in a path
 -- @string igmark Mark to ignore all before it when building `luaopen_` function name.
-local dirsep, pathsep, path_mark, execdir, igmark =
-   string_match(package_config, '^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)')
 
 
 local function pathsub(path)
    return path:gsub('%%?.', function(capture)
       if capture == '?' then
-         return path_mark
+         return pathmark
       elseif capture == '/' then
          return dirsep
       else
@@ -116,7 +110,7 @@ end
 
 
 local function normalize(...)
-   local i, paths, pathstrings = 1, {}, table_concat({...}, pathsep)
+   local i, paths, pathstrings = 1, {}, concat({...}, pathsep)
    for _, path in ipairs(split(pathstrings, pathsep)) do
       path = pathsub(path):
          gsub(catfile('^[^', ']'), catfile('.', '%0')):
@@ -153,14 +147,14 @@ local function normalize(...)
          paths[path], i = i, i + 1
       end
    end
-   return table_concat(invert(paths), pathsep)
+   return concat(invert(paths), pathsep)
 end
 
 
 local function insert(pathstrings, ...)
    local paths = split(pathstrings, pathsep)
    table_insert(paths, ...)
-   return normalize(table_unpack(paths, 1, len(paths)))
+   return normalize(unpack(paths, 1, len(paths)))
 end
 
 
@@ -177,7 +171,7 @@ end
 local function remove(pathstrings, pos)
    local paths = split(pathstrings, pathsep)
    table_remove(paths, pos)
-   return table_concat(paths, pathsep)
+   return concat(paths, pathsep)
 end
 
 
@@ -234,7 +228,7 @@ local M = {
    -- instance of duplicate elements.   Each argument can contain any number
    -- of `pathsep` delimited elements; wherein characters are subject to
    -- `/` and `?` normalization, converting `/` to `dirsep` and `?` to
-   -- `path_mark`(unless immediately preceded by a `%` character).
+   -- `pathmark`(unless immediately preceded by a `%` character).
    -- @function normalize
    -- @param ... path elements
    -- @treturn string a single normalized `pathsep` delimited paths string
@@ -254,14 +248,7 @@ local M = {
 }
 
 
-M.dirsep = dirsep
-M.execdir = execdir
-M.igmark = igmark
-M.path_mark = path_mark
-M.pathsep = pathsep
-
-
-return merge(M, package)
+return merge(package, M)
 
 
 --- Types

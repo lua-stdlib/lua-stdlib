@@ -19,37 +19,21 @@
 ]]
 
 
-local error = error
-local ipairs = ipairs
-local loadstring = loadstring or load
-local pairs = pairs
-local pcall = pcall
-local rawset = rawset
-local require = require
-local setmetatable = setmetatable
-local tostring = tostring
-local type = type
-
-local string_format = string.format
-local string_match = string.match
-
-
 local _ = require 'std._base'
 
-local _ipairs = _.ipairs
-local _pairs = _.pairs
 local _tostring = _.tostring
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
-local copy = _.base.copy
-local getmetamethod = _.getmetamethod
 local maxn = _.table.maxn
-local merge = _.base.merge
 local split = _.string.split
 
-local _ENV = _.strict and _.strict {} or {}
-
 _ = nil
+
+
+local _ENV = require 'std.normalize' {
+   format = 'string.format',
+   match = 'string.match',
+}
 
 
 
@@ -62,14 +46,14 @@ local M
 
 
 local function _assert(expect, fmt, arg1, ...)
-   local msg =(arg1 ~= nil) and string_format(fmt, arg1, ...) or fmt or ''
+   local msg =(arg1 ~= nil) and format(fmt, arg1, ...) or fmt or ''
    return expect or error(msg, 2)
 end
 
 
 local function elems(t)
-   -- capture _pairs iterator initial state
-   local fn, istate, ctrl = _pairs(t)
+   -- capture pairs iterator initial state
+   local fn, istate, ctrl = pairs(t)
    return function(state, _)
       local v
       ctrl, v = fn(state, ctrl)
@@ -81,13 +65,13 @@ end
 
 
 local function eval(s)
-   return loadstring('return ' .. s)()
+   return load('return ' .. s)()
 end
 
 
 local function ielems(t)
-   -- capture _pairs iterator initial state
-   local fn, istate, ctrl = _ipairs(t)
+   -- capture pairs iterator initial state
+   local fn, istate, ctrl = ipairs(t)
    return function(state, _)
       local v
       ctrl, v = fn(state, ctrl)
@@ -171,7 +155,7 @@ local function _require(module, min, too_big, pattern)
    if type(m) == 'table' then
       s = tostring(m.version or m._VERSION or '')
    end
-   local v = string_match(s, pattern) or 0
+   local v = match(s, pattern) or 0
    if min then
       _assert(vcompare(v, min) >= 0, "require '" .. module ..
          "' with at least version " .. min .. ', but found version ' .. v)
@@ -323,7 +307,7 @@ M = {
    --    --> 1	foo
    --    --> 2	bar
    --    std.functional.map(print, std.ipairs, {'foo', 'bar', [4]='baz', d=5})
-   ipairs = X('ipairs(table)', _ipairs),
+   ipairs = X('ipairs(table)', ipairs),
 
    --- Ordered iterator for integer keyed values.
    -- Like ipairs, but does not stop until the __len or maxn of *t*.
@@ -355,7 +339,7 @@ M = {
    --    --> 4	baz
    --    --> d	5
    --    std.functional.map(print, std.pairs, {'foo', 'bar', [4]='baz', d=5})
-   pairs = X('pairs(table)', _pairs),
+   pairs = X('pairs(table)', pairs),
 
    --- An iterator like ipairs, but in reverse.
    -- Apart from the order of the elements returned, this function follows

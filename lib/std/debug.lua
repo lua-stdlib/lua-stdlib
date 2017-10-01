@@ -16,28 +16,21 @@
 ]]
 
 
-local debug = debug
-local setmetatable = setmetatable
-local type = type
-
-local io_stderr = io.stderr
-local math_huge = math.huge
-local math_max = math.max
-local table_concat = table.concat
-
-
 local _ = require 'std._base'
 
 local _DEBUG = _._DEBUG
-local _getfenv = _.debug.getfenv
-local _pairs = _.pairs
-local _setfenv = _.debug.setfenv
 local _tostring = _.tostring
-local merge = _.base.merge
-
-local _ENV = _.strict and _.strict {} or {}
 
 _ = nil
+
+local _ENV = require 'std.normalize' {
+   'debug',
+   concat = 'table.concat',
+   huge = 'math.huge',
+   max = 'math.max',
+   merge = 'table.merge',
+   stderr = 'io.stderr',
+}
 
 
 
@@ -70,14 +63,14 @@ local function say(n, ...)
    if type(n) ~= 'number' then
       level, argt = 1, {n, ...}
    end
-   if _DEBUG.level ~= math_huge and
+   if _DEBUG.level ~= huge and
         ((type(_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
    then
       local t = {}
-      for k, v in _pairs(argt) do
+      for k, v in pairs(argt) do
          t[k] = _tostring(v)
       end
-      io_stderr:write(table_concat(t, '\t') .. '\n')
+      stderr:write(concat(t, '\t') .. '\n')
    end
 end
 
@@ -97,7 +90,7 @@ local function trace(event)
    if event == 'call' then
       level = level + 1
    else
-      level = math_max(level - 1, 0)
+      level = max(level - 1, 0)
    end
    if t.what == 'main' then
       if event == 'call' then
@@ -111,7 +104,7 @@ local function trace(event)
    else
       s = s .. event .. ' ' ..(t.name or '(C)') .. ' [' .. t.what .. ']'
    end
-   io_stderr:write(s .. '\n')
+   stderr:write(s .. '\n')
 end
 
 -- Set hooks according to _DEBUG
@@ -129,14 +122,14 @@ local M = {
    -- @function getfenv
    -- @tparam int|function|functable fn target function, or stack level
    -- @treturn table environment of *fn*
-   getfenv = _getfenv,
+   getfenv = getfenv,
 
    --- Extend `debug.setfenv` to unwrap functables correctly.
    -- @function setfenv
    -- @tparam function|functable fn target function
    -- @tparam table env new function environment
    -- @treturn function *fn*
-   setfenv = _setfenv,
+   setfenv = setfenv,
 
 
    --- Functions
@@ -185,4 +178,4 @@ local metatable = {
 }
 
 
-return setmetatable(merge(M, debug), metatable)
+return setmetatable(merge(debug, M), metatable)

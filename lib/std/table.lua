@@ -16,35 +16,19 @@
 ]]
 
 
-local getmetatable = getmetatable
-local next = next
-local setmetatable = setmetatable
-local table = table
-local tonumber = tonumber
-local type = type
-
-local math_min = math.min
-local table_insert = table.insert
-local table_unpack = table.unpack or unpack
-
-
 local _ = require 'std._base'
 
-local _ipairs = _.ipairs
-local _pairs = _.pairs
-local argerror = _.debug.argerror
 local argscheck = _.typecheck and _.typecheck.argscheck
-local copy = _.base.copy
-local getmetamethod = _.getmetamethod
 local invert = _.table.invert
-local len = _.operator.len
 local maxn = _.table.maxn
-local merge = _.base.merge
-local pack = _.table.pack
-
-local _ENV = _.strict and _.strict {} or _ENV
 
 _ = nil
+
+local _ENV = require 'std.normalize' {
+   'table',
+   merge = 'table.merge',
+   min = 'math.min',
+}	
 
 
 
@@ -65,11 +49,11 @@ local function merge_allfields(t, u, map, nometa)
       setmetatable(t, getmetatable(u))
    end
    if map then
-      for k, v in _pairs(u) do
+      for k, v in pairs(u) do
          t[map[k] or k] = v
       end
    else
-      for k, v in _pairs(u) do
+      for k, v in pairs(u) do
          t[k] = v
       end
    end
@@ -85,7 +69,7 @@ local function merge_namedfields(t, u, keys, nometa)
    if not nometa then
       setmetatable(t, getmetatable(u))
    end
-   for _, k in _pairs(keys or {}) do
+   for _, k in pairs(keys or {}) do
       t[k] = u[k]
    end
    return t
@@ -94,7 +78,7 @@ end
 
 local function depair(ls)
    local t = {}
-   for _, v in _ipairs(ls) do
+   for _, v in ipairs(ls) do
       t[v[1]] = v[2]
    end
    return t
@@ -103,12 +87,14 @@ end
 
 local function enpair(t)
    local tt = {}
-   for i, v in _pairs(t) do
+   for i, v in pairs(t) do
       tt[#tt + 1] = {i, v}
    end
    return tt
 end
 
+
+local _insert = table.insert
 
 local function insert(t, pos, v)
    if v == nil then
@@ -117,14 +103,14 @@ local function insert(t, pos, v)
    if pos < 1 or pos > len(t) + 1 then
       argerror('std.table.insert', 2, 'position ' .. pos .. ' out of bounds', 2)
    end
-   table_insert(t, pos, v)
+   _insert(t, pos, v)
    return t
 end
 
 
 local function keys(t)
    local l = {}
-   for k in _pairs(t) do
+   for k in pairs(t) do
       l[#l + 1] = k
    end
    return l
@@ -140,7 +126,7 @@ end
 
 local function project(fkey, tt)
    local r = {}
-   for _, t in _ipairs(tt) do
+   for _, t in ipairs(tt) do
       r[#r + 1] = t[fkey]
    end
    return r
@@ -149,7 +135,7 @@ end
 
 local function size(t)
    local n = 0
-   for _ in _pairs(t) do
+   for _ in pairs(t) do
       n = n + 1
    end
    return n
@@ -170,12 +156,14 @@ local _remove = table.remove
 local function remove(t, pos)
    local lent = len(t)
    pos = pos or lent
-   if pos < math_min(1, lent) or pos > lent + 1 then -- +1? whu? that's what 5.2.3 does!?!
+   if pos < min(1, lent) or pos > lent + 1 then -- +1? whu? that's what 5.2.3 does!?!
       argerror('std.table.remove', 2, 'position ' .. pos .. ' out of bounds', 2)
    end
    return _remove(t, pos)
 end
 
+
+local _unpack = unpack
 
 local function unpack(t, i, j)
    if j == nil then
@@ -183,13 +171,13 @@ local function unpack(t, i, j)
       local m = getmetamethod(t, '__len')
       j = m and m(t) or maxn(t)
    end
-   return table_unpack(t, tonumber(i) or 1, tonumber(j))
+   return _unpack(t, tonumber(i) or 1, tonumber(j))
 end
 
 
 local function values(t)
    local l = {}
-   for _, v in _pairs(t) do
+   for _, v in pairs(t) do
       l[#l + 1] = v
    end
    return l
@@ -402,7 +390,7 @@ M = {
    --    globals = keys(_G)
    keys = X('keys(table)', keys),
 
-   --- Destructively merge another table's fields into another.
+   --- Destructively merge one table's fields into another.
    -- @function merge
    -- @tparam table t destination table
    -- @tparam table u table with fields to merge
@@ -434,7 +422,7 @@ M = {
 }
 
 
-return merge(M, table)
+return merge(table, M)
 
 
 

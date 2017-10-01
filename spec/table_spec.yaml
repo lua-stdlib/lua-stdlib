@@ -25,14 +25,8 @@ specify std.table:
         expect(show_apis {added_to=base_module, by=this_module}).
            to_equal {}
     - it contains apis from the core table table:
-        apis = {}
-        for _, v in ipairs(extend_base) do
-           if M[v] ~= table[v] then
-              apis[#apis + 1] = v
-           end
-        end
         expect(show_apis {from=base_module, not_in=this_module}).
-           to_contain.a_permutation_of(apis)
+           to_contain.a_permutation_of(extend_base)
 
   - context via the std module:
     - it does not touch the global table:

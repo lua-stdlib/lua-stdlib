@@ -16,36 +16,27 @@
 ]]
 
 
-local assert = assert
-local getmetatable = getmetatable
-local string = string
-local tonumber = tonumber
-local tostring = tostring
-local type = type
-
-local io_stderr = io.stderr
-local math_abs = math.abs
-local math_floor = math.floor
-local table_concat = table.concat
-local table_insert = table.insert
-local string_format = string.format
-
-
 local _ = require 'std._base'
 
 local _tostring = _.tostring
 local argscheck = _.typecheck and _.std.typecheck.argscheck
-local copy = _.base.copy
 local escape_pattern = _.string.escape_pattern
-local len = _.operator.len
-local merge = _.base.merge
 local render = _.string.render
 local sortkeys = _.base.sortkeys
 local split = _.string.split
 
-local _ENV = _.strict and _.strict {} or _ENV
-
 _ = nil
+
+
+local _ENV = require 'std.normalize' {
+   'string',
+   abs = 'math.abs',
+   concat = 'table.concat',
+   floor = 'math.floor',
+   insert = 'table.insert',
+   format = 'string.format',
+   merge = 'table.merge',
+}
 
 
 
@@ -95,7 +86,7 @@ local function finds(s, p, i, ...)
    repeat
       from, to, r = tfind(s, p, i, ...)
       if from ~= nil then
-         table_insert(l, {from, to, capt=r})
+         insert(l, {from, to, capt=r})
          i = to + 1
       end
    until not from
@@ -116,7 +107,7 @@ end
 
 
 local function ordinal_suffix(n)
-   n = math_abs(n) % 100
+   n = abs(n) % 100
    local d = n % 10
    if d == 1 and n ~= 11 then
       return 'st'
@@ -131,7 +122,7 @@ end
 
 
 local function pad(s, w, p)
-   p = string.rep(p or ' ', math_abs(w))
+   p = string.rep(p or ' ', abs(w))
    if w < 0 then
       return string.sub(p .. s, w)
    end
@@ -156,14 +147,14 @@ local function wrap(s, w, ind, ind1)
       while s[j] == ' ' do
          j = j - 1
       end
-      table_insert(r, s:sub(i, j))
+      insert(r, s:sub(i, j))
       i = ni
       if i < lens then
-         table_insert(r, '\n' .. string.rep(' ', ind))
+         insert(r, '\n' .. string.rep(' ', ind))
          lstart = ind
       end
    end
-   return table_concat(r)
+   return concat(r)
 end
 
 
@@ -178,7 +169,7 @@ local function numbertosi(n)
    local t = _format('% #.2e', n)
    local _, _, m, e = t:find('.(.%...)e(.+)')
    local man, exp = tonumber(m), tonumber(e)
-   local siexp = math_floor(exp / 3)
+   local siexp = floor(exp / 3)
    local shift = exp - siexp * 3
    local s = SIprefix[siexp] or 'e' .. tostring(siexp)
    man = man *(10 ^ shift)
@@ -205,7 +196,7 @@ local function prettytostring(x, indent, spacing)
          if type(x) ~= 'string' then
             return tostring(x)
          end
-         return string_format('%q', x)
+         return format('%q', x)
       end,
 
       pair = function(x, _, _, k, v, kstr, vstr)
@@ -482,7 +473,7 @@ M = {
 }
 
 
-return merge(M, string)
+return merge(string, M)
 
 
 

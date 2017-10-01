@@ -308,8 +308,10 @@ function show_apis(argt)
 
    elseif from and not_in then
       return tabulate_output([[
-         local from = ]] .. from .. [[
-         local M = require ']] .. not_in .. [['
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+            M = require ']] .. not_in .. [[',
+         }
 
          for k in pairs(M) do
             -- M[1] is typically the module namespace name, don't match
@@ -322,8 +324,10 @@ function show_apis(argt)
 
    elseif from and enhanced_in then
       return tabulate_output([[
-         local from = ]] .. from .. [[
-         local M = require ']] .. enhanced_in .. [['
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+            M = require ']] .. enhanced_in .. [[',
+         }
 
          for k, v in pairs(M) do
             if from[k] ~= M[k] and from[k] ~= nil then
@@ -334,9 +338,10 @@ function show_apis(argt)
 
    elseif from and enhanced_after then
       return tabulate_output([[
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+         }
          local before, after = {}, {}
-         local from = ]] .. from .. [[
-
          for k, v in pairs(from) do
             before[k] = v
          end

@@ -6,9 +6,7 @@ before: |
   this_module = 'std.package'
   global_table = '_G'
 
-  extend_base = {'dirsep', 'execdir', 'find', 'igmark', 'insert',
-                 'mappath', 'normalize', 'pathsep', 'path_mark',
-                 'remove'}
+  extend_base = {'find', 'insert', 'mappath', 'normalize', 'remove'}
 
   M = require(this_module)
 
@@ -144,9 +142,9 @@ specify std.package:
         expect(f './../../1').to_be(catfile('..', '..', '1'))
     - it normalizes / to platform dirsep:
         expect(f '/foo/bar').to_be(catfile('', 'foo', 'bar'))
-    - it normalizes ? to platform path_mark:
+    - it normalizes ? to platform pathmark:
         expect(f '?.lua').
-           to_be(catfile('.', M.path_mark .. '.lua'))
+           to_be(catfile('.', M.pathmark .. '.lua'))
     - it strips redundant trailing /:
         expect(f '/foo/bar/').to_be(catfile('', 'foo', 'bar'))
     - it inserts missing ./ for relative paths:
@@ -163,9 +161,9 @@ specify std.package:
     - it normalizes / to platform dirsep:
         expect(f('/foo/bar', 'x')).
            to_be(catpath(catfile('', 'foo', 'bar'), catfile('.', 'x')))
-    - it normalizes ? to platform path_mark:
+    - it normalizes ? to platform pathmark:
         expect(f('?.lua', 'x')).
-           to_be(catpath(catfile('.', M.path_mark .. '.lua'), catfile('.', 'x')))
+           to_be(catpath(catfile('.', M.pathmark .. '.lua'), catfile('.', 'x')))
     - it strips redundant trailing /:
         expect(f('/foo/bar/', 'x')).
            to_be(catpath(catfile('', 'foo', 'bar'), catfile('.', 'x')))
@@ -200,5 +198,5 @@ specify std.package:
 
 - it splits package.config up:
     expect(string.format('%s\n%s\n%s\n%s\n%s\n',
-       M.dirsep, M.pathsep, M.path_mark, M.execdir, M.igmark)
+       M.dirsep, M.pathsep, M.pathmark, M.execdir, M.igmark)
     ).to_contain(package.config)

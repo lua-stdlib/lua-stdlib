@@ -16,45 +16,34 @@
 ]]
 
 
-local _G = _G
-local arg = arg
-local error = error
-local getmetatable = getmetatable
-local io = io
-local rawget = rawget
-local setmetatable = debug.setmetatable
-local type = type
-
-local io_input = io.input
-local io_open = io.open
-local io_output = io.output
-local io_popen = io.popen
-local io_stderr = io.stderr
-local io_stdin = io.stdin
-local io_type = io.type
-local io_write = io.write
-local string_format = string.format
-local table_concat = table.concat
-local table_insert = table.insert
-
-
 local _ = require 'std._base'
 
-local _ipairs = _.ipairs
 local _tostring = _.tostring
-local argerror = _.debug.argerror
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
-local dirsep = _.package.dirsep
 local leaves = _.tree.leaves
-local len = _.operator.len
-local merge = _.base.merge
 local split = _.string.split
-
-local _ENV = _.strict and _.strict {} or {}
 
 _ = nil
 
+
+local _ENV = require 'std.normalize' {
+   'io',
+   _G = _G,  -- FIXME: don't use the host _G as an API!
+   concat = 'table.concat',
+   dirsep = 'package.dirsep',
+   format = 'string.format',
+   input = 'io.input',
+   insert = 'table.insert',
+   io_type = 'io.type',
+   merge = 'table.merge',
+   open = 'io.open',
+   output = 'io.output',
+   popen = 'io.popen',
+   stderr = 'io.stderr',
+   stdin = 'io.stdin',
+   write = 'io.write',
+}
 
 
 --[[ =============== ]]--
@@ -67,9 +56,9 @@ local M
 
 local function input_handle(h)
    if h == nil then
-      return io_input()
+      return input()
    elseif type(h) == 'string' then
-      return io_open(h)
+      return open(h)
    end
    return h
 end
@@ -106,10 +95,10 @@ end
 
 local function writelines(h, ...)
    if io_type(h) ~= 'file' then
-      io_write(h, '\n')
-      h = io_output()
+      write(h, '\n')
+      h = output()
    end
-   for v in leaves(_ipairs, {...}) do
+   for v in leaves(ipairs, {...}) do
       h:write(v, '\n')
    end
 end
@@ -118,13 +107,13 @@ end
 local function process_files(fn)
    -- N.B. 'arg' below refers to the global array of command-line args
    if len(arg) == 0 then
-      table_insert(arg, '-')
+      insert(arg, '-')
    end
-   for i, v in _ipairs(arg) do
+   for i, v in ipairs(arg) do
       if v == '-' then
-         io_input(io_stdin)
+         input(stdin)
       else
-         io_input(v)
+         input(v)
       end
       fn(v, i)
    end
@@ -154,12 +143,12 @@ local function warnfmt(msg, ...)
    if #prefix > 0 then
       prefix = prefix .. ' '
    end
-   return prefix .. string_format(msg, ...)
+   return prefix .. format(msg, ...)
 end
 
 
 local function warn(msg, ...)
-   writelines(io_stderr, warnfmt(msg, ...))
+   writelines(stderr, warnfmt(msg, ...))
 end
 
 
@@ -221,7 +210,7 @@ M = {
    -- @usage
    --    dirpath = catdir('', 'absolute', 'directory')
    catdir = X('catdir(string...)', function(...)
-      return(table_concat({...}, dirsep):gsub('^$', dirsep))
+      return(concat({...}, dirsep):gsub('^$', dirsep))
    end),
 
    --- Concatenate one or more directories and a filename into a path.
@@ -293,7 +282,7 @@ M = {
    -- @see os.execute
    -- @usage
    --    users = shell [[cat /etc/passwd | awk -F: '{print $1;}']]
-   shell = X('shell(string)', function(c) return slurp(io_popen(c)) end),
+   shell = X('shell(string)', function(c) return slurp(popen(c)) end),
 
    --- Slurp a file handle.
    -- @function slurp
@@ -316,7 +305,7 @@ M = {
 }
 
 
-return merge(M, io)
+return merge(io, M)
 
 
 

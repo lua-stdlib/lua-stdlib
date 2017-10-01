@@ -105,6 +105,9 @@
     the new compact format, including stringification of Objects and
     Containers using their `__tostring` metamethods.
 
+  - For consistency with std.normalize and other package symbols, we now
+    spell `package.path_mark` as `package.pathmark`.
+
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]
 

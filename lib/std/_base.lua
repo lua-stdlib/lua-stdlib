@@ -26,37 +26,18 @@
 ]]
 
 
-local _ENV = _ENV
-local dirsep = string.match(package.config, '^(%S+)\n')
-local error = error
-local getfenv = getfenv or false
-local getmetatable = getmetatable
-local next = next
-local pairs = pairs
-local rawget = rawget
-local select = select
-local setmetatable = setmetatable
-local tonumber = tonumber
-local tostring = tostring
-local type = type
-
-local coroutine_wrap = coroutine.wrap
-local coroutine_yield = coroutine.yield
-local debug_getinfo = debug.getinfo
-local debug_getupvalue = debug.getupvalue
-local debug_setfenv = debug.setfenv
-local debug_setupvalue = debug.setupvalue
-local debug_upvaluejoin = debug.upvaluejoin
-local math_huge = math.huge
-local math_min = math.min
-local string_find = string.find
-local string_format = string.format
-local table_concat = table.concat
-local table_insert = table.insert
-local table_maxn = table.maxn
-local table_pack = table.pack
-local table_sort = table.sort
-local table_unpack = table.unpack or unpack
+local _ENV = require 'std.normalize' {
+   concat = 'table.concat',
+   dirsep = 'package.dirsep',
+   find = 'string.find',
+   insert = 'table.insert',
+   min = 'math.min',
+   shallow_copy = 'table.merge',
+   sort = 'table.sort',
+   table_maxn = table.maxn,
+   wrap = 'coroutine.wrap',
+   yield = 'coroutine.yield',
+}
 
 
 
@@ -102,33 +83,10 @@ end
 --[[ Enhanced Core Lua functions. ]]--
 --[[ ============================ ]]--
 
--- Forward declarations for Helper functions below.
-
-local getmetamethod, len
 
 -- These come as early as possible, because we want the rest of the code
 -- in this file to use these versions over the core Lua implementation
 -- (which have slightly varying semantics between releases).
-
-
--- Iterate over keys 1..n, where n is the key before the first nil
--- valued ordinal key(like Lua 5.3).
-local function ipairs(l)
-   return function(l, n)
-      n = n + 1
-      if l[n] ~= nil then
-         return n, l[n]
-      end
-   end, l, 0
-end
-
-
-local _pairs = pairs
-
--- Respect __pairs metamethod, even in Lua 5.1.
-local function pairs(t)
-   return(getmetamethod(t, '__pairs') or _pairs)(t)
-end
 
 
 local maxn = table_maxn or function(t)
@@ -148,16 +106,6 @@ end
 --[[ ============================ ]]--
 
 
-local function argerror(name, i, extramsg, level)
-   level = level or 1
-   local s = string_format("bad argument #%d to '%s'", i, name)
-   if extramsg ~= nil then
-      s = s .. '(' .. extramsg .. ')'
-   end
-   error(s, level + 1)
-end
-
-
 -- No need to recurse because functables are second class citizens in
 -- Lua:
 -- func = function() print 'called' end
@@ -174,18 +122,18 @@ local function callable(x)
    if type(x) == 'function' then
       return x
    end
-   return(getmetatable(x) or {}).__call
+   return (getmetatable(x) or {}).__call
 end
 
 
 local function catfile(...)
-   return table_concat({...}, dirsep)
+   return concat({...}, dirsep)
 end
 
 
 local function compare(l, m)
    local lenl, lenm = len(l), len(m)
-   for i = 1, math_min(lenl, lenm) do
+   for i = 1, min(lenl, lenm) do
       local li, mi = tonumber(l[i]), tonumber(m[i])
       if li == nil or mi == nil then
          li, mi = l[i], m[i]
@@ -205,52 +153,8 @@ local function compare(l, m)
 end
 
 
-local function copy(dest, src)
-   if src == nil then
-      dest, src = {}, dest
-   end
-   for k, v in pairs(src) do
-      dest[k] = v
-   end
-   return dest
-end
-
-
 local function escape_pattern(s)
    return (s:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
-end
-
-
-local function _getfenv(fn)
-   fn = fn or 1
-
-   -- Unwrap functable:
-   if type(fn) == 'table' then
-      fn = fn.call or(getmetatable(fn) or {}).__call
-   end
-
-   if getfenv then
-      if type(fn) == 'number' then
-         fn = fn + 1
-      end
-
-      -- Stack frame count is critical here, so ensure we don't optimise one
-      -- away in LuaJIT...
-      return getfenv(fn), nil
-
-   else
-      if type(fn) == 'number' then
-         fn = debug_getinfo(fn + 1, 'f').func
-      end
-
-      local name, env
-      local up = 0
-      repeat
-         up = up + 1
-         name, env = debug_getupvalue(fn, up)
-      until name == '_ENV' or name == nil
-      return env
-   end
 end
 
 
@@ -279,23 +183,10 @@ local function leaves(it, tr)
             visit(v)
          end
       else
-         coroutine_yield(n)
+         yield(n)
       end
    end
-   return coroutine_wrap(visit), tr
-end
-
-
-local function merge(dest, src)
-   for k, v in pairs(src) do
-      dest[k] = dest[k] or v
-   end
-   return dest
-end
-
-
-local pack = table_pack or function(...)
-    return {n=select('#', ...), ...}
+   return wrap(visit), tr
 end
 
 
@@ -333,7 +224,7 @@ local function render(x, fns, roots)
    roots = roots or {}
 
    local function stop_roots(x)
-      return roots[x] or render(x, fns, copy(roots))
+      return roots[x] or render(x, fns, shallow_copy(roots))
    end
 
    if fns.term(x) then
@@ -360,41 +251,14 @@ local function render(x, fns, roots)
       buf[#buf + 1] = sep(x, kp, vp)		-- buffer << trailing separator
       buf[#buf + 1] = fns.close(x)		-- buffer << table close
 
-      return table_concat(buf)			-- stringify buffer
+      return concat(buf)			-- stringify buffer
    end
 end
 
 
 local function sortkeys(t)
-   table_sort(t, keysort)
+   sort(t, keysort)
    return t
-end
-
-
-local function _setfenv(fn, env)
-   -- Unwrap functable:
-   if type(fn) == 'table' then
-      fn = fn.call or(getmetatable(fn) or {}).__call
-   end
-
-   if debug_setfenv then
-      return debug_setfenv(fn, env)
-
-   else
-      -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
-      local name
-      local up = 0
-      repeat
-         up = up + 1
-         name = debug_getupvalue(fn, up)
-      until name == '_ENV' or name == nil
-      if name then
-         debug_upvaluejoin(fn, up, function() return name end, 1)
-         debug_setupvalue(fn, up, env)
-      end
-
-      return fn
-   end
 end
 
 
@@ -402,14 +266,14 @@ local function split(s, sep)
    local r, patt = {}
    if sep == '' then
       patt = '(.)'
-      table_insert(r, '')
+      insert(r, '')
    else
       patt = '(.-)' ..(sep or '%s+')
    end
    local b, slen = 0, len(s)
    while b <= slen do
-      local e, n, m = string_find(s, patt, b + 1)
-      table_insert(r, m or s:sub(b + 1, slen))
+      local e, n, m = find(s, patt, b + 1)
+      insert(r, m or s:sub(b + 1, slen))
       b = n or slen + 1
    end
    return r
@@ -429,47 +293,6 @@ local tostring_vtable = {
 }
 
 
---[[ ================= ]]--
---[[ Helper functions. ]]--
---[[ ================= ]]--
-
--- The bare minumum of functions required to support implementation of
--- Enhanced Core Lua functions, with forward declarations near the start
--- of the file.
-
-
--- Lua < 5.2 doesn't call `__len` automatically!
--- Also PUC-Rio Lua #operation can return any numerically indexed
--- element with an immediately following nil valued element, which is
--- non-deterministic for non-sequence tables.
-len = function(x)
-   local m = getmetamethod(x, '__len')
-   if m then
-      return m(x)
-   end
-   if type(x) ~= 'table' then
-      return #x
-    end
-
-   local n = #x
-   for i = 1, n do
-      if x[i] == nil then
-         return i -1
-      end
-   end
-   return n
-end
-
-
-getmetamethod = function(x, n)
-   local m = (getmetatable(x) or {})[n]
-   if callable(m) then
-      return m
-   end
-end
-
-
-
 --[[ ============= ]]--
 --[[ Internal API. ]]--
 --[[ ============= ]]--
@@ -487,25 +310,13 @@ return {
    strict = strict,
    typecheck = typecheck,
 
-   getmetamethod = getmetamethod,
-   ipairs = ipairs,
-   pairs = pairs,
-
    tostring = function(x)
       return render(x, tostring_vtable)
    end,
 
    base = {
-      copy = copy,
-      merge = merge,
       sortkeys = sortkeys,
       toqstring = toqstring,
-   },
-
-   debug = {
-      argerror = argerror,
-      getfenv = _getfenv,
-      setfenv = _setfenv,
    },
 
    io = {
@@ -521,14 +332,6 @@ return {
       mapfields = mapfields,
    },
 
-   operator = {
-      len = len,
-   },
-
-   package = {
-      dirsep = dirsep,
-   },
-
    string = {
       escape_pattern = escape_pattern,
       render = render,
@@ -538,7 +341,6 @@ return {
    table = {
       invert = invert,
       maxn = maxn,
-      pack = pack,
    },
 
    tree = {
