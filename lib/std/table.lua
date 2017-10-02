@@ -227,7 +227,7 @@ M = {
    -- @return list-like table, with tuple-size in field `n`
    -- @usage
    --    --> {1, 2, 'ax', n=3}
-   --    pack(('ax1'):find '(%D+)')
+   --    pack(find('ax1', '(%D+)'))
    pack = pack,
 
    --- Enhance core *table.remove* to respect `__len` when *pos* is omitted.

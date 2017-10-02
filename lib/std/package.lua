@@ -55,10 +55,12 @@ local _ENV = require 'std.normalize' {
    'package',
    concat = 'table.concat',
    dirsep = 'package.dirsep',
-   table_insert = 'table.insert',
+   gsub = 'string.gsub',
    merge = 'table.merge',
    pathmark = 'package.pathmark',
    pathsep = 'package.pathsep',
+   string_find = 'string.find',
+   table_insert = 'table.insert',
    table_remove = 'table.remove',
 }
 
@@ -80,13 +82,13 @@ local _ENV = require 'std.normalize' {
 
 
 local function pathsub(path)
-   return path:gsub('%%?.', function(capture)
+   return gsub(path, '%%?.', function(capture)
       if capture == '?' then
          return pathmark
       elseif capture == '/' then
          return dirsep
       else
-         return capture:gsub('^%%', '', 1)
+         return gsub(capture, '^%%', '', 1)
       end
    end)
 end
@@ -102,7 +104,7 @@ local function find(pathstrings, patt, init, plain)
       init = #paths - init
    end
    for i = init, #paths do
-      if paths[i]:find(patt) then
+      if string_find(paths[i], patt) then
          return i, paths[i]
       end
    end
@@ -112,17 +114,16 @@ end
 local function normalize(...)
    local i, paths, pathstrings = 1, {}, concat({...}, pathsep)
    for _, path in ipairs(split(pathstrings, pathsep)) do
-      path = pathsub(path):
-         gsub(catfile('^[^', ']'), catfile('.', '%0')):
-         gsub(catfile('', '%.', ''), dirsep):
-         gsub(catfile('', '%.$'), ''):
-         gsub(catfile('^%.', '%..', ''), catfile('..', '')):
-         gsub(catfile('', '$'), '')
+      path = gsub(pathsub(path), catfile('^[^', ']'), catfile('.', '%0'))
+      path = gsub(path, catfile('', '%.', ''), dirsep)
+      path = gsub(path, catfile('', '%.$'), '')
+      path = gsub(path, catfile('^%.', '%..', ''), catfile('..', ''))
+      path = gsub(path, catfile('', '$'), '')
 
       -- Carefully remove redundant /foo/../ matches.
       repeat
          local again = false
-         path = path:gsub(catfile('', '([^', ']+)', '%.%.', ''),
+         path = gsub(path, catfile('', '([^', ']+)', '%.%.', ''),
             function(dir1)
                if dir1 == '..' then   -- don't remove /../../
                   return catfile('', '..', '..', '')
@@ -130,7 +131,8 @@ local function normalize(...)
                   again = true
                   return dirsep
                end
-            end):gsub(catfile('', '([^', ']+)', '%.%.$'),
+            end)
+         path = gsub(path, catfile('', '([^', ']+)', '%.%.$'),
                function(dir1)
                   if dir1 == '..' then -- don't remove /../..
                      return catfile('', '..', '..')

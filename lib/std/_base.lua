@@ -30,10 +30,12 @@ local _ENV = require 'std.normalize' {
    concat = 'table.concat',
    dirsep = 'package.dirsep',
    find = 'string.find',
+   gsub = 'string.gsub',
    insert = 'table.insert',
    min = 'math.min',
    shallow_copy = 'table.merge',
    sort = 'table.sort',
+   sub = 'string.sub',
    table_maxn = table.maxn,
    wrap = 'coroutine.wrap',
    yield = 'coroutine.yield',
@@ -154,7 +156,7 @@ end
 
 
 local function escape_pattern(s)
-   return (s:gsub('[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
+   return (gsub(s, '[%^%$%(%)%%%.%[%]%*%+%-%?]', '%%%0'))
 end
 
 
@@ -273,7 +275,7 @@ local function split(s, sep)
    local b, slen = 0, len(s)
    while b <= slen do
       local e, n, m = find(s, patt, b + 1)
-      insert(r, m or s:sub(b + 1, slen))
+      insert(r, m or sub(s, b + 1, slen))
       b = n or slen + 1
    end
    return r

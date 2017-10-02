@@ -33,6 +33,7 @@ local _ENV = require 'std.normalize' {
    concat = 'table.concat',
    dirsep = 'package.dirsep',
    format = 'string.format',
+   gsub = 'string.gsub',
    input = 'io.input',
    insert = 'table.insert',
    io_type = 'io.type',
@@ -210,7 +211,7 @@ M = {
    -- @usage
    --    dirpath = catdir('', 'absolute', 'directory')
    catdir = X('catdir(string...)', function(...)
-      return(concat({...}, dirsep):gsub('^$', dirsep))
+      return(gsub(concat({...}, dirsep), '^$', dirsep))
    end),
 
    --- Concatenate one or more directories and a filename into a path.
@@ -231,7 +232,7 @@ M = {
    -- @usage
    --    dir = dirname '/base/subdir/filename'
    dirname = X('dirname(string)', function(path)
-      return(path:gsub(catfile('', '[^', ']*$'), ''))
+      return(gsub(path, catfile('', '[^', ']*$'), ''))
    end),
 
    --- Split a directory path into components.

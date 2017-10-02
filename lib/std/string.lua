@@ -32,10 +32,15 @@ local _ENV = require 'std.normalize' {
    'string',
    abs = 'math.abs',
    concat = 'table.concat',
+   find = 'string.find',
    floor = 'math.floor',
-   insert = 'table.insert',
    format = 'string.format',
+   gsub = 'string.gsub',
+   insert = 'table.insert',
+   match = 'string.match',
    merge = 'table.merge',
+   sub = 'string.sub',
+   upper = 'string.upper',
 }
 
 
@@ -55,7 +60,7 @@ end
 
 local function __index(s, i)
    if type(i) == 'number' then
-      return s:sub(i, i)
+      return sub(s, i, i)
    else
       -- Fall back to module metamethods
       return M[i]
@@ -75,7 +80,7 @@ local function tpack(from, to, ...)
 end
 
 local function tfind(s, ...)
-   return tpack(s:find(...))
+   return tpack(find(s, ...))
 end
 
 
@@ -95,14 +100,14 @@ end
 
 
 local function caps(s)
-   return(s:gsub('(%w)([%w]*)', function(l, ls)
-      return l:upper() .. ls
+   return(gsub(s, '(%w)([%w]*)', function(l, ls)
+      return upper(l) .. ls
    end))
 end
 
 
 local function escape_shell(s)
-   return(s:gsub('([ %(%)%\\%[%]\'"])', '\\%1'))
+   return(gsub(s, '([ %(%)%\\%[%]\'"])', '\\%1'))
 end
 
 
@@ -147,7 +152,7 @@ local function wrap(s, w, ind, ind1)
       while s[j] == ' ' do
          j = j - 1
       end
-      insert(r, s:sub(i, j))
+      insert(r, sub(s, i, j))
       i = ni
       if i < lens then
          insert(r, '\n' .. string.rep(' ', ind))
@@ -167,7 +172,7 @@ local function numbertosi(n)
       [8]='Y'
    }
    local t = _format('% #.2e', n)
-   local _, _, m, e = t:find('.(.%...)e(.+)')
+   local _, _, m, e = find(t, '.(.%...)e(.+)')
    local man, exp = tonumber(m), tonumber(e)
    local siexp = floor(exp / 3)
    local shift = exp - siexp * 3
@@ -202,7 +207,7 @@ local function prettytostring(x, indent, spacing)
       pair = function(x, _, _, k, v, kstr, vstr)
          local type_k = type(k)
          local s = spacing
-         if type_k ~= 'string' or k:match '[^%w_]' then
+         if type_k ~= 'string' or match(k, '[^%w_]') then
             s = s .. '['
             if type_k == 'table' then
                s = s .. '\n'
@@ -240,7 +245,7 @@ end
 
 local function trim(s, r)
    r = r or '%s+'
-   return(s:gsub('^' .. r, ''):gsub(r .. '$', ''))
+   return (gsub(gsub(s, '^' .. r, ''), r .. '$', ''))
 end
 
 
@@ -272,7 +277,7 @@ M = {
    -- @function __index
    -- @string s string
    -- @tparam int|string i index or method name
-   -- @return `s:sub(i, i)` if i is a number, otherwise
+   -- @return `sub(s, i, i)` if i is a number, otherwise
    --    fall back to a `std.string` metamethod(if any).
    -- @usage
    --    getmetatable('').__index = require 'std.string'.__index
@@ -298,7 +303,7 @@ M = {
    -- @usage
    --    line = chomp(line)
    chomp = X('chomp(string)', function(s)
-      return(s:gsub('\n$', ''))
+      return(gsub(s, '\n$', ''))
    end),
 
    --- Escape a string to be used as a pattern.
@@ -306,7 +311,7 @@ M = {
    -- @string s any string
    -- @treturn string *s* with active pattern characters escaped
    -- @usage
-   --    substr = inputstr:match(escape_pattern(literal))
+   --    substr = match(inputstr, escape_pattern(literal))
    escape_pattern = X('escape_pattern(string)', escape_pattern),
 
    --- Escape a string to be used as a shell token.
@@ -351,7 +356,7 @@ M = {
    -- @usage
    --    print('got: ' .. ltrim(userinput))
    ltrim = X('ltrim(string, ?string)', function(s, r)
-      return(s:gsub('^' ..(r or '%s+'), ''))
+      return (gsub(s, '^' ..(r or '%s+'), ''))
    end),
 
    --- Write a number using SI suffixes.
@@ -423,7 +428,7 @@ M = {
    -- @usage
    --    print('got: ' .. rtrim(userinput))
    rtrim = X('rtrim(string, ?string)', function(s, r)
-      return(s:gsub((r or '%s+') .. '$', ''))
+      return (gsub(s, (r or '%s+') .. '$', ''))
    end),
 
    --- Split a string at a given separator.
