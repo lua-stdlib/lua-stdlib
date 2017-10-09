@@ -31,12 +31,11 @@ $(luadir)/version.lua: .FORCE
 	    mv '$@T' '$@';							\
 	fi
 
-doc: doc/config.ld $(SOURCES)
-	$(LDOC) -c doc/config.ld .
+doc: build-aux/config.ld $(SOURCES)
+	$(LDOC) -c build-aux/config.ld .
 
-doc/config.ld: doc/config.ld.in
-	version=`LUA_PATH=$$(pwd)'/lib/?.lua;;' $(LUA) -e 'io.stdout:write(require"std.version")'`; \
-	$(SED) -e "s,@PACKAGE_VERSION@,$$version," '$<' > '$@'
+build-aux/config.ld: build-aux/config.ld.in
+	$(SED) -e "s,@PACKAGE_VERSION@,$(VERSION)," '$<' > '$@'
 
 
 CHECK_ENV = LUA=$(LUA)

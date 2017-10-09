@@ -1,8 +1,9 @@
+*~
 .DS_Store
-/.gitmodules
+/*.src.rock
 /Makefile
+/build-aux/config.ld
 /doc
-!/doc/config.ld.in
 /lib/std/version.lua
-/stdlib-*.rockspec
-!/stdlib-git-*.rockspec
+/luacov.*.out
+/stdlib-*.tar.gz
