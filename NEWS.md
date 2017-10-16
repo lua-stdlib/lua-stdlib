@@ -11,18 +11,25 @@
     are always welcome!
 
   - With this release, stdlib is much more focused, and non-core modules
-    `std.functional`, `std.maturity`, `std.operator`, `std.optparse`,
-    `std.strict` and `std.tuple` have been moved into their own packages
-    and release cycle.  You can still install them separately from their
-    own projects or using Luarocks:
+    `optparse`, `std.functional`, 'std.prototype', `std.strict` and
+    `typecheck` have been moved into their own packages and release
+    cycle.  Also, the shared debug initialization, API deprecation and
+    Lua host normalization code have been split out into new 'std._debug',
+    `maturity` and 'std.normalize' respectively, and are pulled in
+    automatically as dependencies for any of any modules that need them.
+    You can still install them all separately from their own projects or
+    by using Luarocks:
 
     ```bash
     luarocks install optparse
-    luarocks install strict
+    luarocks install std.functional
+    luarocks install std.prototype
+    luarocks install std.strict
+    luarocks install typecheck
     ```
 
-  - All support for deprecated APIs has been removed, reducing the
-    install size even further.
+  - All support for previously deprecated APIs has been removed, reducing
+    the install size even further.
 
   - `std.string.render` now takes a table of named arguments as documented;
     the `pairs` function is now supplied with the key and value of the

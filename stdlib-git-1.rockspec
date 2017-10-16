@@ -22,6 +22,7 @@ source = {
 dependencies = {
    'lua >= 5.1, < 5.4',
    'ldoc',
+   'std._debug',
    'std.normalize >= 2.0',
 }
 
@@ -31,7 +32,6 @@ build = {
       std		= 'lib/std/init.lua',
       ['std._base']	= 'lib/std/_base.lua',
       ['std.debug']	= 'lib/std/debug.lua',
-      ['std.debug_init']= 'lib/std/debug_init/init.lua',
       ['std.io']	= 'lib/std/io.lua',
       ['std.math']	= 'lib/std/math.lua',
       ['std.package']	= 'lib/std/package.lua',

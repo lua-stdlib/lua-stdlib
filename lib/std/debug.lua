@@ -16,15 +16,9 @@
 ]]
 
 
-local _ = require 'std._base'
-
-local _DEBUG = _._DEBUG
-local _tostring = _.tostring
-
-_ = nil
-
 local _ENV = require 'std.normalize' {
    'debug',
+   _debug = require 'std._debug',
    concat = 'table.concat',
    huge = 'math.huge',
    max = 'math.max',
@@ -39,36 +33,17 @@ local _ENV = require 'std.normalize' {
 --[[ =============== ]]--
 
 
---- Control std.debug function behaviour.
--- To declare debugging state, set _DEBUG either to `false` to disable all
--- runtime debugging; to any "truthy" value(equivalent to enabling everything
--- except *call*, or as documented below.
--- @class table
--- @name _DEBUG
--- @tfield[opt=true] boolean argcheck honor argcheck and argscheck calls
--- @tfield[opt=false] boolean call do call trace debugging
--- @field[opt=nil] deprecate if `false`, deprecated APIs are defined,
---    and do not issue deprecation warnings when used; if `nil` issue a
---    deprecation warning each time a deprecated api is used; any other
---    value causes deprecated APIs not to be defined at all
--- @tfield[opt=1] int level debugging level
--- @tfield[opt=true] boolean strict enforce strict variable declaration
---    before use **in stdlib internals**(if `require 'strict'` works)
--- @usage
---    _DEBUG = {argcheck=false, level=9, strict=false}
-
-
 local function say(n, ...)
    local level, argt = n, {...}
    if type(n) ~= 'number' then
       level, argt = 1, {n, ...}
    end
-   if _DEBUG.level ~= huge and
-        ((type(_DEBUG.level) == 'number' and _DEBUG.level >= level) or level <= 1)
+   if _debug.level ~= huge and
+        ((type(_debug.level) == 'number' and _debug.level >= level) or level <= 1)
    then
       local t = {}
       for k, v in pairs(argt) do
-         t[k] = _tostring(v)
+         t[k] = str(v)
       end
       stderr:write(concat(t, '\t') .. '\n')
    end
@@ -107,8 +82,8 @@ local function trace(event)
    stderr:write(s .. '\n')
 end
 
--- Set hooks according to _DEBUG
-if type(_DEBUG) == 'table' and _DEBUG.call then
+-- Set hooks according to _debug
+if _debug.call then
    debug.sethook(trace, 'cr')
 end
 
@@ -137,26 +112,27 @@ local M = {
 
    --- Print a debugging message to `io.stderr`.
    -- Display arguments passed through `std.tostring` and separated by tab
-   -- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
-   -- is a number greater than or equal to *n*.   If `_DEBUG` is false or
-   -- nil, nothing is written.
+   -- characters when `std._debug` hinting is `true` and *n* is 1 or less;
+   -- or `std._debug.level` is a number greater than or equal to *n*.   If
+   -- `std._debug` hinting is false or nil, nothing is written.
    -- @function say
    -- @int[opt=1] n debugging level, smaller is higher priority
    -- @param ... objects to print(as for print)
    -- @usage
-   --    local _DEBUG = require 'std.debug_init'._DEBUG
-   --    _DEBUG.level = 3
-   --    say(2, '_DEBUG table contents:', _DEBUG)
+   --    local _debug = require 'std._debug'
+   --    _debug.level = 3
+   --    say(2, '_debug status level:', _debug.level)
    say = say,
 
    --- Trace function calls.
    -- Use as debug.sethook(trace, 'cr'), which is done automatically
-   -- when `_DEBUG.call` is set.
+   -- when `std._debug.call` is set.
    -- Based on test/trace-calls.lua from the Lua distribution.
    -- @function trace
    -- @string event event causing the call
    -- @usage
-   --    _DEBUG = {call=true}
+   --    local _debug = require 'std._debug'
+   --    _debug.call = true
    --    local debug = require 'std.debug'
    trace = trace,
 }

@@ -30,10 +30,6 @@ package.path = std.package.normalize(
 local LUA = os.getenv 'LUA' or 'lua'
 
 
--- Tweak _DEBUG without tripping over Specl nested environments.
-setdebug = require 'std.debug'._setdebug
-
-
 -- Simplified version for specifications, does not support functable
 -- valued __len metamethod, so don't write examples that need that!
 function len(x)
@@ -200,7 +196,7 @@ end
 -- Note that the script fragments passed in *argstr* and *objectinit*
 -- can reference the module table as `M`, and(where it would make sense)
 -- an object prototype as `P` and instance as `obj`.
--- @param deprecate value of `_DEBUG.deprecate`
+-- @param deprecate value of `std._debug.deprecate`
 -- @string module dot delimited module path to load
 -- @string fname name of a function in the table returned by requiring *module*
 -- @param[opt=''] args arguments to pass to *fname* call, must be stringifiable
@@ -213,14 +209,14 @@ function deprecation(deprecate, module, fname, args, objectinit)
    local script
    if objectinit == nil then
       script = string.format([[
-         _DEBUG = {deprecate=%s}
+         require 'std._debug'.deprecate = %s
          M = require '%s'
          P = M.prototype
          print(M.%s(%s))
       ]], tostring(deprecate), module, fname, tostring(args))
    else
       script = string.format([[
-         _DEBUG = {deprecate=%s}
+         require 'std._debug'.deprecate = %s
          local M = require '%s'
          local P = M.prototype
          local obj = P(%s)

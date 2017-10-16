@@ -11,39 +11,6 @@ before: |
   M = require(this_module)
 
 
-   table_unpack = table.unpack or unpack
-
-   function map(mapfn, ...)
-      local argt, r = pack(...), {}
-
-      local nextfn, state, k = pairs(table_unpack(argt, 1, argt.n))
-      local mapargs = pack(nextfn(state, k))
-
-      local arity = 1
-      while mapargs[1] ~= nil do
-         local d, v = mapfn(table_unpack(mapargs, 1, mapargs.n))
-         if v ~= nil then
-            arity, r = 2, {} break
-         end
-         r[#r + 1] = d
-         mapargs = {nextfn(state, mapargs[1])}
-      end
-
-      if arity > 1 then
-         -- No need to start over here, because either:
-         --   (i) arity was never 1, and the original value of mapargs is correct
-         --  (ii) arity used to be 1, but we only consumed nil values, so the
-         --       current mapargs with arity > 1 is the correct next value to use
-         while mapargs[1] ~=  nil do
-            local k, v = mapfn(table_unpack(mapargs, 1, mapargs.n))
-            r[k] = v
-            mapargs = pack(nextfn(state, mapargs[1]))
-         end
-      end
-      return r
-   end
-
-
 specify std.debug:
 - context when required:
   - context by name:
@@ -67,176 +34,164 @@ specify std.debug:
 
 
 - describe debug:
-  - before: |
-      function mkwrap(k, v)
-         local fmt = '%s'
-         if type(v) == 'string' then
-            fmt = '%q'
-         end
-         return k, string.format(fmt, require 'std'.tostring(v))
-      end
-
-      function mkdebug(debugp, ...)
-         return string.format([[
-            _DEBUG = %s
-            require 'std.debug'(%s)
-         ]],
-         require 'std'.tostring(debugp),
-         table.concat(map(mkwrap, {...}), ', '))
-      end
-
-  - it does nothing when _DEBUG is disabled:
-      expect(luaproc(mkdebug(false, 'nothing to see here'))).
-         not_to_contain_error 'nothing to see here'
-  - it writes to stderr when _DEBUG is not set:
-      expect(luaproc(mkdebug(nil, 'debugging'))).
-         to_contain_error 'debugging'
-  - it writes to stderr when _DEBUG is enabled:
-      expect(luaproc(mkdebug(true, 'debugging'))).
-         to_contain_error 'debugging'
-  - it writes to stderr when _DEBUG.level is not set:
-      expect(luaproc(mkdebug({}, 'debugging'))).
-         to_contain_error 'debugging'
-  - it writes to stderr when _DEBUG.level is specified:
-      expect(luaproc(mkdebug({level=0}, 'debugging'))).
-         to_contain_error 'debugging'
-      expect(luaproc(mkdebug({level=1}, 'debugging'))).
-         to_contain_error 'debugging'
-      expect(luaproc(mkdebug({level=2}, 'debugging'))).
-         to_contain_error 'debugging'
+  - it does nothing when std._debug is disabled:
+      expect(luaproc [[
+         require 'std._debug'(false)
+         require 'std.debug'('nothing to see here')
+      ]]).not_to_contain_error 'nothing to see here'
+  - it writes to stderr when std._debug is not set:
+      expect(luaproc [[
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
+  - it writes to stderr when std._debug is enabled:
+      expect(luaproc [[
+         require 'std._debug'(true)
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
+  - it writes to stderr when std._debug.level is not set:
+      expect(luaproc [[
+         require 'std._debug'()
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
+  - it writes to stderr when std._debug.level is specified:
+      expect(luaproc [[
+         require 'std._debug'.level = 0
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
+      expect(luaproc [[
+         require 'std._debug'.level = 1
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
+      expect(luaproc [[
+         require 'std._debug'.level = 2
+         require 'std.debug'('debugging')
+      ]]).to_contain_error 'debugging'
 
 
 - describe say:
-  - before: |
-      function mkwrap(k, v)
-         local fmt = '%s'
-         if type(v) == 'string' then
-            fmt = '%q'
-         end
-         return k, string.format(fmt, require 'std'.tostring(v))
-      end
-
-      function mksay(debugp, ...)
-         return string.format([[
-            _DEBUG = %s
-            require 'std.debug'.say(%s)
-         ]],
-         require 'std'.tostring(debugp),
-         table.concat(map(mkwrap, {...}), ', '))
-      end
-
-      f = M.say
-
   - it uses stdlib tostring:
       expect(luaproc [[require 'std.debug'.say {'debugging'}]]).
          to_contain_error(require 'std'.tostring {'debugging'})
-  - context when _DEBUG is disabled:
+  - context when std._debug is disabled:
+    - before:
+        preamble = [[
+           require 'std._debug'(false)
+        ]]
     - it does nothing when message level is not set:
-        expect(luaproc(mksay(false, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
+        expect(luaproc(preamble .. [[
+           require 'std.debug'.say 'nothing to see here'
+        ]])).not_to_contain_error 'nothing to see here'
     - it does nothing when message is set:
-        expect(luaproc(mksay(false, -999, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(false, 0, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(false, 1, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(false, 2, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(false, 999, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-  - context when _DEBUG is not set:
+        for _, level in next, {-999, 0, 1, 2, 999} do
+           expect(luaproc(preamble .. [[
+              require 'std.debug'.say(]] .. level .. [[, 'nothing to see here')
+           ]])).not_to_contain_error 'nothing to see here'
+        end
+  - context when std._debug is not set:
     - it writes to stderr when message level is not set:
-        expect(luaproc(mksay(nil, 'debugging'))).
-           to_contain_error 'debugging'
+        expect(luaproc [[
+           require 'std.debug'.say 'debugging'
+        ]]).to_contain_error 'debugging'
     - it writes to stderr when message level is 1 or lower:
-        expect(luaproc(mksay(nil, -999, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay(nil, 0, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay(nil, 1, 'debugging'))).
-           to_contain_error 'debugging'
+        for _, level in next, {-999, 0, 1} do
+           expect(luaproc([[
+              require 'std.debug'.say(]] .. level .. [[, 'debugging')
+           ]])).to_contain_error 'debugging'
+        end
     - it does nothing when message level is 2 or higher:
-        expect(luaproc(mksay(nil, 2, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(nil, 999, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-  - context when _DEBUG is enabled:
+        for _, level in next, {2, 999} do
+           expect(luaproc([[
+              require 'std.debug'.say(]] .. level .. [[, 'nothing to see here')
+           ]])).not_to_contain_error 'nothing to see here'
+        end
+  - context when std._debug is enabled:
+    - before:
+        preamble = [[
+           require 'std._debug'(true)
+        ]]
     - it writes to stderr when message level is not set:
-        expect(luaproc(mksay(true, 'debugging'))).
-           to_contain_error 'debugging'
+        expect(luaproc(preamble .. [[
+           require 'std.debug'.say 'debugging'
+        ]])).to_contain_error 'debugging'
     - it writes to stderr when message level is 1 or lower:
-        expect(luaproc(mksay(true, -999, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay(true, 0, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay(true, 1, 'debugging'))).
-           to_contain_error 'debugging'
+        for _, level in next, {-999, 0, 1} do
+           expect(luaproc(preamble .. [[
+              require 'std.debug'.say(]] .. level .. [[, 'debugging')
+           ]])).to_contain_error 'debugging'
+        end
     - it does nothing when message level is 2 or higher:
-        expect(luaproc(mksay(true, 2, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay(true, 999, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-  - context when _DEBUG.level is not set:
+        for _, level in next, {2, 999} do
+           expect(luaproc(preamble .. [[
+              require 'std.debug'.say(]] .. level .. [[, 'nothing to see here')
+           ]])).not_to_contain_error 'nothing to see here'
+        end
+  - context when std._debug.level is not set:
     - it writes to stderr when message level is not set:
-        expect(luaproc(mksay({}, 'debugging'))).
-           to_contain_error 'debugging'
+        expect(luaproc [[
+           require 'std.debug'.say 'debugging'
+        ]]).to_contain_error 'debugging'
     - it writes to stderr when message level is 1 or lower:
-        expect(luaproc(mksay({}, -999, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay({}, 0, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay({}, 1, 'debugging'))).
-           to_contain_error 'debugging'
+        for _, level in next, {-999, 0, 1} do
+           expect(luaproc([[
+              require 'std.debug'.say(]] .. level .. [[, 'debugging')
+           ]])).to_contain_error 'debugging'
+        end
     - it does nothing when message level is 2 or higher:
-        expect(luaproc(mksay({}, 2, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-        expect(luaproc(mksay({}, 999, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
-  - context when _DEBUG.level is specified:
+        for _, level in next, {2, 999} do
+           expect(luaproc([[
+              require 'std.debug'.say(]] .. level .. [[, 'nothing to see here')
+           ]])).not_to_contain_error 'nothing to see here'
+        end
+  - context when std._debug.level is specified:
     - it writes to stderr when message level is 1 or lower:
-        expect(luaproc(mksay({level=0}, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay({level=1}, 'debugging'))).
-           to_contain_error 'debugging'
-        expect(luaproc(mksay({level=2}, 'debugging'))).
-           to_contain_error 'debugging'
+        for _, level in next, {0, 1, 2} do
+           expect(luaproc([[
+              require 'std._debug'.level = ]] .. level .. [[
+              require 'std.debug'.say 'debugging'
+           ]])).to_contain_error 'debugging'
+        end
     - it does nothing when message level is higher than debug level:
-        expect(luaproc(mksay({level=2}, 3, 'nothing to see here'))).
-           not_to_contain_error 'nothing to see here'
+        expect(luaproc [[
+           require 'std._debug'.level = 2
+           require 'std.debug'.say(3, 'nothing to see here')
+        ]]).not_to_contain_error 'nothing to see here'
     - it writes to stderr when message level equals debug level:
-        expect(luaproc(mksay({level=2}, 2, 'debugging'))).
-           to_contain_error 'debugging'
+        expect(luaproc [[
+           require 'std._debug'.level = 2
+           require 'std.debug'.say(2, 'debugging')
+        ]]).to_contain_error 'debugging'
     - it writes to stderr when message level is lower than debug level:
-        expect(luaproc(mksay({level=2}, 1, 'debugging'))).
-           to_contain_error 'debugging'
+        expect(luaproc [[
+           require 'std._debug'.level = 2
+           require 'std.debug'.say(1, 'debugging')
+        ]]).to_contain_error 'debugging'
 
 
 - describe trace:
   - before:
       f = init(M, this_module,  'trace')
 
-  - it does nothing when _DEBUG is disabled:
+  - it does nothing when debug hint is disabled:
       expect(luaproc [[
-         _DEBUG = false
+         require 'std._debug'(false)
          require 'std.debug'
          os.exit(0)
       ]]).to_succeed_with ''
-  - it does nothing when _DEBUG is not set:
+  - it does nothing when debug hint is not set:
       expect(luaproc [[
          require 'std.debug'
          os.exit(0)
       ]]).to_succeed_with ''
-  - it does nothing when _DEBUG is enabled:
+  - it does nothing when debug hint is enabled:
       expect(luaproc [[
-         _DEBUG = true
+         require 'std._debug'(true)
          require 'std.debug'
          os.exit(0)
       ]]).to_succeed_with ''
-  - it enables automatically when _DEBUG.call is set: |
+  - it enables automatically when std._debug.call is set: |
       expect(luaproc [[
-         _DEBUG = {call=true}
-         local debug = require 'std.debug'
+         require 'std._debug'.call = true
+         require 'std.debug'
          os.exit(1)
       ]]).to_fail_while_containing ':3 call exit'
   - it is enabled manually with debug.sethook: |

@@ -28,7 +28,6 @@ return {
   ["include"] = {
     "lib/std/_base$",
     "lib/std/debug$",
-    "lib/std/debug_init/init$",
     "lib/std/init$",
     "lib/std/io$",
     "lib/std/math$",

@@ -10,7 +10,6 @@ luadir	= lib/std
 SOURCES =				\
 	$(luadir)/_base.lua		\
 	$(luadir)/debug.lua		\
-	$(luadir)/debug_init/init.lua	\
 	$(luadir)/init.lua		\
 	$(luadir)/io.lua		\
 	$(luadir)/math.lua		\
