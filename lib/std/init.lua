@@ -21,7 +21,6 @@
 
 local _ = require 'std._base'
 
-local _tostring = _.tostring
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
 local maxn = _.table.maxn
@@ -218,15 +217,6 @@ M = {
    -- @usage
    --    clone = std.getmetamethod(std.object.prototype, '__call')
    getmetamethod = X('getmetamethod(?any, string)', getmetamethod),
-
-   --- Enhance core `tostring` to render table contents as a string.
-   -- @function tostring
-   -- @param x object to convert to string
-   -- @treturn string compact string rendering of *x*
-   -- @usage
-   --    -- {1=baz,foo=bar}
-   --    print(std.tostring {foo='bar','baz'})
-   tostring = X('tostring(?any)', _tostring),
 
 
    --- Module Functions

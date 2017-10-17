@@ -10,7 +10,7 @@ before:
                  'caps', 'chomp', 'escape_pattern', 'escape_shell',
                  'finds', 'format', 'ltrim',
                  'numbertosi', 'ordinal_suffix', 'pad',
-                 'prettytostring', 'render', 'rtrim', 'split',
+                 'prettytostring', 'rtrim', 'split',
                  'tfind', 'trim', 'wrap'}
 
   M = require(this_module)
@@ -47,12 +47,11 @@ specify std.string:
       expect(subject .. ' another string').to_be(target)
   - it stringifies non-string arguments:
       argument = {'a table'}
-      expect(subject .. argument).
-         to_be(string.format('%s%s', subject, require 'std'.tostring(argument)))
+      expect(subject .. argument).to_be(subject .. '{1="a table"}')
   - it stringifies nil arguments:
       argument = nil
       expect(subject .. argument).
-         to_be(string.format('%s%s', subject, require 'std'.tostring(argument)))
+         to_be(string.format('%s%s', subject, require 'std.normalize'.str(argument)))
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. ' concatenate something'

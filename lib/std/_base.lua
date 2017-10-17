@@ -131,15 +131,6 @@ local function invert(t)
 end
 
 
--- Sort numbers first then asciibetically
-local function keysort(a, b)
-   if type(a) == 'number' then
-      return type(b) ~= 'number' or a < b
-   end
-   return type(b) ~= 'number' and tostring(a) < tostring(b)
-end
-
-
 local function leaves(it, tr)
    local function visit(n)
       if type(n) == 'table' then
@@ -151,78 +142,6 @@ local function leaves(it, tr)
       end
    end
    return wrap(visit), tr
-end
-
-
-local fallbacks = {
-   __index = {
-      open = function(x) return '{' end,
-      close = function(x) return '}' end,
-      elem = tostring,
-      pair = function(x, kp, vp, k, v, kstr, vstr)
-         return kstr .. '=' .. vstr
-      end,
-      sep = function(x, kp, vp, kn, vn)
-         return kp ~= nil and kn ~= nil and ',' or ''
-      end,
-      sort = function(keys)
-         return keys
-      end,
-      term = function(x)
-         return type(x) ~= 'table' or getmetamethod(x, '__tostring')
-      end,
-   },
-}
-
--- Write pretty-printing based on:
---
---    John Hughes's and Simon Peyton Jones's Pretty Printer Combinators
---
---    Based on "The Design of a Pretty-printing Library in Advanced
---    Functional Programming", Johan Jeuring and Erik Meijer (eds), LNCS 925
---    http://www.cs.chalmers.se/~rjmh/Papers/pretty.ps
---    Heavily modified by Simon Peyton Jones, Dec 96
-
-local function render(x, fns, roots)
-   fns = setmetatable(fns or {}, fallbacks)
-   roots = roots or {}
-
-   local function stop_roots(x)
-      return roots[x] or render(x, fns, shallow_copy(roots))
-   end
-
-   if fns.term(x) then
-      return fns.elem(x)
-
-   else
-      local buf, keys = {fns.open(x)}, {}	-- pre-buffer table open
-      roots[x] = fns.elem(x)			-- recursion protection
-
-      for k in pairs(x) do			-- collect keys
-         keys[#keys + 1] = k
-      end
-      keys = fns.sort(keys)
-
-      local pair, sep = fns.pair, fns.sep
-      local kp, vp				-- previous key and value
-      for _, k in ipairs(keys) do
-         local v = x[k]
-         buf[#buf + 1] = sep(x, kp, vp, k, v)	-- | buffer << separator
-         buf[#buf + 1] = pair(x, kp, vp, k, v, stop_roots(k), stop_roots(v))
-						-- | buffer << key/value pair
-         kp, vp = k, v
-      end
-      buf[#buf + 1] = sep(x, kp, vp)		-- buffer << trailing separator
-      buf[#buf + 1] = fns.close(x)		-- buffer << table close
-
-      return concat(buf)			-- stringify buffer
-   end
-end
-
-
-local function sortkeys(t)
-   sort(t, keysort)
-   return t
 end
 
 
@@ -244,19 +163,6 @@ local function split(s, sep)
 end
 
 
-local tostring_vtable = {
-   pair = function(x, kp, vp, k, v, kstr, vstr)
-      if k == 1 or type(k) == 'number' and k -1 == kp then
-         return vstr
-      end
-      return kstr .. '=' .. vstr
-   end,
-
-   -- need to sort numeric keys to be able to skip printing them.
-   sort = sortkeys,
-}
-
-
 --[[ ============= ]]--
 --[[ Internal API. ]]--
 --[[ ============= ]]--
@@ -270,15 +176,6 @@ local tostring_vtable = {
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
-   tostring = function(x)
-      return render(x, tostring_vtable)
-   end,
-
-   base = {
-      sortkeys = sortkeys,
-      toqstring = toqstring,
-   },
-
    io = {
       catfile = catfile,
    },
@@ -294,7 +191,6 @@ return {
 
    string = {
       escape_pattern = escape_pattern,
-      render = render,
       split = split,
    },
 

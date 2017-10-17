@@ -69,9 +69,9 @@ specify std.debug:
 
 
 - describe say:
-  - it uses stdlib tostring:
+  - it uses normalize.str:
       expect(luaproc [[require 'std.debug'.say {'debugging'}]]).
-         to_contain_error(require 'std'.tostring {'debugging'})
+         to_contain_error(require 'std.normalize'.str {'debugging'})
   - context when std._debug is disabled:
     - before:
         preamble = [[

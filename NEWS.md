@@ -13,9 +13,9 @@
   - With this release, stdlib is much more focused, and non-core modules
     `optparse`, `std.functional`, 'std.prototype', `std.strict` and
     `typecheck` have been moved into their own packages and release
-    cycle.  Also, the shared debug initialization, API deprecation and
-    Lua host normalization code have been split out into new 'std._debug',
-    `maturity` and 'std.normalize' respectively, and are pulled in
+    cycle.  Also, the shared debug initialization, Lua host normalization
+    and API deprecation code have been split out into new 'std._debug',
+    'std.normalize' and 'apimaturity' respectively, and are pulled in
     automatically as dependencies for any of any modules that need them.
     You can still install them all separately from their own projects or
     by using Luarocks:
@@ -31,28 +31,8 @@
   - All support for previously deprecated APIs has been removed, reducing
     the install size even further.
 
-  - `std.string.render` now takes a table of named arguments as documented;
-    the `pairs` function is now supplied with the key and value of the
-    preceding key/value pair.  There is also support for two new named
-    functions: `sort`, which can change the rendering order of keys; and
-    `term`, a predicate function to determine whether the argument can be
-    rendered directly by the `elem` function.
-
-    There are sensible fallbacks for functions not passed in the new
-    function table.  Among other advantages of this improved API, this
-    means render can be called without ceremony to perform basic object
-    rendering:
-
-    ```lua
-    std.string.render (thing)
-    ```
-
-  - `std.tostring` uses the more powerful features of `std.string.render`
-    to return a more compact representation of table arguments, that uses
-    significantly less horizontal space for sequences.
-
-  - `std.string.prettytostring` continues to use `std.string.render` for
-    more legible deeply nested table output, identically to previous
+  - `std.string.prettytostring` continues to use `normalize.string.render`
+    for more legible deeply nested table output, identically to previous
     releases.
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
@@ -108,8 +88,11 @@
     If `__len` is not present, or gives the same result as `maxn` then
     `npairs` continues to behave as in the previous release.
 
-  - The output format of `std.tostring` skips initial sequence keys in
-    the new compact format, including stringification of Objects and
+  - `std.tostring` and `std.string.render` have been superceded by their
+    equivalents from 'std.normalize': `str` and `string.render`.  Those
+    implementations handle skipping initial sequence keys for a more
+    compact output, escaping of whitespace and other C escape characters
+    for even more compact output and stringification of nested Objects and
     Containers using their `__tostring` metamethods.
 
   - For consistency with std.normalize and other package symbols, we now

@@ -18,11 +18,8 @@
 
 local _ = require 'std._base'
 
-local _tostring = _.tostring
 local argscheck = _.typecheck and _.std.typecheck.argscheck
 local escape_pattern = _.string.escape_pattern
-local render = _.string.render
-local sortkeys = _.base.sortkeys
 local split = _.string.split
 
 _ = nil
@@ -39,6 +36,8 @@ local _ENV = require 'std.normalize' {
    insert = 'table.insert',
    match = 'string.match',
    merge = 'table.merge',
+   render = 'string.render',
+   sort = 'table.sort',
    sub = 'string.sub',
    upper = 'string.upper',
 }
@@ -53,8 +52,36 @@ local _ENV = require 'std.normalize' {
 local M
 
 
+local function toqstring(x, xstr)
+  if type(x) ~= 'string' then
+     return xstr
+  end
+  return format('%q', x)
+end
+
+
+local concatvfns = {
+   elem = tostring,
+   term = function(x)
+      return type(x) ~= 'table' or getmetamethod(x, '__tostring')
+   end,
+   sort = function(keys)
+      return keys
+   end,
+   open = function(x) return '{' end,
+   close = function(x) return '}' end,
+   pair = function(x, kp, vp, k, v, kstr, vstr, seqp)
+      return toqstring(k, kstr) .. '=' .. toqstring(v, vstr)
+   end,
+   sep = function(x, kp, vp, kn, vn, seqp)
+      return kp ~= nil and kn ~= nil and ',' or ''
+   end,
+}
+
+
 local function __concat(s, o)
-   return _tostring(s) .. _tostring(o)
+   -- Don't use normalize.str here, because we don't want ASCII escape rendering.
+   return render(s, concatvfns) .. render(o, concatvfns)
 end
 
 
@@ -182,10 +209,36 @@ local function numbertosi(n)
 end
 
 
+-- Ordor numbers first then asciibetically.
+local function keycmp(a, b)
+   if type(a) == 'number' then
+      return type(b) ~= 'number' or a < b
+   end
+   return type(b) ~= 'number' and tostring(a) < tostring(b)
+end
+
+
+local render_fallbacks = {
+   __index = concatvfns,
+}
+
+
 local function prettytostring(x, indent, spacing)
    indent = indent or '\t'
    spacing = spacing or ''
-   return render(x, {
+   return render(x, setmetatable({
+      elem = function(x)
+         if type(x) ~= 'string' then
+            return tostring(x)
+         end
+         return format('%q', x)
+      end,
+
+      sort = function(keylist)
+         sort(keylist, keycmp)
+         return keylist
+      end,
+
       open = function()
          local s = spacing .. '{'
          spacing = spacing .. indent
@@ -195,13 +248,6 @@ local function prettytostring(x, indent, spacing)
       close = function()
          spacing = string.gsub(spacing, indent .. '$', '')
          return spacing .. '}'
-      end,
-
-      elem = function(x)
-         if type(x) ~= 'string' then
-            return tostring(x)
-         end
-         return format('%q', x)
       end,
 
       pair = function(x, _, _, k, v, kstr, vstr)
@@ -237,9 +283,7 @@ local function prettytostring(x, indent, spacing)
          end
          return s
       end,
-
-      sort = sortkeys,
-   })
+   }, render_fallbacks))
 end
 
 
@@ -400,26 +444,6 @@ M = {
    --    print(prettytostring(std, '   '))
    prettytostring = X('prettytostring(?any, ?string, ?string)', prettytostring),
 
-   --- Turn tables into strings with recursion detection.
-   -- N.B. Functions calling render should not recurse, or recursion
-   -- detection will not work.
-   -- @function render
-   -- @param x object to convert to string
-   -- @tparam[opt] rendercbs fns default rendering function overrides
-   -- @return string representation of *x*
-   -- @usage
-   --    function tostablestring(x)
-   --       return render(x, {
-   --          sort = function(keys)
-   --             table.sort(keys, lambda '=tostring(_1) < tostring(_2)')
-   --             return keys
-   --          end,
-   --       })
-   --    end
-   render = X('render(?any, ?table)', function(x, rendercbs, roots)
-      return render(x, rendercbs, roots)
-   end),
-
    --- Remove trailing matter from a string.
    -- @function rtrim
    -- @string s any string
@@ -480,94 +504,3 @@ M = {
 
 return merge(string, M)
 
-
-
---- Types
--- @section Types
-
---- Table of default render callback functions.
--- @table rendercbs
--- @tfield[opt] opentablecb open open table rendering function
--- @tfield[opt] closetablecb close close table rendering function
--- @tfield[opt] elementcb elem element rendering function
--- @tfield[opt] paircb pair pair rendering function
--- @tfield[opt] separatorcb sep separator rendering function
--- @tfield[opt] sortcb sort key sorting function
--- @tfield[opt] termcb term terminal predicate
--- @see render
--- @usage
---    function tostringstable(x)
---       return render(x, {sort=some_sequence_reordering_fn})
---    end
-
-
---- Signature of @{render} open table callback.
--- @function opentablecb
--- @tparam table t table about to be rendered
--- @treturn string open table rendering
--- @see render
--- @usage
---    function open(t) return '{' end
-
-
---- Signature of @{render} close table callback.
--- @function closetablecb
--- @tparam table t table just rendered
--- @treturn string close table rendering
--- @see render
--- @usage
---    function close(t) return '}' end
-
-
---- Signature of @{render} element callback.
--- @function elementcb
--- @param x element to render
--- @treturn string element rendering
--- @see render
--- @usage
---    function element(e) return require 'std'.tostring(e) end
-
-
---- Signature of @{render} pair callback.
--- Trying to re-render *key* or *value* here will break recursion
--- detection, use *strkey* and *strvalue* pre-rendered values instead.
--- @function paircb
--- @tparam table t table containing pair being rendered
--- @param key key part of key being rendered
--- @param value value part of key being rendered
--- @string keystr prerendered *key*
--- @string valuestr prerendered *value*
--- @treturn string pair rendering
--- @see render
--- @usage
---    function pair(_, _, _, key, value) return key .. '=' .. value end
-
-
---- Signature of @{render} separator callback.
--- @function separatorcb
--- @tparam table t table currently being rendered
--- @param pk *t* key preceding separator, or `nil` for first key
--- @param pv *t* value preceding separator, or `nil` for first value
--- @param fk *t* key following separator, or `nil` for last key
--- @param fv *t* value following separator, or `nil` for last value
--- @treturn string separator rendering
--- @usage
---    function separator(_, _, _, fk) return fk and ',' or '' end
-
-
---- Signature of @{render} key sorting callback.
--- @function sortcb
--- @tparam sequence keys all keys from rendering table
--- @treturn sequence *keys* in desired display order
--- @usage
---    function unsorted(keys) return keys end
-
-
---- Signature of @{render} terminal predicate callback.
--- @function termcb
--- @param x an element to be rendered
--- @treturn boolean whether *x* can be rendered by @{elementcb}
--- @usage
---    function term(x)
---       return type(x) ~= 'table' or getmetamethod(x, '__tostring')
---    end

@@ -18,7 +18,6 @@
 
 local _ = require 'std._base'
 
-local _tostring = _.tostring
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
 local leaves = _.tree.leaves
@@ -128,17 +127,17 @@ local function warnfmt(msg, ...)
    if prog.name then
       prefix = prog.name .. ':'
       if prog.line then
-         prefix = prefix .. _tostring(prog.line) .. ':'
+         prefix = prefix .. str(prog.line) .. ':'
       end
    elseif prog.file then
       prefix = prog.file .. ':'
       if prog.line then
-         prefix = prefix .. _tostring(prog.line) .. ':'
+         prefix = prefix .. str(prog.line) .. ':'
       end
    elseif opts.program then
       prefix = opts.program .. ':'
       if opts.line then
-         prefix = prefix .. _tostring(opts.line) .. ':'
+         prefix = prefix .. str(opts.line) .. ':'
       end
    end
    if #prefix > 0 then

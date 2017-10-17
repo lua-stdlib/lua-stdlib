@@ -7,7 +7,7 @@ before: |
 
   exported_apis = {'assert', 'elems', 'eval', 'getmetamethod',
                    'ielems', 'ipairs', 'npairs', 'pairs',
-                   'require', 'ripairs', 'rnpairs', 'tostring'}
+                   'require', 'ripairs', 'rnpairs'}
 
   -- Tables with iterator metamethods used by various examples.
   __pairs = setmetatable({content='a string'}, {
@@ -442,33 +442,3 @@ specify std:
          t[k] = v
       end
       expect(t).to_equal {}
-
-
-- describe tostring:
-  - before:
-      f = M.tostring
-
-  - context with bad arguments:
-      badargs.diagnose(f, 'std.tostring(?any)')
-
-  - it renders primitives exactly like system tostring:
-      expect(f(nil)).to_be(tostring(nil))
-      expect(f(false)).to_be(tostring(false))
-      expect(f(42)).to_be(tostring(42))
-      expect(f(f)).to_be(tostring(f))
-      expect(f 'a string').to_be 'a string'
-  - it renders empty tables as a pair of braces:
-      expect(f {}).to_be('{}')
-  - it renders table array part compactly:
-      expect(f {'one', 'two', 'five'}).
-         to_be '{one,two,five}'
-  - it renders a table dictionary part compactly:
-      expect(f {one=true, two=2, three={3}}).
-         to_be '{one=true,three={3},two=2}'
-  - it renders table keys in table.sort order:
-      expect(f {one=3, two=5, three=4, four=2, five=1}).
-         to_be '{five=1,four=2,one=3,three=4,two=5}'
-  - it renders keys with invalid symbol names compactly:
-      expect(f {_=0, word=0, ['?']=1, ['a-key']=1, ['[]']=1}).
-         to_be '{?=1,[]=1,_=0,a-key=1,word=0}'
-
