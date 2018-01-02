@@ -1,7 +1,6 @@
 --[[
  General Lua Libraries for Lua 5.1, 5.2 & 5.3
- Copyright (C) 2011-2017 Gary V. Vaughan
- Copyright (C) 2002-2014 Reuben Thomas <rrt@sc3d.org>
+ Copyright (C) 2002-2018 stdlib authors
 ]]
 --[[--
  Additions to the core math module.

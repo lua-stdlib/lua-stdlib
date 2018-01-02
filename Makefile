@@ -1,3 +1,6 @@
+# General Lua Libraries for Lua 5.1, 5.2 & 5.3
+# Copyright (C) 2011-2018 stdlib authors
+
 LDOC	= ldoc
 LUA	= lua
 MKDIR	= mkdir -p
@@ -27,6 +30,7 @@ $(luadir)/version.lua: .FORCE
 	if cmp -s '$@' '$@T'; then						\
 	    rm -f '$@T';							\
 	else									\
+	    echo 'echo return "General Lua libraries / $(VERSION)" > $@';	\
 	    mv '$@T' '$@';							\
 	fi
 

@@ -1,5 +1,5 @@
 # General Lua Libraries for Lua 5.1, 5.2 & 5.3
-# Copyright (C) 2011-2017 Gary V. Vaughan
+# Copyright (C) 2011-2018 stdlib authors
 
 before:
   base_module  = 'math'
