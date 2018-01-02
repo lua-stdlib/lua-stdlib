@@ -13,18 +13,28 @@ description = {
    license = 'MIT/X11',
 }
 
-source = {
-   url = 'git://github.com/lua-stdlib/lua-stdlib.git',
-   --url = 'http://github.com/lua-stdlib/lua-stdlib/archive/v' .. _MODREV .. '.zip',
-   --dir = 'lua-stdlib-' .. _MODREV,
-}
+source = (function(gitp)
+   if gitp then
+      return {
+         url = 'git://github.com/lua-stdlib/lua-stdlib.git',
+      }
+   else
+      return {
+         url = 'http://github.com/lua-stdlib/lua-stdlib/archive/v' .. _MODREV .. '.zip',
+         dir = 'lua-stdlib-' .. _MODREV,
+      }
+   end
+end)(_MODREV == 'git')
 
 dependencies = {
    'lua >= 5.1, < 5.4',
-   'ldoc',
    'std._debug',
    'std.normalize >= 2.0',
 }
+
+if _MODREV == 'git' then
+   dependencies[#dependencies + 1] = 'ldoc'
+end
 
 build = {
    type = 'builtin',
