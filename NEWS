@@ -1,5 +1,12 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release 41.2.2 (2018-09-03) [stable]
+
+### New Features
+
+  - Initial support for Lua 5.4
+
+
 ## Noteworthy changes in release 41.2.1 (2017-08-07) [stable]
 
 ### Bug fixes

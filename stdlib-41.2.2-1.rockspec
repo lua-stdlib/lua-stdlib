@@ -1,5 +1,5 @@
 package = "stdlib"
-version = "41.2.1-1"
+version = "41.2.2-1"
 description = {
   detailed = "stdlib is a library of modules for common programming tasks, including list, table and functional operations, objects, pickling, pretty-printing and command-line option parsing.",
   homepage = "http://lua-stdlib.github.io/lua-stdlib",
@@ -7,11 +7,11 @@ description = {
   summary = "General Lua Libraries",
 }
 source = {
-  dir = "lua-stdlib-release-v41.2.1",
-  url = "http://github.com/lua-stdlib/lua-stdlib/archive/release-v41.2.1.zip",
+  dir = "lua-stdlib-release-v41.2.2",
+  url = "http://github.com/lua-stdlib/lua-stdlib/archive/release-v41.2.2.zip",
 }
 dependencies = {
-  "lua >= 5.1, < 5.4",
+  "lua >= 5.1, < 5.5",
 }
 external_dependencies = nil
 build = {
