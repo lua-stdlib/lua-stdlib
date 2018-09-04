@@ -503,9 +503,9 @@ specify std.string:
         expect (f "std").to_be (require "std")
     - it uses _VERSION when version field is nil:
         std = require "std"
-        std._VERSION, std.version = std.version, std._VERSION
+        std._VERSION, std.version = std.version, nil
         expect (f ("std", "41", "9999")).to_be (require "std")
-        std._VERSION, std.version = std.version, std._VERSION
+        std._VERSION, std.version = nil, std._VERSION
   - context with semantic versioning:
     - before:
         std = require "std"

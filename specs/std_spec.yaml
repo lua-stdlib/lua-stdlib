@@ -101,8 +101,15 @@ specify std:
 
   # Ideally, `.to_be (M)`, except that M is cloned from a nested context
   # by Specl to prevent us from affecting any other examples, thus the
-  # address is different by now.
+  # address is different by now.  Also, we have to force lazy-loading in
+  # our copy of M to match apis already loaded in barrel.
   - it returns std module table:
+      t = f(namespace)
+      for k, v in pairs(t) do
+        if type(v) ~= 'function' then
+          _ = M[k]
+        end
+      end
       expect (f (namespace)).to_equal (M)
   - it installs std monkey patches:
       for _, api in ipairs (exported_apis) do
@@ -442,9 +449,9 @@ specify std:
         expect (f "std").to_be (require "std")
     - it uses _VERSION when version field is nil:
         std = require "std"
-        M._VERSION, M.version = M.version, M._VERSION
+        M._VERSION, M.version = M.version, nil
         expect (f ("std", "41", "9999")).to_be (require "std")
-        M._VERSION, M.version = M.version, M._VERSION
+        M._VERSION, M.version = nil, M._VERSION
   - context with semantic versioning:
     - before:
         std = require "std"
