@@ -39,7 +39,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -49,7 +49,7 @@
   <li><strong>std.tree</strong></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -86,6 +86,10 @@
 </pre>
 
 </p>
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.container.html#">std.container</a>
+    </ul>
 
 
 <h2><a href="#Objects">Objects</a></h2>
@@ -138,7 +142,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -152,7 +156,7 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          object name
          (<em>default</em> "Tree")
         </li>
@@ -168,25 +172,24 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
- <span class="keyword">local</span> Tree = std.tree {}
- <span class="keyword">local</span> tr = Tree {}
- tr[{<span class="string">"branch1"</span>, <span class="number">1</span>}] = <span class="string">"leaf1"</span>
- tr[{<span class="string">"branch1"</span>, <span class="number">2</span>}] = <span class="string">"leaf2"</span>
- tr[{<span class="string">"branch2"</span>, <span class="number">1</span>}] = <span class="string">"leaf3"</span>
- <span class="global">print</span> (tr[{<span class="string">"branch1"</span>}])      <span class="comment">--&gt; Tree {leaf1, leaf2}
-</span> <span class="global">print</span> (tr[{<span class="string">"branch1"</span>, <span class="number">2</span>}])   <span class="comment">--&gt; leaf2
-</span> <span class="global">print</span> (tr[{<span class="string">"branch1"</span>, <span class="number">3</span>}])   <span class="comment">--&gt; nil
-</span> <span class="comment">--&gt; leaf1	leaf2	leaf3
-</span> <span class="keyword">for</span> leaf <span class="keyword">in</span> std.tree.leaves (tr) <span class="keyword">do</span>
-   <span class="global">io</span>.write (leaf .. <span class="string">"\t"</span>)
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+<span class="keyword">local</span> Tree = std.tree {}
+<span class="keyword">local</span> tr = Tree {}
+tr[{<span class="string">"branch1"</span>, <span class="number">1</span>}] = <span class="string">"leaf1"</span>
+tr[{<span class="string">"branch1"</span>, <span class="number">2</span>}] = <span class="string">"leaf2"</span>
+tr[{<span class="string">"branch2"</span>, <span class="number">1</span>}] = <span class="string">"leaf3"</span>
+<span class="global">print</span> (tr[{<span class="string">"branch1"</span>}])      <span class="comment">--&gt; Tree {leaf1, leaf2}
+</span><span class="global">print</span> (tr[{<span class="string">"branch1"</span>, <span class="number">2</span>}])   <span class="comment">--&gt; leaf2
+</span><span class="global">print</span> (tr[{<span class="string">"branch1"</span>, <span class="number">3</span>}])   <span class="comment">--&gt; nil
+</span><span class="comment">--&gt; leaf1	leaf2	leaf3
+</span><span class="keyword">for</span> leaf <span class="keyword">in</span> std.tree.leaves (tr) <span class="keyword">do</span>
+  <span class="global">io</span>.write (leaf .. <span class="string">"\t"</span>)
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -200,7 +203,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          tree or tree-like table
         </li>
         <li><span class="parameter">nometa</span>
@@ -212,7 +215,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         a deep copy of <em>tr</em>
     </ol>
 
@@ -224,11 +227,10 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- tr = {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}
- copy = clone (tr)
- copy[<span class="number">2</span>].two=<span class="number">5</span>
- <span class="global">assert</span> (tr[<span class="number">2</span>].two == <span class="number">2</span>)</pre>
+        <pre class="example">tr = {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}
+copy = clone (tr)
+copy[<span class="number">2</span>].two=<span class="number">5</span>
+<span class="global">assert</span> (tr[<span class="number">2</span>].two == <span class="number">2</span>)</pre>
     </ul>
 
 </dd>
@@ -243,7 +245,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tr</span>
-            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          tree or tree-like table
         </li>
     </ul>
@@ -254,7 +256,7 @@
            <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         the tree <em>tr</em></li>
     </ol>
 
@@ -267,12 +269,11 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; t = {"one", "three", "five"}
-</span> <span class="keyword">for</span> leaf <span class="keyword">in</span> ileaves {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}, foo=<span class="string">"bar"</span>, <span class="string">"five"</span>}
- <span class="keyword">do</span>
-   t[#t + <span class="number">1</span>] = leaf
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="comment">--&gt; t = {"one", "three", "five"}
+</span><span class="keyword">for</span> leaf <span class="keyword">in</span> ileaves {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}, foo=<span class="string">"bar"</span>, <span class="string">"five"</span>}
+<span class="keyword">do</span>
+  t[#t + <span class="number">1</span>] = leaf
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -290,7 +291,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tr</span>
-            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          tree or tree-like table to iterate over
         </li>
     </ul>
@@ -301,7 +302,7 @@
            <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="../classes/std.tree.html">tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="../classes/std.tree.html">tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         the tree, <em>tr</em></li>
     </ol>
 
@@ -324,7 +325,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          tree or tree-like table
         </li>
     </ul>
@@ -335,7 +336,7 @@
            <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         <em>t</em></li>
     </ol>
 
@@ -348,13 +349,12 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">for</span> leaf <span class="keyword">in</span> leaves {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}, foo=<span class="string">"bar"</span>, <span class="string">"five"</span>}
- <span class="keyword">do</span>
-   t[#t + <span class="number">1</span>] = leaf
- <span class="keyword">end</span>
- <span class="comment">--&gt; t = {2, 4, "five", "foo", "one", "three"}
-</span> <span class="global">table</span>.sort (t, lambda <span class="string">"=tostring(_1) &lt; tostring(_2)"</span>)</pre>
+        <pre class="example"><span class="keyword">for</span> leaf <span class="keyword">in</span> leaves {<span class="string">"one"</span>, {two=<span class="number">2</span>}, {{<span class="string">"three"</span>}, four=<span class="number">4</span>}}, foo=<span class="string">"bar"</span>, <span class="string">"five"</span>}
+<span class="keyword">do</span>
+  t[#t + <span class="number">1</span>] = leaf
+<span class="keyword">end</span>
+<span class="comment">--&gt; t = {2, 4, "five", "foo", "one", "three"}
+</span><span class="global">table</span>.sort (t, lambda <span class="string">"=tostring(_1) &lt; tostring(_2)"</span>)</pre>
     </ul>
 
 </dd>
@@ -369,11 +369,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          destination tree
         </li>
         <li><span class="parameter">u</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table with nodes to merge
         </li>
     </ul>
@@ -381,7 +381,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         <em>t</em> with nodes from <em>u</em> merged in
     </ol>
 
@@ -419,7 +419,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tr</span>
-            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          tree or tree-like table to iterate over
         </li>
     </ul>
@@ -430,7 +430,7 @@
            <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">Tree</a> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         the tree, <em>tr</em></li>
     </ol>
 
@@ -442,28 +442,27 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- tree = +-- node1
-</span> <span class="comment">--        |    +-- leaf1
-</span> <span class="comment">--        |    '-- leaf2
-</span> <span class="comment">--        '-- leaf 3
-</span> tree = Tree { Tree { <span class="string">"leaf1"</span>, <span class="string">"leaf2"</span>}, <span class="string">"leaf3"</span> }
- <span class="keyword">for</span> node_type, path, node <span class="keyword">in</span> nodes (tree) <span class="keyword">do</span>
-   <span class="global">print</span> (node_type, path, node)
- <span class="keyword">end</span>
- <span class="comment">--&gt; "branch"   {}      {{"leaf1", "leaf2"}, "leaf3"}
-</span> <span class="comment">--&gt; "branch"   {1}     {"leaf1", "leaf"2")
-</span> <span class="comment">--&gt; "leaf"     {1,1}   "leaf1"
-</span> <span class="comment">--&gt; "leaf"     {1,2}   "leaf2"
-</span> <span class="comment">--&gt; "join"     {1}     {"leaf1", "leaf2"}
-</span> <span class="comment">--&gt; "leaf"     {2}     "leaf3"
-</span> <span class="comment">--&gt; "join"     {}      {{"leaf1", "leaf2"}, "leaf3"}
-</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+        <pre class="example"><span class="comment">-- tree = +-- node1
+</span><span class="comment">--        |    +-- leaf1
+</span><span class="comment">--        |    '-- leaf2
+</span><span class="comment">--        '-- leaf 3
+</span>tree = Tree { Tree { <span class="string">"leaf1"</span>, <span class="string">"leaf2"</span>}, <span class="string">"leaf3"</span> }
+<span class="keyword">for</span> node_type, path, node <span class="keyword">in</span> nodes (tree) <span class="keyword">do</span>
+  <span class="global">print</span> (node_type, path, node)
+<span class="keyword">end</span>
+<span class="comment">--&gt; "branch"   {}      {{"leaf1", "leaf2"}, "leaf3"}
+</span><span class="comment">--&gt; "branch"   {1}     {"leaf1", "leaf"2")
+</span><span class="comment">--&gt; "leaf"     {1,1}   "leaf1"
+</span><span class="comment">--&gt; "leaf"     {1,2}   "leaf2"
+</span><span class="comment">--&gt; "join"     {1}     {"leaf1", "leaf2"}
+</span><span class="comment">--&gt; "leaf"     {2}     "leaf3"
+</span><span class="comment">--&gt; "join"     {}      {{"leaf1", "leaf2"}, "leaf3"}
+</span><span class="global">os</span>.exit (<span class="number">0</span>)</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -537,8 +536,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2018-09-16 19:20:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

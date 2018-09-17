@@ -1,6 +1,6 @@
 # Stdlib NEWS - User visible changes
 
-## Noteworthy changes in release 41.2.2 (2018-09-03) [stable]
+## Noteworthy changes in release 41.2.2 (2018-09-16) [stable]
 
 ### New Features
 

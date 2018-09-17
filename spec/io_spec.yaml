@@ -180,7 +180,7 @@ specify std.io:
 - describe process_files:
   - before:
       name = "Makefile"
-      names = {"Makefile", "config.log", "config.status", "build-aux/config.ld"}
+      names = {"Makefile", "NEWS.md", "README.md", "build-aux/config.ld"}
       ascript = [[
         require "std.io".process_files (function (a) print (a) end)
       ]]

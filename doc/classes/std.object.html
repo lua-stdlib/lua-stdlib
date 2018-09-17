@@ -39,7 +39,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><strong>std.object</strong></li>
@@ -49,7 +49,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -137,7 +137,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -154,16 +154,16 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_init</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or <span class="type">function</span></span>
          object initialisation
          (<em>default</em> {})
         </li>
         <li><span class="parameter">_functions</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          module functions omitted when cloned
         </li>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          object name
          (<em>default</em> "Object")
         </li>
@@ -178,36 +178,34 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">
- <span class="comment">-- `_init` can be a list of keys; then the unnamed `init_1` through
-</span> <span class="comment">-- `init_m` values from the argument table are assigned to the
-</span> <span class="comment">-- corresponding keys in `new_object`.
-</span> <span class="keyword">local</span> Process = Object {
-   _type = <span class="string">"Process"</span>,
-   _init = { <span class="string">"status"</span>, <span class="string">"out"</span>, <span class="string">"err"</span> },
- }
- <span class="keyword">local</span> process = Process {
-   procs[pid].status, procs[pid].out, procs[pid].err, <span class="comment">-- auto assigned
-</span>   command = pipeline[pid],                           <span class="comment">-- manual assignment
-</span> }</pre></li>
-        <li><pre class="example">
- <span class="comment">-- Or it can be a function, in which the arguments passed to the
-</span> <span class="comment">-- prototype during cloning are simply handed to the `_init` function.
-</span> <span class="keyword">local</span> Bag = Object {
-   _type = <span class="string">"Bag"</span>,
-   _init = <span class="keyword">function</span> (obj, ...)
-     <span class="keyword">for</span> e <span class="keyword">in</span> std.elems {...} <span class="keyword">do</span>
-       obj[#obj + <span class="number">1</span>] = e
-     <span class="keyword">end</span>
-     <span class="keyword">return</span> obj
-   <span class="keyword">end</span>,
- }
- <span class="keyword">local</span> bag = Bag (<span class="string">"function"</span>, <span class="string">"arguments"</span>, <span class="string">"sent"</span>, <span class="string">"to"</span>, <span class="string">"_init"</span>)</pre></li>
+        <li><pre class="example"><span class="comment">-- `_init` can be a list of keys; then the unnamed `init_1` through
+</span><span class="comment">-- `init_m` values from the argument table are assigned to the
+</span><span class="comment">-- corresponding keys in `new_object`.
+</span><span class="keyword">local</span> Process = Object {
+  _type = <span class="string">"Process"</span>,
+  _init = { <span class="string">"status"</span>, <span class="string">"out"</span>, <span class="string">"err"</span> },
+}
+<span class="keyword">local</span> process = Process {
+  procs[pid].status, procs[pid].out, procs[pid].err, <span class="comment">-- auto assigned
+</span>  command = pipeline[pid],                           <span class="comment">-- manual assignment
+</span>}</pre></li>
+        <li><pre class="example"><span class="comment">-- Or it can be a function, in which the arguments passed to the
+</span><span class="comment">-- prototype during cloning are simply handed to the `_init` function.
+</span><span class="keyword">local</span> Bag = Object {
+  _type = <span class="string">"Bag"</span>,
+  _init = <span class="keyword">function</span> (obj, ...)
+    <span class="keyword">for</span> e <span class="keyword">in</span> std.elems {...} <span class="keyword">do</span>
+      obj[#obj + <span class="number">1</span>] = e
+    <span class="keyword">end</span>
+    <span class="keyword">return</span> obj
+  <span class="keyword">end</span>,
+}
+<span class="keyword">local</span> bag = Bag (<span class="string">"function"</span>, <span class="string">"arguments"</span>, <span class="string">"sent"</span>, <span class="string">"to"</span>, <span class="string">"_init"</span>)</pre></li>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -259,18 +257,17 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> object = <span class="global">require</span> <span class="string">"std.object"</span>  <span class="comment">-- module table
-</span> <span class="keyword">local</span> Object = object {}             <span class="comment">-- root object
-</span> <span class="keyword">local</span> o = Object {
-   field_1 = <span class="string">"value_1"</span>,
-   method_1 = <span class="keyword">function</span> (self) <span class="keyword">return</span> self.field_1 <span class="keyword">end</span>,
- }
- <span class="global">print</span> (o.field_1)                    <span class="comment">--&gt; value_1
-</span> o.field_2 = <span class="number">2</span>
- <span class="keyword">function</span> o:method_2 (n) <span class="keyword">return</span> self.field_2 + n <span class="keyword">end</span>
- <span class="global">print</span> (o:method_2 (<span class="number">2</span>))               <span class="comment">--&gt; 4
-</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+        <pre class="example"><span class="keyword">local</span> object = <span class="global">require</span> <span class="string">"std.object"</span>  <span class="comment">-- module table
+</span><span class="keyword">local</span> Object = object {}             <span class="comment">-- root object
+</span><span class="keyword">local</span> o = Object {
+  field_1 = <span class="string">"value_1"</span>,
+  method_1 = <span class="keyword">function</span> (self) <span class="keyword">return</span> self.field_1 <span class="keyword">end</span>,
+}
+<span class="global">print</span> (o.field_1)                    <span class="comment">--&gt; value_1
+</span>o.field_2 = <span class="number">2</span>
+<span class="keyword">function</span> o:method_2 (n) <span class="keyword">return</span> self.field_2 + n <span class="keyword">end</span>
+<span class="global">print</span> (o:method_2 (<span class="number">2</span>))               <span class="comment">--&gt; 4
+</span><span class="global">os</span>.exit (<span class="number">0</span>)</pre>
     </ul>
 
 </dd>
@@ -301,15 +298,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">obj</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          destination object
         </li>
         <li><span class="parameter">src</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          fields to copy int clone
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          key renames as <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
@@ -318,7 +315,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          <em>obj</em> with non-private fields from <em>src</em> merged,
    and a metatable with private fields (if any) merged, both sets
    of keys renamed according to <em>map</em>
@@ -328,11 +325,10 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- myobject.mapfields = <span class="keyword">function</span> (obj, src, map)
-   object.mapfields (obj, src, map)
-   ...
- <span class="keyword">end</span></pre>
+        <pre class="example">myobject.mapfields = <span class="keyword">function</span> (obj, src, map)
+  object.mapfields (obj, src, map)
+  ...
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -348,7 +344,7 @@
  function.</p>
 
 <p> Additionally, this function returns the results of ??? for
- file objects, or <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> otherwise.
+ file objects, or <a href="https://www.lua.org/manual/5.3/manual.html#pdf-type">type</a> otherwise.
 
 
     <h3>Parameters:</h3>
@@ -361,7 +357,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         type of <em>x</em>
     </ol>
 
@@ -369,32 +365,31 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> Stack = Object {
-   _type = <span class="string">"Stack"</span>,
+        <pre class="example"><span class="keyword">local</span> Stack = Object {
+  _type = <span class="string">"Stack"</span>,
 
-   __tostring = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+  __tostring = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
 
-   __index = {
-     push = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
-     pop  = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
-   },
- }
- <span class="keyword">local</span> stack = Stack {}
- <span class="global">assert</span> (stack:prototype () == <span class="global">getmetatable</span> (stack)._type)
+  __index = {
+    push = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+    pop  = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+  },
+}
+<span class="keyword">local</span> stack = Stack {}
+<span class="global">assert</span> (stack:prototype () == <span class="global">getmetatable</span> (stack)._type)
 
- <span class="keyword">local</span> prototype = Object.prototype
- <span class="global">assert</span> (prototype (stack) == <span class="global">getmetatable</span> (stack)._type)
+<span class="keyword">local</span> prototype = Object.prototype
+<span class="global">assert</span> (prototype (stack) == <span class="global">getmetatable</span> (stack)._type)
 
- <span class="keyword">local</span> h = <span class="global">io</span>.open (<span class="global">os</span>.tmpname (), <span class="string">"w"</span>)
- <span class="global">assert</span> (prototype (h) == <span class="global">io</span>.<span class="global">type</span> (h))
+<span class="keyword">local</span> h = <span class="global">io</span>.open (<span class="global">os</span>.tmpname (), <span class="string">"w"</span>)
+<span class="global">assert</span> (prototype (h) == <span class="global">io</span>.<span class="global">type</span> (h))
 
- <span class="global">assert</span> (prototype {} == <span class="global">type</span> {})</pre>
+<span class="global">assert</span> (prototype {} == <span class="global">type</span> {})</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -429,9 +424,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> Object = <span class="global">require</span> <span class="string">"std.object"</span> {} <span class="comment">-- not a typo!
-</span> new = Object {<span class="string">"initialisation"</span>, <span class="string">"elements"</span>}</pre>
+        <pre class="example"><span class="keyword">local</span> Object = <span class="global">require</span> <span class="string">"std.object"</span> {} <span class="comment">-- not a typo!
+</span>new = Object {<span class="string">"initialisation"</span>, <span class="string">"elements"</span>}</pre>
     </ul>
 
 </dd>
@@ -481,14 +475,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         stringified object representation
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-tostring">tostring</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -503,8 +497,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2018-09-16 19:20:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

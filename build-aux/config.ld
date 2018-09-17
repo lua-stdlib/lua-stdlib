@@ -1,6 +1,6 @@
 -- -*- lua -*-
-title = "stdlib @PACKAGE_VERSION@ Reference"
-project = "stdlib @PACKAGE_VERSION@"
+title = "stdlib 41.2.2 Reference"
+project = "stdlib 41.2.2"
 description = [[
 # Standard Lua Libraries
 

@@ -39,7 +39,7 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -52,7 +52,7 @@
   <li><a href="../modules/std.table.html">std.table</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.tree.html">std.tree</a></li>
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -201,7 +201,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -215,7 +215,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
     </ul>
@@ -223,7 +223,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with each word capitalized
     </ol>
 
@@ -246,7 +246,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
     </ul>
@@ -254,7 +254,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with any single trailing newline removed
     </ol>
 
@@ -277,7 +277,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
     </ul>
@@ -285,7 +285,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with active pattern characters escaped
     </ol>
 
@@ -310,7 +310,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
     </ul>
@@ -318,7 +318,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with active shell characters escaped
     </ol>
 
@@ -341,11 +341,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          target string
         </li>
         <li><span class="parameter">pattern</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
@@ -374,10 +374,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">for</span> t <span class="keyword">in</span> std.elems (finds (<span class="string">"the target string"</span>, <span class="string">"%S+"</span>)) <span class="keyword">do</span>
-   <span class="global">print</span> (<span class="global">tostring</span> (t.capt))
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> t <span class="keyword">in</span> std.elems (finds (<span class="string">"the target string"</span>, <span class="string">"%S+"</span>)) <span class="keyword">do</span>
+  <span class="global">print</span> (<span class="global">tostring</span> (t.capt))
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -393,7 +392,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          format string
         </li>
         <li><span class="parameter">...</span>
@@ -427,11 +426,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
         <li><span class="parameter">r</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          leading pattern
          (<em>default</em> "%s+")
         </li>
@@ -440,7 +439,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with leading <em>r</em> stripped
     </ol>
 
@@ -466,7 +465,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -475,7 +474,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         the module table
     </ol>
 
@@ -499,7 +498,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any numeric value
         </li>
     </ul>
@@ -507,7 +506,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>n</em> simplifed using largest available SI suffix.
     </ol>
 
@@ -530,7 +529,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">int</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any integer value
         </li>
     </ul>
@@ -538,7 +537,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         English suffix for <em>n</em>
     </ol>
 
@@ -546,9 +545,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> now = <span class="global">os</span>.date <span class="string">"*t"</span>
- <span class="global">print</span> (<span class="string">"%d%s day of the week"</span>, now.day, ordinal_suffix (now.day))</pre>
+        <pre class="example"><span class="keyword">local</span> now = <span class="global">os</span>.date <span class="string">"*t"</span>
+<span class="global">print</span> (<span class="string">"%d%s day of the week"</span>, now.day, ordinal_suffix (now.day))</pre>
     </ul>
 
 </dd>
@@ -565,7 +563,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          a string to justify
         </li>
         <li><span class="parameter">w</span>
@@ -574,7 +572,7 @@
    left-justify)
         </li>
         <li><span class="parameter">p</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          string to pad with
          (<em>default</em> " ")
         </li>
@@ -583,7 +581,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> justified to <em>w</em> characters wide
     </ol>
 
@@ -609,12 +607,12 @@
          object to convert to string
         </li>
         <li><span class="parameter">indent</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          indent between levels
          (<em>default</em> "\t")
         </li>
         <li><span class="parameter">spacing</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          space before every line
          (<em>default</em> "")
         </li>
@@ -623,7 +621,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         pretty string rendering of <em>x</em>
     </ol>
 
@@ -671,7 +669,7 @@
          separator rendering function
         </li>
         <li><span class="parameter">roots</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          accumulates table references to detect recursion
          (<em>optional</em>)
         </li>
@@ -687,12 +685,11 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">function</span> <span class="global">tostring</span> (x)
-   <span class="keyword">return</span> render (x, lambda <span class="string">'="{"'</span>, lambda <span class="string">'="}"'</span>, <span class="global">tostring</span>,
-                  lambda <span class="string">'=_4.."=".._5'</span>, lambda <span class="string">'= _4 and "," or ""'</span>,
-                  lambda <span class="string">'=","'</span>)
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">function</span> <span class="global">tostring</span> (x)
+  <span class="keyword">return</span> render (x, lambda <span class="string">'="{"'</span>, lambda <span class="string">'="}"'</span>, <span class="global">tostring</span>,
+                 lambda <span class="string">'=_4.."=".._5'</span>, lambda <span class="string">'= _4 and "," or ""'</span>,
+                 lambda <span class="string">'=","'</span>)
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -707,11 +704,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
         <li><span class="parameter">r</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          trailing pattern
          (<em>default</em> "%s+")
         </li>
@@ -720,7 +717,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with trailing <em>r</em> stripped
     </ol>
 
@@ -745,11 +742,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          to split
         </li>
         <li><span class="parameter">sep</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          separator pattern
          (<em>default</em> "%s+")
         </li>
@@ -780,11 +777,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          target string
         </li>
         <li><span class="parameter">pattern</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
@@ -808,7 +805,7 @@
            <span class="types"><span class="type">int</span></span>
         end of match</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         list of captured strings</li>
     </ol>
 
@@ -835,11 +832,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          any string
         </li>
         <li><span class="parameter">r</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          trailing pattern
          (<em>default</em> "%s+")
         </li>
@@ -848,7 +845,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> with leading and trailing <em>r</em> stripped
     </ol>
 
@@ -871,7 +868,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          a paragraph of text
         </li>
         <li><span class="parameter">w</span>
@@ -894,7 +891,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>s</em> wrapped to <em>w</em> columns
     </ol>
 
@@ -907,7 +904,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Fields"></a>Fields</h2>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
 
     <dl class="function">
     <dt>
@@ -920,7 +917,7 @@
 
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          initial string
         </li>
         <li><span class="parameter">o</span>
@@ -933,9 +930,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>.monkey_patch ()
- concatenated = <span class="string">"foo"</span> .. {<span class="string">"bar"</span>}</pre>
+        <pre class="example"><span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>.monkey_patch ()
+concatenated = <span class="string">"foo"</span> .. {<span class="string">"bar"</span>}</pre>
     </ul>
 
 </dd>
@@ -949,11 +945,11 @@
 
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          string
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">int</span> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          index or method name
         </li>
     </ul>
@@ -963,9 +959,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="global">getmetatable</span> (<span class="string">""</span>).__index = <span class="global">require</span> <span class="string">"std.string"</span>.__index
- third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pre>
+        <pre class="example"><span class="global">getmetatable</span> (<span class="string">""</span>).__index = <span class="global">require</span> <span class="string">"std.string"</span>.__index
+third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pre>
     </ul>
 
 </dd>
@@ -998,8 +993,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Types"></a>Types </h2>
-
+    <h2 class="section-header "><a name="Types"></a>Types </h2>
 
     <dl class="function">
     <dt>
@@ -1013,7 +1007,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table just rendered
         </li>
     </ul>
@@ -1021,7 +1015,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         close table rendering
     </ol>
 
@@ -1055,7 +1049,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         element rendering
     </ol>
 
@@ -1082,7 +1076,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table about to be rendered
         </li>
     </ul>
@@ -1090,7 +1084,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         open table rendering
     </ol>
 
@@ -1119,7 +1113,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table containing pair being rendered
         </li>
         <li><span class="parameter">key</span>
@@ -1129,11 +1123,11 @@
          value part of key being rendered
         </li>
         <li><span class="parameter">keystr</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          prerendered <em>key</em>
         </li>
         <li><span class="parameter">valuestr</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          prerendered <em>value</em>
         </li>
     </ul>
@@ -1141,7 +1135,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         pair rendering
     </ol>
 
@@ -1168,7 +1162,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table currently being rendered
         </li>
         <li><span class="parameter">pk</span>
@@ -1188,7 +1182,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         separator rendering
     </ol>
 
@@ -1206,8 +1200,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2018-09-16 19:20:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

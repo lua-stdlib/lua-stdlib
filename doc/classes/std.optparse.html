@@ -40,7 +40,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -50,7 +50,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -170,7 +170,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -205,21 +205,21 @@
          initialisation function
         </li>
         <li><span class="parameter">program</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          the first word following "Usage:" from <em>spec</em>
         </li>
         <li><span class="parameter">version</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          the last white-space delimited word on the first line
    of text from <em>spec</em>
         </li>
         <li><span class="parameter">versiontext</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          everything preceding "Usage:" from <em>spec</em>, and
    which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.version">version</a> <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
         </li>
         <li><span class="parameter">helptext</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          everything including and following "Usage:" from
    <em>spec</em> string and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.help">help</a>
    <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
@@ -231,51 +231,50 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
 
- <span class="keyword">local</span> optparser = std.optparse <span class="string">[[
- any text VERSION
- Additional lines of text to show when the --version
- option is passed.
+<span class="keyword">local</span> optparser = std.optparse <span class="string">[[
+any text VERSION
+Additional lines of text to show when the --version
+option is passed.
 
- Several lines or paragraphs are permitted.
+Several lines or paragraphs are permitted.
 
- Usage: PROGNAME
+Usage: PROGNAME
 
- Banner text.
+Banner text.
 
- Optional long description text to show when the --help
- option is passed.
+Optional long description text to show when the --help
+option is passed.
 
- Several lines or paragraphs of long description are permitted.
+Several lines or paragraphs of long description are permitted.
 
- Options:
+Options:
 
-   -b                       a short option with no long option
-       --long               a long option with no short option
-       --another-long       a long option with internal hypen
-   -v, --verbose            a combined short and long option
-   -n, --dryrun, --dry-run  several spellings of the same option
-   -u, --name=USER          require an argument
-   -o, --output=[FILE]      accept an optional argument
-       --version            display version information, then exit
-       --help               display this help, then exit
+  -b                       a short option with no long option
+      --long               a long option with no short option
+      --another-long       a long option with internal hypen
+  -v, --verbose            a combined short and long option
+  -n, --dryrun, --dry-run  several spellings of the same option
+  -u, --name=USER          require an argument
+  -o, --output=[FILE]      accept an optional argument
+      --version            display version information, then exit
+      --help               display this help, then exit
 
- Footer text.  Several lines or paragraphs are permitted.
+Footer text.  Several lines or paragraphs are permitted.
 
- Please report bugs at bug-list@yourhost.com
- ]]</span>
+Please report bugs at bug-list@yourhost.com
+]]</span>
 
- <span class="comment">-- Note that <a href="../modules/std.io.html#die">std.io.die</a> and <a href="../modules/std.io.html#warn">std.io.warn</a> will only prefix messages
-</span> <span class="comment">-- with `parser.program` if the parser options are assigned back to
-</span> <span class="comment">-- `_G.opts`:
-</span> _G.arg, _G.opts = optparser:parse (_G.arg)</pre>
+<span class="comment">-- Note that <a href="../modules/std.io.html#die">std.io.die</a> and <a href="../modules/std.io.html#warn">std.io.warn</a> will only prefix messages
+</span><span class="comment">-- with `parser.program` if the parser options are assigned back to
+</span><span class="comment">-- `_G.opts`:
+</span>_G.arg, _G.opts = optparser:parse (_G.arg)</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -294,7 +293,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">spec</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          option parsing specification
         </li>
     </ul>
@@ -330,11 +329,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">opt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          option name
         </li>
         <li><span class="parameter">optarg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          option argument, must be a key in <a href="../classes/std.optparse.html#std.optparse.boolvals">boolvals</a>
          (<em>default</em> "1")
         </li>
@@ -370,11 +369,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">opt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          option name
         </li>
         <li><span class="parameter">optarg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          option argument, must be an existing file
         </li>
     </ul>
@@ -382,7 +381,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>optarg</em>
     </ol>
 
@@ -414,7 +413,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -461,7 +460,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -525,7 +524,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">msg</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          error message
         </li>
     </ul>
@@ -557,7 +556,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -621,7 +620,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -672,7 +671,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -761,7 +760,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Methods"></a>Methods</h2>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
 
     <dl class="function">
     <dt>
@@ -805,9 +804,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- Don't process any arguments after `--`
-</span> parser:on (<span class="string">'--'</span>, parser.finished)</pre>
+        <pre class="example"><span class="comment">-- Don't process any arguments after `--`
+</span>parser:on (<span class="string">'--'</span>, parser.finished)</pre>
     </ul>
 
 </dd>
@@ -822,7 +820,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">i</span>
@@ -857,11 +855,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">arglist</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of arguments
         </li>
         <li><span class="parameter">defaults</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table of default option values
          (<em>optional</em>)
         </li>
@@ -870,7 +868,7 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         a list of unrecognised <em>arglist</em> elements</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.opts">opts</a></span>
@@ -887,8 +885,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2018-09-16 19:20:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -38,7 +38,7 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -51,7 +51,7 @@
   <li><strong>std.table</strong></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.tree.html">std.tree</a></li>
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -193,7 +193,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -209,11 +209,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          source table
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
@@ -257,11 +257,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          source table
         </li>
         <li><span class="parameter">keys</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of keys to copy
          (<em>default</em> {})
         </li>
@@ -275,7 +275,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
    metatable unless <em>nometa</em>
     </ol>
@@ -304,7 +304,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">ls</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of lists
         </li>
     </ul>
@@ -312,7 +312,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         a flat table with keys and values from <em>ls</em>
     </ol>
 
@@ -324,9 +324,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {a=1, b=2, c=3}
-</span> depair {{<span class="string">"a"</span>, <span class="number">1</span>}, {<span class="string">"b"</span>, <span class="number">2</span>}, {<span class="string">"c"</span>, <span class="number">3</span>}}</pre>
+        <pre class="example"><span class="comment">--&gt; {a=1, b=2, c=3}
+</span>depair {{<span class="string">"a"</span>, <span class="number">1</span>}, {<span class="string">"b"</span>, <span class="number">2</span>}, {<span class="string">"c"</span>, <span class="number">3</span>}}</pre>
     </ul>
 
 </dd>
@@ -341,7 +340,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          any table
         </li>
     </ul>
@@ -357,7 +356,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">if</span> empty (t) <span class="keyword">then</span> error <span class="string">"ohnoes"</span> <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">if</span> empty (t) <span class="keyword">then</span> <span class="global">error</span> <span class="string">"ohnoes"</span> <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -372,7 +371,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
           a table <code>{i1=v1, ..., in=vn}</code>
         </li>
     </ul>
@@ -380,7 +379,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         a new list of pairs containing <code>{{i1, v1}, ..., {in, vn}}</code>
     </ol>
 
@@ -392,9 +391,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {{1, "a"}, {2, "b"}, {3, "c"}}
-</span> enpair {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {{1, "a"}, {2, "b"}, {3, "c"}}
+</span>enpair {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
     </ul>
 
 </dd>
@@ -409,7 +407,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
     </ul>
@@ -417,7 +415,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         a list of all non-table elements of <em>t</em>
     </ol>
 
@@ -425,9 +423,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 2, 3, 4, 5}
-</span> flatten {{<span class="number">1</span>, {{<span class="number">2</span>}, <span class="number">3</span>}, <span class="number">4</span>}, <span class="number">5</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 2, 3, 4, 5}
+</span>flatten {{<span class="number">1</span>, {{<span class="number">2</span>}, <span class="number">3</span>}, <span class="number">4</span>}, <span class="number">5</span>}</pre>
     </ul>
 
 </dd>
@@ -445,7 +442,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
         <li><span class="parameter">pos</span>
@@ -461,7 +458,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         <em>t</em>
     </ol>
 
@@ -469,9 +466,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, "x", 2, 3, "y"}
-</span> insert (insert ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="number">2</span>, <span class="string">"x"</span>), <span class="string">"y"</span>)</pre>
+        <pre class="example"><span class="comment">--&gt; {1, "x", 2, 3, "y"}
+</span>insert (insert ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="number">2</span>, <span class="string">"x"</span>), <span class="string">"y"</span>)</pre>
     </ul>
 
 </dd>
@@ -486,7 +482,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table with <code>{k=v, ...}</code>
         </li>
     </ul>
@@ -494,7 +490,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         inverted table <code>{v=k, ...}</code>
     </ol>
 
@@ -502,9 +498,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {a=1, b=2, c=3}
-</span> invert {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {a=1, b=2, c=3}
+</span>invert {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>}</pre>
     </ul>
 
 </dd>
@@ -519,7 +514,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
     </ul>
@@ -527,7 +522,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         list of keys from <em>t</em>
     </ol>
 
@@ -555,7 +550,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
     </ul>
@@ -586,7 +581,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
     </ul>
@@ -602,9 +597,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 42
-</span> maxn {<span class="string">"a"</span>, b=<span class="string">"c"</span>, <span class="number">99</span>, [<span class="number">42</span>]=<span class="string">"x"</span>, <span class="string">"x"</span>, [<span class="number">5</span>]=<span class="number">67</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; 42
+</span>maxn {<span class="string">"a"</span>, b=<span class="string">"c"</span>, <span class="number">99</span>, [<span class="number">42</span>]=<span class="string">"x"</span>, <span class="string">"x"</span>, [<span class="number">5</span>]=<span class="number">67</span>}</pre>
     </ul>
 
 </dd>
@@ -619,15 +613,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          destination table
         </li>
         <li><span class="parameter">u</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table with fields to merge
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
@@ -641,7 +635,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         <em>t</em> with fields from <em>u</em> merged in
     </ol>
 
@@ -671,15 +665,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          destination table
         </li>
         <li><span class="parameter">u</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table with fields to merge
         </li>
         <li><span class="parameter">keys</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          list of keys to copy
          (<em>default</em> {})
         </li>
@@ -693,7 +687,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
    metatable unless <em>nometa</em>
     </ol>
@@ -722,7 +716,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -731,7 +725,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         the module table
     </ol>
 
@@ -758,7 +752,7 @@
          (<em>default</em> nil)
         </li>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          initial table
          (<em>default</em> {})
         </li>
@@ -767,7 +761,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         table whose unset elements are <em>x</em>
     </ol>
 
@@ -790,7 +784,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
     </ul>
@@ -798,7 +792,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         ordered list of keys from <em>t</em>
     </ol>
 
@@ -839,9 +833,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 2, "ax"}
-</span> pack ((<span class="string">"ax1"</span>):find <span class="string">"(%D+)"</span>)</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 2, "ax"}
+</span>pack ((<span class="string">"ax1"</span>):find <span class="string">"(%D+)"</span>)</pre>
     </ul>
 
 </dd>
@@ -859,7 +852,7 @@
          field to project
         </li>
         <li><span class="parameter">tt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a list of tables
         </li>
     </ul>
@@ -867,7 +860,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         list of <em>fkey</em> fields from <em>tt</em>
     </ol>
 
@@ -875,9 +868,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 3, "yy"}
-</span> project (<span class="string">"xx"</span>, {{<span class="string">"a"</span>, xx=<span class="number">1</span>, yy=<span class="string">"z"</span>}, {<span class="string">"b"</span>, yy=<span class="number">2</span>}, {<span class="string">"c"</span>, xx=<span class="number">3</span>}, {xx=<span class="string">"yy"</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 3, "yy"}
+</span>project (<span class="string">"xx"</span>, {{<span class="string">"a"</span>, xx=<span class="number">1</span>, yy=<span class="string">"z"</span>}, {<span class="string">"b"</span>, yy=<span class="number">2</span>}, {<span class="string">"c"</span>, xx=<span class="number">3</span>}, {xx=<span class="string">"yy"</span>})</pre>
     </ul>
 
 </dd>
@@ -894,7 +886,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table
         </li>
         <li><span class="parameter">pos</span>
@@ -914,10 +906,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 2, 5}
-</span> t = {<span class="number">1</span>, <span class="number">2</span>, <span class="string">"x"</span>, <span class="number">5</span>}
- remove (t, <span class="number">3</span>) == <span class="string">"x"</span> <span class="keyword">and</span> t</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 2, 5}
+</span>t = {<span class="number">1</span>, <span class="number">2</span>, <span class="string">"x"</span>, <span class="number">5</span>}
+remove (t, <span class="number">3</span>) == <span class="string">"x"</span> <span class="keyword">and</span> t</pre>
     </ul>
 
 </dd>
@@ -944,11 +935,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dims</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table of dimensions <code>{d1, ..., dn}</code>
         </li>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          a table of elements
         </li>
     </ul>
@@ -963,9 +954,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {{"a", "b"}, {"c", "d"}, {"e", "f"}}
-</span> shape ({<span class="number">3</span>, <span class="number">2</span>}, {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"d"</span>, <span class="string">"e"</span>, <span class="string">"f"</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; {{"a", "b"}, {"c", "d"}, {"e", "f"}}
+</span>shape ({<span class="number">3</span>, <span class="number">2</span>}, {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"d"</span>, <span class="string">"e"</span>, <span class="string">"f"</span>})</pre>
     </ul>
 
 </dd>
@@ -980,7 +970,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          any table
         </li>
     </ul>
@@ -996,9 +986,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 3
-</span> size {foo = <span class="keyword">true</span>, bar = <span class="keyword">true</span>, baz = <span class="keyword">false</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; 3
+</span>size {foo = <span class="keyword">true</span>, bar = <span class="keyword">true</span>, baz = <span class="keyword">false</span>}</pre>
     </ul>
 
 </dd>
@@ -1013,7 +1002,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          unsorted table
         </li>
         <li><span class="parameter">c</span>
@@ -1048,7 +1037,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          table to act on
         </li>
         <li><span class="parameter">i</span>
@@ -1073,7 +1062,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">return</span> <span class="global">unpack</span> (results_table)</pre>
+        <pre class="example"><span class="keyword">return</span> unpack (results_table)</pre>
     </ul>
 
 </dd>
@@ -1088,7 +1077,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
          any table
         </li>
     </ul>
@@ -1096,7 +1085,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
         list of values in <em>t</em>
     </ol>
 
@@ -1108,15 +1097,13 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {"a", "c", 42}
-</span> values {<span class="string">"a"</span>, b=<span class="string">"c"</span>, [-<span class="number">1</span>]=<span class="number">42</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {"a", "c", 42}
+</span>values {<span class="string">"a"</span>, b=<span class="string">"c"</span>, [-<span class="number">1</span>]=<span class="number">42</span>}</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Types"></a>Types </h2>
-
+    <h2 class="section-header "><a name="Types"></a>Types </h2>
 
     <dl class="function">
     <dt>
@@ -1152,9 +1139,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> reversor = <span class="keyword">function</span> (a, b) <span class="keyword">return</span> a &gt; b <span class="keyword">end</span>
- sort (t, reversor)</pre>
+        <pre class="example"><span class="keyword">local</span> reversor = <span class="keyword">function</span> (a, b) <span class="keyword">return</span> a &gt; b <span class="keyword">end</span>
+sort (t, reversor)</pre>
     </ul>
 
 </dd>
@@ -1164,8 +1150,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2018-09-16 19:20:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

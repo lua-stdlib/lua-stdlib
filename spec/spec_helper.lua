@@ -148,7 +148,7 @@ end
 function concat_file_content (...)
   local t = {}
   for _, name in ipairs {...} do
-    h = io.open (name)
+    local h = io.open (name)
     t[#t + 1] = h:read "*a"
   end
   return table.concat (t)
