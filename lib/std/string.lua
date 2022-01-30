@@ -126,9 +126,7 @@ end
 
 
 local function caps(s)
-   return(gsub(s, '(%w)([%w]*)', function(l, ls)
-      return upper(l) .. ls
-   end))
+   return(gsub(s, '%f[%w]%l', string.upper))
 end
 
 
