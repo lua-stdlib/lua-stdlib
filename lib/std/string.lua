@@ -133,7 +133,7 @@ end
 
 
 local function escape_shell(s)
-   return(gsub(s, '([ %(%)%\\%[%]\'"])', '\\%1'))
+   return(gsub(s, '([ %(%)%\\%[%]\'"&])', '\\%1'))
 end
 
 
