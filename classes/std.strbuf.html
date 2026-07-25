@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +40,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -49,7 +50,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -69,31 +70,19 @@
 <h1>Class <code>std.strbuf</code></h1>
 <p>String buffers.</p>
 <p>
-
-
 <p> Buffers are mutable by default, but being based on objects, they can
- also be used in a functional style:</p>
-
-
-<pre>
-<span class="keyword">local</span> StrBuf = <span class="global">require</span> <span class="string">"std.strbuf"</span> {}
-<span class="keyword">local</span> a = StrBuf {<span class="string">"a"</span>}
-<span class="keyword">local</span> b = a:concat <span class="string">"b"</span>    <span class="comment">-- mutate *a*
-</span><span class="global">print</span> (a, b)              <span class="comment">--&gt; ab   ab
-</span><span class="keyword">local</span> c = a {} .. <span class="string">"c"</span>     <span class="comment">-- copy and append
-</span><span class="global">print</span> (a, c)              <span class="comment">--&gt; ab   abc
-</span>
-</pre>
-
-<h2> Prototype Chain</h2>
-
-
-<pre>
-<span class="global">table</span>
- <span class="backtick">`-&gt; Object
-      `</span>-&gt; StrBuf
-</pre>
-
+ also be used in a functional style:
+<p>    local StrBuf = require "std.strbuf" {}
+    local a = StrBuf {"a"}
+    local b = a:concat "b"    -- mutate *a*
+    print (a, b)              --> ab   ab
+    local c = a {} .. "c"     -- copy and append
+    print (a, c)              --> ab   abc
+<p> Prototype Chain
+ ---------------
+<p>      table
+       `-> Object
+            `-> StrBuf
 </p>
 
 
@@ -127,7 +116,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -135,8 +124,7 @@
     <strong>std.strbuf.StrBuf</strong>
     </dt>
     <dd>
-    StrBuf prototype object. </p>
-
+    StrBuf prototype object.
 <p> Set also inherits all the fields and methods from
  <a href="../classes/std.object.html#std.object.Object">std.object.Object</a>.
 
@@ -144,7 +132,7 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          object name
          (<em>default</em> "StrBuf")
         </li>
@@ -159,20 +147,19 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
- <span class="keyword">local</span> StrBuf = std.strbuf {}
- <span class="keyword">local</span> a = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}
- <span class="keyword">local</span> b = {a, <span class="string">"five"</span>, <span class="string">"six"</span>}
- a = a .. <span class="number">4</span>
- b = b:concat <span class="string">"seven"</span>
- <span class="global">print</span> (a, b) <span class="comment">--&gt; 1234   1234fivesixseven
-</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+<span class="keyword">local</span> StrBuf = std.<span class="function-name">strbuf</span> {}
+<span class="keyword">local</span> a = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}
+<span class="keyword">local</span> b = {a, <span class="string">"five"</span>, <span class="string">"six"</span>}
+a = a .. <span class="number">4</span>
+b = b:<span class="function-name">concat</span> <span class="string">"seven"</span>
+<span class="global">print</span> (a, b) <span class="comment">--&gt; 1234   1234fivesixseven
+</span><span class="global">os</span>.<span class="function-name">exit</span> (<span class="number">0</span>)</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -195,7 +182,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">StrBuf</a></span>
+           <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">std.strbuf.StrBuf</a></span>
         modified buffer
     </ol>
 
@@ -203,12 +190,12 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">buf = buf:concat <span class="string">"append this"</span> {<span class="string">" and"</span>, <span class="string">" this"</span>}</pre>
+        <pre class="example">buf = buf:<span class="function-name">concat</span> <span class="string">"append this"</span> {<span class="string">" and"</span>, <span class="string">" this"</span>}</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -222,7 +209,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">StrBuf</a></span>
+            <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">std.strbuf.StrBuf</a></span>
          object
         </li>
         <li><span class="parameter">x</span>
@@ -233,14 +220,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">StrBuf</a></span>
-        modified <em>buf</em>
+           <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">std.strbuf.StrBuf</a></span>
+        modified *buf*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.strbuf.html#std.strbuf.concat">concat</a>
+         <a href="../classes/std.strbuf.html#std.strbuf.concat">std.strbuf.concat</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -260,7 +247,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">StrBuf</a></span>
+            <span class="types"><a class="type" href="../classes/std.strbuf.html#std.strbuf.StrBuf">std.strbuf.StrBuf</a></span>
          object
         </li>
     </ul>
@@ -268,14 +255,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         concatenation of buffer contents
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
+         <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -290,8 +277,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

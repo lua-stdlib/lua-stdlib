@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +40,7 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><strong>std</strong></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -52,7 +53,7 @@
   <li><a href="../modules/std.table.html">std.table</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.tree.html">std.tree</a></li>
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -68,30 +69,30 @@
 
 <h1>Module <code>std</code></h1>
 <p>Lua Standard Libraries.</p>
+<p>
 <p> This module contains a selection of improved Lua core functions, among
- others.</p>
-
+ others.
 <p> Also, after requiring this module, simply referencing symbols in the
- submodule hierarchy will load the necessary modules on demand.</p>
-
+ submodule hierarchy will load the necessary modules on demand.
 <p> By default there are no changes to any global symbols, or monkey
  patching of core module tables and metatables.  However, sometimes it's
  still convenient to do that: For example, when using stdlib from the
  REPL, or in a prototype where you want to throw caution to the wind and
  compatibility with other modules be damned. In that case, you can give
- <code>stdlib</code> permission to scribble all over your namespaces by using the
- various <code>monkey_patch</code> calls in the library.</p>
+ `stdlib` permission to scribble all over your namespaces by using the
+ various `monkey_patch` calls in the library.
+</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#assert">assert (expect[, f=""[, ...]])</a></td>
-	<td class="summary">Enhance core <code>assert</code> to also allow formatted arguments.</td>
+	<td class="summary">Enhance core `assert` to also allow formatted arguments.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#barrel">barrel ([namespace=_G])</a></td>
-	<td class="summary">A <a href="http://dictionary.reference.com/browse/barrel+of+monkeys">barrel of monkey_patches</a>.</td>
+	<td class="summary">A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#elems">elems (t)</a></td>
@@ -103,7 +104,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getmetamethod">getmetamethod (x, n)</a></td>
-	<td class="summary">Return named metamethod, if any, otherwise <code>nil</code>.</td>
+	<td class="summary">Return named metamethod, if any, otherwise `nil`.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ielems">ielems (t)</a></td>
@@ -111,7 +112,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ipairs">ipairs (t)</a></td>
-	<td class="summary">An iterator over elements of a sequence, until the first <code>nil</code> value.</td>
+	<td class="summary">An iterator over elements of a sequence, until the first `nil` value.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ireverse">ireverse (t)</a></td>
@@ -119,7 +120,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core methods and metamethods with <code>std</code> enhanced versions.</td>
+	<td class="summary">Overwrite core methods and metamethods with `std` enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#npairs">npairs (t)</a></td>
@@ -127,11 +128,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#pairs">pairs (t)</a></td>
-	<td class="summary">Enhance core <code>pairs</code> to respect <code>__pairs</code> even in Lua 5.1.</td>
+	<td class="summary">Enhance core `pairs` to respect `__pairs` even in Lua 5.1.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#require">require (module[, min[, too_big[, pattern]]])</a></td>
-	<td class="summary">Enhance core <code>require</code> to assert version number compatibility.</td>
+	<td class="summary">Enhance core `require` to assert version number compatibility.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ripairs">ripairs (t)</a></td>
@@ -143,7 +144,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tostring">tostring (x)</a></td>
-	<td class="summary">Enhance core <code>tostring</code> to render table contents as a string.</td>
+	<td class="summary">Enhance core `tostring` to render table contents as a string.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -165,7 +166,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -173,16 +174,16 @@
     <strong>assert (expect[, f=""[, ...]])</strong>
     </dt>
     <dd>
-    Enhance core <code>assert</code> to also allow formatted arguments.
+    Enhance core `assert` to also allow formatted arguments.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">expect</span>
-         expression, expected to be <em>truthy</em>
+         expression, expected to be *truthy*
         </li>
         <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          format string
          (<em>default</em> "")
         </li>
@@ -195,16 +196,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        value of <em>expect</em>, if <em>truthy</em>
+        value of *expect*, if *truthy*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- std.<span class="global">assert</span> (expected ~= <span class="keyword">nil</span>, <span class="string">"100% unexpected!"</span>)
- std.<span class="global">assert</span> (expected ~= <span class="keyword">nil</span>, <span class="string">"%s unexpected!"</span>, expected)</pre>
+        <pre class="example">std.<span class="global">assert</span> (expected ~= <span class="keyword">nil</span>, <span class="string">"100% unexpected!"</span>)
+std.<span class="global">assert</span> (expected ~= <span class="keyword">nil</span>, <span class="string">"%s unexpected!"</span>, expected)</pre>
     </ul>
 
 </dd>
@@ -213,9 +213,8 @@
     <strong>barrel ([namespace=_G])</strong>
     </dt>
     <dd>
-    A <a href="http://dictionary.reference.com/browse/barrel+of+monkeys">barrel of monkey_patches</a>. </p>
-
-<p> Apply <strong>all</strong> <code>monkey_patch</code> functions.  Additionally, for backwards
+    A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
+<p> Apply **all** `monkey_patch` functions.  Additionally, for backwards
  compatibility only, write a selection of sub-module functions into
  the given namespace.
 
@@ -223,7 +222,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -232,7 +231,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         module table
     </ol>
 
@@ -240,7 +239,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>.barrel ()</pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>.<span class="function-name">barrel</span> ()</pre>
     </ul>
 
 </dd>
@@ -250,13 +249,13 @@
     </dt>
     <dd>
     An iterator over all elements of a sequence.
- If <em>t</em> has a <code>__pairs</code> metamethod, use that to iterate.
+ If *t* has a `__pairs` metamethod, use that to iterate.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -264,13 +263,13 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em>, the table being iterated over</li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*, the table being iterated over</li>
         <li>
-        <em>key</em>, the previous iteration key</li>
+        *key*, the previous iteration key</li>
     </ol>
 
 
@@ -282,7 +281,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> value <span class="keyword">in</span> std.elems {a = <span class="number">1</span>, b = <span class="number">2</span>, c = <span class="number">5</span>} <span class="keyword">do</span> process (value) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> value <span class="keyword">in</span> std.<span class="function-name">elems</span> {a = <span class="number">1</span>, b = <span class="number">2</span>, c = <span class="number">5</span>} <span class="keyword">do</span> <span class="function-name">process</span> (value) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -297,7 +296,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string of Lua code
         </li>
     </ul>
@@ -305,14 +304,14 @@
     <h3>Returns:</h3>
     <ol>
 
-        result of evaluating <code>s</code>
+        result of evaluating `s`
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">std.eval <span class="string">"math.min (2, 10)"</span></pre>
+        <pre class="example">std.<span class="function-name">eval</span> <span class="string">"math.min (2, 10)"</span></pre>
     </ul>
 
 </dd>
@@ -321,7 +320,7 @@
     <strong>getmetamethod (x, n)</strong>
     </dt>
     <dd>
-    Return named metamethod, if any, otherwise <code>nil</code>.
+    Return named metamethod, if any, otherwise `nil`.
 
 
     <h3>Parameters:</h3>
@@ -330,7 +329,7 @@
          item to act on
         </li>
         <li><span class="parameter">n</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name of metamethod to lookup
         </li>
     </ul>
@@ -338,15 +337,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
-        metamethod function, or <code>nil</code> if no metamethod
+           <span class="types"><span class="type">string</span> or <span class="type">string</span></span>
+        metamethod function, or `nil` if no metamethod
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">lookup = std.getmetamethod (<span class="global">require</span> <span class="string">"std.object"</span>, <span class="string">"__index"</span>)</pre>
+        <pre class="example">lookup = std.<span class="function-name">getmetamethod</span> (<span class="global">require</span> <span class="string">"std.object"</span>, <span class="string">"__index"</span>)</pre>
     </ul>
 
 </dd>
@@ -356,13 +355,13 @@
     </dt>
     <dd>
     An iterator over the integer keyed elements of a sequence.
- If <em>t</em> has a <code>__len</code> metamethod, iterate up to the index it returns.
+ If *t* has a `__len` metamethod, iterate up to the index it returns.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -370,14 +369,14 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em>, the table being iterated over</li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*, the table being iterated over</li>
         <li>
-           <span class="types"><span class="type">int</span></span>
-        <em>index</em>, the previous iteration index</li>
+           <span class="types"><span class="type">table</span></span>
+        *index*, the previous iteration index</li>
     </ol>
 
 
@@ -389,7 +388,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> v <span class="keyword">in</span> std.ielems {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>} <span class="keyword">do</span> process (v) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> v <span class="keyword">in</span> std.<span class="function-name">ielems</span> {<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>} <span class="keyword">do</span> <span class="function-name">process</span> (v) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -398,18 +397,17 @@
     <strong>ipairs (t)</strong>
     </dt>
     <dd>
-    An iterator over elements of a sequence, until the first <code>nil</code> value. </p>
-
+    An iterator over elements of a sequence, until the first `nil` value.
 <p> Like Lua 5.1 and 5.3, but unlike Lua 5.2 (which looks for and uses the
- <code>__ipairs</code> metamethod), this iterator returns successive key-value
- pairs with integer keys starting at 1, up to the first <code>nil</code> valued
+ `__ipairs` metamethod), this iterator returns successive key-value
+ pairs with integer keys starting at 1, up to the first `nil` valued
  pair.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -417,14 +415,14 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em>, the table being iterated over</li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*, the table being iterated over</li>
         <li>
-           <span class="types"><span class="type">int</span></span>
-        <em>index</em>, the previous iteration index</li>
+           <span class="types"><span class="type">table</span></span>
+        *index*, the previous iteration index</li>
     </ol>
 
 
@@ -437,14 +435,13 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- length of sequence
-</span> args = {<span class="string">"first"</span>, <span class="string">"second"</span>, <span class="keyword">nil</span>, <span class="string">"last"</span>}
- <span class="comment">--&gt; 1=first
-</span> <span class="comment">--&gt; 2=second
-</span> <span class="keyword">for</span> i, v <span class="keyword">in</span> std.<span class="global">ipairs</span> (args) <span class="keyword">do</span>
-   <span class="global">print</span> (<span class="global">string</span>.format (<span class="string">"%d=%s"</span>, i, v))
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="comment">-- length of sequence
+</span>args = {<span class="string">"first"</span>, <span class="string">"second"</span>, <span class="keyword">nil</span>, <span class="string">"last"</span>}
+<span class="comment">--&gt; 1=first
+</span><span class="comment">--&gt; 2=second
+</span><span class="keyword">for</span> i, v <span class="keyword">in</span> std.<span class="global">ipairs</span> (args) <span class="keyword">do</span>
+  <span class="global">print</span> (<span class="global">string</span>.<span class="function-name">format</span> (<span class="string">"%d=%s"</span>, i, v))
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -461,7 +458,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -469,9 +466,9 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         a new table with integer keyed elements in reverse
-   order with respect to <em>t</em>
+   order with respect to *t*
     </ol>
 
 
@@ -483,9 +480,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> rielems = std.functional.compose (std.ireverse, std.ielems)
- <span class="keyword">for</span> e <span class="keyword">in</span> rielems (l) <span class="keyword">do</span> process (e) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> rielems = std.functional.<span class="function-name">compose</span> (std.ireverse, std.ielems)
+<span class="keyword">for</span> e <span class="keyword">in</span> <span class="function-name">rielems</span> (l) <span class="keyword">do</span> <span class="function-name">process</span> (e) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -494,16 +490,15 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core methods and metamethods with <code>std</code> enhanced versions. </p>
-
-<p> Write all functions from this module, except <code>std.barrel</code> and
- <code>std.monkey_patch</code>, into the given namespace.
+    Overwrite core methods and metamethods with `std` enhanced versions.
+<p> Write all functions from this module, except `std.barrel` and
+ `std.monkey_patch`, into the given namespace.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -512,7 +507,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the module table
     </ol>
 
@@ -520,7 +515,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>.monkey_patch ()</pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>.<span class="function-name">monkey_patch</span> ()</pre>
     </ul>
 
 </dd>
@@ -536,7 +531,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -544,10 +539,10 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         t</li>
     </ol>
 
@@ -560,7 +555,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> npairs {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> <span class="function-name">npairs</span> {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -569,13 +564,13 @@
     <strong>pairs (t)</strong>
     </dt>
     <dd>
-    Enhance core <code>pairs</code> to respect <code>__pairs</code> even in Lua 5.1.
+    Enhance core `pairs` to respect `__pairs` even in Lua 5.1.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -583,13 +578,13 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em>, the table being iterated over</li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*, the table being iterated over</li>
         <li>
-        <em>key</em>, the previous iteration key</li>
+        *key*, the previous iteration key</li>
     </ol>
 
 
@@ -601,7 +596,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="global">pairs</span> {<span class="string">"a"</span>, b = <span class="string">"c"</span>, foo = <span class="number">42</span>} <span class="keyword">do</span> process (k, v) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="global">pairs</span> {<span class="string">"a"</span>, b = <span class="string">"c"</span>, foo = <span class="number">42</span>} <span class="keyword">do</span> <span class="function-name">process</span> (k, v) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -610,7 +605,7 @@
     <strong>require (module[, min[, too_big[, pattern]]])</strong>
     </dt>
     <dd>
-    Enhance core <code>require</code> to assert version number compatibility.
+    Enhance core `require` to assert version number compatibility.
  By default match against the last substring of (dot-delimited)
  digits in the module version string.
 
@@ -618,23 +613,23 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">module</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          module to require
         </li>
         <li><span class="parameter">min</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          lowest acceptable version
          (<em>optional</em>)
         </li>
         <li><span class="parameter">too_big</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          lowest version that is too big
          (<em>optional</em>)
         </li>
         <li><span class="parameter">pattern</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         to match version in <code>module.version</code> or
-  <code>module._VERSION</code> (default: <code>"([%.%d]+)%D*$"</code>)
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         to match version in `module.version` or
+  `module._VERSION` (default: `"([%.%d]+)%D*$"`)
          (<em>optional</em>)
         </li>
     </ul>
@@ -644,9 +639,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- posix.version == "posix library for Lua 5.2 / 32"
-</span> posix = <span class="global">require</span> (<span class="string">"posix"</span>, <span class="string">"29"</span>)</pre>
+        <pre class="example"><span class="comment">-- posix.version == "posix library for Lua 5.2 / 32"
+</span>posix = <span class="global">require</span> (<span class="string">"posix"</span>, <span class="string">"29"</span>)</pre>
     </ul>
 
 </dd>
@@ -663,7 +657,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          any table
         </li>
     </ul>
@@ -671,14 +665,14 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em></li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*</li>
         <li>
-           <span class="types"><span class="type">number</span></span>
-        <code>#t + 1</code></li>
+           <span class="types"><span class="type">table</span></span>
+        `#t + 1`</li>
     </ol>
 
 
@@ -690,7 +684,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> i, v = ripairs (t) <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> i, v = <span class="function-name">ripairs</span> (t) <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -707,7 +701,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
     </ul>
@@ -715,10 +709,10 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">table</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         t</li>
     </ol>
 
@@ -731,7 +725,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> rnpairs {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> i,v <span class="keyword">in</span> <span class="function-name">rnpairs</span> {<span class="string">"one"</span>, <span class="keyword">nil</span>, <span class="string">"three"</span>} <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -740,7 +734,7 @@
     <strong>tostring (x)</strong>
     </dt>
     <dd>
-    Enhance core <code>tostring</code> to render table contents as a string.
+    Enhance core `tostring` to render table contents as a string.
 
 
     <h3>Parameters:</h3>
@@ -753,22 +747,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        compact string rendering of <em>x</em>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        compact string rendering of *x*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- {1=baz,foo=bar}
-</span> <span class="global">print</span> (std.<span class="global">tostring</span> {foo=<span class="string">"bar"</span>,<span class="string">"baz"</span>})</pre>
+        <pre class="example"><span class="comment">-- {1=baz,foo=bar}
+</span><span class="global">print</span> (std.<span class="global">tostring</span> {foo=<span class="string">"bar"</span>,<span class="string">"baz"</span>})</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -776,9 +769,8 @@
     <strong>std</strong>
     </dt>
     <dd>
-    Module table. </p>
-
-<p> In addition to the functions documented on this page, and a <code>version</code>
+    Module table.
+<p> In addition to the functions documented on this page, and a `version`
  field, references to other submodule functions will be loaded on
  demand.
 
@@ -796,8 +788,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods </h2>
-
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods </h2>
 
     <dl class="function">
     <dt>
@@ -813,7 +804,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          submodule name
         </li>
     </ul>
@@ -821,18 +812,17 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">nil</span></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">table</span></span>
         the submodule that was loaded to satisfy the missing
-   <code>name</code>, otherwise <code>nil</code> if nothing was found
+   `name`, otherwise `nil` if nothing was found
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
- <span class="keyword">local</span> prototype = std.object.prototype</pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+<span class="keyword">local</span> prototype = std.object.prototype</pre>
     </ul>
 
 </dd>
@@ -842,8 +832,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
