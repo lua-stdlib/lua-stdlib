@@ -1,3 +1,12 @@
+2026-07-25  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.2.3
+	* NEWS.md: Record release date.
+
+	configury: bump release revision to 41.2.3.
+	* configure.ac (AC_INIT): Bump release revision to 41.2.3.
+	* .travis.yml: Regenerate.
+
 2015-03-08  Gary V. Vaughan  <gary@gnu.org>
 
 	Release version 41.2.0

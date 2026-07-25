@@ -6,7 +6,7 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## terms of the MIT license reproduced below.
 
 ## ====================================================================
-## Copyright (C) 2013-2015 Gary V. Vaughan
+## Copyright (C) 2013-2015, 2026 Gary V. Vaughan
 ##
 ## Permission is hereby granted, free of charge, to any person
 ## obtaining a copy of this software and associated documentation
@@ -29,13 +29,15 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## ====================================================================
 
 
-_lua_version_re='"Lua 5."[123]*'
-_lua_binaries='lua lua5.3 lua53 lua5.2 lua52 luajit lua5.1 lua51'
+_lua_version_re='"Lua 5."[12345]*'
+_lua_binaries='lua lua5.5 lua5.4 lua5.3 lua53 lua5.2 lua52 luajit lua5.1 lua51'
 
 export LUA
 export LUA_INIT
 export LUA_INIT_5_2
 export LUA_INIT_5_3
+export LUA_INIT_5_4
+export LUA_INIT_5_5
 export LUA_PATH
 export LUA_CPATH
 

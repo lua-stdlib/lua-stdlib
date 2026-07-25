@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +40,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><strong>std.object</strong></li>
@@ -49,7 +50,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -69,29 +70,20 @@
 <h1>Class <code>std.object</code></h1>
 <p>Prototype-based objects.</p>
 <p>
-
-
 <p> This module creates the root prototype object from which every other
  object is descended.  There are no classes as such, rather new objects
  are created by cloning an existing object, and then changing or adding
  to the clone. Further objects can then be made by cloning the changed
- object, and so on.</p>
-
+ object, and so on.
 <p> Objects are cloned by simply calling an existing object, which then
- serves as a prototype from which the new object is copied.</p>
-
-<p> Note that Object methods are stored in the <code>__index</code> field of their
- metatable, and so cannot also use <code>__index</code> to lookup references with
- square brackets.  See <a href="../classes/std.container.html#">std.container</a> objects if you want to do that.</p>
-
-<h2> Prototype Chain</h2>
-
-
-<pre>
-<span class="global">table</span>
- `-&gt; Object
-</pre>
-
+ serves as a prototype from which the new object is copied.
+<p> Note that Object methods are stored in the `__index` field of their
+ metatable, and so cannot also use `__index` to lookup references with
+ square brackets.  See <a href="../classes/std.container.html#">std.container</a> objects if you want to do that.
+<p> Prototype Chain
+ ---------------
+<p>       table
+        `-> Object
 </p>
 
 
@@ -110,7 +102,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object.mapfields">std.object.mapfields (obj, src[, map={}])</a></td>
-	<td class="summary">Return <em>obj</em> with references to the fields of <em>src</em> merged in.</td>
+	<td class="summary">Return *obj* with references to the fields of *src* merged in.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object.prototype">std.object.prototype (x)</a></td>
@@ -121,7 +113,7 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#std.object:__call">std.object:__call (...)</a></td>
-	<td class="summary">Return a <a href="../classes/std.object.html#std.object.clone">clone</a> of this object, and its metatable.</td>
+	<td class="summary">Return a <a href="../classes/std.object.html#std.object.clone">std.object.clone</a> of this object, and its metatable.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.object:__pairs">std.object:__pairs ()</a></td>
@@ -137,7 +129,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -145,8 +137,7 @@
     <strong>std.object.Object</strong>
     </dt>
     <dd>
-    Root object. </p>
-
+    Root object.
 <p> Changing the values of these fields in a new object will change the
  corresponding behaviour.
 
@@ -154,16 +145,16 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_init</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">table</span></span>
          object initialisation
          (<em>default</em> {})
         </li>
         <li><span class="parameter">_functions</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          module functions omitted when cloned
         </li>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          object name
          (<em>default</em> "Object")
         </li>
@@ -178,36 +169,34 @@
 
     <h3>Usage:</h3>
     <ul>
-        <li><pre class="example">
- <span class="comment">-- `_init` can be a list of keys; then the unnamed `init_1` through
-</span> <span class="comment">-- `init_m` values from the argument table are assigned to the
-</span> <span class="comment">-- corresponding keys in `new_object`.
-</span> <span class="keyword">local</span> Process = Object {
-   _type = <span class="string">"Process"</span>,
-   _init = { <span class="string">"status"</span>, <span class="string">"out"</span>, <span class="string">"err"</span> },
- }
- <span class="keyword">local</span> process = Process {
-   procs[pid].status, procs[pid].out, procs[pid].err, <span class="comment">-- auto assigned
-</span>   command = pipeline[pid],                           <span class="comment">-- manual assignment
-</span> }</pre></li>
-        <li><pre class="example">
- <span class="comment">-- Or it can be a function, in which the arguments passed to the
-</span> <span class="comment">-- prototype during cloning are simply handed to the `_init` function.
-</span> <span class="keyword">local</span> Bag = Object {
-   _type = <span class="string">"Bag"</span>,
-   _init = <span class="keyword">function</span> (obj, ...)
-     <span class="keyword">for</span> e <span class="keyword">in</span> std.elems {...} <span class="keyword">do</span>
-       obj[#obj + <span class="number">1</span>] = e
-     <span class="keyword">end</span>
-     <span class="keyword">return</span> obj
-   <span class="keyword">end</span>,
- }
- <span class="keyword">local</span> bag = Bag (<span class="string">"function"</span>, <span class="string">"arguments"</span>, <span class="string">"sent"</span>, <span class="string">"to"</span>, <span class="string">"_init"</span>)</pre></li>
+        <li><pre class="example"><span class="comment">-- `_init` can be a list of keys; then the unnamed `init_1` through
+</span><span class="comment">-- `init_m` values from the argument table are assigned to the
+</span><span class="comment">-- corresponding keys in `new_object`.
+</span><span class="keyword">local</span> Process = <span class="function-name">Object</span> {
+  _type = <span class="string">"Process"</span>,
+  _init = { <span class="string">"status"</span>, <span class="string">"out"</span>, <span class="string">"err"</span> },
+}
+<span class="keyword">local</span> process = <span class="function-name">Process</span> {
+  procs[pid].status, procs[pid].out, procs[pid].err, <span class="comment">-- auto assigned
+</span>  command = pipeline[pid],                           <span class="comment">-- manual assignment
+</span>}</pre></li>
+        <li><pre class="example"><span class="comment">-- Or it can be a function, in which the arguments passed to the
+</span><span class="comment">-- prototype during cloning are simply handed to the `_init` function.
+</span><span class="keyword">local</span> Bag = <span class="function-name">Object</span> {
+  _type = <span class="string">"Bag"</span>,
+  _init = <span class="keyword">function</span> (obj, ...)
+    <span class="keyword">for</span> e <span class="keyword">in</span> std.<span class="function-name">elems</span> {...} <span class="keyword">do</span>
+      obj[#obj + <span class="number">1</span>] = e
+    <span class="keyword">end</span>
+    <span class="keyword">return</span> obj
+  <span class="keyword">end</span>,
+}
+<span class="keyword">local</span> bag = <span class="function-name">Bag</span> (<span class="string">"function"</span>, <span class="string">"arguments"</span>, <span class="string">"sent"</span>, <span class="string">"to"</span>, <span class="string">"_init"</span>)</pre></li>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -215,18 +204,15 @@
     <strong>std.object.clone (obj, ...)</strong>
     </dt>
     <dd>
-    Clone an Object. </p>
-
-<p> Objects are essentially tables of <code>field_n = value_n</code> pairs.</p>
-
-<p> Normally <code>new_object</code> automatically shares a metatable with
- <code>proto_object</code>. However, field names beginning with "_" are <em>private</em>,
+    Clone an Object.
+<p> Objects are essentially tables of `field_n = value_n` pairs.
+<p> Normally `new_object` automatically shares a metatable with
+ `proto_object`. However, field names beginning with "_" are *private*,
  and moved into the object metatable during cloning. So, adding new
  private fields to an object during cloning will result in a new
- metatable for <code>new_object</code> that also happens to contain a copy of all
- the entries from the <code>proto_object</code> metatable.</p>
-
-<p> While clones of <a href="../classes/std.object.html#std.object.Object">Object</a> inherit all properties of their prototype,
+ metatable for `new_object` that also happens to contain a copy of all
+ the entries from the `proto_object` metatable.
+<p> While clones of <a href="../classes/std.object.html#std.object.Object">std.object.Object</a> inherit all properties of their prototype,
  it's idiomatic to always keep separate tables for the module table and
  the root object itself: That way you can't mistakenly engage the slower
  clone-from-module-table process unnecessarily.
@@ -235,20 +221,20 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">obj</span>
-            <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
+            <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">std.object.Object</a></span>
          an object
         </li>
         <li><span class="parameter">...</span>
-         a list of arguments if <em>obj._init</em> is a function, or a
-   single table if <em>obj._init</em> is a table.
+         a list of arguments if *obj.\_init* is a function, or a
+   single table if *obj.\_init* is a table.
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
-        a clone of <em>obj</em>
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">std.object.Object</a></span>
+        a clone of *obj*
     </ol>
 
 
@@ -259,18 +245,17 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> object = <span class="global">require</span> <span class="string">"std.object"</span>  <span class="comment">-- module table
-</span> <span class="keyword">local</span> Object = object {}             <span class="comment">-- root object
-</span> <span class="keyword">local</span> o = Object {
-   field_1 = <span class="string">"value_1"</span>,
-   method_1 = <span class="keyword">function</span> (self) <span class="keyword">return</span> self.field_1 <span class="keyword">end</span>,
- }
- <span class="global">print</span> (o.field_1)                    <span class="comment">--&gt; value_1
-</span> o.field_2 = <span class="number">2</span>
- <span class="keyword">function</span> o:method_2 (n) <span class="keyword">return</span> self.field_2 + n <span class="keyword">end</span>
- <span class="global">print</span> (o:method_2 (<span class="number">2</span>))               <span class="comment">--&gt; 4
-</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+        <pre class="example"><span class="keyword">local</span> object = <span class="global">require</span> <span class="string">"std.object"</span>  <span class="comment">-- module table
+</span><span class="keyword">local</span> Object = <span class="function-name">object</span> {}             <span class="comment">-- root object
+</span><span class="keyword">local</span> o = <span class="function-name">Object</span> {
+  field_1 = <span class="string">"value_1"</span>,
+  method_1 = <span class="keyword">function</span> (self) <span class="keyword">return</span> self.field_1 <span class="keyword">end</span>,
+}
+<span class="global">print</span> (o.field_1)                    <span class="comment">--&gt; value_1
+</span>o.field_2 = <span class="number">2</span>
+<span class="keyword">function</span> o:<span class="function-name">method_2</span> (n) <span class="keyword">return</span> self.field_2 + n <span class="keyword">end</span>
+<span class="global">print</span> (o:<span class="function-name">method_2</span> (<span class="number">2</span>))               <span class="comment">--&gt; 4
+</span><span class="global">os</span>.<span class="function-name">exit</span> (<span class="number">0</span>)</pre>
     </ul>
 
 </dd>
@@ -279,21 +264,19 @@
     <strong>std.object.mapfields (obj, src[, map={}])</strong>
     </dt>
     <dd>
-    Return <em>obj</em> with references to the fields of <em>src</em> merged in. </p>
-
-<p> More importantly, split the fields in <em>src</em> between <em>obj</em> and its
+    Return *obj* with references to the fields of *src* merged in.
+<p> More importantly, split the fields in *src* between *obj* and its
  metatable. If any field names begin with "_", attach a metatable
- to <em>obj</em> by cloning the metatable from <em>src</em>, and then copy the
- "private" <code>_</code> prefixed fields there.</p>
-
+ to *obj* by cloning the metatable from *src*, and then copy the
+ "private" `_` prefixed fields there.
 <p> You might want to use this function to instantiate your derived
- object clones when the <em>src._init</em> is a function -- when
- <em>src._init</em> is a table, the default (inherited unless you overwrite
- it) clone method calls <a href="../classes/std.object.html#std.object.mapfields">mapfields</a> automatically.  When you're
- using a function <code>_init</code> setting, <a href="../classes/std.object.html#std.object.clone">clone</a> doesn't know what to
- copy into a new object from the <code>_init</code> function's arguments...
- so you're on your own.  Except that calling <a href="../classes/std.object.html#std.object.mapfields">mapfields</a> inside
- <code>_init</code> is safer than manually splitting <code>src</code> into <code>obj</code> and
+ object clones when the *src.\_init* is a function -- when
+ *src.\_init* is a table, the default (inherited unless you overwrite
+ it) clone method calls <a href="../classes/std.object.html#std.object.mapfields">std.object.mapfields</a> automatically.  When you're
+ using a function `_init` setting, <a href="../classes/std.object.html#std.object.clone">std.object.clone</a> doesn't know what to
+ copy into a new object from the `_init` function's arguments...
+ so you're on your own.  Except that calling <a href="../classes/std.object.html#std.object.mapfields">std.object.mapfields</a> inside
+ `_init` is safer than manually splitting `src` into `obj` and
  its metatable, because you'll pick up any fixes and changes when
  you upgrade stdlib.
 
@@ -301,16 +284,16 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">obj</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          destination object
         </li>
         <li><span class="parameter">src</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          fields to copy int clone
         </li>
         <li><span class="parameter">map</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         key renames as <code>{old_key=new_key, ...}</code>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         key renames as `{old_key=new_key, ...}`
          (<em>default</em> {})
         </li>
     </ul>
@@ -318,21 +301,20 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         <em>obj</em> with non-private fields from <em>src</em> merged,
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+         *obj* with non-private fields from *src* merged,
    and a metatable with private fields (if any) merged, both sets
-   of keys renamed according to <em>map</em>
+   of keys renamed according to *map*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- myobject.mapfields = <span class="keyword">function</span> (obj, src, map)
-   object.mapfields (obj, src, map)
-   ...
- <span class="keyword">end</span></pre>
+        <pre class="example">myobject.mapfields = <span class="keyword">function</span> (obj, src, map)
+  object.<span class="function-name">mapfields</span> (obj, src, map)
+  ...
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -341,14 +323,13 @@
     <strong>std.object.prototype (x)</strong>
     </dt>
     <dd>
-    Type of an object, or primitive. </p>
-
+    Type of an object, or primitive.
 <p> It's conventional to organise similar objects according to a
- string valued <em>_type</em> field, which can then be queried using this
- function.</p>
-
+ string valued *\_type* field, which can then be queried using this
+ function.
 <p> Additionally, this function returns the results of ??? for
- file objects, or <a href="http://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> otherwise.
+ file objects, or <a href="https://www.lua.org/manual/5.1/manual.html#pdf-type">type</a> otherwise.
+
 
 
     <h3>Parameters:</h3>
@@ -361,40 +342,39 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        type of <em>x</em>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        type of *x*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> Stack = Object {
-   _type = <span class="string">"Stack"</span>,
+        <pre class="example"><span class="keyword">local</span> Stack = <span class="function-name">Object</span> {
+  _type = <span class="string">"Stack"</span>,
 
-   __tostring = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+  __tostring = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
 
-   __index = {
-     push = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
-     pop  = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
-   },
- }
- <span class="keyword">local</span> stack = Stack {}
- <span class="global">assert</span> (stack:prototype () == <span class="global">getmetatable</span> (stack)._type)
+  __index = {
+    push = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+    pop  = <span class="keyword">function</span> (self) ... <span class="keyword">end</span>,
+  },
+}
+<span class="keyword">local</span> stack = <span class="function-name">Stack</span> {}
+<span class="global">assert</span> (stack:<span class="function-name">prototype</span> () == <span class="global">getmetatable</span> (stack)._type)
 
- <span class="keyword">local</span> prototype = Object.prototype
- <span class="global">assert</span> (prototype (stack) == <span class="global">getmetatable</span> (stack)._type)
+<span class="keyword">local</span> prototype = Object.prototype
+<span class="global">assert</span> (<span class="function-name">prototype</span> (stack) == <span class="global">getmetatable</span> (stack)._type)
 
- <span class="keyword">local</span> h = <span class="global">io</span>.open (<span class="global">os</span>.tmpname (), <span class="string">"w"</span>)
- <span class="global">assert</span> (prototype (h) == <span class="global">io</span>.<span class="global">type</span> (h))
+<span class="keyword">local</span> h = <span class="global">io</span>.<span class="function-name">open</span> (<span class="global">os</span>.<span class="function-name">tmpname</span> (), <span class="string">"w"</span>)
+<span class="global">assert</span> (<span class="function-name">prototype</span> (h) == <span class="global">io</span>.<span class="global">type</span> (h))
 
- <span class="global">assert</span> (prototype {} == <span class="global">type</span> {})</pre>
+<span class="global">assert</span> (<span class="function-name">prototype</span> {} == <span class="global">type</span> {})</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -402,36 +382,34 @@
     <strong>std.object:__call (...)</strong>
     </dt>
     <dd>
-    Return a <a href="../classes/std.object.html#std.object.clone">clone</a> of this object, and its metatable. </p>
-
+    Return a <a href="../classes/std.object.html#std.object.clone">std.object.clone</a> of this object, and its metatable.
 <p> Private fields are stored in the metatable.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
-         arguments for prototype's <em>_init</em>
+         arguments for prototype's *\_init*
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">std.object.Object</a></span>
         a clone of the this object.
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.object.html#std.object.clone">clone</a>
+         <a href="../classes/std.object.html#std.object.clone">std.object.clone</a>
     </ul>
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> Object = <span class="global">require</span> <span class="string">"std.object"</span> {} <span class="comment">-- not a typo!
-</span> new = Object {<span class="string">"initialisation"</span>, <span class="string">"elements"</span>}</pre>
+        <pre class="example"><span class="keyword">local</span> Object = <span class="global">require</span> <span class="string">"std.object"</span> {} <span class="comment">-- not a typo!
+</span>new = <span class="function-name">Object</span> {<span class="string">"initialisation"</span>, <span class="string">"elements"</span>}</pre>
     </ul>
 
 </dd>
@@ -447,18 +425,18 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">function</span></span>
+           <span class="types"><span class="type">std.object.Object</span></span>
         iterator function</li>
         <li>
-           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">Object</a></span>
-        <em>self</em></li>
+           <span class="types"><a class="type" href="../classes/std.object.html#std.object.Object">std.object.Object</a></span>
+        *self*</li>
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> k, v <span class="keyword">in</span> std.<span class="global">pairs</span> (anobject) <span class="keyword">do</span> process (k, v) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> k, v <span class="keyword">in</span> std.<span class="global">pairs</span> (anobject) <span class="keyword">do</span> <span class="function-name">process</span> (k, v) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -467,28 +445,26 @@
     <strong>std.object:__tostring ()</strong>
     </dt>
     <dd>
-    Return a string representation of this object. </p>
-
+    Return a string representation of this object.
 <p> First the object type, and then between { and } a list of the
  array part of the object table (without numeric keys) followed
- by the remaining key-value pairs.</p>
-
+ by the remaining key-value pairs.
 <p> This function doesn't recurse explicity, but relies upon suitable
- <code>__tostring</code> metamethods in field values.
+ `__tostring` metamethods in field values.
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         stringified object representation
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
+         <a href="https://www.lua.org/manual/5.1/manual.html#pdf-tostring">tostring</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -503,8 +479,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +40,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><strong>std.list</strong></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -49,7 +50,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -69,17 +70,11 @@
 <h1>Class <code>std.list</code></h1>
 <p>Tables as lists.</p>
 <p>
-
-
-<h2> Prototype Chain</h2>
-
-
-<pre>
-<span class="global">table</span>
- <span class="backtick">`-&gt; Object
-      `</span>-&gt; List
-</pre>
-
+<p> Prototype Chain
+ ---------------
+<p>      table
+       `-> Object
+            `-> List
 </p>
 
 
@@ -145,7 +140,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -163,7 +158,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -177,7 +172,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">x</span>
@@ -188,15 +183,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
-        new list with <em>x</em> appended
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
+        new list with *x* appended
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">longer = append (short, <span class="string">"last"</span>)</pre>
+        <pre class="example">longer = <span class="function-name">append</span> (short, <span class="string">"last"</span>)</pre>
     </ul>
 
 </dd>
@@ -211,11 +206,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">m</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          another list, or table
         </li>
     </ul>
@@ -223,15 +218,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        -1 if <em>l</em> is less than <em>m</em>, 0 if they are the same, and 1
-   if <em>l</em> is greater than <em>m</em>
+        -1 if *l* is less than *m*, 0 if they are the same, and 1
+   if *l* is greater than *m*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">if</span> a_list:compare (another_list) == <span class="number">0</span> <span class="keyword">then</span> <span class="global">print</span> <span class="string">"same"</span> <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">if</span> a_list:<span class="function-name">compare</span> (another_list) == <span class="number">0</span> <span class="keyword">then</span> <span class="global">print</span> <span class="string">"same"</span> <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -246,7 +241,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">...</span>
@@ -257,7 +252,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
         new list with elements from arguments
     </ol>
 
@@ -265,9 +260,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 2, 3, {4, 5}, 6, 7}
-</span> list.concat ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, {{<span class="number">4</span>, <span class="number">5</span>}, <span class="number">6</span>, <span class="number">7</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 2, 3, {4, 5}, 6, 7}
+</span>list.<span class="function-name">concat</span> ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, {{<span class="number">4</span>, <span class="number">5</span>}, <span class="number">6</span>, <span class="number">7</span>})</pre>
     </ul>
 
 </dd>
@@ -282,7 +276,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">x</span>
@@ -293,17 +287,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
-        new list with <em>x</em> followed by elements of <em>l</em>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
+        new list with *x* followed by elements of *l*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {"x", 1, 2, 3}
-</span> list.cons ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="string">"x"</span>)</pre>
+        <pre class="example"><span class="comment">--&gt; {"x", 1, 2, 3}
+</span>list.<span class="function-name">cons</span> ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="string">"x"</span>)</pre>
     </ul>
 
 </dd>
@@ -318,11 +311,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">std.list.List</span></span>
          number of times to repeat
         </li>
     </ul>
@@ -330,17 +323,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
-        <em>n</em> copies of <em>l</em> appended together
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
+        *n* copies of *l* appended together
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {1, 2, 3, 1, 2, 3, 1, 2, 3}
-</span> list.rep ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="number">3</span>)</pre>
+        <pre class="example"><span class="comment">--&gt; {1, 2, 3, 1, 2, 3, 1, 2, 3}
+</span>list.<span class="function-name">rep</span> ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>}, <span class="number">3</span>)</pre>
     </ul>
 
 </dd>
@@ -357,16 +349,16 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">from</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">std.list.List</span></span>
          start of range
          (<em>default</em> 1)
         </li>
         <li><span class="parameter">to</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">std.list.List</span></span>
          end of range
          (<em>default</em> #l)
         </li>
@@ -375,8 +367,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
-        new list containing elements between <em>from</em> and <em>to</em>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
+        new list containing elements between *from* and *to*
    inclusive
     </ol>
 
@@ -384,9 +376,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {3, 4, 5}
-</span> list.sub ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}, <span class="number">3</span>, <span class="number">5</span>)</pre>
+        <pre class="example"><span class="comment">--&gt; {3, 4, 5}
+</span>list.<span class="function-name">sub</span> ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}, <span class="number">3</span>, <span class="number">5</span>)</pre>
     </ul>
 
 </dd>
@@ -401,7 +392,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
     </ul>
@@ -409,22 +400,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
-        new list with all but the first element of <em>l</em>
+           <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
+        new list with all but the first element of *l*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {3, {4, 5}, 6, 7}
-</span> list.tail {{<span class="number">1</span>, <span class="number">2</span>}, <span class="number">3</span>, {<span class="number">4</span>, <span class="number">5</span>}, <span class="number">6</span>, <span class="number">7</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {3, {4, 5}, 6, 7}
+</span>list.<span class="function-name">tail</span> {{<span class="number">1</span>, <span class="number">2</span>}, <span class="number">3</span>, {<span class="number">4</span>, <span class="number">5</span>}, <span class="number">6</span>, <span class="number">7</span>}</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -438,7 +428,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">e</span>
@@ -450,7 +440,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list.append">append</a>
+         <a href="../classes/std.list.html#std.list.append">std.list.append</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -470,11 +460,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">m</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a> or <a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          another list, or table (hash part is ignored)
         </li>
     </ul>
@@ -483,7 +473,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list.concat">concat</a>
+         <a href="../classes/std.list.html#std.list.concat">std.list.concat</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -503,11 +493,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">m</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          another list
         </li>
     </ul>
@@ -516,7 +506,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list.compare">compare</a>
+         <a href="../classes/std.list.html#std.list.compare">std.list.compare</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -536,11 +526,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">l</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          a list
         </li>
         <li><span class="parameter">m</span>
-            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">List</a></span>
+            <span class="types"><a class="type" href="../classes/std.list.html#std.list.List">std.list.List</a></span>
          another list
         </li>
     </ul>
@@ -549,7 +539,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.list.html#std.list.compare">compare</a>
+         <a href="../classes/std.list.html#std.list.compare">std.list.compare</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -564,8 +554,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

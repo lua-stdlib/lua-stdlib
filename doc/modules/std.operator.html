@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -37,7 +38,7 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -50,7 +51,7 @@
   <li><a href="../modules/std.table.html">std.table</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.tree.html">std.tree</a></li>
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -66,9 +67,7 @@
 
 <h1>Module <code>std.operator</code></h1>
 <p>Functional forms of Lua operators.</p>
-<p>
-
-</p>
+<p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -151,7 +150,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -182,9 +181,8 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; "=&gt; 1000010010"
-</span> functional.foldl (concat, <span class="string">"=&gt; "</span>, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; "=&gt; 1000010010"
+</span>functional.<span class="function-name">foldl</span> (concat, <span class="string">"=&gt; "</span>, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
     </ul>
 
 </dd>
@@ -209,16 +207,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        logical <em>a</em> and <em>b</em>
+        logical *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; true
-</span> functional.foldl (conj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="string">"false"</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; true
+</span>functional.<span class="function-name">foldl</span> (conj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="string">"false"</span>})</pre>
     </ul>
 
 </dd>
@@ -243,16 +240,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the difference between <em>a</em> and <em>b</em>
+        the difference between *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 890
-</span> functional.foldl (diff, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 890
+</span>functional.<span class="function-name">foldl</span> (diff, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
     </ul>
 
 </dd>
@@ -277,16 +273,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        logical <em>a</em> or <em>b</em>
+        logical *a* or *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; true
-</span> functional.foldl (disj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="keyword">false</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; true
+</span>functional.<span class="function-name">foldl</span> (disj, {<span class="keyword">true</span>, <span class="number">1</span>, <span class="keyword">false</span>})</pre>
     </ul>
 
 </dd>
@@ -311,7 +306,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>a</em> is <em>b</em>, otherwise <code>false</code>
+        `true` if *a* is *b*, otherwise `false`
     </ol>
 
 
@@ -329,27 +324,26 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
         <li><span class="parameter">k</span>
-         a key to lookup in <em>t</em>
+         a key to lookup in *t*
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        value stored at <em>t[k]</em> if any, otherwise <code>nil</code>
+        value stored at *t[k]* if any, otherwise `nil`
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 4
-</span> functional.foldl (get, {<span class="number">1</span>, {{<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>}, <span class="number">5</span>}}, {<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 4
+</span>functional.<span class="function-name">foldl</span> (get, {<span class="number">1</span>, {{<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>}, <span class="number">5</span>}}, {<span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>})</pre>
     </ul>
 
 </dd>
@@ -374,7 +368,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>a</em> is greater then <em>b</em>, otherwise <code>false</code>
+        `true` if *a* is greater then *b*, otherwise `false`
     </ol>
 
 
@@ -402,7 +396,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>a</em> is not greater then <em>b</em>, otherwise <code>false</code>
+        `true` if *a* is not greater then *b*, otherwise `false`
     </ol>
 
 
@@ -430,7 +424,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>a</em> is less then <em>b</em>, otherwise <code>false</code>
+        `true` if *a* is less then *b*, otherwise `false`
     </ol>
 
 
@@ -458,7 +452,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>a</em> is not greater then <em>b</em>, otherwise <code>false</code>
+        `true` if *a* is not greater then *b*, otherwise `false`
     </ol>
 
 
@@ -486,16 +480,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the modulus of <em>a</em> and <em>b</em>
+        the modulus of *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 3
-</span> functional.foldl (mod, {<span class="number">65536</span>, <span class="number">100</span>, <span class="number">11</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 3
+</span>functional.<span class="function-name">foldl</span> (mod, {<span class="number">65536</span>, <span class="number">100</span>, <span class="number">11</span>})</pre>
     </ul>
 
 </dd>
@@ -517,16 +510,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        not <em>a</em>
+        not *a*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; {true, false, false, false}
-</span> functional.bind (functional.map, {std.ielems, neg}) {<span class="keyword">false</span>, <span class="keyword">true</span>, <span class="number">1</span>, <span class="number">0</span>}</pre>
+        <pre class="example"><span class="comment">--&gt; {true, false, false, false}
+</span>functional.<span class="function-name">bind</span> (functional.map, {std.ielems, neg}) {<span class="keyword">false</span>, <span class="keyword">true</span>, <span class="number">1</span>, <span class="number">0</span>}</pre>
     </ul>
 
 </dd>
@@ -551,17 +543,16 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>false</code> if <em>a</em> is <em>b</em>, otherwise <code>true</code>
+        `false` if *a* is *b*, otherwise `true`
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; true
-</span> <span class="keyword">local</span> f = <span class="global">require</span> <span class="string">"std.functional"</span>
- <span class="global">table</span>.empty (f.filter (f.bind (neq, {<span class="number">6</span>}), std.ielems, {<span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; true
+</span><span class="keyword">local</span> f = <span class="global">require</span> <span class="string">"std.functional"</span>
+<span class="global">table</span>.<span class="function-name">empty</span> (f.<span class="function-name">filter</span> (f.<span class="function-name">bind</span> (neq, {<span class="number">6</span>}), std.ielems, {<span class="number">6</span>, <span class="number">6</span>, <span class="number">6</span>})</pre>
     </ul>
 
 </dd>
@@ -586,16 +577,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the <em>a</em> to the power of <em>b</em>
+        the *a* to the power of *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 4096
-</span> functional.foldl (pow, {<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 4096
+</span>functional.<span class="function-name">foldl</span> (pow, {<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>})</pre>
     </ul>
 
 </dd>
@@ -620,16 +610,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the product of <em>a</em> and <em>b</em>
+        the product of *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 10000000
-</span> functional.foldl (prod, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 10000000
+</span>functional.<span class="function-name">foldl</span> (prod, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
     </ul>
 
 </dd>
@@ -654,16 +643,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the quotient <em>a</em> and <em>b</em>
+        the quotient *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 1000
-</span> functional.foldr (quot, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 1000
+</span>functional.<span class="function-name">foldr</span> (quot, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
     </ul>
 
 </dd>
@@ -678,32 +666,31 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          a table
         </li>
         <li><span class="parameter">k</span>
-         a key to lookup in <em>t</em>
+         a key to lookup in *t*
         </li>
         <li><span class="parameter">v</span>
-         a value to set for <em>k</em>
+         a value to set for *k*
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        <em>t</em>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        *t*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">-- destructive table merge:
-</span> <span class="comment">--&gt; {"one", bar="baz", two=5}
-</span> functional.reduce (set, {<span class="string">"foo"</span>, bar=<span class="string">"baz"</span>}, {<span class="string">"one"</span>, two=<span class="number">5</span>})</pre>
+        <pre class="example"><span class="comment">-- destructive table merge:
+</span><span class="comment">--&gt; {"one", bar="baz", two=5}
+</span>functional.<span class="function-name">reduce</span> (set, {<span class="string">"foo"</span>, bar=<span class="string">"baz"</span>}, {<span class="string">"one"</span>, two=<span class="number">5</span>})</pre>
     </ul>
 
 </dd>
@@ -728,16 +715,15 @@
     <h3>Returns:</h3>
     <ol>
 
-        the sum of the <em>a</em> and <em>b</em>
+        the sum of the *a* and *b*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="comment">--&gt; 10110
-</span> functional.foldl (sum, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
+        <pre class="example"><span class="comment">--&gt; 10110
+</span>functional.<span class="function-name">foldl</span> (sum, {<span class="number">10000</span>, <span class="number">100</span>, <span class="number">10</span>})</pre>
     </ul>
 
 </dd>
@@ -747,8 +733,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -1,6 +1,6 @@
 dnl configure.ac
 dnl
-dnl Copyright (C) 2012-2015 Gary V. Vaughan
+dnl Copyright (C) 2012-2026 Gary V. Vaughan
 dnl Written by Gary V. Vaughan, 2012
 dnl
 dnl This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dnl Initialise autoconf and automake
-AC_INIT([stdlib], [41.2.2], [http://github.com/lua-stdlib/lua-stdlib/issues])
+AC_INIT([stdlib], [41.2.3], [http://github.com/lua-stdlib/lua-stdlib/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -29,7 +29,7 @@ AM_INIT_AUTOMAKE([-Wall])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
-AX_PROG_LUA([5.1], [5.5])
+AX_PROG_LUA([5.1], [5.6])
 AC_PATH_PROG([LDOC], [ldoc], [:])
 AC_PATH_PROG([SPECL], [specl], [:])
 AC_PROG_EGREP

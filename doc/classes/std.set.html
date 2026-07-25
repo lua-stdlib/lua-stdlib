@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +40,7 @@
 
 
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.list.html">std.list</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -49,7 +50,7 @@
   <li><a href="../classes/std.tree.html">std.tree</a></li>
 </ul>
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -69,23 +70,20 @@
 <h1>Class <code>std.set</code></h1>
 <p>Set container prototype.</p>
 <p>
-
-
 <p> Note that Functions listed below are only available from the Set
  prototype returned by requiring this module, because Container
- objects cannot have object methods.</p>
-
-<h2> Prototype Chain</h2>
-
-
-<pre>
-<span class="global">table</span>
- <span class="backtick">`-&gt; Object
-      `</span>-&gt; Container
-           `-&gt; Set
-</pre>
-
+ objects cannot have object methods.
+<p> Prototype Chain
+ ---------------
+<p>      table
+       `-> Object
+            `-> Container
+                 `-> Set
 </p>
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/std.container.html#">std.container</a>
+    </ul>
 
 
 <h2><a href="#Objects">Objects</a></h2>
@@ -174,7 +172,7 @@
 <br/>
 
 
-    <h2><a name="Objects"></a>Objects</h2>
+    <h2 class="section-header "><a name="Objects"></a>Objects</h2>
 
     <dl class="function">
     <dt>
@@ -182,8 +180,7 @@
     <strong>std.set.Set</strong>
     </dt>
     <dd>
-    Set prototype object. </p>
-
+    Set prototype object.
 <p> Set also inherits all the fields and methods from
  <a href="../classes/std.container.html#std.container.Container">std.container.Container</a>.
 
@@ -191,7 +188,7 @@
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">_type</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          object name
          (<em>default</em> "Set")
         </li>
@@ -207,15 +204,14 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
- std.prototype (std.set) <span class="comment">--&gt; "Set"
-</span> <span class="global">os</span>.exit (<span class="number">0</span>)</pre>
+        <pre class="example"><span class="keyword">local</span> std = <span class="global">require</span> <span class="string">"std"</span>
+std.<span class="function-name">prototype</span> (std.set) <span class="comment">--&gt; "Set"
+</span><span class="global">os</span>.<span class="function-name">exit</span> (<span class="number">0</span>)</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -229,7 +225,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">e</span>
@@ -240,15 +236,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        the modified <em>set</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        the modified *set*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">set.delete (available, found)</pre>
+        <pre class="example">set.<span class="function-name">delete</span> (available, found)</pre>
     </ul>
 
 </dd>
@@ -263,11 +259,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -275,15 +271,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        a copy of <em>set1</em> with elements of <em>set2</em> removed
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        a copy of *set1* with elements of *set2* removed
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">all = set.difference (all, {<span class="number">32</span>, <span class="number">49</span>, <span class="number">56</span>})</pre>
+        <pre class="example">all = set.<span class="function-name">difference</span> (all, {<span class="number">32</span>, <span class="number">49</span>, <span class="number">56</span>})</pre>
     </ul>
 
 </dd>
@@ -298,7 +294,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">e</span>
@@ -309,7 +305,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        <code>true</code> if <em>e</em> is in <em>set</em>, otherwise <code>false</code>
+        `true` if *e* is in *set*, otherwise `false`
  otherwise
     </ol>
 
@@ -317,7 +313,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">if</span> <span class="keyword">not</span> set.member (keyset, pressed) <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span> <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">if</span> <span class="keyword">not</span> set.<span class="function-name">member</span> (keyset, pressed) <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">nil</span> <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -332,7 +328,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
     </ul>
@@ -348,7 +344,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> code <span class="keyword">in</span> set.elems (isprintable) <span class="keyword">do</span> <span class="global">print</span> (code) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> code <span class="keyword">in</span> set.<span class="function-name">elems</span> (isprintable) <span class="keyword">do</span> <span class="global">print</span> (code) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -363,11 +359,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -375,16 +371,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        <code>true</code> if <em>set1</em> and <em>set2</em> each contain identical
-   elements, <code>false</code> otherwise
+           <span class="types"><span class="type">std.set.Set</span></span>
+        `true` if *set1* and *set2* each contain identical
+   elements, `false` otherwise
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">if</span> set.equal (keys, {META, CTRL, <span class="string">"x"</span>}) <span class="keyword">then</span> process (keys) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">if</span> set.<span class="function-name">equal</span> (keys, {META, CTRL, <span class="string">"x"</span>}) <span class="keyword">then</span> <span class="function-name">process</span> (keys) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -399,7 +395,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">e</span>
@@ -410,18 +406,17 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        the modified <em>set</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        the modified *set*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">for</span> byte = <span class="number">32</span>,<span class="number">126</span> <span class="keyword">do</span>
-   set.insert (isprintable, <span class="global">string</span>.char (byte))
- <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">for</span> byte = <span class="number">32</span>,<span class="number">126</span> <span class="keyword">do</span>
+  set.<span class="function-name">insert</span> (isprintable, <span class="global">string</span>.<span class="function-name">char</span> (byte))
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -436,11 +431,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -448,15 +443,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        a new set with elements in both <em>set1</em> and <em>set2</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        a new set with elements in both *set1* and *set2*
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">common = set.intersection (a, b)</pre>
+        <pre class="example">common = set.<span class="function-name">intersection</span> (a, b)</pre>
     </ul>
 
 </dd>
@@ -471,11 +466,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -483,22 +478,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        <code>true</code> if <em>set2</em> contains all elements in <em>set1</em>
-   but not only those elements, <code>false</code> otherwise
+           <span class="types"><span class="type">std.set.Set</span></span>
+        `true` if *set2* contains all elements in *set1*
+   but not only those elements, `false` otherwise
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
- <span class="keyword">if</span> set.proper_subset (a, b) <span class="keyword">then</span>
-   <span class="keyword">for</span> e <span class="keyword">in</span> set.elems (set.difference (b, a)) <span class="keyword">do</span>
-     set.delete (b, e)
-   <span class="keyword">end</span>
- <span class="keyword">end</span>
- <span class="global">assert</span> (set.equal (a, b))</pre>
+        <pre class="example"><span class="keyword">if</span> set.<span class="function-name">proper_subset</span> (a, b) <span class="keyword">then</span>
+  <span class="keyword">for</span> e <span class="keyword">in</span> set.<span class="function-name">elems</span> (set.<span class="function-name">difference</span> (b, a)) <span class="keyword">do</span>
+    set.<span class="function-name">delete</span> (b, e)
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="global">assert</span> (set.<span class="function-name">equal</span> (a, b))</pre>
     </ul>
 
 </dd>
@@ -513,11 +507,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -525,16 +519,16 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        <code>true</code> if all elements in <em>set1</em> are also in <em>set2</em>,
-   <code>false</code> otherwise
+           <span class="types"><span class="type">std.set.Set</span></span>
+        `true` if all elements in *set1* are also in *set2*,
+   `false` otherwise
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">if</span> set.subset (a, b) <span class="keyword">then</span> a = b <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">if</span> set.<span class="function-name">subset</span> (a, b) <span class="keyword">then</span> a = b <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -549,11 +543,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -561,8 +555,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        a new set with elements that are in <em>set1</em> or <em>set2</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        a new set with elements that are in *set1* or *set2*
    but not both
     </ol>
 
@@ -570,7 +564,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">unique = set.symmetric_difference (a, b)</pre>
+        <pre class="example">unique = set.<span class="function-name">symmetric_difference</span> (a, b)</pre>
     </ul>
 
 </dd>
@@ -585,11 +579,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -597,20 +591,20 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        a copy of <em>set1</em> with elements in <em>set2</em> merged in
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        a copy of *set1* with elements in *set2* merged in
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">all = set.union (a, b)</pre>
+        <pre class="example">all = set.<span class="function-name">union</span> (a, b)</pre>
     </ul>
 
 </dd>
 </dl>
-    <h2><a name="Metamethods"></a>Metamethods</h2>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
 
     <dl class="function">
     <dt>
@@ -624,11 +618,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -636,14 +630,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        everything from <em>set1</em> plus everything from <em>set2</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        everything from *set1* plus everything from *set2*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.union">union</a>
+         <a href="../classes/std.set.html#std.set.union">std.set.union</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -663,11 +657,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -675,14 +669,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        everything from <em>set1</em> or <em>set2</em> but not both
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        everything from *set1* or *set2* but not both
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.symmetric_difference">symmetric_difference</a>
+         <a href="../classes/std.set.html#std.set.symmetric_difference">std.set.symmetric_difference</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -702,11 +696,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -714,14 +708,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        <code>true</code> if everything in <em>set1</em> is also in <em>set2</em>
+           <span class="types"><span class="type">std.set.Set</span></span>
+        `true` if everything in *set1* is also in *set2*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.subset">subset</a>
+         <a href="../classes/std.set.html#std.set.subset">std.set.subset</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -741,11 +735,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -753,15 +747,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">boolean</span></span>
-        <code>true</code> if <em>set2</em> is not equal to <em>set1</em>, but does
-   contain everything from <em>set1</em>
+           <span class="types"><span class="type">std.set.Set</span></span>
+        `true` if *set2* is not equal to *set1*, but does
+   contain everything from *set1*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.proper_subset">proper_subset</a>
+         <a href="../classes/std.set.html#std.set.proper_subset">std.set.proper_subset</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -781,11 +775,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -793,14 +787,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        anything this is in both <em>set1</em> and <em>set2</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        anything this is in both *set1* and *set2*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.intersection">intersection</a>
+         <a href="../classes/std.set.html#std.set.intersection">std.set.intersection</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -820,11 +814,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">set1</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          a set
         </li>
         <li><span class="parameter">set2</span>
-            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
+            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
          another set
         </li>
     </ul>
@@ -832,14 +826,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">Set</a></span>
-        everything from <em>set1</em> that is not also in <em>set2</em>
+           <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
+        everything from *set1* that is not also in *set2*
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="../classes/std.set.html#std.set.difference">difference</a>
+         <a href="../classes/std.set.html#std.set.difference">std.set.difference</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -854,8 +848,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

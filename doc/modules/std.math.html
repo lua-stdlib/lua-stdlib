@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.2 Reference</title>
+    <title>stdlib 41.2.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.2</h1>
+<h1>stdlib 41.2.3</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -37,7 +38,7 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/std.html">std</a></li>
   <li><a href="../modules/std.debug.html">std.debug</a></li>
   <li><a href="../modules/std.functional.html">std.functional</a></li>
@@ -50,7 +51,7 @@
   <li><a href="../modules/std.table.html">std.table</a></li>
 </ul>
 <h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../classes/std.tree.html">std.tree</a></li>
   <li><a href="../classes/std.container.html">std.container</a></li>
   <li><a href="../classes/std.object.html">std.object</a></li>
@@ -67,17 +68,10 @@
 <h1>Module <code>std.math</code></h1>
 <p>Additions to the core math module.</p>
 <p>
-
-
-<p> The module table returned by <code>std.math</code> also contains all of the entries from
+<p> The module table returned by `std.math` also contains all of the entries from
  the core math table.  An hygienic way to import this module, then, is simply
- to override the core <code>math</code> locally:</p>
-
-
-<pre>
-<span class="keyword">local</span> <span class="global">math</span> = <span class="global">require</span> <span class="string">"std.math"</span>
-</pre>
-
+ to override the core `math` locally:
+<p>    local math = require "std.math"
 </p>
 
 
@@ -85,11 +79,11 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#floor">floor (n[, p=0])</a></td>
-	<td class="summary">Extend <code>math.floor</code> to take the number of decimal places.</td>
+	<td class="summary">Extend `math.floor` to take the number of decimal places.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core <code>math</code> methods with <code>std</code> enhanced versions.</td>
+	<td class="summary">Overwrite core `math` methods with `std` enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#round">round (n[, p=0])</a></td>
@@ -101,7 +95,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
     Methods
     <dl class="function">
     <dt>
@@ -109,17 +103,17 @@
     <strong>floor (n[, p=0])</strong>
     </dt>
     <dd>
-    Extend <code>math.floor</code> to take the number of decimal places.
+    Extend `math.floor` to take the number of decimal places.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">string</span></span>
          number
         </li>
         <li><span class="parameter">p</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">string</span></span>
          number of decimal places to truncate to
          (<em>default</em> 0)
         </li>
@@ -128,15 +122,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">number</span></span>
-        <code>n</code> truncated to <code>p</code> decimal places
+           <span class="types"><span class="type">string</span></span>
+        `n` truncated to `p` decimal places
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">tenths = floor (magnitude, <span class="number">1</span>)</pre>
+        <pre class="example">tenths = <span class="function-name">floor</span> (magnitude, <span class="number">1</span>)</pre>
     </ul>
 
 </dd>
@@ -145,13 +139,13 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core <code>math</code> methods with <code>std</code> enhanced versions.
+    Overwrite core `math` methods with `std` enhanced versions.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">namespace</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          where to install global functions
          (<em>default</em> _G)
         </li>
@@ -160,7 +154,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         the module table
     </ol>
 
@@ -168,7 +162,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="global">require</span> <span class="string">"std.math"</span>.monkey_patch ()</pre>
+        <pre class="example"><span class="global">require</span> <span class="string">"std.math"</span>.<span class="function-name">monkey_patch</span> ()</pre>
     </ul>
 
 </dd>
@@ -183,11 +177,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">number</span></span>
+            <span class="types"><span class="type">table</span></span>
          number
         </li>
         <li><span class="parameter">p</span>
-            <span class="types"><span class="type">int</span></span>
+            <span class="types"><span class="type">table</span></span>
          number of decimal places to round to
          (<em>default</em> 0)
         </li>
@@ -196,15 +190,15 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">number</span></span>
-        <code>n</code> rounded to <code>p</code> decimal places
+           <span class="types"><span class="type">table</span></span>
+        `n` rounded to `p` decimal places
     </ol>
 
 
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">roughly = round (exactly, <span class="number">2</span>)</pre>
+        <pre class="example">roughly = <span class="function-name">round</span> (exactly, <span class="number">2</span>)</pre>
     </ul>
 
 </dd>
@@ -214,8 +208,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2018-09-03 17:48:42</i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
