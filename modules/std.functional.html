@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -68,10 +68,8 @@
 
 <h1>Module <code>std.functional</code></h1>
 <p>Functional programming.</p>
-<p>
 <p> A selection of higher-order functions to enable a functional style of
- programming in Lua.
-</p>
+ programming in Lua.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -183,19 +181,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          function to apply partially
         </li>
         <li><span class="parameter">argt</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         table of *fn* arguments to bind
+         table of <em>fn</em> arguments to bind
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        function with *argt* arguments already bound
+        function with <em>argt</em> arguments already bound
     </ol>
 
 
@@ -224,7 +222,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        `true` if *x* can be called, otherwise `false`
+        <code>true</code> if <em>x</em> can be called, otherwise <code>false</code>
     </ol>
 
 
@@ -241,7 +239,7 @@
     </dt>
     <dd>
     A rudimentary case statement.
- Match *with* against keys in *branches* table.
+ Match <em>with</em> against keys in <em>branches</em> table.
 
 
     <h3>Parameters:</h3>
@@ -260,9 +258,9 @@
 
          the value associated with a matching key, or the first non-key
    value if no key matches. Function or functable valued matches are
-   called using *with* as the sole argument, and the result of that call
+   called using <em>with</em> as the sole argument, and the result of that call
    returned; otherwise the matching value associated with the matching
-   key is returned directly; or else `nil` if there is no match and no
+   key is returned directly; or else <code>nil</code> if there is no match and no
    default.
     </ol>
 
@@ -293,12 +291,12 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">ifn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator function
          (<em>default</em> std.npairs)
         </li>
         <li><span class="parameter">...</span>
-         *ifn* arguments
+         <em>ifn</em> arguments
         </li>
     </ul>
 
@@ -306,7 +304,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        of results from running *ifn* on *args*
+        of results from running <em>ifn</em> on <em>args</em>
     </ol>
 
 
@@ -334,7 +332,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">...</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          functions to compose
         </li>
     </ul>
@@ -342,11 +340,14 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
+           <span class="types"><span class="type">function</span></span>
          composition of fnN .. fn1: note that this is the
- reverse of what you might expect, but means that code like:
-<p>     functional.compose (function (x) return f (x) end,
-                         function (x) return g (x) end))
+ reverse of what you might expect, but means that code like:</p>
+
+<pre><code> functional.compose (function (x) return f (x) end,
+                     function (x) return g (x) end))
+</code></pre>
+
 <p> can be read from top to bottom.
     </ol>
 
@@ -365,10 +366,10 @@
     </dt>
     <dd>
     A rudimentary condition-case statement.
- If *expr* is "truthy" return *branch* if given, otherwise *expr*
+ If <em>expr</em> is "truthy" return <em>branch</em> if given, otherwise <em>expr</em>
  itself. If the return value is a function or functable, then call it
- with *expr* as the sole argument and return the result; otherwise
- return it explicitly.  If *expr* is "falsey", then recurse with the
+ with <em>expr</em> as the sole argument and return the result; otherwise
+ return it explicitly.  If <em>expr</em> is "falsey", then recurse with the
  first two arguments stripped.
 
 
@@ -378,11 +379,11 @@
          a Lua expression
         </li>
         <li><span class="parameter">branch</span>
-         a function, functable or value to use if *expr* is
+         a function, functable or value to use if <em>expr</em> is
    "truthy"
         </li>
         <li><span class="parameter">...</span>
-         additional arguments to retry if *expr* is "falsey"
+         additional arguments to retry if <em>expr</em> is "falsey"
         </li>
     </ul>
 
@@ -416,11 +417,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          function to curry
         </li>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">integer</span></span>
          number of arguments
         </li>
     </ul>
@@ -428,8 +429,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        curried version of *fn*
+           <span class="types"><span class="type">function</span></span>
+        curried version of <em>fn</em>
     </ol>
 
 
@@ -456,7 +457,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
          predicate function
         </li>
         <li><span class="parameter">ifn</span>
-            <span class="types"><span class="type">predicate</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator function
          (<em>default</em> std.pairs)
         </li>
@@ -469,7 +470,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        elements e for which `pfn (e)` is not "falsey".
+        elements e for which <code>pfn (e)</code> is not "falsey".
     </ol>
 
 
@@ -492,14 +493,14 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     </dt>
     <dd>
     Fold a binary function left associatively.
- If parameter *d* is omitted, the first element of *t* is used,
- and *t* treated as if it had been passed without that element.
+ If parameter <em>d</em> is omitted, the first element of <em>t</em> is used,
+ and <em>t</em> treated as if it had been passed without that element.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          binary function
         </li>
         <li><span class="parameter">d</span>
@@ -537,14 +538,14 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     </dt>
     <dd>
     Fold a binary function right associatively.
- If parameter *d* is omitted, the last element of *t* is used,
- and *t* treated as if it had been passed without that element.
+ If parameter <em>d</em> is omitted, the last element of <em>t</em> is used,
+ and <em>t</em> treated as if it had been passed without that element.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          binary function
         </li>
         <li><span class="parameter">d</span>
@@ -594,7 +595,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Returns:</h3>
     <ol>
 
-        *arguments*
+        <em>arguments</em>
     </ol>
 
 
@@ -606,15 +607,21 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <strong>lambda (s)</strong>
     </dt>
     <dd>
-    Compile a lambda string into a Lua function.
-<p> A valid lambda string takes one of the following forms:
-<p>   1. `'=expression'`: equivalent to `function (...) return expression end`
-   1. `'|args|expression'`: equivalent to `function (args) return expression end`
-<p> The first form (starting with `'='`) automatically assigns the first
- nine arguments to parameters `'_1'` through `'_9'` for use within the
- expression body.  The parameter `'_1'` is aliased to `'_'`, and if the
- first non-whitespace of the whole expression is `'_'`, then the
- leading `'='` can be omitted.
+    Compile a lambda string into a Lua function. </p>
+
+<p> A valid lambda string takes one of the following forms:</p>
+
+<ol>
+    <li><code>'=expression'</code>: equivalent to <code>function (...) return expression end</code></li>
+    <li><code>'|args|expression'</code>: equivalent to <code>function (args) return expression end</code></li>
+</ol>
+
+<p> The first form (starting with <code>'='</code>) automatically assigns the first
+ nine arguments to parameters <code>'_1'</code> through <code>'_9'</code> for use within the
+ expression body.  The parameter <code>'_1'</code> is aliased to <code>'_'</code>, and if the
+ first non-whitespace of the whole expression is <code>'_'</code>, then the
+ leading <code>'='</code> can be omitted.</p>
+
 <p> The results are memoized, so recompiling a previously compiled
  lambda string is extremely fast.
 
@@ -630,7 +637,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">string</span></span>
+           <span class="types"><span class="type">functable</span></span>
         compiled lambda string, can be called like a function
     </ol>
 
@@ -655,11 +662,11 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">function</span></span>
          map function
         </li>
         <li><span class="parameter">ifn</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator function
          (<em>default</em> std.pairs)
         </li>
@@ -701,12 +708,12 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          map function
         </li>
         <li><span class="parameter">tt</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         a table of *fn* argument lists
+         a table of <em>fn</em> argument lists
         </li>
     </ul>
 
@@ -714,7 +721,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        new table of *fn* results
+        new table of <em>fn</em> results
     </ol>
 
 
@@ -737,9 +744,10 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <strong>memoize (fn[, normfn=std.tostring])</strong>
     </dt>
     <dd>
-    Memoize a function, by wrapping it in a functable.
+    Memoize a function, by wrapping it in a functable. </p>
+
 <p> To ensure that memoize always returns the same results for the same
- arguments, it passes arguments to *fn*. You can specify a more
+ arguments, it passes arguments to <em>fn</em>. You can specify a more
  sophisticated function if memoize should handle complicated argument
  equivalencies.
 
@@ -747,7 +755,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          pure function: a function with no side effects
         </li>
         <li><span class="parameter">normfn</span>
@@ -760,7 +768,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">normalize</span></span>
+           <span class="types"><span class="type">functable</span></span>
         memoized function
     </ol>
 
@@ -806,14 +814,14 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">normalize</span></span>
+            <span class="types"><span class="type">function</span></span>
          reduce function
         </li>
         <li><span class="parameter">d</span>
          initial first argument
         </li>
         <li><span class="parameter">ifn</span>
-            <span class="types"><span class="type">normalize</span></span>
+            <span class="types"><span class="type">function</span></span>
          iterator function
          (<em>default</em> std.pairs)
         </li>
@@ -865,7 +873,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         new table with lists of elements of the same key
-   from *tt*
+   from <em>tt</em>
     </ol>
 
 
@@ -893,7 +901,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">function</span></span>
          function
         </li>
         <li><span class="parameter">tt</span>
@@ -906,7 +914,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         a new table of results from calls to *fn* with arguments
+         a new table of results from calls to <em>fn</em> with arguments
    made from all elements the same key in the original tables; effectively
    the "columns" in a simple list
  of lists.
@@ -980,7 +988,7 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">string</span></span>
+           <span class="types"><span class="type">boolean</span></span>
         "truthy" if the predicate condition succeeds,
    "falsey" otherwise
     </ol>
@@ -1000,8 +1008,8 @@ incr, decr = <span class="function-name">add</span> (<span class="number">1</spa
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

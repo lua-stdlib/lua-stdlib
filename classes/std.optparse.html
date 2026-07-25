@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -71,11 +71,17 @@
 <h1>Class <code>std.optparse</code></h1>
 <p>Parse and process command line options.</p>
 <p>
-<p> Prototype Chain
- ---------------
-<p>      table
-       `-> Object
-            `-> OptionParser
+
+
+<h2> Prototype Chain</h2>
+
+
+<pre>
+<span class="global">table</span>
+ <span class="backtick">`-&gt; Object
+      `</span>-&gt; OptionParser
+</pre>
+
 </p>
 
 
@@ -94,22 +100,23 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.boolean">std.optparse.boolean (opt[, optarg="1"])</a></td>
-	<td class="summary">Return a Lua boolean equivalent of various *optarg* strings.</td>
+	<td class="summary">Return a Lua boolean equivalent of various <em>optarg</em> strings.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.file">std.optparse.file (opt, optarg)</a></td>
-	<td class="summary">Report an option parse error unless *optarg* names an
+	<td class="summary">Report an option parse error unless <em>optarg</em> names an
  existing file.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.finished">std.optparse.finished (arglist, i)</a></td>
-	<td class="summary">Finish option processing
+	<td class="summary">Finish option processing</p>
+
 <p> This is the handler automatically assigned to the option written as
- `--` in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.</td>
+ <code>--</code> in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.flag">std.optparse.flag (arglist, i[, value])</a></td>
-	<td class="summary">Option at `arglist[i]` is a boolean switch.</td>
+	<td class="summary">Option at <code>arglist[i]</code> is a boolean switch.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.help">std.optparse.help ()</a></td>
@@ -121,11 +128,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.optional">std.optparse.optional (arglist, i[, value=true])</a></td>
-	<td class="summary">Option at `arglist[i]` can take an argument.</td>
+	<td class="summary">Option at <code>arglist[i]</code> can take an argument.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.required">std.optparse.required (arglist, i[, value])</a></td>
-	<td class="summary">Option at `arglist[i}` requires an argument.</td>
+	<td class="summary">Option at <code>arglist[i}</code> requires an argument.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#std.optparse.version">std.optparse.version ()</a></td>
@@ -172,20 +179,23 @@
     <strong>std.optparse.OptionParser</strong>
     </dt>
     <dd>
-    OptionParser prototype object.
+    OptionParser prototype object. </p>
+
 <p> Most often, after instantiating an <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a>, everything else
- is handled automatically.
-<p> Then, calling `parser:parse` as shown below saves unparsed arguments
- into `_G.arg` (usually filenames or similar), and `_G.opts` will be a
+ is handled automatically.</p>
+
+<p> Then, calling <code>parser:parse</code> as shown below saves unparsed arguments
+ into <code>_G.arg</code> (usually filenames or similar), and <code>_G.opts</code> will be a
  table of successfully parsed option values. The keys into this table
  are the long-options with leading hyphens stripped, and non-word
- characters turned to `_`.  For example if `--another-long` had been
- found in the initial `_G.arg`, then `_G.opts` will have a key named
- `another_long`, with an appropriate value.  If there is no long
- option name, then the short option is used, i.e. `_G.opts.b` will be
- set.
+ characters turned to <code>_</code>.  For example if <code>--another-long</code> had been
+ found in the initial <code>_G.arg</code>, then <code>_G.opts</code> will have a key named
+ <code>another_long</code>, with an appropriate value.  If there is no long
+ option name, then the short option is used, i.e. <code>_G.opts.b</code> will be
+ set.</p>
+
 <p> The values saved against those keys are controlled by the option
- handler, usually just `true` or the option argument string as
+ handler, usually just <code>true</code> or the option argument string as
  appropriate.
 
 
@@ -197,22 +207,22 @@
         </li>
         <li><span class="parameter">program</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         the first word following "Usage:" from *spec*
+         the first word following "Usage:" from <em>spec</em>
         </li>
         <li><span class="parameter">version</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          the last white-space delimited word on the first line
-   of text from *spec*
+   of text from <em>spec</em>
         </li>
         <li><span class="parameter">versiontext</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         everything preceding "Usage:" from *spec*, and
+         everything preceding "Usage:" from <em>spec</em>, and
    which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.version">std.optparse.version</a> <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
         </li>
         <li><span class="parameter">helptext</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          everything including and following "Usage:" from
-   *spec* string and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.help">std.optparse.help</a>
+   <em>spec</em> string and which will be displayed by the <a href="../classes/std.optparse.html#std.optparse.help">std.optparse.help</a>
    <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>
         </li>
     </ul>
@@ -273,10 +283,11 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.OptionParser_Init (spec)</strong>
     </dt>
     <dd>
-    Signature for initialising a custom OptionParser.
-<p> Read the documented options from *spec* and return custom parser that
- can be used for parsing the options described in *spec* from a run-time
- argument list.  Options in *spec* are recognised as lines that begin
+    Signature for initialising a custom OptionParser. </p>
+
+<p> Read the documented options from <em>spec</em> and return custom parser that
+ can be used for parsing the options described in <em>spec</em> from a run-time
+ argument list.  Options in <em>spec</em> are recognised as lines that begin
  with at least two spaces, followed by a hyphen.
 
 
@@ -292,7 +303,7 @@ Please report bugs at bug-list@yourhost.com
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a></span>
-        a parser for options described by *spec*
+        a parser for options described by <em>spec</em>
     </ol>
 
 
@@ -308,11 +319,12 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.boolean (opt[, optarg="1"])</strong>
     </dt>
     <dd>
-    Return a Lua boolean equivalent of various *optarg* strings.
- Report an option parse error if *optarg* is not recognised.
-<p> Pass this as the `value` function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want various
- "truthy" or "falsey" option arguments to be coerced to a Lua `true`
- or `false` respectively in the options table.
+    Return a Lua boolean equivalent of various <em>optarg</em> strings.
+ Report an option parse error if <em>optarg</em> is not recognised.</p>
+
+<p> Pass this as the <code>value</code> function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want various
+ "truthy" or "falsey" option arguments to be coerced to a Lua <code>true</code>
+ or <code>false</code> respectively in the options table.
 
 
     <h3>Parameters:</h3>
@@ -331,8 +343,8 @@ Please report bugs at bug-list@yourhost.com
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">string</span></span>
-        `true` or `false`
+           <span class="types"><span class="type">bool</span></span>
+        <code>true</code> or <code>false</code>
     </ol>
 
 
@@ -348,9 +360,10 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.file (opt, optarg)</strong>
     </dt>
     <dd>
-    Report an option parse error unless *optarg* names an
- existing file.
-<p> Pass this as the `value` function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want to accept
+    Report an option parse error unless <em>optarg</em> names an
+ existing file. </p>
+
+<p> Pass this as the <code>value</code> function to <a href="../classes/std.optparse.html#std.optparse:on">on</a> when you want to accept
  only option arguments that name an existing file.
 
 
@@ -370,7 +383,7 @@ Please report bugs at bug-list@yourhost.com
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *optarg*
+        <em>optarg</em>
     </ol>
 
 
@@ -386,11 +399,13 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.finished (arglist, i)</strong>
     </dt>
     <dd>
-    Finish option processing
+    Finish option processing</p>
+
 <p> This is the handler automatically assigned to the option written as
- `--` in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.   You can also pass it as
- the `handler` argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> if you want to manually add an end
- of options marker without writing it in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.
+ <code>--</code> in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.   You can also pass it as
+ the <code>handler</code> argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> if you want to manually add an end
+ of options marker without writing it in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.</p>
+
 <p> This handler tells the parser to stop processing arguments, so that
  anything after it will be an argument even if it otherwise looks
  like an option.
@@ -403,16 +418,16 @@ Please report bugs at bug-list@yourhost.com
          list of arguments
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
-         index of last processed element of `arglist`
+            <span class="types"><span class="type">integer</span></span>
+         index of last processed element of <code>arglist</code>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        index of next element of `arglist` to process
+           <span class="types"><span class="type">int</span></span>
+        index of next element of <code>arglist</code> to process
     </ol>
 
 
@@ -428,16 +443,18 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.flag (arglist, i[, value])</strong>
     </dt>
     <dd>
-    Option at `arglist[i]` is a boolean switch.
+    Option at <code>arglist[i]</code> is a boolean switch. </p>
+
 <p> This is the handler automatically assigned to options that have
- `--long-opt` or `-x` style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec
- argument. You can also pass it as the `handler` argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for
+ <code>--long-opt</code> or <code>-x</code> style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec
+ argument. You can also pass it as the <code>handler</code> argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for
  options you want to add manually without putting them in the
- <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.
-<p> Beware that, _unlike_ <a href="../classes/std.optparse.html#std.optparse.required">std.optparse.required</a>, this handler will store multiple
- occurrences of a command-line option as a table **only** when given a
- `value` function.  Automatically assigned handlers do not do this, so
- the option will simply be `true` if the option was given one or more
+ <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.</p>
+
+<p> Beware that, <em>unlike</em> <a href="../classes/std.optparse.html#std.optparse.required">std.optparse.required</a>, this handler will store multiple
+ occurrences of a command-line option as a table <strong>only</strong> when given a
+ <code>value</code> function.  Automatically assigned handlers do not do this, so
+ the option will simply be <code>true</code> if the option was given one or more
  times on the command-line.
 
 
@@ -448,8 +465,8 @@ Please report bugs at bug-list@yourhost.com
          list of arguments
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
-         index of last processed element of *arglist*
+            <span class="types"><span class="type">integer</span></span>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option argument,
@@ -461,8 +478,8 @@ Please report bugs at bug-list@yourhost.com
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        index of next element of *arglist* to process
+           <span class="types"><span class="type">int</span></span>
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
@@ -478,9 +495,10 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.help ()</strong>
     </dt>
     <dd>
-    Option should display help text, then exit.
+    Option should display help text, then exit. </p>
+
 <p> This is the handler automatically assigned tooptions that have
- `--help` in the specification, e.g. `-h, -?, --help`.
+ <code>--help</code> in the specification, e.g. <code>-h, -?, --help</code>.
 
 
 
@@ -498,7 +516,8 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.opterr (msg)</strong>
     </dt>
     <dd>
-    Report an option parse error, then exit with status 2.
+    Report an option parse error, then exit with status 2. </p>
+
 <p> Use this in your custom option handlers for consistency with the
  error output from built-in <a href="../classes/std.optparse.html#">std.optparse</a> error messages.
 
@@ -521,14 +540,16 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.optional (arglist, i[, value=true])</strong>
     </dt>
     <dd>
-    Option at `arglist[i]` can take an argument.
+    Option at <code>arglist[i]</code> can take an argument.
  Argument is accepted only if there is a following entry that does not
- begin with a '-'.
+ begin with a '-'.</p>
+
 <p> This is the handler automatically assigned to options that have
- `--opt=[ARG]` style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec
- argument.  You can also pass it as the `handler` argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for
+ <code>--opt=[ARG]</code> style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec
+ argument.  You can also pass it as the <code>handler</code> argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for
  options you want to add manually without putting them in the
- <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.
+ <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec.</p>
+
 <p> Like <a href="../classes/std.optparse.html#std.optparse.required">std.optparse.required</a>, this handler will store multiple occurrences of a
  command-line option.
 
@@ -540,8 +561,8 @@ Please report bugs at bug-list@yourhost.com
          list of arguments
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
-         index of last processed element of *arglist*
+            <span class="types"><span class="type">integer</span></span>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option
@@ -553,8 +574,8 @@ Please report bugs at bug-list@yourhost.com
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        index of next element of *arglist* to process
+           <span class="types"><span class="type">int</span></span>
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
@@ -570,25 +591,31 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.required (arglist, i[, value])</strong>
     </dt>
     <dd>
-    Option at `arglist[i}` requires an argument.
+
+<p>Option at <code>arglist[i}</code> requires an argument. </p>
+
 <p> This is the handler automatically assigned to options that have
- `--opt=ARG` style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.
- You can also pass it as the `handler` argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for options
+ <code>--opt=ARG</code> style specifications in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> spec argument.
+ You can also pass it as the <code>handler</code> argument to <a href="../classes/std.optparse.html#std.optparse:on">on</a> for options
  you want to add manually without putting them in the <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a>
- spec.
-<p> Normally the value stored in the `opt` table by this handler will be
+ spec.</p>
+
+<p> Normally the value stored in the <code>opt</code> table by this handler will be
  the string given as the argument to that option on the command line.
  However, if the option is given on the command-line multiple times,
- `opt["name"]` will end up with all those arguments stored in the
- array part of a table:
-<p>     $ cat ./prog
-     ...
-     parser:on ({"-e", "-exec"}, required)
-     _G.arg, _G.opt = parser:parse (_G.arg)
-     print std.string.tostring (_G.opt.exec)
-     ...
-     $ ./prog -e '(foo bar)' -e '(foo baz)' -- qux
-     {1=(foo bar),2=(foo baz)}
+ <code>opt["name"]</code> will end up with all those arguments stored in the
+ array part of a table:</p>
+
+<pre><code> $ cat ./prog
+ ...
+ parser:on ({"-e", "-exec"}, required)
+ _G.arg, _G.opt = parser:parse (_G.arg)
+ print std.string.tostring (_G.opt.exec)
+ ...
+ $ ./prog -e '(foo bar)' -e '(foo baz)' -- qux
+ {1=(foo bar),2=(foo baz)}
+</code></pre>
+
 
 
     <h3>Parameters:</h3>
@@ -598,8 +625,8 @@ Please report bugs at bug-list@yourhost.com
          list of arguments
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
-         index of last processed element of *arglist*
+            <span class="types"><span class="type">integer</span></span>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
          either a function to process the option argument,
@@ -611,8 +638,8 @@ Please report bugs at bug-list@yourhost.com
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        index of next element of *arglist* to process
+           <span class="types"><span class="type">int</span></span>
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
@@ -628,9 +655,10 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse.version ()</strong>
     </dt>
     <dd>
-    Option should display version text, then exit.
+    Option should display version text, then exit. </p>
+
 <p> This is the handler automatically assigned tooptions that have
- `--version` in the specification, e.g. `-V, --version`.
+ <code>--version</code> in the specification, e.g. <code>-V, --version</code>.
 
 
 
@@ -699,25 +727,31 @@ Please report bugs at bug-list@yourhost.com
  one of those with leading hyphens stripped and non-alphanumeric
  characters replaced with underscores.  For options that can only be
  specified by a short option, the key will be the letter of the first
- of the specified short options:
-<p>     {"-e", "--eval-file"} => opts.eval_file
-     {"-n", "--dryrun", "--dry-run"} => opts.dryrun
-     {"-t", "-T"} => opts.t
+ of the specified short options:</p>
+
+<pre><code> {"-e", "--eval-file"} =&gt; opts.eval_file
+ {"-n", "--dryrun", "--dry-run"} =&gt; opts.dryrun
+ {"-t", "-T"} =&gt; opts.t
+</code></pre>
+
 <p> Generally there will be one key for each previously specified
  option (either automatically assigned by <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> or
  added manually with <a href="../classes/std.optparse.html#std.optparse:on">on</a>) containing the value(s) assigned by the
  associated <a href="../classes/std.optparse.html#std.optparse:on_handler">on_handler</a>.  For automatically assigned handlers,
- that means `true` for straight-forward flags and
+ that means <code>true</code> for straight-forward flags and
  optional-argument options for which no argument was given; or else
  the string value of the argument passed with an option given only
  once; or a table of string values of the same for arguments given
- multiple times.
-<p>     ./prog -x -n -x => opts = { x = true, dryrun = true }
-     ./prog -e '(foo bar)' -e '(foo baz)'
-         => opts = {eval_file = {"(foo bar)", "(foo baz)"} }
+ multiple times.</p>
+
+<pre><code> ./prog -x -n -x =&gt; opts = { x = true, dryrun = true }
+ ./prog -e '(foo bar)' -e '(foo baz)'
+     =&gt; opts = {eval_file = {"(foo bar)", "(foo baz)"} }
+</code></pre>
+
 <p> If you write your own handlers, or otherwise specify custom
  handling of options with <a href="../classes/std.optparse.html#std.optparse:on">on</a>, then whatever value those handlers
- return will be assigned to the respective keys in `opts`.
+ return will be assigned to the respective keys in <code>opts</code>.
 
 
 
@@ -735,16 +769,18 @@ Please report bugs at bug-list@yourhost.com
     <strong>std.optparse:on (name, handler, value)</strong>
     </dt>
     <dd>
-    Add an option handler.
+    Add an option handler. </p>
+
 <p> When the automatically assigned option handlers don't do everything
  you require, or when you don't want to put an option into the
- <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> `spec` argument, use this function to specify custom
- behaviour.  If you write the option into the `spec` argument anyway,
+ <a href="../classes/std.optparse.html#std.optparse.OptionParser">std.optparse.OptionParser</a> <code>spec</code> argument, use this function to specify custom
+ behaviour.  If you write the option into the <code>spec</code> argument anyway,
  calling this function will replace the automatically assigned handler
- with your own.
+ with your own.</p>
+
 <p> When writing your own handlers for <a href="../classes/std.optparse.html#std.optparse:on">std.optparse:on</a>, you only need
  to deal with normalised arguments, because combined short arguments
- (`-xyz`), equals separators to long options (`--long=ARG`) are fully
+ (<code>-xyz</code>), equals separators to long options (<code>--long=ARG</code>) are fully
  expanded before any handler is called.
 
 
@@ -756,7 +792,7 @@ Please report bugs at bug-list@yourhost.com
         </li>
         <li><span class="parameter">handler</span>
             <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse:on">on_handler</a></span>
-         function to call when any of *opts* is
+         function to call when any of <em>opts</em> is
    encountered
         </li>
         <li><span class="parameter">value</span>
@@ -789,11 +825,11 @@ Please report bugs at bug-list@yourhost.com
          list of arguments
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
-         index of last processed element of *arglist*
+            <span class="types"><span class="type">integer</span></span>
+         index of last processed element of <em>arglist</em>
         </li>
         <li><span class="parameter">value</span>
-         additional `value` registered with <a href="../classes/std.optparse.html#std.optparse:on">on</a>
+         additional <code>value</code> registered with <a href="../classes/std.optparse.html#std.optparse:on">on</a>
          (<em>default</em> nil)
         </li>
     </ul>
@@ -801,8 +837,8 @@ Please report bugs at bug-list@yourhost.com
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        index of next element of *arglist* to process
+           <span class="types"><span class="type">int</span></span>
+        index of next element of <em>arglist</em> to process
     </ol>
 
 
@@ -834,7 +870,7 @@ Please report bugs at bug-list@yourhost.com
     <ol>
         <li>
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a list of unrecognised *arglist* elements</li>
+        a list of unrecognised <em>arglist</em> elements</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.optparse.html#std.optparse.opts">std.optparse.opts</a></span>
         parsing results</li>
@@ -850,8 +886,8 @@ Please report bugs at bug-list@yourhost.com
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

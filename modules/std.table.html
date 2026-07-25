@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -69,10 +69,17 @@
 <h1>Module <code>std.table</code></h1>
 <p>Extensions to the core table module.</p>
 <p>
-<p> The module table returned by `std.table` also contains all of the entries from
+
+
+<p> The module table returned by <code>std.table</code> also contains all of the entries from
  the core table module.  An hygienic way to import this module, then, is simply
- to override the core `table` locally:
-<p>    local table = require "std.table"
+ to override the core <code>table</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">table</span> = <span class="global">require</span> <span class="string">"std.table"</span>
+</pre>
+
 </p>
 
 
@@ -104,7 +111,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#insert">insert (t[, pos=len (t)], v)</a></td>
-	<td class="summary">Enhance core *table.insert* to return its result.</td>
+	<td class="summary">Enhance core <em>table.insert</em> to return its result.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#invert">invert (t)</a></td>
@@ -116,7 +123,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#len">len (t)</a></td>
-	<td class="summary">Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.</td>
+	<td class="summary">Equivalent to <code>#</code> operation, but respecting <code>__len</code> even on Lua 5.1.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#maxn">maxn (t)</a></td>
@@ -128,11 +135,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#merge_select">merge_select (t, u[, keys={}[, nometa]])</a></td>
-	<td class="summary">Destructively merge another table's named fields into *table*.</td>
+	<td class="summary">Destructively merge another table's named fields into <em>table</em>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core `table` methods with `std` enhanced versions.</td>
+	<td class="summary">Overwrite core <code>table</code> methods with <code>std</code> enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#new">new ([x=nil[, t={}]])</a></td>
@@ -152,7 +159,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#remove">remove (t[, pos=len (t)])</a></td>
-	<td class="summary">Enhance core *table.remove* to respect `__len` when *pos* is omitted.</td>
+	<td class="summary">Enhance core <em>table.remove</em> to respect <code>__len</code> when <em>pos</em> is omitted.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#shape">shape (dims, t)</a></td>
@@ -164,11 +171,11 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sort">sort (t[, c=std.operator.lt])</a></td>
-	<td class="summary">Enhance core *table.sort* to return its result.</td>
+	<td class="summary">Enhance core <em>table.sort</em> to return its result.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#unpack">unpack (t[, i=1[, j=table.maxn(t)]])</a></td>
-	<td class="summary">Enhance core *table.unpack* to always unpack up to `maxn (t)`.</td>
+	<td class="summary">Enhance core <em>table.unpack</em> to always unpack up to <code>maxn (t)</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#values">values (t)</a></td>
@@ -195,7 +202,8 @@
     <strong>clone (t[, map={}[, nometa]])</strong>
     </dt>
     <dd>
-    Make a shallow copy of a table, including any metatable.
+    Make a shallow copy of a table, including any metatable. </p>
+
 <p> To make deep copies, use <a href="../classes/std.tree.html#std.tree.clone">tree.clone</a>.
 
 
@@ -207,11 +215,11 @@
         </li>
         <li><span class="parameter">map</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         table of `{old_key=new_key, ...}`
+         table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          if non-nil don't copy metatable
          (<em>optional</em>)
         </li>
@@ -220,8 +228,8 @@
     <h3>Returns:</h3>
     <ol>
 
-        copy of *t*, also sharing *t*'s metatable unless *nometa*
-   is true, and with keys renamed according to *map*
+        copy of <em>t</em>, also sharing <em>t</em>'s metatable unless <em>nometa</em>
+   is true, and with keys renamed according to <em>map</em>
     </ol>
 
 
@@ -242,8 +250,9 @@
     <strong>clone_select (t[, keys={}[, nometa]])</strong>
     </dt>
     <dd>
-    Make a partial clone of a table.
-<p> Like `clone`, but does not copy any fields by default.
+    Make a partial clone of a table. </p>
+
+<p> Like <code>clone</code>, but does not copy any fields by default.
 
 
     <h3>Parameters:</h3>
@@ -258,7 +267,7 @@
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          if non-nil don't copy metatable
          (<em>optional</em>)
         </li>
@@ -268,8 +277,8 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        copy of fields in *selection* from *t*, also sharing *t*'s
-   metatable unless *nometa*
+        copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
+   metatable unless <em>nometa</em>
     </ol>
 
 
@@ -305,7 +314,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a flat table with keys and values from *ls*
+        a flat table with keys and values from <em>ls</em>
     </ol>
 
 
@@ -340,8 +349,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        `true` if *t* is empty, otherwise `false`
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>t</em> is empty, otherwise <code>false</code>
     </ol>
 
 
@@ -364,7 +373,7 @@
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-          a table `{i1=v1, ..., in=vn}`
+          a table <code>{i1=v1, ..., in=vn}</code>
         </li>
     </ul>
 
@@ -372,7 +381,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a new list of pairs containing `{{i1, v1}, ..., {in, vn}}`
+        a new list of pairs containing <code>{{i1, v1}, ..., {in, vn}}</code>
     </ol>
 
 
@@ -408,7 +417,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a list of all non-table elements of *t*
+        a list of all non-table elements of <em>t</em>
     </ol>
 
 
@@ -425,9 +434,9 @@
     <strong>insert (t[, pos=len (t)], v)</strong>
     </dt>
     <dd>
-    Enhance core *table.insert* to return its result.
- If *pos* is not given, respect `__len` metamethod when calculating
- default append.  Also, diagnose out of bounds *pos* arguments
+    Enhance core <em>table.insert</em> to return its result.
+ If <em>pos</em> is not given, respect <code>__len</code> metamethod when calculating
+ default append.  Also, diagnose out of bounds <em>pos</em> arguments
  consistently on any supported version of Lua.
 
 
@@ -438,12 +447,12 @@
          a table
         </li>
         <li><span class="parameter">pos</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">integer</span></span>
          index at which to insert new element
          (<em>default</em> len (t))
         </li>
         <li><span class="parameter">v</span>
-         value to insert into *t*
+         value to insert into <em>t</em>
         </li>
     </ul>
 
@@ -451,7 +460,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        *t*
+        <em>t</em>
     </ol>
 
 
@@ -475,7 +484,7 @@
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         a table with `{k=v, ...}`
+         a table with <code>{k=v, ...}</code>
         </li>
     </ul>
 
@@ -483,7 +492,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        inverted table `{v=k, ...}`
+        inverted table <code>{v=k, ...}</code>
     </ol>
 
 
@@ -515,7 +524,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        list of keys from *t*
+        list of keys from <em>t</em>
     </ol>
 
 
@@ -536,7 +545,7 @@
     <strong>len (t)</strong>
     </dt>
     <dd>
-    Equivalent to `#` operation, but respecting `__len` even on Lua 5.1.
+    Equivalent to <code>#</code> operation, but respecting <code>__len</code> even on Lua 5.1.
 
 
     <h3>Parameters:</h3>
@@ -550,8 +559,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        length of list part of *t*
+           <span class="types"><span class="type">int</span></span>
+        length of list part of <em>t</em>
     </ol>
 
 
@@ -581,8 +590,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        largest integer key in *t*
+           <span class="types"><span class="type">int</span></span>
+        largest integer key in <em>t</em>
     </ol>
 
 
@@ -614,12 +623,12 @@
         </li>
         <li><span class="parameter">map</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         table of `{old_key=new_key, ...}`
+         table of <code>{old_key=new_key, ...}</code>
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">table</span></span>
-         if `true` or ":nometa" don't copy metatable
+            <span class="types"><span class="type">boolean</span></span>
+         if <code>true</code> or ":nometa" don't copy metatable
          (<em>optional</em>)
         </li>
     </ul>
@@ -628,7 +637,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        *t* with fields from *u* merged in
+        <em>t</em> with fields from <em>u</em> merged in
     </ol>
 
 
@@ -649,8 +658,9 @@
     <strong>merge_select (t, u[, keys={}[, nometa]])</strong>
     </dt>
     <dd>
-    Destructively merge another table's named fields into *table*.
-<p> Like `merge`, but does not merge any fields by default.
+    Destructively merge another table's named fields into <em>table</em>. </p>
+
+<p> Like <code>merge</code>, but does not merge any fields by default.
 
 
     <h3>Parameters:</h3>
@@ -669,8 +679,8 @@
          (<em>default</em> {})
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">table</span></span>
-         if `true` or ":nometa" don't copy metatable
+            <span class="types"><span class="type">boolean</span></span>
+         if <code>true</code> or ":nometa" don't copy metatable
          (<em>optional</em>)
         </li>
     </ul>
@@ -679,8 +689,8 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        copy of fields in *selection* from *t*, also sharing *t*'s
-   metatable unless *nometa*
+        copy of fields in <em>selection</em> from <em>t</em>, also sharing <em>t</em>'s
+   metatable unless <em>nometa</em>
     </ol>
 
 
@@ -701,7 +711,7 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core `table` methods with `std` enhanced versions.
+    Overwrite core <code>table</code> methods with <code>std</code> enhanced versions.
 
 
     <h3>Parameters:</h3>
@@ -753,7 +763,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        table whose unset elements are *x*
+        table whose unset elements are <em>x</em>
     </ol>
 
 
@@ -784,7 +794,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        ordered list of keys from *t*
+        ordered list of keys from <em>t</em>
     </ol>
 
 
@@ -852,7 +862,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        list of *fkey* fields from *tt*
+        list of <em>fkey</em> fields from <em>tt</em>
     </ol>
 
 
@@ -869,8 +879,8 @@
     <strong>remove (t[, pos=len (t)])</strong>
     </dt>
     <dd>
-    Enhance core *table.remove* to respect `__len` when *pos* is omitted.
- Also, diagnose out of bounds *pos* arguments consistently on any supported
+    Enhance core <em>table.remove</em> to respect <code>__len</code> when <em>pos</em> is omitted.
+ Also, diagnose out of bounds <em>pos</em> arguments consistently on any supported
  version of Lua.
 
 
@@ -881,7 +891,7 @@
          a table
         </li>
         <li><span class="parameter">pos</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">integer</span></span>
          index from which to remove an element
          (<em>default</em> len (t))
         </li>
@@ -890,7 +900,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        removed value, or else `nil`
+        removed value, or else <code>nil</code>
     </ol>
 
 
@@ -908,12 +918,14 @@
     <strong>shape (dims, t)</strong>
     </dt>
     <dd>
-    Shape a table according to a list of dimensions.
+    Shape a table according to a list of dimensions. </p>
+
 <p> Dimensions are given outermost first and items from the original
  list are distributed breadth first; there may be one 0 indicating
- an indefinite number. Hence, `{0}` is a flat list,
- `{1}` is a singleton, `{2, 0}` is a list of
- two lists, and `{0, 2}` is a list of pairs.
+ an indefinite number. Hence, <code>{0}</code> is a flat list,
+ <code>{1}</code> is a singleton, <code>{2, 0}</code> is a list of
+ two lists, and <code>{0, 2}</code> is a list of pairs.</p>
+
 <p> Algorithm: turn shape into all positive numbers, calculating
  the zero if necessary and making sure there is at most one;
  recursively walk the shape, adding empty tables until the bottom
@@ -921,12 +933,11 @@
  counter to walk the flattened original list.
 
 
-
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">dims</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         table of dimensions `{d1, ..., dn}`
+         table of dimensions <code>{d1, ..., dn}</code>
         </li>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
@@ -968,8 +979,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        number of non-nil values in *t*
+           <span class="types"><span class="type">int</span></span>
+        number of non-nil values in <em>t</em>
     </ol>
 
 
@@ -986,7 +997,7 @@
     <strong>sort (t[, c=std.operator.lt])</strong>
     </dt>
     <dd>
-    Enhance core *table.sort* to return its result.
+    Enhance core <em>table.sort</em> to return its result.
 
 
     <h3>Parameters:</h3>
@@ -1005,7 +1016,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        *t* with keys sorted accordind to *c*
+        <em>t</em> with keys sorted accordind to <em>c</em>
     </ol>
 
 
@@ -1021,7 +1032,7 @@
     <strong>unpack (t[, i=1[, j=table.maxn(t)]])</strong>
     </dt>
     <dd>
-    Enhance core *table.unpack* to always unpack up to `maxn (t)`.
+    Enhance core <em>table.unpack</em> to always unpack up to <code>maxn (t)</code>.
 
 
     <h3>Parameters:</h3>
@@ -1031,12 +1042,12 @@
          table to act on
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">integer</span></span>
          first index to unpack
          (<em>default</em> 1)
         </li>
         <li><span class="parameter">j</span>
-            <span class="types"><span class="type">table</span></span>
+            <span class="types"><span class="type">integer</span></span>
          last index to unpack
          (<em>default</em> table.maxn(t))
         </li>
@@ -1045,7 +1056,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        ... values of numeric indices of *t*
+        ... values of numeric indices of <em>t</em>
     </ol>
 
 
@@ -1076,7 +1087,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        list of values in *t*
+        list of values in <em>t</em>
     </ol>
 
 
@@ -1117,8 +1128,8 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">table</span></span>
-        `true` if *a* sorts before *b*, otherwise `false`
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>a</em> sorts before <em>b</em>, otherwise <code>false</code>
     </ol>
 
 
@@ -1140,8 +1151,8 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
