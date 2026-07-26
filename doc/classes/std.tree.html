@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -70,15 +70,22 @@
 <h1>Class <code>std.tree</code></h1>
 <p>Tree container prototype.</p>
 <p>
+
+
 <p> Note that Functions listed below are only available from the Tree
  prototype returned by requiring this module, because Container objects
- cannot have object methods.
-<p> Prototype Chain
- ---------------
-<p>      table
-       `-> Object
-            `-> Container
-                 `-> Tree
+ cannot have object methods.</p>
+
+<h2> Prototype Chain</h2>
+
+
+<pre>
+<span class="global">table</span>
+ <span class="backtick">`-&gt; Object
+      `</span>-&gt; Container
+           `-&gt; Tree
+</pre>
+
 </p>
     <h3>See also:</h3>
     <ul>
@@ -201,8 +208,8 @@ tr[{<span class="string">"branch2"</span>, <span class="number">1</span>}] = <sp
          tree or tree-like table
         </li>
         <li><span class="parameter">nometa</span>
-            <span class="types"><span class="type">table</span></span>
-         if non-`nil` don't copy metatables
+            <span class="types"><span class="type">boolean</span></span>
+         if non-<code>nil</code> don't copy metatables
         </li>
     </ul>
 
@@ -210,7 +217,7 @@ tr[{<span class="string">"branch2"</span>, <span class="number">1</span>}] = <sp
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">std.tree.Tree</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        a deep copy of *tr*
+        a deep copy of <em>tr</em>
     </ol>
 
 
@@ -247,11 +254,11 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">table</span></span>
+           <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">std.tree.Tree</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        the tree *tr*</li>
+        the tree <em>tr</em></li>
     </ol>
 
 
@@ -276,9 +283,10 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <strong>std.tree.inodes (tr)</strong>
     </dt>
     <dd>
-    Tree iterator over numbered nodes, in order.
+    Tree iterator over numbered nodes, in order. </p>
+
 <p> The iterator function behaves like <a href="../classes/std.tree.html#std.tree.nodes">std.tree.nodes</a>, but only traverses the
- array part of the nodes of *tr*, ignoring any others.
+ array part of the nodes of <em>tr</em>, ignoring any others.
 
 
     <h3>Parameters:</h3>
@@ -292,11 +300,11 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">table</span></span>
+           <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.tree.html">tree</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        the tree, *tr*</li>
+        the tree, <em>tr</em></li>
     </ol>
 
 
@@ -326,11 +334,11 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">table</span></span>
+           <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        *t*</li>
+        <em>t</em></li>
     </ol>
 
 
@@ -375,7 +383,7 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        *t* with nodes from *u* merged in
+        <em>t</em> with nodes from <em>u</em> merged in
     </ol>
 
 
@@ -395,15 +403,17 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <strong>std.tree.nodes (tr)</strong>
     </dt>
     <dd>
-    Tree iterator over all nodes.
+    Tree iterator over all nodes. </p>
+
 <p> The returned iterator function performs a depth-first traversal of
- `tr`, and at each node it returns `{node-type, tree-path, tree-node}`
- where `node-type` is `branch`, `join` or `leaf`; `tree-path` is a
- list of keys used to reach this node, and `tree-node` is the current
- node.
-<p> Note that the `tree-path` reuses the same table on each iteration, so
- you must `table.clone` a copy if you want to take a snap-shot of the
- current state of the `tree-path` list before the next iteration
+ <code>tr</code>, and at each node it returns <code>{node-type, tree-path, tree-node}</code>
+ where <code>node-type</code> is <code>branch</code>, <code>join</code> or <code>leaf</code>; <code>tree-path</code> is a
+ list of keys used to reach this node, and <code>tree-node</code> is the current
+ node.</p>
+
+<p> Note that the <code>tree-path</code> reuses the same table on each iteration, so
+ you must <code>table.clone</code> a copy if you want to take a snap-shot of the
+ current state of the <code>tree-path</code> list before the next iteration
  changes it.
 
 
@@ -418,11 +428,11 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">table</span></span>
+           <span class="types"><span class="type">function</span></span>
         iterator function</li>
         <li>
            <span class="types"><a class="type" href="../classes/std.tree.html#std.tree.Tree">std.tree.Tree</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-        the tree, *tr*</li>
+        the tree, <em>tr</em></li>
     </ol>
 
 
@@ -471,14 +481,14 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
          a tree
         </li>
         <li><span class="parameter">i</span>
-         non-table, or list of keys `{i1, ...i_n}`
+         non-table, or list of keys <code>{i1, ...i_n}</code>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        `tr[i1]...[i_n]` if *i* is a key list, `tr[i]` otherwise
+        <code>tr[i1]...[i_n]</code> if <em>i</em> is a key list, <code>tr[i]</code> otherwise
     </ol>
 
 
@@ -504,7 +514,7 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
          a tree
         </li>
         <li><span class="parameter">i</span>
-         non-table, or list of keys `{i1, ...i_n}`
+         non-table, or list of keys <code>{i1, ...i_n}</code>
         </li>
         <li><span class="parameter">v</span>
          value
@@ -527,8 +537,8 @@ copy[<span class="number">2</span>].two=<span class="number">5</span>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

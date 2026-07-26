@@ -29,18 +29,53 @@
 ]]
 
 
+local debug_getinfo = debug.getinfo
+local debug_getupvalue = debug.getupvalue
+local debug_getfenv = debug.getfenv or false
+local debug_setfenv = debug.setfenv or false
+local debug_setupvalue = debug.setupvalue
+local debug_upvaluejoin = debug.upvaluejoin
+local getfenv = rawget(_G, 'getfenv') or false
+local setfenv = rawget(_G, 'setfenv') or false
+
+
 local debug_init = require "std.debug_init"
 local base       = require "std.base"
+
 
 local _DEBUG = debug_init._DEBUG
 local argerror, raise = base.argerror, base.raise
 local prototype, unpack = base.prototype, base.unpack
 local copy, split, tostring = base.copy, base.split, base.tostring
-local insert, last, len, maxn = base.insert, base.last, base.len, base.maxn
+local insert, len, maxn = base.insert, base.len, base.maxn
 local ipairs, pairs = base.ipairs, base.pairs
 
 
 local M
+
+
+local tointeger = (function(f)
+   if f == nil then
+      -- No host tointeger implementationm use our own.
+      local floor = math.floor
+      return function(x)
+         if type(x) == 'number' and x - floor(x) == 0.0 then
+            return x
+         end
+      end
+
+   elseif f '1' ~= nil then
+      -- Don't perform implicit string-to-number conversion!
+      return function(x)
+         if type(x) == 'number' then
+            return f(x)
+         end
+      end
+   end
+
+   -- Host tointeger is good!
+   return f
+end)(math.tointeger)
 
 
 -- Return a deprecation message if _DEBUG.deprecate is `nil`, otherwise "".
@@ -72,65 +107,104 @@ local function DEPRECATED (version, name, extramsg, fn)
 end
 
 
-local _setfenv = debug.setfenv
+local normalize_setfenv
+if debug_setfenv then
 
-local function setfenv (fn, env)
-  -- Unwrap functable:
-  if type (fn) == "table" then
-    fn = fn.call or (getmetatable (fn) or {}).__call
-  end
+   normalize_setfenv = function(fn, env)
+      local n = tointeger(fn or 1)
+      if n then
+         if n > 0 then
+            n = n + 1
+         end
+         return setfenv(n, env), nil
+      end
+      if type(fn) ~= 'function' then
+         fn =(getmetatable(fn) or {}).__call or fn
+      end
+      return debug_setfenv(fn, env)
+   end
 
-  if _setfenv then
-    return _setfenv (fn, env)
+else
 
-  else
-    -- From http://lua-users.org/lists/lua-l/2010-06/msg00313.html
-    local name
-    local up = 0
-    repeat
-      up = up + 1
-      name = debug.getupvalue (fn, up)
-    until name == '_ENV' or name == nil
-    if name then
-      debug.upvaluejoin (fn, up, function () return name end, 1)
-      debug.setupvalue (fn, up, env)
-    end
+   -- Thanks to http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+   normalize_setfenv = function(fn, env)
+      local n = tointeger(fn or 1)
+      if n then
+         if n > 0 then
+            n = n + 1
+         end
+         fn = debug_getinfo(n, 'f').func
+      elseif type(fn) ~= 'function' then
+         fn =(getmetatable(fn) or {}).__call or fn
+      end
 
-    return fn
-  end
+      local up, name = 0
+      repeat
+         up = up + 1
+         name = debug_getupvalue(fn, up)
+      until name == '_ENV' or name == nil
+      if name then
+         debug_upvaluejoin(fn, up, function() return name end, 1)
+         debug_setupvalue(fn, up, env)
+      end
+      return n ~= 0 and fn or nil
+   end
+
 end
 
 
-local _getfenv = rawget (_G, "getfenv")
+local normalize_getfenv
+if debug_getfenv then
 
-local getfenv = function (fn)
-  fn = fn or 1
+   normalize_getfenv = function(fn)
+      local n = tointeger(fn or 1)
+      if n then
+         if n > 0 then
+            -- Adjust for this function's stack frame, if fn is non-zero.
+            n = n + 1
+         end
 
-  -- Unwrap functable:
-  if type (fn) == "table" then
-    fn = fn.call or (getmetatable (fn) or {}).__call
-  end
+         -- Return an additional nil result to defeat tail call elimination
+         -- which would remove a stack frame and break numeric *fn* count.
+         return getfenv(n), nil
+      end
 
-  if _getfenv then
-    if type (fn) == "number" then fn = fn + 1 end
+      if type(fn) ~= 'function' then
+         -- Unwrap functors:
+         -- No need to recurse because Lua doesn't support nested functors.
+         -- __call can only (sensibly) be a function, so no need to adjust
+         -- stack frame offset either.
+         fn =(getmetatable(fn) or {}).__call or fn
+      end
 
-    -- Stack frame count is critical here, so ensure we don't optimise one
-    -- away in LuaJIT...
-    return _getfenv (fn), nil
+      -- In Lua 5.1, only debug.getfenv works on C functions; but it
+      -- does not work on stack counts.
+      return debug_getfenv(fn)
+   end
 
-  else
-    if type (fn) == "number" then
-      fn = debug.getinfo (fn + 1, "f").func
-    end
+else
 
-    local name, env
-    local up = 0
-    repeat
-      up = up + 1
-      name, env = debug.getupvalue (fn, up)
-    until name == '_ENV' or name == nil
-    return env
-  end
+   -- Thanks to http://lua-users.org/lists/lua-l/2010-06/msg00313.html
+   normalize_getfenv = function(fn)
+      if fn == 0 then
+         return _G
+      end
+      local n = tointeger(fn or 1)
+      if n then
+         fn = debug_getinfo(n + 1, 'f').func
+      elseif type(fn) ~= 'function' then
+         fn = (getmetatable(fn) or {}).__call or fn
+      end
+
+      local name, env
+      local up = 0
+      repeat
+         up = up + 1
+         name, env = debug_getupvalue(fn, up)
+      until name == '_ENV' or name == nil
+      return env
+   end
+
 end
 
 
@@ -163,7 +237,7 @@ local function permute (t)
   if t[#t] then t[#t] = t[#t]:gsub ("%]%.%.%.$", "...]") end
 
   local p = {{}}
-  for i, v in ipairs (t) do
+  for _, v in ipairs (t) do
     local optional = v:match "%[(.+)%]"
 
     if optional == nil then
@@ -297,9 +371,9 @@ local function extramsg_mismatch (expectedtypes, actual, index)
                   gsub ("#list", "non-empty list"):
                   gsub ("(%S+ of [^,%s]-)s? ", "%1s "):
                   gsub ("(%S+ of [^,%s]-)s?,", "%1s,"):
-		  gsub ("(s, [^,%s]-)s? ", "%1s "):
-		  gsub ("(s, [^,%s]-)s?,", "%1s,"):
-		  gsub ("(of .-)s? or ([^,%s]-)s? ", "%1s or %2s ")
+	          gsub ("(s, [^,%s]-)s? ", "%1s "):
+	          gsub ("(s, [^,%s]-)s?,", "%1s,"):
+	          gsub ("(of .-)s? or ([^,%s]-)s? ", "%1s or %2s ")
   end
 
   return expectedstr .. ", got " .. actualtype
@@ -426,7 +500,7 @@ if _DEBUG.argcheck then
 
       -- For "container of things", check all elements are a thing too.
       if typelist[i] then
-	local check, contents = typelist[i]:match "^(%S+) of (%S-)s?$"
+	local _, contents = typelist[i]:match "^(%S+) of (%S-)s?$"
 	if contents and type (valuelist[i]) == "table" then
 	  for k, v in pairs (valuelist[i]) do
 	    if not checktype (contents, v) then
@@ -497,8 +571,8 @@ if _DEBUG.argcheck then
     local input, output = {
       bad          = "argument",
       badtype      = function (i, extramsg, level)
-		       level = level or 1
-		       argerror (fname, i, extramsg, level + 1)
+	               level = level or 1
+	               argerror (fname, i, extramsg, level + 1)
 		     end,
       permutations = permute (argtypes),
     }
@@ -508,7 +582,7 @@ if _DEBUG.argcheck then
     if returntypes then
       local i, permutations = 0, {}
       for _, group in ipairs (split (returntypes, "%s+or%s+")) do
-	returntypes = split (group, ",%s*")
+        returntypes = split (group, ",%s*")
 	for _, t in ipairs (permute (returntypes)) do
 	  i = i + 1
           permutations[i] = t
@@ -521,7 +595,7 @@ if _DEBUG.argcheck then
       output = {
         bad          = "result",
         badtype      = function (i, extramsg, level)
-		         level = level or 1
+                         level = level or 1
 		         resulterror (fname, i, extramsg, level + 1)
 		       end,
         permutations = permutations,
@@ -539,7 +613,7 @@ if _DEBUG.argcheck then
 
       -- Propagate outer environment to inner function.
       local x = math.max -- ??? getfenv(1) fails if we remove this ???
-      setfenv (inner, getfenv (1))
+      normalize_setfenv (inner, normalize_getfenv (1))
 
       -- Execute.
       local results = {inner (...)}
@@ -778,7 +852,7 @@ M = {
   --- Extend `debug.getfenv` to unwrap functables correctly.
   -- @tparam int|function|functable fn target function, or stack level
   -- @treturn table environment of *fn*
-  getfenv = getfenv,
+  getfenv = normalize_getfenv,
 
   --- Compact permutation list into a list of valid types at each argument.
   -- Eliminate bracketed types by combining all valid types at each position
@@ -807,7 +881,7 @@ M = {
   -- @tparam function|functable fn target function
   -- @tparam table env new function environment
   -- @treturn function *fn*
-  setfenv = setfenv,
+  setfenv = normalize_setfenv,
 
   --- Print a debugging message to `io.stderr`.
   -- Display arguments passed through `std.tostring` and separated by tab
@@ -862,9 +936,9 @@ end
 -- local debug = require "std.debug"
 -- debug "oh noes!"
 local metatable = {
-  __call = function (self, ...)
-             M.say (1, ...)
-           end,
+  __call = function (_, ...)
+    M.say (1, ...)
+  end,
 }
 
 

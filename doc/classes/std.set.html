@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -70,15 +70,22 @@
 <h1>Class <code>std.set</code></h1>
 <p>Set container prototype.</p>
 <p>
+
+
 <p> Note that Functions listed below are only available from the Set
  prototype returned by requiring this module, because Container
- objects cannot have object methods.
-<p> Prototype Chain
- ---------------
-<p>      table
-       `-> Object
-            `-> Container
-                 `-> Set
+ objects cannot have object methods.</p>
+
+<h2> Prototype Chain</h2>
+
+
+<pre>
+<span class="global">table</span>
+ <span class="backtick">`-&gt; Object
+      `</span>-&gt; Container
+           `-&gt; Set
+</pre>
+
 </p>
     <h3>See also:</h3>
     <ul>
@@ -180,7 +187,8 @@
     <strong>std.set.Set</strong>
     </dt>
     <dd>
-    Set prototype object.
+    Set prototype object. </p>
+
 <p> Set also inherits all the fields and methods from
  <a href="../classes/std.container.html#std.container.Container">std.container.Container</a>.
 
@@ -237,7 +245,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        the modified *set*
+        the modified <em>set</em>
     </ol>
 
 
@@ -272,7 +280,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        a copy of *set1* with elements of *set2* removed
+        a copy of <em>set1</em> with elements of <em>set2</em> removed
     </ol>
 
 
@@ -305,7 +313,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-        `true` if *e* is in *set*, otherwise `false`
+        <code>true</code> if <em>e</em> is in <em>set</em>, otherwise <code>false</code>
  otherwise
     </ol>
 
@@ -371,9 +379,9 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">std.set.Set</span></span>
-        `true` if *set1* and *set2* each contain identical
-   elements, `false` otherwise
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>set1</em> and <em>set2</em> each contain identical
+   elements, <code>false</code> otherwise
     </ol>
 
 
@@ -407,7 +415,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        the modified *set*
+        the modified <em>set</em>
     </ol>
 
 
@@ -444,7 +452,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        a new set with elements in both *set1* and *set2*
+        a new set with elements in both <em>set1</em> and <em>set2</em>
     </ol>
 
 
@@ -478,9 +486,9 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">std.set.Set</span></span>
-        `true` if *set2* contains all elements in *set1*
-   but not only those elements, `false` otherwise
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>set2</em> contains all elements in <em>set1</em>
+   but not only those elements, <code>false</code> otherwise
     </ol>
 
 
@@ -519,9 +527,9 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">std.set.Set</span></span>
-        `true` if all elements in *set1* are also in *set2*,
-   `false` otherwise
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if all elements in <em>set1</em> are also in <em>set2</em>,
+   <code>false</code> otherwise
     </ol>
 
 
@@ -556,7 +564,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        a new set with elements that are in *set1* or *set2*
+        a new set with elements that are in <em>set1</em> or <em>set2</em>
    but not both
     </ol>
 
@@ -592,7 +600,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        a copy of *set1* with elements in *set2* merged in
+        a copy of <em>set1</em> with elements in <em>set2</em> merged in
     </ol>
 
 
@@ -631,7 +639,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        everything from *set1* plus everything from *set2*
+        everything from <em>set1</em> plus everything from <em>set2</em>
     </ol>
 
 
@@ -670,7 +678,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        everything from *set1* or *set2* but not both
+        everything from <em>set1</em> or <em>set2</em> but not both
     </ol>
 
 
@@ -708,8 +716,8 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">std.set.Set</span></span>
-        `true` if everything in *set1* is also in *set2*
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if everything in <em>set1</em> is also in <em>set2</em>
     </ol>
 
 
@@ -747,9 +755,9 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">std.set.Set</span></span>
-        `true` if *set2* is not equal to *set1*, but does
-   contain everything from *set1*
+           <span class="types"><span class="type">boolean</span></span>
+        <code>true</code> if <em>set2</em> is not equal to <em>set1</em>, but does
+   contain everything from <em>set1</em>
     </ol>
 
 
@@ -788,7 +796,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        anything this is in both *set1* and *set2*
+        anything this is in both <em>set1</em> and <em>set2</em>
     </ol>
 
 
@@ -827,7 +835,7 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
     <ol>
 
            <span class="types"><a class="type" href="../classes/std.set.html#std.set.Set">std.set.Set</a></span>
-        everything from *set1* that is not also in *set2*
+        everything from <em>set1</em> that is not also in <em>set2</em>
     </ol>
 
 
@@ -848,8 +856,8 @@ std.<span class="function-name">prototype</span> (std.set) <span class="comment"
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

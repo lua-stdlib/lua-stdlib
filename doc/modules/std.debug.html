@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -69,24 +69,38 @@
 
 <h1>Module <code>std.debug</code></h1>
 <p>Additions to the core debug module.</p>
-<p>
-<p> The module table returned by `std.debug` also contains all of the entries
+<p> The module table returned by <code>std.debug</code> also contains all of the entries
  from the core debug table.  An hygienic way to import this module, then, is
- simply to override the core `debug` locally:
-<p>    local debug = require "std.debug"
+ simply to override the core <code>debug</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">"std.debug"</span>
+</pre>
+
 <p> The behaviour of the functions in this module are controlled by the value
- of the global `_DEBUG`.  Not setting `_DEBUG` prior to requiring **any** of
- stdlib's modules is equivalent to having `_DEBUG = true`.
+ of the global <code>_DEBUG</code>.  Not setting <code>_DEBUG</code> prior to requiring <strong>any</strong> of
+ stdlib's modules is equivalent to having <code>_DEBUG = true</code>.</p>
+
 <p> The first line of Lua code in production quality projects that use stdlib
- should be either:
-<p>     _DEBUG = false
+ should be either:</p>
+
+
+<pre>
+_DEBUG = <span class="keyword">false</span>
+</pre>
+
 <p> or alternatively, if you need to be careful not to damage the global
- environment:
-<p>     local init = require "std.debug_init"
-     init._DEBUG = false
+ environment:</p>
+
+
+<pre>
+<span class="keyword">local</span> init = <span class="global">require</span> <span class="string">"std.debug_init"</span>
+init._DEBUG = <span class="keyword">false</span>
+</pre>
+
 <p> This mitigates almost all of the overhead of argument typechecking in
- stdlib API functions.
-</p>
+ stdlib API functions.</p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
@@ -113,7 +127,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#debug">debug ()</a></td>
-	<td class="summary">Equivalent to calling `debug.say (1, ...)`</td>
+	<td class="summary">Equivalent to calling <code>debug.say (1, ...)</code></td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#extramsg_mismatch">extramsg_mismatch (expected, actual[, index])</a></td>
@@ -125,7 +139,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#say">say ([n=1], ...)</a></td>
-	<td class="summary">Print a debugging message to `io.stderr`.</td>
+	<td class="summary">Print a debugging message to <code>io.stderr</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#trace">trace (event)</a></td>
@@ -147,7 +161,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getfenv">getfenv</a></td>
-	<td class="summary">Extend `debug.getfenv` to unwrap functables correctly.</td>
+	<td class="summary">Extend <code>debug.getfenv</code> to unwrap functables correctly.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#resulterror">resulterror</a></td>
@@ -155,7 +169,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#setfenv">setfenv</a></td>
-	<td class="summary">Extend `debug.setfenv` to unwrap functables correctly.</td>
+	<td class="summary">Extend <code>debug.setfenv</code> to unwrap functables correctly.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#typesplit">typesplit</a></td>
@@ -177,8 +191,8 @@
     <dd>
     Provide a deprecated function definition according to _DEBUG.deprecate.
  You can check whether your covered code uses deprecated functions by
- setting `_DEBUG.deprecate` to  `true` before loading any stdlib modules,
- or silence deprecation warnings by setting `_DEBUG.deprecate = false`.
+ setting <code>_DEBUG.deprecate</code> to  <code>true</code> before loading any stdlib modules,
+ or silence deprecation warnings by setting <code>_DEBUG.deprecate = false</code>.
 
 
     <h3>Parameters:</h3>
@@ -197,7 +211,7 @@
          (<em>optional</em>)
         </li>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">function</span></span>
          deprecated function
         </li>
     </ul>
@@ -205,7 +219,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        a function to show the warning on first call, and hand off to *fn*
+        a function to show the warning on first call, and hand off to <em>fn</em>
     </ol>
 
 
@@ -240,7 +254,7 @@
          (<em>optional</em>)
         </li>
         <li><span class="parameter">level</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          call stack level to blame for the error
         </li>
     </ul>
@@ -266,32 +280,43 @@
     </dt>
     <dd>
     Check the type of an argument against expected types.
- Equivalent to luaL_argcheck in the Lua C API.
-<p> Call `argerror` if there is a type mismatch.
-<p> Argument `actual` must match one of the types from in `expected`, each
+ Equivalent to luaL_argcheck in the Lua C API.</p>
+
+<p> Call <code>argerror</code> if there is a type mismatch.</p>
+
+<p> Argument <code>actual</code> must match one of the types from in <code>expected</code>, each
  of which can be the name of a primitive Lua type, a stdlib object type,
- or one of the special options below:
-<p>    #table    accept any non-empty table
-    any       accept any non-nil argument type
-    file      accept an open file object
-    function  accept a function, or object with a __call metamethod
-    int       accept an integer valued number
-    list      accept a table where all keys are a contiguous 1-based integer range
-    #list     accept any non-empty list
-    object    accept any std.Object derived type
-    :foo      accept only the exact string ":foo", works for any :-prefixed string
-<p> The `:foo` format allows for type-checking of self-documenting
- boolean-like constant string parameters predicated on `nil` versus
- `:option` instead of `false` versus `true`.  Or you could support
- both:
-<p>    argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
+ or one of the special options below:</p>
+
+<pre><code>#table    accept any non-empty table
+any       accept any non-nil argument type
+file      accept an open file object
+function  accept a function, or object with a __call metamethod
+int       accept an integer valued number
+list      accept a table where all keys are a contiguous 1-based integer range
+#list     accept any non-empty list
+object    accept any std.Object derived type
+:foo      accept only the exact string ":foo", works for any :-prefixed string
+</code></pre>
+
+<p> The <code>:foo</code> format allows for type-checking of self-documenting
+ boolean-like constant string parameters predicated on <code>nil</code> versus
+ <code>:option</code> instead of <code>false</code> versus <code>true</code>.  Or you could support
+ both:</p>
+
+<pre><code>argcheck ("table.copy", 2, "boolean|:nometa|nil", nometa)
+</code></pre>
+
 <p> A very common pattern is to have a list of possible types including
  "nil" when the argument is optional.  Rather than writing long-hand
  as above, prepend a question mark to the list of types and omit the
- explicit "nil" entry:
-<p>    argcheck ("table.copy", 2, "?boolean|:nometa", predicate)
-<p> Normally, you should not need to use the `level` parameter, as the
- default is to blame the caller of the function using `argcheck` in
+ explicit "nil" entry:</p>
+
+<pre><code>argcheck ("table.copy", 2, "?boolean|:nometa", predicate)
+</code></pre>
+
+<p> Normally, you should not need to use the <code>level</code> parameter, as the
+ default is to blame the caller of the function using <code>argcheck</code> in
  error messages; which is almost certainly what you want.
 
 
@@ -302,7 +327,7 @@
          function to blame in error message
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          argument number to blame in error message
         </li>
         <li><span class="parameter">expected</span>
@@ -313,7 +338,7 @@
          argument passed
         </li>
         <li><span class="parameter">level</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          call stack level to blame for the error
          (<em>default</em> 2)
         </li>
@@ -337,7 +362,7 @@
     <dd>
     Raise a bad argument error.
  Equivalent to luaL_argerror in the Lua C API. This function does not
- return.  The `level` argument behaves just like the core `error`
+ return.  The <code>level</code> argument behaves just like the core <code>error</code>
  function.
 
 
@@ -348,7 +373,7 @@
          function to callout in error message
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          argument number
         </li>
         <li><span class="parameter">extramsg</span>
@@ -357,7 +382,7 @@
          (<em>optional</em>)
         </li>
         <li><span class="parameter">level</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          call stack level to blame for the error
          (<em>default</em> 1)
         </li>
@@ -385,24 +410,40 @@
     <strong>argscheck (decl, inner)</strong>
     </dt>
     <dd>
-    Wrap a function definition with argument type and arity checking.
+
+<p>Wrap a function definition with argument type and arity checking.
  In addition to checking that each argument type matches the corresponding
- element in the *types* table with `argcheck`, if the final element of
- *types* ends with an ellipsis, remaining unchecked arguments are checked
- against that type:
-<p>     format = argscheck ("string.format (string, ?any...)", string.format)
+ element in the <em>types</em> table with <code>argcheck</code>, if the final element of
+ <em>types</em> ends with an ellipsis, remaining unchecked arguments are checked
+ against that type:</p>
+
+<pre><code> format = argscheck ("string.format (string, ?any...)", string.format)
+</code></pre>
+
 <p> A colon in the function name indicates that the argument type list does
- not have a type for `self`:
-<p>     format = argscheck ("string:format (?any...)", string.format)
+ not have a type for <code>self</code>:</p>
+
+<pre><code> format = argscheck ("string:format (?any...)", string.format)
+</code></pre>
+
 <p> If an argument can be omitted entirely, then put its type specification
- in square brackets:
-<p>     insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
+ in square brackets:</p>
+
+<pre><code> insert = argscheck ("table.insert (table, [int], ?any)", table.insert)
+</code></pre>
+
 <p> Similarly return types can be checked with the same list syntax as
- arguments:
-<p>     len = argscheck ("string.len (string) => int", string.len)
-<p> Additionally, variant return type lists can be listed like this:
-<p>     open = argscheck ("io.open (string, ?string) => file or nil, string",
-                       io.open)
+ arguments:</p>
+
+<pre><code> len = argscheck ("string.len (string) =&gt; int", string.len)
+</code></pre>
+
+<p> Additionally, variant return type lists can be listed like this:</p>
+
+<pre><code> open = argscheck ("io.open (string, ?string) =&gt; file or nil, string",
+                   io.open)
+</code></pre>
+
 
 
 
@@ -413,7 +454,7 @@
          function type declaration string
         </li>
         <li><span class="parameter">inner</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">function</span></span>
          function to wrap with argument checking
         </li>
     </ul>
@@ -435,7 +476,7 @@
     <strong>debug ()</strong>
     </dt>
     <dd>
-    Equivalent to calling `debug.say (1, ...)`
+    Equivalent to calling <code>debug.say (1, ...)</code>
 
 
 
@@ -471,7 +512,7 @@
          the actual argument to match with
         </li>
         <li><span class="parameter">index</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">number</span></span>
          erroring container element index
          (<em>optional</em>)
         </li>
@@ -481,7 +522,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        formatted *extramsg* for this mismatch for <a href="../modules/std.debug.html#argerror">argerror</a>
+        formatted <em>extramsg</em> for this mismatch for <a href="../modules/std.debug.html#argerror">argerror</a>
     </ol>
 
 
@@ -506,7 +547,7 @@
     <dd>
     Compact permutation list into a list of valid types at each argument.
  Eliminate bracketed types by combining all valid types at each position
- for all permutations of *typelist*.
+ for all permutations of <em>typelist</em>.
 
 
     <h3>Parameters:</h3>
@@ -533,17 +574,17 @@
     <strong>say ([n=1], ...)</strong>
     </dt>
     <dd>
-    Print a debugging message to `io.stderr`.
- Display arguments passed through `std.tostring` and separated by tab
- characters when `_DEBUG` is `true` and *n* is 1 or less; or `_DEBUG.level`
- is a number greater than or equal to *n*.  If `_DEBUG` is false or
+    Print a debugging message to <code>io.stderr</code>.
+ Display arguments passed through <code>std.tostring</code> and separated by tab
+ characters when <code>_DEBUG</code> is <code>true</code> and <em>n</em> is 1 or less; or <code>_DEBUG.level</code>
+ is a number greater than or equal to <em>n</em>.  If <code>_DEBUG</code> is false or
  nil, nothing is written.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">list</span></span>
+            <span class="types"><span class="type">integer</span></span>
          debugging level, smaller is higher priority
          (<em>default</em> 1)
         </li>
@@ -570,7 +611,7 @@ _DEBUG.level = <span class="number">3</span>
     <dd>
     Trace function calls.
  Use as debug.sethook (trace, "cr"), which is done automatically
- when `_DEBUG.call` is set.
+ when <code>_DEBUG.call</code> is set.
  Based on test/trace-calls.lua from the Lua distribution.
 
 
@@ -602,32 +643,32 @@ _DEBUG.level = <span class="number">3</span>
     </dt>
     <dd>
     Control std.debug function behaviour.
- To declare debugging state, set _DEBUG either to `false` to disable all
+ To declare debugging state, set _DEBUG either to <code>false</code> to disable all
  runtime debugging; to any "truthy" value (equivalent to enabling everything
- except *call*, or as documented below.
+ except <em>call</em>, or as documented below.
 
 
     <h3>Fields:</h3>
     <ul>
         <li><span class="parameter">argcheck</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          honor argcheck and argscheck calls
          (<em>default</em> true)
         </li>
         <li><span class="parameter">call</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          do call trace debugging
          (<em>default</em> false)
         </li>
         <li><span class="parameter">deprecate</span>
-         if `false`, deprecated APIs are defined,
-   and do not issue deprecation warnings when used; if `nil` issue a
+         if <code>false</code>, deprecated APIs are defined,
+   and do not issue deprecation warnings when used; if <code>nil</code> issue a
    deprecation warning each time a deprecated api is used; any other
    value causes deprecated APIs not to be defined at all
          (<em>default</em> nil)
         </li>
         <li><span class="parameter">level</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">int</span></span>
          debugging level
          (<em>default</em> 1)
         </li>
@@ -660,12 +701,12 @@ _DEBUG.level = <span class="number">3</span>
          the thing there are too many of
         </li>
         <li><span class="parameter">expected</span>
-            <span class="types"><span class="type">string</span></span>
-         maximum number of *bad* things expected
+            <span class="types"><span class="type">integer</span></span>
+         maximum number of <em>bad</em> things expected
         </li>
         <li><span class="parameter">actual</span>
-            <span class="types"><span class="type">string</span></span>
-         actual number of *bad* things that triggered the error
+            <span class="types"><span class="type">integer</span></span>
+         actual number of <em>bad</em> things that triggered the error
         </li>
     </ul>
 
@@ -691,12 +732,12 @@ _DEBUG.level = <span class="number">3</span>
     <strong>getfenv</strong>
     </dt>
     <dd>
-    Extend `debug.getfenv` to unwrap functables correctly.
+    Extend <code>debug.getfenv</code> to unwrap functables correctly.
 
 
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">string</span>, <span class="type">string</span> or <span class="type">string</span></span>
+            <span class="types"><span class="type">int</span>, <span class="type">function</span> or <span class="type">functable</span></span>
          target function, or stack level
         </li>
     </ul>
@@ -713,7 +754,7 @@ _DEBUG.level = <span class="number">3</span>
     <dd>
     Raise a bad result error.
  Like <a href="../modules/std.debug.html#argerror">argerror</a> for bad results. This function does not
- return.  The `level` argument behaves just like the core `error`
+ return.  The <code>level</code> argument behaves just like the core <code>error</code>
  function.
 
 
@@ -723,7 +764,7 @@ _DEBUG.level = <span class="number">3</span>
          function to callout in error message
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          argument number
         </li>
         <li><span class="parameter">extramsg</span>
@@ -732,7 +773,7 @@ _DEBUG.level = <span class="number">3</span>
          (<em>optional</em>)
         </li>
         <li><span class="parameter">level</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          call stack level to blame for the error
          (<em>default</em> 1)
         </li>
@@ -755,12 +796,12 @@ _DEBUG.level = <span class="number">3</span>
     <strong>setfenv</strong>
     </dt>
     <dd>
-    Extend `debug.setfenv` to unwrap functables correctly.
+    Extend <code>debug.setfenv</code> to unwrap functables correctly.
 
 
     <ul>
         <li><span class="parameter">fn</span>
-            <span class="types"><span class="type">string</span> or <span class="type">string</span></span>
+            <span class="types"><span class="type">function</span> or <span class="type">functable</span></span>
          target function
         </li>
         <li><span class="parameter">env</span>
@@ -785,7 +826,7 @@ _DEBUG.level = <span class="number">3</span>
     <ul>
         <li><span class="parameter">either</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
-         `"?bool|:nometa"` or `{"boolean", ":nometa"}`
+         <code>"?bool|:nometa"</code> or <code>{"boolean", ":nometa"}</code>
         </li>
     </ul>
 
@@ -800,8 +841,8 @@ _DEBUG.level = <span class="number">3</span>
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

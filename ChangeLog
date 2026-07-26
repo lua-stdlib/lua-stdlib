@@ -1,3 +1,16 @@
+2026-07-26  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 41.2.4
+	* NEWS.md: Record release date.
+
+	configury: bump release revision to 41.2.4.
+	* configure.ac (AC_INIT): Bump release revision to 41.2.4.
+	* .travis.yml: Regenerate.
+
+	* lib/std/debug.lua (getfenv, setfenv): Backport from
+	std.normalize project for compatibility with Lua 5.3, 5.4
+	and 5.5.
+
 2026-07-25  Gary V. Vaughan  <gary@gnu.org>
 
 	Release version 41.2.3

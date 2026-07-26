@@ -1,5 +1,13 @@
 # Stdlib NEWS - User visible changes
 
+## Noteworthy changes in release 41.2.4 (2026-07-26) [stable]
+
+### Bug fixes
+
+  - backported `debug.getfenv` and `debug.setfenv` from std.normalize
+    for compatibility with Lua 5.3, 5.4 and 5.5
+
+
 ## Noteworthy changes in release 41.2.3 (2026-07-25) [stable]
 
 ### New Features

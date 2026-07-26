@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.3 Reference</title>
+    <title>stdlib 41.2.4 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.3</h1>
+<h1>stdlib 41.2.4</h1>
 
 
 <ul>
@@ -70,10 +70,17 @@
 <h1>Module <code>std.string</code></h1>
 <p>Additions to the core string module.</p>
 <p>
-<p> The module table returned by `std.string` also contains all of the entries
+
+
+<p> The module table returned by <code>std.string</code> also contains all of the entries
  from the core string table.  An hygienic way to import this module, then, is
- simply to override the core `string` locally:
-<p>    local string = require "std.string"
+ simply to override the core <code>string</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">string</span> = <span class="global">require</span> <span class="string">"std.string"</span>
+</pre>
+
 </p>
 
 
@@ -97,7 +104,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#finds">finds (s, pattern[, init=1[, plain]])</a></td>
-	<td class="summary">Repeatedly `string.find` until target string is exhausted.</td>
+	<td class="summary">Repeatedly <code>string.find</code> until target string is exhausted.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#format">format (f[, ...])</a></td>
@@ -109,7 +116,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#monkey_patch">monkey_patch ([namespace=_G])</a></td>
-	<td class="summary">Overwrite core `string` methods with `std` enhanced versions.</td>
+	<td class="summary">Overwrite core <code>string</code> methods with <code>std</code> enhanced versions.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#numbertosi">numbertosi (n)</a></td>
@@ -141,7 +148,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tfind">tfind (s, pattern[, init=1[, plain]])</a></td>
-	<td class="summary">Do `string.find`, returning a table of captures.</td>
+	<td class="summary">Do <code>string.find</code>, returning a table of captures.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#trim">trim (s[, r="%s+"])</a></td>
@@ -218,7 +225,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with each word capitalized
+        <em>s</em> with each word capitalized
     </ol>
 
 
@@ -249,7 +256,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with any single trailing newline removed
+        <em>s</em> with any single trailing newline removed
     </ol>
 
 
@@ -280,7 +287,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with active pattern characters escaped
+        <em>s</em> with active pattern characters escaped
     </ol>
 
 
@@ -313,7 +320,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with active shell characters escaped
+        <em>s</em> with active shell characters escaped
     </ol>
 
 
@@ -329,7 +336,7 @@
     <strong>finds (s, pattern[, init=1[, plain]])</strong>
     </dt>
     <dd>
-    Repeatedly `string.find` until target string is exhausted.
+    Repeatedly <code>string.find</code> until target string is exhausted.
 
 
     <h3>Parameters:</h3>
@@ -340,15 +347,15 @@
         </li>
         <li><span class="parameter">pattern</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         pattern to match in *s*
+         pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          start position
          (<em>default</em> 1)
         </li>
         <li><span class="parameter">plain</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          inhibit magic characters
          (<em>optional</em>)
         </li>
@@ -357,7 +364,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        list of `{from, to; capt = {captures}}`
+        list of <code>{from, to; capt = {captures}}</code>
     </ol>
 
 
@@ -434,7 +441,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with leading *r* stripped
+        <em>s</em> with leading <em>r</em> stripped
     </ol>
 
 
@@ -450,9 +457,10 @@
     <strong>monkey_patch ([namespace=_G])</strong>
     </dt>
     <dd>
-    Overwrite core `string` methods with `std` enhanced versions.
-<p> Also adds auto-stringification to `..` operator on core strings, and
- integer indexing of strings with `[]` dereferencing.
+    Overwrite core <code>string</code> methods with <code>std</code> enhanced versions. </p>
+
+<p> Also adds auto-stringification to <code>..</code> operator on core strings, and
+ integer indexing of strings with <code>[]</code> dereferencing.
 
 
     <h3>Parameters:</h3>
@@ -491,7 +499,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">table</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          any numeric value
         </li>
     </ul>
@@ -500,7 +508,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *n* simplifed using largest available SI suffix.
+        <em>n</em> simplifed using largest available SI suffix.
     </ol>
 
 
@@ -522,7 +530,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">n</span>
-            <span class="types"><span class="type">string</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          any integer value
         </li>
     </ul>
@@ -531,7 +539,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        English suffix for *n*
+        English suffix for <em>n</em>
     </ol>
 
 
@@ -560,7 +568,7 @@
          a string to justify
         </li>
         <li><span class="parameter">w</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          width to justify to (-ve means right-justify; +ve means
    left-justify)
         </li>
@@ -575,7 +583,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* justified to *w* characters wide
+        <em>s</em> justified to <em>w</em> characters wide
     </ol>
 
 
@@ -615,7 +623,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        pretty string rendering of *x*
+        pretty string rendering of <em>x</em>
     </ol>
 
 
@@ -671,7 +679,7 @@
     <h3>Returns:</h3>
     <ol>
 
-        string representation of *x*
+        string representation of <em>x</em>
     </ol>
 
 
@@ -711,7 +719,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with trailing *r* stripped
+        <em>s</em> with trailing <em>r</em> stripped
     </ol>
 
 
@@ -729,7 +737,7 @@
     <dd>
     Split a string at a given separator.
  Separator is a Lua pattern, so you have to escape active characters,
- `^$()%.[]*+-?` with a `%` prefix to match a literal character in *s*.
+ <code>^$()%.[]*+-?</code> with a <code>%</code> prefix to match a literal character in <em>s</em>.
 
 
     <h3>Parameters:</h3>
@@ -764,7 +772,7 @@
     <strong>tfind (s, pattern[, init=1[, plain]])</strong>
     </dt>
     <dd>
-    Do `string.find`, returning a table of captures.
+    Do <code>string.find</code>, returning a table of captures.
 
 
     <h3>Parameters:</h3>
@@ -775,15 +783,15 @@
         </li>
         <li><span class="parameter">pattern</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         pattern to match in *s*
+         pattern to match in <em>s</em>
         </li>
         <li><span class="parameter">init</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          start position
          (<em>default</em> 1)
         </li>
         <li><span class="parameter">plain</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">boolean</span></span>
          inhibit magic characters
          (<em>optional</em>)
         </li>
@@ -792,10 +800,10 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-           <span class="types"><span class="type">string</span></span>
+           <span class="types"><span class="type">int</span></span>
         start of match</li>
         <li>
-           <span class="types"><span class="type">string</span></span>
+           <span class="types"><span class="type">int</span></span>
         end of match</li>
         <li>
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
@@ -839,7 +847,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* with leading and trailing *r* stripped
+        <em>s</em> with leading and trailing <em>r</em> stripped
     </ol>
 
 
@@ -865,17 +873,17 @@
          a paragraph of text
         </li>
         <li><span class="parameter">w</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          width to wrap to
          (<em>default</em> 78)
         </li>
         <li><span class="parameter">ind</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          indent
          (<em>default</em> 0)
         </li>
         <li><span class="parameter">ind1</span>
-            <span class="types"><span class="type">string</span></span>
+            <span class="types"><span class="type">integer</span></span>
          indent of first line
          (<em>default</em> ind)
         </li>
@@ -885,7 +893,7 @@
     <ol>
 
            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-        *s* wrapped to *w* columns
+        <em>s</em> wrapped to <em>w</em> columns
     </ol>
 
 
@@ -942,7 +950,7 @@ concatenated = <span class="string">"foo"</span> .. {<span class="string">"bar"<
          string
         </li>
         <li><span class="parameter">i</span>
-            <span class="types"><span class="type">string</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          index or method name
         </li>
     </ul>
@@ -963,7 +971,7 @@ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pr
     </dt>
     <dd>
     Convert a value to a string.
- The string can be passed to `functional.eval` to retrieve the value.
+ The string can be passed to <code>functional.eval</code> to retrieve the value.
 
 
     <ul>
@@ -1099,8 +1107,8 @@ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pr
     </dt>
     <dd>
     Signature of <a href="../modules/std.string.html#render">render</a> pair callback.
- Trying to re-render *key* or *value* here will break recursion
- detection, use *strkey* and *strvalue* pre-rendered values instead.
+ Trying to re-render <em>key</em> or <em>value</em> here will break recursion
+ detection, use <em>strkey</em> and <em>strvalue</em> pre-rendered values instead.
 
 
     <h3>Parameters:</h3>
@@ -1117,11 +1125,11 @@ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pr
         </li>
         <li><span class="parameter">keystr</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         prerendered *key*
+         prerendered <em>key</em>
         </li>
         <li><span class="parameter">valuestr</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         prerendered *value*
+         prerendered <em>value</em>
         </li>
     </ul>
 
@@ -1159,16 +1167,16 @@ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pr
          table currently being rendered
         </li>
         <li><span class="parameter">pk</span>
-         *t* key preceding separator, or `nil` for first key
+         <em>t</em> key preceding separator, or <code>nil</code> for first key
         </li>
         <li><span class="parameter">pv</span>
-         *t* value preceding separator, or `nil` for first value
+         <em>t</em> value preceding separator, or <code>nil</code> for first value
         </li>
         <li><span class="parameter">fk</span>
-         *t* key following separator, or `nil` for last key
+         <em>t</em> key following separator, or <code>nil</code> for last key
         </li>
         <li><span class="parameter">fv</span>
-         *t* value following separator, or `nil` for last value
+         <em>t</em> value following separator, or <code>nil</code> for last value
         </li>
     </ul>
 
@@ -1193,8 +1201,8 @@ third = (<span class="string">"12345"</span>)[<span class="number">3</span>]</pr
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-25 13:31:42 </i>
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
