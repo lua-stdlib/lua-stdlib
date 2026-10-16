@@ -1051,6 +1051,17 @@ specify std.debug:
     - it understands functables:
         M.setfenv (ft, env)
         expect (f (ft)).to_be (env)
+    - it prefers a functable call field environment: |
+        expect (luaproc [[
+          local M = require "std.debug"
+          local env = {tostring = tostring}
+          local fn = function (x) return tostring (x) end
+          local ft = setmetatable ({call = fn}, {
+            __call = function (self, ...) return self.call (...) end,
+          })
+          M.setfenv (fn, env)
+          assert (M.getfenv (ft) == env)
+        ]]).to_succeed_with ""
 
   - describe setfenv:
     - before:
@@ -1063,6 +1074,18 @@ specify std.debug:
     - it understands functables:
         f (ft, env)
         expect (fn (5)).to_be '"5"'
+    - it sets a functable call field environment: |
+        expect (luaproc [[
+          local M = require "std.debug"
+          local env = {tostring = function (x) return '"' .. tostring (x) .. '"' end}
+          local fn = function (x) return tostring (x) end
+          local ft = setmetatable ({call = fn}, {
+            __call = function (self, ...) return self.call (...) end,
+          })
+          M.setfenv (ft, env)
+          assert (M.getfenv (fn) == env)
+          assert (ft (42) == '"42"')
+        ]]).to_succeed_with ""
 
 
 - describe say:
