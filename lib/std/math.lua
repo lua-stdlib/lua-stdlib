@@ -76,7 +76,7 @@ M = {
    -- @treturn number `n` truncated to `p` decimal places
    -- @usage
    --    tenths = floor(magnitude, 1)
-   floor = X('floor(number, ?int)', floor),
+   floor = X('floor(number, [?int])', floor),
 
    --- Round a number to a given number of decimal places.
    -- @function round
@@ -85,7 +85,7 @@ M = {
    -- @treturn number `n` rounded to `p` decimal places
    -- @usage
    --    roughly = round(exactly, 2)
-   round = X('round(number, ?int)', round),
+   round = X('round(number, [?int])', round),
 }
 
 

@@ -272,7 +272,7 @@ M = {
    -- @treturn list lines
    -- @usage
    --    list = readlines '/etc/passwd'
-   readlines = X('readlines(?file|string)', readlines),
+   readlines = X('readlines([?file|string])', readlines),
 
    --- Perform a shell command and return its output.
    -- @function shell
@@ -291,7 +291,7 @@ M = {
    -- @see process_files
    -- @usage
    --    contents = slurp(filename)
-   slurp = X('slurp(?file|string)', slurp),
+   slurp = X('slurp([?file|string])', slurp),
 
    --- Write values adding a newline after each.
    -- @function writelines
@@ -300,7 +300,7 @@ M = {
    -- @tparam string|number ... values to write(as for write)
    -- @usage
    --    writelines(io.stdout, 'first line', 'next line')
-   writelines = X('writelines(?file|string|number, [string|number...])', writelines),
+   writelines = X('writelines([?file|string|number], [string|number...])', writelines),
 }
 
 

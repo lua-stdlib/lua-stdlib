@@ -240,7 +240,7 @@ M = {
    --    --> {1, 2, 5}
    --    t = {1, 2, 'x', 5}
    --    remove(t, 3) == 'x' and t
-   remove = X('remove(table, ?int)', remove),
+   remove = X('remove(table, [?int])', remove),
 
    --- Enhance core *table.sort* to return its result.
    -- @function sort
@@ -249,7 +249,7 @@ M = {
    -- @return *t* with keys sorted according to *c*
    -- @usage
    --    table.concat(sort(object))
-   sort = X('sort(table, ?function)', sort),
+   sort = X('sort(table, [?function])', sort),
 
    --- Enhance core *table.unpack* to always unpack up to __len or maxn.
    -- @function unpack
@@ -259,7 +259,7 @@ M = {
    -- @return ... values of numeric indices of *t*
    -- @usage
    --    return unpack(results_table)
-   unpack = X('unpack(table, ?int, ?int)', unpack),
+   unpack = X('unpack(table, [?int], [?int])', unpack),
 
 
    --- Accessor Functions
@@ -276,7 +276,7 @@ M = {
    -- @see clone_select
    -- @usage
    --    shallowcopy = clone(original, {rename_this='to_this'}, ':nometa')
-   clone = X('clone(table, [table], ?boolean|:nometa)', function(...)
+   clone = X('clone(table, [table], [?boolean|:nometa])', function(...)
       return merge_allfields({}, ...)
    end),
 
@@ -293,7 +293,7 @@ M = {
    -- @see merge_select
    -- @usage
    --    partialcopy = clone_select(original, {'this', 'and_this'}, true)
-   clone_select = X('clone_select(table, [table], ?boolean|:nometa)', function(...)
+   clone_select = X('clone_select(table, [table], [?boolean|:nometa])', function(...)
       return merge_namedfields({}, ...)
    end),
 
@@ -336,7 +336,7 @@ M = {
    -- @treturn table table whose unset elements are *x*
    -- @usage
    --    t = new(0)
-   new = X('new(?any, ?table)', new),
+   new = X('new([?any], [?table])', new),
 
    --- Project a list of fields from a list of tables.
    -- @function project
@@ -400,7 +400,7 @@ M = {
    -- @see merge_select
    -- @usage
    --    merge(_G, require 'std.debug', {say='log'}, ':nometa')
-   merge = X('merge(table, table, [table], ?boolean|:nometa)', merge_allfields),
+   merge = X('merge(table, table, [table], [?boolean|:nometa])', merge_allfields),
 
    --- Destructively merge another table's named fields into *table*.
    --
@@ -416,7 +416,7 @@ M = {
    -- @see clone_select
    -- @usage
    --    merge_select(_G, require 'std.debug', {'say'}, false)
-   merge_select = X('merge_select(table, table, [table], ?boolean|:nometa)',
+   merge_select = X('merge_select(table, table, [table], [?boolean|:nometa])',
       merge_namedfields),
 }
 

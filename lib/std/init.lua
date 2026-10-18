@@ -193,7 +193,7 @@ M = {
    -- @usage
    --    std.assert(expect == nil, '100% unexpected!')
    --    std.assert(expect == 'expect', '%s the unexpected!', expect)
-   assert = X('assert(?any, ?string, [any...])', _assert),
+   assert = X('assert([?any], [?string], [any...])', _assert),
 
    --- Evaluate a string as Lua code.
    -- @function eval
@@ -233,7 +233,7 @@ M = {
    -- @usage
    --    -- posix.version == 'posix library for Lua 5.2 / 32'
    --    posix = require('posix', '29')
-   require = X('require(string, ?string, ?string, ?string)', _require),
+   require = X('require(string, [?string], [?string], [?string])', _require),
 
    --- Iterator Functions
    -- @section iteratorfuncs
