@@ -54,6 +54,8 @@
 
 ### Bug fixes
 
+  - `std.string.escape_shell` escapes `&` too.
+
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
 
   - `std.getmetamethod` now returns functable valued metamethods

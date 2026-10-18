@@ -145,7 +145,7 @@ specify std.string:
         for c = 32, 126 do
            s = string.char(c)
            subject = subject .. s
-           if s:match('[][ ()\\\'"]') then
+           if s:match('[][ ()\\\'"&]') then
               target = target .. '\\'
            end
            target = target .. s
