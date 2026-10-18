@@ -62,7 +62,7 @@ specify std:
       f = M.assert
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.assert(?any, ?string, ?any*)')
+      badargs.diagnose('std.assert([?any], [?string], [any...])', f)
 
   - context when it does not trigger:
     - it has a truthy initial argument:
@@ -92,7 +92,7 @@ specify std:
       f = M.elems
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.elems(table)')
+      badargs.diagnose('std.elems(table)', f)
 
   - it is an iterator over table values:
       t = {}
@@ -120,7 +120,7 @@ specify std:
       f = M.eval
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.eval(string)')
+      badargs.diagnose('std.eval(string)', f)
 
   - it diagnoses invalid lua:
       # Some internal error when eval tries to call uncompilable '=' code.
@@ -134,7 +134,7 @@ specify std:
       f = M.getmetamethod
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.getmetamethod(?any, string)')
+      badargs.diagnose('std.getmetamethod(?any, string)', f)
 
   - context with a table:
     - before:
@@ -162,7 +162,7 @@ specify std:
       f = M.ielems
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.ielems(table)')
+      badargs.diagnose('std.ielems(table)', f)
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -195,7 +195,7 @@ specify std:
       f = M.ipairs
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.ipairs(table)')
+      badargs.diagnose('std.ipairs(table)', f)
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -228,7 +228,7 @@ specify std:
       f = M.npairs
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.npairs(table)')
+      badargs.diagnose('std.npairs(table)', f)
 
   - it is an iterator over integer-keyed table values:
       t = {}
@@ -261,7 +261,7 @@ specify std:
       f = M.pairs
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.pairs(table)')
+      badargs.diagnose('std.pairs(table)', f)
 
   - it is an iterator over all table values:
       t = {}
@@ -289,7 +289,7 @@ specify std:
       f = M.require
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.require(string, ?string, ?string, ?string)')
+      badargs.diagnose('std.require(string, [?string], [?string], [?string])', f)
 
   - it diagnoses non-existent module:
       expect(f('module-not-exists', '', '')).to_raise 'module-not-exists'
@@ -371,7 +371,7 @@ specify std:
       f = M.ripairs
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.ripairs(table)')
+      badargs.diagnose('std.ripairs(table)', f)
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, 3}
@@ -412,7 +412,7 @@ specify std:
       f = M.rnpairs
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.rnpairs(table)')
+      badargs.diagnose('std.rnpairs(table)', f)
 
   - it returns a function, the table and a number:
       fn, t, i = f {1, 2, nil, nil, 3}

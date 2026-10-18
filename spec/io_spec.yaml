@@ -42,7 +42,7 @@ specify std.io:
       f = M.catdir
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.catdir(string*)')
+      badargs.diagnose('std.io.catdir(string...)', f)
 
   - it treats initial empty string as root directory:
       expect(f('')).to_be(dirsep)
@@ -61,7 +61,7 @@ specify std.io:
       f = M.catfile
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.catfile(string*)')
+      badargs.diagnose('std.io.catfile(string...)', f)
 
   - it treats initial empty string as root directory:
       expect(f('', '')).to_be(dirsep)
@@ -82,7 +82,7 @@ specify std.io:
       f = M.die
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.die(string, ?any*)')
+      badargs.diagnose('std.io.die(string, [any...])', f)
 
   - it outputs a message to stderr: |
       expect(luaproc(script)).to_fail_while_matching ": By 'eck!\n"
@@ -141,7 +141,7 @@ specify std.io:
       path = table.concat({'', 'one', 'two', 'three'}, dirsep)
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.dirname(string)')
+      badargs.diagnose('std.io.dirname(string)', f)
 
   - it removes final separator and following:
       expect(f(path)).to_be(table.concat({'', 'one', 'two'}, dirsep))
@@ -173,7 +173,7 @@ specify std.io:
       f = M.process_files
 
   - context with bad arguments: |
-      badargs.diagnose(f, 'std.io.process_files(func)')
+      badargs.diagnose('std.io.process_files(function)', f)
 
       examples {
          ["it diagnoses non-file 'arg' elements"] = function()
@@ -223,13 +223,13 @@ specify std.io:
       end
 
   - context with bad arguments: |
-      badargs.diagnose(f, 'std.io.readlines(?file|string)')
+      badargs.diagnose('std.io.readlines([?file|string])', f)
 
       if have_typecheck then
          examples {
             ['it diagnoses non-existent file'] = function()
                expect(f 'not-an-existing-file').
-                  to_raise "bad argument #1 to 'std.io.readlines'(" -- system dependent error message
+                  to_raise "bad argument #1 to 'std.io.readlines' (" -- system dependent error message
             end
          }
          closed = io.open(name, 'r') closed:close()
@@ -259,7 +259,7 @@ specify std.io:
       f = M.shell
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.shell(string)')
+      badargs.diagnose('std.io.shell(string)', f)
 
   - it returns the output from a shell command string:
       expect(f [[printf '%s\n' 'foo' 'bar']]).to_be 'foo\nbar\n'
@@ -280,13 +280,13 @@ specify std.io:
       end
 
   - context with bad arguments: |
-      badargs.diagnose(f, 'std.io.slurp(?file|string)')
+      badargs.diagnose('std.io.slurp([?file|string])', f)
 
       if have_typecheck then
          examples {
             ['it diagnoses non-existent file'] = function()
                expect(f 'not-an-existing-file').
-                  to_raise "bad argument #1 to 'std.io.slurp'(" -- system dependent error message
+                  to_raise "bad argument #1 to 'std.io.slurp' (" -- system dependent error message
             end
          }
          closed = io.open(name, 'r') closed:close()
@@ -316,7 +316,7 @@ specify std.io:
       f = M.splitdir
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.splitdir(string)')
+      badargs.diagnose('std.io.splitdir(string)', f)
 
   - it returns a filename as a one element list:
       expect(f('hello')).to_equal {'hello'}
@@ -336,7 +336,7 @@ specify std.io:
       f = M.warn
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.io.warn(string, ?any*)')
+      badargs.diagnose('std.io.warn(string, [any...])', f)
 
   - it outputs a message to stderr:
       expect(luaproc(script)).to_output_error 'Ayup!\n'

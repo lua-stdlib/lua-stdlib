@@ -79,13 +79,17 @@ function unpack(t, i, j)
 end
 
 
--- In case we're not using a bleeding edge release of Specl...
-_diagnose = badargs.diagnose
-badargs.diagnose = function(...)
+-- Argument checks need typecheck, so skip their examples without it.
+-- Specl gives the example environment to badargs.diagnose, so pass it
+-- on to the real diagnose, which defines its examples there.
+local _diagnose = badargs.diagnose
+local function diagnose(...)
    if have_typecheck then
+      std.setfenv(_diagnose, std.getfenv(diagnose))
       return _diagnose(...)
    end
 end
+badargs.diagnose = diagnose
 
 badargs.result = badargs.result or function(fname, i, want, got)
    if want == nil then -- numbers only for narg error

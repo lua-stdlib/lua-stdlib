@@ -49,12 +49,13 @@ specify std.package:
       f = M.find
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.package.find(string, string, ?int, ?boolean|:plain)')
+      badargs.diagnose('std.package.find(string, string, [?int], [?boolean|:plain])', f)
 
   - it returns nil for unmatched element:
       expect(f(path, 'unmatchable')).to_be(nil)
   - it returns the element index for a matched element:
-      expect(f(path, 'end')).to_be(3)
+      i = f(path, 'end')
+      expect(i).to_be(3)
   - it returns the element text for a matched element:
       i, element = f(path, 'e.*n')
       expect({i, element}).to_equal {1, 'begin'}
@@ -72,7 +73,7 @@ specify std.package:
       f = M.insert
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.package.insert(string, [int], string)')
+      badargs.diagnose('std.package.insert(string, [int], string)', f)
 
   - it appends by default:
       expect(f(path, 'new')).
@@ -100,7 +101,7 @@ specify std.package:
       f = M.mappath
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.package.mappath(string, function, ?any*)')
+      badargs.diagnose('std.package.mappath(string, function, [any...])', f)
 
   - it calls a function with each path element:
       t = {}
@@ -125,7 +126,7 @@ specify std.package:
       f = M.normalize
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.package.normalize(string*)')
+      badargs.diagnose('std.package.normalize(string...)', f)
 
   - context with a single element:
     - it strips redundant . directories:
@@ -182,7 +183,7 @@ specify std.package:
       f = M.remove
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.package.remove(string, ?int)')
+      badargs.diagnose('std.package.remove(string, [?int])', f)
 
   - it removes the last item by default:
       expect(f(path)).to_be(M.normalize('begin', 'middle'))

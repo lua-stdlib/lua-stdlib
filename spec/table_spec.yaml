@@ -43,7 +43,7 @@ specify std.table:
       f = M.clone
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.clone(table, [table], ?boolean|:nometa)')
+      badargs.diagnose('std.table.clone(table, [table], [?boolean|:nometa])', f)
 
   - it does not just return the subject:
       expect(f(subject)).not_to_be(subject)
@@ -83,7 +83,7 @@ specify std.table:
       f = M.clone_select
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.clone_select(table, [table], ?boolean|:nometa)')
+      badargs.diagnose('std.table.clone_select(table, [table], [?boolean|:nometa])', f)
 
   - it does not just return the subject:
       expect(f(subject)).not_to_be(subject)
@@ -118,7 +118,7 @@ specify std.table:
       f = M.depair
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.depair(list of lists)')
+      badargs.diagnose('std.table.depair(list of lists)', f)
 
   - it returns a primitive table:
       expect(objtype(f(l))).to_be 'table'
@@ -133,7 +133,7 @@ specify std.table:
       f = M.empty
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.empty(table)')
+      badargs.diagnose('std.table.empty(table)', f)
 
   - it returns true for an empty table:
       expect(f {}).to_be(true)
@@ -152,7 +152,7 @@ specify std.table:
       f = M.enpair
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.enpair(table)')
+      badargs.diagnose('std.table.enpair(table)', f)
 
   - it returns a table:
       expect(objtype(f(t))).to_be 'table'
@@ -169,11 +169,10 @@ specify std.table:
       f, badarg = init(M, this_module,  'insert')
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.insert(table, [int], any)')
+      badargs.diagnose('std.table.insert(table, [int], any)', f)
 
       examples {
          ['it diagnoses more than 2 arguments with no pos'] = function()
-            pending '#issue 76'
             expect(f({}, false, false)).to_raise(badarg(3))
          end
       }
@@ -210,7 +209,7 @@ specify std.table:
       f = M.invert
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.invert(table)')
+      badargs.diagnose('std.table.invert(table)', f)
 
   - it returns a new table:
       expect(f(subject)).not_to_be(subject)
@@ -230,7 +229,7 @@ specify std.table:
       f = M.keys
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.keys(table)')
+      badargs.diagnose('std.table.keys(table)', f)
 
   - it returns an empty list when subject is empty:
       expect(f {}).to_equal {}
@@ -254,7 +253,7 @@ specify std.table:
       f = M.maxn
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.maxn(table)')
+      badargs.diagnose('std.table.maxn(table)', f)
 
   - it returns the largest numeric key of a table:
       expect(f {'a', 'b', 'c'}).to_be(3)
@@ -285,11 +284,10 @@ specify std.table:
       f, badarg = init(M, this_module, 'merge')
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.merge(table, table, [table], ?boolean|:nometa)')
+      badargs.diagnose('std.table.merge(table, table, [table], [?boolean|:nometa])', f)
 
       examples {
          ['it diagnoses more than 2 arguments with no pos'] = function()
-            pending '#issue 76'
             expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
          end
       }
@@ -350,11 +348,10 @@ specify std.table:
       f, badarg = init(M, this_module, 'merge_select')
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.merge_select(table, table, [table], ?boolean|:nometa)')
+      badargs.diagnose('std.table.merge_select(table, table, [table], [?boolean|:nometa])', f)
 
       examples {
          ['it diagnoses more than 2 arguments with no pos'] = function()
-            pending '#issue 76'
             expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
          end
       }
@@ -398,7 +395,7 @@ specify std.table:
       f = M.new
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.new(?any, ?table)')
+      badargs.diagnose('std.table.new([?any], [?table])', f)
 
   - context when not setting a default:
     - before: default = nil
@@ -459,7 +456,7 @@ specify std.table:
       f = M.project
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.project(any, list of tables)')
+      badargs.diagnose('std.table.project(any, list of tables)', f)
 
   - it returns a table:
       expect(objtype(f('third', l))).to_be 'table'
@@ -476,7 +473,7 @@ specify std.table:
       f = M.remove
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.remove(table, ?int)')
+      badargs.diagnose('std.table.remove(table, [?int])', f)
 
       examples {
          ['it diagnoses out of bounds pos arguments'] = function()
@@ -518,7 +515,7 @@ specify std.table:
       f = M.size
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.size(table)')
+      badargs.diagnose('std.table.size(table)', f)
 
   - it counts the number of keys in a table:
       expect(f(subject)).to_be(3)
@@ -535,7 +532,7 @@ specify std.table:
       f = M.sort
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.sort(table, ?function)')
+      badargs.diagnose('std.table.sort(table, [?function])', f)
 
   - it sorts elements in place:
       f(subject, cmp)
@@ -573,7 +570,7 @@ specify std.table:
       f = M.values
 
   - context with bad arguments:
-      badargs.diagnose(f, 'std.table.values(table)')
+      badargs.diagnose('std.table.values(table)', f)
 
   - it returns an empty list when subject is empty:
       expect(f {}).to_equal {}
