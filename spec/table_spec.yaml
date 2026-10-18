@@ -171,11 +171,13 @@ specify std.table:
   - context with bad arguments:
       badargs.diagnose('std.table.insert(table, [int], any)', f)
 
-      examples {
-         ['it diagnoses more than 2 arguments with no pos'] = function()
-            expect(f({}, false, false)).to_raise(badarg(3))
-         end
-      }
+      if have_typecheck then
+         examples {
+            ['it diagnoses more than 2 arguments with no pos'] = function()
+               expect(f({}, false, false)).to_raise(badarg(3))
+            end
+         }
+      end
       examples {
          ['it diagnoses out of bounds pos arguments'] = function()
             expect(f({}, 0, 'x')).to_raise 'position 0 out of bounds'
@@ -286,11 +288,13 @@ specify std.table:
   - context with bad arguments:
       badargs.diagnose('std.table.merge(table, table, [table], [?boolean|:nometa])', f)
 
-      examples {
-         ['it diagnoses more than 2 arguments with no pos'] = function()
-            expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
-         end
-      }
+      if have_typecheck then
+         examples {
+            ['it diagnoses more than 3 arguments'] = function()
+               expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
+            end
+         }
+      end
 
   - it does not create a whole new table:
       expect(f(t1, t2)).to_be(t1)
@@ -350,11 +354,13 @@ specify std.table:
   - context with bad arguments:
       badargs.diagnose('std.table.merge_select(table, table, [table], [?boolean|:nometa])', f)
 
-      examples {
-         ['it diagnoses more than 2 arguments with no pos'] = function()
-            expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
-         end
-      }
+      if have_typecheck then
+         examples {
+            ['it diagnoses more than 3 arguments'] = function()
+               expect(f({}, {}, ':nometa', false)).to_raise(badarg(4))
+            end
+         }
+      end
 
   - it does not create a whole new table:
       expect(f(t1, t2)).to_be(t1)
