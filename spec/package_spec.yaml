@@ -6,13 +6,9 @@ before: |
   this_module = 'std.package'
   global_table = '_G'
 
-  -- std.normalize also provides its own spelling of path_mark, and
-  -- searchers where the core package only has Lua 5.1's loaders.
+  -- std.normalize also provides its own spelling of path_mark.
   extend_base = {'dirsep', 'execdir', 'find', 'igmark', 'insert', 'mappath',
                  'normalize', 'path_mark', 'pathmark', 'pathsep', 'remove'}
-  if _VERSION == 'Lua 5.1' then
-     extend_base[#extend_base + 1] = 'searchers'
-  end
 
   M = require(this_module)
 
@@ -35,9 +31,22 @@ specify std.package:
     - it does not touch the core package table:
         expect(show_apis {added_to=base_module, by=this_module}).
            to_equal {}
-    - it contains apis from the core package table:
+    - it contains apis from the core package table: |
+        -- std.normalize also provides searchers and searchpath where the
+        -- core package lacks them.  Ask Lua, because LuaJIT has 5.2's
+        -- searchpath but the same _VERSION as 5.1.
+        local apis = {}
+        for i, name in ipairs(extend_base) do
+           apis[i] = name
+        end
+        luaproc([[
+           print(package.searchers and '' or 'searchers')
+           print(package.searchpath and '' or 'searchpath')
+        ]]).output:gsub('%S+', function(name)
+           apis[#apis + 1] = name
+        end)
         expect(show_apis {from=base_module, not_in=this_module}).
-           to_contain.a_permutation_of(extend_base)
+           to_contain.a_permutation_of(apis)
     - it shares the core loaded table: |
         expect(luaproc([[
            print(require 'std.package'.loaded == package.loaded)
