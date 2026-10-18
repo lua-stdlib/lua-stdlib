@@ -1,7 +1,6 @@
 *~
 .DS_Store
 /*.src.rock
-/Makefile
 /build-aux/config.ld
 /doc
 /lib/std/version.lua

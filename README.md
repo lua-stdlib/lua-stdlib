@@ -40,7 +40,7 @@ To install current git master (for testing, before submitting a bug
 report for example):
 
 ```bash
-    luarocks install http://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/stdlib-git-1.rockspec
+    luarocks install https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/stdlib-dev-1.rockspec
 ```
 
 The best way to install without [LuaRocks][] is to copy the `std`

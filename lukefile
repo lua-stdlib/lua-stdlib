@@ -1,0 +1,21 @@
+--[[
+ General Lua Libraries for Lua 5.1, 5.2, 5.3, 5.4 & 5.5
+ Copyright (C) 2002-2026 stdlib authors
+]]
+
+luke_format = 0
+
+package  = 'stdlib'
+version  = '$USER'
+
+modules  = {
+   {['std']         = 'lib/std/init.lua'},
+   {['std._base']   = 'lib/std/_base.lua'},
+   {['std.debug']   = 'lib/std/debug.lua'},
+   {['std.io']      = 'lib/std/io.lua'},
+   {['std.math']    = 'lib/std/math.lua'},
+   {['std.package'] = 'lib/std/package.lua'},
+   {['std.string']  = 'lib/std/string.lua'},
+   {['std.table']   = 'lib/std/table.lua'},
+   {['std.version'] = 'lib/std/version.lua.in'},
+}

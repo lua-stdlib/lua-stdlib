@@ -44,6 +44,14 @@
     local okeys = std.functional.compose (std.table.keys, std.table.sort)
     ```
 
+  - stdlib builds with luke instead of make, and supports Lua 5.1
+    through 5.5, including LuaJIT.  To install current git master, use
+    the `stdlib-dev-1.rockspec`:
+
+    ```bash
+    luarocks install https://raw.githubusercontent.com/lua-stdlib/lua-stdlib/master/stdlib-dev-1.rockspec
+    ```
+
 ### Bug fixes
 
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.

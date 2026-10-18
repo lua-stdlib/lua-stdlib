@@ -149,8 +149,8 @@ specify std.io:
 
 - describe process_files:
   - before:
-      name = 'Makefile'
-      names = {'LICENSE.md', 'Makefile', 'README.md'}
+      name = 'lukefile'
+      names = {'LICENSE.md', 'README.md', 'lukefile'}
       ascript = [[
          require 'std.io'.process_files(function(a)
             print(a)
@@ -206,7 +206,7 @@ specify std.io:
 
 - describe readlines:
   - before: |
-      name = 'Makefile'
+      name = 'lukefile'
       h = io.open(name)
       lines = {}
       for l in h:lines() do
@@ -267,7 +267,7 @@ specify std.io:
 
 - describe slurp:
   - before: |
-      name = 'Makefile'
+      name = 'lukefile'
       h = io.open(name)
       content = h:read '*a'
       h:close()
@@ -390,7 +390,7 @@ specify std.io:
   - before: |
       name = os.tmpname()
       h = io.open(name, 'w')
-      lines = M.readlines(io.open 'Makefile')
+      lines = M.readlines(io.open 'lukefile')
 
       defaultout = io.output()
       f, badarg = init(M, this_module,  'writelines')
