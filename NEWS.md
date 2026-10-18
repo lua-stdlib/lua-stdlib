@@ -55,6 +55,10 @@
   - `table.pack` now sets `n` field to number of arguments packed, even
     in Lua 5.1.
 
+  - With `typecheck` installed, stdlib functions check their arguments
+    again, unless `std._debug.argcheck` is `false`.  Since `typecheck`
+    moved into its own package, no argument was checked at all.
+
 ### Incompatible changes
 
   - `std.container`, `std.functional`, `std.list`, `std.maturity`,

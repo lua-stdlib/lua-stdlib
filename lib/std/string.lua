@@ -17,7 +17,7 @@
 
 local _ = require 'std._base'
 
-local argscheck = _.typecheck and _.std.typecheck.argscheck
+local argscheck = _.typecheck and _.typecheck.argscheck
 local escape_pattern = _.string.escape_pattern
 local split = _.string.split
 

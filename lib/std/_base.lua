@@ -41,6 +41,15 @@ local _ENV = require 'std.normalize' {
 }
 
 
+-- Check arguments at API boundaries when typecheck is installed; it
+-- consults std._debug.argcheck itself.
+local typecheck
+do
+   local ok, r = pcall(require, 'typecheck')
+   typecheck = ok and r or nil
+end
+
+
 
 --[[ ============================ ]]--
 --[[ Enhanced Core Lua functions. ]]--
@@ -175,6 +184,8 @@ end
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
+   typecheck = typecheck,
+
    io = {
       catfile = catfile,
    },
