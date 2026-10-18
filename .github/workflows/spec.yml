@@ -1,0 +1,90 @@
+name: spec
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ 'master' ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        lua-version: ["5.5", "5.4", "5.3", "5.2", "5.1", "luajit"]
+        typecheck: ["typecheck", ""]
+        strict: ["std.strict", ""]
+
+    runs-on: ubuntu-latest
+
+    # id-token lets codecov-action authenticate uploads with OIDC.
+    permissions:
+      contents: read
+      id-token: write
+
+    # specl depends on stdlib 41, so stdlib and its dependencies go into
+    # a tree of their own, the only one the examples search.
+    env:
+      DEPS: ${{ github.workspace }}/deps
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: luarocks/gh-actions-lua@v14
+        with:
+          luaVersion: ${{ matrix.lua-version }}
+
+      - uses: luarocks/gh-actions-luarocks@v7
+
+      - name: install
+        run: |
+          sudo apt-get update -q -q --yes
+          sudo apt-get install -y libyaml-dev
+          # LuaRocks 3.13.0 crashes writing the namespace of a namespaced
+          # dependency on Lua 5.1 (luarocks/luarocks#1831), so install
+          # gvvaughan/ldoc by hand, before anything else needs an ldoc.
+          luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
+          printf gvvaughan > "$(luarocks show --rock-dir ldoc)/rock_namespace"
+          luarocks install ansicolors
+          luarocks install luacov
+          # Specl and typecheck fixes for stdlib are not released yet.
+          luarocks install https://raw.githubusercontent.com/gvvaughan/specl/master/specl-dev-1.rockspec
+          test -n "${{ matrix.typecheck }}" && luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/gvvaughan/typecheck/master/typecheck-dev-1.rockspec || true
+          test -n "${{ matrix.strict }}" && luarocks --tree="$DEPS" install std.strict || true
+
+      - name: build
+        run: |
+          luarocks --tree="$DEPS" make --force
+
+      - name: paths
+        run: |
+          V=$(lua -e 'print((_VERSION:gsub("^Lua ", "")))')
+          echo "LUA_PATH=$DEPS/share/lua/$V/?.lua;$DEPS/share/lua/$V/?/init.lua" >> "$GITHUB_ENV"
+          echo "LUA_CPATH=$DEPS/lib/lua/$V/?.so" >> "$GITHUB_ENV"
+
+      - name: check optional modules
+        run: |
+          # Fail if a dependency installed a module this matrix cell omits.
+          lua -e "
+            for name, want in pairs {
+               ['typecheck'] = '${{ matrix.typecheck }}' ~= '',
+               ['std.strict.init'] = '${{ matrix.strict }}' ~= '',
+            } do
+               local have = pcall(require, name)
+               print(name, have and 'installed' or 'not installed')
+               assert(have == want, name .. ' installation does not match matrix')
+            end
+          "
+
+      - name: test
+        run: |
+          specl -vfreport --coverage spec/*_spec.yaml
+
+      - uses: codecov/codecov-action@v7
+        with:
+          # Pull requests from forks get no OIDC token, but Codecov accepts
+          # tokenless uploads from forks of public repositories.
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+          files: luacov.report.out
+          flags: lua-${{ matrix.lua-version }}
+          fail_ci_if_error: true

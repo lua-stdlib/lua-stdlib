@@ -3,10 +3,9 @@ Standard Lua libraries
 
 Copyright (C) 2000-2018 [stdlib authors][github]
 
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
-[![travis-ci status](https://secure.travis-ci.org/lua-stdlib/lua-stdlib.png?branch=master)](http://travis-ci.org/lua-stdlib/lua-stdlib/builds)
-[![codecov.io](https://codecov.io/gh/lua-stdlib/lua-stdlib/branch/master/graph/badge.svg)](https://codecov.io/gh/lua-stdlib/lua-stdlib)
-[![Stories in Ready](https://badge.waffle.io/lua-stdlib/lua-stdlib.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/lua-stdlib)
+[![License](https://img.shields.io/:license-mit-blue.svg)](https://mit-license.org)
+[![workflow status](https://github.com/lua-stdlib/lua-stdlib/actions/workflows/spec.yml/badge.svg?branch=master)](https://github.com/lua-stdlib/lua-stdlib/actions)
+[![codecov.io](https://codecov.io/gh/lua-stdlib/lua-stdlib/graph/badge.svg?branch=master)](https://codecov.io/gh/lua-stdlib/lua-stdlib?branch=master)
 
 
 This is a collection of Lua libraries for Lua 5.1 (including LuaJIT), 5.2
