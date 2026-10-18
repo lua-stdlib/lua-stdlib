@@ -49,7 +49,7 @@ specify std.package:
       f = M.find
 
   - context with bad arguments:
-      badargs.diagnose('std.package.find(string, string, [?int], [?boolean|:plain])', f)
+      badargs.diagnose('std.package.find(string, string, <?int>, <?boolean|:plain>)', f)
 
   - it returns nil for unmatched element:
       expect(f(path, 'unmatchable')).to_be(nil)

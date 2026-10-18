@@ -401,7 +401,7 @@ specify std.table:
       f = M.new
 
   - context with bad arguments:
-      badargs.diagnose('std.table.new([?any], [?table])', f)
+      badargs.diagnose('std.table.new(<?any>, <?table>)', f)
 
   - context when not setting a default:
     - before: default = nil

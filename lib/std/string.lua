@@ -379,7 +379,7 @@ M = {
    --    for t in std.elems(finds('the target string', '%S+')) do
    --       print(tostring(t.capt))
    --    end
-   finds = X('finds(string, string, [?int], [?boolean|:plain])', finds),
+   finds = X('finds(string, string, <?int>, <?boolean|:plain>)', finds),
 
    --- Extend to work better with one argument.
    -- If only one argument is passed, no formatting is attempted.
@@ -441,7 +441,7 @@ M = {
    -- @treturn string pretty string rendering of *x*
    -- @usage
    --    print(prettytostring(std, '   '))
-   prettytostring = X('prettytostring([?any], [?string], [?string])', prettytostring),
+   prettytostring = X('prettytostring(<?any>, <?string>, <?string>)', prettytostring),
 
    --- Remove trailing matter from a string.
    -- @function rtrim
@@ -477,7 +477,7 @@ M = {
    -- @see std.string.finds
    -- @usage
    --    b, e, captures = tfind('the target string', '%s', 10)
-   tfind = X('tfind(string, string, [?int], [?boolean|:plain])', tfind),
+   tfind = X('tfind(string, string, <?int>, <?boolean|:plain>)', tfind),
 
    --- Remove leading and trailing matter from a string.
    -- @function trim
@@ -497,7 +497,7 @@ M = {
    -- @treturn string *s* wrapped to *w* columns
    -- @usage
    --    print(wrap(copyright, 72, 4))
-   wrap = X('wrap(string, [?int], [?int], [?int])', wrap),
+   wrap = X('wrap(string, <?int>, <?int>, <?int>)', wrap),
 }
 
 

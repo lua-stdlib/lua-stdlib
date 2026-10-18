@@ -62,7 +62,7 @@ specify std:
       f = M.assert
 
   - context with bad arguments:
-      badargs.diagnose('std.assert([?any], [?string], [any...])', f)
+      badargs.diagnose('std.assert(<?any>, <?string>, [any...])', f)
 
   - context when it does not trigger:
     - it has a truthy initial argument:
@@ -289,7 +289,7 @@ specify std:
       f = M.require
 
   - context with bad arguments:
-      badargs.diagnose('std.require(string, [?string], [?string], [?string])', f)
+      badargs.diagnose('std.require(string, <?string>, <?string>, <?string>)', f)
 
   - it diagnoses non-existent module:
       expect(f('module-not-exists', '', '')).to_raise 'module-not-exists'

@@ -259,7 +259,7 @@ M = {
    -- @return ... values of numeric indices of *t*
    -- @usage
    --    return unpack(results_table)
-   unpack = X('unpack(table, [?int], [?int])', unpack),
+   unpack = X('unpack(table, <?int>, <?int>)', unpack),
 
 
    --- Accessor Functions
@@ -336,7 +336,7 @@ M = {
    -- @treturn table table whose unset elements are *x*
    -- @usage
    --    t = new(0)
-   new = X('new([?any], [?table])', new),
+   new = X('new(<?any>, <?table>)', new),
 
    --- Project a list of fields from a list of tables.
    -- @function project

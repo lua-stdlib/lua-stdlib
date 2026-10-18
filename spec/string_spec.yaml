@@ -171,7 +171,7 @@ specify std.string:
       f = M.finds
 
   - context with bad arguments:
-      badargs.diagnose('std.string.finds(string, string, [?int], [?boolean|:plain])', f)
+      badargs.diagnose('std.string.finds(string, string, <?int>, <?boolean|:plain>)', f)
 
   - context given a complex nested list:
     - before:
@@ -333,7 +333,7 @@ specify std.string:
       f = M.prettytostring
 
   - context with bad arguments:
-      badargs.diagnose('std.string.prettytostring([?any], [?string], [?string])', f)
+      badargs.diagnose('std.string.prettytostring(<?any>, <?string>, <?string>)', f)
 
   - it renders nil exactly like system tostring:
       expect(f(nil)).to_be(tostring(nil))
@@ -443,7 +443,7 @@ specify std.string:
       f = M.tfind
 
   - context with bad arguments:
-      badargs.diagnose('std.string.tfind(string, string, [?int], [?boolean|:plain])', f)
+      badargs.diagnose('std.string.tfind(string, string, <?int>, <?boolean|:plain>)', f)
 
   - it creates a list of pattern captures:
       target = {1, 3, {'a', 'b', 'c'}}
@@ -501,7 +501,7 @@ specify std.string:
       f = M.wrap
 
   - context with bad arguments:
-      badargs.diagnose('std.string.wrap(string, [?int], [?int], [?int])', f)
+      badargs.diagnose('std.string.wrap(string, <?int>, <?int>, <?int>)', f)
 
   - it inserts newlines to wrap a string:
       target = 'This is a collection of Lua libraries for Lua 5.1 a' ..

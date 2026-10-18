@@ -67,6 +67,15 @@
     again, unless `std._debug.argcheck` is `false`.  Since `typecheck`
     moved into its own package, no argument was checked at all.
 
+  - With `typecheck` installed, an optional argument of `std.assert`,
+    `std.require`, `std.io.writelines`, `std.package.find`,
+    `std.string.finds`, `std.string.prettytostring`,
+    `std.string.tfind`, `std.string.wrap`, `std.table.new` or
+    `std.table.unpack` can be omitted only along with every argument
+    after it, as in release 41.  So `std.string.tfind(s, p, false)` is
+    diagnosed again, instead of passing `false` as the `plain`
+    argument.
+
 ### Incompatible changes
 
   - `std.container`, `std.functional`, `std.list`, `std.maturity`,

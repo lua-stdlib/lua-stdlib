@@ -201,7 +201,7 @@ local M = {
    --    of the matching element, if any; otherwise nil
    -- @usage
    --    i, s = find(package.path, '^[^' .. package.dirsep .. '/]')
-   find = X('find(string, string, [?int], [?boolean|:plain])', find),
+   find = X('find(string, string, <?int>, <?boolean|:plain>)', find),
 
    --- Insert a new element into a `package.path` like string of paths.
    -- @function insert

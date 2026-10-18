@@ -300,7 +300,7 @@ M = {
    -- @tparam string|number ... values to write(as for write)
    -- @usage
    --    writelines(io.stdout, 'first line', 'next line')
-   writelines = X('writelines([?file|string|number], [string|number...])', writelines),
+   writelines = X('writelines(<?file|string|number>, [string|number...])', writelines),
 }
 
 
