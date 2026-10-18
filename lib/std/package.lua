@@ -13,10 +13,10 @@
 
  Manage `package.path` with normalization, duplicate removal,
  insertion & removal of elements and automatic folding of '/' and '?'
- onto `package.dirsep` and `package.pathmark`, for easy addition of
+ onto `package.dirsep` and `package.path_mark`, for easy addition of
  new paths. For example, instead of all this:
 
-      lib = std.io.catfile('.', 'lib', package.pathmark .. '.lua')
+      lib = std.io.catfile('.', 'lib', package.path_mark .. '.lua')
       paths = std.string.split(package.path, package.pathsep)
       for i, path in ipairs(paths) do
          -- ... lots of normalization code...
@@ -56,7 +56,7 @@ local _ENV = require 'std.normalize' {
    dirsep = 'package.dirsep',
    gsub = 'string.gsub',
    merge = 'table.merge',
-   pathmark = 'package.pathmark',
+   path_mark = 'package.pathmark',
    pathsep = 'package.pathsep',
    string_find = 'string.find',
    table_insert = 'table.insert',
@@ -75,7 +75,7 @@ local _ENV = require 'std.normalize' {
 -- @table package
 -- @string dirsep directory separator
 -- @string pathsep path separator
--- @string pathmark string that marks substitution points in a path template
+-- @string path_mark string that marks substitution points in a path template
 -- @string execdir(Windows only) replaced by the executable's directory in a path
 -- @string igmark Mark to ignore all before it when building `luaopen_` function name.
 
@@ -83,7 +83,7 @@ local _ENV = require 'std.normalize' {
 local function pathsub(path)
    return gsub(path, '%%?.', function(capture)
       if capture == '?' then
-         return pathmark
+         return path_mark
       elseif capture == '/' then
          return dirsep
       else
@@ -229,7 +229,7 @@ local M = {
    -- instance of duplicate elements.   Each argument can contain any number
    -- of `pathsep` delimited elements; wherein characters are subject to
    -- `/` and `?` normalization, converting `/` to `dirsep` and `?` to
-   -- `pathmark`(unless immediately preceded by a `%` character).
+   -- `path_mark`(unless immediately preceded by a `%` character).
    -- @function normalize
    -- @param ... path elements
    -- @treturn string a single normalized `pathsep` delimited paths string
@@ -246,6 +246,8 @@ local M = {
    -- @usage
    --    package.path = remove(package.path)
    remove = X('remove(string, [?int])', remove),
+
+   path_mark = path_mark,
 }
 
 
