@@ -1,0 +1,95 @@
+# General Lua Libraries for Lua 5.1, 5.2, 5.3, 5.4 & 5.5
+# Copyright (C) 2026 stdlib authors
+
+before: |
+  this_module = 'std._deprecation'
+
+  -- Run *code* in a subprocess with `std._debug.deprecate` set to
+  -- *deprecate*, and with `M` bound to this module.
+  function deprecating(deprecate, code)
+     return luaproc(string.format([[
+        require 'std._debug'.deprecate = %s
+        local M = require '%s'
+        %s
+     ]], tostring(deprecate), this_module, code))
+  end
+
+  M = require(this_module)
+
+
+specify std._deprecation:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to='_G', by=this_module}).
+         to_equal {}
+
+
+- describe DEPRECATED:
+  - before:
+      define = [[
+         local f = M.DEPRECATED('42', "'fname'", function(...)
+            return select('#', ...), ...
+         end)
+      ]]
+      call = define .. 'print(f(1, nil, 3))\n'
+      call_extramsg = [[
+         local f = M.DEPRECATED('42', "'fname'", 'use g instead', print)
+         f 'called'
+      ]]
+
+  - context by default:
+    - it calls the deprecated function: |
+        expect(deprecating(nil, call)).to_contain_output '3\t1\tnil\t3'
+    - it warns on stderr: |
+        expect(deprecating(nil, call)).
+           to_contain_error("'fname' was deprecated in release 42, " ..
+              'and will be removed entirely in a future release.')
+    - it blames the caller of the deprecated function: |
+        expect(deprecating(nil, call)).to_match_error '^[^:]+:6: '
+    - it warns on every call: |
+        local errout = deprecating(nil, call .. 'f()').errout
+        expect(select(2, errout:gsub('was deprecated', ''))).to_be(2)
+    - it appends extra text to the warning: |
+        expect(deprecating(nil, call_extramsg)).
+           to_contain_error "'fname' was deprecated in release 42, use g instead."
+    - it calls the deprecated function with extra text: |
+        expect(deprecating(nil, call_extramsg)).to_contain_output 'called'
+
+  - context when deprecate is false:
+    - it calls the deprecated function: |
+        expect(deprecating(false, call)).to_contain_output '3\t1\tnil\t3'
+    - it doesn't warn: |
+        expect(deprecating(false, call)).not_to_contain_error 'deprecated'
+
+  - context when deprecate is true:
+    - it doesn't define the deprecated function: |
+        expect(deprecating(true, define .. 'print(f)')).to_output 'nil\n'
+
+
+- describe DEPRECATIONMSG:
+  - before:
+      show = [[
+         io.write(M.DEPRECATIONMSG('42', "'fname'", 1))
+      ]]
+      show_extramsg = [[
+         io.write(M.DEPRECATIONMSG('42', "'fname'", 'use g instead', 1))
+      ]]
+
+  - context by default:
+    - it formats a warning: |
+        expect(deprecating(nil, show)).
+           to_contain_output("'fname' was deprecated in release 42, " ..
+              'and will be removed entirely in a future release.\n')
+    - it blames the given call stack level: |
+        expect(deprecating(nil, show)).to_match_output '^[^:]+:3: '
+    - it appends extra text to the warning: |
+        expect(deprecating(nil, show_extramsg)).
+           to_contain_output "'fname' was deprecated in release 42, use g instead.\n"
+
+  - context when deprecate is false:
+    - it returns an empty string: |
+        expect(deprecating(false, show)).to_output ''
+
+  - context when deprecate is true:
+    - it returns an empty string: |
+        expect(deprecating(true, show)).to_output ''

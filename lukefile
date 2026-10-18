@@ -11,6 +11,7 @@ version  = '$USER'
 modules  = {
    {['std']         = 'lib/std/init.lua'},
    {['std._base']   = 'lib/std/_base.lua'},
+   {['std._deprecation'] = 'lib/std/_deprecation.lua'},
    {['std.debug']   = 'lib/std/debug.lua'},
    {['std.io']      = 'lib/std/io.lua'},
    {['std.math']    = 'lib/std/math.lua'},

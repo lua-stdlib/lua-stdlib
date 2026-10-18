@@ -13,10 +13,10 @@
   - With this release, stdlib is much more focused, and non-core modules
     `optparse`, `std.functional`, 'std.prototype', `std.strict` and
     `typecheck` have been moved into their own packages and release
-    cycle.  Also, the shared debug initialization, Lua host normalization
-    and API deprecation code have been split out into new 'std._debug',
-    'std.normalize' and 'apimaturity' respectively, and are pulled in
-    automatically as dependencies for any of any modules that need them.
+    cycle.  Also, the shared debug initialization and Lua host
+    normalization code have been split out into new 'std._debug' and
+    'std.normalize' respectively, and are pulled in automatically as
+    dependencies for any of any modules that need them.
     You can still install them all separately from their own projects or
     by using Luarocks:
 
