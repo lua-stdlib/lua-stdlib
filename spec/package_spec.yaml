@@ -6,8 +6,13 @@ before: |
   this_module = 'std.package'
   global_table = '_G'
 
-  extend_base = {'find', 'insert', 'mappath', 'normalize', 'path_mark',
-                 'remove'}
+  -- std.normalize also provides its own spelling of path_mark, and
+  -- searchers where the core package only has Lua 5.1's loaders.
+  extend_base = {'dirsep', 'execdir', 'find', 'igmark', 'insert', 'mappath',
+                 'normalize', 'path_mark', 'pathmark', 'pathsep', 'remove'}
+  if _VERSION == 'Lua 5.1' then
+     extend_base[#extend_base + 1] = 'searchers'
+  end
 
   M = require(this_module)
 
@@ -33,6 +38,15 @@ specify std.package:
     - it contains apis from the core package table:
         expect(show_apis {from=base_module, not_in=this_module}).
            to_contain.a_permutation_of(extend_base)
+    - it shares the core loaded table: |
+        expect(luaproc([[
+           print(require 'std.package'.loaded == package.loaded)
+        ]])).to_output 'true\n'
+    - it uses the core searchpath if there is one: |
+        expect(luaproc([[
+           local M = require 'std.package'
+           print(M.searchpath == (package.searchpath or M.searchpath))
+        ]])).to_output 'true\n'
 
   - context via the std module:
     - it does not touch the global table:

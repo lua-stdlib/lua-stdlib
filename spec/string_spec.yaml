@@ -10,7 +10,7 @@ before:
                  'caps', 'chomp', 'escape_pattern', 'escape_shell',
                  'finds', 'format', 'ltrim',
                  'numbertosi', 'ordinal_suffix', 'pad',
-                 'prettytostring', 'rtrim', 'split',
+                 'prettytostring', 'render', 'rtrim', 'split',
                  'tfind', 'trim', 'wrap'}
 
   M = require(this_module)

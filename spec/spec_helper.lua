@@ -307,11 +307,10 @@ function show_apis(argt)
       ]])
 
    elseif from and not_in then
+      -- Compare with the core table, not std.normalize's view of it.
       return tabulate_output([[
-         local _ENV = require 'std.normalize' {
-            from = ']] .. from .. [[',
-            M = require ']] .. not_in .. [[',
-         }
+         local from = ]] .. from .. [[
+         local M = require ']] .. not_in .. [['
 
          for k in pairs(M) do
             -- M[1] is typically the module namespace name, don't match

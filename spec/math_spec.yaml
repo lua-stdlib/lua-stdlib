@@ -6,7 +6,8 @@ before:
   this_module  = 'std.math'
   global_table = '_G'
 
-  extend_base  = {'floor', 'round'}
+  -- std.normalize's tointeger and type replace the core ones.
+  extend_base  = {'floor', 'round', 'tointeger', 'type'}
 
   M = require(this_module)
 

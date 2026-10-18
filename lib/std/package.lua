@@ -50,6 +50,10 @@ local split = _.string.split
 
 _ = nil
 
+-- Extend the core package table, not the normalized environment's view
+-- of it, which has its own `loaded` table.
+local core_package = package
+
 local _ENV = require 'std.normalize' {
    'package',
    concat = 'table.concat',
@@ -251,7 +255,7 @@ local M = {
 }
 
 
-return merge(package, M)
+return merge(package, merge(core_package, M))
 
 
 --- Types
