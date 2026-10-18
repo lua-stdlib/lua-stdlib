@@ -35,7 +35,6 @@ local _ENV = require 'std.normalize' {
    shallow_copy = 'table.merge',
    sort = 'table.sort',
    sub = 'string.sub',
-   table_maxn = table.maxn,
    wrap = 'coroutine.wrap',
    yield = 'coroutine.yield',
 }
@@ -61,7 +60,7 @@ end
 -- (which have slightly varying semantics between releases).
 
 
-local maxn = table_maxn or function(t)
+local function maxn(t)
    local n = 0
    for k in pairs(t) do
       if type(k) == 'number' and k > n then
@@ -192,11 +191,6 @@ return {
 
    list = {
       compare = compare,
-   },
-
-   object = {
-      Module = Module,
-      mapfields = mapfields,
    },
 
    string = {
