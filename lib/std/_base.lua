@@ -170,6 +170,67 @@ local function split(s, sep)
 end
 
 
+-- Numbers before strings, each in ascending order.
+local function keysort(a, b)
+   if type(a) == 'number' then
+      return type(b) ~= 'number' or a < b
+   else
+      return type(b) ~= 'number' and tostring(a) < tostring(b)
+   end
+end
+
+
+local function okeys(t)
+   local r = {}
+   for k in pairs(t) do
+      r[#r + 1] = k
+   end
+   sort(r, keysort)
+   return r
+end
+
+
+-- 41.2's render, which calls back to stringify each part of *x*.
+local function render(x, opencb, closecb, elemcb, paircb, sepcb, roots)
+   roots = roots or {}
+   local function stop_roots(x)
+      return roots[x] or render(x, opencb, closecb, elemcb, paircb, sepcb,
+         shallow_copy(roots))
+   end
+
+   if type(x) ~= 'table' or getmetamethod(x, '__tostring') then
+      return elemcb(x)
+   else
+      local buf, k_, v_ = {opencb(x)}
+      roots[x] = elemcb(x)
+
+      for _, k in ipairs(okeys(x)) do
+         local v = x[k]
+         buf[#buf + 1] = sepcb(x, k_, v_, k, v)
+         buf[#buf + 1] = paircb(x, k, v, stop_roots(k), stop_roots(v))
+         k_, v_ = k, v
+      end
+      buf[#buf + 1] = sepcb(x, k_, v_)
+      buf[#buf + 1] = closecb(x)
+
+      return concat(buf)
+   end
+end
+
+
+
+-- 41.2's tostring, which renders every table key.
+local function tostring41(x)
+   return render(x,
+      function() return '{' end,
+      function() return '}' end,
+      tostring,
+      function(_, _, _, is, vs) return is .. '=' .. vs end,
+      function(_, i, _, k) return i and k and ',' or '' end)
+end
+
+
+
 --[[ ============= ]]--
 --[[ Internal API. ]]--
 --[[ ============= ]]--
@@ -183,6 +244,7 @@ end
 -- public API here too, which means everything looks relatively normal
 -- when importing the functions into stdlib implementation modules.
 return {
+   tostring = tostring41,
    typecheck = typecheck,
 
    io = {
@@ -195,12 +257,14 @@ return {
 
    string = {
       escape_pattern = escape_pattern,
+      render = render,
       split = split,
    },
 
    table = {
       invert = invert,
       maxn = maxn,
+      okeys = okeys,
    },
 
    tree = {

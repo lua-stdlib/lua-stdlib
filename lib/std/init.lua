@@ -23,6 +23,7 @@ local _ = require 'std._base'
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
+local tostring41 = _.tostring
 local maxn = _.table.maxn
 local split = _.string.split
 
@@ -391,6 +392,16 @@ M = {
    --    require 'std'.monkey_patch()
    monkey_patch = DEPRECATED('42', "'std.monkey_patch'",
       X('monkey_patch([?table])', monkey_patch)),
+
+   --- Enhance core `tostring` to render table contents as a string.
+   -- @function tostring
+   -- @param x object to convert to string
+   -- @treturn string compact string rendering of *x*
+   -- @usage
+   --    -- {1=baz,foo=bar}
+   --    print(std.tostring {foo='bar', 'baz'})
+   tostring = DEPRECATED('42', "'std.tostring'", "use 'std.normalize.str' instead",
+      X('tostring([?any])', tostring41)),
 }
 
 

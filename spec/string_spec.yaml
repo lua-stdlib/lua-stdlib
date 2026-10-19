@@ -47,11 +47,11 @@ specify std.string:
       expect(subject .. ' another string').to_be(target)
   - it stringifies non-string arguments:
       argument = {'a table'}
-      expect(subject .. argument).to_be(subject .. '{1="a table"}')
+      expect(subject .. argument).to_be(subject .. '{1=a table}')
   - it stringifies nil arguments:
       argument = nil
       expect(subject .. argument).
-         to_be(string.format('%s%s', subject, require 'std.normalize'.str(argument)))
+         to_be(subject .. 'nil')
   - it does not perturb the original subject:
       original = subject
       newstring = subject .. ' concatenate something'
@@ -405,6 +405,68 @@ specify std.string:
       t = {_=0, word=0, ['?']=1, ['a-key']=1, ['[]']=1}
       expect(f(t, '')).
          to_be '{\n["?"] = 1,\n["[]"] = 1,\n_ = 0,\n["a-key"] = 1,\nword = 0,\n}'
+
+
+- describe render:
+  - before:
+      term = function(s) return function() return s end end
+      pair = function(_, _, _, i, v) return i .. '=' .. v end
+      sep  = function(_, i, _, j) return (i and j) and ',' or '' end
+      r = function(x)
+         return M.render(x, term '{', term '}', tostring, pair, sep)
+      end
+      t = {1, {{2, 3}, 4, {5}}}
+
+      f = M.render
+
+  - context with a table of rendering functions:
+    - it renders like std.normalize:
+        vfns = {
+           elem = tostring,
+           term = function() return '' end,
+           sort = function(keys) return keys end,
+           open = term '<',
+           close = term '>',
+           pair = function(_, _, _, k, v, kstr, vstr) return vstr end,
+           sep = function(_, kp, _, kn) return kp and kn and ' ' or '' end,
+        }
+        x = {1, 2, {3}}
+        expect(f(x, vfns)).
+           to_be(require 'std.normalize'.string.render(x, vfns))
+
+  - context with callback functions:
+    - it writes a deprecation warning: |
+        expect(deprecation(nil, this_module, 'render',
+           'nil, tostring, tostring, tostring, tostring, tostring')).
+           to_contain_error "7-argument 'std.string.render' was deprecated in release 42"
+    - it writes no warning when deprecate is false: |
+        expect(deprecation(false, this_module, 'render',
+           'nil, tostring, tostring, tostring, tostring, tostring')).
+           not_to_contain_error 'deprecated'
+    - it is not supported when deprecate is true: |
+        expect(luaproc [[
+           require 'std._debug'.deprecate = true
+           local render = require 'std.string'.render
+           print((pcall(render, {}, tostring, tostring, tostring, tostring, tostring)))
+        ]]).to_output 'false\n'
+    - it diagnoses a missing callback: |
+        if have_typecheck then
+           expect(f(nil, tostring, tostring)).to_raise(
+              "bad argument #4 to 'std.string.render' (function expected, got no value)")
+        end
+    - it converts a primitive to a representative string:
+        expect(r(nil)).to_be 'nil'
+        expect(r(false)).to_be 'false'
+        expect(r(42)).to_be '42'
+        expect(r('string')).to_be 'string'
+    - it converts a table to a representative string:
+        expect(r({'table', 42})).to_be '{1=table,2=42}'
+    - it converts a nested table to a representative string:
+        expect(r(t)).to_be '{1=1,2={1={1=2,2=3},2=4,3={1=5}}}'
+    - it converts a recursive table to a representative string:
+        t[1] = t
+        expect(r(t)).
+           to_be('{1=' .. tostring(t) .. ',2={1={1=2,2=3},2=4,3={1=5}}}')
 
 
 - describe rtrim:

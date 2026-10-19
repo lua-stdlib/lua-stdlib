@@ -87,6 +87,15 @@
     With `std._debug.deprecate` set to `true`, they are not defined at
     all.
 
+  - `std.tostring` and the 41.2 form of `std.string.render`, with five
+    callback functions, are deprecated in favour of their equivalents
+    from 'std.normalize': `str` and `string.render`, which
+    `std.string.render` also accepts.  Those implementations handle
+    skipping initial sequence keys for a more compact output, escaping
+    of whitespace and other C escape characters for even more compact
+    output and stringification of nested Objects and Containers using
+    their `__tostring` metamethods.
+
 ### Incompatible changes
 
   - `std.container`, `std.functional`, `std.list`, `std.maturity`,
@@ -117,12 +126,6 @@
     If `__len` is not present, or gives the same result as `maxn` then
     `npairs` continues to behave as in the previous release.
 
-  - `std.tostring` and `std.string.render` have been superceded by their
-    equivalents from 'std.normalize': `str` and `string.render`.  Those
-    implementations handle skipping initial sequence keys for a more
-    compact output, escaping of whitespace and other C escape characters
-    for even more compact output and stringification of nested Objects and
-    Containers using their `__tostring` metamethods.
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]

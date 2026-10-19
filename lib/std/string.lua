@@ -17,10 +17,14 @@
 
 local _ = require 'std._base'
 
+local _debug = require 'std._debug'
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
+local DEPRECATIONMSG = require 'std._deprecation'.DEPRECATIONMSG
 local argscheck = _.typecheck and _.typecheck.argscheck
+local callbackrender = _.string.render
 local escape_pattern = _.string.escape_pattern
 local split = _.string.split
+local tostring41 = _.tostring
 
 _ = nil
 
@@ -41,6 +45,7 @@ local _ENV = require 'std.normalize' {
    merge = 'table.merge',
    render = 'string.render',
    sort = 'table.sort',
+   stderr = 'io.stderr',
    sub = 'string.sub',
    upper = 'string.upper',
 }
@@ -83,8 +88,7 @@ local concatvfns = {
 
 
 local function __concat(s, o)
-   -- Don't use normalize.str here, because we don't want ASCII escape rendering.
-   return render(s, concatvfns) .. render(o, concatvfns)
+   return tostring41(s) .. tostring41(o)
 end
 
 
@@ -321,6 +325,25 @@ local function X(decl, fn)
    return argscheck and argscheck('std.string.' .. decl, fn) or fn
 end
 
+
+local render41 = X('render(?any, func, func, func, func, func, [?table])',
+   callbackrender)
+
+-- Render with 41.2's callbacks when the second argument is callable,
+-- unless deprecated APIs are disabled, and otherwise with normalize's
+-- render.
+local function vrender(x, ...)
+   local cb = (...)
+   if _debug.deprecate ~= true and
+      (type(cb) == 'function' or getmetamethod(cb, '__call'))
+   then
+      stderr:write(DEPRECATIONMSG('42', "7-argument 'std.string.render'",
+         "use 'std.string.render(x, vfns, roots)' instead", 2))
+      return render41(x, ...)
+   end
+   return render(x, ...)
+end
+
 M = {
    --- Metamethods
    -- @section metamethods
@@ -461,6 +484,22 @@ M = {
    -- @usage
    --    print(prettytostring(std, '   '))
    prettytostring = X('prettytostring(<?any>, <?string>, <?string>)', prettytostring),
+
+   --- Turn tables into strings with recursion detection.
+   -- With a table of rendering functions, this is the
+   -- `std.normalize` `string.render`.  The 41.2 form, with five
+   -- callback functions in place of *vfns*, is deprecated.
+   -- @function render
+   -- @param x object to convert to string
+   -- @tparam table vfns table of virtual functions to control rendering,
+   --    as for `std.normalize` `string.render`
+   -- @tparam[opt] table roots used internally for cycle detection
+   -- @treturn string representation of *x*
+   -- @usage
+   --    function printarray(x)
+   --       return render(x, arrayvfns)
+   --    end
+   render = vrender,
 
    --- Remove trailing matter from a string.
    -- @function rtrim
