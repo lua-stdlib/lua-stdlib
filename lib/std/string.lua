@@ -23,6 +23,7 @@ local DEPRECATIONMSG = require 'std._deprecation'.DEPRECATIONMSG
 local argscheck = _.typecheck and _.typecheck.argscheck
 local callbackrender = _.string.render
 local escape_pattern = _.string.escape_pattern
+local okeys = _.table.okeys
 local split = _.string.split
 local tostring41 = _.tostring
 
@@ -40,6 +41,7 @@ local _ENV = require 'std.normalize' {
    floor = 'math.floor',
    format = 'string.format',
    gsub = 'string.gsub',
+   huge = 'math.huge',
    insert = 'table.insert',
    match = 'string.match',
    merge = 'table.merge',
@@ -226,6 +228,59 @@ end
 local render_fallbacks = {
    __index = concatvfns,
 }
+
+
+-- Return a string that loads as *x*, or else `nil` and an error message.
+local function serialize(x, roots)
+   local t = type(x)
+   if t == 'string' then
+      return format('%q', x)
+   elseif t == 'number' then
+      if x ~= x then
+         return '0/0'
+      elseif x == huge then
+         return '1/0'
+      elseif x == -huge then
+         return '-1/0'
+      end
+      local s = tostring(x)
+      if tonumber(s) ~= x then
+         s = format('%.17g', x)
+      end
+      return s
+   elseif t == 'boolean' or t == 'nil' then
+      return tostring(x)
+   elseif t == 'table' then
+      if roots[x] then
+         return nil, 'cannot pickle recursive table'
+      end
+      roots[x] = true
+      local buf = {}
+      for _, k in ipairs(okeys(x)) do
+         local ks, err = serialize(k, roots)
+         if ks == nil then
+            return nil, err
+         end
+         local vs, err = serialize(x[k], roots)
+         if vs == nil then
+            return nil, err
+         end
+         buf[#buf + 1] = '[' .. ks .. ']=' .. vs
+      end
+      roots[x] = nil
+      return '{' .. concat(buf, ',') .. '}'
+   end
+   return nil, 'cannot pickle ' .. tostring(x)
+end
+
+
+local function pickle(x)
+   local s, err = serialize(x, {})
+   if s == nil then
+      error(err, 2)
+   end
+   return s
+end
 
 
 local function prettytostring(x, indent, spacing)
@@ -483,6 +538,20 @@ M = {
    -- @treturn string pretty string rendering of *x*
    -- @usage
    --    print(prettytostring(std, '   '))
+   --- Convert a value to a string that loads as an equal value.
+   -- Strings, numbers, booleans, `nil` and tables of those, with keys
+   -- in a stable order.  Tables that contain themselves, functions,
+   -- userdata and threads raise an error.
+   -- @function pickle
+   -- @param x object to pickle
+   -- @treturn string reversible string rendering of *x*
+   -- @see std.eval
+   -- @usage
+   --    function slow_identity(x)
+   --       return std.eval(pickle(x))
+   --    end
+   pickle = pickle,
+
    prettytostring = X('prettytostring(<?any>, <?string>, <?string>)', prettytostring),
 
    --- Turn tables into strings with recursion detection.

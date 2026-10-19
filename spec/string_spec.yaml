@@ -9,7 +9,7 @@ before:
   extend_base = {'__concat', '__index',
                  'caps', 'chomp', 'escape_pattern', 'escape_shell',
                  'finds', 'format', 'ltrim', 'monkey_patch',
-                 'numbertosi', 'ordinal_suffix', 'pad',
+                 'numbertosi', 'ordinal_suffix', 'pad', 'pickle',
                  'prettytostring', 'render', 'rtrim', 'split',
                  'tfind', 'trim', 'wrap'}
 
@@ -365,6 +365,56 @@ specify std.string:
       original = subject
       newstring = f(subject, width)
       expect(subject).to_be(original)
+
+
+- describe pickle:
+  - before:
+      function unpickle(s)
+         return load('return ' .. s)()
+      end
+      t = {1, {{2, 3}, 4, {5}}}
+      f = M.pickle
+
+  - it converts a primitive to a representative string:
+      expect(f(nil)).to_be 'nil'
+      expect(f(false)).to_be 'false'
+      expect(f(42)).to_be '42'
+      expect(f 'string').to_be '"string"'
+  - it returns a loadable string that results in the original value:
+      expect(unpickle(f(nil))).to_be(nil)
+      expect(unpickle(f(false))).to_be(false)
+      expect(unpickle(f(42))).to_be(42)
+      expect(unpickle(f 'string')).to_be 'string'
+  - it converts a table to a representative string:
+      expect(f {'table', 42}).to_be '{[1]="table",[2]=42}'
+  - it returns a loadable string that results in the original table:
+      expect(unpickle(f {'table', 42})).to_equal {'table', 42}
+  - it converts a nested table to a representative string:
+      expect(f(t)).to_be '{[1]=1,[2]={[1]={[1]=2,[2]=3},[2]=4,[3]={[1]=5}}}'
+  - it returns a loadable string that results in the original nested table:
+      expect(unpickle(f(t))).to_equal(t)
+  - it orders table keys numbers first, then by their string rendering:
+      expect(f {[false]=1, b=2, a=3, [10]=4, [2]=5}).
+         to_be '{[2]=5,[10]=4,["a"]=3,["b"]=2,[false]=1}'
+  - it keeps every digit of a fraction:
+      expect(unpickle(f(1/3))).to_be(1/3)
+  - it round-trips infinities and nan:
+      expect(unpickle(f(math.huge))).to_be(math.huge)
+      expect(unpickle(f(-math.huge))).to_be(-math.huge)
+      nan = unpickle(f(0/0))
+      expect(nan ~= nan).to_be(true)
+  - it round-trips strings with escapes:
+      s = 'a\nb\0c"d\\'
+      expect(unpickle(f(s))).to_be(s)
+  - it pickles a table that appears twice:
+      shared = {1}
+      expect(unpickle(f {shared, shared})).to_equal {{1}, {1}}
+  - it diagnoses a recursive table:
+      t[1] = t
+      expect(f(t)).to_raise 'cannot pickle recursive table'
+  - it diagnoses values that can't be pickled:
+      expect(f(print)).to_raise 'cannot pickle function'
+      expect(f {print}).to_raise 'cannot pickle function'
 
 
 - describe prettytostring:

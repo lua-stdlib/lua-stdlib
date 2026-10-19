@@ -47,6 +47,12 @@
 
 ### Bug fixes
 
+  - `std.string.pickle` writes table keys in a stable order, and writes
+    infinities, nan and every digit of a fraction so that they load
+    back as the same number.  A table that contains itself, or a value
+    that can't be pickled, raises an error, rather than overflowing
+    the stack or exiting the program.
+
   - `std.string.escape_shell` escapes `&` too.
 
   - `std.string.wrap` doesn't throw a StrBuf deprecation warning any more.
