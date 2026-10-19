@@ -17,11 +17,15 @@
 
 local _ = require 'std._base'
 
+local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local invert = _.table.invert
 local maxn = _.table.maxn
 
 _ = nil
+
+
+local global = _G
 
 local _ENV = require 'std.normalize' {
    'table',
@@ -36,7 +40,7 @@ local _ENV = require 'std.normalize' {
 --[[ =============== ]]--
 
 
-local M
+local M, monkeys
 
 
 local function merge_allfields(t, u, map, nometa)
@@ -180,6 +184,18 @@ local function values(t)
       l[#l + 1] = v
    end
    return l
+end
+
+
+
+local function monkey_patch(namespace)
+   namespace = namespace or global
+   local table = namespace.table or {}
+   for k, v in next, monkeys do
+      table[k] = v
+   end
+   namespace.table = table
+   return M
 end
 
 
@@ -418,8 +434,23 @@ M = {
    --    merge_select(_G, require 'std.debug', {'say'}, false)
    merge_select = X('merge_select(table, table, [table], [?boolean|:nometa])',
       merge_namedfields),
+
+   --- Deprecated Functions
+   -- @section deprecated
+
+   --- Overwrite core `table` functions with `std` enhanced versions.
+   -- @function monkey_patch
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table the module table
+   -- @usage
+   --    require 'std.table'.monkey_patch()
+   monkey_patch = DEPRECATED('42', "'std.table.monkey_patch'",
+      X('monkey_patch([?table])', monkey_patch)),
 }
 
+
+-- Only the additions to core table, before merging it in.
+monkeys = merge(M, {})
 
 return merge(table, M)
 

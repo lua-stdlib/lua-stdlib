@@ -78,6 +78,15 @@
     diagnosed again, instead of passing `false` as the `plain`
     argument.
 
+### Deprecations
+
+  - Monkey patching calls `std.monkey_patch`, `std.io.monkey_patch`,
+    `std.math.monkey_patch`, `std.string.monkey_patch` and
+    `std.table.monkey_patch` are deprecated, and write a warning to
+    stderr on every call unless `std._debug.deprecate` is `false`.
+    With `std._debug.deprecate` set to `true`, they are not defined at
+    all.
+
 ### Incompatible changes
 
   - `std.container`, `std.functional`, `std.list`, `std.maturity`,
@@ -85,10 +94,7 @@
     `std.strbuf`, `std.strict` and `std.tuple` have been moved to their
     own packages, and are no longer shipped as part of stdlib.
 
-  - Monkey patching calls `std.barrel`, `std.monkey_patch`,
-    `std.io.monkey_patch`, `std.math.monkey_patch`,
-    `std.string.monkey_patch` and `std.table.monkey_patch` have all
-    been removed.
+  - Monkey patching call `std.barrel` has been removed.
 
   - `std.debug.argerror`, `std.debug.argcheck`, `std.debug.argscheck`,
     `std.debug.extramsg_mismatch`, `std.debug.extramsg_toomany`,

@@ -12,6 +12,10 @@ local std = require 'specl.std'
 
 badargs = require 'specl.badargs'
 
+-- Keep deprecated APIs defined but quiet; examples that check the
+-- warnings run in a subprocess with `deprecation`.
+require 'std._debug'.deprecate = false
+
 
 local top_srcdir = os.getenv 'top_srcdir' or '.'
 local top_builddir = os.getenv 'top_builddir' or '.'

@@ -7,7 +7,7 @@ before:
   global_table = '_G'
 
   -- std.normalize's tointeger and type replace the core ones.
-  extend_base  = {'floor', 'round', 'tointeger', 'type'}
+  extend_base  = {'floor', 'monkey_patch', 'round', 'tointeger', 'type'}
 
   M = require(this_module)
 
@@ -54,6 +54,37 @@ specify std.math:
       expect(f(99999e-3, 3)).to_be(99999e-3)
       expect(f(99999e-4, 3)).to_be(9999e-3)
       expect(f(99999e-5, 3)).to_be(999e-3)
+
+
+- describe monkey_patch:
+  - before:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose('std.math.monkey_patch([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'monkey_patch', '{}')).
+         to_contain_error "'std.math.monkey_patch' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'monkey_patch', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.math'.monkey_patch)
+      ]]).to_output 'nil\n'
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.math module table:
+      expect(f {}).to_equal(M)
+  - it injects std.math apis into the given namespace:
+      namespace = {}
+      f(namespace)
+      for _, api in ipairs(extend_base) do
+         expect(namespace.math[api]).to_be(M[api])
+      end
 
 
 - describe round:

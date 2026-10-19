@@ -17,9 +17,13 @@
 
 local _ = require 'std._base'
 
+local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 
 _ = nil
+
+
+local global = _G
 
 
 local _ENV = require 'std.normalize' {
@@ -45,6 +49,17 @@ local function floor(n, p)
    end
    local e = 10 ^ p
    return _floor(n * e) / e
+end
+
+
+local function monkey_patch(namespace)
+   namespace = namespace or global
+   local math = namespace.math or {}
+   for k, v in next, M do
+      math[k] = v
+   end
+   namespace.math = math
+   return M
 end
 
 
@@ -86,6 +101,18 @@ M = {
    -- @usage
    --    roughly = round(exactly, 2)
    round = X('round(number, [?int])', round),
+
+   --- Deprecated Functions
+   -- @section deprecated
+
+   --- Overwrite core `math` methods with `std` enhanced versions.
+   -- @function monkey_patch
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table the module table
+   -- @usage
+   --    require 'std.math'.monkey_patch()
+   monkey_patch = DEPRECATED('42', "'std.math.monkey_patch'",
+      X('monkey_patch([?table])', monkey_patch)),
 }
 
 

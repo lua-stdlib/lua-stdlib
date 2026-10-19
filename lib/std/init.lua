@@ -20,12 +20,16 @@
 
 local _ = require 'std._base'
 
+local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
 local maxn = _.table.maxn
 local split = _.string.split
 
 _ = nil
+
+
+local global = _G
 
 
 local _ENV = require 'std.normalize' {
@@ -40,7 +44,7 @@ local _ENV = require 'std.normalize' {
 --[[ =============== ]]--
 
 
-local M
+local M, monkeys
 
 
 local function _assert(expect, fmt, arg1, ...)
@@ -163,6 +167,16 @@ local function _require(module, min, too_big, pattern)
          "' with version less than " .. too_big .. ', but found version ' .. v)
    end
    return m
+end
+
+
+
+local function monkey_patch(namespace)
+   namespace = namespace or global
+   for k, v in next, monkeys do
+      namespace[k] = v
+   end
+   return M
 end
 
 
@@ -362,7 +376,31 @@ M = {
    --    --> 1	foo
    --    std.functional.map(print, std.rnpairs, {'foo', 'bar', [4]='baz', d=5})
    rnpairs = X('rnpairs(table)', rnpairs),
+
+   --- Deprecated Functions
+   -- @section deprecated
+
+   --- Overwrite core methods with `std` enhanced versions.
+   --
+   -- Write all functions from this module, except `std.monkey_patch`,
+   -- into the given namespace.
+   -- @function monkey_patch
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table the module table
+   -- @usage
+   --    require 'std'.monkey_patch()
+   monkey_patch = DEPRECATED('42', "'std.monkey_patch'",
+      X('monkey_patch([?table])', monkey_patch)),
 }
+
+
+-- Don't monkey_patch these apis into _G!
+monkeys = {}
+for k, v in next, M do
+   if type(v) == 'function' and k ~= 'monkey_patch' then
+      monkeys[k] = v
+   end
+end
 
 
 --- Metamethods

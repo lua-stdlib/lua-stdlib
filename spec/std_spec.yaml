@@ -6,7 +6,7 @@ before: |
   global_table = '_G'
 
   exported_apis = {'assert', 'elems', 'eval', 'getmetamethod',
-                   'ielems', 'ipairs', 'npairs', 'pairs',
+                   'ielems', 'ipairs', 'monkey_patch', 'npairs', 'pairs',
                    'require', 'ripairs', 'rnpairs'}
 
   -- Tables with iterator metamethods used by various examples.
@@ -221,6 +221,43 @@ specify std:
          t[i] = v
       end
       expect(t).to_equal {}
+
+
+- describe monkey_patch:
+  - before:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose('std.monkey_patch([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'monkey_patch', '{}')).
+         to_contain_error "'std.monkey_patch' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'monkey_patch', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std'.monkey_patch)
+      ]]).to_output 'nil\n'
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std module table:
+      expect(f {}).to_equal(M)
+  - it installs std module functions:
+      namespace = {}
+      f(namespace)
+      for _, api in ipairs(exported_apis) do
+         if api ~= 'monkey_patch' then
+            expect(namespace[api]).to_be(M[api])
+         end
+      end
+  - it doesn't install itself:
+      namespace = {}
+      f(namespace)
+      expect(namespace.monkey_patch).to_be(nil)
 
 
 - describe npairs:

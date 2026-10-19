@@ -7,7 +7,7 @@ before: |
   global_table = '_G'
 
   extend_base = {'catdir', 'catfile', 'die', 'dirname',
-                 'process_files', 'readlines', 'shell', 'slurp',
+                 'monkey_patch', 'process_files', 'readlines', 'shell', 'slurp',
                  'splitdir', 'warn', 'writelines'}
 
   dirsep = string.match(package.config, '^([^\n]+)\n')
@@ -145,6 +145,42 @@ specify std.io:
 
   - it removes final separator and following:
       expect(f(path)).to_be(table.concat({'', 'one', 'two'}, dirsep))
+
+
+- describe monkey_patch:
+  - before:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose('std.io.monkey_patch([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'monkey_patch', '{}')).
+         to_contain_error "'std.io.monkey_patch' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'monkey_patch', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.io'.monkey_patch)
+      ]]).to_output 'nil\n'
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.io module table:
+      expect(f {}).to_equal(M)
+  - it injects std.io apis into the given namespace:
+      namespace = {}
+      f(namespace)
+      for _, api in ipairs(extend_base) do
+         expect(namespace.io[api]).to_be(M[api])
+      end
+  - it installs file methods:
+      mt = {}
+      f {io = {stdin = setmetatable({}, mt)}}
+      expect(mt.readlines).to_be(M.readlines)
+      expect(mt.writelines).to_be(M.writelines)
 
 
 - describe process_files:

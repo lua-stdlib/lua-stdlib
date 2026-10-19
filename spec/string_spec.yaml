@@ -8,7 +8,7 @@ before:
 
   extend_base = {'__concat', '__index',
                  'caps', 'chomp', 'escape_pattern', 'escape_shell',
-                 'finds', 'format', 'ltrim',
+                 'finds', 'format', 'ltrim', 'monkey_patch',
                  'numbertosi', 'ordinal_suffix', 'pad',
                  'prettytostring', 'render', 'rtrim', 'split',
                  'tfind', 'trim', 'wrap'}
@@ -236,6 +236,45 @@ specify std.string:
       original = subject
       newstring = f(subject, '%W')
       expect(subject).to_be(original)
+
+
+- describe monkey_patch:
+  - before:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose('std.string.monkey_patch([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'monkey_patch', '{}')).
+         to_contain_error "'std.string.monkey_patch' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'monkey_patch', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.string'.monkey_patch)
+      ]]).to_output 'nil\n'
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.string module table:
+      expect(f {}).to_equal(M)
+  - it injects std.string apis into given namespace:
+      namespace = {}
+      f(namespace)
+      for _, api in ipairs(extend_base) do
+         expect(namespace.string[api]).to_be(M[api])
+      end
+  - it installs string metamethods:
+      mt = getmetatable ''
+      saved = {__concat = mt.__concat, __index = mt.__index}
+      f {}
+      concat, index = mt.__concat, mt.__index
+      mt.__concat, mt.__index = saved.__concat, saved.__index
+      expect(concat).to_be(M.__concat)
+      expect(index).to_be(M.__index)
 
 
 - describe numbertosi:

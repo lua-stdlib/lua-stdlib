@@ -17,12 +17,16 @@
 
 local _ = require 'std._base'
 
+local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
 local leaves = _.tree.leaves
 local split = _.string.split
 
 _ = nil
+
+
+local global = _G
 
 
 local _ENV = require 'std.normalize' {
@@ -50,7 +54,7 @@ local _ENV = require 'std.normalize' {
 --[[ =============== ]]--
 
 
-local M
+local M, monkeys
 
 
 local function input_handle(h)
@@ -148,6 +152,26 @@ end
 
 local function warn(msg, ...)
    writelines(stderr, warnfmt(msg, ...))
+end
+
+
+
+local function monkey_patch(namespace)
+   namespace = namespace or global
+   local io = namespace.io or {}
+   for k, v in next, monkeys do
+      io[k] = v
+   end
+   namespace.io = io
+
+   if io.stdin then
+      local mt = getmetatable(io.stdin) or {}
+      mt.readlines = M.readlines
+      mt.writelines = M.writelines
+      setmetatable(io.stdin, mt)
+   end
+
+   return M
 end
 
 
@@ -301,8 +325,23 @@ M = {
    -- @usage
    --    writelines(io.stdout, 'first line', 'next line')
    writelines = X('writelines(<?file|string|number>, [string|number...])', writelines),
+
+   --- Deprecated Functions
+   -- @section deprecated
+
+   --- Overwrite core `io` functions with `std` enhanced versions.
+   -- @function monkey_patch
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table the module table
+   -- @usage
+   --    require 'std.io'.monkey_patch()
+   monkey_patch = DEPRECATED('42', "'std.io.monkey_patch'",
+      X('monkey_patch([?table])', monkey_patch)),
 }
 
+
+-- Only the additions to core io, before merging it in.
+monkeys = merge(M, {})
 
 return merge(io, M)
 

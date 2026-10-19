@@ -8,7 +8,7 @@ before: |
 
   extend_base = {'clone', 'clone_select', 'depair', 'empty',
                  'enpair', 'insert', 'invert', 'keys', 'maxn',
-                 'merge', 'merge_select', 'new',
+                 'merge', 'merge_select', 'monkey_patch', 'new',
                  'pack', 'project', 'remove', 'size', 'sort',
                  'unpack', 'values'}
 
@@ -394,6 +394,37 @@ specify std.table:
     - it supports 4 arguments with nometa as arg4:
         expect(getmetatable(f({}, t1mt, {}, ':nometa'))).to_be(nil)
         expect(getmetatable(f({}, t1mt, {'k1'}, ':nometa'))).to_be(nil)
+
+
+- describe monkey_patch:
+  - before:
+      f = M.monkey_patch
+
+  - context with bad arguments:
+      badargs.diagnose('std.table.monkey_patch([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'monkey_patch', '{}')).
+         to_contain_error "'std.table.monkey_patch' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'monkey_patch', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.table'.monkey_patch)
+      ]]).to_output 'nil\n'
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.
+  - it returns std.table module table:
+      expect(f {}).to_equal(M)
+  - it injects std.table apis into given namespace:
+      namespace = {}
+      f(namespace)
+      for _, api in ipairs(extend_base) do
+         expect(namespace.table[api]).to_be(M[api])
+      end
 
 
 - describe new:

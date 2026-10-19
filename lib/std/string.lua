@@ -17,11 +17,15 @@
 
 local _ = require 'std._base'
 
+local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local escape_pattern = _.string.escape_pattern
 local split = _.string.split
 
 _ = nil
+
+
+local global = _G
 
 
 local _ENV = require 'std.normalize' {
@@ -291,6 +295,23 @@ end
 
 
 
+local function monkey_patch(namespace)
+   namespace = namespace or global
+   local string = namespace.string or {}
+   for k, v in next, M do
+      string[k] = v
+   end
+   namespace.string = string
+
+   local string_metatable = getmetatable ''
+   string_metatable.__concat = M.__concat
+   string_metatable.__index = M.__index
+
+   return M
+end
+
+
+
 --[[ ================= ]]--
 --[[ Public Interface. ]]--
 --[[ ================= ]]--
@@ -496,6 +517,18 @@ M = {
    -- @usage
    --    print(wrap(copyright, 72, 4))
    wrap = X('wrap(string, <?int>, <?int>, <?int>)', wrap),
+
+   --- Deprecated Functions
+   -- @section deprecated
+
+   --- Overwrite core `string` functions and metamethods with `std` enhanced versions.
+   -- @function monkey_patch
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table the module table
+   -- @usage
+   --    require 'std.string'.monkey_patch()
+   monkey_patch = DEPRECATED('42', "'std.string.monkey_patch'",
+      X('monkey_patch([?table])', monkey_patch)),
 }
 
 
