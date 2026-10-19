@@ -88,6 +88,27 @@ specify std.container:
     - it does allow elements named after module functions:
         things = Bag { count = 1337 }
         expect(Bag.count(things)).to_be(1337)
+    - it writes a deprecation warning blaming the constructor call: |
+        expect(luaproc [[
+           local Container = require 'std.container'
+           Container {_functions = {}}
+        ]]).to_contain_error ":2: '_functions' was deprecated in release 42, put module functions in the module table"
+    - it writes a deprecation warning blaming the mapfields call: |
+        expect(luaproc [[
+           local Container = require 'std.container'
+           Container.mapfields({}, {_functions = {}})
+        ]]).to_contain_error ":2: '_functions' was deprecated in release 42"
+    - it writes no warning when deprecate is false: |
+        expect(luaproc [[
+           require 'std._debug'.deprecate = false
+           require 'std.container' {_functions = {}}
+        ]]).not_to_contain_error 'deprecated'
+    - it is an ordinary metatable field when deprecate is true: |
+        expect(luaproc [[
+           require 'std._debug'.deprecate = true
+           local Bag = require 'std.container' {_type = 'Bag', _functions = {count = print}}
+           print(Bag.count, type(getmetatable(Bag)._functions))
+        ]]).to_output 'nil\ttable\n'
 
 
 - describe field access:

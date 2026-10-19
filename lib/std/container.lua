@@ -14,10 +14,13 @@
       local things = Container {'foo', 'bar', baz='quux'}
 
  A container is a @{std.object} with no methods.  Its functionality is
- instead defined by its *meta*methods.  Containers can also supply module
- functions by listing them in `_functions`: they are copied into the new
- prototype as module functions, which are not propagated to instances
- cloned from it.
+ instead defined by its *meta*methods.
+
+ For 41.x compatibility, the functions listed in a `_functions` field of
+ the constructor table become module functions of the new prototype,
+ which are not propagated to instances cloned from it.  That is
+ deprecated: put module functions in a module table, beside a
+ `prototype` field, as `std.prototype` does.
 
  Prototype Chain
  ---------------
@@ -36,12 +39,15 @@ local argscheck = _.typecheck and _.typecheck.argscheck
 _ = nil
 
 
+local DEPRECATIONMSG = require 'std._deprecation'.DEPRECATIONMSG
 local container = require 'std.prototype.container'
 
 local _ENV = require 'std.normalize' {
+   _debug = require 'std._debug',
+   getinfo = 'debug.getinfo',
    io_type = 'io.type',
    merge = 'table.merge',
-   nonempty = next,
+   stderr = 'io.stderr',
 }
 
 
@@ -81,35 +87,77 @@ local function prototype(o)
 end
 
 
--- Move the functions listed in obj's metatable `_functions` field into
--- obj as module functions.
-local function functions(obj)
-   local mt = getmetatable(obj)
-   local fns = mt and mt._functions
-   if fns then
-      mt._functions = nil
-      if not nonempty(mt) then
-         setmetatable(obj, nil)
-      end
-      for k, v in next, fns do
-         obj[k] = modulefunction(v)
-      end
-      modular[obj] = true
+-- Return the `_functions` field of *src*, and a copy of *src* without
+-- it, unless `std._debug.deprecate` is `true`: then, as in std.prototype,
+-- `_functions` is just another '_' prefixed field.
+local function splitfunctions(src)
+   local fns = type(src) == 'table' and rawget(src, '_functions')
+   if not fns or _debug.deprecate == true then
+      return nil, src
    end
+   src = merge(src, {})
+   src._functions = nil
+   return fns, src
+end
+
+
+local this = getinfo(1, 'S').source
+
+
+-- Return the stack level, relative to our caller, of the first Lua
+-- function outside this file.
+local function blame()
+   local i = 3
+   while true do
+      local info = getinfo(i, 'S')
+      if info == nil or info.source ~= this and (info.what == 'Lua' or info.what == 'main') then
+         return i - 1
+      end
+      i = i + 1
+   end
+end
+
+
+local FUNCTIONS_MSG = "put module functions in the module table, " ..
+   "beside a 'prototype' field, as std.prototype does"
+
+
+-- Unless *fns* is nil, warn about it, blaming the code that called
+-- std.container, and copy its functions into *obj* as module functions.
+local function modulefunctions(obj, fns)
+   if not fns then
+      return obj
+   end
+   if _debug.deprecate == nil then
+      stderr:write(DEPRECATIONMSG('42', "'_functions'", FUNCTIONS_MSG, blame()))
+   end
+   for k, v in next, fns do
+      obj[k] = modulefunction(v)
+   end
+   modular[obj] = true
    return obj
 end
 
 
+local function X(decl, fn)
+   return argscheck and argscheck('std.container.' .. decl, fn) or fn
+end
+
+
+local checked_mapfields = X('mapfields(table, table|object, [?table])', container.mapfields)
+
+
 local function mapfields(obj, src, map)
-   return functions(container.mapfields(obj, src, map))
+   local fns
+   fns, src = splitfunctions(src)
+   return modulefunctions(checked_mapfields(obj, src, map), fns)
 end
 
 
 -- std.prototype's __call copies every field of the prototype, and
 -- handles `_functions` like any other '_' prefixed field.  So, as in
--- 41.x, hand it a prototype without module functions, and then make
--- module functions from `_functions` here: a prototype cloned from one
--- with module functions has no `mapfields` module function to do it.
+-- 41.x, hand it a prototype without module functions, and a constructor
+-- table without `_functions`, and then make the module functions here.
 local function __call(self, ...)
    if modular[self] then
       local t = {}
@@ -120,21 +168,18 @@ local function __call(self, ...)
       end
       self = setmetatable(t, getmetatable(self))
    end
-   local obj = proto_mt.__call(self, ...)
    if type(getmetatable(self)._init) ~= 'function' then
-      functions(obj)
+      local fns, x = splitfunctions((...))
+      if fns then
+         return modulefunctions(proto_mt.__call(self, x, select(2, ...)), fns)
+      end
    end
-   return obj
-end
-
-
-local function X(decl, fn)
-   return argscheck and argscheck('std.container.' .. decl, fn) or fn
+   return proto_mt.__call(self, ...)
 end
 
 
 local M = setmetatable({
-   mapfields = modulefunction(X('mapfields(table, table|object, [?table])', mapfields)),
+   mapfields = modulefunction(mapfields),
    prototype = modulefunction(prototype),
 }, merge(proto_mt, {__call = __call}))
 modular[M] = true

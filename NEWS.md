@@ -40,8 +40,7 @@
   - stdlib depends on the packages its 41.x modules moved into, so
     upgrading from 41.2 keeps those APIs available.  `std.container`
     and `std.object` are built on 'std.prototype', but still return the
-    prototype itself, and still copy `_functions` into a new prototype
-    as module functions, which are not propagated to its instances.
+    prototype itself.
 
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
@@ -84,6 +83,15 @@
     argument.
 
 ### Deprecations
+
+  - A `_functions` table in a `std.container` or `std.object`
+    constructor still becomes module functions of the new prototype,
+    which are not propagated to its instances, but it is deprecated:
+    put module functions in a module table, beside a `prototype` field,
+    as 'std.prototype' does.  It writes a warning to stderr unless
+    `std._debug.deprecate` is `false`.  With `std._debug.deprecate` set
+    to `true`, `_functions` is just another `_` prefixed field, kept in
+    the new prototype's metatable, as in 'std.prototype'.
 
   - Monkey patching calls `std.monkey_patch`, `std.io.monkey_patch`,
     `std.math.monkey_patch`, `std.string.monkey_patch` and
