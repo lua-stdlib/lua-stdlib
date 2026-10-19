@@ -26,6 +26,7 @@ dependencies = {
    'std._debug',
    'std.functional',
    'std.normalize >= 2.0',
+   'std.prototype',
 }
 
 build = {

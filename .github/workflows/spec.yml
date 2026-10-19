@@ -55,6 +55,9 @@ jobs:
           # stdlib's dependencies in its own tree too.
           luarocks install https://raw.githubusercontent.com/lua-stdlib/functional/master/std.functional-dev-1.rockspec
           luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/lua-stdlib/functional/master/std.functional-dev-1.rockspec
+          # std.prototype's Container checks its arguments only from master.
+          luarocks install https://raw.githubusercontent.com/lua-stdlib/prototype/master/std.prototype-dev-1.rockspec
+          luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/lua-stdlib/prototype/master/std.prototype-dev-1.rockspec
           test -n "${{ matrix.typecheck }}" && luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/gvvaughan/typecheck/master/typecheck-dev-1.rockspec || true
           test -n "${{ matrix.strict }}" && luarocks --tree="$DEPS" install std.strict || true
 

@@ -230,7 +230,7 @@ M = {
    -- @string n name of metamethod to lookup
    -- @treturn callable|nil callable metamethod, or `nil` if no metamethod
    -- @usage
-   --    clone = std.getmetamethod(std.object.prototype, '__call')
+   --    clone = std.getmetamethod(std.object, '__call')
    getmetamethod = X('getmetamethod(?any, string)', getmetamethod),
 
 
@@ -442,7 +442,7 @@ return setmetatable(M, {
    --    `name`, otherwise `nil` if nothing was found
    -- @usage
    --    local std = require 'std'
-   --    local Object = std.object.prototype
+   --    local Object = std.object
    __index = function(self, name)
        local ok, t = pcall(require, 'std.' .. name)
        if ok then

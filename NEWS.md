@@ -37,6 +37,12 @@
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
+  - stdlib depends on the packages its 41.x modules moved into, so
+    upgrading from 41.2 keeps those APIs available.  `std.container`
+    and `std.object` are built on 'std.prototype', but still return the
+    prototype itself, and still copy `_functions` into a new prototype
+    as module functions, which are not propagated to its instances.
+
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
     the `stdlib-dev-1.rockspec`:
@@ -111,10 +117,10 @@
 
 ### Incompatible changes
 
-  - `std.container`, `std.functional`, `std.list`, `std.maturity`,
-    `std.object`, `std.operator`, `std.optparse`, `std.set`,
-    `std.strbuf`, `std.strict` and `std.tuple` have been moved to their
-    own packages, and are no longer shipped as part of stdlib.
+  - `std.functional`, `std.list`, `std.maturity`, `std.operator`,
+    `std.optparse`, `std.set`, `std.strbuf`, `std.strict` and
+    `std.tuple` have been moved to their own packages, and are no longer
+    shipped as part of stdlib.
 
   - Monkey patching call `std.barrel` has been removed.
 
