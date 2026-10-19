@@ -37,13 +37,6 @@
 
   - `std.npairs` and `std.rnpairs` now respect `__len` metamethod, if any.
 
-  - `std.table.okeys` has been removed for lack of utility.  If you
-    still need it, use this instead:
-
-    ```lua
-    local okeys = std.functional.compose (std.table.keys, std.table.sort)
-    ```
-
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
     the `stdlib-dev-1.rockspec`:
@@ -95,6 +88,16 @@
     of whitespace and other C escape characters for even more compact
     output and stringification of nested Objects and Containers using
     their `__tostring` metamethods.
+
+  - `std.table.len` is deprecated in favour of `len` from
+    'std.normalize'.
+
+  - `std.table.okeys` is deprecated for lack of utility.  If you still
+    need it, use this instead:
+
+    ```lua
+    local okeys = std.functional.compose (std.table.keys, std.table.sort)
+    ```
 
 ### Incompatible changes
 

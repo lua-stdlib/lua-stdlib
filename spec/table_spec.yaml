@@ -7,8 +7,8 @@ before: |
   global_table = '_G'
 
   extend_base = {'clone', 'clone_select', 'depair', 'empty',
-                 'enpair', 'insert', 'invert', 'keys', 'maxn',
-                 'merge', 'merge_select', 'monkey_patch', 'new',
+                 'enpair', 'insert', 'invert', 'keys', 'len', 'maxn',
+                 'merge', 'merge_select', 'monkey_patch', 'new', 'okeys',
                  'pack', 'project', 'remove', 'size', 'sort',
                  'unpack', 'values'}
 
@@ -250,6 +250,36 @@ specify std.table:
       expect(f(subject)).not_to_equal(subject)
 
 
+- describe len:
+  - before:
+      f = M.len
+
+  - context with bad arguments:
+      badargs.diagnose('std.table.len(table)', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'len', '{}')).
+         to_contain_error "'std.table.len' was deprecated in release 42, use 'std.normalize.len' instead"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'len', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.table'.len)
+      ]]).to_output 'nil\n'
+  - it returns the length of a table:
+      expect(f {'a', 'b', 'c'}).to_be(3)
+      expect(f {1, 2, 5, a=10, 3}).to_be(4)
+  - it works with an empty table:
+      expect(f {}).to_be(0)
+  - it ignores elements after a hole:
+      expect(f {1, 2, [5]=3}).to_be(2)
+  - it respects __len metamethod:
+      t = setmetatable({1, 2, [5]=3}, {__len = function() return 42 end})
+      expect(f(t)).to_be(42)
+
+
 - describe maxn:
   - before:
       f = M.maxn
@@ -463,6 +493,32 @@ specify std.table:
       default = {'unique object'}
       t = f(default)
       expect(t[1]).to_be(default)
+
+
+- describe okeys:
+  - before:
+      subject = {'v1', k1 = 1, 'v2', k2 = 2, 'v3', k3 = 3, [10]='v10'}
+
+      f = M.okeys
+
+  - context with bad arguments:
+      badargs.diagnose('std.table.okeys(table)', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'okeys', '{}')).
+         to_contain_error "'std.table.okeys' was deprecated in release 42, compose 'std.table.keys' and 'std.table.sort' instead"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'okeys', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.table'.okeys)
+      ]]).to_output 'nil\n'
+  - it returns an empty list when subject is empty:
+      expect(f {}).to_equal {}
+  - it makes an ordered list of table keys:
+      expect(f(subject)).to_equal {1, 2, 3, 10, 'k1', 'k2', 'k3'}
 
 
 - describe pack:

@@ -21,6 +21,7 @@ local DEPRECATED = require 'std._deprecation'.DEPRECATED
 local argscheck = _.typecheck and _.typecheck.argscheck
 local invert = _.table.invert
 local maxn = _.table.maxn
+local okeys = _.table.okeys
 
 _ = nil
 
@@ -438,6 +439,17 @@ M = {
    --- Deprecated Functions
    -- @section deprecated
 
+   --- Find the length of the sequence part of a table, up to the
+   -- first `nil` valued element, respecting any `__len` metamethod.
+   -- @function len
+   -- @tparam table t any table
+   -- @treturn int length of *t*
+   -- @usage
+   --    --> 3
+   --    len {1, 2, 3}
+   len = DEPRECATED('42', "'std.table.len'", "use 'std.normalize.len' instead",
+      X('len(table)', len)),
+
    --- Overwrite core `table` functions with `std` enhanced versions.
    -- @function monkey_patch
    -- @tparam[opt=_G] table namespace where to install global functions
@@ -446,6 +458,16 @@ M = {
    --    require 'std.table'.monkey_patch()
    monkey_patch = DEPRECATED('42', "'std.table.monkey_patch'",
       X('monkey_patch([?table])', monkey_patch)),
+
+   --- Make an ordered list of keys in table.
+   -- @function okeys
+   -- @tparam table t a table
+   -- @treturn table ordered list of keys from *t*
+   -- @usage
+   --    globals = okeys(_G)
+   okeys = DEPRECATED('42', "'std.table.okeys'",
+      "compose 'std.table.keys' and 'std.table.sort' instead",
+      X('okeys(table)', okeys)),
 }
 
 
