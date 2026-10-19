@@ -79,7 +79,7 @@ jobs:
 
       - name: test
         run: |
-          specl -vfreport --coverage spec/*_spec.yaml
+          luarocks test
 
       - uses: codecov/codecov-action@v7
         with:
