@@ -95,6 +95,10 @@
     output and stringification of nested Objects and Containers using
     their `__tostring` metamethods.
 
+  - `std.ireverse`, `std.table.flatten` and `std.table.shape` are
+    deprecated in favour of `ireverse`, `flatten` and `shape` from
+    'std.functional', which stdlib now depends on.
+
   - `std.table.len` is deprecated in favour of `len` from
     'std.normalize'.
 

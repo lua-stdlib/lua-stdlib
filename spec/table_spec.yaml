@@ -7,9 +7,9 @@ before: |
   global_table = '_G'
 
   extend_base = {'clone', 'clone_select', 'depair', 'empty',
-                 'enpair', 'insert', 'invert', 'keys', 'len', 'maxn',
+                 'enpair', 'flatten', 'insert', 'invert', 'keys', 'len', 'maxn',
                  'merge', 'merge_select', 'monkey_patch', 'new', 'okeys',
-                 'pack', 'project', 'remove', 'size', 'sort',
+                 'pack', 'project', 'remove', 'shape', 'size', 'sort',
                  'unpack', 'values'}
 
   M = require(this_module)
@@ -162,6 +162,34 @@ specify std.table:
       expect(f(t)).to_equal {{1, 'first'}, {2, 'second'}, {'third', 4}}
   - it is the inverse of depair:
       expect(f(t)).to_equal(l)
+
+
+- describe flatten:
+  - before:
+      t = {{{'one'}}, 'two', {{'three'}, 'four'}}
+
+      f = M.flatten
+
+  - context with bad arguments:
+      badargs.diagnose('std.table.flatten(table)', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'flatten', '{}')).
+         to_contain_error "'std.table.flatten' was deprecated in release 42, use 'std.functional.flatten' instead"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'flatten', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.table'.flatten)
+      ]]).to_output 'nil\n'
+  - it returns a table:
+      expect(type(f(t))).to_be 'table'
+  - it works for an empty table:
+      expect(f {}).to_equal {}
+  - it flattens a nested table:
+      expect(f(t)).to_equal {'one', 'two', 'three', 'four'}
 
 
 - describe insert:
@@ -598,6 +626,43 @@ specify std.table:
       expect(t).to_equal {1, 2, 5, 'third', 42}
       expect(f(t, 4)).to_be 'third'
       expect(t).to_equal {1, 2, 5, 42}
+
+
+- describe shape:
+  - before:
+      l = {1, 2, 3, 4, 5, 6}
+
+      f = M.shape
+
+  - context with bad arguments:
+      badargs.diagnose('std.table.shape(table, table)', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'shape', '{0}, {}')).
+         to_contain_error "'std.table.shape' was deprecated in release 42, use 'std.functional.shape' instead"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'shape', '{0}, {}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std.table'.shape)
+      ]]).to_output 'nil\n'
+  - it returns a table:
+      expect(type(f({2, 3}, l))).to_be 'table'
+  - it works for an empty table:
+      expect(f({0}, {})).to_equal {}
+  - it returns the result in a new table:
+      expect(f({2, 3}, l)).not_to_be(l)
+  - it does not perturb the argument table:
+      f({2, 3}, l)
+      expect(l).to_equal {1, 2, 3, 4, 5, 6}
+  - it reshapes a table according to given dimensions:
+      expect(f({2, 3}, l)).to_equal {{1, 2, 3}, {4, 5, 6}}
+      expect(f({3, 2}, l)).to_equal {{1, 2}, {3, 4}, {5, 6}}
+  - it treats 0-valued dimensions as an indefinite number:
+      expect(f({2, 0}, l)).to_equal {{1, 2, 3}, {4, 5, 6}}
+      expect(f({0, 2}, l)).to_equal {{1, 2}, {3, 4}, {5, 6}}
 
 
 - describe size:

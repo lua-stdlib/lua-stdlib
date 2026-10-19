@@ -50,6 +50,8 @@ jobs:
           # Specl and typecheck fixes for stdlib are not released yet.
           luarocks install https://raw.githubusercontent.com/gvvaughan/typecheck/master/typecheck-dev-1.rockspec
           luarocks install https://raw.githubusercontent.com/gvvaughan/specl/master/specl-dev-1.rockspec
+          # std.functional runs on Lua 5.4 and 5.5 only from master so far.
+          luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/lua-stdlib/functional/master/std.functional-dev-1.rockspec
           test -n "${{ matrix.typecheck }}" && luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/gvvaughan/typecheck/master/typecheck-dev-1.rockspec || true
           test -n "${{ matrix.strict }}" && luarocks --tree="$DEPS" install std.strict || true
 

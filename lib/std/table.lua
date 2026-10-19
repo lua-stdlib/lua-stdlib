@@ -18,6 +18,7 @@
 local _ = require 'std._base'
 
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
+local functional = require 'std.functional'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local invert = _.table.invert
 local maxn = _.table.maxn
@@ -439,6 +440,17 @@ M = {
    --- Deprecated Functions
    -- @section deprecated
 
+   --- Flatten a nested table into a list.
+   -- @function flatten
+   -- @tparam table t a table
+   -- @treturn table a list of all non-table elements of *t*
+   -- @usage
+   --    --> {1, 2, 3, 4, 5}
+   --    flatten {{1, {{2}, 3}, 4}, 5}
+   flatten = DEPRECATED('42', "'std.table.flatten'",
+      "use 'std.functional.flatten' instead",
+      X('flatten(table)', functional.flatten)),
+
    --- Find the length of the sequence part of a table, up to the
    -- first `nil` valued element, respecting any `__len` metamethod.
    -- @function len
@@ -468,6 +480,24 @@ M = {
    okeys = DEPRECATED('42', "'std.table.okeys'",
       "compose 'std.table.keys' and 'std.table.sort' instead",
       X('okeys(table)', okeys)),
+
+   --- Shape a table according to a list of dimensions.
+   --
+   -- Dimensions are given outermost first and items from the original
+   -- list are distributed breadth first; there may be one 0 indicating
+   -- an indefinite number. Hence, `{0}` is a flat list,
+   -- `{1}` is a singleton, `{2, 0}` is a list of
+   -- two lists, and `{0, 2}` is a list of pairs.
+   -- @function shape
+   -- @tparam table dims table of dimensions `{d1, ..., dn}`
+   -- @tparam table t a table of elements
+   -- @return reshaped list
+   -- @usage
+   --    --> {{1, 2, 3}, {4, 5, 6}}
+   --    shape({2, 3}, {1, 2, 3, 4, 5, 6})
+   shape = DEPRECATED('42', "'std.table.shape'",
+      "use 'std.functional.shape' instead",
+      X('shape(table, table)', functional.shape)),
 }
 
 

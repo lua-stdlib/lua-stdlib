@@ -21,6 +21,7 @@
 local _ = require 'std._base'
 
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
+local functional = require 'std.functional'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
 local tostring41 = _.tostring
@@ -380,6 +381,20 @@ M = {
 
    --- Deprecated Functions
    -- @section deprecated
+
+   --- Return a new table with element order reversed.
+   -- Apart from the order of the elements returned, this function follows
+   -- the same rules as @{ipairs} for determining first and last elements.
+   -- @function ireverse
+   -- @tparam table t a table
+   -- @treturn table a new table with integer keyed elements in reverse
+   --    order with respect to *t*
+   -- @usage
+   --    local rielems = std.functional.compose(std.ireverse, std.ielems)
+   --    for e in rielems(l) do process(e) end
+   ireverse = DEPRECATED('42', "'std.ireverse'",
+      "use 'std.functional.ireverse' instead",
+      X('ireverse(table)', functional.ireverse)),
 
    --- Overwrite core methods with `std` enhanced versions.
    --
