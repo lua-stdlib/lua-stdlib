@@ -145,6 +145,25 @@
     been moved to their own packages,
     and are no longer shipped as part of stdlib.
 
+  - `lambda` from the 'std.functional' package, which stdlib now
+    depends on, returns a functable rather than a bare function, so
+    that `tostring` gives back its lambda string.  Calling it works as
+    before, but `type(lambda '=_1')` is now `'table'`.
+
+  - Requiring 'std.strict' no longer makes the global environment
+    strict as a side effect.  The 'std.strict' package returns a
+    function that wraps the environment you pass it in a strict proxy:
+
+    ```lua
+    local _ENV = require 'std.strict'(_ENV)
+    ```
+
+    41.x code that relied on the side effect still loads, but no
+    longer checks for undeclared variables.  Like 'typecheck',
+    'std.strict' is optional: stdlib doesn't depend on it, so install
+    it separately.  When it is installed, stdlib checks its own modules
+    with it, unless `std._debug.strict` is `false`.
+
   - `std.debug.argerror`, `std.debug.extramsg_mismatch`,
     `std.debug.extramsg_toomany`, `std.debug.parsetypes`,
     `std.debug.resulterror` and `std.debug.typesplit` have moved to the
