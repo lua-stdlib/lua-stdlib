@@ -1,7 +1,7 @@
 Standard Lua libraries
 ======================
 
-Copyright (C) 2000-2018 [stdlib authors][github]
+Copyright (C) 2000-2026 [stdlib authors][github]
 
 [![License](https://img.shields.io/:license-mit-blue.svg)](https://mit-license.org)
 [![workflow status](https://github.com/lua-stdlib/lua-stdlib/actions/workflows/spec.yml/badge.svg?branch=master)](https://github.com/lua-stdlib/lua-stdlib/actions)
