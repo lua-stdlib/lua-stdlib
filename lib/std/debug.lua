@@ -15,6 +15,7 @@
 ]]
 
 
+local _deprecation = require 'std._deprecation'
 local tc = require 'std._base'.typecheck or {}
 
 local _ENV = require 'std.normalize' {
@@ -91,6 +92,37 @@ end
 
 
 local M = {
+   --- Deprecation
+   -- @section deprecation
+
+   --- Wrap a deprecated function to warn the first time it is called.
+   -- Unless `std._debug.deprecate` is `false`, the warning goes to
+   -- stderr; with `std._debug.deprecate` set to `true`, the deprecated
+   -- function is not defined at all.
+   -- @function DEPRECATED
+   -- @string version first deprecation release version
+   -- @string name function name for automatic warning message
+   -- @string[opt] extramsg additional warning text
+   -- @func fn deprecated function
+   -- @treturn function|nil a function that warns on its first call, and
+   --    hands off to *fn*; or `nil` if `std._debug.deprecate` is `true`
+   -- @usage
+   --    M.op = DEPRECATED('41', "'std.functional.op'", std.operator)
+   DEPRECATED = _deprecation.DEPRECATED,
+
+   --- Format a deprecation warning message.
+   -- @function DEPRECATIONMSG
+   -- @string version first deprecation release version
+   -- @string name function name for automatic warning message
+   -- @string[opt] extramsg additional warning text
+   -- @tparam int|false level call stack level to blame for the warning,
+   --    or `false` to blame nothing
+   -- @treturn string the warning, or an empty string unless
+   --    `std._debug.deprecate` is `nil`
+   -- @usage
+   --    io.stderr:write(DEPRECATIONMSG('42', "multi-argument 'module.fname'", 2))
+   DEPRECATIONMSG = _deprecation.DEPRECATIONMSG,
+
    --- Argument Checking
    -- These are typecheck's functions, when it is installed.  Otherwise,
    -- `argcheck` and `argscheck` check nothing, as when

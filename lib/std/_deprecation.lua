@@ -14,6 +14,7 @@
 
  This internal module depends on nothing else in stdlib, so that it can
  move into a package of its own when something outside stdlib needs it.
+ `std.debug` re-exports both functions as public API.
 ]]
 
 
@@ -73,28 +74,10 @@ end
 
 return {
    --- Wrap a deprecated function to warn the first time it is called.
-   -- @function DEPRECATED
-   -- @string version first deprecation release version
-   -- @string name function name for automatic warning message
-   -- @string[opt] extramsg additional warning text
-   -- @func fn deprecated function
-   -- @treturn function|nil a function that writes the warning on its
-   --    first call, unless `std._debug.deprecate` is `false`, and hands
-   --    off to *fn*; or `nil` if `std._debug.deprecate` is `true`
-   -- @usage
-   --    M.okeys = DEPRECATED('42', "'std.table.okeys'", okeys)
+   -- @see std.debug.DEPRECATED
    DEPRECATED = DEPRECATED,
 
    --- Format a deprecation warning message.
-   -- @function DEPRECATIONMSG
-   -- @string version first deprecation release version
-   -- @string name function name for automatic warning message
-   -- @string[opt] extramsg additional warning text
-   -- @tparam int|false level call stack level to blame for the warning,
-   --    or `false` to blame nothing
-   -- @treturn string the warning, or an empty string unless
-   --    `std._debug.deprecate` is `nil`
-   -- @usage
-   --    stderr:write(DEPRECATIONMSG('42', "multi-argument 'module.fname'", 2))
+   -- @see std.debug.DEPRECATIONMSG
    DEPRECATIONMSG = DEPRECATIONMSG,
 }

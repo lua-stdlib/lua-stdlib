@@ -6,8 +6,8 @@ before: |
   this_module  = 'std.debug'
   global_table = '_G'
 
-  extend_base  = {'argcheck', 'argscheck', 'getfenv', 'setfenv', 'say',
-                  'trace'}
+  extend_base  = {'DEPRECATED', 'DEPRECATIONMSG', 'argcheck', 'argscheck',
+                  'getfenv', 'setfenv', 'say', 'trace'}
 
   -- Only typecheck provides these.
   typecheck_apis = {'argerror', 'extramsg_mismatch', 'extramsg_toomany',
@@ -41,6 +41,14 @@ specify std.debug:
     - it does not touch the core debug table:
         expect(show_apis {added_to=base_module, by='std'}).
            to_equal {}
+
+
+- describe deprecation:
+  # std._deprecation's specs cover how they behave.
+  - it is std._deprecation's: |
+      _deprecation = require 'std._deprecation'
+      expect(M.DEPRECATED).to_be(_deprecation.DEPRECATED)
+      expect(M.DEPRECATIONMSG).to_be(_deprecation.DEPRECATIONMSG)
 
 
 - describe argument checking:

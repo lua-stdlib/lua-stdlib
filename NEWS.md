@@ -153,9 +153,9 @@
     `std.debug.argscheck` check nothing, as when `std._debug.argcheck`
     is `false`.
 
-  - `std.debug.DEPRECATED` and `std.debug.DEPRECATIONMSG` have been
-    removed.  At some point these will resurface in a new standalone
-    package.
+  - A function wrapped by `std.debug.DEPRECATED` writes its warning
+    only the first time it is called in a run, as 41.x documented,
+    rather than every time.
 
   - Deprecated functions `string.assert`, `string.require_version`,
     `string.tostring`, `table.clone_rename`, `table.metamethod`,
