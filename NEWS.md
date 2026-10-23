@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 42 (2026-10-22) [stable]
+
 ### New features
 
   - Overhaul of the LDoc documentation, adding more introductory
