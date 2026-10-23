@@ -41,7 +41,8 @@
     upgrading from 41.2 keeps those APIs available.  `std.container`,
     `std.object`, `std.set`, `std.strbuf` and `std.tree` are built on
     'std.prototype', but still return the prototype itself.  `std.tree`
-    is 'std.prototype.trie', still called Tree.
+    is 'std.prototype.trie', still called Tree, and `std.operator` is
+    'std.functional.operator'.
 
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
@@ -128,9 +129,9 @@
 
 ### Incompatible changes
 
-  - `std.functional`, `std.list`, `std.maturity`, `std.operator`,
-    `std.optparse`, `std.strict` and `std.tuple` have been moved to their
-    own packages, and are no longer shipped as part of stdlib.
+  - `std.functional`, `std.list`, `std.maturity`, `std.optparse`,
+    `std.strict` and `std.tuple` have been moved to their own packages,
+    and are no longer shipped as part of stdlib.
 
   - Monkey patching call `std.barrel` has been removed.
 

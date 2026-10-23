@@ -1,0 +1,23 @@
+# General Lua Libraries for Lua 5.1, 5.2, 5.3, 5.4 & 5.5
+# Copyright (C) 2011-2026 stdlib authors
+
+before: |
+  this_module  = 'std.operator'
+  global_table = '_G'
+
+  M = require(this_module)
+
+specify std.operator:
+- context when required:
+  - context by name:
+    - it does not touch the global table:
+        expect(show_apis {added_to=global_table, by=this_module}).
+          to_equal {}
+
+  - context via the std module:
+    - it does not touch the global table:
+        expect(show_apis {added_to=global_table, by='std'}).
+          to_equal {}
+
+  - it is std.functional.operator:
+      expect(require(this_module)).to_be(require 'std.functional.operator')
