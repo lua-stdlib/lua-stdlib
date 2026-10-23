@@ -5,7 +5,7 @@ before: |
   this_module = 'std'
   global_table = '_G'
 
-  exported_apis = {'assert', 'elems', 'eval', 'getmetamethod',
+  exported_apis = {'assert', 'barrel', 'elems', 'eval', 'getmetamethod',
                    'ielems', 'ipairs', 'ireverse', 'monkey_patch', 'npairs', 'pairs',
                    'require', 'ripairs', 'rnpairs', 'tostring'}
 
@@ -85,6 +85,121 @@ specify std:
     - it plugs specifiers with string.format: |
         expect(f(nil, '%s %d: %q', 'here', 42, 'a string')).
            to_raise(string.format('%s %d: %q', 'here', 42, 'a string'))
+
+
+- describe barrel:
+  - before:
+      mt = { 'file metatable' }
+      namespace = {
+        io = {
+          stdin  = setmetatable({}, mt),
+          stdout = setmetatable({}, mt),
+          stderr = setmetatable({}, mt),
+        },
+      }
+
+      f = M.barrel
+
+      f(namespace)
+
+  - context with bad arguments:
+      badargs.diagnose('std.barrel([?table])', f)
+
+  - it writes a deprecation warning: |
+      expect(deprecation(nil, this_module, 'barrel', '{}')).
+         to_contain_error "'std.barrel' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(deprecation(false, this_module, 'barrel', '{}')).
+         not_to_contain_error 'deprecated'
+  - it is not defined when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         print(require 'std'.barrel)
+      ]]).to_output 'nil\n'
+
+  # Ideally, `.to_be(M)`, except that M is cloned from a nested context
+  # by Specl to prevent us from affecting any other examples, thus the
+  # address is different by now.  Also, we have to force lazy-loading in
+  # our copy of M to match apis already loaded in barrel.
+  - it returns std module table:
+      t = f(namespace)
+      for k, v in pairs(t) do
+        if type(v) ~= 'function' then
+          _ = M[k]
+        end
+      end
+      expect(f(namespace)).to_equal(M)
+  - it doesn't install itself:
+      expect(namespace.barrel).to_be(nil)
+  - it installs std monkey patches:
+      for _, api in ipairs(exported_apis) do
+        if type(M[api]) == 'function' and
+          api ~= 'barrel' and api ~= 'monkey_patch'
+        then
+          expect(namespace[api]).to_be(M[api])
+        end
+      end
+  - it installs std.io monkey patches:
+      for _, api in ipairs { 'catdir', 'catfile', 'die', 'monkey_patch',
+        'process_files', 'readlines', 'shell', 'slurp', 'splitdir', 'warn',
+        'writelines' }
+      do
+        expect(namespace.io[api]).to_be(M.io[api])
+      end
+      expect(mt.readlines).to_be(M.io.readlines)
+      expect(mt.writelines).to_be(M.io.writelines)
+  - it installs std.math monkey patches:
+      for _, api in ipairs { 'floor', 'monkey_patch', 'round' } do
+        expect(namespace.math[api]).to_be(M.math[api])
+      end
+  - it installs std.string monkey patches:
+      # FIXME: string metatable monkey-patches leak out!
+      mt = getmetatable ''
+      expect(mt.__concat).to_be(M.string.__concat)
+      expect(mt.__index).to_be(M.string.__index)
+
+      for _, api in ipairs { '__concat', '__index', 'caps', 'chomp',
+        'escape_pattern', 'escape_shell', 'finds', 'format', 'ltrim',
+        'monkey_patch', 'numbertosi', 'ordinal_suffix', 'pad', 'pickle',
+        'prettytostring', 'render', 'rtrim', 'split', 'tfind', 'trim',
+        'wrap' }
+      do
+        expect(namespace.string[api]).to_be(M.string[api])
+      end
+  - it installs std.table monkey patches:
+      for _, api in ipairs { 'clone', 'clone_select', 'depair', 'empty',
+        'enpair', 'flatten', 'insert', 'invert', 'keys', 'len', 'maxn',
+        'merge', 'merge_select', 'monkey_patch', 'new', 'pack', 'project',
+        'shape', 'size', 'sort', 'values' }
+      do
+        expect(namespace.table[api]).to_be(M.table[api])
+      end
+  - it scribbles backwards compatibility apis:
+      for api, fn in pairs {
+        bind            = M.functional.bind,
+        collect         = M.functional.collect,
+        compose         = M.functional.compose,
+        curry           = M.functional.curry,
+        die             = M.io.die,
+        filter          = M.functional.filter,
+        fold            = M.functional.reduce,
+        id              = M.functional.id,
+        ileaves         = M.tree.ileaves,
+        inodes          = M.tree.inodes,
+        leaves          = M.tree.leaves,
+        map             = M.functional.map,
+        metamethod      = M.getmetamethod,
+        nodes           = M.tree.nodes,
+        op              = M.operator,
+        pack            = M.table.pack,
+        pickle          = M.string.pickle,
+        prettytostring  = M.string.prettytostring,
+        render          = M.string.render,
+        require_version = M.require,
+        warn            = M.io.warn,
+      } do
+        expect(namespace[api]).to_be(fn)
+      end
 
 
 - describe elems:
@@ -284,7 +399,7 @@ specify std:
       namespace = {}
       f(namespace)
       for _, api in ipairs(exported_apis) do
-         if api ~= 'monkey_patch' then
+         if api ~= 'barrel' and api ~= 'monkey_patch' then
             expect(namespace[api]).to_be(M[api])
          end
       end

@@ -182,6 +182,42 @@ local function monkey_patch(namespace)
 end
 
 
+local function barrel(namespace)
+   namespace = namespace or global
+
+   -- Older releases installed the following into _G by default.
+   for _, name in next, {
+      'functional.bind', 'functional.collect', 'functional.compose',
+      'functional.curry', 'functional.filter', 'functional.id',
+      'functional.map',
+
+      'io.die', 'io.warn',
+
+      'string.pickle', 'string.prettytostring', 'string.render',
+
+      'table.pack',
+
+      'tree.ileaves', 'tree.inodes', 'tree.leaves', 'tree.nodes',
+   } do
+      local module, method = match(name, '^(.*)%.(.-)$')
+      namespace[method] = M[module][method]
+   end
+
+   -- Support old api names, for backwards compatibility.
+   namespace.fold = M.functional.reduce
+   namespace.metamethod = M.getmetamethod
+   namespace.op = M.operator
+   namespace.require_version = M.require
+
+   M.io.monkey_patch(namespace)
+   M.math.monkey_patch(namespace)
+   M.string.monkey_patch(namespace)
+   M.table.monkey_patch(namespace)
+
+   return M.monkey_patch(namespace)
+end
+
+
 
 --[[ ================= ]]--
 --[[ Public Interface. ]]--
@@ -382,6 +418,19 @@ M = {
    --- Deprecated Functions
    -- @section deprecated
 
+   --- A [barrel of monkey_patches](http://dictionary.reference.com/browse/barrel+of+monkeys).
+   --
+   -- Apply **all** `monkey_patch` functions.  Additionally, for backwards
+   -- compatibility only, write a selection of sub-module functions into
+   -- the given namespace.
+   -- @function barrel
+   -- @tparam[opt=_G] table namespace where to install global functions
+   -- @treturn table module table
+   -- @usage
+   --    local std = require 'std'.barrel()
+   barrel = DEPRECATED('42', "'std.barrel'",
+      X('barrel([?table])', barrel)),
+
    --- Return a new table with element order reversed.
    -- Apart from the order of the elements returned, this function follows
    -- the same rules as @{ipairs} for determining first and last elements.
@@ -398,8 +447,8 @@ M = {
 
    --- Overwrite core methods with `std` enhanced versions.
    --
-   -- Write all functions from this module, except `std.monkey_patch`,
-   -- into the given namespace.
+   -- Write all functions from this module, except `std.barrel` and
+   -- `std.monkey_patch`, into the given namespace.
    -- @function monkey_patch
    -- @tparam[opt=_G] table namespace where to install global functions
    -- @treturn table the module table
@@ -423,7 +472,7 @@ M = {
 -- Don't monkey_patch these apis into _G!
 monkeys = {}
 for k, v in next, M do
-   if type(v) == 'function' and k ~= 'monkey_patch' then
+   if type(v) == 'function' and k ~= 'barrel' and k ~= 'monkey_patch' then
       monkeys[k] = v
    end
 end
