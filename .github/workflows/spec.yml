@@ -50,6 +50,10 @@ jobs:
           # Specl and typecheck fixes for stdlib are not released yet.
           luarocks install https://raw.githubusercontent.com/gvvaughan/typecheck/master/typecheck-dev-1.rockspec
           luarocks install https://raw.githubusercontent.com/gvvaughan/specl/master/specl-dev-1.rockspec
+          # std.normalize's getfenv and setfenv work on Lua 5.1 and LuaJIT
+          # only from master so far.  Install it first, so that the
+          # dependencies of the rocks below don't fetch the release.
+          luarocks --tree="$DEPS" install --deps-mode=all https://raw.githubusercontent.com/lua-stdlib/normalize/master/std.normalize-dev-1.rockspec
           # std.functional runs on Lua 5.4 and 5.5 only from master so far.
           # The examples load it from DEPS, but `luarocks test` checks for
           # stdlib's dependencies in its own tree too.
