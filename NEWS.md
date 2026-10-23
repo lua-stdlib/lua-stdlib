@@ -44,6 +44,8 @@
     is 'std.prototype.trie', still called Tree, and `std.operator` is
     'std.functional.operator'.  `std.optparse` returns the OptionParser
     prototype from 'optparse', with 41.x's Object methods too.
+    `std.list` is rebuilt over 'std.functional', with the List API of
+    41.2, less the functions 41 deprecated.
 
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
@@ -130,8 +132,8 @@
 
 ### Incompatible changes
 
-  - `std.functional`, `std.list`, `std.maturity`, `std.strict` and
-    `std.tuple` have been moved to their own packages,
+  - `std.functional`, `std.maturity`, `std.strict` and `std.tuple` have
+    been moved to their own packages,
     and are no longer shipped as part of stdlib.
 
   - Monkey patching call `std.barrel` has been removed.

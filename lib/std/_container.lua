@@ -226,6 +226,7 @@ end
 
 return {
    Module = Module,
+   addfunctions = addfunctions,
    addobjectmethods = addobjectmethods,
    copy = copy,
    mapfields = mapfields,
