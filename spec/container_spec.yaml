@@ -88,6 +88,18 @@ specify std.container:
     - it does allow elements named after module functions:
         things = Bag { count = 1337 }
         expect(Bag.count(things)).to_be(1337)
+    - it does not propagate module functions from a deep copy: |
+        local function deepcopy(x)
+           if type(x) ~= 'table' then
+              return x
+           end
+           local r = {}
+           for k, v in next, x do
+              r[k] = deepcopy(v)
+           end
+           return setmetatable(r, deepcopy(getmetatable(x)))
+        end
+        expect(deepcopy(Bag) {}.count).to_be(nil)
     - it writes a deprecation warning blaming the constructor call: |
         expect(luaproc [[
            local Container = require 'std.container'

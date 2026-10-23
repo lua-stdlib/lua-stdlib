@@ -26,17 +26,18 @@
 ]]
 
 
+local _ = require 'std._container'
 local container = require 'std.container'
 
-local getmetamethod = require 'std.normalize'.getmetamethod
+local _ENV = require 'std.normalize' {
+   merge = 'table.merge',
+}
 
 
 return container {
    _type = 'Object',
-   __index = {
+   __index = merge(_.objectmethods, {
       clone = getmetamethod(container, '__call'),
-      mapfields = container.mapfields.call,
-      prototype = container.prototype.call,
-      type = container.prototype.call,
-   },
+      mapfields = _.mapfields,
+   }),
 }
