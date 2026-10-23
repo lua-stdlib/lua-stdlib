@@ -19,6 +19,7 @@ modules  = {
    {['std.math']    = 'lib/std/math.lua'},
    {['std.object']  = 'lib/std/object.lua'},
    {['std.operator'] = 'lib/std/operator.lua'},
+   {['std.optparse'] = 'lib/std/optparse.lua'},
    {['std.package'] = 'lib/std/package.lua'},
    {['std.set']     = 'lib/std/set.lua'},
    {['std.strbuf']  = 'lib/std/strbuf.lua'},

@@ -23,6 +23,7 @@ source = {
 
 dependencies = {
    'lua >= 5.1, < 5.6',
+   'optparse >= 1.6',
    'std._debug',
    'std.functional',
    'std.normalize >= 2.0',
