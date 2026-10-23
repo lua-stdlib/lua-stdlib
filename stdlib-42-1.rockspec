@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = 'dev', '-1'
+local _MODREV, _SPECREV = '42', '-1'
 
 package = 'stdlib'
 version = _MODREV .. _SPECREV
