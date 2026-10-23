@@ -136,11 +136,13 @@
     been moved to their own packages,
     and are no longer shipped as part of stdlib.
 
-  - `std.debug.argerror`, `std.debug.argcheck`, `std.debug.argscheck`,
-    `std.debug.extramsg_mismatch`, `std.debug.extramsg_toomany`,
-    `std.debug.parsetypes`, `std.debug.resulterror` and `std.debug.typesplit`
-    have all been moved to their own package, and are no longer shipped
-    as part of stdlib.
+  - `std.debug.argerror`, `std.debug.extramsg_mismatch`,
+    `std.debug.extramsg_toomany`, `std.debug.parsetypes`,
+    `std.debug.resulterror` and `std.debug.typesplit` have moved to the
+    `typecheck` package, and `std.debug` has them only when `typecheck`
+    is installed.  Without it, `std.debug.argcheck` and
+    `std.debug.argscheck` check nothing, as when `std._debug.argcheck`
+    is `false`.
 
   - `std.debug.DEPRECATED` and `std.debug.DEPRECATIONMSG` have been
     removed.  At some point these will resurface in a new standalone

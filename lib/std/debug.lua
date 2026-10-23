@@ -15,6 +15,8 @@
 ]]
 
 
+local tc = require 'std._base'.typecheck or {}
+
 local _ENV = require 'std.normalize' {
    'debug',
    _debug = require 'std._debug',
@@ -89,6 +91,60 @@ end
 
 
 local M = {
+   --- Argument Checking
+   -- These are typecheck's functions, when it is installed.  Otherwise,
+   -- `argcheck` and `argscheck` check nothing, as when
+   -- `std._debug.argcheck` is `false`, and the rest are not defined.
+   -- @section argcheck
+
+   --- Check the type of an argument against an expected type.
+   -- @function argcheck
+   -- @see typecheck.argcheck
+   argcheck = tc.argcheck or function(...)
+      return ...
+   end,
+
+   --- Raise a bad argument error.
+   -- @function argerror
+   -- @see typecheck.argerror
+   argerror = tc.argerror,
+
+   --- Wrap a function definition with argument type and arity checking.
+   -- @function argscheck
+   -- @see typecheck.argscheck
+   argscheck = tc.argscheck or function(_, inner)
+      return inner or setmetatable({}, {
+         __concat = function(_, concat_inner)
+            return concat_inner
+         end,
+      })
+   end,
+
+   --- Format a type mismatch error.
+   -- @function extramsg_mismatch
+   -- @see typecheck.extramsg_mismatch
+   extramsg_mismatch = tc.extramsg_mismatch,
+
+   --- Format a too many things error.
+   -- @function extramsg_toomany
+   -- @see typecheck.extramsg_toomany
+   extramsg_toomany = tc.extramsg_toomany,
+
+   --- Compact permutation list into a list of valid types at each argument.
+   -- @function parsetypes
+   -- @see typecheck.parsetypes
+   parsetypes = tc.parsetypes,
+
+   --- Raise a bad result error.
+   -- @function resulterror
+   -- @see typecheck.resulterror
+   resulterror = tc.resulterror,
+
+   --- Split a typespec string into a table of normalized type names.
+   -- @function typesplit
+   -- @see typecheck.typesplit
+   typesplit = tc.typesplit,
+
    --- Function Environments
    -- @section environments
 

@@ -6,7 +6,17 @@ before: |
   this_module  = 'std.debug'
   global_table = '_G'
 
-  extend_base  = {'getfenv', 'setfenv', 'say', 'trace'}
+  extend_base  = {'argcheck', 'argscheck', 'getfenv', 'setfenv', 'say',
+                  'trace'}
+
+  -- Only typecheck provides these.
+  typecheck_apis = {'argerror', 'extramsg_mismatch', 'extramsg_toomany',
+                    'parsetypes', 'resulterror', 'typesplit'}
+  if have_typecheck then
+     for _, v in ipairs(typecheck_apis) do
+        extend_base[#extend_base + 1] = v
+     end
+  end
 
   M = require(this_module)
 
@@ -31,6 +41,26 @@ specify std.debug:
     - it does not touch the core debug table:
         expect(show_apis {added_to=base_module, by='std'}).
            to_equal {}
+
+
+- describe argument checking:
+  - it is typecheck's, when it is installed: |
+      if have_typecheck then
+         local typecheck = require 'typecheck'
+         for _, v in ipairs {'argcheck', 'argscheck', unpack(typecheck_apis)} do
+            expect(M[v]).to_be(typecheck[v])
+         end
+      end
+  - it checks nothing without typecheck: |
+      if not have_typecheck then
+         local fn = function() end
+         expect(select('#', M.argcheck('fn', 1, 'string', false))).to_be(4)
+         expect(M.argscheck('fn(string)', fn)).to_be(fn)
+         expect(M.argscheck 'fn(string)' .. fn).to_be(fn)
+         for _, v in ipairs(typecheck_apis) do
+            expect(M[v]).to_be(nil)
+         end
+      end
 
 
 - describe debug:
