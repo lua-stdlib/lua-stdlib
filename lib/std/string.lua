@@ -537,14 +537,6 @@ M = {
    --    print(pad(trim(outputstr, 78)) .. '\n')
    pad = X('pad(string, int, [?string])', pad),
 
-   --- Pretty-print a table, or other object.
-   -- @function prettytostring
-   -- @param x object to convert to string
-   -- @string[opt='\t'] indent indent between levels
-   -- @string[opt=''] spacing space before every line
-   -- @treturn string pretty string rendering of *x*
-   -- @usage
-   --    print(prettytostring(std, '   '))
    --- Convert a value to a string that loads as an equal value.
    -- Strings, numbers, booleans, `nil` and tables of those, with keys
    -- in a stable order.  Tables that contain themselves, functions,
@@ -559,6 +551,14 @@ M = {
    --    end
    pickle = pickle,
 
+   --- Pretty-print a table, or other object.
+   -- @function prettytostring
+   -- @param x object to convert to string
+   -- @string[opt='\t'] indent indent between levels
+   -- @string[opt=''] spacing space before every line
+   -- @treturn string pretty string rendering of *x*
+   -- @usage
+   --    print(prettytostring(std, '   '))
    prettytostring = X('prettytostring(<?any>, <?string>, <?string>)', prettytostring),
 
    --- Turn tables into strings with recursion detection.

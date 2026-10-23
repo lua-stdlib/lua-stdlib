@@ -130,20 +130,20 @@ local M = {
    -- @section argcheck
 
    --- Check the type of an argument against an expected type.
+   -- Same as `typecheck.argcheck`, when that is installed.
    -- @function argcheck
-   -- @see typecheck.argcheck
    argcheck = tc.argcheck or function(...)
       return ...
    end,
 
    --- Raise a bad argument error.
+   -- Same as `typecheck.argerror`, when that is installed.
    -- @function argerror
-   -- @see typecheck.argerror
    argerror = tc.argerror,
 
    --- Wrap a function definition with argument type and arity checking.
+   -- Same as `typecheck.argscheck`, when that is installed.
    -- @function argscheck
-   -- @see typecheck.argscheck
    argscheck = tc.argscheck or function(_, inner)
       return inner or setmetatable({}, {
          __concat = function(_, concat_inner)
@@ -153,28 +153,28 @@ local M = {
    end,
 
    --- Format a type mismatch error.
+   -- Same as `typecheck.extramsg_mismatch`, when that is installed.
    -- @function extramsg_mismatch
-   -- @see typecheck.extramsg_mismatch
    extramsg_mismatch = tc.extramsg_mismatch,
 
    --- Format a too many things error.
+   -- Same as `typecheck.extramsg_toomany`, when that is installed.
    -- @function extramsg_toomany
-   -- @see typecheck.extramsg_toomany
    extramsg_toomany = tc.extramsg_toomany,
 
    --- Compact permutation list into a list of valid types at each argument.
+   -- Same as `typecheck.parsetypes`, when that is installed.
    -- @function parsetypes
-   -- @see typecheck.parsetypes
    parsetypes = tc.parsetypes,
 
    --- Raise a bad result error.
+   -- Same as `typecheck.resulterror`, when that is installed.
    -- @function resulterror
-   -- @see typecheck.resulterror
    resulterror = tc.resulterror,
 
    --- Split a typespec string into a table of normalized type names.
+   -- Same as `typecheck.typesplit`, when that is installed.
    -- @function typesplit
-   -- @see typecheck.typesplit
    typesplit = tc.typesplit,
 
    --- Function Environments
