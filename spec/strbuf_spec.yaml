@@ -25,6 +25,8 @@ specify std.strbuf:
     - it initialises strbuf with constructor parameters:
         a = StrBuf:clone {'foo', 'bar'}
         expect(a).to_equal(b)
+    - it is the same as calling StrBuf:
+        expect(StrBuf.clone).to_be(getmetatable(StrBuf).__call)
     - it serves as a prototype for new instances:
         obj = b:clone {}
         expect(object.type(obj)).to_be 'StrBuf'

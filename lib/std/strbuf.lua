@@ -30,12 +30,5 @@
 local _ = require 'std._container'
 local strbuf = require 'std.prototype.strbuf'
 
-local merge = require 'std.normalize'.table.merge
 
-
-local StrBuf = _.Module(strbuf)
-
-local mt = getmetatable(StrBuf)
-mt.__index = merge(_.objectmethods, merge(mt.__index))
-
-return StrBuf
+return _.addobjectmethods(_.Module(strbuf))

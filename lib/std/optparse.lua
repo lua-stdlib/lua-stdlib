@@ -29,18 +29,8 @@
 local _ = require 'std._container'
 local optparse = require 'optparse'
 
-local merge = require 'std.normalize'.table.merge
-
 
 -- Not `_.Module`, whose `__call` would replace optparse's, which takes
--- help text rather than a table of fields.  Copy the prototype and its
--- metatable, so `optparse` users don't see the 41.x methods.
-local proto = optparse.prototype
-
-local mt = merge(getmetatable(proto))
-mt.__index = merge(_.objectmethods, merge(mt.__index, {
-   clone = mt.__call,
-   mapfields = _.mapfields,
-}))
-
-return setmetatable(merge(proto), mt)
+-- help text rather than a table of fields.  The copy keeps `optparse`
+-- users from seeing the 41.x methods.
+return _.addobjectmethods(_.copy(optparse.prototype))

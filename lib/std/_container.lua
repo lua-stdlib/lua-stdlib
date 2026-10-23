@@ -186,15 +186,38 @@ local function __call(self, ...)
 end
 
 
+-- Return a copy of *proto*, with a copy of its metatable, in which the
+-- fields of *mtfields*, if any, replace its own.  Callers may adjust
+-- the copy and its metatable without affecting *proto*.
+local function copy(proto, mtfields)
+   return setmetatable(merge(proto, {}),
+      merge(getmetatable(proto), mtfields or {}))
+end
+
+
+-- Add 41.x Object methods to a copy of *obj*'s `__index`, keeping its
+-- other methods, and return *obj*.  As in 41.x, `clone` is `__call`, so
+-- call this after setting `__call`, on a metatable of *obj*'s own, such
+-- as one from `copy` or `Module`.
+local function addobjectmethods(obj)
+   local mt = getmetatable(obj)
+   local index = merge({
+      mapfields = mapfields,
+      prototype = prototype,
+      type = prototype,
+   }, merge(mt.__index or {}))
+   index.clone = mt.__call
+   mt.__index = index
+   return obj
+end
+
+
 -- Return a copy of the prototype from std.prototype module *m*, as the
 -- 41.x module for it: its clones are made by std.prototype, but don't
 -- inherit its module functions, which are the other fields of *m*, and
--- *fns*, if any.  The copy has a metatable of its own, which callers
--- may adjust without affecting *m*.
+-- *fns*, if any.
 local function Module(m, fns)
-   local proto = m.prototype
-   local r = setmetatable(merge(proto, {}),
-      merge(getmetatable(proto), {__call = __call}))
+   local r = copy(m.prototype, {__call = __call})
    local mfns = merge(m, merge(fns or {}))
    mfns.prototype = fns and fns.prototype
    return addfunctions(r, mfns)
@@ -203,10 +226,8 @@ end
 
 return {
    Module = Module,
+   addobjectmethods = addobjectmethods,
+   copy = copy,
    mapfields = mapfields,
-
-   -- The methods 41.x Objects have, beside those from std.prototype.
-   objectmethods = {prototype = prototype, type = prototype},
-
    prototype = prototype,
 }
