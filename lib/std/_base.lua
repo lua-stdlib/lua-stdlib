@@ -97,26 +97,6 @@ end
 --[[ ============================ ]]--
 
 
--- No need to recurse because functables are second class citizens in
--- Lua:
--- func = function() print 'called' end
--- func() --> 'called'
--- functable=setmetatable({}, {__call=func})
--- functable() --> 'called'
--- nested=setmetatable({}, {__call=functable})
--- nested()
--- --> stdin:1: attempt to call a table value(global 'd')
--- --> stack traceback:
--- -->	stdin:1: in main chunk
--- -->		[C]: in ?
-local function callable(x)
-   if type(x) == 'function' then
-      return x
-   end
-   return (getmetatable(x) or {}).__call
-end
-
-
 local function catfile(...)
    return concat({...}, dirsep)
 end
