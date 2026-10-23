@@ -1,0 +1,566 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>stdlib  Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>stdlib </h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Metamethods">Metamethods </a></li>
+<li><a href="#Deprecation">Deprecation </a></li>
+<li><a href="#Argument_Checking__These_are_typecheck_s_functions__when_it_is_installed">Argument Checking
+ These are typecheck's functions, when it is installed </a></li>
+<li><a href="#Function_Environments">Function Environments </a></li>
+<li><a href="#Functions">Functions </a></li>
+</ul>
+
+
+<h2>Core Libraries</h2>
+<ul class="nowrap">
+  <li><strong>std.debug</strong></li>
+  <li><a href="../core_libraries/std.io.html">std.io</a></li>
+  <li><a href="../core_libraries/std.math.html">std.math</a></li>
+  <li><a href="../core_libraries/std.package.html">std.package</a></li>
+  <li><a href="../core_libraries/std.string.html">std.string</a></li>
+  <li><a href="../core_libraries/std.table.html">std.table</a></li>
+</ul>
+<h2>Core Functions</h2>
+<ul class="nowrap">
+  <li><a href="../core_functions/std.html">std</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>std.debug</code></h1>
+<p>Additions to the core debug module.</h1>
+<p>
+
+
+<p> The module table returned by <code>std.debug</code> also contains all of the entries
+ from the core debug table.   An hygienic way to import this module, then, is
+ simply to override the core <code>debug</code> locally:</p>
+
+
+<pre>
+<span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">'std.debug'</span>
+</pre>
+
+</p>
+
+
+<h2><a href="#Metamethods">Metamethods </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#__call">__call ()</a></td>
+	<td class="summary">Equivalent to calling <code>debug.say(1, ...)</code></td>
+	</tr>
+</table>
+<h2><a href="#Deprecation">Deprecation </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#DEPRECATED">DEPRECATED (version, name[, extramsg], fn)</a></td>
+	<td class="summary">Wrap a deprecated function to warn the first time it is called.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#DEPRECATIONMSG">DEPRECATIONMSG (version, name[, extramsg], level)</a></td>
+	<td class="summary">Format a deprecation warning message.</td>
+	</tr>
+</table>
+<h2><a href="#Argument_Checking__These_are_typecheck_s_functions__when_it_is_installed">Argument Checking
+ These are typecheck's functions, when it is installed </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#argcheck">argcheck ()</a></td>
+	<td class="summary">Check the type of an argument against an expected type.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#argerror">argerror ()</a></td>
+	<td class="summary">Raise a bad argument error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#argscheck">argscheck ()</a></td>
+	<td class="summary">Wrap a function definition with argument type and arity checking.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#extramsg_mismatch">extramsg_mismatch ()</a></td>
+	<td class="summary">Format a type mismatch error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#extramsg_toomany">extramsg_toomany ()</a></td>
+	<td class="summary">Format a too many things error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#parsetypes">parsetypes ()</a></td>
+	<td class="summary">Compact permutation list into a list of valid types at each argument.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#resulterror">resulterror ()</a></td>
+	<td class="summary">Raise a bad result error.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#typesplit">typesplit ()</a></td>
+	<td class="summary">Split a typespec string into a table of normalized type names.</td>
+	</tr>
+</table>
+<h2><a href="#Function_Environments">Function Environments </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#getfenv">getfenv (fn)</a></td>
+	<td class="summary">Extend <code>debug.getfenv</code> to unwrap functables correctly.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setfenv">setfenv (fn, env)</a></td>
+	<td class="summary">Extend <code>debug.setfenv</code> to unwrap functables correctly.</td>
+	</tr>
+</table>
+<h2><a href="#Functions">Functions </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#say">say ([n=1], ...)</a></td>
+	<td class="summary">Print a debugging message to <code>io.stderr</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#trace">trace (event)</a></td>
+	<td class="summary">Trace function calls.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "__call"></a>
+    <strong>__call ()</strong>
+    </dt>
+    <dd>
+    Equivalent to calling <code>debug.say(1, ...)</code>
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../core_libraries/std.debug.html#say">say</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">'std.debug'</span>
+<span class="global">debug</span> <span class="string">'oh noes!'</span></pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Deprecation"></a>Deprecation </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "DEPRECATED"></a>
+    <strong>DEPRECATED (version, name[, extramsg], fn)</strong>
+    </dt>
+    <dd>
+    Wrap a deprecated function to warn the first time it is called.
+ Unless <code>std._debug.deprecate</code> is <code>false</code>, the warning goes to
+ stderr; with <code>std._debug.deprecate</code> set to <code>true</code>, the deprecated
+ function is not defined at all.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">version</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         first deprecation release version
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         function name for automatic warning message
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         additional warning text
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span></span>
+         deprecated function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
+
+<p>a function that warns on its first call, and</p>
+<pre><code>hands off to *fn*; or `nil` if `std._debug.deprecate` is `true`
+</code></pre>
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">M.op = <span class="function-name">DEPRECATED</span>(<span class="string">'41'</span>, <span class="string">"'std.functional.op'"</span>, std.operator)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "DEPRECATIONMSG"></a>
+    <strong>DEPRECATIONMSG (version, name[, extramsg], level)</strong>
+    </dt>
+    <dd>
+    Format a deprecation warning message.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">version</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         first deprecation release version
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         function name for automatic warning message
+        </li>
+        <li><span class="parameter">extramsg</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         additional warning text
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span> or <span class="type">false</span></span>
+
+<p> call stack level to blame for the warning,</p>
+<pre><code>or `false` to blame nothing
+</code></pre>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+
+<p>the warning, or an empty string unless</p>
+<pre><code>`std._debug.deprecate` is `nil`
+</code></pre>
+
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="global">io</span>.stderr:<span class="function-name">write</span>(<span class="function-name">DEPRECATIONMSG</span>(<span class="string">'42'</span>, <span class="string">"multi-argument 'module.fname'"</span>, <span class="number">2</span>))</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Argument_Checking__These_are_typecheck_s_functions__when_it_is_installed"></a>Argument Checking
+ These are typecheck's functions, when it is installed </h2>
+
+          <div class="section-description">
+            Otherwise,
+ <code>argcheck</code> and <code>argscheck</code> check nothing, as when
+ <code>std._debug.argcheck</code> is <code>false</code>, and the rest are not defined.
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "argcheck"></a>
+    <strong>argcheck ()</strong>
+    </dt>
+    <dd>
+    Check the type of an argument against an expected type.
+ Same as <code>typecheck.argcheck</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "argerror"></a>
+    <strong>argerror ()</strong>
+    </dt>
+    <dd>
+    Raise a bad argument error.
+ Same as <code>typecheck.argerror</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "argscheck"></a>
+    <strong>argscheck ()</strong>
+    </dt>
+    <dd>
+    Wrap a function definition with argument type and arity checking.
+ Same as <code>typecheck.argscheck</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "extramsg_mismatch"></a>
+    <strong>extramsg_mismatch ()</strong>
+    </dt>
+    <dd>
+    Format a type mismatch error.
+ Same as <code>typecheck.extramsg_mismatch</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "extramsg_toomany"></a>
+    <strong>extramsg_toomany ()</strong>
+    </dt>
+    <dd>
+    Format a too many things error.
+ Same as <code>typecheck.extramsg_toomany</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "parsetypes"></a>
+    <strong>parsetypes ()</strong>
+    </dt>
+    <dd>
+    Compact permutation list into a list of valid types at each argument.
+ Same as <code>typecheck.parsetypes</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "resulterror"></a>
+    <strong>resulterror ()</strong>
+    </dt>
+    <dd>
+    Raise a bad result error.
+ Same as <code>typecheck.resulterror</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "typesplit"></a>
+    <strong>typesplit ()</strong>
+    </dt>
+    <dd>
+    Split a typespec string into a table of normalized type names.
+ Same as <code>typecheck.typesplit</code>, when that is installed.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Function_Environments"></a>Function Environments </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "getfenv"></a>
+    <strong>getfenv (fn)</strong>
+    </dt>
+    <dd>
+    Extend <code>debug.getfenv</code> to unwrap functables correctly.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">int</span>, <span class="type">function</span> or <span class="type">functable</span></span>
+         target function, or stack level
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
+        environment of <em>fn</em>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setfenv"></a>
+    <strong>setfenv (fn, env)</strong>
+    </dt>
+    <dd>
+    Extend <code>debug.setfenv</code> to unwrap functables correctly.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fn</span>
+            <span class="types"><span class="type">function</span> or <span class="type">functable</span></span>
+         target function
+        </li>
+        <li><span class="parameter">env</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
+         new function environment
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function</span></span>
+        <em>fn</em>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Functions"></a>Functions </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "say"></a>
+    <strong>say ([n=1], ...)</strong>
+    </dt>
+    <dd>
+    Print a debugging message to <code>io.stderr</code>.
+ Display arguments passed through <code>std.tostring</code> and separated by tab
+ characters when <code>std._debug</code> hinting is <code>true</code> and <em>n</em> is 1 or less;
+ or <code>std._debug.level</code> is a number greater than or equal to <em>n</em>.   If
+ <code>std._debug</code> hinting is false or nil, nothing is written.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">integer</span></span>
+         debugging level, smaller is higher priority
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">...</span>
+         objects to print(as for print)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> _debug = <span class="global">require</span> <span class="string">'std._debug'</span>
+_debug.level = <span class="number">3</span>
+<span class="function-name">say</span>(<span class="number">2</span>, <span class="string">'_debug status level:'</span>, _debug.level)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "trace"></a>
+    <strong>trace (event)</strong>
+    </dt>
+    <dd>
+    Trace function calls.
+ Use as debug.sethook(trace, 'cr'), which is done automatically
+ when <code>std._debug.call</code> is set.
+ Based on test/trace-calls.lua from the Lua distribution.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">event</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         event causing the call
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> _debug = <span class="global">require</span> <span class="string">'std._debug'</span>
+_debug.call = <span class="keyword">true</span>
+<span class="keyword">local</span> <span class="global">debug</span> = <span class="global">require</span> <span class="string">'std.debug'</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2026-10-22 19:02:37 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

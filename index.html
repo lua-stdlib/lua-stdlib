@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>stdlib 41.2.4 Reference</title>
+    <title>stdlib  Reference</title>
     <link rel="stylesheet" href="ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,34 +24,24 @@
 
 <div id="navigation">
 <br/>
-<h1>stdlib 41.2.4</h1>
+<h1>stdlib </h1>
 
 
 
 
 
-<h2>Modules</h2>
+<h2>Core Functions</h2>
 <ul class="nowrap">
-  <li><a href="modules/std.html">std</a></li>
-  <li><a href="modules/std.debug.html">std.debug</a></li>
-  <li><a href="modules/std.functional.html">std.functional</a></li>
-  <li><a href="modules/std.io.html">std.io</a></li>
-  <li><a href="modules/std.math.html">std.math</a></li>
-  <li><a href="modules/std.operator.html">std.operator</a></li>
-  <li><a href="modules/std.package.html">std.package</a></li>
-  <li><a href="modules/std.strict.html">std.strict</a></li>
-  <li><a href="modules/std.string.html">std.string</a></li>
-  <li><a href="modules/std.table.html">std.table</a></li>
+  <li><a href="core_functions/std.html">std</a></li>
 </ul>
-<h2>Classes</h2>
+<h2>Core Libraries</h2>
 <ul class="nowrap">
-  <li><a href="classes/std.tree.html">std.tree</a></li>
-  <li><a href="classes/std.container.html">std.container</a></li>
-  <li><a href="classes/std.object.html">std.object</a></li>
-  <li><a href="classes/std.list.html">std.list</a></li>
-  <li><a href="classes/std.optparse.html">std.optparse</a></li>
-  <li><a href="classes/std.set.html">std.set</a></li>
-  <li><a href="classes/std.strbuf.html">std.strbuf</a></li>
+  <li><a href="core_libraries/std.debug.html">std.debug</a></li>
+  <li><a href="core_libraries/std.io.html">std.io</a></li>
+  <li><a href="core_libraries/std.math.html">std.math</a></li>
+  <li><a href="core_libraries/std.package.html">std.package</a></li>
+  <li><a href="core_libraries/std.string.html">std.string</a></li>
+  <li><a href="core_libraries/std.table.html">std.table</a></li>
 </ul>
 
 </div>
@@ -59,80 +49,58 @@
 <div id="content">
 
 
-  <h2>Standard Lua Libraries</h2>
+  <h2>
+<h1>Standard Lua Libraries</h1>
 
-<h2>Modules</h2>
+<p>This is a collection of light-weight libraries for Lua 5.1 (including
+LuaJIT), 5.2 and 5.3 written in pure Lua, comprising:</p>
+
+<ol>
+    <li><p>Enhanced and expanded versions of some core Lua functions in the
+    <a href="core_functions/std.html#">std</a> module itself;</p></li>
+    <li><p>Enhanced versions of some core Lua libraries: <a href="core_libraries/std.debug.html#">std.debug</a>, <a href="core_libraries/std.io.html#">std.io</a>,
+    <a href="core_libraries/std.math.html#">std.math</a>, <a href="core_libraries/std.package.html#">std.package</a>, <a href="core_libraries/std.string.html#">std.string</a> and <a href="core_libraries/std.table.html#">std.table</a>;</p></li>
+</ol>
+
+<h2>LICENSE</h2>
+
+<p>The code is copyright by its respective authors, and released under the
+MIT license (the same license as Lua itself).  There is no warranty.</p>
+
+</h2>
+
+<h2>Core Functions</h2>
 <table class="module_list">
 	<tr>
-		<td class="name" nowrap><a href="modules/std.html">std</a></td>
-		<td class="summary">Lua Standard Libraries.</td>
+		<td class="name" nowrap><a href="core_functions/std.html">std</a></td>
+		<td class="summary">Enhanced Lua core functions, and others.</td>
 	</tr>
+</table>
+<h2>Core Libraries</h2>
+<table class="module_list">
 	<tr>
-		<td class="name" nowrap><a href="modules/std.debug.html">std.debug</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.debug.html">std.debug</a></td>
 		<td class="summary">Additions to the core debug module.</td>
 	</tr>
 	<tr>
-		<td class="name" nowrap><a href="modules/std.functional.html">std.functional</a></td>
-		<td class="summary">Functional programming.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="modules/std.io.html">std.io</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.io.html">std.io</a></td>
 		<td class="summary">Additions to the core io module.</td>
 	</tr>
 	<tr>
-		<td class="name" nowrap><a href="modules/std.math.html">std.math</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.math.html">std.math</a></td>
 		<td class="summary">Additions to the core math module.</td>
 	</tr>
 	<tr>
-		<td class="name" nowrap><a href="modules/std.operator.html">std.operator</a></td>
-		<td class="summary">Functional forms of Lua operators.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="modules/std.package.html">std.package</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.package.html">std.package</a></td>
 		<td class="summary">Additions to the core package module.</td>
 	</tr>
 	<tr>
-		<td class="name" nowrap><a href="modules/std.strict.html">std.strict</a></td>
-		<td class="summary">Checks uses of undeclared global variables.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="modules/std.string.html">std.string</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.string.html">std.string</a></td>
 		<td class="summary">Additions to the core string module.</td>
 	</tr>
 	<tr>
-		<td class="name" nowrap><a href="modules/std.table.html">std.table</a></td>
+		<td class="name" nowrap><a href="core_libraries/std.table.html">std.table</a></td>
 		<td class="summary">Extensions to the core table module.</td>
-	</tr>
-</table>
-<h2>Classes</h2>
-<table class="module_list">
-	<tr>
-		<td class="name" nowrap><a href="classes/std.tree.html">std.tree</a></td>
-		<td class="summary">Tree container prototype.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.container.html">std.container</a></td>
-		<td class="summary">Container prototype.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.object.html">std.object</a></td>
-		<td class="summary">Prototype-based objects.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.list.html">std.list</a></td>
-		<td class="summary">Tables as lists.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.optparse.html">std.optparse</a></td>
-		<td class="summary">Parse and process command line options.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.set.html">std.set</a></td>
-		<td class="summary">Set container prototype.</td>
-	</tr>
-	<tr>
-		<td class="name" nowrap><a href="classes/std.strbuf.html">std.strbuf</a></td>
-		<td class="summary">String buffers.</td>
 	</tr>
 </table>
 
@@ -140,7 +108,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-07-26 11:03:27 </i>
+<i style="float:right;">Last updated 2026-10-22 19:02:37 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
