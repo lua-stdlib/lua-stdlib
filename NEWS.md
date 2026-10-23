@@ -47,6 +47,14 @@
     `std.list` is rebuilt over 'std.functional', with the List API of
     41.2, less the functions 41 deprecated.
 
+  - `std.functional` is the 41.x API again, over the new design in the
+    std.functional package, which has its data first and its function
+    last.  When stdlib is installed, `require 'std.functional'` gives
+    you the 41.x module, and `require 'std.functional.init'` the new
+    one, so that the two don't clash.  The `bind` with its arguments
+    spread rather than in a table, `eval`, `fold` and `op` are
+    deprecated, as they were in 41.2.
+
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
     the `stdlib-dev-1.rockspec`:
@@ -143,9 +151,9 @@
 
 ### Incompatible changes
 
-  - `std.functional`, `std.maturity`, `std.strict` and `std.tuple` have
-    been moved to their own packages,
-    and are no longer shipped as part of stdlib.
+  - `std.maturity`, `std.strict` and `std.tuple` have been moved to
+    their own packages, and are no longer shipped as part of stdlib.
+    `std.functional` is too, but stdlib keeps its 41.x API, as above.
 
   - `lambda` from the 'std.functional' package, which stdlib now
     depends on, returns a functable rather than a bare function, so
