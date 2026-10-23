@@ -18,10 +18,13 @@
 local _ = require 'std._base'
 
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
+local functional = require 'std.functional.init'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local catfile = _.io.catfile
-local leaves = _.tree.leaves
 local split = _.string.split
+
+local compact, each, flatten =
+   functional.compact, functional.each, functional.flatten
 
 _ = nil
 
@@ -101,9 +104,9 @@ local function writelines(h, ...)
       write(h, '\n')
       h = output()
    end
-   for v in leaves(ipairs, {...}) do
+   each(compact(flatten(pack(...))), function(v)
       h:write(v, '\n')
-   end
+   end)
 end
 
 

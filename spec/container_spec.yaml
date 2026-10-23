@@ -63,11 +63,11 @@ specify std.container:
         expect(getmetatable(things)._baz).to_be 'quux'
   - context with module functions:
     - before:
-        reduce = require 'std.functional'.reduce
-        elems  = require 'std'.elems
         functions = {
           count = function(bag)
-            return reduce(function(r, k) return r + k end, 0, elems, bag)
+            local r = 0
+            for _, v in pairs(bag) do r = r + v end
+            return r
           end,
         }
         Bag = Container {

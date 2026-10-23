@@ -55,8 +55,6 @@ local _ENV = require 'std.normalize' {
    shallow_copy = 'table.merge',
    sort = 'table.sort',
    sub = 'string.sub',
-   wrap = 'coroutine.wrap',
-   yield = 'coroutine.yield',
 }
 
 
@@ -135,20 +133,6 @@ local function invert(t)
       i[v] = k
    end
    return i
-end
-
-
-local function leaves(it, tr)
-   local function visit(n)
-      if type(n) == 'table' then
-         for _, v in it(n) do
-            visit(v)
-         end
-      else
-         yield(n)
-      end
-   end
-   return wrap(visit), tr
 end
 
 
@@ -265,9 +249,5 @@ return {
       invert = invert,
       maxn = maxn,
       okeys = okeys,
-   },
-
-   tree = {
-      leaves = leaves,
    },
 }

@@ -189,6 +189,9 @@
     If `__len` is not present, or gives the same result as `maxn` then
     `npairs` continues to behave as in the previous release.
 
+  - `std.io.writelines` writes the values that follow a `nil` argument
+    too, skipping the `nil`, where it used to stop at the first.
+
 
 
 ## Noteworthy changes in release 41.2.0 (2015-03-08) [stable]

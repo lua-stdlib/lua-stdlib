@@ -18,7 +18,7 @@
 local _ = require 'std._base'
 
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
-local functional = require 'std.functional'
+local functional = require 'std.functional.init'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local invert = _.table.invert
 local maxn = _.table.maxn
@@ -449,7 +449,12 @@ M = {
    --    flatten {{1, {{2}, 3}, 4}, 5}
    flatten = DEPRECATED('42', "'std.table.flatten'",
       "use 'std.functional.flatten' instead",
-      X('flatten(table)', functional.flatten)),
+      X('flatten(table)', function(t)
+         -- 41.x lists have no `n` field.
+         local r = functional.flatten(t)
+         r.n = nil
+         return r
+      end)),
 
    --- Find the length of the sequence part of a table, up to the
    -- first `nil` valued element, respecting any `__len` metamethod.
@@ -497,7 +502,9 @@ M = {
    --    shape({2, 3}, {1, 2, 3, 4, 5, 6})
    shape = DEPRECATED('42', "'std.table.shape'",
       "use 'std.functional.shape' instead",
-      X('shape(table, table)', functional.shape)),
+      X('shape(table, table)', function(dims, t)
+         return functional.shape(t, dims)
+      end)),
 }
 
 

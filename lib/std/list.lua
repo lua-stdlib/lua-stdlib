@@ -30,7 +30,7 @@ local addfunctions = require 'std._container'.addfunctions
 local Object = require 'std.object'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
-local foldl = require 'std.functional'.foldl
+local foldl = require 'std.functional.init'.foldl
 
 _ = nil
 
@@ -54,7 +54,7 @@ end
 
 
 local function pushall(l, m)
-   return foldl(push, l, m)
+   return foldl(m, l, push)
 end
 
 
@@ -64,7 +64,7 @@ end
 
 
 local function concat(...)
-   return foldl(pushall, List {}, {...})
+   return foldl({...}, List {}, pushall)
 end
 
 
