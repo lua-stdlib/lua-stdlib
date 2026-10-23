@@ -1,0 +1,73 @@
+# General Lua Libraries for Lua 5.1, 5.2, 5.3, 5.4 & 5.5
+# Copyright (C) 2011-2026 stdlib authors
+
+specify std.debug_init:
+- describe require:
+  - it writes a deprecation warning blaming the require call: |
+      expect(luaproc [[
+         local _DEBUG = require 'std.debug_init'._DEBUG   -- line 1
+      ]]).to_contain_error ":1: 'std.debug_init' was deprecated in release 42"
+  - it writes no warning when deprecate is false: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = false
+         require 'std.debug_init'
+      ]]).not_to_contain_error 'deprecated'
+  - it raises an error when deprecate is true: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = true
+         require 'std.debug_init'
+      ]]).to_contain_error "module 'std.debug_init' was removed in release 42"
+
+- describe _DEBUG:
+  - it reads std._debug hints: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = false
+         require 'std._debug'.level = 3
+         print(require 'std.debug_init'._DEBUG.level)
+      ]]).to_output '3\n'
+  - it writes std._debug hints: |
+      expect(luaproc [[
+         require 'std._debug'.deprecate = false
+         require 'std.debug_init'._DEBUG.argcheck = false
+         print(require 'std._debug'.argcheck)
+      ]]).to_output 'false\n'
+
+
+specify the _DEBUG global:
+- it sets every std._debug hint from false: |
+    expect(luaproc [[
+       _DEBUG = false
+       require 'std'
+       local _debug = require 'std._debug'
+       print(_debug.argcheck, _debug.deprecate, _debug.level)
+    ]]).to_output('false\tfalse\t' .. tostring(math.huge) .. '\n')
+- it sets std._debug hints from a table: |
+    expect(luaproc [[
+       _DEBUG = {argcheck = false, level = 2}
+       require 'std'
+       local _debug = require 'std._debug'
+       print(_debug.argcheck, _debug.level)
+    ]]).to_output 'false\t2\n'
+- it writes a deprecation warning: |
+    expect(luaproc [[
+       _DEBUG = {}
+       require 'std'
+    ]]).to_contain_error "the '_DEBUG' global was deprecated in release 42"
+- it writes no warning when deprecate is false: |
+    expect(luaproc [[
+       require 'std._debug'.deprecate = false
+       _DEBUG = {}
+       require 'std'
+    ]]).not_to_contain_error 'deprecated'
+- it sets the hints read by std.debug_init: |
+    expect(luaproc [[
+       _DEBUG = false
+       print(require 'std.debug_init'._DEBUG.argcheck)
+    ]]).to_output 'false\n'
+- it is ignored when deprecate is true: |
+    expect(luaproc [[
+       require 'std._debug'.deprecate = true
+       _DEBUG = false
+       require 'std'
+       print(require 'std._debug'.argcheck)
+    ]]).to_output 'true\n'

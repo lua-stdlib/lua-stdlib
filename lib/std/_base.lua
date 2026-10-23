@@ -25,6 +25,26 @@
 ]]
 
 
+-- As 41.x did, configure std._debug from a `_DEBUG` global, if any:
+-- `false` or `true` for all its hints, or a table of them.  Do it before
+-- loading typecheck, which reads std._debug.argcheck as it loads.
+do
+   local _debug = require 'std._debug'
+   local _DEBUG = rawget(_G, '_DEBUG')
+   if _DEBUG ~= nil and _debug.deprecate ~= true then
+      if type(_DEBUG) == 'table' then
+         for k, v in next, _DEBUG do
+            _debug[k] = v
+         end
+      elseif type(_DEBUG) == 'boolean' then
+         _debug(_DEBUG)
+      end
+      io.stderr:write(require 'std._deprecation'.DEPRECATIONMSG('42',
+         "the '_DEBUG' global", "set 'std._debug' hints instead", false))
+   end
+end
+
+
 local _ENV = require 'std.normalize' {
    concat = 'table.concat',
    dirsep = 'package.dirsep',

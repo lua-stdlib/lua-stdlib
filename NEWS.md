@@ -89,6 +89,15 @@
 
 ### Deprecations
 
+  - `std.debug_init` and the `_DEBUG` global still configure debug
+    hints as in 41.x, but are deprecated in favour of setting the
+    'std._debug' hints directly.  `std.debug_init._DEBUG` reads and
+    writes them, and a `_DEBUG` global sets them when stdlib is first
+    loaded.  Each writes a warning to stderr, unless
+    `std._debug.deprecate` is `false`.  With `std._debug.deprecate` set
+    to `true`, requiring `std.debug_init` raises an error, and the
+    `_DEBUG` global is ignored.
+
   - A `_functions` table in a `std.container` or `std.object`
     constructor still becomes module functions of the new prototype,
     which are not propagated to its instances, but it is deprecated:

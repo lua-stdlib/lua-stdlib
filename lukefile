@@ -15,6 +15,7 @@ modules  = {
    {['std._deprecation'] = 'lib/std/_deprecation.lua'},
    {['std.container'] = 'lib/std/container.lua'},
    {['std.debug']   = 'lib/std/debug.lua'},
+   {['std.debug_init'] = 'lib/std/debug_init.lua'},
    {['std.io']      = 'lib/std/io.lua'},
    {['std.list']    = 'lib/std/list.lua'},
    {['std.math']    = 'lib/std/math.lua'},

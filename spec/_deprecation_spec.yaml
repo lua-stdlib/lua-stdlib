@@ -81,6 +81,9 @@ specify std._deprecation:
       show_extramsg = [[
          io.write(M.DEPRECATIONMSG('42', "'fname'", 'use g instead', 1))
       ]]
+      show_nolevel = [[
+         io.write(M.DEPRECATIONMSG('42', "'fname'", 'use g instead', false))
+      ]]
 
   - context by default:
     - it formats a warning: |
@@ -89,6 +92,9 @@ specify std._deprecation:
               'and will be removed entirely in a future release.\n')
     - it blames the given call stack level: |
         expect(deprecating(nil, show)).to_match_output '^[^:]+:3: '
+    - it blames nothing when the level is false: |
+        expect(deprecating(nil, show_nolevel)).
+           to_output "'fname' was deprecated in release 42, use g instead.\n"
     - it appends extra text to the warning: |
         expect(deprecating(nil, show_extramsg)).
            to_contain_output "'fname' was deprecated in release 42, use g instead.\n"

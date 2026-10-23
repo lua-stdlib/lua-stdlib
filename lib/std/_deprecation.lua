@@ -37,9 +37,12 @@ local function DEPRECATIONMSG(version, name, extramsg, level)
    if _debug.deprecate ~= nil then
       return ''
    end
-   local _, where = pcall(function()
-      error('', level + 3)
-   end)
+   local where = ''
+   if level then
+      where = select(2, pcall(function()
+         error('', level + 3)
+      end))
+   end
    return format('%s%s was deprecated in release %s, %s.\n', where, name,
       tostring(version), extramsg or 'and will be removed entirely in a future release')
 end
@@ -87,7 +90,8 @@ return {
    -- @string version first deprecation release version
    -- @string name function name for automatic warning message
    -- @string[opt] extramsg additional warning text
-   -- @int level call stack level to blame for the warning
+   -- @tparam int|false level call stack level to blame for the warning,
+   --    or `false` to blame nothing
    -- @treturn string the warning, or an empty string unless
    --    `std._debug.deprecate` is `nil`
    -- @usage
