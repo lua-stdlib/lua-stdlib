@@ -23,5 +23,6 @@ modules  = {
    {['std.strbuf']  = 'lib/std/strbuf.lua'},
    {['std.string']  = 'lib/std/string.lua'},
    {['std.table']   = 'lib/std/table.lua'},
+   {['std.tree']    = 'lib/std/tree.lua'},
    {['std.version'] = 'lib/std/version.lua.in'},
 }

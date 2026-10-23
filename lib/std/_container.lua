@@ -189,7 +189,8 @@ end
 -- Return a copy of the prototype from std.prototype module *m*, as the
 -- 41.x module for it: its clones are made by std.prototype, but don't
 -- inherit its module functions, which are the other fields of *m*, and
--- *fns*, if any.
+-- *fns*, if any.  The copy has a metatable of its own, which callers
+-- may adjust without affecting *m*.
 local function Module(m, fns)
    local proto = m.prototype
    local r = setmetatable(merge(proto, {}),

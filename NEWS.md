@@ -39,8 +39,9 @@
 
   - stdlib depends on the packages its 41.x modules moved into, so
     upgrading from 41.2 keeps those APIs available.  `std.container`,
-    `std.object`, `std.set` and `std.strbuf` are built on
-    'std.prototype', but still return the prototype itself.
+    `std.object`, `std.set`, `std.strbuf` and `std.tree` are built on
+    'std.prototype', but still return the prototype itself.  `std.tree`
+    is 'std.prototype.trie', still called Tree.
 
   - stdlib builds with luke instead of make, and supports Lua 5.1
     through 5.5, including LuaJIT.  To install current git master, use
