@@ -23,11 +23,11 @@ source = {
 
 dependencies = {
    'lua >= 5.1, < 5.6',
-   'optparse >= 1.6',
-   'std._debug',
-   'std.functional',
-   'std.normalize >= 2.0',
-   'std.prototype',
+   'optparse >= 2',
+   'std._debug >= 1',
+   'std.functional >= 2',
+   'std.normalize >= 4',
+   'std.prototype >= 2',
 }
 
 build = {
@@ -46,7 +46,7 @@ build = {
 test_dependencies = {
    'ansicolors',
    'luacov',
-   'specl >= 15',
+   'specl >= 16',
 }
 
 test = {
