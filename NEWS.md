@@ -88,15 +88,17 @@
     constructor still becomes module functions of the new prototype,
     which are not propagated to its instances, but it is deprecated:
     put module functions in a module table, beside a `prototype` field,
-    as 'std.prototype' does.  It writes a warning to stderr unless
-    `std._debug.deprecate` is `false`.  With `std._debug.deprecate` set
-    to `true`, `_functions` is just another `_` prefixed field, kept in
-    the new prototype's metatable, as in 'std.prototype'.
+    as 'std.prototype' does.  It writes a warning to stderr the first
+    time it is used, unless `std._debug.deprecate` is `false`.  With
+    `std._debug.deprecate` set to `true`, `_functions` is just another
+    `_` prefixed field, kept in the new prototype's metatable, as in
+    'std.prototype'.
 
   - Monkey patching calls `std.monkey_patch`, `std.io.monkey_patch`,
     `std.math.monkey_patch`, `std.string.monkey_patch` and
     `std.table.monkey_patch` are deprecated, and write a warning to
-    stderr on every call unless `std._debug.deprecate` is `false`.
+    stderr the first time each is called, unless `std._debug.deprecate`
+    is `false`.
     With `std._debug.deprecate` set to `true`, they are not defined at
     all.
 

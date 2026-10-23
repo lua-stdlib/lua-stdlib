@@ -7,8 +7,8 @@
 
  Like the rest of stdlib, these obey `std._debug.deprecate`:
 
-  - `nil` (the default): deprecated APIs write a warning to stderr on
-    every call;
+  - `nil` (the default): deprecated APIs write a warning to stderr the
+    first time each one is used in a run;
   - `false`: deprecated APIs work without a warning;
   - `true`: deprecated APIs are not defined at all.
 
@@ -50,8 +50,12 @@ local function DEPRECATED(version, name, extramsg, fn)
       fn, extramsg = extramsg, nil
    end
    if not _debug.deprecate then
+      local warned = false
       return function(...)
-         stderr:write(DEPRECATIONMSG(version, name, extramsg, 2))
+         if not warned then
+            warned = true
+            stderr:write(DEPRECATIONMSG(version, name, extramsg, 2))
+         end
          return fn(...)
       end
    end
@@ -65,14 +69,15 @@ end
 
 
 return {
-   --- Wrap a deprecated function to warn whenever it is called.
+   --- Wrap a deprecated function to warn the first time it is called.
    -- @function DEPRECATED
    -- @string version first deprecation release version
    -- @string name function name for automatic warning message
    -- @string[opt] extramsg additional warning text
    -- @func fn deprecated function
-   -- @treturn function|nil a function that writes the warning, if any,
-   --    and hands off to *fn*; or `nil` if `std._debug.deprecate` is `true`
+   -- @treturn function|nil a function that writes the warning on its
+   --    first call, unless `std._debug.deprecate` is `false`, and hands
+   --    off to *fn*; or `nil` if `std._debug.deprecate` is `true`
    -- @usage
    --    M.okeys = DEPRECATED('42', "'std.table.okeys'", okeys)
    DEPRECATED = DEPRECATED,

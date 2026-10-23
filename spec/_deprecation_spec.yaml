@@ -46,9 +46,16 @@ specify std._deprecation:
               'and will be removed entirely in a future release.')
     - it blames the caller of the deprecated function: |
         expect(deprecating(nil, call)).to_match_error '^[^:]+:6: '
-    - it warns on every call: |
+    - it warns only on the first call: |
         local errout = deprecating(nil, call .. 'f()').errout
-        expect(select(2, errout:gsub('was deprecated', ''))).to_be(2)
+        expect(select(2, errout:gsub('was deprecated', ''))).to_be(1)
+    - it warns once for each deprecated api: |
+        local errout = deprecating(nil, define .. [[
+           local g = M.DEPRECATED('42', "'gname'", print)
+           f() g() f() g()
+        ]]).errout
+        expect(select(2, errout:gsub("'fname' was deprecated", ''))).to_be(1)
+        expect(select(2, errout:gsub("'gname' was deprecated", ''))).to_be(1)
     - it appends extra text to the warning: |
         expect(deprecating(nil, call_extramsg)).
            to_contain_error "'fname' was deprecated in release 42, use g instead."

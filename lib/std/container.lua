@@ -122,13 +122,18 @@ local FUNCTIONS_MSG = "put module functions in the module table, " ..
    "beside a 'prototype' field, as std.prototype does"
 
 
+-- Warn about `_functions` only the first time it is used.
+local functions_warned = false
+
+
 -- Unless *fns* is nil, warn about it, blaming the code that called
 -- std.container, and copy its functions into *obj* as module functions.
 local function modulefunctions(obj, fns)
    if not fns then
       return obj
    end
-   if _debug.deprecate == nil then
+   if not functions_warned and _debug.deprecate == nil then
+      functions_warned = true
       stderr:write(DEPRECATIONMSG('42', "'_functions'", FUNCTIONS_MSG, blame()))
    end
    for k, v in next, fns do

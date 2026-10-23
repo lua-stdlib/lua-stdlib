@@ -384,6 +384,10 @@ end
 local render41 = X('render(?any, func, func, func, func, func, [?table])',
    callbackrender)
 
+-- Whether the 41.2 form of render has warned already.
+local render41_warned = false
+
+
 -- Render with 41.2's callbacks when the second argument is callable,
 -- unless deprecated APIs are disabled, and otherwise with normalize's
 -- render.
@@ -392,8 +396,11 @@ local function vrender(x, ...)
    if _debug.deprecate ~= true and
       (type(cb) == 'function' or getmetamethod(cb, '__call'))
    then
-      stderr:write(DEPRECATIONMSG('42', "7-argument 'std.string.render'",
-         "use 'std.string.render(x, vfns, roots)' instead", 2))
+      if not render41_warned then
+         render41_warned = true
+         stderr:write(DEPRECATIONMSG('42', "7-argument 'std.string.render'",
+            "use 'std.string.render(x, vfns, roots)' instead", 2))
+      end
       return render41(x, ...)
    end
    return render(x, ...)
