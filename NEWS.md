@@ -126,8 +126,10 @@
     their `__tostring` metamethods.
 
   - `std.ireverse`, `std.table.flatten` and `std.table.shape` are
-    deprecated in favour of `ireverse`, `flatten` and `shape` from
-    'std.functional', which stdlib now depends on.
+    deprecated in favour of `reversed` from 'std.functional.init', and
+    `flatten` and `shape` from 'std.functional', which stdlib now
+    depends on.  `std.ireverse` still stops at the first hole of a
+    table, as it always has, where `reversed` keeps them.
 
   - `std.table.len` is deprecated in favour of `len` from
     'std.normalize'.

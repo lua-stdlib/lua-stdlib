@@ -21,7 +21,6 @@
 local _ = require 'std._base'
 
 local DEPRECATED = require 'std._deprecation'.DEPRECATED
-local functional = require 'std.functional'
 local argscheck = _.typecheck and _.typecheck.argscheck
 local compare = _.list.compare
 local tostring41 = _.tostring
@@ -52,6 +51,21 @@ local M, monkeys
 local function _assert(expect, fmt, arg1, ...)
    local msg =(arg1 ~= nil) and format(fmt, arg1, ...) or fmt or ''
    return expect or error(msg, 2)
+end
+
+
+-- Be careful to reverse only the valid sequence part of a table.
+local function ireverse(t)
+   local oob = 1
+   while t[oob] ~= nil do
+      oob = oob + 1
+   end
+
+   local r = {}
+   for i = 1, oob - 1 do
+      r[oob - i] = t[i]
+   end
+   return r
 end
 
 
@@ -442,8 +456,8 @@ M = {
    --    local rielems = std.functional.compose(std.ireverse, std.ielems)
    --    for e in rielems(l) do process(e) end
    ireverse = DEPRECATED('42', "'std.ireverse'",
-      "use 'std.functional.ireverse' instead",
-      X('ireverse(table)', functional.ireverse)),
+      "use 'reversed' from 'std.functional.init' instead",
+      X('ireverse(table)', ireverse)),
 
    --- Overwrite core methods with `std` enhanced versions.
    --

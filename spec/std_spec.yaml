@@ -362,7 +362,7 @@ specify std:
 
   - it writes a deprecation warning: |
       expect(deprecation(nil, this_module, 'ireverse', '{}')).
-         to_contain_error "'std.ireverse' was deprecated in release 42, use 'std.functional.ireverse' instead"
+         to_contain_error "'std.ireverse' was deprecated in release 42, use 'reversed' from 'std.functional.init' instead"
   - it writes no warning when deprecate is false: |
       expect(deprecation(false, this_module, 'ireverse', '{}')).
          not_to_contain_error 'deprecated'
