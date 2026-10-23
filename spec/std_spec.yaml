@@ -271,6 +271,21 @@ specify std:
         expect(f(t, '_functor')).to_be(functor)
         expect(f(t, '_functor')()).to_be 'called'
 
+  - context with an object:
+    - before:
+        Object = require 'std.object'
+        objmethod = function() end
+        obj = Object {
+           _type = 'DerivedObject',
+           _method = objmethod,
+        }
+    - it returns nil for missing metamethods:
+        expect(f(obj, 'not a metamethod on obj')).to_be(nil)
+    - it returns nil for non-function metatable entries:
+        expect(f(obj, '_type')).to_be(nil)
+    - it returns a method from the metatable:
+        expect(f(obj, '_method')).to_be(objmethod)
+
 
 - describe ielems:
   - before:
@@ -368,6 +383,8 @@ specify std:
          return i <= 3 and i * 10 or nil
       end})
       expect(f(t)).to_equal {30, 20, 10}
+  - it respects __len metamethod:
+      expect(f(__index)).to_equal {'g', 'n', 'i', 'r', 't', 's', ' ', 'a'}
   - it works for an empty list:
       expect(f {}).to_equal {}
 

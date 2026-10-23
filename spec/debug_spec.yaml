@@ -71,6 +71,41 @@ specify std.debug:
       end
 
 
+- context function environments:
+  - before:
+      env = {
+         tostring = function(x) return '"' .. tostring(x) .. '"' end,
+      }
+      fn = function(x) return tostring(x) end
+      -- A functable whose own __call function uses tostring, so that
+      -- setting its environment changes what calling it does.
+      ft = setmetatable({}, {__call = function(_, x) return tostring(x) end})
+
+  - describe getfenv:
+    - before:
+        f = M.getfenv
+    - it returns a table:
+        expect(type(f(fn))).to_be 'table'
+    - it gets a function execution environment:
+        M.setfenv(fn, env)
+        expect(f(fn)).to_be(env)
+    - it understands functables:
+        M.setfenv(ft, env)
+        expect(f(ft)).to_be(env)
+
+  - describe setfenv:
+    - before:
+        f = M.setfenv
+    - it returns the passed function:
+        expect(f(fn, env)).to_be(fn)
+    - it sets a function execution environment:
+        f(fn, env)
+        expect(fn(42)).to_be '"42"'
+    - it understands functables:
+        f(ft, env)
+        expect(ft(5)).to_be '"5"'
+
+
 - describe debug:
   - it does nothing when std._debug is disabled:
       expect(luaproc [[

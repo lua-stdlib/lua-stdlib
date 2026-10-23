@@ -469,6 +469,15 @@ specify std.string:
 
       f = M.render
 
+  - context with bad arguments:
+    # A missing or non-function argument #2 selects std.normalize's
+    # render, which wants a table there.
+    - it diagnoses the second argument: |
+        if have_typecheck then
+           expect(f()).to_raise 'table expected, got no value'
+           expect(f(nil, false)).to_raise 'table expected, got boolean'
+        end
+
   - context with a table of rendering functions:
     - it renders like std.normalize:
         vfns = {
