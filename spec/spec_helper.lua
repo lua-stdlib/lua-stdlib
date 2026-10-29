@@ -8,6 +8,7 @@ have_typecheck, typecheck = pcall(require, 'typecheck')
 
 local inprocess = require 'specl.inprocess'
 local hell = require 'specl.shell'
+local normalize = require 'std.normalize'
 local std = require 'specl.std'
 
 badargs = require 'specl.badargs'
@@ -89,7 +90,7 @@ end
 local _diagnose = badargs.diagnose
 local function diagnose(...)
    if have_typecheck then
-      std.setfenv(_diagnose, std.getfenv(diagnose))
+      normalize.setfenv(_diagnose, normalize.getfenv(diagnose))
       return _diagnose(...)
    end
 end
