@@ -8,31 +8,10 @@ luke_format = 0
 package  = 'stdlib'
 version  = '$USER'
 
+-- LuaRocks builds the modules from the rockspec, which is how `luke release`
+-- builds them too, so what is left is for `luke`, to build the LDocs, and
+-- for `luke release`.
 ldocs    = 'build-aux/config.ld.in'
-
-modules  = {
-   {['std']              = 'lib/std/init.lua'},
-   {['std._base']        = 'lib/std/_base.lua'},
-   {['std._container']   = 'lib/std/_container.lua'},
-   {['std._deprecation'] = 'lib/std/_deprecation.lua'},
-   {['std.container']    = 'lib/std/container.lua'},
-   {['std.debug']        = 'lib/std/debug.lua'},
-   {['std.debug_init']   = 'lib/std/debug_init.lua'},
-   {['std.functional']   = 'lib/std/functional.lua'},
-   {['std.io']           = 'lib/std/io.lua'},
-   {['std.list']         = 'lib/std/list.lua'},
-   {['std.math']         = 'lib/std/math.lua'},
-   {['std.object']       = 'lib/std/object.lua'},
-   {['std.operator']     = 'lib/std/operator.lua'},
-   {['std.optparse']     = 'lib/std/optparse.lua'},
-   {['std.package']      = 'lib/std/package.lua'},
-   {['std.set']          = 'lib/std/set.lua'},
-   {['std.strbuf']       = 'lib/std/strbuf.lua'},
-   {['std.string']       = 'lib/std/string.lua'},
-   {['std.table']        = 'lib/std/table.lua'},
-   {['std.tree']         = 'lib/std/tree.lua'},
-   {['std.version']      = 'lib/std/version.lua.in'},
-}
 
 release  = {
    news                  = 'NEWS.md',

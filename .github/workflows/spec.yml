@@ -48,6 +48,13 @@ jobs:
         run: |
           luarocks make --force
 
+      - name: docs
+        run: |
+          # The rock doesn't build LDocs, but a release does, so find errors
+          # in the doc comments now.  LDOC makes a missing ldoc an error.
+          luarocks install luke
+          luke LDOC="ldoc --fatalwarnings"
+
       - name: check optional modules
         run: |
           # Fail if a dependency installed a module this matrix cell omits.
